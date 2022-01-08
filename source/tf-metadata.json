@@ -873,6 +873,34 @@
     ]
   },
   {
+    "name": "AnonymousMultiDeviceIteratorV3",
+    "summary": "A container for a multi device iterator resource.",
+    "attributes": [
+      {
+        "name": "devices",
+        "type": "string[]",
+        "minimum": 1
+      },
+      {
+        "name": "output_types",
+        "type": "type[]",
+        "minimum": 1
+      },
+      {
+        "name": "output_shapes",
+        "type": "shape[]",
+        "minimum": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "handle",
+        "description": "A handle to a multi device iterator that can be passed to a\n\"MultiDeviceIteratorGetNextFromShard\" op. In contrast to MultiDeviceIterator,\nAnonymousIterator prevents resource sharing by name, and does not keep a\nreference to the resource container.",
+        "type": 20
+      }
+    ]
+  },
+  {
     "name": "AnonymousMutableDenseHashTable",
     "summary": "Creates an empty anonymous mutable hash table that uses tensors as the backing store.",
     "description": "This op creates a new anonymous mutable hash table (as a resource) everytime\nit is executed, with the specified dtype of its keys and values,\nreturning the resource handle. Each value must be a scalar.\nData can be inserted into the table using\nthe insert operations. It does not support the initialization operation.\n\nIt uses \"open addressing\" with quadratic reprobing to resolve\ncollisions.\n\nThe table is anonymous in the sense that it can only be\naccessed by the returned resource handle (e.g. it cannot be looked up\nby a name in a resource manager). The table will be automatically\ndeleted when all resource handles pointing to it are gone.",
@@ -14650,6 +14678,43 @@
     ]
   },
   {
+    "name": "EnqueueTPUEmbeddingBatch",
+    "summary": "An op that enqueues a list of input batch tensors to TPUEmbedding.",
+    "description": "An op that enqueues a list of input batch tensors to TPUEmbedding.",
+    "attributes": [
+      {
+        "name": "N",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "device_ordinal",
+        "type": "int64",
+        "description": "The TPU device to use. This should be -1 when the Op\nis running on a TPU device, and >= 0 when the Op is running on the CPU\ndevice.",
+        "default": -1
+      },
+      {
+        "name": "combiners",
+        "type": "string[]",
+        "description": "A list of string scalars, one for each embedding table that specify\nhow to normalize the embedding activations after weighted summation.\nSupported combiners are 'mean', 'sum', or 'sqrtn'. It is invalid to have\nthe sum of the weights be 0 for 'mean' or the sum of the squared weights be\n0 for 'sqrtn'. If combiners isn't passed, the default is to use 'sum' for\nall tables.",
+        "default": []
+      }
+    ],
+    "inputs": [
+      {
+        "name": "batch",
+        "description": "A list of 1D tensors, one for each embedding table, containing the\nbatch inputs encoded as dist_belief.SparseFeatures protos. If the weight\nfield in the SparseFeatures proto is not populated for an ID, a weight of\n1.0 is assumed.",
+        "numberAttr": "N",
+        "type": 7
+      },
+      {
+        "name": "mode_override",
+        "description": "A string input that overrides the mode specified in the\nTPUEmbeddingConfiguration. Supported values are {'unspecified', 'inference',\n'training', 'backward_pass_only'}. When set to 'unspecified', the mode set\nin TPUEmbeddingConfiguration is used, otherwise mode_override is used.",
+        "type": 7
+      }
+    ]
+  },
+  {
     "name": "EnqueueTPUEmbeddingIntegerBatch",
     "summary": "An op that enqueues a list of input batch tensors to TPUEmbedding.",
     "attributes": [
@@ -18090,7 +18155,8 @@
   },
   {
     "name": "For",
-    "summary": "  ```python\n   output = input;\n   for i in range(start, limit, delta)\n     output = body(i, output);\n  ```",
+    "summary": "Applies a for loop.",
+    "description": "  ```python\n   output = input;\n   for i in range(start, limit, delta)\n     output = body(i, output);\n  ```",
     "attributes": [
       {
         "name": "T",
@@ -22861,6 +22927,84 @@
         "name": "idx",
         "description": "1-D. Positions of `x` values preserved in `out`.",
         "typeAttr": "out_idx"
+      }
+    ]
+  },
+  {
+    "name": "LoadAllTPUEmbeddingParameters",
+    "summary": "An op that loads optimization parameters into embedding memory.",
+    "description": "An op that loads optimization parameters into embedding memory. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct embedding\ntable configuration. For example, this op is used to install parameters that are\nloaded from a checkpoint before a training loop is executed.  For Adagrad,\nauxiliary1 should be the accumulators. For SGD, all of the auxiliary* values\nshould be empty. For FTRL, auxiliary1 should be the accumulators and auxiliary2\nshould be the linear terms. For ADAM, auxiliary1 should be the momenta and\nauxiliary2 should be the velocities.",
+    "attributes": [
+      {
+        "name": "NumTables",
+        "type": "int64",
+        "description": "The number of embedding tables.",
+        "minimum": 1
+      },
+      {
+        "name": "config",
+        "type": "string",
+        "description": "An TPUEmbeddingConfiguration proto describing the\ntable parameters being loaded, serialized to a string."
+      },
+      {
+        "name": "num_shards",
+        "type": "int64",
+        "description": "Number of shards into which the embedding tables are divided."
+      },
+      {
+        "name": "shard_id",
+        "type": "int64",
+        "description": "Identifier of shard for this operation."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "parameters",
+        "description": "A list of tensors, one for each embedding table,\ncontaining the initial embedding table parameters to use in embedding\nlookups.",
+        "numberAttr": "NumTables",
+        "type": 1
+      },
+      {
+        "name": "auxiliary1",
+        "description": "A list of tensors, one for each embedding table, containing the\ninitial values of the first auxiliary optimization parameter to use in embedding\ntraining loop updates. The shape of each entry is ignored (and thus can be\nempty) for those tables whose optimization algorithms do not have at least one\nauxiliary parameter.",
+        "numberAttr": "NumTables",
+        "type": 1
+      },
+      {
+        "name": "auxiliary2",
+        "description": "A list of tensors, one for each embedding table, containing the\ninitial values of the second auxiliary optimization parameter to use in\nembedding training loop updates. The shape of each entry is ignored (and thus\ncan be empty) for those tables whose optimization algorithms do not have at\nleast two auxiliary",
+        "numberAttr": "NumTables",
+        "type": 1
+      },
+      {
+        "name": "auxiliary3",
+        "description": "A list of tensors, one for each embedding table, containing the\ninitial values of the third auxiliary optimization parameter to use in embedding\ntraining loop updates. The shape of each entry is ignored (and thus can be\nempty) for those tables whose optimization algorithms do not have three\nauxiliary parameters.",
+        "numberAttr": "NumTables",
+        "type": 1
+      },
+      {
+        "name": "auxiliary4",
+        "description": "A list of tensors, one for each embedding table, containing the\ninitial values of the second auxiliary optimization parameter to use in\nembedding training loop updates. The shape of each entry is ignored (and thus\ncan be empty) for those tables whose optimization algorithms do not have at\nleast four auxiliary",
+        "numberAttr": "NumTables",
+        "type": 1
+      },
+      {
+        "name": "auxiliary5",
+        "description": "A list of tensors, one for each embedding table, containing the\ninitial values of the third auxiliary optimization parameter to use in embedding\ntraining loop updates. The shape of each entry is ignored (and thus can be\nempty) for those tables whose optimization algorithms do not have five\nauxiliary parameters.",
+        "numberAttr": "NumTables",
+        "type": 1
+      },
+      {
+        "name": "auxiliary6",
+        "description": "A list of tensors, one for each embedding table, containing the\ninitial values of the second auxiliary optimization parameter to use in\nembedding training loop updates. The shape of each entry is ignored (and thus\ncan be empty) for those tables whose optimization algorithms do not have at\nleast six auxiliary",
+        "numberAttr": "NumTables",
+        "type": 1
+      },
+      {
+        "name": "auxiliary7",
+        "description": "A list of tensors, one for each embedding table, containing the\ninitial values of the third auxiliary optimization parameter to use in embedding\ntraining loop updates. The shape of each entry is ignored (and thus can be\nempty) for those tables whose optimization algorithms do not have sevan\nauxiliary parameters.",
+        "numberAttr": "NumTables",
+        "type": 1
       }
     ]
   },
@@ -41484,6 +41628,84 @@
     ]
   },
   {
+    "name": "RetrieveAllTPUEmbeddingParameters",
+    "summary": "An op that retrieves optimization parameters from embedding to host memory.",
+    "description": "An op that retrieves optimization parameters from embedding to host memory.\nMust be preceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to retrieve updated\nparameters before saving a checkpoint.  For Adagrad, auxiliary1 will contain the\naccumulators after running this op. For SGD, all of the auxiliary* values will\nbe empty (0x0 tensors for that table). For FTRL, auxiliary1 will contain the\naccumulators and auxiliary2 will contain the linear terms. For ADAM, auxiliary1\nwill contain the momenta and auxiliary2 will contain the velocities.",
+    "attributes": [
+      {
+        "name": "NumTables",
+        "type": "int64",
+        "description": "The number of embedding tables.",
+        "minimum": 1
+      },
+      {
+        "name": "config",
+        "type": "string",
+        "description": "An TPUEmbeddingConfiguration proto describing the\ntable parameters being loaded, serialized to a string."
+      },
+      {
+        "name": "num_shards",
+        "type": "int64",
+        "description": "Number of shards into which the embedding tables are divided."
+      },
+      {
+        "name": "shard_id",
+        "type": "int64",
+        "description": "Identifier of shard for this operation."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "parameters",
+        "description": " A list of tensors, one for each embedding table, containing the\nstored embedding table parameters.",
+        "numberAttr": "NumTables",
+        "type": 1
+      },
+      {
+        "name": "auxiliary1",
+        "description": "A list of tensors, one for each embedding table, containing the\nfirst auxiliary optimization parameter stored. Elements are\npresent in the list, but have zero size, for unused optimization parameters\n(based on the algorithm in use for each table).",
+        "numberAttr": "NumTables",
+        "type": 1
+      },
+      {
+        "name": "auxiliary2",
+        "description": "A list of tensors, one for each embedding table, containing the\nsecond auxiliary optimization parameter stored. Elements are\npresent in the list, but have zero size, for unused optimization parameters\n(based on the algorithm in use for each table).",
+        "numberAttr": "NumTables",
+        "type": 1
+      },
+      {
+        "name": "auxiliary3",
+        "description": "A list of tensors, one for each embedding table, containing the\nthird auxiliary optimization parameter stored. Elements are\npresent in the list, but have zero size, for unused optimization parameters\n(based on the algorithm in use for each table).",
+        "numberAttr": "NumTables",
+        "type": 1
+      },
+      {
+        "name": "auxiliary4",
+        "description": "A list of tensors, one for each embedding table, containing the\nfourth auxiliary optimization parameter stored. Elements are\npresent in the list, but have zero size, for unused optimization parameters\n(based on the algorithm in use for each table).",
+        "numberAttr": "NumTables",
+        "type": 1
+      },
+      {
+        "name": "auxiliary5",
+        "description": "A list of tensors, one for each embedding table, containing the\nfifth auxiliary optimization parameter stored. Elements are\npresent in the list, but have zero size, for unused optimization parameters\n(based on the algorithm in use for each table).",
+        "numberAttr": "NumTables",
+        "type": 1
+      },
+      {
+        "name": "auxiliary6",
+        "description": "A list of tensors, one for each embedding table, containing the\nsix auxiliary optimization parameter stored. Elements are\npresent in the list, but have zero size, for unused optimization parameters\n(based on the algorithm in use for each table).",
+        "numberAttr": "NumTables",
+        "type": 1
+      },
+      {
+        "name": "auxiliary7",
+        "description": "A list of tensors, one for each embedding table, containing the\nseventh auxiliary optimization parameter stored. Elements are\npresent in the list, but have zero size, for unused optimization parameters\n(based on the algorithm in use for each table).",
+        "numberAttr": "NumTables",
+        "type": 1
+      }
+    ]
+  },
+  {
     "name": "RetrieveTPUEmbeddingADAMParameters",
     "summary": "Retrieve ADAM embedding parameters.",
     "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -45456,7 +45678,7 @@
   {
     "name": "SegmentMax",
     "summary": "Computes the maximum along segments of a tensor.",
-    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\max_j(data_j)\\\\) where `max` is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the max is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMax.png\" alt>\n</div>\n\nFor example:\n\n```\nc = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\ntf.segment_max(c, tf.constant([0, 0, 1]))\n# ==> [[4, 3, 3, 4],\n#      [5, 6, 7, 8]]\n```\n",
+    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\max_j(data_j)\\\\) where `max` is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the max is empty for a given segment ID `i`, `output[i] = 0`.\n\nCaution: On CPU, values in `segment_ids` are always validated to be sorted,\nand an error is thrown for indices that are not increasing. On GPU, this\ndoes not throw an error for unsorted indices. On GPU, out-of-order indices\nresult in safe but unspecified behavior, which may include treating\nout-of-order indices as the same as a smaller following index.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMax.png\" alt>\n</div>\n\nFor example:\n\n>>> c = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\n>>> tf.math.segment_max(c, tf.constant([0, 0, 1])).numpy()\narray([[4, 3, 3, 4],\n       [5, 6, 7, 8]], dtype=int32)\n",
     "attributes": [
       {
         "name": "T",
@@ -45476,7 +45698,7 @@
       },
       {
         "name": "segment_ids",
-        "description": "A 1-D tensor whose size is equal to the size of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.",
+        "description": "A 1-D tensor whose size is equal to the size of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.\n\nCaution: The values are always validated to be sorted on CPU, never validated\non GPU.",
         "typeAttr": "Tindices"
       }
     ],
@@ -45491,7 +45713,7 @@
   {
     "name": "SegmentMean",
     "summary": "Computes the mean along segments of a tensor.",
-    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\frac{\\sum_j data_j}{N}\\\\) where `mean` is\nover `j` such that `segment_ids[j] == i` and `N` is the total number of\nvalues summed.\n\nIf the mean is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMean.png\" alt>\n</div>\n\nFor example:\n\n```\nc = tf.constant([[1.0,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\ntf.segment_mean(c, tf.constant([0, 0, 1]))\n# ==> [[2.5, 2.5, 2.5, 2.5],\n#      [5, 6, 7, 8]]\n```\n",
+    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\frac{\\sum_j data_j}{N}\\\\) where `mean` is\nover `j` such that `segment_ids[j] == i` and `N` is the total number of\nvalues summed.\n\nIf the mean is empty for a given segment ID `i`, `output[i] = 0`.\n\nCaution: On CPU, values in `segment_ids` are always validated to be sorted,\nand an error is thrown for indices that are not increasing. On GPU, this\ndoes not throw an error for unsorted indices. On GPU, out-of-order indices\nresult in safe but unspecified behavior, which may include treating\nout-of-order indices as a smaller following index when computing the numerator\nof the mean.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMean.png\" alt>\n</div>\n\nFor example:\n\n>>> c = tf.constant([[1.0,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\n>>> tf.math.segment_mean(c, tf.constant([0, 0, 1])).numpy()\narray([[2.5, 2.5, 2.5, 2.5],\n       [5., 6., 7., 8.]], dtype=float32)\n",
     "attributes": [
       {
         "name": "T",
@@ -45511,7 +45733,7 @@
       },
       {
         "name": "segment_ids",
-        "description": "A 1-D tensor whose size is equal to the size of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.",
+        "description": "A 1-D tensor whose size is equal to the size of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.\n\nCaution: The values are always validated to be sorted on CPU, never validated\non GPU.",
         "typeAttr": "Tindices"
       }
     ],
@@ -45526,7 +45748,7 @@
   {
     "name": "SegmentMin",
     "summary": "Computes the minimum along segments of a tensor.",
-    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\min_j(data_j)\\\\) where `min` is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the min is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMin.png\" alt>\n</div>\n\nFor example:\n\n```\nc = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\ntf.segment_min(c, tf.constant([0, 0, 1]))\n# ==> [[1, 2, 2, 1],\n#      [5, 6, 7, 8]]\n```",
+    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\min_j(data_j)\\\\) where `min` is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the min is empty for a given segment ID `i`, `output[i] = 0`.\n\nCaution: On CPU, values in `segment_ids` are always validated to be sorted,\nand an error is thrown for indices that are not increasing. On GPU, this\ndoes not throw an error for unsorted indices. On GPU, out-of-order indices\nresult in safe but unspecified behavior, which may include treating\nout-of-order indices as the same as a smaller following index.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMin.png\" alt>\n</div>\n\nFor example:\n\n>>> c = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\n>>> tf.math.segment_min(c, tf.constant([0, 0, 1])).numpy()\narray([[1, 2, 2, 1],\n       [5, 6, 7, 8]], dtype=int32)\n",
     "attributes": [
       {
         "name": "T",
@@ -45546,7 +45768,7 @@
       },
       {
         "name": "segment_ids",
-        "description": "A 1-D tensor whose size is equal to the size of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.",
+        "description": "A 1-D tensor whose size is equal to the size of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.\n\nCaution: The values are always validated to be sorted on CPU, never validated\non GPU.",
         "typeAttr": "Tindices"
       }
     ],
@@ -45561,7 +45783,7 @@
   {
     "name": "SegmentProd",
     "summary": "Computes the product along segments of a tensor.",
-    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\prod_j data_j\\\\) where the product is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the product is empty for a given segment ID `i`, `output[i] = 1`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentProd.png\" alt>\n</div>\n\nFor example:\n\n```\nc = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\ntf.segment_prod(c, tf.constant([0, 0, 1]))\n# ==> [[4, 6, 6, 4],\n#      [5, 6, 7, 8]]\n```\n",
+    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\prod_j data_j\\\\) where the product is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the product is empty for a given segment ID `i`, `output[i] = 1`.\n\nCaution: On CPU, values in `segment_ids` are always validated to be sorted,\nand an error is thrown for indices that are not increasing. On GPU, this\ndoes not throw an error for unsorted indices. On GPU, out-of-order indices\nresult in safe but unspecified behavior, which may include treating\nout-of-order indices as the same as a smaller following index.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentProd.png\" alt>\n</div>\n\nFor example:\n\n>>> c = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\n>>> tf.math.segment_prod(c, tf.constant([0, 0, 1])).numpy()\narray([[4, 6, 6, 4],\n       [5, 6, 7, 8]], dtype=int32)\n",
     "attributes": [
       {
         "name": "T",
@@ -45581,7 +45803,7 @@
       },
       {
         "name": "segment_ids",
-        "description": "A 1-D tensor whose size is equal to the size of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.",
+        "description": "A 1-D tensor whose size is equal to the size of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.\n\nCaution: The values are always validated to be sorted on CPU, never validated\non GPU.",
         "typeAttr": "Tindices"
       }
     ],
@@ -45596,7 +45818,7 @@
   {
     "name": "SegmentSum",
     "summary": "Computes the sum along segments of a tensor.",
-    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\sum_j data_j\\\\) where sum is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentSum.png\" alt>\n</div>\n\nFor example:\n\n```\nc = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\ntf.math.segment_sum(c, tf.constant([0, 0, 1]))\n# ==> [[5, 5, 5, 5],\n#      [5, 6, 7, 8]]\n```\n",
+    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\sum_j data_j\\\\) where sum is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\n\nCaution: On CPU, values in `segment_ids` are always validated to be sorted,\nand an error is thrown for indices that are not increasing. On GPU, this\ndoes not throw an error for unsorted indices. On GPU, out-of-order indices\nresult in safe but unspecified behavior, which may include treating\nout-of-order indices as the same as a smaller following index.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentSum.png\" alt>\n</div>\n\nFor example:\n\n>>> c = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\n>>> tf.math.segment_sum(c, tf.constant([0, 0, 1])).numpy()\narray([[5, 5, 5, 5],\n       [5, 6, 7, 8]], dtype=int32)\n",
     "attributes": [
       {
         "name": "T",
@@ -45616,7 +45838,7 @@
       },
       {
         "name": "segment_ids",
-        "description": "A 1-D tensor whose size is equal to the size of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.",
+        "description": "A 1-D tensor whose size is equal to the size of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.\n\nCaution: The values are always validated to be sorted on CPU, never validated\non GPU.",
         "typeAttr": "Tindices"
       }
     ],
