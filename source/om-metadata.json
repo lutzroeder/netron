@@ -440,6 +440,18 @@
     ]
   },
   {
+    "name": "DepthwiseConv2D",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
     "name": "Convolution",
     "category": "Layer",
     "inputs": [
@@ -620,6 +632,7 @@
   },
   {
     "name": "Deconvolution",
+    "category": "Layer",
     "inputs": [
       { "name": "input_sizes" },
       { "name": "filter" },
@@ -2298,6 +2311,7 @@
   },
   {
     "name": "Scale",
+    "category": "Layer",
     "inputs": [
       { "name": "x" },
       { "name": "scale" },
