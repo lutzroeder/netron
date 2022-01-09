@@ -1514,7 +1514,7 @@
       },
       {
         "default": "minkowski",
-        "description": "The distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. For a list of available metrics, see the documentation of\n:class:`~sklearn.metrics.DistanceMetric`.\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`,\nin which case only \"nonzero\" elements may be considered neighbors.\n",
+        "description": "The distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. For a list of available metrics, see the documentation of\n:class:`~sklearn.metrics.DistanceMetric` and the metrics listed in\n`sklearn.metrics.pairwise.PAIRWISE_DISTANCE_FUNCTIONS`. Note that the\n\"cosine\" metric uses :func:`~sklearn.metrics.pairwise.cosine_distances`.\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`,\nin which case only \"nonzero\" elements may be considered neighbors.\n",
         "name": "metric"
       },
       {
@@ -1569,7 +1569,7 @@
       },
       {
         "default": "minkowski",
-        "description": "The distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. See the documentation of :class:`DistanceMetric` for a\nlist of available metrics.\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`,\nin which case only \"nonzero\" elements may be considered neighbors.\n",
+        "description": "The distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. For a list of available metrics, see the documentation of\n:class:`~sklearn.metrics.DistanceMetric` and the metrics listed in\n`sklearn.metrics.pairwise.PAIRWISE_DISTANCE_FUNCTIONS`. Note that the\n\"cosine\" metric uses :func:`~sklearn.metrics.pairwise.cosine_distances`.\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`,\nin which case only \"nonzero\" elements may be considered neighbors.\n",
         "name": "metric"
       },
       {
