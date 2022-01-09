@@ -2100,7 +2100,18 @@ python.Execution = class {
                 return self.invoke(this.subclass, [ this.shape, this.dtype, this.data ]);
             }
         });
-        this.registerType('sklearn.externals.joblib.numpy_pickle.NDArrayWrapper', class {});
+        this.registerType('sklearn.externals.joblib.numpy_pickle.NDArrayWrapper', class {
+            constructor(/* subtype, shape, dtype */) {
+            }
+            __setstate__(state) {
+                this.subclass = state.subclass;
+                this.filename = state.state;
+                this.allow_mmap = state.allow_mmap;
+            }
+            __read__(/* unpickler */) {
+                return this; // return self.invoke(this.subclass, [ this.shape, this.dtype, this.data ]);
+            }
+        });
         this.registerType('sklearn.ensemble._bagging.BaggingClassifier', class {});
         this.registerType('sklearn.ensemble._forest.RandomForestRegressor', class {});
         this.registerType('sklearn.ensemble._forest.RandomForestClassifier', class {});
