@@ -240,7 +240,6 @@ grapher.Node = class {
         for (let i = 0; i < this._blocks.length; i++) {
             const block = this._blocks[i];
             block.y = height;
-            // block.width = width;
             block.update(this.element, height, width, i == 0, i == this._blocks.length - 1);
             height = height + block.height;
         }

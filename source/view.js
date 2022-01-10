@@ -462,8 +462,6 @@ view.View = class {
             const nameButton = this._getElementById('name-button');
             const backButton = this._getElementById('back-button');
             if (this._graphs.length > 1) {
-                // backButton.style.display = 'block';
-                // nameButton.style.display = 'block';
                 const graph = this.activeGraph;
                 nameButton.innerHTML = graph ? graph.name : '';
                 backButton.style.opacity = 1;
@@ -834,6 +832,7 @@ view.Graph = class extends grapher.Graph {
     createNode(node) {
         const value = new view.Node(this, node);
         value.name = (this._nodeKey++).toString();
+        // value.name = node.name;
         this.setNode(value);
         return value;
     }

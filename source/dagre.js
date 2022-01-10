@@ -1631,44 +1631,6 @@ dagre.layout = (graph, options) => {
                 }
                 return xs;
             };
-            // Returns the alignment that has the smallest width of the given alignments.
-            const findSmallestWidthAlignment = (g, xss) => {
-                let minWidth = Number.POSITIVE_INFINITY;
-                let minValue = undefined;
-                for (const xs of Object.values(xss)) {
-                    let max = Number.NEGATIVE_INFINITY;
-                    let min = Number.POSITIVE_INFINITY;
-                    for (const entry of Object.entries(xs)) {
-                        const v = entry[0];
-                        const x = entry[1];
-                        const halfWidth = g.node(v).label.width / 2;
-                        max = Math.max(x + halfWidth, max);
-                        min = Math.min(x - halfWidth, min);
-                    }
-                    const width = max - min;
-                    if (width < minWidth) {
-                        minWidth = width;
-                        minValue = xs;
-                    }
-                }
-                return minValue;
-            };
-            const balance = (xss, align) => {
-                const value = {};
-                if (align) {
-                    const xs = xss[align.toLowerCase()];
-                    for (const v of Object.keys(xss.ul)) {
-                        value[v] = xs[v];
-                    }
-                }
-                else {
-                    for (const v of Object.keys(xss.ul)) {
-                        const xs = [ xss.ul[v], xss.ur[v], xss.dl[v], xss.dr[v] ].sort((a, b) => a - b);
-                        value[v] = (xs[1] + xs[2]) / 2;
-                    }
-                }
-                return value;
-            };
             // Marks all edges in the graph with a type-1 conflict with the 'type1Conflict' property.
             // A type-1 conflict is one where a non-inner segment crosses an inner segment.
             // An inner segment is an edge with both incident nodes marked with the 'dummy' property.
@@ -1759,45 +1721,6 @@ dagre.layout = (graph, options) => {
                 }
                 return conflicts;
             };
-            // Align the coordinates of each of the layout alignments such that
-            // left-biased alignments have their minimum coordinate at the same point as
-            // the minimum coordinate of the smallest width alignment and right-biased
-            // alignments have their maximum coordinate at the same point as the maximum
-            // coordinate of the smallest width alignment.
-            const alignCoordinates = (xss, alignTo) => {
-                const range = (values) => {
-                    let min = Number.POSITIVE_INFINITY;
-                    let max = Number.NEGATIVE_INFINITY;
-                    for (const value of values) {
-                        if (value < min) {
-                            min = value;
-                        }
-                        if (value > max) {
-                            max = value;
-                        }
-                    }
-                    return [ min, max ];
-                };
-                const alignToRange = range(Object.values(alignTo));
-                for (const vertical of ['u', 'd']) {
-                    for (const horizontal of ['l', 'r']) {
-                        const alignment = vertical + horizontal;
-                        const xs = xss[alignment];
-                        let delta;
-                        if (xs !== alignTo) {
-                            const vsValsRange = range(Object.values(xs));
-                            delta = horizontal === 'l' ? alignToRange[0] - vsValsRange[0] : alignToRange[1] - vsValsRange[1];
-                            if (delta) {
-                                const list = {};
-                                for (const key of Object.keys(xs)) {
-                                    list[key] = xs[key] + delta;
-                                }
-                                xss[alignment] = list;
-                            }
-                        }
-                    }
-                }
-            };
 
             g = asNonCompoundGraph(g);
             const layering = buildLayerMatrix(g);
@@ -1831,11 +1754,76 @@ dagre.layout = (graph, options) => {
                     xss[vertical + horizontal] = xs;
                 }
             }
-            alignCoordinates(xss, findSmallestWidthAlignment(g, xss));
-            const xs = balance(xss, g.options.align);
-            for (const entry of Object.entries(xs)) {
-                const v = entry[0];
-                g.node(v).label.x = entry[1];
+            // Find smallest width alignment: Returns the alignment that has the smallest width of the given alignments.
+            let minWidth = Number.POSITIVE_INFINITY;
+            let minValue = undefined;
+            for (const xs of Object.values(xss)) {
+                let max = Number.NEGATIVE_INFINITY;
+                let min = Number.POSITIVE_INFINITY;
+                for (const entry of Object.entries(xs)) {
+                    const v = entry[0];
+                    const x = entry[1];
+                    const halfWidth = g.node(v).label.width / 2;
+                    max = Math.max(x + halfWidth, max);
+                    min = Math.min(x - halfWidth, min);
+                }
+                const width = max - min;
+                if (width < minWidth) {
+                    minWidth = width;
+                    minValue = xs;
+                }
+            }
+            // Align the coordinates of each of the layout alignments such that
+            // left-biased alignments have their minimum coordinate at the same point as
+            // the minimum coordinate of the smallest width alignment and right-biased
+            // alignments have their maximum coordinate at the same point as the maximum
+            // coordinate of the smallest width alignment.
+            const alignTo = minValue;
+            const range = (values) => {
+                let min = Number.POSITIVE_INFINITY;
+                let max = Number.NEGATIVE_INFINITY;
+                for (const value of values) {
+                    if (value < min) {
+                        min = value;
+                    }
+                    if (value > max) {
+                        max = value;
+                    }
+                }
+                return [ min, max ];
+            };
+            const alignToRange = range(Object.values(alignTo));
+            for (const vertical of ['u', 'd']) {
+                for (const horizontal of ['l', 'r']) {
+                    const alignment = vertical + horizontal;
+                    const xs = xss[alignment];
+                    let delta;
+                    if (xs !== alignTo) {
+                        const vsValsRange = range(Object.values(xs));
+                        delta = horizontal === 'l' ? alignToRange[0] - vsValsRange[0] : alignToRange[1] - vsValsRange[1];
+                        if (delta) {
+                            const list = {};
+                            for (const key of Object.keys(xs)) {
+                                list[key] = xs[key] + delta;
+                            }
+                            xss[alignment] = list;
+                        }
+                    }
+                }
+            }
+            // balance
+            const align = g.options.align;
+            if (align) {
+                const xs = xss[align.toLowerCase()];
+                for (const v of Object.keys(xss.ul)) {
+                    g.node(v).label.x = xs[v];
+                }
+            }
+            else {
+                for (const v of Object.keys(xss.ul)) {
+                    const xs = [ xss.ul[v], xss.ur[v], xss.dl[v], xss.dr[v] ].sort((a, b) => a - b);
+                    g.node(v).label.x = (xs[1] + xs[2]) / 2;
+                }
             }
         };
 
@@ -2069,15 +2057,15 @@ dagre.Graph = class {
 
     constructor(options) {
         options = options || {};
-        this._isDirected = 'directed' in options ? options.directed : true;
-        this._isCompound = 'compound' in options ? options.compound : false;
+        this._directed = 'directed' in options ? options.directed : true;
+        this._compound = 'compound' in options ? options.compound : false;
         this._label = undefined;
         this._defaultNodeLabelFn = () => {
             return undefined;
         };
         this.nodes = new Map();
         this.edges = new Map();
-        if (this._isCompound) {
+        if (this._compound) {
             this._parent = {};
             this._children = {};
             this._children['\x00'] = {};
@@ -2093,11 +2081,11 @@ dagre.Graph = class {
     }
 
     isDirected() {
-        return this._isDirected;
+        return this._directed;
     }
 
     isCompound() {
-        return this._isCompound;
+        return this._compound;
     }
 
     setDefaultNodeLabel(newDefault) {
@@ -2114,7 +2102,7 @@ dagre.Graph = class {
         else {
             const node = { label: label ? label : this._defaultNodeLabelFn(v), in: [], out: [], predecessors: {}, successors: {}, v: v };
             this.nodes.set(v, node);
-            if (this._isCompound) {
+            if (this._compound) {
                 this._parent[v] = '\x00';
                 this._children[v] = {};
                 this._children['\x00'][v] = true;
@@ -2133,7 +2121,7 @@ dagre.Graph = class {
     removeNode(v) {
         const node = this.nodes.get(v);
         if (node) {
-            if (this._isCompound) {
+            if (this._compound) {
                 delete this._children[this._parent[v]][v];
                 delete this._parent[v];
                 for (const child of this.children(v)) {
@@ -2152,7 +2140,7 @@ dagre.Graph = class {
     }
 
     setParent(v, parent) {
-        if (!this._isCompound) {
+        if (!this._compound) {
             throw new Error('Cannot set parent in a non-compound graph');
         }
         if (parent) {
@@ -2172,7 +2160,7 @@ dagre.Graph = class {
     }
 
     parent(v) {
-        if (this._isCompound) {
+        if (this._compound) {
             const parent = this._parent[v];
             if (parent !== '\x00') {
                 return parent;
@@ -2181,7 +2169,7 @@ dagre.Graph = class {
     }
 
     children(v) {
-        if (this._isCompound) {
+        if (this._compound) {
             return Object.keys(this._children[v === undefined ? '\x00' : v]);
         }
         else if (v === undefined) {
@@ -2205,27 +2193,29 @@ dagre.Graph = class {
     }
 
     edge(v, w) {
-        return this.edges.get(this._edgeKey(this._isDirected, v, w));
+        return this.edges.get(this._edgeKey(this._directed, v, w));
     }
 
     setEdge(v, w, label, name) {
-        const key = this._edgeKey(this._isDirected, v, w, name);
+        const key = this._edgeKey(this._directed, v, w, name);
         const edge = this.edges.get(key);
         if (edge) {
             edge.label = label;
         }
         else {
-            if (!this._isDirected && v > w) {
+            if (!this._directed && v > w) {
                 const tmp = v;
                 v = w;
                 w = tmp;
             }
-            const edge = { label: label, v: v, w: w, name: name, key: key };
+            const edge = { label: label, v: v, w: w, name: name, key: key, vNode: null, wNode: null };
             this.edges.set(key, edge);
             this.setNode(v);
             this.setNode(w);
             const wNode = this.nodes.get(w);
             const vNode = this.nodes.get(v);
+            edge.wNode = wNode;
+            edge.vNode = vNode;
             const incrementOrInitEntry = (map, k) => {
                 if (map[k]) {
                     map[k]++;
@@ -2250,8 +2240,8 @@ dagre.Graph = class {
                 delete map[k];
             }
         };
-        const wNode = this.nodes.get(w);
-        const vNode = this.nodes.get(v);
+        const wNode = edge.wNode;
+        const vNode = edge.vNode;
         decrementOrRemoveEntry(wNode.predecessors, v);
         decrementOrRemoveEntry(vNode.successors, w);
         wNode.in = wNode.in.filter((edge) => edge.key !== key);
