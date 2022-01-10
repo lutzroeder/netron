@@ -854,7 +854,7 @@
         "name": "data_format"
       },
       {
-        "description": "an integer or tuple/list of 2 integers, specifying\n    the dilation rate to use for dilated convolution.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.\n    Currently, specifying any `dilation_rate` value != 1 is\n    incompatible with specifying any stride value != 1.",
+        "description": "an integer, specifying the dilation rate for all spatial\n    dimensions for dilated convolution. Specifying different dilation rates\n    for different dimensions is not supported.\n    Currently, specifying any `dilation_rate` value != 1 is\n    incompatible with specifying any stride value != 1.",
         "name": "dilation_rate"
       },
       {
