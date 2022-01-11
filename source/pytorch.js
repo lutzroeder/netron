@@ -982,6 +982,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.modules.activation.LeakyReLU', class {});
         this.registerType('torch.nn.modules.activation.LogSigmoid', class {});
         this.registerType('torch.nn.modules.activation.LogSoftmax', class {});
+        this.registerType('torch.nn.modules.activation.Mish', class {});
         this.registerType('torch.nn.modules.activation.MultiheadAttention', class {});
         this.registerType('torch.nn.modules.activation.ReLU', class {});
         this.registerType('torch.nn.modules.activation.ReLU6', class {});
@@ -1095,9 +1096,13 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.qat.modules.conv.Conv2d', class {});
         this.registerType('torch.nn.qat.modules.linear.Linear', class {});
         this.registerType('torch.nn.quantized.modules.activation.ReLU', class {});
+        this.registerType('torch.nn.quantized.modules.activation.LeakyReLU', class {});
         this.registerType('torch.nn.quantized.dynamic.modules.linear.Linear', class {});
+        this.registerType('torch.nn.quantized.dynamic.modules.rnn.GRU', class {});
+        this.registerType('torch.nn.quantized.dynamic.modules.rnn.PackedParameter', class {});
         this.registerType('torch.nn.quantized.modules.activation.ReLU6', class {});
         this.registerType('torch.nn.quantized.modules.batchnorm.BatchNorm2d', class {});
+        this.registerType('torch.nn.quantized.modules.conv.Conv1d', class {});
         this.registerType('torch.nn.quantized.modules.conv.Conv2d', class {});
         this.registerType('torch.nn.quantized.modules.conv.ConvTranspose2d', class {});
         this.registerType('torch.nn.quantized.modules.DeQuantize', class {});
