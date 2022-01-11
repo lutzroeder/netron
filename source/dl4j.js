@@ -7,14 +7,45 @@ var json = json || require('./json');
 dl4j.ModelFactory = class {
 
     match(context) {
-        const entries = context.entries('zip');
-        return dl4j.Container.open(entries);
+        switch (context.identifier) {
+            case 'configuration.json': {
+                const obj = context.open('json');
+                if (obj && (obj.confs || obj.vertices)) {
+                    return 'dl4j.configuration';
+                }
+                break;
+            }
+            case 'coefficients.bin': {
+                const signature = [ 0x00, 0x07, 0x4A, 0x41, 0x56, 0x41, 0x43, 0x50, 0x50 ];
+                const stream = context.stream;
+                if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
+                    return 'dl4j.coefficients';
+                }
+                break;
+            }
+        }
+        return undefined;
     }
 
     open(context, match) {
         return dl4j.Metadata.open(context).then((metadata) => {
-            const container = match;
-            return new dl4j.Model(metadata, container.configuration, container.coefficients);
+            switch (match) {
+                case 'dl4j.configuration': {
+                    const obj = context.open('json');
+                    return context.request('coefficients.bin', null).then((stream) => {
+                        return new dl4j.Model(metadata, obj, stream.peek());
+                    }).catch(() => {
+                        return new dl4j.Model(metadata, obj, null);
+                    });
+                }
+                case 'dl4j.coefficients': {
+                    return context.request('configuration.json', null).then((stream) => {
+                        const reader = json.TextReader.open(stream);
+                        const obj = reader.read();
+                        return new dl4j.Model(metadata, obj, context.stream.peek());
+                    });
+                }
+            }
         });
     }
 };
@@ -43,8 +74,7 @@ dl4j.Graph = class {
         this._outputs =[];
         this._nodes = [];
 
-        const reader = new dl4j.NDArrayReader(coefficients);
-        const dataType = reader.dataType;
+        const dataType = coefficients ? new dl4j.NDArrayReader(coefficients).dataType : '?';
 
         if (configuration.networkInputs) {
             for (const input of configuration.networkInputs) {
@@ -461,40 +491,6 @@ dl4j.Metadata = class {
             }
         }
         return this._attributes.get(key);
-    }
-};
-
-dl4j.Container = class {
-
-    static open(entries) {
-        const stream = entries.get('configuration.json');
-        const coefficients = entries.get('coefficients.bin');
-        if (stream) {
-            try {
-                const reader = json.TextReader.open(stream);
-                const configuration = reader.read();
-                if (configuration && (configuration.confs || configuration.vertices)) {
-                    return new dl4j.Container(configuration, coefficients ? coefficients.peek() : []);
-                }
-            }
-            catch (error) {
-                // continue regardless of error
-            }
-        }
-        return undefined;
-    }
-
-    constructor(configuration, coefficients) {
-        this._configuration = configuration;
-        this._coefficients = coefficients;
-    }
-
-    get configuration() {
-        return this._configuration;
-    }
-
-    get coefficients() {
-        return this._coefficients;
     }
 };
 
