@@ -1721,35 +1721,6 @@ python.Execution = class {
                 this._buf.set(data, src.length);
             }
         });
-        this.registerType('numpy.core._multiarray_umath.scalar', class {
-            constructor(dtype, rawData) {
-                let data = rawData;
-                if (typeof rawData === 'string') {
-                    data = new Uint8Array(rawData.length);
-                    for (let i = 0; i < rawData.length; i++) {
-                        data[i] = rawData.charCodeAt(i);
-                    }
-                }
-                const dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
-                switch (dtype.name) {
-                    case 'uint8':
-                        return dataView.getUint8(0);
-                    case 'float32':
-                        return dataView.getFloat32(0, true);
-                    case 'float64':
-                        return dataView.getFloat64(0, true);
-                    case 'int8':
-                        return dataView.getInt8(0, true);
-                    case 'int16':
-                        return dataView.getInt16(0, true);
-                    case 'int32':
-                        return dataView.getInt32(0, true);
-                    case 'int64':
-                        return dataView.getInt64(0, true);
-                }
-                throw new python.Error("Unknown scalar type '" + dtype.name + "'.");
-            }
-        });
         this.registerType('numpy.dtype', class {
             constructor(obj, align, copy) {
                 switch (obj) {
@@ -2175,10 +2146,12 @@ python.Execution = class {
         this.registerType('sklearn.linear_model.stochastic_gradient.SGDClassifier', class {});
         this.registerType('sklearn.metrics._scorer._PredictScorer', class {});
         this.registerType('sklearn.metrics.scorer._PredictScorer', class {});
+        this.registerType('sklearn.metrics._scorer._ThresholdScorer', class {});
         this.registerType('sklearn.mixture._bayesian_mixture.BayesianGaussianMixture', class {});
         this.registerType('sklearn.model_selection._search.GridSearchCV', class {});
         this.registerType('sklearn.model_selection._search.RandomizedSearchCV', class {});
         this.registerType('sklearn.model_selection._split.KFold', class {});
+        this.registerType('sklearn.model_selection._split.StratifiedKFold', class {});
         this.registerType('sklearn.multiclass.OneVsRestClassifier', class {});
         this.registerType('sklearn.multioutput.MultiOutputClassifier', class {});
         this.registerType('sklearn.multioutput.MultiOutputRegressor', class {});
@@ -2526,6 +2499,33 @@ python.Execution = class {
                     return dataView.getInt64(0, true);
                 case 'bool':
                     return dataView.getInt8(0, true) ? true : false;
+            }
+            throw new python.Error("Unknown scalar type '" + dtype.name + "'.");
+        });
+        this.registerFunction('numpy.core._multiarray_umath.scalar', function(dtype, rawData) {
+            let data = rawData;
+            if (typeof rawData === 'string') {
+                data = new Uint8Array(rawData.length);
+                for (let i = 0; i < rawData.length; i++) {
+                    data[i] = rawData.charCodeAt(i);
+                }
+            }
+            const dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
+            switch (dtype.name) {
+                case 'uint8':
+                    return dataView.getUint8(0);
+                case 'float32':
+                    return dataView.getFloat32(0, true);
+                case 'float64':
+                    return dataView.getFloat64(0, true);
+                case 'int8':
+                    return dataView.getInt8(0, true);
+                case 'int16':
+                    return dataView.getInt16(0, true);
+                case 'int32':
+                    return dataView.getInt32(0, true);
+                case 'int64':
+                    return dataView.getInt64(0, true);
             }
             throw new python.Error("Unknown scalar type '" + dtype.name + "'.");
         });
