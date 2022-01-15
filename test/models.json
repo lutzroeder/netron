@@ -2293,6 +2293,13 @@
   },
   {
     "type":   "keras",
+    "target": "test11.h5",
+    "source": "https://github.com/lutzroeder/netron/files/7874228/test11.h5.zip[test11.h5]",
+    "format": "HDF5 Weights",
+    "link":   "https://github.com/lutzroeder/netron/issues/467"
+  },
+  {
+    "type":   "keras",
     "target": "tiramisu_fc_dense103_model.json",
     "source": "https://raw.githubusercontent.com/0bserver07/One-Hundred-Layers-Tiramisu/master/tiramisu_fc_dense103_model.json",
     "format": "Keras v2.0.2", "runtime": "tensorflow",
