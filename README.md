@@ -1,8 +1,7 @@
-
-<p align='center'>
-<img width='400px' height='100px' src='.github/logo-light.svg#gh-light-mode-only' >
-<img width='400px' height='100px' src='.github/logo-dark.svg#gh-dark-mode-only'>
-</p>
+<div align="center">
+<img width="400px" height="100px" src="https://github.com/lutzroeder/netron/raw/main/.github/logo-light.svg#gh-light-mode-only">
+<img width="400px" height="100px" src="https://github.com/lutzroeder/netron/raw/main/.github/logo-dark.svg#gh-dark-mode-only">
+</div>
 
 Netron is a viewer for neural network, deep learning and machine learning models. 
 
