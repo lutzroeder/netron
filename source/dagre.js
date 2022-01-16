@@ -188,7 +188,7 @@ dagre.layout = (graph, options) => {
         const removeSelfEdges = (g) => {
             for (const e of g.edges.values()) {
                 if (e.v === e.w) {
-                    const label = g.node(e.v).label;
+                    const label = e.vNode.label;
                     if (!label.selfEdges) {
                         label.selfEdges = [];
                     }
@@ -248,7 +248,7 @@ dagre.layout = (graph, options) => {
         // Returns the amount of slack for the given edge.
         // The slack is defined as the difference between the length of the edge and its minimum length.
         const slack = (g, e) => {
-            return g.node(e.w).label.rank - g.node(e.v).label.rank - e.label.minlen;
+            return e.wNode.label.rank - e.vNode.label.rank - e.label.minlen;
         };
 
         // Assigns a rank to each node in the input graph that respects the 'minlen' constraint specified on edges between nodes.
@@ -285,21 +285,6 @@ dagre.layout = (graph, options) => {
                 const start = g.nodes.keys().next().value;
                 const size = g.nodes.size;
                 t.setNode(start, {});
-                // Finds the edge with the smallest slack that is incident on tree and returns it.
-                const findMinSlackEdge = (t, g) => {
-                    let minKey = Number.MAX_SAFE_INTEGER;
-                    let minValue = undefined;
-                    for (const e of g.edges.values()) {
-                        if (t.hasNode(e.v) !== t.hasNode(e.w)) {
-                            const key = slack(g, e);
-                            if (key < minKey) {
-                                minKey = key;
-                                minValue = e;
-                            }
-                        }
-                    }
-                    return minValue;
-                };
                 // Finds a maximal tree of tight edges and returns the number of nodes in the tree.
                 const tightTree = (t, g) => {
                     const stack = Array.from(t.nodes.keys()).reverse();
@@ -319,7 +304,18 @@ dagre.layout = (graph, options) => {
                     return t.nodes.size;
                 };
                 while (tightTree(t, g) < size) {
-                    const edge = findMinSlackEdge(t, g);
+                    // Finds the edge with the smallest slack that is incident on tree and returns it.
+                    let minKey = Number.MAX_SAFE_INTEGER;
+                    let edge = undefined;
+                    for (const e of g.edges.values()) {
+                        if (t.hasNode(e.v) !== t.hasNode(e.w)) {
+                            const key = slack(g, e);
+                            if (key < minKey) {
+                                minKey = key;
+                                edge = e;
+                            }
+                        }
+                    }
                     const delta = t.hasNode(edge.v) ? slack(g, edge) : -slack(g, edge);
                     for (const v of t.nodes.keys()) {
                         g.node(v).label.rank += delta;
@@ -578,8 +574,8 @@ dagre.layout = (graph, options) => {
             for (const e of g.edges.values()) {
                 const edge = e.label;
                 if (edge.width && edge.height) {
-                    const v = g.node(e.v).label;
-                    const w = g.node(e.w).label;
+                    const v = e.vNode.label;
+                    const w = e.wNode.label;
                     addDummyNode(g, 'edge-proxy', { rank: (w.rank - v.rank) / 2 + v.rank, e: e }, '_ep');
                 }
             }
@@ -1041,7 +1037,7 @@ dagre.layout = (graph, options) => {
                         else {
                             const result = inV.reduce((acc, e) => {
                                 const edge = e.label;
-                                const nodeU = g.node(e.v).label;
+                                const nodeU = e.vNode.label;
                                 return {
                                     sum: acc.sum + (edge.weight * nodeU.order),
                                     weight: acc.weight + edge.weight
@@ -1971,21 +1967,21 @@ dagre.layout = (graph, options) => {
             };
             for (const e of g.edges.values()) {
                 const edge = e.label;
-                const nodeV = g.node(e.v).label;
-                const nodeW = g.node(e.w).label;
+                const vNode = e.vNode.label;
+                const wNode = e.wNode.label;
                 let p1;
                 let p2;
                 if (!edge.points) {
                     edge.points = [];
-                    p1 = nodeW;
-                    p2 = nodeV;
+                    p1 = wNode;
+                    p2 = vNode;
                 }
                 else {
                     p1 = edge.points[0];
                     p2 = edge.points[edge.points.length - 1];
                 }
-                edge.points.unshift(intersectRect(nodeV, p1));
-                edge.points.push(intersectRect(nodeW, p2));
+                edge.points.unshift(intersectRect(vNode, p1));
+                edge.points.push(intersectRect(wNode, p2));
             }
         };
 
@@ -2034,11 +2030,11 @@ dagre.layout = (graph, options) => {
             }
         }
         for (const e of graph.edges.values()) {
-            const layoutLabel = g.edge(e.v, e.w).label;
-            e.label.points = layoutLabel.points;
-            if ('x' in layoutLabel) {
-                e.label.x = layoutLabel.x;
-                e.label.y = layoutLabel.y;
+            const label = g.edge(e.v, e.w).label;
+            e.label.points = label.points;
+            if ('x' in label) {
+                e.label.x = label.x;
+                e.label.y = label.y;
             }
         }
         graph.options.width = g.options.width;
