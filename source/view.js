@@ -2070,7 +2070,8 @@ view.ModelFactoryService = class {
                 { name: 'Bash script', value: /^#!\/bin\/bash\s/ },
                 { name: 'TSD header', value: /^%TSD-Header-###%/ },
                 { name: 'AppleDouble data', value: /^\x00\x05\x16\x07/ },
-                { name: 'TensorFlow Hub module', value: /^\x08\x03$/, identifier: 'tfhub_module.pb' }
+                { name: 'TensorFlow Hub module', value: /^\x08\x03$/, identifier: 'tfhub_module.pb' },
+                { name: 'OpenVX network binary graph data', value: /^VPMN/ } // network_binary.nb
             ];
             /* eslint-enable no-control-regex */
             const buffer = stream.peek(Math.min(4096, stream.length));
