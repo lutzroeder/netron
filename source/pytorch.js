@@ -1931,6 +1931,17 @@ pytorch.Execution = class extends python.Execution {
                 super(size, torch.qint32);
             }
         });
+        this.registerType('torch.Size', class extends Array {
+            constructor(size) {
+                super(size.length);
+                for (let i = 0; i < size.length; i++) {
+                    this[i] = size[i];
+                }
+            }
+            __len__() {
+                return this.length;
+            }
+        });
         this.registerType('torch.Tensor', class {
             constructor() {
             }
@@ -3577,7 +3588,7 @@ pytorch.Utility = class {
             keys.splice(0, keys.length);
         }
         keys.push(...[
-            'state_dict', 'state', 'model_state', 'model', 'model_state_dict', 'model_dict', 'net_dict', 'params', 'generator',
+            'state_dict', 'state', 'model_state', 'model', 'model_state_dict', 'model_dict', 'net_dict', 'params', 'generator', 'module', 'weights',
             'discriminator', 'g_state', 'network', 'net', 'netG', 'net_states', 'state_dict_stylepredictor', 'state_dict_ghiasi', 'runner', ''
         ]);
         for (const key of keys) {
