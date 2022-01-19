@@ -527,7 +527,7 @@ class NodeAttributeView {
                 if (content && content.length > 1000) {
                     content = content.substring(0, 1000) + '\u2026';
                 }
-                if (content && typeof text === 'string') {
+                if (content && typeof content === 'string') {
                     content = content.split('<').join('&lt;').split('>').join('&gt;');
                 }
                 const line = this._host.document.createElement('div');
