@@ -999,6 +999,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.modules.batchnorm.BatchNorm1d', class {});
         this.registerType('torch.nn.modules.batchnorm.BatchNorm2d', class {});
         this.registerType('torch.nn.modules.batchnorm.BatchNorm3d', class {});
+        this.registerType('torch.nn.modules.batchnorm.LazyBatchNorm1d', class {});
         this.registerType('torch.nn.modules.batchnorm.SyncBatchNorm', class {});
         this.registerType('torch.nn.modules.container.ModuleDict', class {});
         this.registerType('torch.nn.modules.container.ModuleList', class {});
