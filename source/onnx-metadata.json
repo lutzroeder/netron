@@ -32010,6 +32010,185 @@
     ]
   },
   {
+    "name": "TreeEnsembleClassifier",
+    "module": "ai.onnx.ml",
+    "version": 3,
+    "support_level": "common",
+    "description": "Tree Ensemble classifier. Returns the top class for each of N inputs.<br>\n    The attributes named 'nodes_X' form a sequence of tuples, associated by\n    index into the sequences, which must all be of equal length. These tuples\n    define the nodes.<br>\n    Similarly, all fields prefixed with 'class_' are tuples of votes at the leaves.\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated class_weights index.<br>\n    One and only one of classlabels_strings or classlabels_int64s\n    will be defined. The class_ids are indices into this list.\n    All fields ending with <i>_as_tensor</i> can be used instead of the\n    same parameter without the suffix if the element type is double and not float.\n",
+    "attributes": [
+      {
+        "name": "base_values",
+        "type": "float32[]",
+        "required": false,
+        "description": "Base values for classification, added to final class score; the size must be the same as the classes or can be left unassigned (assumed 0)"
+      },
+      {
+        "name": "base_values_as_tensor",
+        "type": "tensor",
+        "required": false,
+        "description": "Base values for classification, added to final class score; the size must be the same as the classes or can be left unassigned (assumed 0)"
+      },
+      {
+        "name": "class_ids",
+        "type": "int64[]",
+        "required": false,
+        "description": "The index of the class list that each weight is for."
+      },
+      {
+        "name": "class_nodeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "node id that this weight is for."
+      },
+      {
+        "name": "class_treeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "The id of the tree that this node is in."
+      },
+      {
+        "name": "class_weights",
+        "type": "float32[]",
+        "required": false,
+        "description": "The weight for the class in class_id."
+      },
+      {
+        "name": "class_weights_as_tensor",
+        "type": "tensor",
+        "required": false,
+        "description": "The weight for the class in class_id."
+      },
+      {
+        "name": "classlabels_int64s",
+        "type": "int64[]",
+        "required": false,
+        "description": "Class labels if using integer labels.<br>One and only one of the 'classlabels_*' attributes must be defined."
+      },
+      {
+        "name": "classlabels_strings",
+        "type": "string[]",
+        "required": false,
+        "description": "Class labels if using string labels.<br>One and only one of the 'classlabels_*' attributes must be defined."
+      },
+      {
+        "name": "nodes_falsenodeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "Child node if expression is false."
+      },
+      {
+        "name": "nodes_featureids",
+        "type": "int64[]",
+        "required": false,
+        "description": "Feature id for each node."
+      },
+      {
+        "name": "nodes_hitrates",
+        "type": "float32[]",
+        "required": false,
+        "description": "Popularity of each node, used for performance and may be omitted."
+      },
+      {
+        "name": "nodes_hitrates_as_tensor",
+        "type": "tensor",
+        "required": false,
+        "description": "Popularity of each node, used for performance and may be omitted."
+      },
+      {
+        "name": "nodes_missing_value_tracks_true",
+        "type": "int64[]",
+        "required": false,
+        "description": "For each node, define what to do in the presence of a missing value: if a value is missing (NaN), use the 'true' or 'false' branch based on the value in this array.<br>This attribute may be left undefined, and the defalt value is false (0) for all nodes."
+      },
+      {
+        "name": "nodes_modes",
+        "type": "string[]",
+        "required": false,
+        "description": "The node kind, that is, the comparison to make at the node. There is no comparison to make at a leaf node.<br>One of 'BRANCH_LEQ', 'BRANCH_LT', 'BRANCH_GTE', 'BRANCH_GT', 'BRANCH_EQ', 'BRANCH_NEQ', 'LEAF'"
+      },
+      {
+        "name": "nodes_nodeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "Node id for each node. Ids may restart at zero for each tree, but it not required to."
+      },
+      {
+        "name": "nodes_treeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "Tree id for each node."
+      },
+      {
+        "name": "nodes_truenodeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "Child node if expression is true."
+      },
+      {
+        "name": "nodes_values",
+        "type": "float32[]",
+        "required": false,
+        "description": "Thresholds to do the splitting on for each node."
+      },
+      {
+        "name": "nodes_values_as_tensor",
+        "type": "tensor",
+        "required": false,
+        "description": "Thresholds to do the splitting on for each node."
+      },
+      {
+        "name": "post_transform",
+        "type": "string",
+        "required": false,
+        "default": "NONE",
+        "description": "Indicates the transform to apply to the score. <br> One of 'NONE,' 'SOFTMAX,' 'LOGISTIC,' 'SOFTMAX_ZERO,' or 'PROBIT.'"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T1",
+        "description": "Input of shape [N,F]"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T2",
+        "description": "N, Top class for each point"
+      },
+      {
+        "name": "Z",
+        "type": "tensor(float)",
+        "description": "The class score for each class, for each point, a tensor of shape [N,E]."
+      }
+    ],
+    "min_output": 2,
+    "max_output": 2,
+    "type_constraints": [
+      {
+        "description": "The input type must be a tensor of a numeric type.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(int64)",
+          "tensor(int32)"
+        ]
+      },
+      {
+        "description": "The output type will be a tensor of strings or integers, depending on which of the the classlabels_* attributes is used.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(string)",
+          "tensor(int64)"
+        ]
+      }
+    ]
+  },
+  {
     "name": "TreeEnsembleRegressor",
     "module": "ai.onnx.ml",
     "version": 1,
@@ -32117,6 +32296,173 @@
       {
         "name": "target_weights",
         "type": "float32[]",
+        "required": false,
+        "description": "The weight for each target"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T",
+        "description": "Input of shape [N,F]"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "tensor(float)",
+        "description": "N classes"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "The input type must be a tensor of a numeric type.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(int64)",
+          "tensor(int32)"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "TreeEnsembleRegressor",
+    "module": "ai.onnx.ml",
+    "version": 3,
+    "support_level": "common",
+    "description": "Tree Ensemble regressor.  Returns the regressed values for each input in N.<br>\n    All args with nodes_ are fields of a tuple of tree nodes, and\n    it is assumed they are the same length, and an index i will decode the\n    tuple across these inputs.  Each node id can appear only once\n    for each tree id.<br>\n    All fields prefixed with target_ are tuples of votes at the leaves.<br>\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated target_weights index.<br>\n    All fields ending with <i>_as_tensor</i> can be used instead of the\n    same parameter without the suffix if the element type is double and not float.\n    All trees must have their node ids start at 0 and increment by 1.<br>\n    Mode enum is BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF\n",
+    "attributes": [
+      {
+        "name": "aggregate_function",
+        "type": "string",
+        "required": false,
+        "default": "SUM",
+        "description": "Defines how to aggregate leaf values within a target. <br>One of 'AVERAGE,' 'SUM,' 'MIN,' 'MAX.'"
+      },
+      {
+        "name": "base_values",
+        "type": "float32[]",
+        "required": false,
+        "description": "Base values for classification, added to final class score; the size must be the same as the classes or can be left unassigned (assumed 0)"
+      },
+      {
+        "name": "base_values_as_tensor",
+        "type": "tensor",
+        "required": false,
+        "description": "Base values for classification, added to final class score; the size must be the same as the classes or can be left unassigned (assumed 0)"
+      },
+      {
+        "name": "n_targets",
+        "type": "int64",
+        "required": false,
+        "description": "The total number of targets."
+      },
+      {
+        "name": "nodes_falsenodeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "Child node if expression is false"
+      },
+      {
+        "name": "nodes_featureids",
+        "type": "int64[]",
+        "required": false,
+        "description": "Feature id for each node."
+      },
+      {
+        "name": "nodes_hitrates",
+        "type": "float32[]",
+        "required": false,
+        "description": "Popularity of each node, used for performance and may be omitted."
+      },
+      {
+        "name": "nodes_hitrates_as_tensor",
+        "type": "tensor",
+        "required": false,
+        "description": "Popularity of each node, used for performance and may be omitted."
+      },
+      {
+        "name": "nodes_missing_value_tracks_true",
+        "type": "int64[]",
+        "required": false,
+        "description": "For each node, define what to do in the presence of a NaN: use the 'true' (if the attribute value is 1) or 'false' (if the attribute value is 0) branch based on the value in this array.<br>This attribute may be left undefined and the defalt value is false (0) for all nodes."
+      },
+      {
+        "name": "nodes_modes",
+        "type": "string[]",
+        "required": false,
+        "description": "The node kind, that is, the comparison to make at the node. There is no comparison to make at a leaf node.<br>One of 'BRANCH_LEQ', 'BRANCH_LT', 'BRANCH_GTE', 'BRANCH_GT', 'BRANCH_EQ', 'BRANCH_NEQ', 'LEAF'"
+      },
+      {
+        "name": "nodes_nodeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "Node id for each node. Node ids must restart at zero for each tree and increase sequentially."
+      },
+      {
+        "name": "nodes_treeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "Tree id for each node."
+      },
+      {
+        "name": "nodes_truenodeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "Child node if expression is true"
+      },
+      {
+        "name": "nodes_values",
+        "type": "float32[]",
+        "required": false,
+        "description": "Thresholds to do the splitting on for each node."
+      },
+      {
+        "name": "nodes_values_as_tensor",
+        "type": "tensor",
+        "required": false,
+        "description": "Thresholds to do the splitting on for each node."
+      },
+      {
+        "name": "post_transform",
+        "type": "string",
+        "required": false,
+        "default": "NONE",
+        "description": "Indicates the transform to apply to the score. <br>One of 'NONE,' 'SOFTMAX,' 'LOGISTIC,' 'SOFTMAX_ZERO,' or 'PROBIT'"
+      },
+      {
+        "name": "target_ids",
+        "type": "int64[]",
+        "required": false,
+        "description": "The index of the target that each weight is for"
+      },
+      {
+        "name": "target_nodeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "The node id of each weight"
+      },
+      {
+        "name": "target_treeids",
+        "type": "int64[]",
+        "required": false,
+        "description": "The id of the tree that each node is in."
+      },
+      {
+        "name": "target_weights",
+        "type": "float32[]",
+        "required": false,
+        "description": "The weight for each target"
+      },
+      {
+        "name": "target_weights_as_tensor",
+        "type": "tensor",
         "required": false,
         "description": "The weight for each target"
       }
