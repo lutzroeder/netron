@@ -4262,9 +4262,6 @@ $root.tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor = class S
                 case 3:
                     message.checkpoint_key = reader.string();
                     break;
-                case 4:
-                    message.optional_restore = reader.bool();
-                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -4288,9 +4285,6 @@ $root.tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor = class S
                 case "checkpoint_key":
                     message.checkpoint_key = reader.string();
                     break;
-                case "optional_restore":
-                    message.optional_restore = reader.bool();
-                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -4303,7 +4297,6 @@ $root.tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor = class S
 $root.tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor.prototype.name = "";
 $root.tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor.prototype.full_name = "";
 $root.tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor.prototype.checkpoint_key = "";
-$root.tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor.prototype.optional_restore = false;
 
 $root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference = class SlotVariableReference {
 
