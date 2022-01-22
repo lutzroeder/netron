@@ -334,7 +334,7 @@
     "attributes": [
       {
         "default": 2,
-        "description": "Desired dimensionality of output data.\nMust be strictly less than the number of features.\nThe default value is useful for visualisation. For LSA, a value of\n100 is recommended.\n",
+        "description": "Desired dimensionality of output data.\nIf algorithm='arpack', must be strictly less than the number of features.\nIf algorithm='randomized', must be less than or equal to the number of features.\nThe default value is useful for visualisation. For LSA, a value of\n100 is recommended.\n",
         "name": "n_components",
         "type": "int32"
       },
