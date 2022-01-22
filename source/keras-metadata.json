@@ -93,7 +93,7 @@
         "name": "causal"
       },
       {
-        "description": "Float between 0 and 1. Fraction of the units to drop for the\n    attention scores. Defaults to 0.0.\n\nCall Args:",
+        "description": "Float between 0 and 1. Fraction of the units to drop for the\n    attention scores. Defaults to 0.0.",
         "name": "dropout"
       },
       {
@@ -111,6 +111,10 @@
       {
         "description": "Python boolean indicating whether the layer should behave in\n    training mode (adding dropout) or in inference mode (no dropout).\n\nOutput:\n\n  Attention outputs of shape `[batch_size, Tq, dim]`.\n  [Optional] Attention scores after masking and softmax with shape\n    `[batch_size, Tq, Tv]`.\n\nThe meaning of `query`, `value` and `key` depend on the application. In the\ncase of text similarity, for example, `query` is the sequence embeddings of\nthe first piece of text and `value` is the sequence embeddings of the second\npiece of text. `key` is usually the same tensor as `value`.\n\nHere is a code example for using `Attention` in a CNN+Attention network:\n\n```python\n# Variable-length int sequences.\nquery_input = tf.keras.Input(shape=(None,), dtype='int32')\nvalue_input = tf.keras.Input(shape=(None,), dtype='int32')\n\n# Embedding lookup.\ntoken_embedding = tf.keras.layers.Embedding(input_dim=1000, output_dim=64)\n# Query embeddings of shape [batch_size, Tq, dimension].\nquery_embeddings = token_embedding(query_input)\n# Value embeddings of shape [batch_size, Tv, dimension].\nvalue_embeddings = token_embedding(value_input)\n\n# CNN layer.\ncnn_layer = tf.keras.layers.Conv1D(\n    filters=100,\n    kernel_size=4,\n    # Use 'same' padding so outputs have the same shape as inputs.\n    padding='same')\n# Query encoding of shape [batch_size, Tq, filters].\nquery_seq_encoding = cnn_layer(query_embeddings)\n# Value encoding of shape [batch_size, Tv, filters].\nvalue_seq_encoding = cnn_layer(value_embeddings)\n\n# Query-value attention of shape [batch_size, Tq, filters].\nquery_value_attention_seq = tf.keras.layers.Attention()(\n    [query_seq_encoding, value_seq_encoding])\n\n# Reduce over the sequence axis to produce encodings of shape\n# [batch_size, filters].\nquery_encoding = tf.keras.layers.GlobalAveragePooling1D()(\n    query_seq_encoding)\nquery_value_attention = tf.keras.layers.GlobalAveragePooling1D()(\n    query_value_attention_seq)\n\n# Concatenate query and document encodings to produce a DNN input layer.\ninput_layer = tf.keras.layers.Concatenate()(\n    [query_encoding, query_value_attention])\n\n# Add DNN layers, and create Model.\n# ...\n```",
         "name": "training"
+      },
+      {
+        "name": "score_mode",
+        "description": "Function to use to compute attention scores, one of\n    `{\"dot\", \"concat\"}`. `\"dot\"` refers to the dot product between the query\n    and key vectors. `\"concat\"` refers to the hyperbolic tangent of the\n    concatenation of the query and key vectors.\n\nCall Args:"
       }
     ]
   },
@@ -4379,7 +4383,7 @@
       },
       {
         "name": "dropout",
-        "description": "Float between 0 and 1. Fraction of the units to drop for the\n    attention scores. Defaults to 0.0.\n\nCall Args:"
+        "description": "Float between 0 and 1. Fraction of the units to drop for the\n    attention scores. Defaults to 0.0."
       },
       {
         "name": "inputs",
@@ -4396,6 +4400,10 @@
       {
         "name": "training",
         "description": "Python boolean indicating whether the layer should behave in\n    training mode (adding dropout) or in inference mode (no dropout).\n\nOutput:\n\n  Attention outputs of shape `[batch_size, Tq, dim]`.\n  [Optional] Attention scores after masking and softmax with shape\n    `[batch_size, Tq, Tv]`.\n\nThe meaning of `query`, `value` and `key` depend on the application. In the\ncase of text similarity, for example, `query` is the sequence embeddings of\nthe first piece of text and `value` is the sequence embeddings of the second\npiece of text. `key` is usually the same tensor as `value`.\n\nHere is a code example for using `Attention` in a CNN+Attention network:\n\n```python\n# Variable-length int sequences.\nquery_input = tf.keras.Input(shape=(None,), dtype='int32')\nvalue_input = tf.keras.Input(shape=(None,), dtype='int32')\n\n# Embedding lookup.\ntoken_embedding = tf.keras.layers.Embedding(input_dim=1000, output_dim=64)\n# Query embeddings of shape [batch_size, Tq, dimension].\nquery_embeddings = token_embedding(query_input)\n# Value embeddings of shape [batch_size, Tv, dimension].\nvalue_embeddings = token_embedding(value_input)\n\n# CNN layer.\ncnn_layer = tf.keras.layers.Conv1D(\n    filters=100,\n    kernel_size=4,\n    # Use 'same' padding so outputs have the same shape as inputs.\n    padding='same')\n# Query encoding of shape [batch_size, Tq, filters].\nquery_seq_encoding = cnn_layer(query_embeddings)\n# Value encoding of shape [batch_size, Tv, filters].\nvalue_seq_encoding = cnn_layer(value_embeddings)\n\n# Query-value attention of shape [batch_size, Tq, filters].\nquery_value_attention_seq = tf.keras.layers.Attention()(\n    [query_seq_encoding, value_seq_encoding])\n\n# Reduce over the sequence axis to produce encodings of shape\n# [batch_size, filters].\nquery_encoding = tf.keras.layers.GlobalAveragePooling1D()(\n    query_seq_encoding)\nquery_value_attention = tf.keras.layers.GlobalAveragePooling1D()(\n    query_value_attention_seq)\n\n# Concatenate query and document encodings to produce a DNN input layer.\ninput_layer = tf.keras.layers.Concatenate()(\n    [query_encoding, query_value_attention])\n\n# Add DNN layers, and create Model.\n# ...\n```"
+      },
+      {
+        "name": "score_mode",
+        "description": "Function to use to compute attention scores, one of\n    `{\"dot\", \"concat\"}`. `\"dot\"` refers to the dot product between the query\n    and key vectors. `\"concat\"` refers to the hyperbolic tangent of the\n    concatenation of the query and key vectors.\n\nCall Args:"
       }
     ]
   },
