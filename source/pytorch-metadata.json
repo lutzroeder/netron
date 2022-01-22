@@ -6450,5 +6450,18 @@
     "outputs": [
       { "name": "output", "type": "Tensor" }
     ]
+  },
+  {
+    "name": "torch.binary_cross_entropy_with_logits",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "target", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor", "optional": true, "default": null },
+      { "name": "pos_weight", "type": "Tensor", "optional": true, "default": null },
+      { "name": "reduction", "type": "int64" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
   }
 ]
