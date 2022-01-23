@@ -10,6 +10,16 @@ ncnn.ModelFactory = class {
 
     match(context) {
         const identifier = context.identifier.toLowerCase();
+        if (identifier.endsWith('.param.bin') || identifier.endsWith('.ncnnmodel')) {
+            const stream = context.stream;
+            if (stream.length > 4) {
+                const buffer = stream.peek(4);
+                const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
+                if (signature == 0x007685DD) {
+                    return 'ncnn.model.bin';
+                }
+            }
+        }
         if (identifier.endsWith('.param') || identifier.endsWith('.cfg.ncnn')) {
             const reader = text.Reader.open(context.stream, 2048);
             const signature = reader.read();
@@ -20,16 +30,6 @@ ncnn.ModelFactory = class {
                 const header = signature.trim().split(' ');
                 if (header.length === 2 && header.every((value) => value >>> 0 === parseFloat(value))) {
                     return 'ncnn.model';
-                }
-            }
-        }
-        if (identifier.endsWith('.param.bin')) {
-            const stream = context.stream;
-            if (stream.length > 4) {
-                const buffer = stream.peek(4);
-                const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
-                if (signature == 0x007685DD) {
-                    return 'ncnn.model.bin';
                 }
             }
         }

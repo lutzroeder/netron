@@ -1535,7 +1535,7 @@ view.ModelFactoryService = class {
         this.register('./dlc', [ '.dlc' ]);
         this.register('./armnn', [ '.armnn', '.json' ]);
         this.register('./mnn', ['.mnn']);
-        this.register('./ncnn', [ '.param', '.bin', '.cfg.ncnn', '.weights.ncnn' ]);
+        this.register('./ncnn', [ '.param', '.bin', '.cfg.ncnn', '.weights.ncnn', '.ncnnmodel' ]);
         this.register('./tnn', [ '.tnnproto', '.tnnmodel' ]);
         this.register('./tengine', ['.tmfile']);
         this.register('./mslite', [ '.ms']);
