@@ -7,17 +7,25 @@ tensorrt.ModelFactory = class {
         const stream = context.stream;
         const signature = [ 0x70, 0x74, 0x72, 0x74 ]; // ptrt
         if (stream.length >= 4 && stream.peek(4).every((value, index) => value === signature[index])) {
-            return 'tensorrt';
+            return 'tensorrt.engine';
+        }
+        const extension = context.identifier.split('.').pop().toLowerCase();
+        if (extension === 'plan') {
+            return 'tensorrt.plan';
         }
         return undefined;
     }
 
-    open(context) {
+    open(context, match) {
         return tensorrt.Metadata.open(context).then((metadata) => {
             const stream = context.stream;
             const buffer = stream.peek();
-            const model = new tensorrt.Container(buffer);
-            return new tensorrt.Model(metadata, model);
+            switch (match) {
+                case 'tensorrt.engine':
+                    return new tensorrt.Model(metadata, new tensorrt.Engine(buffer));
+                case 'tensorrt.plan':
+                    return new tensorrt.Model(metadata, new tensorrt.Plan(buffer));
+            }
         });
     }
 };
@@ -61,12 +69,20 @@ tensorrt.Graph = class {
 
 // TODO
 
-tensorrt.Container = class {
+tensorrt.Engine = class {
 
     constructor(/* buffer */) {
         throw new tensorrt.Error('Invalid file content. File contains undocumented TensorRT engine data.');
     }
 };
+
+tensorrt.Plan = class {
+
+    constructor(/* buffer */) {
+        throw new tensorrt.Error('Invalid file content. File contains undocumented TensorRT plan data.');
+    }
+};
+
 
 tensorrt.Metadata = class {
 
