@@ -114,6 +114,11 @@ flatbuffers.BinaryReader = class {
         return this._dataView.getUint64(offset, true);
     }
 
+    uint64_(position, offset, defaultValue) {
+        offset = this._offset(position, offset);
+        return offset ? this.uint64(position + offset) : defaultValue;
+    }
+
     float32(offset) {
         return this._dataView.getFloat32(offset, true);
     }
