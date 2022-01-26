@@ -24619,7 +24619,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Reshape the input tensor similar to numpy.reshape.\nIt takes a tensor as input and an argument `shape`. It outputs the reshaped tensor.\nAt most one dimension of the new shape can be -1. In this case, the value is\ninferred from the size of the tensor and the remaining dimensions. A dimension\ncould also be 0, in which case the actual dimension value is unchanged (i.e. taken\nfrom the input tensor).",
+    "description": "Reshape the input tensor similar to numpy.reshape.\nIt takes a tensor as input and an argument `shape`. It outputs the reshaped tensor.\nAt most one dimension of the new shape can be -1. In this case, the value is\ninferred from the size of the tensor and the remaining dimensions. A dimension\ncould also be 0, in which case the actual dimension value is unchanged (i.e. taken\nfrom the input tensor). Shape (second input) could be an empty shape, which means converting to a scalar.\nThe input tensor's shape and the output tensor's shape are required to have the same number of elements.",
     "attributes": [
       {
         "name": "consumed_inputs",
@@ -24680,7 +24680,7 @@
     "module": "ai.onnx",
     "version": 5,
     "support_level": "common",
-    "description": "Reshape the input tensor similar to numpy.reshape.\nFirst input is the data tensor, second input is a shape tensor which specifies the output shape. It outputs the reshaped tensor.\nAt most one dimension of the new shape can be -1. In this case, the value is\ninferred from the size of the tensor and the remaining dimensions. A dimension\ncould also be 0, in which case the actual dimension value is unchanged (i.e. taken\nfrom the input tensor).",
+    "description": "Reshape the input tensor similar to numpy.reshape.\nFirst input is the data tensor, second input is a shape tensor which specifies the output shape. It outputs the reshaped tensor.\nAt most one dimension of the new shape can be -1. In this case, the value is\ninferred from the size of the tensor and the remaining dimensions. A dimension\ncould also be 0, in which case the actual dimension value is unchanged (i.e. taken\nfrom the input tensor). Shape (second input) could be an empty shape, which means converting to a scalar.\nThe input tensor's shape and the output tensor's shape are required to have the same number of elements.",
     "inputs": [
       {
         "name": "data",
@@ -24744,7 +24744,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Reshape the input tensor similar to numpy.reshape.\nFirst input is the data tensor, second input is a shape tensor which specifies the output shape. It outputs the reshaped tensor.\nAt most one dimension of the new shape can be -1. In this case, the value is\ninferred from the size of the tensor and the remaining dimensions. A dimension\ncould also be 0, in which case the actual dimension value is unchanged (i.e. taken\nfrom the input tensor).",
+    "description": "Reshape the input tensor similar to numpy.reshape.\nFirst input is the data tensor, second input is a shape tensor which specifies the output shape. It outputs the reshaped tensor.\nAt most one dimension of the new shape can be -1. In this case, the value is\ninferred from the size of the tensor and the remaining dimensions. A dimension\ncould also be 0, in which case the actual dimension value is unchanged (i.e. taken\nfrom the input tensor). Shape (second input) could be an empty shape, which means converting to a scalar.\nThe input tensor's shape and the output tensor's shape are required to have the same number of elements.",
     "inputs": [
       {
         "name": "data",
@@ -24809,7 +24809,7 @@
     "module": "ai.onnx",
     "version": 14,
     "support_level": "common",
-    "description": "Reshape the input tensor similar to numpy.reshape.\nFirst input is the data tensor, second input is a shape tensor which specifies the output shape. It outputs the reshaped tensor.\nAt most one dimension of the new shape can be -1. In this case, the value is\ninferred from the size of the tensor and the remaining dimensions. A dimension\ncould also be 0, in which case the actual dimension value is unchanged (i.e. taken\nfrom the input tensor). If 'allowzero' is set, and the new shape includes 0, the\ndimension will be set explicitly to zero (i.e. not taken from input tensor)",
+    "description": "Reshape the input tensor similar to numpy.reshape.\nFirst input is the data tensor, second input is a shape tensor which specifies the output shape. It outputs the reshaped tensor.\nAt most one dimension of the new shape can be -1. In this case, the value is\ninferred from the size of the tensor and the remaining dimensions. A dimension\ncould also be 0, in which case the actual dimension value is unchanged (i.e. taken\nfrom the input tensor). If 'allowzero' is set, and the new shape includes 0, the\ndimension will be set explicitly to zero (i.e. not taken from input tensor).\nShape (second input) could be an empty shape, which means converting to a scalar.\nThe input tensor's shape and the output tensor's shape are required to have the same number of elements.",
     "attributes": [
       {
         "name": "allowzero",
