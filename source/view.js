@@ -1542,6 +1542,7 @@ view.ModelFactoryService = class {
         this.register('./barracuda', [ '.nn' ]);
         this.register('./dnn', [ '.dnn' ]);
         this.register('./xmodel', [ '.xmodel' ]);
+        this.register('./kmodel', [ '.kmodel' ]);
         this.register('./flux', [ '.bson' ]);
         this.register('./dl4j', [ '.json', '.bin' ]);
         this.register('./openvino', [ '.xml', '.bin' ]);

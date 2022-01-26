@@ -2312,6 +2312,13 @@
     "link":   "https://github.com/lutzroeder/netron/issues/57"
   },
   {
+    "type":   "kmodel",
+    "target": "cifar10.kmodel",
+    "source": "https://raw.githubusercontent.com/sipeed/Maix-EMC/master/example/cifar/cifar10.kmodel",
+    "format": "kmodel v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/871"
+  },
+  {
     "type":   "lasagne",
     "target": "net2.pkl",
     "source": "https://raw.githubusercontent.com/Aabglov/LasaganeTest/master/results/net2.pkl",
