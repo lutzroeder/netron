@@ -3,6 +3,7 @@
 
 var om = om || {};
 var protobuf = protobuf || require('./protobuf');
+var base = base || require('./base');
 
 om.ModelFactory = class {
 
@@ -472,7 +473,7 @@ om.File = class {
         const stream = context.stream;
         const signature = [ 0x49, 0x4D, 0x4F, 0x44 ]; // IMOD
         if (stream.length >= 256 && stream.peek(4).every((value, index) => value === signature[index])) {
-            const reader = new om.BinaryReader(stream.peek());
+            const reader = new base.BinaryReader(stream.peek());
             return new om.File(reader);
         }
         return null;
@@ -544,7 +545,7 @@ om.File = class {
                     case 5: { // DEVICE_CONFIG
                         this.devices = new Map();
                         const decoder = new TextDecoder('ascii');
-                        const reader = new om.BinaryReader(buffer);
+                        const reader = new base.BinaryReader(buffer);
                         reader.uint32();
                         for (let position = 4; position < partition.size; ) {
                             const length = reader.uint32();
@@ -562,46 +563,6 @@ om.File = class {
                 }
             }
         }
-    }
-};
-
-om.BinaryReader = class {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-        this._length = buffer.length;
-        this._position = 0;
-        this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-    }
-
-    seek(position) {
-        this._position = position >= 0 ? position : this._length + position;
-    }
-
-    skip(offset) {
-        this._position += offset;
-    }
-
-    read(length) {
-        if (this._position === 0 && length === undefined) {
-            this._position = this._length;
-            return this._buffer;
-        }
-        const position = this._position;
-        this.skip(length !== undefined ? length : this._length - this._position);
-        return this._buffer.subarray(position, this._position);
-    }
-
-    byte() {
-        const position = this._position;
-        this.skip(1);
-        return this._buffer[position];
-    }
-
-    uint32() {
-        const position = this._position;
-        this.skip(4);
-        return this._view.getUint32(position, true);
     }
 };
 
