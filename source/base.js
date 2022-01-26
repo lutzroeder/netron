@@ -554,6 +554,54 @@ DataView.prototype.getBits = DataView.prototype.getBits || function(offset, bits
     return value;
 };
 
+base.BinaryReader = class {
+
+    constructor(buffer) {
+        this._buffer = buffer;
+        this._position = 0;
+        this._length = buffer.length;
+        this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+    }
+
+    get length() {
+        return this._length;
+    }
+
+    get position() {
+        return this._position;
+    }
+
+    seek(position) {
+        this._position = position >= 0 ? position : this._length + position;
+    }
+
+    skip(offset) {
+        this._position += offset;
+    }
+
+    read(length) {
+        if (this._position === 0 && length === undefined) {
+            this._position = this._length;
+            return this._buffer;
+        }
+        const position = this._position;
+        this.skip(length !== undefined ? length : this._length - this._position);
+        return this._buffer.subarray(position, this._position);
+    }
+
+    byte() {
+        const position = this._position;
+        this.skip(1);
+        return this._buffer[position];
+    }
+
+    uint32() {
+        const position = this._position;
+        this.skip(4);
+        return this._view.getUint32(position, true);
+    }
+};
+
 if (typeof window !== 'undefined' && typeof window.Long != 'undefined') {
     window.long = { Long: window.Long };
     window.Int64 = base.Int64;
@@ -563,4 +611,5 @@ if (typeof window !== 'undefined' && typeof window.Long != 'undefined') {
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.Int64 = base.Int64;
     module.exports.Uint64 = base.Uint64;
+    module.exports.BinaryReader = base.BinaryReader;
 }
