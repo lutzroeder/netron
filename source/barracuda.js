@@ -453,9 +453,11 @@ barracuda.NNModel = class {
             }
             this._layers[i] = layer;
         }
+        const position = reader.position;
         for (const layer of this._layers) {
             for (const tensor of layer.tensors) {
-                tensor.data = reader.read(tensor.offset * tensor.itemsize, tensor.length * tensor.itemsize);
+                reader.seek(position + (tensor.offset * tensor.itemsize));
+                tensor.data = reader.read(tensor.length * tensor.itemsize);
             }
         }
     }
@@ -498,6 +500,14 @@ barracuda.BinaryReader = class {
         this._position = 0;
     }
 
+    get position() {
+        return this._position;
+    }
+
+    seek(position) {
+        this._position = position >= 0 ? position : this._length + position;
+    }
+
     skip(offset) {
         this._position += offset;
         if (this._position > this._buffer.length) {
@@ -505,13 +515,13 @@ barracuda.BinaryReader = class {
         }
     }
 
-    read(offset, length) {
-        const start = this._position + offset;
-        const end = start + length;
-        if (end > this._buffer.length) {
-            throw new barracuda.Error('Expected ' + (end - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+    read(length) {
+        const position = this._position;
+        this._position += length;
+        if (this._position > this._buffer.length) {
+            throw new barracuda.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
         }
-        return this._buffer.slice(start, end);
+        return this._buffer.slice(position, this._position);
     }
 
     int32() {
