@@ -1,6 +1,7 @@
 
 var ncnn = ncnn || {};
 var text = text || require('./text');
+var base = base || require('./base');
 
 // https://github.com/Tencent/ncnn/wiki/param-and-model-file-structure
 // https://github.com/Tencent/ncnn/wiki/operation-param-weight-table
@@ -929,7 +930,7 @@ ncnn.TextParamReader = class {
 ncnn.BinaryParamReader = class {
 
     constructor(metadata, buffer) {
-        const reader = new ncnn.BinaryReader(buffer);
+        const reader = new base.BinaryReader(buffer);
         if (reader.int32() !== 0x007685DD) {
             throw new ncnn.Error('Invalid signature.');
         }
@@ -1063,28 +1064,6 @@ ncnn.BlobReader = class {
             return { dataType: dataType, data: data };
         }
         return null;
-    }
-};
-
-ncnn.BinaryReader = class {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-        this._position = 0;
-    }
-
-    skip(size) {
-        this._position += size;
-        if (this._position > this._buffer.length) {
-            throw new ncnn.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
-        }
-    }
-
-    int32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getInt32(position, true);
     }
 };
 
