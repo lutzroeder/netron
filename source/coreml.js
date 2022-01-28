@@ -2,6 +2,7 @@
 var coreml = coreml || {};
 var json = json || require('./json');
 var protobuf = protobuf || require('./protobuf');
+var base = base || require('./base');
 
 coreml.ModelFactory = class {
 
@@ -650,7 +651,7 @@ coreml.Graph = class {
                     if (stream) {
                         stream.seek(offset);
                         const buffer = stream.read(32);
-                        const reader = new coreml.BinaryReader(buffer);
+                        const reader = new base.BinaryReader(buffer);
                         const signature = reader.uint32();
                         if (signature == 0xdeadbeef) {
                             reader.uint32(); // dataType
@@ -1420,34 +1421,6 @@ coreml.OptionalType = class {
 
     toString() {
         return this._type.toString() + '?';
-    }
-};
-
-coreml.BinaryReader = class {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-        this._position = 0;
-        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-    }
-
-    skip(offset) {
-        const position = this._position;
-        this._position += offset;
-        if (this._position > this._length) {
-            throw new Error('Expected ' + (this._position - this._length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
-        }
-        return position;
-    }
-
-    uint32() {
-        const position = this.skip(4);
-        return this._dataView.getUint32(position, true);
-    }
-
-    uint64() {
-        const position = this.skip(8);
-        return this._dataView.getUint64(position, true).toNumber();
     }
 };
 
