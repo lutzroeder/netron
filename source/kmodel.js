@@ -20,13 +20,12 @@ kmodel.ModelFactory = class {
     open(context, match) {
         return Promise.resolve().then(() => {
             const stream = context.stream;
-            const buffer = stream.peek();
             switch (match) {
                 case 'kmodel.KPU': {
-                    return new kmodel.Model(new kmodel.KPU(buffer));
+                    return new kmodel.Model(new kmodel.KPU(stream));
                 }
                 case 'kmodel.LDMK': {
-                    return new kmodel.Model(new kmodel.LDMK(buffer));
+                    return new kmodel.Model(new kmodel.LDMK(stream));
                 }
             }
         });
@@ -105,8 +104,8 @@ kmodel.Node = class {
 
 kmodel.KPU = class {
 
-    constructor(buffer) {
-        const reader = new base.BinaryReader(buffer);
+    constructor(stream) {
+        const reader = new base.BinaryReader(stream);
         this.version = reader.uint32();
         /* const flags = */ reader.uint32();
         /* const arch = */ reader.uint32();
@@ -195,8 +194,8 @@ kmodel.KPU = class {
 
 kmodel.LDMK = class {
 
-    constructor(buffer) {
-        const reader = new base.BinaryReader(buffer);
+    constructor(stream) {
+        const reader = new base.BinaryReader(stream);
         /* const identifier = */ reader.uint32();
         this.version = reader.uint32();
         if (this.version > 5) {
