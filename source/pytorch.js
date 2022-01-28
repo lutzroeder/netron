@@ -3847,7 +3847,7 @@ pytorch.nnapi = {};
 pytorch.nnapi.SerializedModel = class {
 
     constructor(serialized_model, buffers) {
-        const reader = new pytorch.nnapi.SerializedModel.BinaryReader(serialized_model);
+        const reader = new base.BinaryReader(serialized_model);
         this.version = reader.int32();
         if (this.version !== 1) {
             throw new pytorch.Error('Invalid NNAPI serialized model version.');
@@ -3970,67 +3970,9 @@ pytorch.nnapi.SerializedModel = class {
             this.outputs[i] = operands[index];
         }
 
-        if (!reader.end()) {
+        if (reader.position !== reader.length) {
             throw new pytorch.Error('Invalid NNAPI serialized model length.');
         }
-    }
-};
-
-pytorch.nnapi.SerializedModel.BinaryReader = class {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-        this._position = 0;
-    }
-
-    end() {
-        return this._position >= this._buffer.length;
-    }
-
-    skip(offset) {
-        this._position += offset;
-        if (this._position > this._buffer.length) {
-            throw new pytorch.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
-        }
-    }
-
-    read(length) {
-        const position = this._position;
-        this.skip(length);
-        return this._buffer.subarray(position, this._position);
-    }
-
-    byte() {
-        const position = this._position;
-        this.skip(1);
-        return this._dataView.getUint8(position, true);
-    }
-
-    int32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getInt32(position, true);
-    }
-
-    uint32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getUint32(position, true);
-    }
-
-    int64() {
-        const value = this.int32();
-        if (this.int32() !== 0) {
-            throw new pytorch.Error('Invalid int64 value.');
-        }
-        return value;
-    }
-
-    float32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getFloat32(position, true);
     }
 };
 
