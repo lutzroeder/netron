@@ -2,6 +2,7 @@
 var paddle = paddle || {};
 var flatbuffers = flatbuffers || require('./flatbuffers');
 var protobuf = protobuf || require('./protobuf');
+var base = base || require('./base');
 
 paddle.ModelFactory = class {
 
@@ -870,7 +871,7 @@ paddle.NaiveBuffer = class {
         const stream = context.stream;
         if (stream.length > 4) {
             const buffer = stream.peek();
-            const reader = new paddle.BinaryReader(buffer);
+            const reader = new base.BinaryReader(buffer);
             if (context.identifier === '__model__.nb' || context.identifier === 'param.nb') {
                 if (buffer[0] > 2 || buffer[1] !== 0x00 || buffer[2] !== 0x76 || buffer[2] !== 0x32) {
                     return new paddle.NaiveBuffer(reader, -1);
@@ -959,45 +960,6 @@ paddle.NaiveBuffer = class {
                 }
             }
         }
-    }
-};
-
-paddle.BinaryReader = class {
-
-    constructor(data) {
-        this._buffer = data instanceof Uint8Array ? data : data.peek();
-        this._position = 0;
-        this._dataView = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
-    }
-
-    skip(offset) {
-        const position = this._position;
-        this._position += offset;
-        if (this._position > this._length) {
-            throw new Error('Expected ' + (this._position - this._length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
-        }
-        return position;
-    }
-
-    read(size) {
-        const position = this._position;
-        this.skip(size);
-        return this._buffer.subarray(position, this._position);
-    }
-
-    uint16() {
-        const position = this.skip(2);
-        return this._dataView.getUint16(position, true);
-    }
-
-    uint32() {
-        const position = this.skip(4);
-        return this._dataView.getUint32(position, true);
-    }
-
-    uint64() {
-        const position = this.skip(8);
-        return this._dataView.getUint64(position, true).toNumber();
     }
 };
 
