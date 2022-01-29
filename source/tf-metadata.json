@@ -2213,7 +2213,7 @@
       {
         "name": "Tidx",
         "type": "type",
-        "description": "Must be one of the following: `int32`, `int64`.",
+        "description": "Must be one of the following: `int16`, `int32`, `int64`.",
         "default": {
           "type": "type",
           "value": 3
@@ -2222,7 +2222,7 @@
       {
         "name": "output_type",
         "type": "type",
-        "description": "Must be one of the following: `int32`, `int64`.",
+        "description": "Must be one of the following: `int16`, `int32`, `int64`.",
         "default": {
           "type": "type",
           "value": 9
@@ -2236,7 +2236,7 @@
       },
       {
         "name": "dimension",
-        "description": "int32 or int64, must be in the range `[-rank(input), rank(input))`.\nDescribes which dimension of the input Tensor to reduce across. For vectors,\nuse dimension = 0.",
+        "description": "int16, int32 or int64, must be in the range `[-rank(input), rank(input))`.\nDescribes which dimension of the input Tensor to reduce across. For vectors,\nuse dimension = 0.",
         "typeAttr": "Tidx"
       }
     ],
@@ -13970,8 +13970,8 @@
     ],
     "inputs": [
       {
-        "name": "sample_indices_or_row_lengths",
-        "description": "A list of rank 2 Tensors specifying the training example to which the\ncorresponding embedding_indices and aggregation_weights values belong.\nIf the size of its first dimension is 0, we assume each embedding_indices\nbelongs to a different sample. Both int32 and int64 are allowed and will\nbe converted to int32 internally.\n\nOr a list of rank 1 Tensors specifying the row lengths for splitting\nembedding_indices and aggregation_weights into rows. It corresponds to\nids.row_lengths in embedding_lookup(), when ids is a RaggedTensor. When\nenqueuing N-D ragged tensor, only the last dimension is allowed to be ragged.\nthe row lengths is 1-D dense tensor. When empty, we assume a dense tensor is\npassed to the op Both int32 and int64 are allowed and will be converted to\nint32 internally.",
+        "name": "sample_indices_or_row_splits",
+        "description": "A list of rank 2 Tensors specifying the training example to which the\ncorresponding embedding_indices and aggregation_weights values belong.\nIf the size of its first dimension is 0, we assume each embedding_indices\nbelongs to a different sample. Both int32 and int64 are allowed and will\nbe converted to int32 internally.\n\nOr a list of rank 1 Tensors specifying the row splits for splitting\nembedding_indices and aggregation_weights into rows. It corresponds to\nids.row_splits in embedding_lookup(), when ids is a RaggedTensor. When\nenqueuing N-D ragged tensor, only the last dimension is allowed to be ragged.\nthe row splits is 1-D dense tensor. When empty, we assume a dense tensor is\npassed to the op Both int32 and int64 are allowed and will be converted to\nint32 internally.",
         "numberAttr": "N",
         "typeAttr": "T1"
       },
@@ -14653,8 +14653,8 @@
     ],
     "inputs": [
       {
-        "name": "sample_indices_or_row_lengths",
-        "description": "A list of rank 2 Tensors specifying the training example to which the\ncorresponding embedding_indices and aggregation_weights values belong.\nIf the size of its first dimension is 0, we assume each embedding_indices\nbelongs to a different sample. Both int32 and int64 are allowed and will\nbe converted to int32 internally.\n\nOr a list of rank 1 Tensors specifying the row lengths for splitting\nembedding_indices and aggregation_weights into rows. It corresponds to\nids.row_lengths in embedding_lookup(), when ids is a RaggedTensor. When\nenqueuing N-D ragged tensor, only the last dimension is allowed to be ragged.\nthe row lengths is 1-D dense tensor. When empty, we assume a dense tensor is\npassed to the op Both int32 and int64 are allowed and will be converted to\nint32 internally.",
+        "name": "sample_indices_or_row_splits",
+        "description": "A list of rank 2 Tensors specifying the training example to which the\ncorresponding embedding_indices and aggregation_weights values belong.\nIf the size of its first dimension is 0, we assume each embedding_indices\nbelongs to a different sample. Both int32 and int64 are allowed and will\nbe converted to int32 internally.\n\nOr a list of rank 1 Tensors specifying the row splits for splitting\nembedding_indices and aggregation_weights into rows. It corresponds to\nids.row_splits in embedding_lookup(), when ids is a RaggedTensor. When\nenqueuing N-D ragged tensor, only the last dimension is allowed to be ragged.\nthe row splits is 1-D dense tensor. When empty, we assume a dense tensor is\npassed to the op Both int32 and int64 are allowed and will be converted to\nint32 internally.",
         "numberAttr": "N",
         "typeAttr": "T1"
       },
@@ -18952,7 +18952,7 @@
       {
         "name": "U",
         "type": "type",
-        "description": "The data type for the scale, offset, mean, and variance. Must be one of the following: `float32`."
+        "description": "The data type for the scale, offset, mean, and variance. Must be one of the following: `bfloat16`, `float32`."
       },
       {
         "name": "epsilon",
@@ -19327,7 +19327,7 @@
       {
         "name": "Tindices",
         "type": "type",
-        "description": "Must be one of the following: `int32`, `int64`."
+        "description": "Must be one of the following: `int16`, `int32`, `int64`."
       }
     ],
     "inputs": [
@@ -19367,7 +19367,7 @@
       {
         "name": "Tindices",
         "type": "type",
-        "description": "Must be one of the following: `int32`, `int64`."
+        "description": "Must be one of the following: `int16`, `int32`, `int64`."
       },
       {
         "name": "Taxis",
@@ -44946,7 +44946,7 @@
       {
         "name": "Tindices",
         "type": "type",
-        "description": "Must be one of the following: `int32`, `int64`."
+        "description": "Must be one of the following: `int16`, `int32`, `int64`."
       }
     ],
     "inputs": [
@@ -53740,7 +53740,7 @@
       {
         "name": "Index",
         "type": "type",
-        "description": "Must be one of the following: `int32`, `int64`."
+        "description": "Must be one of the following: `int16`, `int32`, `int64`."
       },
       {
         "name": "begin_mask",
@@ -57505,7 +57505,7 @@
       {
         "name": "Tindices",
         "type": "type",
-        "description": "Must be one of the following: `int32`, `int64`."
+        "description": "Must be one of the following: `int16`, `int32`, `int64`."
       }
     ],
     "inputs": [
