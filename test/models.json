@@ -2314,8 +2314,23 @@
   {
     "type":   "kmodel",
     "target": "cifar10.kmodel",
-    "source": "https://raw.githubusercontent.com/sipeed/Maix-EMC/master/example/cifar/cifar10.kmodel",
+    "source": "https://github.com/lutzroeder/netron/files/7965167/cifar10.kmodel.zip[cifar10.kmodel]",
     "format": "kmodel v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/871"
+  },
+  {
+    "type":   "kmodel",
+    "target": "mobilenet_v2.kmodel",
+    "source": "https://github.com/lutzroeder/netron/files/7965168/mobilenet_v2.kmodel.zip[mobilenet_v2.kmodel]",
+    "format": "kmodel v5",
+    "error":  "Unsupported model version '5' in 'mobilenet_v2.kmodel'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/871"
+  },
+  {
+    "type":   "kmodel",
+    "target": "RFB-320.kmodel",
+    "source": "https://github.com/lutzroeder/netron/files/7965166/RFB-320.kmodel.zip[RFB-320.kmodel]",
+    "format": "kmodel v4",
     "link":   "https://github.com/lutzroeder/netron/issues/871"
   },
   {
