@@ -3724,6 +3724,9 @@ pytorch.Utility = class {
                     else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
                         continue;
                     }
+                    else if (value === null) {
+                        continue;
+                    }
                     return false;
                 }
             }
