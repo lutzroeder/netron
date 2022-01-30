@@ -180,8 +180,6 @@ caffe.Model = class {
             this._version = 2;
         }
 
-        this._graphs = [];
-
         const phases = new Set();
         for (const layer of net.layer) {
             for (const include of layer.include) {
@@ -194,8 +192,10 @@ caffe.Model = class {
             phases.add(-1);
         }
 
+        this._graphs = [];
         for (const phase of phases) {
-            this._graphs.push(new caffe.Graph(metadata, phase, net, this._version));
+            const graph = new caffe.Graph(metadata, phase, net, this._version);
+            this._graphs.push(graph);
         }
     }
 
@@ -236,13 +236,14 @@ caffe.Graph = class {
             }
         }
 
-        const scope = {};
+        const scopes = new Map();
         let index = 0;
         for (const layer of layers) {
-            layer.input = layer.input.map((input) => scope[input] ? scope[input] : input);
+            layer.input = layer.input.map((input) => scopes.has(input) ? scopes.get(input) : input);
             layer.output = layer.output.map((output) => {
-                scope[output] = scope[output] ? output + '\n' + index.toString() : output; // custom argument id
-                return scope[output];
+                const value = scopes.has(output) ? output + '\n' + index.toString() : output;
+                scopes.set(output, value);
+                return value;
             });
             index++;
         }
