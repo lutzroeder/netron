@@ -415,8 +415,8 @@ om.Tensor = class {
 
 om.TensorType = class {
 
-    constructor(dtype, shape, format, denotation) {
-        this._dtype = dtype;
+    constructor(dataType, shape, format, denotation) {
+        this._dataType = dataType;
         this._shape = new om.TensorShape(shape);
         const list = [];
         if (format) {
@@ -429,7 +429,7 @@ om.TensorType = class {
     }
 
     get dataType() {
-        return this._dtype;
+        return this._dataType;
     }
 
     set shape(dims) {
@@ -445,7 +445,7 @@ om.TensorType = class {
     }
 
     toString() {
-        return this.dataType + this._shape.toString();
+        return this._dataType + this._shape.toString();
     }
 };
 
