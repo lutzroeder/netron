@@ -325,6 +325,11 @@
         "description": "This parameter is only relevant when `svd_solver=\"randomized\"`.\nIt corresponds to the additional number of random vectors to sample the\nrange of `X` so as to ensure proper conditioning. See\n:func:`~sklearn.utils.extmath.randomized_svd` for more details.\n\n.. versionadded:: 1.1\n",
         "type": "int32",
         "default": 10
+      },
+      {
+        "name": "power_iteration_normalizer",
+        "description": "Power iteration normalizer for randomized SVD solver.\nNot used by ARPACK. See :func:`~sklearn.utils.extmath.randomized_svd`\nfor more details.\n\n.. versionadded:: 1.1\n",
+        "default": "\u2019auto\u2019"
       }
     ]
   },
@@ -363,6 +368,17 @@
         "name": "tol",
         "option": "optional",
         "type": "float32"
+      },
+      {
+        "name": "n_oversamples",
+        "description": "Number of oversamples for randomized SVD solver. Not used by ARPACK.\nSee :func:`~sklearn.utils.extmath.randomized_svd` for a complete\ndescription.\n\n.. versionadded:: 1.1\n",
+        "type": "int32",
+        "default": 10
+      },
+      {
+        "name": "power_iteration_normalizer",
+        "description": "Power iteration normalizer for randomized SVD solver.\nNot used by ARPACK. See :func:`~sklearn.utils.extmath.randomized_svd`\nfor more details.\n\n.. versionadded:: 1.1\n",
+        "default": "\u2019auto\u2019"
       }
     ]
   },
@@ -419,6 +435,11 @@
         "description": "This parameter is only relevant when `svd_solver=\"randomized\"`.\nIt corresponds to the additional number of random vectors to sample the\nrange of `X` so as to ensure proper conditioning. See\n:func:`~sklearn.utils.extmath.randomized_svd` for more details.\n\n.. versionadded:: 1.1\n",
         "type": "int32",
         "default": 10
+      },
+      {
+        "name": "power_iteration_normalizer",
+        "description": "Power iteration normalizer for randomized SVD solver.\nNot used by ARPACK. See :func:`~sklearn.utils.extmath.randomized_svd`\nfor more details.\n\n.. versionadded:: 1.1\n",
+        "default": "\u2019auto\u2019"
       }
     ]
   },
@@ -1754,7 +1775,7 @@
   },
   {
     "name": "sklearn.preprocessing._data.StandardScaler",
-    "description": "Standardize features by removing the mean and scaling to unit variance.\n\nThe standard score of a sample `x` is calculated as:\n\nz = (x - u) / s\n\nwhere `u` is the mean of the training samples or zero if `with_mean=False`,\nand `s` is the standard deviation of the training samples or one if\n`with_std=False`.\n\nCentering and scaling happen independently on each feature by computing\nthe relevant statistics on the samples in the training set. Mean and\nstandard deviation are then stored to be used on later data using\n:meth:`transform`.\n\nStandardization of a dataset is a common requirement for many\nmachine learning estimators: they might behave badly if the\nindividual features do not more or less look like standard normally\ndistributed data (e.g. Gaussian with 0 mean and unit variance).\n\nFor instance many elements used in the objective function of\na learning algorithm (such as the RBF kernel of Support Vector\nMachines or the L1 and L2 regularizers of linear models) assume that\nall features are centered around 0 and have variance in the same\norder. If a feature has a variance that is orders of magnitude larger\nthat others, it might dominate the objective function and make the\nestimator unable to learn from other features correctly as expected.\n\nThis scaler can also be applied to sparse CSR or CSC matrices by passing\n`with_mean=False` to avoid breaking the sparsity structure of the data.\n\nRead more in the :ref:`User Guide <preprocessing_scaler>`.\n",
+    "description": "Standardize features by removing the mean and scaling to unit variance.\n\nThe standard score of a sample `x` is calculated as:\n\nz = (x - u) / s\n\nwhere `u` is the mean of the training samples or zero if `with_mean=False`,\nand `s` is the standard deviation of the training samples or one if\n`with_std=False`.\n\nCentering and scaling happen independently on each feature by computing\nthe relevant statistics on the samples in the training set. Mean and\nstandard deviation are then stored to be used on later data using\n:meth:`transform`.\n\nStandardization of a dataset is a common requirement for many\nmachine learning estimators: they might behave badly if the\nindividual features do not more or less look like standard normally\ndistributed data (e.g. Gaussian with 0 mean and unit variance).\n\nFor instance many elements used in the objective function of\na learning algorithm (such as the RBF kernel of Support Vector\nMachines or the L1 and L2 regularizers of linear models) assume that\nall features are centered around 0 and have variance in the same\norder. If a feature has a variance that is orders of magnitude larger\nthan others, it might dominate the objective function and make the\nestimator unable to learn from other features correctly as expected.\n\nThis scaler can also be applied to sparse CSR or CSC matrices by passing\n`with_mean=False` to avoid breaking the sparsity structure of the data.\n\nRead more in the :ref:`User Guide <preprocessing_scaler>`.\n",
     "attributes": [
       {
         "default": true,
