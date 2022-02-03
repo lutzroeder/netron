@@ -25331,13 +25331,13 @@
       {
         "name": "scales",
         "type": "tensor(float)",
-        "description": "The scale array along each dimension. It takes value greater than 0. If it's less than 1, it's sampling down, otherwise, it's upsampling. The number of elements of 'scales' should be the same as the rank of input 'X'. Only one of 'scales' and 'sizes' can be specified. If 'size' is needed, the user can use an empty string as the name of 'scales' in this operator's input list."
+        "description": "The scale array along each dimension. It takes value greater than 0. If it's less than 1, it's sampling down, otherwise, it's upsampling. The number of elements of 'scales' should be the same as the rank of input 'X'. If 'size' is needed, the user must set 'scales' to an empty tensor."
       },
       {
         "name": "sizes",
         "type": "tensor(int64)",
         "option": "optional",
-        "description": "The size of the output tensor. The number of elements of 'sizes' should be the same as the rank of input 'X'. Only one of 'scales' and 'sizes' can be specified."
+        "description": "The size of the output tensor. The number of elements of 'sizes' should be the same as the rank of input 'X'. May only be set if 'scales' is set to an empty tensor."
       }
     ],
     "min_input": 3,
