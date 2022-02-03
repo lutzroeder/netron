@@ -3022,7 +3022,9 @@ python.Execution = class {
                     return;
                 }
                 else if (target.type === 'tuple') {
+                    context.target.push(target.value);
                     const value = this.expression(expression.expression, context);
+                    context.target.pop();
                     if  (target.value.every((item) => item.type === 'id')) {
                         if (target.value.length < value.length) {
                             throw new python.Error('ValueError: too many values to unpack (expected ' + target.value.length + ', actual ' + value.length + ').');
@@ -3286,6 +3288,11 @@ python.Execution.Context = class {
             }
         }
         return undefined;
+    }
+
+    get target() {
+        this._target = this._target || [];
+        return this._target;
     }
 };
 
