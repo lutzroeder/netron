@@ -588,7 +588,7 @@ pytorch.Attribute = class {
                 this._visible = false;
             }
             else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                if (JSON.stringify(schema.default) == JSON.stringify(this._value)) {
+                if (this._hasSameValueAs(schema.default)) {
                     this._visible = false;
                 }
                 else if (Array.isArray(this._value) && !Array.isArray(schema.default) && this.value.every((item) => item == schema.default)) {
@@ -615,6 +615,15 @@ pytorch.Attribute = class {
 
     get visible() {
         return this._visible == false ? false : true;
+    }
+
+    _hasSameValueAs(otherValue) {
+        // a lazy workaround
+        // todo: use something like this https://stackoverflow.com/a/1144249
+        if(otherValue === null && this._value !== null) {
+            return false;
+        }
+        return JSON.stringify(otherValue) == JSON.stringify(this._value);
     }
 };
 
