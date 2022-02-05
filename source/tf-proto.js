@@ -6081,6 +6081,9 @@ $root.tensorflow.GPUOptions.Experimental = class Experimental {
                 case 11:
                     message.use_cuda_malloc_async = reader.bool();
                     break;
+                case 12:
+                    message.disallow_retry_on_allocation_failure = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -6125,6 +6128,9 @@ $root.tensorflow.GPUOptions.Experimental = class Experimental {
                 case "use_cuda_malloc_async":
                     message.use_cuda_malloc_async = reader.bool();
                     break;
+                case "disallow_retry_on_allocation_failure":
+                    message.disallow_retry_on_allocation_failure = reader.bool();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -6143,6 +6149,7 @@ $root.tensorflow.GPUOptions.Experimental.prototype.kernel_tracker_max_bytes = 0;
 $root.tensorflow.GPUOptions.Experimental.prototype.kernel_tracker_max_pending = 0;
 $root.tensorflow.GPUOptions.Experimental.prototype.internal_fragmentation_fraction = 0;
 $root.tensorflow.GPUOptions.Experimental.prototype.use_cuda_malloc_async = false;
+$root.tensorflow.GPUOptions.Experimental.prototype.disallow_retry_on_allocation_failure = false;
 
 $root.tensorflow.GPUOptions.Experimental.VirtualDevices = class VirtualDevices {
 
