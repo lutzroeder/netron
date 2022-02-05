@@ -5387,7 +5387,7 @@
     ]
   },
   {
-    "name": "torch.all",
+    "name": "torch.all:",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -5396,9 +5396,29 @@
     ]
   },
   {
-    "name": "torch.any",
+    "name": "torch.all:dim",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.any:",
     "inputs": [
       { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.any:dim",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
