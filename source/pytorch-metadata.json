@@ -8,9 +8,9 @@
       { "name": "out_channels", "visible": false },
       { "name": "groups", "default": 1 },
       { "name": "transposed", "default": false },
-      { "name": "padding", "default": [   0 ] },
-      { "name": "dilation", "default": [   1 ] },
-      { "name": "stride", "default": [   1 ] }
+      { "name": "padding", "default": [ 0 ] },
+      { "name": "dilation", "default": [ 1 ] },
+      { "name": "stride", "default": [ 1 ] }
     ]
   },
   {
@@ -22,9 +22,9 @@
       { "name": "out_channels", "visible": false },
       { "name": "groups", "default": 1 },
       { "name": "transposed", "default": true },
-      { "name": "padding", "default": [   0 ] },
-      { "name": "dilation", "default": [   1 ] },
-      { "name": "stride", "default": [   1 ] }
+      { "name": "padding", "default": [ 0 ] },
+      { "name": "dilation", "default": [ 1 ] },
+      { "name": "stride", "default": [ 1 ] }
     ]
   },
   {
@@ -5387,7 +5387,7 @@
     ]
   },
   {
-    "name": "torch.all",
+    "name": "torch.all:",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -5396,9 +5396,31 @@
     ]
   },
   {
-    "name": "torch.any",
+    "name": "torch.all:dim",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.any:",
     "inputs": [
       { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.any:dim",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
