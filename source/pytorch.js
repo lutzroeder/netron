@@ -571,28 +571,32 @@ pytorch.Node = class {
 
 pytorch.Attribute = class {
 
-    constructor(schema, name, value) {
+    constructor(metadata, name, value) {
         this._name = name;
         this._value = value;
 
         if (this._name === 'training') {
             this._visible = false;
             this._type = 'boolean';
-            return;
         }
-        if (schema) {
-            if (Object.prototype.hasOwnProperty.call(schema, 'type')) {
-                this._type = schema.type;
+        else if (metadata) {
+            if (metadata.type) {
+                this._type = metadata.type;
             }
-            if (schema.visible === false) {
+            if (metadata.visible === false) {
                 this._visible = false;
             }
-            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                if (JSON.stringify(schema.default) == JSON.stringify(this._value)) {
-                    this._visible = false;
+            else if (metadata.default !== undefined) {
+                if (Array.isArray(value)) {
+                    if (Array.isArray(metadata.default)) {
+                        this._visible = value.length !== metadata.default || !this.value.every((item, index) => item == metadata.default[index]);
+                    }
+                    else {
+                        this._visible = !this.value.every((item) => item == metadata.default);
+                    }
                 }
-                else if (Array.isArray(this._value) && !Array.isArray(schema.default) && this.value.every((item) => item == schema.default)) {
-                    this._visible = false;
+                else {
+                    this._visible = this.value !== metadata.default;
                 }
             }
         }
