@@ -164,7 +164,7 @@ class Application {
                     'pdmodel', 'pdparams', 'nb',
                     'meta',
                     'tflite', 'lite', 'tfl',
-                    'armnn', 'mnn', 'nn', 'uff', 'uff.txt', 'rknn', 'xmodel',
+                    'armnn', 'mnn', 'nn', 'uff', 'uff.txt', 'rknn', 'xmodel', 'kmodel',
                     'ncnn', 'param', 'tnnproto', 'tmfile', 'ms', 'om',
                     'pt', 'pth', 'ptl', 't7',
                     'pkl', 'joblib',

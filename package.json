@@ -63,6 +63,7 @@
             { "ext": "hd5",        "name": "Keras Model"           },
             { "ext": "hdf5",       "name": "Keras Model"           },
             { "ext": "keras",      "name": "Keras Model"           },
+            { "ext": "kmodel",     "name": "kmodel"                },
             { "ext": "lite",       "name": "TensorFlow Lite Model" },
             { "ext": "mar",        "name": "MXNet Model"           },
             { "ext": "meta",       "name": "TensorFlow Meta Graph" },
