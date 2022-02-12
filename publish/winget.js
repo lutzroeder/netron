@@ -7,7 +7,6 @@ const path = require('path');
 
 const manifestDir = process.argv[2];
 const configuration = require('../package.json');
-const builder = fs.readFileSync('./electron-builder.yml', 'utf-8');
 
 const get = (url, timeout) => {
     return new Promise((resolve, reject) => {
@@ -67,7 +66,7 @@ const packageIdentifier = publisher.replace(' ', '') + '.' + productName;
 const license = 'Copyright (c) ' + publisher;
 const repository = 'https://github.com/' + configuration.repository;
 const url = repository + '/releases/download/v' + version + '/' + productName + '-Setup-' + version + '.exe';
-const extensions = builder.split('\n').filter((line) => line.startsWith('    ext')).map((line) => / {4}ext: (.*)\s*/.exec(line)[1]).sort().map((extension) => '- ' + extension).join('\n');
+const extensions = configuration.build.fileAssociations.map((entry) => '- ' + entry.ext).sort().join('\n');
 
 get(url).then((data) => {
     const sha256 = crypto.createHash('sha256').update(data).digest('hex').toUpperCase();

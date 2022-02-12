@@ -37,37 +37,98 @@
             "sourceType": "module"
         },
         "rules": {
-            "brace-style": [
-                "error",
-                "stroustrup",
-                {
-                    "allowSingleLine": true
-                }
-            ],
-            "indent": [
-                "error",
-                4,
-                {
-                    "SwitchCase": 1
-                }
-            ],
+            "brace-style": [ "error", "stroustrup", { "allowSingleLine": true } ],
+            "indent": [ "error", 4, { "SwitchCase": 1 } ],
             "linebreak-style": "off",
             "no-trailing-spaces": "error",
             "no-console": "error",
-            "prefer-const": [
-                "error",
-                {
-                    "destructuring": "all"
-                }
-            ],
-            "semi": [
-                "error",
-                "always"
-            ]
+            "prefer-const": [ "error", { "destructuring": "all" } ],
+            "semi": [ "error", "always" ]
         },
         "globals": {
             "flatbuffers": "readonly",
             "protobuf": "readonly"
+        }
+    },
+    "build": {
+        "appId": "com.lutzroeder.netron",
+        "productName": "Netron",
+        "files": [ "source/**/*" ],
+        "directories": { "buildResources": "./publish" },
+        "fileAssociations": [
+            { "ext": "armnn",      "name": "Arm NN Model"          },
+            { "ext": "cmf",        "name": "CNTK Model"            },
+            { "ext": "dnn",        "name": "CNTK Model"            },
+            { "ext": "h5",         "name": "Keras Model"           },
+            { "ext": "hd5",        "name": "Keras Model"           },
+            { "ext": "hdf5",       "name": "Keras Model"           },
+            { "ext": "keras",      "name": "Keras Model"           },
+            { "ext": "lite",       "name": "TensorFlow Lite Model" },
+            { "ext": "mar",        "name": "MXNet Model"           },
+            { "ext": "meta",       "name": "TensorFlow Meta Graph" },
+            { "ext": "mlmodel",    "name": "Core ML Model"         },
+            { "ext": "mlpackage",  "name": "Core ML Model Package", "isPackage": true },
+            { "ext": "mnn",        "name": "MNN Model"             },
+            { "ext": "model",      "name": "Model"                 },
+            { "ext": "nn",         "name": "Barracuda Model"       },
+            { "ext": "onnx",       "name": "ONNX Model"            },
+            { "ext": "om",         "name": "DaVinci OM Model"      },
+            { "ext": "pb",         "name": "Protocol Buffer"       },
+            { "ext": "pbtxt",      "name": "Text Protocol Buffer"  },
+            { "ext": "prototxt",   "name": "Text Protocol Buffer"  },
+            { "ext": "caffemodel", "name": "Caffe Model"           },
+            { "ext": "param",      "name": "NCNN Model"            },
+            { "ext": "pth",        "name": "PyTorch Model"         },
+            { "ext": "ptl",        "name": "PyTorch Model"         },
+            { "ext": "pt",         "name": "PyTorch Model"         },
+            { "ext": "t7",         "name": "Torch Model"           },
+            { "ext": "tflite",     "name": "TensorFlow Lite Model" },
+            { "ext": "tfl",        "name": "TensorFlow Lite Model" },
+            { "ext": "tmfile",     "name": "Tengine"               },
+            { "ext": "paddle",     "name": "PaddlePaddle"          },
+            { "ext": "pdmodel",    "name": "PaddlePaddle"          },
+            { "ext": "pdparams",   "name": "PaddlePaddle"          },
+            { "ext": "nb",         "name": "Paddle Lite"           },
+            { "ext": "rknn",       "name": "RKNN"                  },
+            { "ext": "uff",        "name": "UFF Model"             },
+            { "ext": "xmodel",     "name": "xmodel"                }
+        ],
+        "afterSign": "./publish/notarize.js",
+        "publish": [
+            { "provider": "github", "releaseType": "release" }
+        ],
+        "linux": {
+            "target": [ "AppImage", "snap" ]
+        },
+        "mac": {
+            "artifactName": "${productName}-${version}-mac.${ext}",
+            "category": "public.app-category.developer-tools",
+            "darkModeSupport": true,
+            "gatekeeperAssess": false,
+            "hardenedRuntime": true,
+            "target": [ "dmg", "zip" ]
+        },
+        "win": {
+            "target": [ "nsis" ],
+            "signingHashAlgorithms": [ "sha256" ],
+            "verifyUpdateCodeSignature": false
+        },
+        "dmg": {
+            "artifactName": "${productName}-${version}.${ext}",
+            "title": "${productName} ${version}",
+            "writeUpdateInfo": false,
+            "iconSize": 160,
+            "contents": [
+                { "x": 180, "y": 170 },
+                { "x": 480, "y": 170, "type": "link", "path": "/Applications" }
+            ]
+        },
+        "nsis": {
+            "differentialPackage": false
+        },
+        "snap": {
+            "plugs": [ "default", "removable-media" ],
+            "publish": [ { "provider": "snapStore", "channels": [ "stable" ] } ]
         }
     }
 }
