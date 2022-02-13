@@ -1265,6 +1265,7 @@ sidebar.FindSidebar = class {
         this._searchElement = this._host.document.createElement('input');
         this._searchElement.setAttribute('id', 'search');
         this._searchElement.setAttribute('type', 'text');
+        this._searchElement.setAttribute('spellcheck', 'false');
         this._searchElement.setAttribute('placeholder', 'Search...');
         this._searchElement.setAttribute('style', 'width: 100%');
         this._searchElement.addEventListener('input', (e) => {
@@ -1343,7 +1344,22 @@ sidebar.FindSidebar = class {
             this._resultElement.removeChild(this._resultElement.lastChild);
         }
 
-        const terms = searchText.trim().toLowerCase().split(' ').map((term) => term.trim()).filter((term) => term.length > 0);
+        let terms = null;
+        let callback = null;
+        const unquote = searchText.match(new RegExp(/^'(.*)'|"(.*)"$/));
+        if (unquote) {
+            const term = unquote[1] || unquote[2];
+            terms = [ term ];
+            callback = (name) => {
+                return term == name;
+            };
+        }
+        else {
+            terms = searchText.trim().toLowerCase().split(' ').map((term) => term.trim()).filter((term) => term.length > 0);
+            callback = (name) => {
+                return terms.every((term) => name.toLowerCase().indexOf(term) !== -1);
+            };
+        }
 
         const nodes = new Set();
         const edges = new Set();
@@ -1400,8 +1416,7 @@ sidebar.FindSidebar = class {
                 const name = label.value.name;
                 const type = label.value.type.name;
                 if (!nodes.has(label.id) &&
-                    ((name && terms.every((term) => name.toLowerCase().indexOf(term) !== -1) ||
-                     (type && terms.every((term) => type.toLowerCase().indexOf(term) !== -1))))) {
+                    ((name && callback(name) || (type && callback(type))))) {
                     const nameItem = this._host.document.createElement('li');
                     nameItem.innerText = '\u25A2 ' + (name || '[' + type + ']');
                     nameItem.id = label.id;
