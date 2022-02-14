@@ -588,6 +588,13 @@ coreml.Graph = class {
                     model.description.output.map((feature) => feature.name));
                 return 'Item Similarity Recommender';
             }
+            case 'audioFeaturePrint': {
+                this._createNode(scope, group, 'audioFeaturePrint', null, description,
+                    model.audioFeaturePrint,
+                    [ model.description.input[0].name ],
+                    [ model.description.output[0].name ]);
+                return 'Audio Feature Print';
+            }
             case 'linkedModel': {
                 this._createNode(scope, group, 'linkedModel', null, description,
                     model.linkedModel.linkedModelFile,
