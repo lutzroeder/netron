@@ -3073,7 +3073,7 @@
     "target": "arcface-resnet100.onnx",
     "source": "https://s3.amazonaws.com/onnx-model-zoo/arcface/resnet100/resnet100.onnx",
     "format": "ONNX v3",
-    "link":   "https://github.com/onnx/models/tree/master/models/face_recognition/ArcFace"
+    "link":   "https://github.com/onnx/models/tree/main/models/face_recognition/ArcFace"
   },
   {
     "type":   "onnx",
@@ -3107,7 +3107,7 @@
     "type":   "onnx",
     "target": "bvlc_googlenet_opset_9.onnx",
     "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_googlenet.tar.gz[bvlc_googlenet/model.onnx]",
-    "link":   "https://github.com/onnx/models/tree/master/bvlc_googlenet"
+    "link":   "https://github.com/onnx/models/tree/main/bvlc_googlenet"
   },
   {
     "type":   "onnx",
@@ -3217,9 +3217,9 @@
   {
     "type":   "onnx",
     "target": "emotion-ferplus-8.onnx",
-    "source": "https://github.com/onnx/models/raw/master/vision/body_analysis/emotion_ferplus/model/emotion-ferplus-8.onnx",
+    "source": "https://github.com/onnx/models/raw/main/vision/body_analysis/emotion_ferplus/model/emotion-ferplus-8.onnx",
     "format": "ONNX v3",
-    "link":   "https://github.com/onnx/models/tree/master/vision/body_analysis/emotion_ferplus"
+    "link":   "https://github.com/onnx/models/tree/main/vision/body_analysis/emotion_ferplus"
   },
   {
     "type":   "onnx",
@@ -3426,7 +3426,7 @@
     "type":   "onnx",
     "target": "shufflenet_opset_9.onnx",
     "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/shufflenet.tar.gz[shufflenet/model.onnx]",
-    "link":   "https://github.com/onnx/models/tree/master/shufflenet"
+    "link":   "https://github.com/onnx/models/tree/main/shufflenet"
   },
   {
     "type":   "onnx",
@@ -3453,7 +3453,7 @@
     "target": "squeezenet1.1.onnx",
     "source": "https://s3.amazonaws.com/onnx-model-zoo/squeezenet/squeezenet1.1/squeezenet1.1.onnx",
     "format": "ONNX v3",
-    "link":   "https://github.com/onnx/models/tree/master/vision/classification/squeezenet"
+    "link":   "https://github.com/onnx/models/tree/main/vision/classification/squeezenet"
   },
   {
     "type":   "onnx",
@@ -3467,14 +3467,14 @@
     "target": "squeezenet1.1.pb",
     "source": "https://s3.amazonaws.com/onnx-model-zoo/squeezenet/squeezenet1.1/squeezenet1.1.onnx",
     "format": "ONNX v3",
-    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/squeezenet"
+    "link":   "https://github.com/onnx/models/tree/main/models/image_classification/squeezenet"
   },
   {
     "type":   "onnx",
     "target": "squeezenet1.1.tgz",
     "source": "https://s3.amazonaws.com/onnx-model-zoo/squeezenet/squeezenet1.1/squeezenet1.1.tar.gz",
     "format": "ONNX v3",
-    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/squeezenet"
+    "link":   "https://github.com/onnx/models/tree/main/models/image_classification/squeezenet"
   },
   {
     "type":   "onnx",
@@ -3493,9 +3493,9 @@
   {
     "type":   "onnx",
     "target": "super-resolution-10.onnx",
-    "source": "https://media.githubusercontent.com/media/onnx/models/master/vision/super_resolution/sub_pixel_cnn_2016/model/super-resolution-10.onnx",
+    "source": "https://media.githubusercontent.com/media/onnx/models/main/vision/super_resolution/sub_pixel_cnn_2016/model/super-resolution-10.onnx",
     "format": "ONNX v4", "producer": "pytorch 1.1",
-    "link":   "https://github.com/onnx/models/tree/master/vision/super_resolution/sub_pixel_cnn_2016"
+    "link":   "https://github.com/onnx/models/tree/main/vision/super_resolution/sub_pixel_cnn_2016"
   },
   {
     "type":   "onnx",
