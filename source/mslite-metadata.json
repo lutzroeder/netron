@@ -1005,6 +1005,13 @@
     ]
   },
   {
+    "name": "DynamicQuant",
+    "attributes": [
+      { "name": "symmetric", "type": "boolean", "default": false },
+      { "name": "dst_type", "type": "int64", "default": 32 }
+    ]
+  },
+  {
     "name": "Eltwise",
     "attributes": [
       { "name": "mode", "type": "EltwiseMode", "default": "PROD" }

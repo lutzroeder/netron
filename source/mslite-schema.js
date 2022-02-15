@@ -376,6 +376,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 200: return $root.mindspore.schema.Affine.decode(reader, position);
             case 201: return $root.mindspore.schema.AllGather.decode(reader, position);
             case 202: return $root.mindspore.schema.ReduceScatter.decode(reader, position);
+            case 203: return $root.mindspore.schema.DynamicQuant.decode(reader, position);
         }
         return undefined;
     }
@@ -584,6 +585,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'Affine': return $root.mindspore.schema.Affine.decodeText(reader, json);
             case 'AllGather': return $root.mindspore.schema.AllGather.decodeText(reader, json);
             case 'ReduceScatter': return $root.mindspore.schema.ReduceScatter.decodeText(reader, json);
+            case 'DynamicQuant': return $root.mindspore.schema.DynamicQuant.decodeText(reader, json);
         }
         return undefined;
     }
@@ -3993,6 +3995,23 @@ $root.mindspore.schema.ReduceScatter = class ReduceScatter {
     }
 };
 
+$root.mindspore.schema.DynamicQuant = class DynamicQuant {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.DynamicQuant();
+        $.symmetric = reader.bool_(position, 4, false);
+        $.dst_type = reader.int64_(position, 6, 32);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.DynamicQuant();
+        $.symmetric = reader.value(json.symmetric, false);
+        $.dst_type = reader.value(json.dst_type, 32);
+        return $;
+    }
+};
+
 $root.mindspore.schema.QuantParam = class QuantParam {
 
     static decode(reader, position) {
@@ -4103,7 +4122,8 @@ $root.mindspore.schema.QuantType = {
     WeightQuant: 2,
     PostTraining: 3,
     QUANT_WEIGHT: 4,
-    QUANT_ALL: 5
+    QUANT_ALL: 5,
+    QUANT_DYNAMIC: 6
 };
 
 $root.mindspore.schema.Primitive = class Primitive {
