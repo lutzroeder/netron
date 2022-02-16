@@ -36,6 +36,8 @@ fileAssociations:
     ext: model
   - name: "Barracuda Model"
     ext: nn
+  - name: "Neural Network Libraries"
+    ext: nnp
   - name: "ONNX Model"
     ext: onnx
   - name: "DaVinci OM Model"

@@ -1551,6 +1551,7 @@ view.ModelFactoryService = class {
         this.register('./imgdnn', [ '.dnn', 'params', '.json' ]);
         this.register('./flax', [ '.msgpack' ]);
         this.register('./om', [ '.om', '.onnx', '.pb', '.engine' ]);
+        this.register('./nnabla', [ '.nnp', '.nntxt', '.txt', '.protobuf' ]);
     }
 
     register(id, extensions) {
