@@ -2493,6 +2493,24 @@
     ]
   },
   {
+    "name": "torch.coalesce",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch._coalesce",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.contiguous",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -3218,6 +3236,42 @@
   },
   {
     "name": "torch.bitwise_not_",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.real",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.imag",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.conj",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch._conj",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
