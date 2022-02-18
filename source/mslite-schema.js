@@ -377,6 +377,8 @@ $root.mindspore.schema.PrimitiveType = class {
             case 201: return $root.mindspore.schema.AllGather.decode(reader, position);
             case 202: return $root.mindspore.schema.ReduceScatter.decode(reader, position);
             case 203: return $root.mindspore.schema.DynamicQuant.decode(reader, position);
+            case 204: return $root.mindspore.schema.LSTMGradData.decode(reader, position);
+            case 205: return $root.mindspore.schema.LSTMGradWeight.decode(reader, position);
         }
         return undefined;
     }
@@ -586,6 +588,8 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'AllGather': return $root.mindspore.schema.AllGather.decodeText(reader, json);
             case 'ReduceScatter': return $root.mindspore.schema.ReduceScatter.decodeText(reader, json);
             case 'DynamicQuant': return $root.mindspore.schema.DynamicQuant.decodeText(reader, json);
+            case 'LSTMGradData': return $root.mindspore.schema.LSTMGradData.decodeText(reader, json);
+            case 'LSTMGradWeight': return $root.mindspore.schema.LSTMGradWeight.decodeText(reader, json);
         }
         return undefined;
     }
@@ -4008,6 +4012,68 @@ $root.mindspore.schema.DynamicQuant = class DynamicQuant {
         const $ = new $root.mindspore.schema.DynamicQuant();
         $.symmetric = reader.value(json.symmetric, false);
         $.dst_type = reader.value(json.dst_type, 32);
+        return $;
+    }
+};
+
+$root.mindspore.schema.LSTMGradData = class LSTMGradData {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.LSTMGradData();
+        $.bidirectional = reader.bool_(position, 4, false);
+        $.has_bias = reader.bool_(position, 6, false);
+        $.input_size = reader.int64_(position, 8, 0);
+        $.hidden_size = reader.int64_(position, 10, 0);
+        $.num_layers = reader.int64_(position, 12, 0);
+        $.num_directions = reader.int64_(position, 14, 0);
+        $.dropout = reader.float32_(position, 16, 0);
+        $.zoneout_cell = reader.float32_(position, 18, 0);
+        $.zoneout_hidden = reader.float32_(position, 20, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.LSTMGradData();
+        $.bidirectional = reader.value(json.bidirectional, false);
+        $.has_bias = reader.value(json.has_bias, false);
+        $.input_size = reader.value(json.input_size, 0);
+        $.hidden_size = reader.value(json.hidden_size, 0);
+        $.num_layers = reader.value(json.num_layers, 0);
+        $.num_directions = reader.value(json.num_directions, 0);
+        $.dropout = reader.value(json.dropout, 0);
+        $.zoneout_cell = reader.value(json.zoneout_cell, 0);
+        $.zoneout_hidden = reader.value(json.zoneout_hidden, 0);
+        return $;
+    }
+};
+
+$root.mindspore.schema.LSTMGradWeight = class LSTMGradWeight {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.LSTMGradWeight();
+        $.bidirectional = reader.bool_(position, 4, false);
+        $.has_bias = reader.bool_(position, 6, false);
+        $.input_size = reader.int64_(position, 8, 0);
+        $.hidden_size = reader.int64_(position, 10, 0);
+        $.num_layers = reader.int64_(position, 12, 0);
+        $.num_directions = reader.int64_(position, 14, 0);
+        $.dropout = reader.float32_(position, 16, 0);
+        $.zoneout_cell = reader.float32_(position, 18, 0);
+        $.zoneout_hidden = reader.float32_(position, 20, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.LSTMGradWeight();
+        $.bidirectional = reader.value(json.bidirectional, false);
+        $.has_bias = reader.value(json.has_bias, false);
+        $.input_size = reader.value(json.input_size, 0);
+        $.hidden_size = reader.value(json.hidden_size, 0);
+        $.num_layers = reader.value(json.num_layers, 0);
+        $.num_directions = reader.value(json.num_directions, 0);
+        $.dropout = reader.value(json.dropout, 0);
+        $.zoneout_cell = reader.value(json.zoneout_cell, 0);
+        $.zoneout_hidden = reader.value(json.zoneout_hidden, 0);
         return $;
     }
 };
