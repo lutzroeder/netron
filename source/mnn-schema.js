@@ -1459,6 +1459,7 @@ $root.MNN.ImageProcessParam = class ImageProcessParam {
         $.paddingValue = reader.int8_(position, 18, 0);
         $.shape = reader.typedArray(position, 20, Int32Array);
         $.outputType = reader.int32_(position, 22, 0);
+        $.draw = reader.bool_(position, 24, false);
         return $;
     }
 };
