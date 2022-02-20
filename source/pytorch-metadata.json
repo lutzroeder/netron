@@ -2289,6 +2289,16 @@
     ]
   },
   {
+    "name": "torch.complex",
+    "inputs": [
+      { "name": "real", "type": "Tensor" },
+      { "name": "imag", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.expand",
     "inputs": [
       { "name": "input", "type": "Tensor" },
