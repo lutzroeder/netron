@@ -202,7 +202,7 @@ kmodel.Node = class {
         this._chain = [];
         for (const entry of Object.entries(layer)) {
             const name = entry[0];
-            if (name === 'type' || name === 'location' || name === 'inputs' || name === 'outputs') {
+            if (name === 'type' || name === 'location' || name === 'inputs' || name === 'outputs' || name === 'chain') {
                 continue;
             }
             const value = entry[1];
@@ -312,6 +312,33 @@ kmodel.Reader = class {
             const register = (type, name, category, callback) => {
                 types.set(type, { type: { name: name, category: category || '' }, callback: callback });
             };
+            reader.uint64_bits = function(fields) {
+                const buffer = reader.read(8);
+                fields = Object.entries(fields);
+                fields.push([ null, Math.min(64, fields[fields.length - 1][1] + 56)]);
+                const obj = {};
+                for (let i = 0; i < fields.length - 1; i++) {
+                    const key = fields[i][0];
+                    let value = 0;
+                    let position = fields[i][1];
+                    const end = fields[i + 1][1];
+                    while (position < end) {
+                        const offset = (position / 8) >> 0;
+                        const start = (position & 7);
+                        const count = Math.min((offset + 1) * 8, end) - position;
+                        value = value | ((buffer[offset] >>> start) & ((1 << count) - 1)) << (position - fields[i][1]);
+                        position += count;
+                    }
+                    obj[key] = value;
+                }
+                return obj;
+            };
+            reader.mem_address = function(memory_type, name) {
+                const mem_address = this.uint32();
+                const argument = { name: memory_type + ':' + mem_address.toString() };
+                const parameter = { name: name, arguments: [ argument ] };
+                return [ parameter ];
+            };
             switch (this._version) {
                 case 3: {
                     reader.kpu_model_header_t = function() {
@@ -335,33 +362,6 @@ kmodel.Reader = class {
                             type: reader.uint32(),
                             body_size: reader.uint32()
                         };
-                    };
-                    reader.mem_address = function(memory, name) {
-                        const mem_address = this.uint32();
-                        const argument = { name: memory + ':' + mem_address.toString() };
-                        const parameter = { name: name, arguments: [ argument ] };
-                        return [ parameter ];
-                    };
-                    reader.kpu_layer_config_field = function(fields) {
-                        const buffer = reader.read(8);
-                        fields = Object.entries(fields);
-                        fields.push([ null, Math.min(64, fields[fields.length - 1][1] + 56)]);
-                        const obj = {};
-                        for (let i = 0; i < fields.length - 1; i++) {
-                            const key = fields[i][0];
-                            let value = 0;
-                            let position = fields[i][1];
-                            const end = fields[i + 1][1];
-                            while (position < end) {
-                                const offset = (position / 8) >> 0;
-                                const start = (position & 7);
-                                const count = Math.min((offset + 1) * 8, end) - position;
-                                value = value | ((buffer[offset] >>> start) & ((1 << count) - 1)) << (position - fields[i][1]);
-                                position += count;
-                            }
-                            obj[key] = value;
-                        }
-                        return obj;
                     };
                     const model_header = reader.kpu_model_header_t();
                     this._layers = new Array(model_header.layers_length);
@@ -397,8 +397,8 @@ kmodel.Reader = class {
                         layer.flags = reader.uint32();
                         layer.inputs = reader.mem_address('main', 'inputs');
                         layer.outputs = reader.mem_address('main', 'outputs');
-                        layer.in_shape = [ reader.uint32(), reader.uint32(), reader.uint32() ];
-                        layer.out_shape = [ reader.uint32(), reader.uint32(), reader.uint32() ];
+                        layer.inputs[0].arguments[0].shape = [ reader.uint32(), reader.uint32(), reader.uint32() ];
+                        layer.outputs[0].arguments[0].shape = [ reader.uint32(), reader.uint32(), reader.uint32() ];
                         layer.kernel = [ reader.uint32(), reader.uint32() ];
                         layer.stride = [ reader.uint32(), reader.uint32() ];
                         layer.padding = [ reader.uint32(), reader.uint32() ];
@@ -501,20 +501,20 @@ kmodel.Reader = class {
                         const bn_offset = reader.uint32();
                         const act_offset = reader.uint32();
                         reader.seek(layer_offset);
-                        layer.interrupt_enabe = reader.kpu_layer_config_field({ int_en: 0, ram_flag: 1, full_add: 2, depth_wise_layer: 3 });
+                        layer.interrupt_enabe = reader.uint64_bits({ int_en: 0, ram_flag: 1, full_add: 2, depth_wise_layer: 3 });
                         layer.inputs = reader.mem_address('kpu', 'inputs');
                         const outputs = reader.mem_address('kpu', 'outputs');
                         layer.outputs = layer.flags & 1 ? layer.outputs : outputs;
-                        layer.image_channel_num = reader.kpu_layer_config_field({ i_ch_num: 0, o_ch_num: 32, o_ch_num_coef: 48 });
-                        layer.image_size =  reader.kpu_layer_config_field({ i_row_wid: 0, i_col_high: 10, o_row_wid: 32, o_col_high : 42 });
-                        layer.kernel_pool_type_cfg = reader.kpu_layer_config_field({ kernel_type: 0, pad_type: 3, pool_type: 4, first_stride: 8, bypass_conv: 9, load_para: 10, dma_burst_size: 16, pad_value: 24, bwsx_base_addr: 32 });
-                        layer.kernel_load_cfg = reader.kpu_layer_config_field({ load_coor: 0, load_time: 1, para_size: 15, para_start_addr: 32 });
-                        layer.kernel_offset = reader.kpu_layer_config_field({ coef_column_offset: 0, coef_row_offset: 4 });
-                        layer.kernel_calc_type_cfg = reader.kpu_layer_config_field({ channel_switch_addr: 0, row_switch_addr: 16, coef_size: 20, coef_group: 28, load_act: 31, active_addr: 32 });
-                        layer.write_back_cfg = reader.kpu_layer_config_field({ wb_channel_switch_addr: 0, wb_row_switch_addr: 16, wb_group: 20 });
-                        layer.conv_value = reader.kpu_layer_config_field({ shr_w: 0, shr_x: 4, arg_w: 8, arg_x: 32 });
-                        layer.conv_value2 = reader.kpu_layer_config_field({ arg_add: 0 });
-                        layer.dma_parameter = reader.kpu_layer_config_field({ send_data_out: 0, channel_byte_num: 16, dma_total_byte: 32 });
+                        layer.image_channel_num = reader.uint64_bits({ i_ch_num: 0, o_ch_num: 32, o_ch_num_coef: 48 });
+                        layer.image_size =  reader.uint64_bits({ i_row_wid: 0, i_col_high: 10, o_row_wid: 32, o_col_high : 42 });
+                        layer.kernel_pool_type_cfg = reader.uint64_bits({ kernel_type: 0, pad_type: 3, pool_type: 4, first_stride: 8, bypass_conv: 9, load_para: 10, dma_burst_size: 16, pad_value: 24, bwsx_base_addr: 32 });
+                        layer.kernel_load_cfg = reader.uint64_bits({ load_coor: 0, load_time: 1, para_size: 15, para_start_addr: 32 });
+                        layer.kernel_offset = reader.uint64_bits({ coef_column_offset: 0, coef_row_offset: 4 });
+                        layer.kernel_calc_type_cfg = reader.uint64_bits({ channel_switch_addr: 0, row_switch_addr: 16, coef_size: 20, coef_group: 28, load_act: 31, active_addr: 32 });
+                        layer.write_back_cfg = reader.uint64_bits({ wb_channel_switch_addr: 0, wb_row_switch_addr: 16, wb_group: 20 });
+                        layer.conv_value = reader.uint64_bits({ shr_w: 0, shr_x: 4, arg_w: 8, arg_x: 32 });
+                        layer.conv_value2 = reader.uint64_bits({ arg_add: 0 });
+                        layer.dma_parameter = reader.uint64_bits({ send_data_out: 0, channel_byte_num: 16, dma_total_byte: 32 });
                         reader.seek(weights_offset);
                         reader.seek(bn_offset);
                         reader.seek(act_offset);
@@ -545,7 +545,7 @@ kmodel.Reader = class {
                             throw new kmodel.Error("Unsupported version '" + this._version.toString() + "' layer type '" + layer.type.toString() + "'.");
                         }
                         if (!type.callback) {
-                            throw new kmodel.Error("Unsupported version '" + this._version.toString() + "' layer '" + type.name + "'.");
+                            throw new kmodel.Error("Unsupported version '" + this._version.toString() + "' layer '" + type.type.name + "'.");
                         }
                         layer.type = type.type;
                         reader.seek(layer.offset);
@@ -587,8 +587,48 @@ kmodel.Reader = class {
                             size: this.uint32()
                         };
                     };
+                    reader.argument = function() {
+                        const memory = this.memory_range();
+                        const type = [ 'const', 'main', 'kpu' ][memory.memory_type];
+                        return { name: type + ':' + memory.start.toString() };
+                    };
+                    reader.parameter = function(name) {
+                        const argument = this.argument();
+                        return { name: name, arguments: [ argument ] };
+                    };
                     reader.runtime_shape_t = function() {
                         return [ reader.uint32(), reader.uint32(), reader.uint32(), reader.uint32() ];
+                    };
+                    reader.runtime_paddings_t = function() {
+                        return [ reader.int32(), reader.int32(), reader.int32(), reader.int32(), reader.int32(), reader.int32(), reader.int32(), reader.int32() ];
+                    };
+                    reader.scalar = function() {
+                        return {
+                            datatype_t: reader.uint32(),
+                            storage: reader.read(4)
+                        };
+                    };
+                    reader.kpu_activate_table_t = function() {
+                        const value = {};
+                        value.activate_para = new Array(16);
+                        for (let i = 0; i < 16; i++) {
+                            value.activate_para[i] = this.uint64_bits({ shift_number: 0, y_mul: 8, x_start: 24, reserved: 60 });
+                        }
+                        value.activate_para_bias0 = reader.read(8);
+                        value.activate_para_bias1 = reader.read(8);
+                        return value;
+                    };
+                    reader.unary_op_t = function() {
+                        const value = reader.uint32();
+                        return [ 'abs', 'ceil', 'cos', 'exp', 'floor', 'log', 'neg', 'rsqrt', 'sin', 'square' ][value];
+                    };
+                    reader.binary_op_t = function() {
+                        const value = reader.uint32();
+                        return [ 'add', 'sub', 'mul', 'div', 'min', 'max' ][value];
+                    };
+                    reader.reduce_op_t = function() {
+                        const value = reader.uint32();
+                        return [ 'mean', 'min', 'max', 'sum' ][value];
                     };
                     this._inputs = new Array(model_header.inputs);
                     for (let i = 0; i < this._inputs.length; i++) {
@@ -606,7 +646,7 @@ kmodel.Reader = class {
                     for (let i = 0; i < this._layers.length; i++) {
                         this._layers[i] = {
                             location: i,
-                            op_code: reader.uint32(),
+                            opcode: reader.uint32(),
                             body_size: reader.uint32()
                         };
                     }
@@ -615,25 +655,99 @@ kmodel.Reader = class {
                         layer.offset = offset;
                         offset += layer.body_size;
                     }
-
                     register(  0x00, 'binary', '');
-                    register(  0x01, 'concat', 'Tensor');
+                    register(  0x01, 'concat', 'Tensor', (layer, reader) => {
+                        layer.outputs = [ reader.parameter('output') ];
+                        layer.inner_size = reader.uint32();
+                        layer.outer_size = reader.uint32();
+                        const inputs_count = reader.uint32();
+                        layer.inputs = [ { name: 'inputs', arguments: [] } ];
+                        for (let i = 0; i < inputs_count; i++) {
+                            layer.inputs[0].arguments[i] = reader.argument();
+                        }
+                        layer.dims = new Array(inputs_count);
+                        for (let i = 0; i < inputs_count; i++) {
+                            layer.dims[i] = reader.int32();
+                        }
+                    });
                     register(  0x02, 'conv2d', 'Layer');
-                    register(  0x03, 'dequantize', '');
-                    register(  0x04, 'matmul', '');
-                    register(  0x05, 'pad', 'Shape');
-                    register(  0x06, 'quantize', '');
-                    register(  0x07, 'reduce', '');
+                    register(  0x03, 'dequantize', '', (layer, reader) => {
+                        layer.inputs = [ reader.parameter('input') ];
+                        layer.outputs = [ reader.parameter('output') ];
+                        layer.zero_point = reader.int32();
+                        layer.scale = reader.float32();
+                    });
+                    register(  0x04, 'matmul', '', (layer, reader) => {
+                        layer.inputs = [
+                            reader.parameter('a'),
+                            reader.parameter('b'),
+                        ];
+                        layer.outputs = [ reader.parameter('output') ];
+                        layer.a_rows = reader.int32();
+                        layer.a_cols = reader.int32();
+                        layer.b_cols = reader.int32();
+                        layer.fused_activation = [ reader.float32(), reader.float32() ];
+                        // xtl::span<const float> bias;
+                    });
+                    register(  0x05, 'pad', 'Shape', (layer, reader) => {
+                        layer.inputs = [ reader.parameter('input') ];
+                        layer.outputs = [ reader.parameter('output') ];
+                        layer.inputs[0].arguments[0].shape = reader.runtime_shape_t();
+                        layer.paddings = reader.runtime_paddings_t();
+                        layer.pad_value = reader.scalar();
+                    });
+                    register(  0x06, 'quantize', '', (layer, reader) => {
+                        layer.inputs = [ reader.parameter('input') ];
+                        layer.outputs = [ reader.parameter('output') ];
+                        layer.zero_point = reader.int32();
+                        layer.scale = reader.float32();
+                    });
+                    register(  0x07, 'reduce', '', (layer, reader) => {
+                        layer.inputs = [ reader.parameter('input') ];
+                        layer.outputs = [ reader.parameter('output') ];
+                        layer.reduce_op = reader.reduce_op_t();
+                        layer.inputs[0].arguments[0].shape = reader.runtime_shape_t();
+                        layer.outputs[0].arguments[0].shape = reader.runtime_shape_t();
+                        layer.init_value = reader.float32();
+                    });
                     register(  0x08, 'reduce_window2d');
                     register(  0x09, 'memory_copy', '');
                     register(  0x0A, 'resize_image', '');
                     register(  0x0B, 'softmax', 'Activation');
-                    register(  0x0C, 'transpose', 'Transform');
+                    register(  0x0C, 'transpose', 'Transform', (layer, reader) => {
+                        layer.inputs = [ reader.parameter('input') ];
+                        layer.outputs = [ reader.parameter('output') ];
+                        layer.inputs[0].arguments[0].shape = reader.runtime_shape_t();
+                        layer.perm = reader.runtime_shape_t();
+                    });
                     register(  0x0D, 'strided_slice', 'Tensor');
-                    register(  0x0E, 'unary', '');
+                    register(  0x0E, 'unary', '', (layer, reader) => {
+                        layer.inputs = [ reader.parameter('input') ];
+                        layer.outputs = [ reader.parameter('output') ];
+                        layer.unary_op = reader.unary_op_t();
+                    });
                     register(  0x0F, 'quantized_conv2d', 'Layer');
                     register(  0x10, 'quantized_matmul', '');
-                    register(  0x11, 'quantized_binary', '');
+                    register(  0x11, 'quantized_binary', '', (layer, reader) => {
+                        layer.inputs = [
+                            reader.parameter('a'),
+                            reader.parameter('b')
+                        ];
+                        layer.outputs = [ reader.parameter('outputs') ];
+                        layer.binary_op = reader.binary_op_t();
+                        layer.inputs[0].arguments[0].shape = reader.runtime_shape_t();
+                        layer.inputs[1].arguments[0].shape = reader.runtime_shape_t();
+                        layer.outputs[0].arguments[0].shape = reader.runtime_shape_t();
+                        layer.input_a_offset = reader.int32();
+                        layer.input_a_mul = reader.int32();
+                        layer.input_a_shift = reader.int32();
+                        layer.input_b_offset = reader.int32();
+                        layer.input_b_mul = reader.int32();
+                        layer.input_b_shift = reader.int32();
+                        layer.output_offset = reader.int32();
+                        layer.output_mul = reader.int32();
+                        layer.output_shift = reader.int32();
+                    });
                     register(  0x12, 'table_lookup1d', '');
                     register(  0x13, 'conv2d_transpose', 'Layer');
                     register(  0x14, 'nnil_unary_method', '');
@@ -642,26 +756,75 @@ kmodel.Reader = class {
                     register(0x1003, 'cpu_reduce_window2d');
                     register(0x1004, 'cpu_quantized_conv2d', 'Layer');
                     register(0x1005, 'cpu_quantized_depthwise_conv2d', 'Layer');
-                    register(0x2001, 'kpu_upload', '');
-                    register(0x2002, 'kpu_conv2d', 'Layer');
+                    register(0x2001, 'kpu_upload', '', (layer, reader) => {
+                        layer.inputs = [ reader.parameter('input') ];
+                        layer.outputs = [ reader.parameter('output') ];
+                        layer.inputs[0].arguments[0].shape = reader.runtime_shape_t();
+                    });
+                    register(0x2002, 'kpu_conv2d', 'Layer', (layer, reader) => {
+                        layer.outputs = [ reader.parameter('output') ];
+                        layer.batches = reader.int32();
+                        layer.reserved0 = reader.int32();
+                        layer.interrupt_enabe = reader.uint64_bits({ int_en: 0, ram_flag: 1, full_add: 2, depth_wise_layer: 3 });
+                        layer.inputs = reader.mem_address('kpu', 'inputs'); // image_src_addr
+                        const outputs = reader.mem_address('kpu', 'output'); // image_dst_addr
+                        layer.outputs[0].arguments.push(outputs[0].arguments[0]);
+                        // layer.outputs = layer.flags & 1 ? layer.outputs : outputs;
+                        layer.image_channel_num = reader.uint64_bits({ i_ch_num: 0, o_ch_num: 32, o_ch_num_coef: 48 });
+                        layer.image_size =  reader.uint64_bits({ i_row_wid: 0, i_col_high: 10, o_row_wid: 32, o_col_high : 42 });
+                        layer.kernel_pool_type_cfg = reader.uint64_bits({ kernel_type: 0, pad_type: 3, pool_type: 4, first_stride: 8, bypass_conv: 9, load_para: 10, dma_burst_size: 16, pad_value: 24, bwsx_base_addr: 32 });
+                        layer.kernel_load_cfg = reader.uint64_bits({ load_coor: 0, load_time: 1, para_size: 15, para_start_addr: 32 });
+                        layer.kernel_offset = reader.uint64_bits({ coef_column_offset: 0, coef_row_offset: 4 });
+                        layer.kernel_calc_type_cfg = reader.uint64_bits({ channel_switch_addr: 0, row_switch_addr: 16, coef_size: 20, coef_group: 28, load_act: 31, active_addr: 32 });
+                        layer.write_back_cfg = reader.uint64_bits({ wb_channel_switch_addr: 0, wb_row_switch_addr: 16, wb_group: 20 });
+                        layer.conv_value = reader.uint64_bits({ shr_w: 0, shr_x: 4, arg_w: 8, arg_x: 32 });
+                        layer.conv_value2 = reader.uint64_bits({ arg_add: 0 });
+                        layer.dma_parameter = reader.uint64_bits({ send_data_out: 0, reserved: 1, channel_byte_num: 16, dma_total_byte: 32 });
+                        layer.chain = [];
+                        const ic = layer.image_channel_num.i_ch_num + 1;
+                        const oc = layer.image_channel_num.o_ch_num + 1;
+                        const filter = [ 1, 3 ][layer.kernel_pool_type_cfg.kernel_type];
+                        const weights_size = layer.interrupt_enabe.depth_wise_layer ? oc * filter * filter : ic * oc * filter * filter;
+                        reader.skip(layer.kernel_pool_type_cfg.bwsx_base_addr);
+                        delete layer.kernel_pool_type_cfg.bwsx_base_addr;
+                        const batch_norm = {
+                            type: { name: 'batchnorm', category: 'Normalization' },
+                            weights: []
+                        };
+                        batch_norm.weights = new Array(oc);
+                        for (let i = 0; i < oc; i++) {
+                            batch_norm.weights[i] = reader.uint64_bits({ norm_mul: 0, norm_add: 24, norm_shift: 56, reserverd: 60 });
+                        }
+                        layer.chain.push(batch_norm);
+                        reader.skip(layer.kernel_calc_type_cfg.active_addr);
+                        delete layer.kernel_calc_type_cfg.active_addr;
+                        const activation = reader.kpu_activate_table_t();
+                        activation.type = { name: 'activation', category: 'Activation' };
+                        layer.chain.push(activation);
+                        reader.skip(layer.kernel_load_cfg.para_start_addr);
+                        delete layer.kernel_load_cfg.para_start_addr;
+                        layer.weights = reader.read(weights_size);
+                    });
                     for (const layer of this._layers) {
-                        const type = types.get(layer.op_code);
+                        const type = types.get(layer.opcode);
                         if (!type) {
                             throw new kmodel.Error("Unsupported version '" + this._version.toString() + "' layer type '" + layer.type.toString() + "'.");
                         }
                         if (!type.callback) {
-                            // throw new kmodel.Error("Unsupported version '" + this._version.toString() + "' layer '" + type.name + "'.");
+                            throw new kmodel.Error("Unsupported version '" + this._version.toString() + "' layer '" + type.type.name + "'.");
                         }
                         layer.type = type.type;
                         reader.seek(layer.offset);
-                        // type.callback(layer, reader);
+                        if (type.callback) {
+                            type.callback(layer, reader);
+                        }
                         delete layer.offset;
                         delete layer.body_size;
                         if (reader.position != (layer.offset + layer.body_size)) {
                             // debugger;
                         }
                         // console.log(JSON.stringify(Object.fromEntries(Object.entries(layer).filter((entry) => !(entry[1] instanceof Uint8Array))), null, 2));
-                        delete layer.op_code;
+                        delete layer.opcode;
                     }
                     break;
                 }
