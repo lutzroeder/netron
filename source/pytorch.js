@@ -999,6 +999,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.modules.activation.Softmax2d', class {});
         this.registerType('torch.nn.modules.activation.Softplus', class {});
         this.registerType('torch.nn.modules.activation.Tanh', class {});
+        this.registerType('torch.nn.modules.activation.Tanhshrink', class {});
         this.registerType('torch.nn.modules.activation.Threshold', class {});
         this.registerType('torch.nn.modules.batchnorm.BatchNorm1d', class {});
         this.registerType('torch.nn.modules.batchnorm.BatchNorm2d', class {});
