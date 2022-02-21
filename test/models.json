@@ -2320,6 +2320,20 @@
   },
   {
     "type":   "kmodel",
+    "target": "iris.kmodel",
+    "source": "https://github.com/lutzroeder/netron/files/8111178/iris.kmodel.zip[iris.kmodel]",
+    "format": "kmodel v4",
+    "link":   "https://github.com/lutzroeder/netron/issues/871"
+  },
+  {
+    "type":   "kmodel",
+    "target": "mbnetv1.kmodel",
+    "source": "https://github.com/lutzroeder/netron/files/8111310/mbnetv1.kmodel.zip[mbnetv1.kmodel]",
+    "format": "kmodel v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/871"
+  },
+  {
+    "type":   "kmodel",
     "target": "mobilenet_v2.kmodel",
     "source": "https://github.com/lutzroeder/netron/files/7965168/mobilenet_v2.kmodel.zip[mobilenet_v2.kmodel]",
     "format": "kmodel v5",
@@ -2328,8 +2342,30 @@
   },
   {
     "type":   "kmodel",
+    "target": "model.kmodel",
+    "source": "https://github.com/lutzroeder/netron/files/8111371/model.kmodel.zip[model.kmodel]",
+    "format": "kmodel v4",
+    "link":   "https://github.com/lutzroeder/netron/issues/871"
+  },
+  {
+    "type":   "kmodel",
+    "target": "mnist.kmodel",
+    "source": "https://github.com/lutzroeder/netron/files/8111312/mnist.kmodel.zip[mnist.kmodel]",
+    "format": "kmodel v5",
+    "error":  "Unsupported model version '5' in 'mnist.kmodel'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/871"
+  },
+  {
+    "type":   "kmodel",
     "target": "RFB-320.kmodel",
     "source": "https://github.com/lutzroeder/netron/files/7965166/RFB-320.kmodel.zip[RFB-320.kmodel]",
+    "format": "kmodel v4",
+    "link":   "https://github.com/lutzroeder/netron/issues/871"
+  },
+  {
+    "type":   "kmodel",
+    "target": "ulffd_landmark.kmodel",
+    "source": "https://github.com/lutzroeder/netron/files/8111629/ulffd_landmark.kmodel.zip[ulffd_landmark.kmodel]",
     "format": "kmodel v4",
     "link":   "https://github.com/lutzroeder/netron/issues/871"
   },
