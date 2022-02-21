@@ -602,6 +602,12 @@ base.BinaryReader = class {
         return this._buffer[position];
     }
 
+    int8() {
+        const position = this._position;
+        this.skip(1);
+        return this._view.getInt8(position, true);
+    }
+
     int16() {
         const position = this._position;
         this.skip(2);
