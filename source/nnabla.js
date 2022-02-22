@@ -29,7 +29,7 @@ nnabla.ModelFactory = class {
             };
             const get_model = (stream) => {
                 const reader = protobuf.TextReader.open(stream);
-                return nnabla.proto.ModelProto.decodeText(reader);
+                return nnabla.proto.NNablaProtoBuf.decodeText(reader);
             }
             const get_version = () => {
                 return context.request('nnp_version.txt', null).then((stream) => {
@@ -39,7 +39,7 @@ nnabla.ModelFactory = class {
             const get_parameters = () => {
                 return context.request('parameter.protobuf', null).then((stream) => {
                     const reader = protobuf.BinaryReader.open(stream);
-                    return nnabla.proto.ModelProto.decode(reader);
+                    return nnabla.proto.NNablaProtoBuf.decode(reader);
                 })
             }
             switch (match) {
