@@ -26440,13 +26440,6 @@
     "outputs_range": "1 - &#8734;",
     "type_constraints": [
       {
-        "description": "Int64 tensor",
-        "type_param_str": "I",
-        "allowed_type_strs": [
-          "tensor(int64)"
-        ]
-      },
-      {
         "description": "All Tensor types",
         "type_param_str": "V",
         "allowed_type_strs": [
@@ -26547,13 +26540,6 @@
     "outputs_range": "1 - &#8734;",
     "type_constraints": [
       {
-        "description": "Int64 tensor",
-        "type_param_str": "I",
-        "allowed_type_strs": [
-          "tensor(int64)"
-        ]
-      },
-      {
         "description": "All Tensor types",
         "type_param_str": "V",
         "allowed_type_strs": [
@@ -26653,13 +26639,6 @@
     "inputs_range": "1 - &#8734;",
     "outputs_range": "1 - &#8734;",
     "type_constraints": [
-      {
-        "description": "Int64 tensor",
-        "type_param_str": "I",
-        "allowed_type_strs": [
-          "tensor(int64)"
-        ]
-      },
       {
         "description": "All Tensor types",
         "type_param_str": "V",
