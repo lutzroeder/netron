@@ -5100,9 +5100,6 @@
     "format": "TorchScript v1.5",
     "link":   "https://github.com/lutzroeder/netron/issues/842"
   },
-
-
-  
   {
     "type":   "rknn",
     "target": "autopilot.rknn",
@@ -5130,6 +5127,13 @@
     "source": "https://github.com/lutzroeder/netron/files/5621078/resnet_18.rknn.zip[resnet_18.rknn]",
     "format": "RKNN v1.3.2",
     "link":   "https://github.com/lutzroeder/netron/issues/639"
+  },
+  {
+    "type":   "rknn",
+    "target": "resnet18_for_rk356x.rknn",
+    "source": "https://github.com/rockchip-linux/rknn-toolkit2/raw/master/rknn-toolkit-lite2-v1.2.0/examples/inference_with_lite/resnet18_for_rk356x.rknn",
+    "format": "RKNN v1.2.0",
+    "link":   "https://github.com/rockchip-linux/rknn-toolkit2"
   },
   {
     "type":   "sklearn",

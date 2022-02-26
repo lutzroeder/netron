@@ -23,6 +23,15 @@
     ]
   },
   {
+    "name": "VSI_NN_OP_CONV_RELU_POOL",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ]
+  },
+  {
     "name": "VSI_NN_OP_CONV2D",
     "category": "Layer",
     "inputs": [
@@ -42,6 +51,15 @@
   },
   {
     "name": "VSI_NN_OP_FCL",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "VSI_NN_OP_FCL_RELU",
     "category": "Layer",
     "inputs": [
       { "name": "input" },
@@ -70,11 +88,42 @@
     "category": "Activation"
   },
   {
+    "name": "VSI_NN_OP_PRELU",
+    "category": "Activation",
+    "inputs": [
+      { "name": "input" },
+      { "name": "slope" }
+    ]
+  },
+  {
     "name": "VSI_NN_OP_RESHAPE",
     "category": "Shape"
   },
   {
     "name": "VSI_NN_OP_SIGMOID",
     "category": "Activation"
+  },
+  {
+    "name": "VSI_NN_OP_SOFTMAX",
+    "category": "Activation"
+  },
+  {
+    "name": "VSI_NN_OP_RESIZE",
+    "category": "Shape"
+  },
+  {
+    "name": "VSI_NN_OP_LRN",
+    "category": "NORMALIZATION"
+  },
+  {
+    "name": "VSI_NN_OP_BATCH_NORM",
+    "category": "NORMALIZATION",
+    "inputs": [
+      { "name": "input" },
+      { "name": "gamma" },
+      { "name": "beta" },
+      { "name": "mean" },
+      { "name": "variance" }
+    ]
   }
 ]
