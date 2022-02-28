@@ -350,9 +350,9 @@ json.TextReader = class {
         return value;
     }
 
-    _expect(text) {
-        for (let i = 0; i < text.length; i++) {
-            if (text[i] !== this._char) {
+    _expect(value) {
+        for (let i = 0; i < value.length; i++) {
+            if (value[i] !== this._char) {
                 this._unexpected();
             }
             this._next();
