@@ -22,16 +22,21 @@ ncnn.ModelFactory = class {
             }
         }
         if (identifier.endsWith('.param') || identifier.endsWith('.cfg.ncnn')) {
-            const reader = text.Reader.open(context.stream, 2048);
-            const signature = reader.read();
-            if (signature !== undefined) {
-                if (signature.trim() === '7767517') {
-                    return 'ncnn.model';
+            try {
+                const reader = text.Reader.open(context.stream, 2048);
+                const signature = reader.read();
+                if (signature !== undefined) {
+                    if (signature.trim() === '7767517') {
+                        return 'ncnn.model';
+                    }
+                    const header = signature.trim().split(' ');
+                    if (header.length === 2 && header.every((value) => value >>> 0 === parseFloat(value))) {
+                        return 'ncnn.model';
+                    }
                 }
-                const header = signature.trim().split(' ');
-                if (header.length === 2 && header.every((value) => value >>> 0 === parseFloat(value))) {
-                    return 'ncnn.model';
-                }
+            }
+            catch (err) {
+                // continue regardless of error
             }
         }
         if (identifier.endsWith('.bin') || identifier.endsWith('.weights.ncnn')) {
