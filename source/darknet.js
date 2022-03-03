@@ -599,7 +599,7 @@ darknet.Graph = class {
                             layer.vi = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
                             make_convolutional_layer(layer.vi, 'vi_', params.h, params.w, output_filters, output_filters, groups, size, stride, stride, padding, batch_normalize);
                             layer.vo = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
-                            make_convolutional_layer(layer.wo, 'vo_', params.h, params.w, output_filters, output_filters, groups, size, stride, stride, padding, batch_normalize);
+                            make_convolutional_layer(layer.vo, 'vo_', params.h, params.w, output_filters, output_filters, groups, size, stride, stride, padding, batch_normalize);
                             layer.weights = layer.weights.concat(layer.vf.weights);
                             layer.weights = layer.weights.concat(layer.vi.weights);
                             layer.weights = layer.weights.concat(layer.vo.weights);
