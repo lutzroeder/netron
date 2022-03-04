@@ -3266,6 +3266,13 @@
   },
   {
     "type":   "onnx",
+    "target": "example.txt",
+    "source": "https://github.com/lutzroeder/netron/files/8174755/example.txt.zip[example.txt]",
+    "format": "ONNX Text v7",
+    "link":   "https://github.com/lutzroeder/netron/issues/532"
+  },
+  {
+    "type":   "onnx",
     "target": "Exermote.onnx",
     "source": "https://github.com/lutzroeder/netron/files/2592478/Exermote.onnx.zip[Exermote.onnx]",
     "format": "ONNX v3",
