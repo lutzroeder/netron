@@ -2672,7 +2672,8 @@ $root.tflite.AssociatedFileType = {
     TENSOR_AXIS_LABELS: 2,
     TENSOR_VALUE_LABELS: 3,
     TENSOR_AXIS_SCORE_CALIBRATION: 4,
-    VOCABULARY: 5
+    VOCABULARY: 5,
+    SCANN_INDEX_FILE: 6
 };
 
 $root.tflite.AssociatedFile = class AssociatedFile {
