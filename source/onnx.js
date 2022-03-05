@@ -1764,7 +1764,8 @@ onnx.TextReader = class {
                 lines.push(line);
             }
             const content = lines.join('\n');
-            if (/^\s*<\s*ir_version\s*:/m.exec(content)) {
+            if (/^\s*<\s*ir_version\s*:/m.exec(content) ||
+                /^\s*[a-zA-Z][a-zA-Z0-9]*\s*\(.*\)\s=>\s\(/m.exec(content)) {
                 return new onnx.TextReader(data);
             }
         }
@@ -2040,12 +2041,16 @@ onnx.TextReader = class {
 
     _type(elem_type) {
         const type = new onnx.proto.TypeProto();
-        type.elem_type = elem_type;
+        type.tensor_type = new onnx.proto.TypeProto.Tensor();
+        type.tensor_type.elem_type = elem_type;
         if (this._match('[')) {
             if (!this._match(']')) {
-                type.shape = this._shape();
+                type.tensor_type.shape = this._shape();
                 this._expect(']');
             }
+        }
+        else {
+            type.tensor_type.shape = new onnx.proto.TensorShapeProto();
         }
         return type;
     }
@@ -2069,9 +2074,20 @@ onnx.TextReader = class {
         return shape;
     }
 
-    _tensor() {
+    _tensor(elem_type) {
         const tensor = new onnx.proto.TensorProto();
-        this._expect('=');
+        if (!this._dataTypes.has(elem_type)) {
+            this._throw("Unexpected type '" + elem_type + "'.");
+        }
+        const type = this._type(this._dataTypes.get(elem_type));
+        if (!type.tensor_type.elem_type) {
+            this._throw('Expected tensor data type.');
+        }
+        if (!type.tensor_type.shape || !type.tensor_type.shape.dim) {
+            this._throw('Expected tensor shape.');
+        }
+        tensor.data_type = type.tensor_type.elem_type;
+        tensor.dims = type.tensor_type.shape.dim.map((dim) => dim.dim_value);
         this._expect('{');
         if (!this._match('}')) {
             do {
