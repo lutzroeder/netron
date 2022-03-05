@@ -4081,7 +4081,8 @@
         "summary": "clip_default_int8",
         "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', 'min'],\n    outputs=['y'],\n)\nmin_val = np.int8(0)\nx = np.random.randn(3, 4, 5).astype(np.int8)\ny = np.clip(x, min_val, np.iinfo(np.int8).max)\nexpect(node, inputs=[x, min_val], outputs=[y],\n       name='test_clip_default_int8_min')\n\nno_min = \"\"  # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', no_min, 'max'],\n    outputs=['y'],\n)\nmax_val = np.int8(0)\nx = np.random.randn(3, 4, 5).astype(np.int8)\ny = np.clip(x, np.iinfo(np.int8).min, max_val)\nexpect(node, inputs=[x, max_val], outputs=[y],\n       name='test_clip_default_int8_max')\n\nno_max = \"\"  # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', no_min, no_max],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.int8)\ny = np.array([-1, 0, 1]).astype(np.int8)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_int8_inbounds')"
       }
-    ]
+    ],
+    "category": "Activation"
   },
   {
     "name": "Clip",
@@ -4147,7 +4148,8 @@
         "summary": "clip_default_int8",
         "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', 'min'],\n    outputs=['y'],\n)\nmin_val = np.int8(0)\nx = np.random.randn(3, 4, 5).astype(np.int8)\ny = np.clip(x, min_val, np.iinfo(np.int8).max)\nexpect(node, inputs=[x, min_val], outputs=[y],\n       name='test_clip_default_int8_min')\n\nno_min = \"\"  # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', no_min, 'max'],\n    outputs=['y'],\n)\nmax_val = np.int8(0)\nx = np.random.randn(3, 4, 5).astype(np.int8)\ny = np.clip(x, np.iinfo(np.int8).min, max_val)\nexpect(node, inputs=[x, max_val], outputs=[y],\n       name='test_clip_default_int8_max')\n\nno_max = \"\"  # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', no_min, no_max],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.int8)\ny = np.array([-1, 0, 1]).astype(np.int8)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_int8_inbounds')"
       }
-    ]
+    ],
+    "category": "Activation"
   },
   {
     "name": "Clip",
@@ -4210,7 +4212,8 @@
         "summary": "clip_default_int8",
         "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', 'min'],\n    outputs=['y'],\n)\nmin_val = np.int8(0)\nx = np.random.randn(3, 4, 5).astype(np.int8)\ny = np.clip(x, min_val, np.iinfo(np.int8).max)\nexpect(node, inputs=[x, min_val], outputs=[y],\n       name='test_clip_default_int8_min')\n\nno_min = \"\"  # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', no_min, 'max'],\n    outputs=['y'],\n)\nmax_val = np.int8(0)\nx = np.random.randn(3, 4, 5).astype(np.int8)\ny = np.clip(x, np.iinfo(np.int8).min, max_val)\nexpect(node, inputs=[x, max_val], outputs=[y],\n       name='test_clip_default_int8_max')\n\nno_max = \"\"  # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', no_min, no_max],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.int8)\ny = np.array([-1, 0, 1]).astype(np.int8)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_int8_inbounds')"
       }
-    ]
+    ],
+    "category": "Activation"
   },
   {
     "name": "Clip",
@@ -4281,7 +4284,8 @@
         "summary": "clip_default_int8",
         "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', 'min'],\n    outputs=['y'],\n)\nmin_val = np.int8(0)\nx = np.random.randn(3, 4, 5).astype(np.int8)\ny = np.clip(x, min_val, np.iinfo(np.int8).max)\nexpect(node, inputs=[x, min_val], outputs=[y],\n       name='test_clip_default_int8_min')\n\nno_min = \"\"  # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', no_min, 'max'],\n    outputs=['y'],\n)\nmax_val = np.int8(0)\nx = np.random.randn(3, 4, 5).astype(np.int8)\ny = np.clip(x, np.iinfo(np.int8).min, max_val)\nexpect(node, inputs=[x, max_val], outputs=[y],\n       name='test_clip_default_int8_max')\n\nno_max = \"\"  # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', no_min, no_max],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.int8)\ny = np.array([-1, 0, 1]).astype(np.int8)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_int8_inbounds')"
       }
-    ]
+    ],
+    "category": "Activation"
   },
   {
     "name": "Clip",
@@ -4353,7 +4357,8 @@
         "summary": "clip_default_int8",
         "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', 'min'],\n    outputs=['y'],\n)\nmin_val = np.int8(0)\nx = np.random.randn(3, 4, 5).astype(np.int8)\ny = np.clip(x, min_val, np.iinfo(np.int8).max)\nexpect(node, inputs=[x, min_val], outputs=[y],\n       name='test_clip_default_int8_min')\n\nno_min = \"\"  # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', no_min, 'max'],\n    outputs=['y'],\n)\nmax_val = np.int8(0)\nx = np.random.randn(3, 4, 5).astype(np.int8)\ny = np.clip(x, np.iinfo(np.int8).min, max_val)\nexpect(node, inputs=[x, max_val], outputs=[y],\n       name='test_clip_default_int8_max')\n\nno_max = \"\"  # optional input, not supplied\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x', no_min, no_max],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.int8)\ny = np.array([-1, 0, 1]).astype(np.int8)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_int8_inbounds')"
       }
-    ]
+    ],
+    "category": "Activation"
   },
   {
     "name": "Compress",
@@ -33901,5 +33906,31 @@
         ]
       }
     ]
+  },
+  {
+    "name": "FusedConv",
+    "module": "com.microsoft",
+    "version": 1,
+    "inputs": [
+      {
+        "name": "input",
+        "type": "T"
+      },
+      {
+        "name": "weights",
+        "type": "T"
+      },
+      {
+        "name": "bias",
+        "type": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T"
+      }
+    ],
+    "category": "Layer"
   }
 ]

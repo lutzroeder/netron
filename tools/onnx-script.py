@@ -23,6 +23,7 @@ categories = {
     'LSTM': 'Layer',
     'GRU': 'Layer',
     'Gemm': 'Layer',
+    'FusedConv': 'Layer',
 
     'Dropout': 'Dropout',
 
@@ -39,6 +40,7 @@ categories = {
     'Softmax': 'Activation',
     'Softplus': 'Activation',
     'Softsign': 'Activation',
+    'Clip': 'Activation',
 
     'BatchNormalization': 'Normalization',
     'InstanceNormalization': 'Normalization',
@@ -135,9 +137,11 @@ def format_description(description):
     description = re.sub("\\[(.+)\\]\\(([^ ]+?)( \"(.+)\")?\\)", replace_line, description)
     return description
 
-def generate_json(schemas, json_file):
+def metadata():
+    json_file = os.path.join(os.path.dirname(__file__), '../source/onnx-metadata.json')
     json_root = []
-    for schema in schemas:
+    all_schemas_with_history = onnx.defs.get_all_schemas_with_history()
+    for schema in all_schemas_with_history:
         json_schema = {}
         json_schema['name'] = schema.name
         if schema.domain:
@@ -222,6 +226,10 @@ def generate_json(schemas, json_file):
             json_schema['category'] = categories[schema.name]
         json_root.append(json_schema);
     json_root = sorted(json_root, key=lambda item: item['name'] + ':' + str(item['version'] if 'version' in item else 0).zfill(4))
+    with io.open(json_file, 'r') as file:
+        content = file.read();
+        items = json.loads(content)
+        json_root = json_root + list(filter(lambda item: item['module'] == "com.microsoft", items))
     with io.open(json_file, 'w', newline='') as fout:
         json_root = json.dumps(json_root, indent=2)
         for line in json_root.splitlines():
@@ -230,11 +238,6 @@ def generate_json(schemas, json_file):
                 line = str(line)
             fout.write(line)
             fout.write('\n')
-
-def metadata():
-    json_file = os.path.join(os.path.dirname(__file__), '../source/onnx-metadata.json')
-    all_schemas_with_history = onnx.defs.get_all_schemas_with_history()
-    generate_json(all_schemas_with_history, json_file)
 
 def optimize():
     import onnx
