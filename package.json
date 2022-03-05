@@ -74,6 +74,7 @@
             { "ext": "nn",         "name": "Barracuda Model"       },
             { "ext": "onnx",       "name": "ONNX Model"            },
             { "ext": "om",         "name": "DaVinci OM Model"      },
+            { "ext": "ort",        "name": "ONNX Runtime Model"    },
             { "ext": "pb",         "name": "Protocol Buffer"       },
             { "ext": "pbtxt",      "name": "Text Protocol Buffer"  },
             { "ext": "prototxt",   "name": "Text Protocol Buffer"  },

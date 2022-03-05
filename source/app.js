@@ -156,7 +156,7 @@ class Application {
             properties: [ 'openFile' ],
             filters: [
                 { name: 'All Model Files',  extensions: [
-                    'onnx', 'pb',
+                    'onnx', 'ort', 'pb',
                     'h5', 'hd5', 'hdf5', 'json', 'keras',
                     'mlmodel', 'mlpackage',
                     'caffemodel',
