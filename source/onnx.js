@@ -2088,6 +2088,7 @@ onnx.TextReader = class {
         }
         tensor.data_type = type.tensor_type.elem_type;
         tensor.dims = type.tensor_type.shape.dim.map((dim) => dim.dim_value);
+        this._match('=');
         this._expect('{');
         if (!this._match('}')) {
             do {

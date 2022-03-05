@@ -3578,7 +3578,7 @@
   {
     "type":   "onnx",
     "target": "text_example.txt",
-    "source": "https://github.com/lutzroeder/netron/files/8189628/text_example.txt.zip[text_example.txt]",
+    "source": "https://github.com/lutzroeder/netron/files/8190032/text_example.txt.zip[text_example.txt]",
     "format": "ONNX Text v7",
     "link":   "https://github.com/lutzroeder/netron/issues/884"
   },
