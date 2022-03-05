@@ -93,7 +93,8 @@
             { "ext": "nb",         "name": "Paddle Lite"           },
             { "ext": "rknn",       "name": "RKNN"                  },
             { "ext": "uff",        "name": "UFF Model"             },
-            { "ext": "xmodel",     "name": "xmodel"                }
+            { "ext": "xmodel",     "name": "Vitis AI Model"        },
+            { "ext": "kmodel",     "name": "Kendryte Model"        }
         ],
         "afterSign": "./publish/notarize.js",
         "publish": [
