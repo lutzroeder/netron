@@ -63,7 +63,7 @@
             { "ext": "hd5",        "name": "Keras Model"           },
             { "ext": "hdf5",       "name": "Keras Model"           },
             { "ext": "keras",      "name": "Keras Model"           },
-            { "ext": "kmodel",     "name": "kmodel"                },
+            { "ext": "kmodel",     "name": "Kendryte Model"        },
             { "ext": "lite",       "name": "TensorFlow Lite Model" },
             { "ext": "mar",        "name": "MXNet Model"           },
             { "ext": "meta",       "name": "TensorFlow Meta Graph" },
@@ -93,8 +93,7 @@
             { "ext": "nb",         "name": "Paddle Lite"           },
             { "ext": "rknn",       "name": "RKNN"                  },
             { "ext": "uff",        "name": "UFF Model"             },
-            { "ext": "xmodel",     "name": "Vitis AI Model"        },
-            { "ext": "kmodel",     "name": "Kendryte Model"        }
+            { "ext": "xmodel",     "name": "Vitis AI Model"        }
         ],
         "afterSign": "./publish/notarize.js",
         "publish": [
