@@ -703,6 +703,7 @@
   },
   {
     "name": "Crop",
+    "category": "Data",
     "attributes": [
       { "name": "axis", "type": "int64", "default": 0 },
       { "name": "offsets", "type": "int64[]", "default": 0 }
@@ -3032,6 +3033,7 @@
   },
   {
     "name": "Upsample",
+    "category": "Data",
     "attributes": [
       { "name": "mode", "type": "string" },
       { "name": "scales", "type": "float32[]" }
