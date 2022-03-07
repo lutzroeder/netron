@@ -422,6 +422,9 @@ keras.Graph = class {
         };
         if (config) {
             this._name = config.name || (config.config && config.config.name ? config.config.name : '');
+            const is_connection = (item) => {
+                return Array.isArray(item) && (item.length === 3 || item.length === 4) && typeof item[0] === 'string' && Number.isInteger(item[1]) && Number.isInteger(item[2]);
+            };
             switch (config.class_name) {
                 case 'AllCNN':
                 case 'Sequential': {
@@ -479,9 +482,6 @@ keras.Graph = class {
                                 nodes.set(layer.name, layer);
                             }
                         }
-                        const is_connection = (item) => {
-                            return Array.isArray(item) && (item.length === 3 || item.length === 4) && typeof item[0] === 'string' && Number.isInteger(item[1]) && Number.isInteger(item[2]);
-                        };
                         const read_connection = (input_data) => {
                             let name = input_data[0];
                             const node = nodes.get(name);
@@ -563,7 +563,7 @@ keras.Graph = class {
                             }
                         }
                     }
-                    const input_layers = config.input_layers;
+                    const input_layers = is_connection(config.input_layers) ? [ config.input_layers ] : config.input_layers;
                     if (input_layers) {
                         for (let i = 0; i < input_layers.length; i++) {
                             const input_layer = input_layers[i];
@@ -579,7 +579,7 @@ keras.Graph = class {
                             this._inputs.push(parameter);
                         }
                     }
-                    const output_layers = config.output_layers;
+                    const output_layers = is_connection(config.output_layers) ? [ config.output_layers ] : config.output_layers;
                     if (output_layers) {
                         for (let j = 0; j < output_layers.length; j++) {
                             const output_layer = output_layers[j];
