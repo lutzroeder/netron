@@ -1090,13 +1090,6 @@
   },
   {
     "type":   "coreml",
-    "target": "CarClassifier.mlmodel",
-    "source": "https://raw.githubusercontent.com/PZ1Sharer05/CreateMLmodels/master/CarClassifier.mlmodel",
-    "format": "Core ML v1",
-    "link":   "https://github.com/PZ1Sharer05/CreateMLmodels"
-  },
-  {
-    "type":   "coreml",
     "target": "DocumentClassification.mlmodel",
     "source": "https://raw.githubusercontent.com/toddkramer/DocumentClassifier/master/Sources/DocumentClassification.mlmodel",
     "format": "Core ML v1",
