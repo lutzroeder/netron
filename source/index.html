@@ -15,7 +15,9 @@
 <link rel="fluid-icon" type="image/png" href="icon.png">
 <script type="text/javascript" src="dagre.js"></script>
 <script type="text/javascript" src="base.js"></script>
+<script type="text/javascript" src="text.js"></script>
 <script type="text/javascript" src="json.js"></script>
+<script type="text/javascript" src="xml.js"></script>
 <script type="text/javascript" src="python.js"></script>
 <script type="text/javascript" src="protobuf.js"></script>
 <script type="text/javascript" src="flatbuffers.js"></script>
@@ -34,8 +36,8 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .select { user-select: text; -webkit-user-select: text; -moz-user-select: text; }
 .open-file-dialog { display: none; }
 .transparent { width: 100%; height: 100%; background-color: #000000; display: none; opacity: 0; }
-.graph { touch-action: pan-x pan-y; overflow: auto; height: 100%; }
-.canvas { display: block; position: absolute; text-rendering: geometricPrecision; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.graph { display: flex; height: 100%; width: 100%; overflow: auto; outline: none; touch-action: pan-x pan-y; }
+.canvas { margin: auto; flex-shrink: 0; text-rendering: geometricPrecision; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .toolbar { position: absolute; top: 10px; left: 10px; padding: 0; margin: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .toolbar button:focus { outline: 0; }
 .toolbar-button { background: None; border-radius: 6px; border: 0; margin: 0; padding: 0; fill: None; stroke: #777; cursor: pointer; width: 24px; height: 24px; }
@@ -74,7 +76,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .about .github-button { display: none; }
 .about .consent-message { display: none; }
 .about .consent-accept-button { display: none; }
-.about .graph { display: block; opacity: 1; }
+.about .graph { display: flex; opacity: 1; }
 .about .toolbar { display: block; opacity: 1; }
 .about .transparent { display: block; opacity: 0.5; }
 .welcome { background-color: #ececec; color: #242424; }
@@ -109,13 +111,14 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .welcome.consent .github-button { opacity: 0; display: none; }
 .welcome.consent .consent-accept-button { opacity: 1; display: block; }
 .welcome.consent .consent-message { opacity: 1; display: block; }
-.welcome.spinner .graph { display: block; opacity: 0; }
+.welcome.spinner .graph { display: flex; opacity: 0; }
 .welcome .toolbar { display: none; }
 .default { background-color: #ffffff; }
 .default .logo { display: none; }
-.default .graph { display: block; opacity: 1; }
+.default .graph { display: flex; opacity: 1; }
 .default .toolbar { display: table; }
 @media (prefers-color-scheme: dark) {
+:root { color-scheme: dark; }
 .default { background-color: #404040; }
 .graph { background-color: #404040; }
 .about { background-color: #404040; }
@@ -168,7 +171,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 </style>
 </head>
 <body class="welcome spinner">
-<div id="graph" class="graph">
+<div id="graph" class="graph" tabindex="0">
     <svg id="canvas" class="canvas" preserveaspectratio="xMidYMid meet" width="100%" height="100%"></svg>
 </div>
 <div id="sidebar" class="sidebar"></div>
@@ -360,8 +363,8 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     <span class="center consent-message">This app uses cookies to report errors and anonymous usage information.</span>
     <button id="consent-accept-button" class="center consent-accept-button">Accept</button>
     <button id="open-file-button" class="center open-file-button">Open Model&hellip;</button>
-    <button id="github-button" class="center github-button">GitHub</button>
-    <input type="file" id="open-file-dialog" class="open-file-dialog" multiple="false" accept=".onnx, .pb, .meta, .tflite, .lite, .tfl, .keras, .h5, .hd5, .hdf5, .json, .model, .mar, .params, .param, .armnn, .mnn, .ncnn, .tnnproto, .tmfile, .ms, .nn, .uff, .rknn, .xmodel, .paddle, .pdmodel, .pdparams, .dnn, .cmf, .mlmodel, .mlpackage, .caffemodel, .pbtxt, .prototxt, .pkl, .pt, .pth, .t7, .joblib, .cfg, .xml, .zip, .tar">
+    <button id="github-button" class="center github-button">Download</button>
+    <input type="file" id="open-file-dialog" class="open-file-dialog" multiple="false" accept=".onnx, .ort, .pb, .meta, .tflite, .lite, .tfl, .keras, .h5, .hd5, .hdf5, .json, .model, .mar, .params, .param, .armnn, .mnn, .ncnn, .tnnproto, .tmfile, .ms, .om, .nn, .uff, .rknn, .xmodel, .kmodel, .paddle, .pdmodel, .pdparams, .nb, .dnn, .cmf, .mlmodel, .mlpackage, .caffemodel, .pbtxt, .prototxt, .pkl, .pt, .pth, .ptl, .t7, .joblib, .cfg, .xml, .zip, .tar">
     <!-- Preload fonts to workaround Chrome SVG layout issue -->
     <div style="font-weight: normal; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
     <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>

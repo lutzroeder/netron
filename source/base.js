@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var base = base || {};
 
@@ -97,8 +96,8 @@ base.Int64 = class Int64 {
     }
 
     toString(radix) {
-        radix = radix || 10;
-        if (radix < 2 || radix > 16) {
+        const r = radix || 10;
+        if (r < 2 || r > 16) {
             throw RangeError('radix');
         }
         if (this.isZero) {
@@ -109,11 +108,14 @@ base.Int64 = class Int64 {
                 const r = new Int64(radix, 0);
                 const div = this.divide(r);
                 const remainder = div.multiply(r).subtract(this);
-                return div.toString(radix) + (remainder.low >>> 0).toString(radix);
+                return div.toString(r) + (remainder.low >>> 0).toString(r);
             }
-            return '-' + this.negate().toString(radix);
+            return '-' + this.negate().toString(r);
         }
-        return base.Utility.text(this, false, radix);
+        if (this.high === 0) {
+            return this.low.toString(radix);
+        }
+        return base.Utility.text(this, false, r);
     }
 };
 
@@ -212,14 +214,17 @@ base.Uint64 = class Uint64 {
     }
 
     toString(radix) {
-        radix = radix || 10;
-        if (radix < 2 || 36 < radix) {
+        const r = radix || 10;
+        if (r < 2 || 36 < r) {
             throw RangeError('radix');
         }
         if (this.isZero) {
             return '0';
         }
-        return base.Utility.text(this, true, radix);
+        if (this.high === 0) {
+            return this.low.toString(radix);
+        }
+        return base.Utility.text(this, true, r);
     }
 };
 
@@ -549,223 +554,114 @@ DataView.prototype.getBits = DataView.prototype.getBits || function(offset, bits
     return value;
 };
 
-base.TextDecoder = class {
+base.BinaryReader = class {
 
-    static open(data) {
-        if (typeof data === 'string') {
-            return new base.TextDecoder.String(data);
-        }
-        const buffer = data instanceof Uint8Array ? data : data.peek();
-        const length = buffer.length;
-        if (length >= 3 && buffer[0] === 0xef && buffer[1] === 0xbb && buffer[2] === 0xbf) {
-            return new base.TextDecoder.Utf8(buffer, 3);
-        }
-        if (length >= 2 && buffer[0] === 0xff && buffer[1] === 0xfe) {
-            return new base.TextDecoder.Utf16LE(buffer, 2);
-        }
-        if (length >= 2 && buffer[0] === 0xfe && buffer[1] === 0xff) {
-            return new base.TextDecoder.Utf16BE(buffer, 2);
-        }
-        if (length >= 4 && buffer[0] === 0x00 && buffer[1] === 0x00 && buffer[2] === 0xfe && buffer[3] === 0xff) {
-            throw new Error("Unsupported UTF-32 big-endian encoding.");
-        }
-        if (length >= 4 && buffer[0] === 0xff && buffer[1] === 0xfe && buffer[2] === 0x00 && buffer[3] === 0x00) {
-            throw new Error("Unsupported UTF-32 little-endian encoding.");
-        }
-        if (length >= 5 && buffer[0] === 0x2B && buffer[1] === 0x2F && buffer[2] === 0x76 && buffer[3] === 0x38 && buffer[4] === 0x2D) {
-            throw new Error("Unsupported UTF-7 encoding.");
-        }
-        if (length >= 4 && buffer[0] === 0x2B && buffer[1] === 0x2F && buffer[2] === 0x76 && (buffer[3] === 0x38 || buffer[3] === 0x39 || buffer[3] === 0x2B || buffer[3] === 0x2F)) {
-            throw new Error("Unsupported UTF-7 encoding.");
-        }
-        if (length >= 4 && buffer[0] === 0x84 && buffer[1] === 0x31 && buffer[2] === 0x95 && buffer[3] === 0x33) {
-            throw new Error("Unsupported GB-18030 encoding.");
-        }
-        if (length > 4 && (length % 2) == 0 && (buffer[0] === 0x00 || buffer[1] === 0x00 || buffer[2] === 0x00 || buffer[3] === 0x00)) {
-            const lo = new Uint32Array(256);
-            const hi = new Uint32Array(256);
-            for (let i = 0; i < length; i += 2) {
-                lo[buffer[i]]++;
-                hi[buffer[i + 1]]++;
-            }
-            if (lo[0x00] === 0 && (hi[0x00] / (length >> 1)) > 0.5) {
-                return new base.TextDecoder.Utf16LE(buffer, 0);
-            }
-            if (hi[0x00] === 0 && (lo[0x00] / (length >> 1)) > 0.5) {
-                return new base.TextDecoder.Utf16BE(buffer, 0);
-            }
-        }
-        return new base.TextDecoder.Utf8(buffer, 0);
-    }
-};
-
-base.TextDecoder.String = class {
-
-    constructor(buffer) {
-        this.buffer = buffer;
-        this.position = 0;
-        this.length = buffer.length;
-    }
-
-    decode() {
-        if (this.position < this.length) {
-            return this.buffer[this.position++];
-        }
-        return undefined;
-    }
-};
-
-base.TextDecoder.Utf8 = class {
-
-    constructor(buffer, position) {
-        this.position = position || 0;
-        this.buffer = buffer;
-    }
-
-    decode() {
-        const c = this.buffer[this.position];
-        if (c === undefined) {
-            return c;
-        }
-        this.position++;
-        if (c < 0x80) {
-            return String.fromCodePoint(c);
-        }
-        if (c >= 0xC2 && c <= 0xDF) {
-            if (this.buffer[this.position] !== undefined) {
-                const c2 = this.buffer[this.position];
-                this.position++;
-                return String.fromCharCode(((c & 0x1F) << 6) | (c2 & 0x3F));
-            }
-        }
-        if (c >= 0xE0 && c <= 0xEF) {
-            if (this.buffer[this.position + 1] !== undefined) {
-                const c2 = this.buffer[this.position];
-                if ((c !== 0xE0 || c2 >= 0xA0) && (c !== 0xED || c2 <= 0x9f)) {
-                    const c3 = this.buffer[this.position + 1];
-                    if (c3 >= 0x80 && c3 < 0xFB) {
-                        this.position += 2;
-                        return String.fromCharCode(((c & 0x0F) << 12) | ((c2 & 0x3F) << 6) | ((c3 & 0x3F) << 0));
-                    }
-                }
-            }
-        }
-        if (c >= 0xF0 && c <= 0xF4) {
-            if (this.buffer[this.position + 2] !== undefined) {
-                const c2 = this.buffer[this.position];
-                if ((c !== 0xF0 || c2 >= 0x90) && (c !== 0xF4 || c2 <= 0x8f)) {
-                    const c3 = this.buffer[this.position + 1];
-                    if (c3 >= 0x80 && c3 < 0xFB) {
-                        const c4 = this.buffer[this.position + 2];
-                        this.position += 3;
-                        return String.fromCodePoint(((c & 0x07) << 18) | ((c2 & 0x3F) << 12) | ((c3 & 0x3F) << 6) | (c4 & 0x3F));
-                    }
-                }
-            }
-        }
-        return String.fromCharCode(0xfffd);
-    }
-};
-
-base.TextDecoder.Utf16LE = class {
-
-    constructor(buffer, position) {
-        this.buffer = buffer;
-        this.position = position || 0;
-        this.length = buffer.length;
-    }
-
-    decode() {
-        if (this.position + 1 < this.length) {
-            const c = this.buffer[this.position++] | (this.buffer[this.position++] << 8);
-            if (c < 0xD800 || c >= 0xDFFF) {
-                return String.fromCharCode(c);
-            }
-            if (c >= 0xD800 && c < 0xDBFF) {
-                if (this._position + 1 < this._length) {
-                    const c2 = this._buffer[this._position++] | (this._buffer[this._position++] << 8);
-                    if (c >= 0xDC00 || c < 0xDFFF) {
-                        return String.fromCodePoint(0x10000 + ((c & 0x3ff) << 10) + (c2 & 0x3ff));
-                    }
-                }
-            }
-            return String.fromCharCode(0xfffd);
-        }
-        return undefined;
-    }
-};
-
-base.TextDecoder.Utf16BE = class {
-
-    constructor(buffer, position) {
-        this.buffer = buffer;
-        this.position = position || 0;
-        this.length = buffer.length;
-    }
-
-    decode() {
-        if (this.position + 1 < this.length) {
-            const c = (this.buffer[this.position++] << 8) | this.buffer[this.position++];
-            if (c < 0xD800 || c >= 0xDFFF) {
-                return String.fromCharCode(c);
-            }
-            if (c >= 0xD800 && c < 0xDBFF) {
-                if (this._position + 1 < this._length) {
-                    const c2 = (this._buffer[this._position++] << 8) | this._buffer[this._position++];
-                    if (c >= 0xDC00 || c < 0xDFFF) {
-                        return String.fromCodePoint(0x10000 + ((c & 0x3ff) << 10) + (c2 & 0x3ff));
-                    }
-                }
-            }
-            return String.fromCharCode(0xfffd);
-        }
-        return undefined;
-    }
-};
-
-base.TextReader = class {
-
-    constructor(data, length) {
-        this._decoder = base.TextDecoder.open(data);
+    constructor(data) {
+        this._buffer = data instanceof Uint8Array ? data : data.peek();
         this._position = 0;
-        this._length = length || Number.MAX_SAFE_INTEGER;
+        this._length = this._buffer.length;
+        this._view = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
+        this._utf8 = new TextDecoder('utf-8');
     }
 
-    static open(data, length) {
-        return new base.TextReader(data, length);
+    get length() {
+        return this._length;
     }
 
-    read() {
-        if (this._position >= this._length) {
-            return undefined;
+    get position() {
+        return this._position;
+    }
+
+    seek(position) {
+        this._position = position >= 0 ? position : this._length + position;
+        if (this._position > this._length || this._position < 0) {
+            throw new Error('Expected ' + (this._position - this._length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
         }
-        let line = '';
-        let buffer = null;
-        for (;;) {
-            const c = this._decoder.decode();
-            if (c === undefined) {
-                this._length = this._position;
-                break;
-            }
-            this._position++;
-            if (this._position > this._length) {
-                break;
-            }
-            if (c === '\n') {
-                break;
-            }
-            line += c;
-            if (line.length >= 32) {
-                buffer = buffer || [];
-                buffer.push(line);
-                line = '';
-            }
+    }
+
+    skip(offset) {
+        this._position += offset;
+        if (this._position > this._length) {
+            throw new Error('Expected ' + (this._position - this._length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
         }
-        if (buffer) {
-            buffer.push(line);
-            return buffer.join('');
+    }
+
+    read(length) {
+        if (this._position === 0 && length === undefined) {
+            this._position = this._length;
+            return this._buffer;
         }
-        return line;
+        const position = this._position;
+        this.skip(length !== undefined ? length : this._length - this._position);
+        return this._buffer.slice(position, this._position);
+    }
+
+    byte() {
+        const position = this._position;
+        this.skip(1);
+        return this._buffer[position];
+    }
+
+    int8() {
+        const position = this._position;
+        this.skip(1);
+        return this._view.getInt8(position, true);
+    }
+
+    int16() {
+        const position = this._position;
+        this.skip(2);
+        return this._view.getInt16(position, true);
+    }
+
+    int32() {
+        const position = this._position;
+        this.skip(4);
+        return this._view.getInt32(position, true);
+    }
+
+    int64() {
+        const position = this._position;
+        this.skip(8);
+        return this._view.getInt64(position, true).toNumber();
+    }
+
+    uint16() {
+        const position = this._position;
+        this.skip(2);
+        return this._view.getUint16(position, true);
+    }
+
+    uint32() {
+        const position = this._position;
+        this.skip(4);
+        return this._view.getUint32(position, true);
+    }
+
+    uint64() {
+        const position = this._position;
+        this.skip(8);
+        return this._view.getUint64(position, true).toNumber();
+    }
+
+    float32() {
+        const position = this._position;
+        this.skip(4);
+        return this._view.getFloat32(position, true);
+    }
+
+    float64() {
+        const position = this._position;
+        this.skip(8);
+        return this._view.getFloat64(position, true);
+    }
+
+    string() {
+        const length = this.uint32();
+        const position = this._position;
+        this.skip(length);
+        const data = this._buffer.subarray(position, this._position);
+        return this._utf8.decode(data);
     }
 };
 
@@ -778,6 +674,5 @@ if (typeof window !== 'undefined' && typeof window.Long != 'undefined') {
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.Int64 = base.Int64;
     module.exports.Uint64 = base.Uint64;
-    module.exports.TextDecoder = base.TextDecoder;
-    module.exports.TextReader = base.TextReader;
+    module.exports.BinaryReader = base.BinaryReader;
 }

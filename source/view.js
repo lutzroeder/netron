@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var view = view || {};
 
@@ -7,6 +6,7 @@ var zip = zip || require('./zip');
 var gzip = gzip || require('./gzip');
 var tar = tar || require('./tar');
 var json = json || require('./json');
+var xml = xml || require('./xml');
 var protobuf = protobuf || require('./protobuf');
 var flatbuffers = flatbuffers || require('./flatbuffers');
 var python = python || require('./python');
@@ -18,15 +18,18 @@ view.View = class {
     constructor(host, id) {
         this._host = host;
         this._id = id ? ('-' + id) : '';
+        this._options = {
+            initializers: true,
+            attributes: false,
+            names: false,
+            direction: 'vertical',
+            mousewheel: 'scroll'
+        };
         this._host.initialize(this).then(() => {
             this._model = null;
             this._graphs = [];
             this._selection = [];
             this._sidebar = new sidebar.Sidebar(this._host, id);
-            this._showAttributes = false;
-            this._showInitializers = true;
-            this._showNames = false;
-            this._showHorizontal = false;
             this._searchText = '';
             this._modelFactoryService = new view.ModelFactoryService(this._host);
             this._getElementById('zoom-in-button').addEventListener('click', () => {
@@ -42,87 +45,23 @@ view.View = class {
                 this.showDocumentation(this.activeGraph);
             });
             this._getElementById('sidebar').addEventListener('mousewheel', (e) => {
-                this._preventZoom(e);
+                this._preventDefault(e);
             }, { passive: true });
             this._host.document.addEventListener('keydown', () => {
                 this.clearSelection();
             });
             this._host.start();
-            switch (this._host.environment('zoom')) {
-                case 'scroll': {
-                    const userAgent = navigator.userAgent.toLowerCase();
-                    const safari = userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1;
-                    const elements = [ 'graph', 'toolbar' ];
-                    for (const id of elements) {
-                        const element = this._getElementById(id);
-                        element.addEventListener('mousewheel', (e) => {
-                            this._mouseWheelHandler(e);
-                        });
-                        element.addEventListener('scroll', (e) => {
-                            this._scrollHandler(e);
-                        });
-                        element.addEventListener('wheel', (e) => {
-                            this._mouseWheelHandler(e);
-                        });
-                        if (safari) {
-                            element.addEventListener('gesturestart', (e) => {
-                                e.preventDefault();
-                                this._gestureZoom = this._zoom;
-                            }, false);
-                            element.addEventListener('gesturechange', (e) => {
-                                e.preventDefault();
-                                this._updateZoom(this._gestureZoom * e.scale, e);
-                            }, false);
-                            element.addEventListener('gestureend', (e) => {
-                                e.preventDefault();
-                                this._updateZoom(this._gestureZoom * e.scale, e);
-                            }, false);
-                        }
-                        else {
-                            element.addEventListener('touchstart', (e) => {
-                                if (e.touches.length === 2) {
-                                    this._touchPoints = Array.from(e.touches);
-                                    this._touchZoom = this._zoom;
-                                }
-                            }, { passive: true });
-                            element.addEventListener('touchmove', (e) => {
-                                if (Array.isArray(this._touchPoints) && this._touchPoints.length === 2 && e.touches.length === 2) {
-                                    const distance = (points) => {
-                                        const dx =(points[1].clientX - points[0].clientX);
-                                        const dy =(points[1].clientY - points[0].clientY);
-                                        return Math.sqrt(dx * dx + dy * dy);
-                                    };
-                                    const d1 = distance(Array.from(e.touches));
-                                    const d2 = distance(this._touchPoints);
-                                    if (d2 !== 0) {
-                                        const points = this._touchPoints;
-                                        const e = {
-                                            pageX: (points[1].pageX + points[0].pageX) / 2,
-                                            pageY: (points[1].pageY + points[0].pageY) / 2
-                                        };
-                                        const zoom = d2 === 0 ? d1 : d1 / d2;
-                                        this._updateZoom(this._touchZoom * zoom, e);
-                                    }
-                                }
-                            }, { passive: true });
-                            element.addEventListener('touchcancel', () => {
-                                delete this._touchPoints;
-                                delete this._touchZoom;
-                            }, { passive: true });
-                            element.addEventListener('touchend', () => {
-                                delete this._touchPoints;
-                                delete this._touchZoom;
-                            }, { passive: true });
-                        }
-                    }
+            const container = this._getElementById('graph');
+            container.addEventListener('scroll', (e) => this._scrollHandler(e));
+            container.addEventListener('wheel', (e) => this._wheelHandler(e), { passive: false });
+            container.addEventListener('mousedown', (e) => this._mouseDownHandler(e));
+            switch (this._host.agent) {
+                case 'safari':
+                    container.addEventListener('gesturestart', (e) => this._gestureStartHandler(e), false);
                     break;
-                }
-                case 'drag': {
-                    this._getElementById('toolbar').addEventListener('mousewheel', (e) => {
-                        this._preventZoom(e);
-                    }, { passive: true });
+                default:
+                    container.addEventListener('touchstart', (e) => this._touchStartHandler(e), { passive: true });
                     break;
-                }
             }
         }).catch((err) => {
             this.error(err, null, null);
@@ -138,6 +77,23 @@ view.View = class {
             this._sidebar.close();
         }
         this._host.document.body.setAttribute('class', page);
+        switch (page) {
+            case 'default': {
+                const container = this._getElementById('graph');
+                if (container) {
+                    container.focus();
+                }
+                break;
+            }
+            case 'welcome': {
+                const element = this._getElementById('open-file-button');
+                if (element) {
+                    element.focus();
+                }
+                break;
+            }
+        }
+        this._page = page;
     }
 
     cut() {
@@ -157,16 +113,14 @@ view.View = class {
     }
 
     find() {
-        const graph = this.activeGraph;
-        if (graph) {
+        if (this._graph) {
             this.clearSelection();
             const graphElement = this._getElementById('canvas');
-            const view = new sidebar.FindSidebar(this._host, graphElement, graph);
+            const view = new sidebar.FindSidebar(this._host, graphElement, this._graph);
             view.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
             });
             view.on('select', (sender, selection) => {
-                this._sidebar.close();
                 this.select(selection);
             });
             this._sidebar.open(view.content, 'Find');
@@ -178,40 +132,26 @@ view.View = class {
         return this._model;
     }
 
-    toggleAttributes() {
-        this._showAttributes = !this._showAttributes;
-        this._reload();
+    get options() {
+        return this._options;
     }
 
-    get showAttributes() {
-        return this._showAttributes;
-    }
-
-    toggleInitializers() {
-        this._showInitializers = !this._showInitializers;
-        this._reload();
-    }
-
-    get showInitializers() {
-        return this._showInitializers;
-    }
-
-    toggleNames() {
-        this._showNames = !this._showNames;
-        this._reload();
-    }
-
-    get showNames() {
-        return this._showNames;
-    }
-
-    toggleDirection() {
-        this._showHorizontal = !this._showHorizontal;
-        this._reload();
-    }
-
-    get showHorizontal() {
-        return this._showHorizontal;
+    toggle(name) {
+        switch (name) {
+            case 'names':
+            case 'attributes':
+            case 'initializers':
+                this._options[name] = !this._options[name];
+                this._reload();
+                break;
+            case 'direction':
+                this._options.direction = this._options.direction === 'vertical' ? 'horizontal' : 'vertical';
+                this._reload();
+                break;
+            case 'mousewheel':
+                this._options.mousewheel = this._options.mousewheel === 'scroll' ? 'zoom' : 'scroll';
+                break;
+        }
     }
 
     _reload() {
@@ -236,88 +176,152 @@ view.View = class {
     }
 
     zoomIn() {
-        switch (this._host.environment('zoom')) {
-            case 'scroll':
-                this._updateZoom(this._zoom * 1.1);
-                break;
-            case 'drag':
-                if (this._zoom) {
-                    this._zoom.scaleBy(1.2);
-                }
-                break;
-        }
+        this._updateZoom(this._zoom * 1.1);
     }
 
     zoomOut() {
-        switch (this._host.environment('zoom')) {
-            case 'scroll':
-                this._updateZoom(this._zoom * 0.9);
-                break;
-            case 'drag':
-                if (this._zoom) {
-                    this._zoom.scaleBy(0.8);
-                }
-                break;
-        }
+        this._updateZoom(this._zoom * 0.9);
     }
 
     resetZoom() {
-        switch (this._host.environment('zoom')) {
-            case 'scroll':
-                this._updateZoom(1);
-                break;
-            case 'drag':
-                if (this._zoom) {
-                    this._zoom.scaleTo(1);
-                }
-                break;
-        }
+        this._updateZoom(1);
     }
 
-    _preventZoom(e) {
+    _preventDefault(e) {
         if (e.shiftKey || e.ctrlKey) {
             e.preventDefault();
         }
     }
 
     _updateZoom(zoom, e) {
-
-        const graphElement = this._getElementById('graph');
-
-        const min = Math.min(Math.max(graphElement.clientHeight / this._height, 0.2), 1);
-
-        zoom = Math.min(zoom, 1.4);
-        zoom = Math.max(min, zoom);
-
-        const scrollLeft = this._scrollLeft || graphElement.scrollLeft;
-        const scrollTop = this._scrollTop || graphElement.scrollTop;
-
-        const x = (e ? e.pageX : (graphElement.clientWidth / 2)) + scrollLeft;
-        const y = (e ? e.pageY : (graphElement.clientHeight / 2)) + scrollTop;
-
-        const canvasElement = this._getElementById('canvas');
-        canvasElement.style.width = zoom * this._width;
-        canvasElement.style.height = zoom * this._height;
-
-        this._scrollLeft = ((x * zoom) / this._zoom) - (x - scrollLeft);
-        this._scrollTop = ((y * zoom) / this._zoom) - (y - scrollTop);
-        this._scrollLeft = Math.max(0, this._scrollLeft);
-        this._scrollTop = Math.max(0, this._scrollTop);
-        graphElement.scrollLeft = this._scrollLeft;
-        graphElement.scrollTop = this._scrollTop;
-
+        const container = this._getElementById('graph');
+        const canvas = this._getElementById('canvas');
+        const limit = this._options.direction === 'vertical' ?
+            container.clientHeight / this._height :
+            container.clientWidth / this._width;
+        const min = Math.min(Math.max(limit, 0.15), 1);
+        zoom = Math.max(min, Math.min(zoom, 1.4));
+        const scrollLeft = this._scrollLeft || container.scrollLeft;
+        const scrollTop = this._scrollTop || container.scrollTop;
+        const x = (e ? e.pageX : (container.clientWidth / 2)) + scrollLeft;
+        const y = (e ? e.pageY : (container.clientHeight / 2)) + scrollTop;
+        const width = zoom * this._width;
+        const height = zoom * this._height;
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+        this._scrollLeft = Math.max(0, ((x * zoom) / this._zoom) - (x - scrollLeft));
+        this._scrollTop = Math.max(0, ((y * zoom) / this._zoom) - (y - scrollTop));
+        container.scrollLeft = this._scrollLeft;
+        container.scrollTop = this._scrollTop;
         this._zoom = zoom;
     }
 
-    _mouseWheelHandler(e) {
-        if (e.shiftKey || e.ctrlKey) {
-            this._updateZoom(this._zoom + (e.wheelDelta * 1.0 / 4000.0), e);
-            e.preventDefault();
+    _mouseDownHandler(e) {
+        if (e.buttons === 1) {
+            const document = this._host.document.documentElement;
+            document.style.cursor = 'grabbing';
+            const container = this._getElementById('graph');
+            this._mousePosition = {
+                left: container.scrollLeft,
+                top: container.scrollTop,
+                x: e.clientX,
+                y: e.clientY
+            };
+            e.stopImmediatePropagation();
+            const mouseMoveHandler = (e) => {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                const dx = e.clientX - this._mousePosition.x;
+                const dy = e.clientY - this._mousePosition.y;
+                this._mousePosition.moved = dx * dx + dy * dy > 0;
+                if (this._mousePosition.moved) {
+                    const container = this._getElementById('graph');
+                    container.scrollTop = this._mousePosition.top - dy;
+                    container.scrollLeft = this._mousePosition.left - dx;
+                }
+            };
+            const mouseUpHandler = () => {
+                document.style.cursor = null;
+                container.removeEventListener('mouseup', mouseUpHandler);
+                container.removeEventListener('mouseleave', mouseUpHandler);
+                container.removeEventListener('mousemove', mouseMoveHandler);
+                if (this._mousePosition && this._mousePosition.moved) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    delete this._mousePosition;
+                    document.addEventListener('click', clickHandler, true);
+                }
+            };
+            const clickHandler = (e) => {
+                e.stopPropagation();
+                document.removeEventListener('click', clickHandler, true);
+            };
+            container.addEventListener('mousemove', mouseMoveHandler);
+            container.addEventListener('mouseup', mouseUpHandler);
+            container.addEventListener('mouseleave', mouseUpHandler);
         }
     }
 
-    _scrollHandler(e) {
+    _touchStartHandler(e) {
+        if (e.touches.length === 2) {
+            this._touchPoints = Array.from(e.touches);
+            this._touchZoom = this._zoom;
+        }
+        const touchMoveHandler = (e) => {
+            if (Array.isArray(this._touchPoints) && this._touchPoints.length === 2 && e.touches.length === 2) {
+                const distance = (points) => {
+                    const dx =(points[1].clientX - points[0].clientX);
+                    const dy =(points[1].clientY - points[0].clientY);
+                    return Math.sqrt(dx * dx + dy * dy);
+                };
+                const d1 = distance(Array.from(e.touches));
+                const d2 = distance(this._touchPoints);
+                if (d2 !== 0) {
+                    const points = this._touchPoints;
+                    const e = {
+                        pageX: (points[1].pageX + points[0].pageX) / 2,
+                        pageY: (points[1].pageY + points[0].pageY) / 2
+                    };
+                    const zoom = d2 === 0 ? d1 : d1 / d2;
+                    this._updateZoom(this._touchZoom * zoom, e);
+                }
+            }
+        };
+        const touchEndHandler = () => {
+            container.removeEventListener('touchmove', touchMoveHandler, { passive: true });
+            container.removeEventListener('touchcancel', touchEndHandler, { passive: true });
+            container.removeEventListener('touchend', touchEndHandler, { passive: true });
+            delete this._touchPoints;
+            delete this._touchZoom;
+        };
+        const container = this._getElementById('graph');
+        container.addEventListener('touchmove', touchMoveHandler, { passive: true });
+        container.addEventListener('touchcancel', touchEndHandler, { passive: true });
+        container.addEventListener('touchend', touchEndHandler, { passive: true });
+    }
 
+    _gestureStartHandler(e) {
+        e.preventDefault();
+        this._gestureZoom = this._zoom;
+        const container = this._getElementById('graph');
+        const gestureChangeHandler = (e) => {
+            e.preventDefault();
+            this._updateZoom(this._gestureZoom * e.scale, e);
+        };
+        const gestureEndHandler = (e) => {
+            container.removeEventListener('gesturechange', gestureChangeHandler, false);
+            container.removeEventListener('gestureend', gestureEndHandler, false);
+            e.preventDefault();
+            if (this._gestureZoom) {
+                this._updateZoom(this._gestureZoom * e.scale, e);
+                delete this._gestureZoom;
+            }
+        };
+        container.addEventListener('gesturechange', gestureChangeHandler, false);
+        container.addEventListener('gestureend', gestureEndHandler, false);
+    }
+
+    _scrollHandler(e) {
         if (this._scrollLeft && e.target.scrollLeft !== Math.floor(this._scrollLeft)) {
             delete this._scrollLeft;
         }
@@ -326,50 +330,33 @@ view.View = class {
         }
     }
 
+    _wheelHandler(e) {
+        if (e.shiftKey || e.ctrlKey || this._options.mousewheel === 'zoom') {
+            const delta = -e.deltaY * (e.deltaMode === 1 ? 0.05 : e.deltaMode ? 1 : 0.002) * (e.ctrlKey ? 10 : 1);
+            this._updateZoom(this._zoom * Math.pow(2, delta), e);
+            e.preventDefault();
+        }
+    }
+
     select(selection) {
         this.clearSelection();
         if (selection && selection.length > 0) {
-            const graphElement = this._getElementById('graph');
-            switch (this._host.environment('zoom')) {
-                case 'drag': {
-                    let x = 0;
-                    let y = 0;
-                    for (const element of selection) {
-                        element.classList.add('select');
-                        this._selection.push(element);
-                        const transform = element.transform.baseVal.consolidate();
-                        const box = element.getBBox();
-                        const ex = transform ? transform.matrix.e : box.x + (box.width / 2);
-                        const ey = transform ? transform.matrix.f : box.y + (box.height / 2);
-                        x += ex;
-                        y += ey;
-                    }
-                    x = x / selection.length;
-                    y = y / selection.length;
-                    const canvasElement = this._getElementById('canvas');
-                    const canvasRect = canvasElement.getBoundingClientRect();
-                    this._zoom.transform(view.Zoom.identity().translate((canvasRect.width / 2) - x, (canvasRect.height / 2) - y));
-                    break;
-                }
-                case 'scroll': {
-                    let x = 0;
-                    let y = 0;
-                    for (const element of selection) {
-                        element.classList.add('select');
-                        this._selection.push(element);
-                        const rect = element.getBoundingClientRect();
-                        x += rect.left + (rect.width / 2);
-                        y += rect.top + (rect.height / 2);
-                    }
-                    x = x / selection.length;
-                    y = y / selection.length;
-                    const rect = graphElement.getBoundingClientRect();
-                    const left = (graphElement.scrollLeft + x - rect.left) - (rect.width / 2);
-                    const top = (graphElement.scrollTop + y - rect.top) - (rect.height / 2);
-                    graphElement.scrollTo({ left: left, top: top, behavior: 'smooth' });
-                    break;
-                }
+            const container = this._getElementById('graph');
+            let x = 0;
+            let y = 0;
+            for (const element of selection) {
+                element.classList.add('select');
+                this._selection.push(element);
+                const rect = element.getBoundingClientRect();
+                x += rect.left + (rect.width / 2);
+                y += rect.top + (rect.height / 2);
             }
+            x = x / selection.length;
+            y = y / selection.length;
+            const rect = container.getBoundingClientRect();
+            const left = (container.scrollLeft + x - rect.left) - (rect.width / 2);
+            const top = (container.scrollTop + y - rect.top) - (rect.height / 2);
+            container.scrollTo({ left: left, top: top, behavior: 'smooth' });
         }
     }
 
@@ -451,21 +438,18 @@ view.View = class {
         });
     }
 
-    _updateActiveGraph(name) {
+    _updateActiveGraph(graph) {
         this._sidebar.close();
         if (this._model) {
             const model = this._model;
-            const graph = model.graphs.filter(graph => name === graph.name).shift();
-            if (graph) {
-                this.show('welcome spinner');
-                this._timeout(200).then(() => {
-                    return this._updateGraph(model, [ graph ]).catch((error) => {
-                        if (error) {
-                            this.error(error, 'Graph update failed.', 'welcome');
-                        }
-                    });
+            this.show('welcome spinner');
+            this._timeout(200).then(() => {
+                return this._updateGraph(model, [ graph ]).catch((error) => {
+                    if (error) {
+                        this.error(error, 'Graph update failed.', 'welcome');
+                    }
                 });
-            }
+            });
         }
     }
 
@@ -478,8 +462,6 @@ view.View = class {
             const nameButton = this._getElementById('name-button');
             const backButton = this._getElementById('back-button');
             if (this._graphs.length > 1) {
-                // backButton.style.display = 'block';
-                // nameButton.style.display = 'block';
                 const graph = this.activeGraph;
                 nameButton.innerHTML = graph ? graph.name : '';
                 backButton.style.opacity = 1;
@@ -490,11 +472,15 @@ view.View = class {
                 nameButton.style.opacity = 0;
             }
         };
-        const graph = Array.isArray(graphs) && graphs.length > 0 ? graphs[0] : null;
+        const previousModel = model;
+        const previousGraphs = graphs;
+        this._model = model;
+        this._graphs = graphs;
+        const graph = this.activeGraph;
         return this._timeout(100).then(() => {
             if (graph && graph != this._graphs[0]) {
                 const nodes = graph.nodes;
-                if (nodes.length > 1400) {
+                if (nodes.length > 2048) {
                     if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
                         this._host.event('Graph', 'Render', 'Skip', nodes.length);
                         this.show(null);
@@ -502,22 +488,20 @@ view.View = class {
                     }
                 }
             }
-            return this.renderGraph(model, graph).then(() => {
-                this._model = model;
-                this._graphs = graphs;
-                if (!graphs || graphs.length <= 1) {
+            return this.renderGraph(this._model, this.activeGraph).then(() => {
+                if (this._page !== 'default') {
                     this.show('default');
                 }
                 update();
                 return this._model;
             }).catch((error) => {
+                this._model = previousModel;
+                this._graphs = previousGraphs;
                 return this.renderGraph(this._model, this.activeGraph).then(() => {
-                    if (!graphs || graphs.length <= 1) {
+                    if (this._page !== 'default') {
                         this.show('default');
                     }
                     update();
-                    throw error;
-                }).catch(() => {
                     throw error;
                 });
             });
@@ -527,9 +511,8 @@ view.View = class {
     pushGraph(graph) {
         if (graph !== this.activeGraph) {
             this._sidebar.close();
-            return this._updateGraph(this._model, [ graph ].concat(this._graphs));
+            this._updateGraph(this._model, [ graph ].concat(this._graphs));
         }
-        return Promise.resolve();
     }
 
     popGraph() {
@@ -541,272 +524,112 @@ view.View = class {
 
     renderGraph(model, graph) {
         try {
-            const graphElement = this._getElementById('graph');
-            const canvasElement = this._getElementById('canvas');
-            while (canvasElement.lastChild) {
-                canvasElement.removeChild(canvasElement.lastChild);
+            this._graph = null;
+
+            const canvas = this._getElementById('canvas');
+            while (canvas.lastChild) {
+                canvas.removeChild(canvas.lastChild);
             }
             if (!graph) {
                 return Promise.resolve();
             }
             else {
-                switch (this._host.environment('zoom')) {
-                    case 'scroll':
-                        this._zoom = 1;
-                        canvasElement.style.position = 'static';
-                        canvasElement.style.margin = 'auto';
-                        break;
-                    case 'drag':
-                        this._zoom = null;
-                        canvasElement.style.position = 'absolute';
-                        canvasElement.style.margin = '0';
-                        break;
-                }
+                this._zoom = 1;
 
                 const groups = graph.groups;
                 const nodes = graph.nodes;
                 this._host.event('Graph', 'Render', 'Size', nodes.length);
 
                 const options = {};
-                options.nodesep = 25;
+                options.nodesep = 20;
                 options.ranksep = 20;
                 const rotate = graph.nodes.every((node) => node.inputs.filter((input) => input.arguments.every((argument) => !argument.initializer)).length === 0 && node.outputs.length === 0);
-                const showHorizontal = rotate ? !this._showHorizontal : this._showHorizontal;
-                if (showHorizontal) {
+                const horizontal = rotate ? this._options.direction === 'vertical' : this._options.direction !== 'vertical';
+                if (horizontal) {
                     options.rankdir = "LR";
                 }
-                if (nodes.length > 1500) {
+                if (nodes.length > 3000) {
                     options.ranker = 'longest-path';
                 }
 
                 const viewGraph = new view.Graph(this, model, groups, options);
-
-                const clusters = new Set();
-                const clusterParentMap = new Map();
-
-                if (groups) {
-                    for (const node of nodes) {
-                        if (node.group) {
-                            const path = node.group.split('/');
-                            while (path.length > 0) {
-                                const name = path.join('/');
-                                path.pop();
-                                clusterParentMap.set(name, path.join('/'));
-                            }
-                        }
-                    }
-                }
-
-                for (const node of nodes) {
-
-                    const viewNode = viewGraph.createNode(node);
-
-                    const inputs = node.inputs;
-                    for (const input of inputs) {
-                        for (const argument of input.arguments) {
-                            if (argument.name != '' && !argument.initializer) {
-                                viewGraph.createArgument(argument).to(viewNode);
-                            }
-                        }
-                    }
-                    let outputs = node.outputs;
-                    if (node.chain && node.chain.length > 0) {
-                        const chainOutputs = node.chain[node.chain.length - 1].outputs;
-                        if (chainOutputs.length > 0) {
-                            outputs = chainOutputs;
-                        }
-                    }
-                    for (const output of outputs) {
-                        for (const argument of output.arguments) {
-                            if (!argument) {
-                                throw new view.Error("Invalid null argument in '" + model.format + "'.");
-                            }
-                            if (argument.name != '') {
-                                viewGraph.createArgument(argument).from(viewNode);
-                            }
-                        }
-                    }
-
-                    if (node.controlDependencies && node.controlDependencies.length > 0) {
-                        for (const name of node.controlDependencies) {
-                            viewGraph.createArgument({ name: name, controlDependency: true }).to(viewNode);
-                        }
-                    }
-
-                    const createCluster = function(name) {
-                        if (!clusters.has(name)) {
-                            viewGraph.setNode({ name: name, rx: 5, ry: 5});
-                            clusters.add(name);
-                            const parent = clusterParentMap.get(name);
-                            if (parent) {
-                                createCluster(parent);
-                                viewGraph.setParent(name, parent);
-                            }
-                        }
-                    };
-
-                    if (groups) {
-                        let groupName = node.group;
-                        if (groupName && groupName.length > 0) {
-                            if (!clusterParentMap.has(groupName)) {
-                                const lastIndex = groupName.lastIndexOf('/');
-                                if (lastIndex != -1) {
-                                    groupName = groupName.substring(0, lastIndex);
-                                    if (!clusterParentMap.has(groupName)) {
-                                        groupName = null;
-                                    }
-                                }
-                                else {
-                                    groupName = null;
-                                }
-                            }
-                            if (groupName) {
-                                createCluster(groupName);
-                                viewGraph.setParent(viewNode.name, groupName);
-                            }
-                        }
-                    }
-                }
-
-                for (const input of graph.inputs) {
-                    const viewInput = viewGraph.createInput(input);
-                    for (const argument of input.arguments) {
-                        viewGraph.createArgument(argument).from(viewInput);
-                    }
-                }
-
-                for (const output of graph.outputs) {
-                    const viewOutput = viewGraph.createOutput(output);
-                    for (const argument of output.arguments) {
-                        viewGraph.createArgument(argument).to(viewOutput);
-                    }
-                }
+                viewGraph.add(graph);
 
                 // Workaround for Safari background drag/zoom issue:
                 // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
-                const backgroundElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                backgroundElement.setAttribute('id', 'background');
-                if (this._host.environment('zoom') === 'drag') {
-                    backgroundElement.setAttribute('width', '100%');
-                    backgroundElement.setAttribute('height', '100%');
-                }
-                backgroundElement.setAttribute('fill', 'none');
-                backgroundElement.setAttribute('pointer-events', 'all');
-                canvasElement.appendChild(backgroundElement);
+                const background = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                background.setAttribute('id', 'background');
+                background.setAttribute('fill', 'none');
+                background.setAttribute('pointer-events', 'all');
+                canvas.appendChild(background);
 
-                const originElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                originElement.setAttribute('id', 'origin');
-                canvasElement.appendChild(originElement);
+                const origin = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                origin.setAttribute('id', 'origin');
+                canvas.appendChild(origin);
 
-                viewGraph.build(this._host.document, originElement);
+                viewGraph.build(this._host.document, origin);
 
-                switch (this._host.environment('zoom')) {
-                    case 'drag': {
-                        this._zoom = new view.Zoom(canvasElement, 0.1, 1.4);
-                        this._zoom.on('zoom', (sender, data) => {
-                            originElement.setAttribute('transform', data.transform.toString());
-                        });
-                        this._zoom.transform(view.Zoom.identity());
-                        break;
-                    }
-                    case 'scroll': {
-                        this._zoom = 1;
-                        break;
-                    }
-                }
+                this._zoom = 1;
 
                 return this._timeout(20).then(() => {
 
-                    viewGraph.layout();
+                    viewGraph.update();
 
-                    const elements = Array.from(canvasElement.getElementsByClassName('graph-input') || []);
+                    const elements = Array.from(canvas.getElementsByClassName('graph-input') || []);
                     if (elements.length === 0) {
-                        const nodeElements = Array.from(canvasElement.getElementsByClassName('graph-node') || []);
+                        const nodeElements = Array.from(canvas.getElementsByClassName('graph-node') || []);
                         if (nodeElements.length > 0) {
                             elements.push(nodeElements[0]);
                         }
                     }
 
-                    switch (this._host.environment('zoom')) {
-                        case 'drag': {
-                            const svgSize = canvasElement.getBoundingClientRect();
-                            if (elements && elements.length > 0) {
-                                // Center view based on input elements
-                                const xs = [];
-                                const ys = [];
-                                for (let i = 0; i < elements.length; i++) {
-                                    const transform = elements[i].transform.baseVal.consolidate();
-                                    if (transform) {
-                                        xs.push(transform.matrix.e);
-                                        ys.push(transform.matrix.f);
-                                    }
-                                }
-                                let x = xs[0];
-                                const y = ys[0];
-                                if (ys.every(y => y === ys[0])) {
-                                    x = xs.reduce((a, b) => a + b, 0) / xs.length;
-                                }
-                                const sx = (svgSize.width / (this._showHorizontal ? 4 : 2)) - x;
-                                const sy = (svgSize.height / (this._showHorizontal ? 2 : 4)) - y;
-                                this._zoom.transform(view.Zoom.identity().translate(sx, sy));
-                            }
-                            else {
-                                this._zoom.transform(view.Zoom.identity().translate((svgSize.width - viewGraph.graph().width) / 2, (svgSize.height - viewGraph.graph().height) / 2));
-                            }
-                            break;
-                        }
-                        case 'scroll': {
-                            const size = canvasElement.getBBox();
-                            const margin = 100;
-                            const width = Math.ceil(margin + size.width + margin);
-                            const height = Math.ceil(margin + size.height + margin);
-                            originElement.setAttribute('transform', 'translate(' + margin.toString() + ', ' + margin.toString() + ') scale(1)');
-                            backgroundElement.setAttribute('width', width);
-                            backgroundElement.setAttribute('height', height);
-                            this._width = width;
-                            this._height = height;
-                            this._zoom = 1;
-                            delete this._scrollLeft;
-                            delete this._scrollRight;
-                            canvasElement.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
-                            canvasElement.setAttribute('width', width);
-                            canvasElement.setAttribute('height', height);
+                    const size = canvas.getBBox();
+                    const margin = 100;
+                    const width = Math.ceil(margin + size.width + margin);
+                    const height = Math.ceil(margin + size.height + margin);
+                    origin.setAttribute('transform', 'translate(' + margin.toString() + ', ' + margin.toString() + ') scale(1)');
+                    background.setAttribute('width', width);
+                    background.setAttribute('height', height);
+                    this._width = width;
+                    this._height = height;
+                    delete this._scrollLeft;
+                    delete this._scrollRight;
+                    canvas.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+                    canvas.setAttribute('width', width);
+                    canvas.setAttribute('height', height);
 
-                            this._updateZoom(this._zoom);
+                    this._zoom = 1;
+                    this._updateZoom(this._zoom);
 
-                            if (elements && elements.length > 0) {
-                                // Center view based on input elements
-                                const xs = [];
-                                const ys = [];
-                                for (let i = 0; i < elements.length; i++) {
-                                    const element = elements[i];
-                                    const rect = element.getBoundingClientRect();
-                                    xs.push(rect.left + (rect.width / 2));
-                                    ys.push(rect.top + (rect.height / 2));
-                                }
-                                let x = xs[0];
-                                const y = ys[0];
-                                if (ys.every(y => y === ys[0])) {
-                                    x = xs.reduce((a, b) => a + b, 0) / xs.length;
-                                }
-                                // const canvasRect = graphElement.getBoundingClientRect();
-                                const graphRect = graphElement.getBoundingClientRect();
-                                // const sx = (canvasRect.width / (this._showHorizontal ? 4 : 2)) - x;
-                                // const sy = (canvasRect.height / (this._showHorizontal ? 2 : 4)) - y;
-                                const left = (graphElement.scrollLeft + x - graphRect.left) - (graphRect.width / 2);
-                                const top = (graphElement.scrollTop + y - graphRect.top) - (graphRect.height / 2);
-                                graphElement.scrollTo({ left: left, top: top, behavior: 'auto' });
-                            }
-                            else {
-                                const canvasRect = graphElement.getBoundingClientRect();
-                                const graphRect = graphElement.getBoundingClientRect();
-                                const left = (graphElement.scrollLeft + (canvasRect.width / 2) - graphRect.left) - (graphRect.width / 2);
-                                const top = (graphElement.scrollTop + (canvasRect.height / 2) - graphRect.top) - (graphRect.height / 2);
-                                graphElement.scrollTo({ left: left, top: top, behavior: 'auto' });
-                            }
-                            break;
+                    const container = this._getElementById('graph');
+                    if (elements && elements.length > 0) {
+                        // Center view based on input elements
+                        const xs = [];
+                        const ys = [];
+                        for (let i = 0; i < elements.length; i++) {
+                            const element = elements[i];
+                            const rect = element.getBoundingClientRect();
+                            xs.push(rect.left + (rect.width / 2));
+                            ys.push(rect.top + (rect.height / 2));
                         }
+                        let x = xs[0];
+                        const y = ys[0];
+                        if (ys.every(y => y === ys[0])) {
+                            x = xs.reduce((a, b) => a + b, 0) / xs.length;
+                        }
+                        const graphRect = container.getBoundingClientRect();
+                        const left = (container.scrollLeft + x - graphRect.left) - (graphRect.width / 2);
+                        const top = (container.scrollTop + y - graphRect.top) - (graphRect.height / 2);
+                        container.scrollTo({ left: left, top: top, behavior: 'auto' });
                     }
+                    else {
+                        const canvasRect = canvas.getBoundingClientRect();
+                        const graphRect = container.getBoundingClientRect();
+                        const left = (container.scrollLeft + (canvasRect.width / 2) - graphRect.left) - (graphRect.width / 2);
+                        const top = (container.scrollTop + (canvasRect.height / 2) - graphRect.top) - (graphRect.height / 2);
+                        container.scrollTo({ left: left, top: top, behavior: 'auto' });
+                    }
+                    this._graph = viewGraph;
                     return;
                 });
             }
@@ -844,6 +667,7 @@ view.View = class {
             const exportElement = graphElement.cloneNode(true);
             this.applyStyleSheet(exportElement, 'view-grapher.css');
             exportElement.setAttribute('id', 'export');
+            exportElement.removeAttribute('viewBox');
             exportElement.removeAttribute('width');
             exportElement.removeAttribute('height');
             exportElement.style.removeProperty('opacity');
@@ -909,59 +733,74 @@ view.View = class {
 
     showModelProperties() {
         if (this._model) {
-            const modelSidebar = new sidebar.ModelSidebar(this._host, this._model, this.activeGraph);
-            modelSidebar.on('update-active-graph', (sender, name) => {
-                this._updateActiveGraph(name);
-            });
-            this._sidebar.open(modelSidebar.render(), 'Model Properties');
+            try {
+                const modelSidebar = new sidebar.ModelSidebar(this._host, this._model, this.activeGraph);
+                modelSidebar.on('update-active-graph', (sender, graph) => {
+                    this._updateActiveGraph(graph);
+                });
+                const content = modelSidebar.render();
+                this._sidebar.open(content, 'Model Properties');
+            }
+            catch (error) {
+                const content = " in '" + this._model.identifier + "'.";
+                if (error && !error.message.endsWith(content) && (error.context === undefined || error.context === true)) {
+                    error.message = error.message.replace(/\.$/, '') + content;
+                }
+                this.error(error, 'Error showing model properties.', null);
+            }
         }
     }
 
     showNodeProperties(node, input) {
         if (node) {
-            const nodeSidebar = new sidebar.NodeSidebar(this._host, node);
-            nodeSidebar.on('show-documentation', (/* sender, e */) => {
-                this.showDocumentation(node.type);
-            });
-            nodeSidebar.on('show-graph', (sender, graph) => {
-                this.pushGraph(graph);
-            });
-            nodeSidebar.on('export-tensor', (sender, tensor) => {
-                this._host.require('./numpy').then((numpy) => {
+            try {
+                const nodeSidebar = new sidebar.NodeSidebar(this._host, node);
+                nodeSidebar.on('show-documentation', (/* sender, e */) => {
+                    this.showDocumentation(node.type);
+                });
+                nodeSidebar.on('show-graph', (sender, graph) => {
+                    this.pushGraph(graph);
+                });
+                nodeSidebar.on('export-tensor', (sender, tensor) => {
                     const defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
                     this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
                         try {
-                            const dataTypeMap = new Map([
-                                [ 'float16', 'f2' ], [ 'float32', 'f4' ], [ 'float64', 'f8' ],
-                                [ 'int8', 'i1' ], [ 'int16', 'i2'], [ 'int32', 'i4' ], [ 'int64', 'i8' ],
-                                [ 'uint8', 'u1' ], [ 'uint16', 'u2' ], [ 'uint32', 'u4' ], [ 'uint64', 'u8' ],
-                                [ 'qint8', 'i1' ], [ 'qint16', 'i2' ],
-                                [ 'quint8', 'u1' ], [ 'quint16', 'u2' ]
-                            ]);
-                            const array = new numpy.Array();
-                            array.shape = tensor.type.shape.dimensions;
-                            array.data = tensor.value;
-                            array.dataType = dataTypeMap.has(tensor.type.dataType) ? dataTypeMap.get(tensor.type.dataType) : tensor.type.dataType;
-                            const blob = new Blob([ array.toBuffer() ], { type: 'application/octet-stream' });
+                            let data_type = tensor.type.dataType;
+                            switch (data_type) {
+                                case 'boolean': data_type = 'bool'; break;
+                            }
+                            const execution = new python.Execution(null);
+                            const bytes = execution.invoke('io.BytesIO', []);
+                            const dtype = execution.invoke('numpy.dtype', [ data_type ]);
+                            const array = execution.invoke('numpy.asarray', [ tensor.value, dtype ]);
+                            execution.invoke('numpy.save', [ bytes, array ]);
+                            bytes.seek(0);
+                            const blob = new Blob([ bytes.read() ], { type: 'application/octet-stream' });
                             this._host.export(file, blob);
                         }
                         catch (error) {
                             this.error(error, 'Error saving NumPy tensor.', null);
                         }
                     });
-                }).catch(() => {
                 });
-            });
-            nodeSidebar.on('error', (sender, error) => {
-                if (this._model) {
-                    error.message = error.message.replace(/\.$/, '') + " in format '" + this._model.format + "'.";
+                nodeSidebar.on('error', (sender, error) => {
+                    if (this._model) {
+                        error.message = error.message.replace(/\.$/, '') + " in '" + this._model.identifier + "'.";
+                    }
+                    this.error(error, null, null);
+                });
+                if (input) {
+                    nodeSidebar.toggleInput(input.name);
                 }
-                this.error(error, null, null);
-            });
-            if (input) {
-                nodeSidebar.toggleInput(input.name);
+                this._sidebar.open(nodeSidebar.render(), 'Node Properties');
             }
-            this._sidebar.open(nodeSidebar.render(), 'Node Properties');
+            catch (error) {
+                const content = " in '" + this._model.identifier + "'.";
+                if (error && !error.message.endsWith(content) && (error.context === undefined || error.context === true)) {
+                    error.message = error.message.replace(/\.$/, '') + content;
+                }
+                this.error(error, 'Error showing node properties.', null);
+            }
         }
     }
 
@@ -992,21 +831,22 @@ view.Graph = class extends grapher.Graph {
 
     createNode(node) {
         const value = new view.Node(this, node);
-        value.name = this._nodeKey++;
+        value.name = (this._nodeKey++).toString();
+        // value.name = node.name;
         this.setNode(value);
         return value;
     }
 
     createInput(input) {
         const value = new view.Input(this, input);
-        value.name = this._nodeKey++;
+        value.name = (this._nodeKey++).toString();
         this.setNode(value);
         return value;
     }
 
     createOutput(output) {
         const value = new view.Output(this, output);
-        value.name = this._nodeKey++;
+        value.name = (this._nodeKey++).toString();
         this.setNode(value);
         return value;
     }
@@ -1024,13 +864,114 @@ view.Graph = class extends grapher.Graph {
         return value;
     }
 
-    build(document, originElement) {
+    add(graph) {
+        const clusters = new Set();
+        const clusterParentMap = new Map();
+        const groups = graph.groups;
+        if (groups) {
+            for (const node of graph.nodes) {
+                if (node.group) {
+                    const path = node.group.split('/');
+                    while (path.length > 0) {
+                        const name = path.join('/');
+                        path.pop();
+                        clusterParentMap.set(name, path.join('/'));
+                    }
+                }
+            }
+        }
 
+        for (const input of graph.inputs) {
+            const viewInput = this.createInput(input);
+            for (const argument of input.arguments) {
+                this.createArgument(argument).from(viewInput);
+            }
+        }
+
+        for (const node of graph.nodes) {
+
+            const viewNode = this.createNode(node);
+
+            const inputs = node.inputs;
+            for (const input of inputs) {
+                for (const argument of input.arguments) {
+                    if (argument.name != '' && !argument.initializer) {
+                        this.createArgument(argument).to(viewNode);
+                    }
+                }
+            }
+            let outputs = node.outputs;
+            if (node.chain && node.chain.length > 0) {
+                const chainOutputs = node.chain[node.chain.length - 1].outputs;
+                if (chainOutputs.length > 0) {
+                    outputs = chainOutputs;
+                }
+            }
+            for (const output of outputs) {
+                for (const argument of output.arguments) {
+                    if (!argument) {
+                        throw new view.Error("Invalid null argument in '" + this.model.identifier + "'.");
+                    }
+                    if (argument.name != '') {
+                        this.createArgument(argument).from(viewNode);
+                    }
+                }
+            }
+
+            if (node.controlDependencies && node.controlDependencies.length > 0) {
+                for (const argument of node.controlDependencies) {
+                    this.createArgument(argument).to(viewNode, true);
+                }
+            }
+
+            const createCluster = (name) => {
+                if (!clusters.has(name)) {
+                    this.setNode({ name: name, rx: 5, ry: 5});
+                    clusters.add(name);
+                    const parent = clusterParentMap.get(name);
+                    if (parent) {
+                        createCluster(parent);
+                        this.setParent(name, parent);
+                    }
+                }
+            };
+
+            if (groups) {
+                let groupName = node.group;
+                if (groupName && groupName.length > 0) {
+                    if (!clusterParentMap.has(groupName)) {
+                        const lastIndex = groupName.lastIndexOf('/');
+                        if (lastIndex != -1) {
+                            groupName = groupName.substring(0, lastIndex);
+                            if (!clusterParentMap.has(groupName)) {
+                                groupName = null;
+                            }
+                        }
+                        else {
+                            groupName = null;
+                        }
+                    }
+                    if (groupName) {
+                        createCluster(groupName);
+                        this.setParent(viewNode.name, groupName);
+                    }
+                }
+            }
+        }
+
+        for (const output of graph.outputs) {
+            const viewOutput = this.createOutput(output);
+            for (const argument of output.arguments) {
+                this.createArgument(argument).to(viewOutput);
+            }
+        }
+    }
+
+    build(document, origin) {
         for (const argument of this._arguments.values()) {
             argument.build();
         }
-
-        super.build(document, originElement);
+        super.build(document, origin);
     }
 };
 
@@ -1049,8 +990,15 @@ view.Node = class extends grapher.Node {
         return 'graph-node';
     }
 
-    _add(node) {
+    get inputs() {
+        return this.value.inputs;
+    }
 
+    get outputs() {
+        return this.value.outputs;
+    }
+
+    _add(node) {
         const header =  this.header();
         const styles = [ 'node-item-type' ];
         const type = node.type;
@@ -1059,27 +1007,24 @@ view.Node = class extends grapher.Node {
             styles.push('node-item-type-' + category.toLowerCase());
         }
         if (typeof type.name !== 'string' || !type.name.split) { // #416
-            const format = this.context.model && this.context.model.format ? this.context.model.format : '?';
-            throw new view.Error("Unknown node type '" + JSON.stringify(type.name) + "' in format '" + format + "'.");
+            const identifier = this.context.model && this.context.model.identifier ? this.context.model.identifier : '?';
+            throw new view.Error("Unknown node type '" + JSON.stringify(type.name) + "' in '" + identifier + "'.");
         }
-        const content = this.context.view.showNames && (node.name || node.location) ? (node.name || node.location) : type.name.split('.').pop();
-        const tooltip = this.context.view.showNames && (node.name || node.location) ? type.name : (node.name || node.location);
-        header.add(null, styles, content, tooltip, () => {
-            this.context.view.showNodeProperties(node, null);
-        });
+        const content = this.context.view.options.names && (node.name || node.location) ? (node.name || node.location) : type.name.split('.').pop();
+        const tooltip = this.context.view.options.names && (node.name || node.location) ? type.name : (node.name || node.location);
+        const title = header.add(null, styles, content, tooltip);
+        title.on('click', () => this.context.view.showNodeProperties(node, null));
         if (node.type.nodes) {
-            header.add(null, styles, '\u0192', 'Show Function Definition', () => {
-                this.context.view.pushGraph(node.type);
-            });
+            const definition = header.add(null, styles, '\u0192', 'Show Function Definition');
+            definition.on('click', () => this.context.view.pushGraph(node.type));
         }
         if (node.nodes) {
-            header.add(null, styles, '+', null, () => {
-                // debugger;
-            });
+            // this._expand = header.add(null, styles, '+', null);
+            // this._expand.on('click', () => this.toggle());
         }
         const initializers = [];
         let hiddenInitializers = false;
-        if (this.context.view.showInitializers) {
+        if (this.context.view.options.initializers) {
             for (const input of node.inputs) {
                 if (input.visible && input.arguments.length === 1 && input.arguments[0].initializer != null) {
                     initializers.push(input);
@@ -1092,7 +1037,7 @@ view.Node = class extends grapher.Node {
         }
         let sortedAttributes = [];
         const attributes = node.attributes || [];
-        if (this.context.view.showAttributes) {
+        if (this.context.view.options.attributes) {
             sortedAttributes = attributes.filter((attribute) => attribute.visible).slice();
         }
         sortedAttributes.sort((a, b) => {
@@ -1101,10 +1046,8 @@ view.Node = class extends grapher.Node {
             return (au < bu) ? -1 : (au > bu) ? 1 : 0;
         });
         if (initializers.length > 0 || hiddenInitializers || sortedAttributes.length > 0) {
-            const block = this.list();
-            block.handler = () => {
-                this.context.view.showNodeProperties(node);
-            };
+            const list = this.list();
+            list.on('click', () => this.context.view.showNodeProperties(node));
             for (const initializer of initializers) {
                 const argument = initializer.arguments[0];
                 const type = argument.type;
@@ -1128,15 +1071,15 @@ view.Node = class extends grapher.Node {
                             catch (error) {
                                 // continue regardless of error
                             }
-                            const format = this.context.view.model && this.context.view.model.format ? this.context.view.model.format : '?';
-                            throw new view.Error("Failed to render tensor of type '" + type + "' in format '" + format + "' (" + err.message + ").");
+                            const identifier = this.context.view.model && this.context.view.model.identifier ? this.context.view.model.identifier : '?';
+                            throw new view.Error("Failed to render tensor of type '" + type + "' in '" + identifier + "' (" + err.message + ").");
                         }
                     }
                 }
-                block.add(argument.name ? 'initializer-' + argument.name : '', initializer.name, shape, type ? type.toString() : '', separator);
+                list.add(argument.name ? 'initializer-' + argument.name : '', initializer.name, shape, type ? type.toString() : '', separator);
             }
             if (hiddenInitializers) {
-                block.add(null, '\u3008' + '\u2026' + '\u3009', '', null, '');
+                list.add(null, '\u3008' + '\u2026' + '\u3009', '', null, '');
             }
 
             for (const attribute of sortedAttributes) {
@@ -1145,7 +1088,7 @@ view.Node = class extends grapher.Node {
                     if (value && value.length > 25) {
                         value = value.substring(0, 25) + '\u2026';
                     }
-                    block.add(null, attribute.name, value, attribute.type, ' = ');
+                    list.add(null, attribute.name, value, attribute.type, ' = ');
                 }
             }
         }
@@ -1157,6 +1100,23 @@ view.Node = class extends grapher.Node {
         if (node.inner) {
             this._add(node.inner);
         }
+        if (node.nodes) {
+            this.canvas = this.canvas();
+        }
+    }
+
+    toggle() {
+        this._expand.content = '-';
+        this._graph = new view.Graph(this.context.view, this.context.model, false, {});
+        this._graph.add(this.value);
+        // const document = this.element.ownerDocument;
+        // const parent = this.element.parentElement;
+        // this._graph.build(document, parent);
+        // this._graph.update();
+        this.canvas.width = 300;
+        this.canvas.height = 300;
+        this.layout();
+        this.context.update();
     }
 };
 
@@ -1173,12 +1133,21 @@ view.Input = class extends grapher.Node {
             name = name.split('/').pop();
         }
         const header = this.header();
-        header.add(null, [ 'graph-item-input' ], name, types, () => this.context.view.showModelProperties());
+        const title = header.add(null, [ 'graph-item-input' ], name, types);
+        title.on('click', () => this.context.view.showModelProperties());
         this.id = 'input-' + (name ? 'name-' + name : 'id-' + (view.Input.counter++).toString());
     }
 
     get class() {
         return 'graph-input';
+    }
+
+    get inputs() {
+        return [];
+    }
+
+    get outputs() {
+        return [ this.value ];
     }
 };
 
@@ -1194,7 +1163,16 @@ view.Output = class extends grapher.Node {
             name = name.split('/').pop();
         }
         const header = this.header();
-        header.add(null, [ 'graph-item-output' ], name, types, () => this.context.view.showModelProperties());
+        const title = header.add(null, [ 'graph-item-output' ], name, types);
+        title.on('click', () => this.context.view.showModelProperties());
+    }
+
+    get inputs() {
+        return [ this.value ];
+    }
+
+    get outputs() {
+        return [];
     }
 };
 
@@ -1209,29 +1187,42 @@ view.Argument = class {
         this._from = node;
     }
 
-    to(node) {
+    to(node, controlDependency) {
         this._to = this._to || [];
+        if (controlDependency) {
+            this._controlDependencies = this._controlDependencies || new Set();
+            this._controlDependencies.add(this._to.length);
+        }
         this._to.push(node);
     }
 
     build() {
         this._edges = this._edges || [];
         if (this._from && this._to) {
-            for (const to of this._to) {
-                let text = '';
+            for (let i = 0; i < this._to.length; i++) {
+                const to = this._to[i];
+                let content = '';
                 const type = this._argument.type;
-                if (type && type.shape && type.shape.dimensions && type.shape.dimensions.length > 0) {
-                    text = type.shape.dimensions.map((dimension) => dimension || '?').join('\u00D7');
+
+                if (type &&
+                    type.shape &&
+                    type.shape.dimensions &&
+                    type.shape.dimensions.length > 0 &&
+                    type.shape.dimensions.every((dim) => !dim || Number.isInteger(dim) || dim instanceof base.Int64 || (typeof dim === 'string'))) {
+                    content = type.shape.dimensions.map((dim) => dim || '?').join('\u00D7');
+                    content = content.length > 16 ? '' : content;
                 }
-                if (this.context.view.showNames) {
-                    text = this._argument.name.split('\n').shift(); // custom argument id
+                if (this.context.view.options.names) {
+                    content = this._argument.name.split('\n').shift(); // custom argument id
                 }
                 const edge = this.context.createEdge(this._from, to);
                 edge.v = this._from.name;
                 edge.w = to.name;
-                edge.label = text;
+                if (content) {
+                    edge.label = content;
+                }
                 edge.id = 'edge-' + this._argument.name;
-                if (this._argument.controlDependency) {
+                if (this._controlDependencies && this._controlDependencies.has(i)) {
                     edge.class = 'edge-path-control-dependency';
                 }
                 this.context.setEdge(edge);
@@ -1245,6 +1236,13 @@ view.Edge = class extends grapher.Edge {
 
     constructor(from, to) {
         super(from, to);
+    }
+
+    get minlen() {
+        if (this.from.inputs.every((parameter) => parameter.arguments.every((argument) => argument.initializer))) {
+            return 2;
+        }
+        return 1;
     }
 };
 
@@ -1286,17 +1284,42 @@ view.ModelContext = class {
             this._content.set(type, undefined);
             const stream = this.stream;
             const position = stream.position;
+            const signatures = [
+                [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ], // HDF5
+                [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ] // PyTorch
+            ];
             const skip =
+                signatures.some((signature) => signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) ||
                 Array.from(this._tags).some((pair) => pair[0] !== 'flatbuffers' && pair[1].size > 0) ||
                 Array.from(this._content.values()).some((obj) => obj !== undefined);
             if (!skip) {
                 switch (type) {
                     case 'json': {
                         try {
-                            const reader = json.TextReader.open(stream);
+                            const reader = json.TextReader.open(this.stream);
                             if (reader) {
                                 const obj = reader.read();
                                 this._content.set(type, obj);
+                            }
+                        }
+                        catch (err) {
+                            // continue regardless of error
+                        }
+                        break;
+                    }
+                    case 'json.gz': {
+                        try {
+                            const archive = gzip.Archive.open(this.stream);
+                            if (archive) {
+                                const entries = archive.entries;
+                                if (entries.size === 1) {
+                                    const stream = entries.values().next().value;
+                                    const reader = json.TextReader.open(stream);
+                                    if (reader) {
+                                        const obj = reader.read();
+                                        this._content.set(type, obj);
+                                    }
+                                }
                             }
                         }
                         catch (err) {
@@ -1354,6 +1377,7 @@ view.ModelContext = class {
             const position = stream.position;
             if (stream) {
                 const signatures = [
+                    [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ], // HDF5
                     [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ], // PyTorch
                     [ 0x50, 0x4b ], // Zip
                     [ 0x1f, 0x8b ] // Gzip
@@ -1388,6 +1412,18 @@ view.ModelContext = class {
                                     if (identifier.length > 0) {
                                         tags.set('file_identifier', identifier);
                                     }
+                                }
+                                break;
+                            }
+                            case 'xml': {
+                                const reader = xml.TextReader.open(stream);
+                                if (reader) {
+                                    const document = reader.peek();
+                                    const element = document.documentElement;
+                                    const namespaceURI = element.namespaceURI;
+                                    const localName = element.localName;
+                                    const name = namespaceURI ? namespaceURI + ':' + localName : localName;
+                                    tags.set(name, element);
                                 }
                                 break;
                             }
@@ -1471,46 +1507,50 @@ view.ModelFactoryService = class {
     constructor(host) {
         this._host = host;
         this._extensions = [];
-        this.register('./pytorch', [ '.pt', '.pth', '.pt1', '.pyt', '.pkl', '.pickle', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.tckpt', '.bin', '.pb', '.zip', '.nn', '.torchmodel' ]);
-        this.register('./onnx', [ '.onnx', '.onn', '.pb', '.pbtxt', '.prototxt', '.model', '.pt', '.pth', '.pkl', '.ort', '.ort.onnx' ]);
+        this.register('./pytorch', [ '.pt', '.pth', '.ptl', '.pt1', '.pyt', '.pyth', '.pkl', '.pickle', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.tckpt', '.bin', '.pb', '.zip', '.nn', '.torchmodel', '.torchscript', '.pytorch', '.ot', '.params' ]);
+        this.register('./onnx', [ '.onnx', '.onn', '.pb', '.onnxtxt', '.pbtxt', '.prototxt', '.txt', '.model', '.pt', '.pth', '.pkl', '.ort', '.ort.onnx' ]);
         this.register('./mxnet', [ '.json', '.params' ]);
-        this.register('./coreml', [ '.mlmodel', '.bin', 'manifest.json', 'metadata.json', 'featuredescriptions.json' ]);
+        this.register('./coreml', [ '.mlmodel', '.bin', 'manifest.json', 'metadata.json', 'featuredescriptions.json', '.pb' ]);
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt', '.pt', '.txt' ]);
         this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
-        this.register('./torch', [ '.t7' ]);
+        this.register('./torch', [ '.t7', '.net' ]);
         this.register('./tflite', [ '.tflite', '.lite', '.tfl', '.bin', '.pb', '.tmfile', '.h5', '.model', '.json', '.txt' ]);
-        this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt', '.pt', '.json', '.index', '.ckpt', '.graphdef', /.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/, /^events.out.tfevents./ ]);
+        this.register('./circle', [ '.circle' ]);
+        this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt', '.pt', '.json', '.index', '.ckpt', '.graphdef', '.pbmm', /.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/, /^events.out.tfevents./ ]);
         this.register('./mediapipe', [ '.pbtxt' ]);
         this.register('./uff', [ '.uff', '.pb', '.pbtxt', '.uff.txt', '.trt', '.engine' ]);
-        this.register('./tensorrt', [ '.trt', '.engine', '.model', '.txt', '.uff', '.pb', '.tmfile', '.onnx', '.pth' ]);
-        this.register('./npz', [ '.npz', '.npy', '.pkl' ]);
+        this.register('./tensorrt', [ '.trt', '.engine', '.model', '.txt', '.uff', '.pb', '.tmfile', '.onnx', '.pth', '.dnn', '.plan' ]);
+        this.register('./numpy', [ '.npz', '.npy', '.pkl', '.pickle' ]);
         this.register('./lasagne', [ '.pkl', '.pickle', '.joblib', '.model', '.pkl.z', '.joblib.z' ]);
         this.register('./lightgbm', [ '.txt', '.pkl', '.model' ]);
+        this.register('./keras', [ '.h5', '.hd5', '.hdf5', '.keras', '.json', '.cfg', '.model', '.pb', '.pth', '.weights', '.pkl', '.lite', '.tflite', '.ckpt' ]);
         this.register('./sklearn', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z' ]);
         this.register('./pickle', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z' ]);
         this.register('./cntk', [ '.model', '.cntk', '.cmf', '.dnn' ]);
-        this.register('./paddle', [ '.pdmodel', '.pdparams', '.pdiparams', '.paddle', '__model__', '.__model__', '.pbtxt', '.txt', '.tar', '.tar.gz' ]);
+        this.register('./paddle', [ '.pdmodel', '.pdparams', '.pdiparams', '.paddle', '__model__', '.__model__', '.pbtxt', '.txt', '.tar', '.tar.gz', '.nb' ]);
         this.register('./bigdl', [ '.model', '.bigdl' ]);
         this.register('./darknet', [ '.cfg', '.model', '.txt', '.weights' ]);
         this.register('./weka', [ '.model' ]);
         this.register('./rknn', [ '.rknn', '.onnx' ]);
         this.register('./dlc', [ '.dlc' ]);
-        this.register('./keras', [ '.h5', '.hd5', '.hdf5', '.keras', '.json', '.cfg', '.model', '.pb', '.pth', '.weights', '.pkl', '.lite', '.tflite', '.ckpt' ]);
         this.register('./armnn', [ '.armnn', '.json' ]);
         this.register('./mnn', ['.mnn']);
-        this.register('./ncnn', [ '.param', '.bin', '.cfg.ncnn', '.weights.ncnn' ]);
+        this.register('./ncnn', [ '.param', '.bin', '.cfg.ncnn', '.weights.ncnn', '.ncnnmodel' ]);
         this.register('./tnn', [ '.tnnproto', '.tnnmodel' ]);
         this.register('./tengine', ['.tmfile']);
         this.register('./mslite', [ '.ms']);
         this.register('./barracuda', [ '.nn' ]);
         this.register('./dnn', [ '.dnn' ]);
         this.register('./xmodel', [ '.xmodel' ]);
-        this.register('./openvino', [ '.xml', '.bin' ]);
+        this.register('./kmodel', [ '.kmodel' ]);
         this.register('./flux', [ '.bson' ]);
-        this.register('./dl4j', [ '.zip' ]);
+        this.register('./dl4j', [ '.json', '.bin' ]);
+        this.register('./openvino', [ '.xml', '.bin' ]);
         this.register('./mlnet', [ '.zip' ]);
         this.register('./acuity', [ '.json' ]);
         this.register('./imgdnn', [ '.dnn', 'params', '.json' ]);
+        this.register('./flax', [ '.msgpack' ]);
+        this.register('./om', [ '.om', '.onnx', '.pb', '.engine' ]);
     }
 
     register(id, extensions) {
@@ -1534,8 +1574,8 @@ view.ModelFactoryService = class {
                     if (archive) {
                         const entries = archive.entries;
                         containers.set('gzip', entries);
-                        if (archive.entries.size === 1) {
-                            stream = archive.entries.values().next().value;
+                        if (entries.size === 1) {
+                            stream = entries.values().next().value;
                         }
                     }
                 }
@@ -1616,6 +1656,7 @@ view.ModelFactoryService = class {
                 const formats = [
                     { name: 'Netron metadata', tags: [ '[].name', '[].schema' ] },
                     { name: 'Netron metadata', tags: [ '[].name', '[].attributes' ] },
+                    { name: 'Netron metadata', tags: [ '[].name', '[].category' ] },
                     { name: 'Darkflow metadata', tags: [ 'net', 'type', 'model' ] },
                     { name: 'keras-yolo2 configuration', tags: [ 'model', 'train', 'valid' ] },
                     { name: 'Vulkan SwiftShader ICD manifest', tags: [ 'file_format_version', 'ICD' ] },
@@ -1623,7 +1664,11 @@ view.ModelFactoryService = class {
                     { name: 'NuGet assets', tags: [ 'version', 'targets', 'packageFolders' ] },
                     { name: 'NuGet data', tags: [ 'format', 'restore', 'projects' ] },
                     { name: 'NPM package', tags: [ 'name', 'version', 'dependencies' ] },
-                    { name: 'NetworkX adjacency_data', tags: [ 'directed', 'graph', 'nodes' ] }
+                    { name: 'NetworkX adjacency_data', tags: [ 'directed', 'graph', 'nodes' ] },
+                    { name: 'Waifu2x data', tags: [ 'name', 'arch_name', 'channels' ] },
+                    { name: 'Waifu2x data', tags: [ '[].nInputPlane', '[].nOutputPlane', '[].weight', '[].bias' ] },
+                    { name: 'Brain.js data', tags: [ 'type', 'sizes', 'layers' ] },
+                    { name: 'Custom Vision metadata', tags: [ 'CustomVision.Metadata.Version' ] }
                 ];
                 const match = (obj, tag) => {
                     if (tag.startsWith('[].')) {
@@ -1651,7 +1696,15 @@ view.ModelFactoryService = class {
                 { name: 'vitis.ai.proto.DpuModelParamList data', tags: [ 'model', 'model.name', 'model.kernel' ] },
                 { name: 'object_detection.protos.DetectionModel data', tags: [ 'model', 'model.ssd' ] },
                 { name: 'object_detection.protos.DetectionModel data', tags: [ 'model', 'model.faster_rcnn' ] },
-                { name: 'tensorflow.CheckpointState data', tags: [ 'model_checkpoint_path', 'all_model_checkpoint_paths' ] }
+                { name: 'tensorflow.CheckpointState data', tags: [ 'model_checkpoint_path', 'all_model_checkpoint_paths' ] },
+                { name: 'apollo.perception.camera.traffic_light.detection.DetectionParam data', tags: [ 'min_crop_size', 'crop_method' ] },
+                { name: 'tidl_meta_arch.TIDLMetaArch data', tags: [ 'caffe_ssd' ] }, // https://github.com/TexasInstruments/edgeai-mmdetection/blob/master/mmdet/utils/proto/mmdet_meta_arch.proto
+                { name: 'tidl_meta_arch.TIDLMetaArch data', tags: [ 'tf_od_api_ssd' ] },
+                { name: 'tidl_meta_arch.TIDLMetaArch data', tags: [ 'tidl_ssd' ] },
+                { name: 'tidl_meta_arch.TIDLMetaArch data', tags: [ 'tidl_faster_rcnn' ] },
+                { name: 'tidl_meta_arch.TIDLMetaArch data', tags: [ 'tidl_yolo' ] },
+                { name: 'tidl_meta_arch.TIDLMetaArch data', tags: [ 'tidl_retinanet' ] },
+                { name: 'domi.InsertNewOps data', tags: [ 'aipp_op' ] } // https://github.com/Ascend/parser/blob/development/parser/proto/insert_op.proto
             ];
             const tags = context.tags('pbtxt');
             if (tags.size > 0) {
@@ -1671,8 +1724,8 @@ view.ModelFactoryService = class {
             const tags = context.tags('pb+');
             if (Object.keys(tags).length > 0) {
                 const formats = [
-                    { name: 'mediapipe.BoxDetectorIndex data', tags: [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]],[2,false],[3,false],[4,false],[5,false]]],[2,false],[3,false]] },
                     { name: 'sentencepiece.ModelProto data', tags: [[1,[[1,2],[2,5],[3,0]]],[2,[[1,2],[2,2],[3,0],[4,0],[5,2],[6,0],[7,2],[10,5],[16,0],[40,0],[41,0],[42,0],[43,0]]],[3,[]],[4,[]],[5,[]]] },
+                    { name: 'mediapipe.BoxDetectorIndex data', tags: [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]],[2,false],[3,false],[4,false],[5,false]]],[2,false],[3,false]] },
                     { name: 'third_party.tensorflow.python.keras.protobuf.SavedMetadata data', tags: [[1,[[1,[[1,0],[2,0]]],[2,0],[3,2],[4,2],[5,2]]]] },
                     { name: 'pblczero.Net data', tags: [[1,5],[2,2],[3,[[1,0],[2,0],[3,0]],[10,[[1,[]],[2,[]],[3,[]],[4,[]],[5,[]],[6,[]]]],[11,[]]]] } // https://github.com/LeelaChessZero/lczero-common/blob/master/proto/net.proto
                 ];
@@ -1680,19 +1733,22 @@ view.ModelFactoryService = class {
                     for (const pair of schema) {
                         const key = pair[0];
                         const inner = pair[1];
-                        if (tags[key] === undefined) {
+                        const value = tags[key];
+                        if (value === undefined) {
                             continue;
                         }
-                        else if (inner === false) {
+                        if (inner === false) {
                             return false;
                         }
                         if (Array.isArray(inner)) {
-                            const value = tags[key];
                             if (typeof value !== 'object' || !match(value, inner)) {
                                 return false;
                             }
                         }
-                        else if (inner !== tags[key]) {
+                        else if (inner !== value) {
+                            if (inner === 2 && !Array.isArray(value) && Object(value) === (value) && Object.keys(value).length === 0) {
+                                return true;
+                            }
                             return false;
                         }
                     }
@@ -1705,12 +1761,12 @@ view.ModelFactoryService = class {
                     }
                 }
                 const format = (tags) => {
-                    const text = Object.entries(tags).map((pair) => {
+                    const content = Object.entries(tags).map((pair) => {
                         const key = pair[0];
                         const value = pair[1];
                         return key.toString() + ':' + (Object(value) === value ? '{' + format(value) + '}' : value.toString());
                     });
-                    return text.join(',');
+                    return content.join(',');
                 };
                 const content = format(tags);
                 throw new view.Error("Unsupported Protocol Buffers content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip());
@@ -1722,13 +1778,29 @@ view.ModelFactoryService = class {
                 const file_identifier = tags.get('file_identifier');
                 const formats = [
                     { name: 'onnxruntime.experimental.fbs.InferenceSession data', identifier: 'ORTM' },
-                    { name: 'tflite.Model data', identifier: 'TFL3' }
+                    { name: 'tflite.Model data', identifier: 'TFL3' },
+                    { name: 'FlatBuffers ENNC data', identifier: 'ENNC' },
                 ];
                 for (const format of formats) {
                     if (file_identifier === format.identifier) {
                         throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
                     }
                 }
+            }
+        };
+        const xml = () => {
+            const tags = context.tags('xml');
+            if (tags.size > 0) {
+                const formats = [
+                    { name: 'OpenCV storage data', tags: [ 'opencv_storage' ] },
+                    { name: 'XHTML markup', tags: [ 'http://www.w3.org/1999/xhtml:html' ]}
+                ];
+                for (const format of formats) {
+                    if (format.tags.some((tag) => tags.has(tag))) {
+                        throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
+                    }
+                }
+                throw new view.Error("Unsupported XML content '" + tags.keys().next().value + "' in '" + identifier + "'.", !skip());
             }
         };
         const unknown = () => {
@@ -1742,6 +1814,7 @@ view.ModelFactoryService = class {
         pbtxt();
         pb();
         flatbuffers();
+        xml();
         unknown();
     }
 
@@ -1754,9 +1827,9 @@ view.ModelFactoryService = class {
                 const id = modules.shift();
                 return this._host.require(id).then((module) => {
                     const updateErrorContext = (error, context) => {
-                        const text = " in '" + context.identifier + "'.";
-                        if (error && !error.message.endsWith(text) && (error.context === undefined || error.context === true)) {
-                            error.message = error.message.replace(/\.$/, '') + text;
+                        const content = " in '" + context.identifier + "'.";
+                        if (error && typeof error.message === 'string' && !error.message.endsWith(content) && (error.context === undefined || error.context === true)) {
+                            error.message = error.message.replace(/\.$/, '') + content;
                         }
                     };
                     if (!module.ModelFactory) {
@@ -1776,6 +1849,9 @@ view.ModelFactoryService = class {
                     }
                     success = true;
                     return modelFactory.open(context, match).then((model) => {
+                        if (!model.identifier) {
+                            model.identifier = context.identifier;
+                        }
                         return model;
                     }).catch((error) => {
                         updateErrorContext(error, context);
@@ -1869,6 +1945,12 @@ view.ModelFactoryService = class {
                             matches.some((e) => e.name.toLowerCase().endsWith('.pdmodel')) &&
                             matches.some((e) => e.name.toLowerCase().endsWith('.pdiparams'))) {
                             matches = matches.filter((e) => e.name.toLowerCase().endsWith('.pdmodel'));
+                        }
+                        // Paddle Lite
+                        if (matches.length > 0 &&
+                            matches.some((e) => e.name.toLowerCase().split('/').pop() === '__model__.nb') &&
+                            matches.some((e) => e.name.toLowerCase().split('/').pop() === 'param.nb')) {
+                            matches = matches.filter((e) => e.name.toLowerCase().split('/').pop() == '__model__.nb');
                         }
                         // TensorFlow Bundle
                         if (matches.length > 1 &&
@@ -1984,15 +2066,19 @@ view.ModelFactoryService = class {
                 { name: 'Python source code', value: /^\s*import[ ]+(os|sys|types|torch|argparse|onnx|numpy|tensorflow)(,|;|\s)/ },
                 { name: 'Python source code', value: /^\s*import[ ]+([a-z])+[ ]+as[ ]+/ },
                 { name: 'Python source code', value: /^\s*from[ ]+(torch)[ ]+import[ ]+/ },
+                { name: 'Python source code', value: /^\s*from[ ]+(keras)[ ]+import[ ]+/ },
+                { name: 'Bash script', value: /^#!\/usr\/bin\/env\s/ },
+                { name: 'Bash script', value: /^#!\/bin\/bash\s/ },
                 { name: 'TSD header', value: /^%TSD-Header-###%/ },
                 { name: 'AppleDouble data', value: /^\x00\x05\x16\x07/ },
-                { name: 'TensorFlow Hub module', value: /^\x08\x03$/, identifier: 'tfhub_module.pb' }
+                { name: 'TensorFlow Hub module', value: /^\x08\x03$/, identifier: 'tfhub_module.pb' },
+                { name: 'OpenVX network binary graph data', value: /^VPMN/ } // network_binary.nb
             ];
             /* eslint-enable no-control-regex */
             const buffer = stream.peek(Math.min(4096, stream.length));
-            const text = String.fromCharCode.apply(null, buffer);
+            const content = String.fromCharCode.apply(null, buffer);
             for (const entry of entries) {
-                if (text.match(entry.value) && (!entry.identifier || entry.identifier === context.identifier)) {
+                if (content.match(entry.value) && (!entry.identifier || entry.identifier === context.identifier)) {
                     return Promise.reject(new view.Error('Invalid file content. File contains ' + entry.name + '.', true));
                 }
             }
@@ -2008,496 +2094,6 @@ view.Error = class extends Error {
         this.name = 'Error loading model.';
         this.telemetry = telemetry;
         this.stack = undefined;
-    }
-};
-
-view.Zoom = class {
-
-    constructor(node, min, max) {
-        this._scaleExtent = [ min, max ];
-        this._translateExtent = [ [-Infinity, -Infinity], [Infinity, Infinity] ],
-        this._touchStarting = false;
-        this._touchFirst = false;
-        this._touchEnding = false;
-        this._touchDelay = 500;
-        this._wheelDelay = 150;
-        this._events = new Map([ [ 'start', [] ], [ 'zoom', [] ], [ 'end', [] ] ]);
-        this._selection = new view.Zoom.Selection(node);
-        this._selection.node.__zoom = view.Zoom.identity();
-        this._selection.on('wheel.zoom', (event) => this._wheel(event), {passive: false});
-        this._selection.on('mousedown.zoom', (event) => this._mouseDown(event));
-        if (navigator.maxTouchPoints || node.ontouchstart) {
-            this._selection.on('touchstart.zoom', (event) => this._touchStarted(event));
-            this._selection.on('touchmove.zoom', (event) => this._touchMoved(event));
-            this._selection.on('touchend.zoom', (event) => this._touchEnded(event));
-            this._selection.on('touchcancel.zoom', (event) => this._touchEnded(event));
-            node.style.setProperty('-webkit-tap-highlight-color', 'rgba(0,0,0,0)', '');
-        }
-    }
-
-    static identity() {
-        view.Zoom._identity = view.Zoom._identity || new view.Zoom.Transform(1, 0, 0);
-        return view.Zoom._identity;
-    }
-
-    on(event, callback) {
-        if (this._events.has(event)) {
-            if (callback) {
-                this._events.get(event).push(callback);
-            }
-            else {
-                this._events.set([]);
-            }
-        }
-    }
-
-    raise(event, data) {
-        if (this._events.has(event)) {
-            const callbacks = this._events.get(event);
-            for (const callback of callbacks) {
-                callback(this, data);
-            }
-        }
-    }
-
-    transform(transform) {
-        const node = this._selection.node;
-        if (node) {
-            this._gesture(node, arguments)
-                .start()
-                .zoom(null, typeof transform === 'function' ? transform() : transform)
-                .end();
-        }
-    }
-
-    scaleTo(k) {
-        const node = this._selection.node;
-        if (node) {
-            this.transform(() => {
-                const e = this.extent(node);
-                const t0 = node.__zoom;
-                const p0 = this._centroid(e);
-                const p1 = t0.invert(p0);
-                const k1 = typeof k === 'function' ? k() : k;
-                const transform = this.translate(this.scale(t0, k1), p0, p1);
-                return this._constrain(transform, e, this._translateExtent);
-            });
-        }
-    }
-
-    scaleBy(k) {
-        const node = this._selection.node;
-        if (node) {
-            this.scaleTo(() => {
-                const k0 = node.__zoom.k;
-                const k1 = k;
-                return k0 * k1;
-            });
-        }
-    }
-
-    scale(transform, k) {
-        k = Math.max(this._scaleExtent[0], Math.min(this._scaleExtent[1], k));
-        return k === transform.k ? transform : new view.Zoom.Transform(k, transform.x, transform.y);
-    }
-
-    translate(transform, p0, p1) {
-        const x = p0[0] - p1[0] * transform.k, y = p0[1] - p1[1] * transform.k;
-        return x === transform.x && y === transform.y ? transform : new view.Zoom.Transform(transform.k, x, y);
-    }
-
-    pointer(event, node) {
-        while (event.sourceEvent) {
-            event = event.sourceEvent;
-        }
-        if (node === undefined) {
-            node = event.currentTarget;
-        }
-        if (node) {
-            const svg = node.ownerSVGElement || node;
-            if (svg.createSVGPoint) {
-                let point = svg.createSVGPoint();
-                point.x = event.clientX, point.y = event.clientY;
-                point = point.matrixTransform(node.getScreenCTM().inverse());
-                return [point.x, point.y];
-            }
-            if (node.getBoundingClientRect) {
-                const rect = node.getBoundingClientRect();
-                return [event.clientX - rect.left - node.clientLeft, event.clientY - rect.top - node.clientTop];
-            }
-        }
-        return [event.pageX, event.pageY];
-    }
-
-    _filter(event) {
-        return (!event.ctrlKey || event.type === 'wheel') && !event.button;
-    }
-
-    extent(node) {
-        let e = node;
-        if (e instanceof SVGElement) {
-            e = e.ownerSVGElement || e;
-            if (e.hasAttribute('viewBox')) {
-                e = e.viewBox.baseVal;
-                return [[e.x, e.y], [e.x + e.width, e.y + e.height]];
-            }
-            return [[0, 0], [e.width.baseVal.value, e.height.baseVal.value]];
-        }
-        return [[0, 0], [e.clientWidth, e.clientHeight]];
-    }
-
-    _wheelDelta(event) {
-        return -event.deltaY * (event.deltaMode === 1 ? 0.05 : event.deltaMode ? 1 : 0.002) * (event.ctrlKey ? 10 : 1);
-    }
-
-    _constrain(transform, extent, translateExtent) {
-        const dx0 = transform.invertX(extent[0][0]) - translateExtent[0][0];
-        const dx1 = transform.invertX(extent[1][0]) - translateExtent[1][0];
-        const dy0 = transform.invertY(extent[0][1]) - translateExtent[0][1];
-        const dy1 = transform.invertY(extent[1][1]) - translateExtent[1][1];
-        return transform.translate(
-            dx1 > dx0 ? (dx0 + dx1) / 2 : Math.min(0, dx0) || Math.max(0, dx1),
-            dy1 > dy0 ? (dy0 + dy1) / 2 : Math.min(0, dy0) || Math.max(0, dy1)
-        );
-    }
-
-    _centroid(extent) {
-        return [ (+extent[0][0] + +extent[1][0]) / 2, (+extent[0][1] + +extent[1][1]) / 2 ];
-    }
-
-    _gesture(node, clean) {
-        return (!clean && node.__zooming) || new view.Zoom.Gesture(node, this);
-    }
-
-    _stopEvent(event) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-    }
-
-    _wheel(event) {
-        const currentTarget = event.currentTarget;
-        const wheelidled = (gesture) => {
-            gesture.wheel = null;
-            gesture.end();
-        };
-        if (this._filter(event)) {
-            const gesture = this._gesture(currentTarget);
-            const t = currentTarget.__zoom;
-            const k = Math.max(this._scaleExtent[0], Math.min(this._scaleExtent[1], t.k * Math.pow(2, this._wheelDelta(event))));
-            const p = this.pointer(event);
-            if (gesture.wheel) {
-                if (gesture.mouse[0][0] !== p[0] || gesture.mouse[0][1] !== p[1]) {
-                    gesture.mouse[1] = t.invert(gesture.mouse[0] = p);
-                }
-                clearTimeout(gesture.wheel);
-            }
-            else if (t.k === k) {
-                return;
-            }
-            else {
-                gesture.mouse = [p, t.invert(p)];
-                gesture.start();
-            }
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            gesture.wheel = setTimeout(() => wheelidled(gesture), this._wheelDelay);
-            const transform = this.translate(this.scale(t, k), gesture.mouse[0], gesture.mouse[1]);
-            gesture.zoom('mouse', this._constrain(transform, gesture.extent, this._translateExtent));
-        }
-    }
-
-    _mouseDown(event) {
-        const currentTarget = event.currentTarget;
-        if (this._touchEnding || !this._filter(event)) return;
-        const gesture = this._gesture(currentTarget, true);
-        const selection = new view.Zoom.Selection(event.view)
-            .on('mousemove.zoom', (event) => mousemoved(event), true)
-            .on('mouseup.zoom', (event) => mouseupped(event), true);
-        const p = this.pointer(event, currentTarget);
-        const x0 = event.clientX;
-        const y0 = event.clientY;
-        const root = event.view.document.documentElement;
-        selection.on('dragstart.drag', (event) => this._stopEvent(event), { capture: true, passive: false });
-        if ('onselectstart' in root) {
-            selection.on('selectstart.drag', (event) => this._stopEvent(event), { capture: true, passive: false });
-        }
-        else {
-            root.__noselect = root.style.MozUserSelect;
-            root.style.MozUserSelect = 'none';
-        }
-        event.stopImmediatePropagation();
-        gesture.mouse = [ p, currentTarget.__zoom.invert(p) ];
-        gesture.start();
-        const mousemoved = (event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            if (!gesture.moved) {
-                const dx = event.clientX - x0, dy = event.clientY - y0;
-                gesture.moved = dx * dx + dy * dy > 0;
-            }
-            const transform = this.translate(gesture.node.__zoom, gesture.mouse[0] = this.pointer(event, currentTarget), gesture.mouse[1]);
-            gesture.zoom('mouse', this._constrain(transform, gesture.extent, this._translateExtent));
-        };
-        const mouseupped = (event) => {
-            selection.on('mousemove.zoom', null);
-            selection.on('mouseup.zoom', null);
-            const root = event.view.document.documentElement;
-            selection.on('dragstart.drag', null);
-            if (gesture.moved) {
-                selection.on('click.drag', (event) => this._stopEvent(event), { capture: true, passive: false });
-                setTimeout(function() { selection.on('click.drag', null); }, 0);
-            }
-            if ('onselectstart' in root) {
-                selection.on('selectstart.drag', null);
-            }
-            else {
-                root.style.MozUserSelect = root.__noselect;
-                delete root.__noselect;
-            }
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            gesture.end();
-        };
-    }
-
-    _touchStarted(event) {
-        const currentTarget = event.currentTarget;
-        if (this._filter(event)) {
-            const touches = event.touches;
-            const gesture = this._gesture(currentTarget, event.changedTouches.length === touches.length);
-            let started;
-            let p;
-            event.stopImmediatePropagation();
-            for (let i = 0; i < touches.length; ++i) {
-                const t = touches[i];
-                p = this.pointer(t, currentTarget);
-                p = [p, currentTarget.__zoom.invert(p), t.identifier];
-                if (!gesture.touch0) {
-                    gesture.touch0 = p;
-                    started = true;
-                    gesture.taps = 1 + !!this._touchStarting;
-                }
-                else if (!gesture.touch1 && gesture.touch0[2] !== p[2]) {
-                    gesture.touch1 = p;
-                    gesture.taps = 0;
-                }
-            }
-            if (this._touchStarting) {
-                this._touchStarting = clearTimeout(this._touchStarting);
-            }
-            if (started) {
-                if (gesture.taps < 2) {
-                    this._touchFirst = p[0];
-                    this._touchStarting = setTimeout(function() { this._touchStarting = null; }, this._touchDelay);
-                }
-                gesture.start();
-            }
-        }
-    }
-
-    _touchMoved(event) {
-        const currentTarget = event.currentTarget;
-        if (currentTarget.__zooming) {
-            const gesture = this._gesture(currentTarget);
-            const touches = event.changedTouches;
-            let t, p, l;
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            for (let i = 0; i < touches.length; i++) {
-                t = touches[i], p = this.pointer(t, currentTarget);
-                if (gesture.touch0 && gesture.touch0[2] === t.identifier) {
-                    gesture.touch0[0] = p;
-                }
-                else if (gesture.touch1 && gesture.touch1[2] === t.identifier) {
-                    gesture.touch1[0] = p;
-                }
-            }
-            t = gesture.node.__zoom;
-            if (gesture.touch1) {
-                const p0 = gesture.touch0[0];
-                const l0 = gesture.touch0[1];
-                const p1 = gesture.touch1[0];
-                const l1 = gesture.touch1[1];
-                let dp, dl;
-                dp = (dp = p1[0] - p0[0]) * dp + (dp = p1[1] - p0[1]) * dp;
-                dl = (dl = l1[0] - l0[0]) * dl + (dl = l1[1] - l0[1]) * dl;
-                t = this.scale(t, Math.sqrt(dp / dl));
-                p = [(p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2];
-                l = [(l0[0] + l1[0]) / 2, (l0[1] + l1[1]) / 2];
-            }
-            else if (gesture.touch0) {
-                p = gesture.touch0[0], l = gesture.touch0[1];
-            }
-            else {
-                return;
-            }
-            const transform = this.translate(t, p, l);
-            gesture.zoom('touch', this._constrain(transform, gesture.extent, this._translateExtent));
-        }
-    }
-
-    _touchEnded(event) {
-        const currentTarget = event.currentTarget;
-        if (currentTarget.__zooming) {
-            const gesture = this._gesture(currentTarget);
-            const touches = event.changedTouches;
-            event.stopImmediatePropagation();
-            if (this._touchEnding) {
-                clearTimeout(this._touchEnding);
-            }
-            this._touchEnding = setTimeout(function() { this._touchEnding = null; }, this._touchDelay);
-            for (let i = 0; i < touches.length; i++) {
-                const touch = touches[i];
-                if (gesture.touch0 && gesture.touch0[2] === touch.identifier) {
-                    delete gesture.touch0;
-                }
-                else if (gesture.touch1 && gesture.touch1[2] === touch.identifier) {
-                    delete gesture.touch1;
-                }
-            }
-            if (gesture.touch1 && !gesture.touch0) {
-                gesture.touch0 = gesture.touch1;
-                delete gesture.touch1;
-            }
-            if (gesture.touch0) {
-                gesture.touch0[1] = currentTarget.__zoom.invert(gesture.touch0[0]);
-            }
-            else {
-                gesture.end();
-            }
-        }
-    }
-};
-
-view.Zoom.Selection = class {
-
-    constructor(node) {
-        this._node = node;
-    }
-
-    get node() {
-        return this._node;
-    }
-
-    each(callback) {
-        if (this._node) {
-            callback(this._node);
-        }
-        return this;
-    }
-
-    on(name, value, options) {
-        const node = this._node;
-        if (node) {
-            const key = name.split('.');
-            if (value) {
-                node.__on = node.__on || [];
-                const listener = (event) => value.call(node, event);
-                let match = false;
-                for (const handler of node.__on) {
-                    if (handler.type === key[0] && handler.name === key[1]) {
-                        node.removeEventListener(handler.type, handler.listener, handler.options);
-                        node.addEventListener(handler.type, handler.listener = listener, handler.options = options);
-                        handler.value = value;
-                        handler.options = options;
-                        match = true;
-                        break;
-                    }
-                }
-                if (!match) {
-                    node.addEventListener(key[0], listener, options);
-                    node.__on.push({ type: key[0], name: key[1], value: value, listener: listener, options: options });
-                }
-            }
-            else if (node.__on) {
-                node.__on = node.__on.filter((handler) => {
-                    if (handler.type === key[0] && handler.name === key[1]) {
-                        node.removeEventListener(handler.type, handler.listener, handler.options);
-                        return false;
-                    }
-                    return true;
-                });
-                if (node.__on.length === 0) {
-                    delete node.__on;
-                }
-            }
-        }
-        return this;
-    }
-};
-
-view.Zoom.Transform = class {
-
-    constructor(k, x, y) {
-        this.k = k;
-        this.x = x;
-        this.y = y;
-    }
-
-    translate(x, y) {
-        return x === 0 & y === 0 ? this : new view.Zoom.Transform(this.k, this.x + this.k * x, this.y + this.k * y);
-    }
-
-    invert(location) {
-        return [(location[0] - this.x) / this.k, (location[1] - this.y) / this.k];
-    }
-
-    invertX(x) {
-        return (x - this.x) / this.k;
-    }
-
-    invertY(y) {
-        return (y - this.y) / this.k;
-    }
-
-    toString() {
-        return 'translate(' + this.x + ',' + this.y + ') scale(' + this.k + ')';
-    }
-};
-
-view.Zoom.Gesture = class {
-
-    constructor(node, target) {
-        this.node = node;
-        this.active = 0;
-        this.extent = target.extent(node);
-        this.taps = 0;
-        this.target = target;
-    }
-
-    start() {
-        if (++this.active === 1) {
-            this.node.__zooming = this;
-            this.raise('start');
-        }
-        return this;
-    }
-
-    zoom(name, transform) {
-        if (this.mouse && name !== 'mouse') {
-            this.mouse[1] = transform.invert(this.mouse[0]);
-        }
-        if (this.touch0 && name !== 'touch') {
-            this.touch0[1] = transform.invert(this.touch0[0]);
-        }
-        if (this.touch1 && name !== 'touch') {
-            this.touch1[1] = transform.invert(this.touch1[0]);
-        }
-        this.node.__zoom = transform;
-        this.raise('zoom');
-        return this;
-    }
-
-    end() {
-        if (--this.active === 0) {
-            delete this.node.__zooming;
-            this.raise('end');
-        }
-        return this;
-    }
-
-    raise(event) {
-        this.target.raise(event, { transform: this.node.__zoom });
     }
 };
 

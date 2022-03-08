@@ -93,6 +93,7 @@ def update_attributes(schema, lines):
     index = 0
     while index < len(lines):
         line = lines[index]
+        line = re.sub(r',\s+', ', ', line)
         if line.endswith('.'):
             line = line[0:-1]
         colon = line.find(':')
@@ -147,7 +148,12 @@ def update_attributes(schema, lines):
             "'raise' or numeric, default=np.nan",
             "'auto' or float, default=None",
             "float, default=np.finfo(float).eps",
-            "int, float, str, np.nan or None, default=np.nan"
+            "int, float, str, np.nan or None, default=np.nan",
+            "list of (str, transformer) tuples",
+            "int, float, str, np.nan, None or pandas.NA, default=np.nan",
+            "{'first', 'if_binary'} or an array-like of shape (n_features,), default=None",
+            "{'first', 'if_binary'} or a array-like of shape (n_features,), default=None",
+            "{'linear', 'poly', 'rbf', 'sigmoid', 'precomputed'} or callable, default='rbf'"
         }
         if line == 'str':
             line = 'string'
@@ -173,6 +179,8 @@ def update_attributes(schema, lines):
             line = ''
         elif line.startswith('int, RandomState instance or None,'):
             line = line[len('int, RandomState instance or None,'):]
+        elif line.startswith('int, or str, '):
+            line = line[len('int, or str, '):]
         elif line.find('|') != -1:
             line = ''
         else:

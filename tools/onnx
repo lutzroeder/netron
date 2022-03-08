@@ -60,21 +60,8 @@ install() {
             [ -x "$(command -v cmake)" ] || brew install cmake > /dev/null
             [ -x "$(command -v protoc)" ] || brew install protobuf > /dev/null
             protobuf=protobuf
-            if [ "$(uname -sm)" = "Darwin arm64" ]; then
-                PYTHON_ARCHITECTURE=$(${python} -c "import platform; print(platform.uname().machine);")
-                export CMAKE_ARGS="-DCMAKE_OSX_ARCHITECTURES=${PYTHON_ARCHITECTURE}"
-                if [ ${PYTHON_ARCHITECTURE} = "arm64" ]; then
-                    [ -x "$(brew --prefix openblas)" ] || brew install openblas > /dev/null
-                    export OPENBLAS=$(brew --prefix openblas)
-                    pep517=--no-use-pep517
-                    venv
-                    ${python} -m pip install --quiet --upgrade cython
-                    deactivate
-                fi
-            fi
             ;;
         msys*)
-            [ ! -z "$(choco list --local-only --exacty --limit-output visualstudio2017-workload-vctools)" ] || $(choco install -yes visualstudio2017-workload-vctools) > /dev/null
             protoc_version=3.16.0
             protoc_dir="$(pwd)/third_party/bin/protobuf/v${protoc_version}"
             programfiles_x86_dir=$(env | grep "^ProgramFiles(x86)=" | cut -d '=' -f 2)
@@ -97,8 +84,7 @@ install() {
     esac
     venv
     ${python} -m pip install --quiet --upgrade ${protobuf}
-    ${python} -m pip install --quiet --upgrade numpy ${pep517}
-    ${python} -m pip install --quiet "./third_party/source/onnx" ${pep517} --use-feature=in-tree-build
+    ${python} -m pip install --quiet "./third_party/source/onnx"
     deactivate
 }
 
@@ -109,10 +95,10 @@ schema() {
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/onnx-proto.js ./source/onnx-proto.js
     fi
-    [[ $(grep -U $'\x0D' ./source/ort-schema.js) ]] && crlf=1
-    node ./tools/flatc.js --root ort --out ./source/ort-schema.js ./third_party/source/onnxruntime/core/flatbuffers/schema/ort.fbs
+    [[ $(grep -U $'\x0D' ./source/onnx-schema.js) ]] && crlf=1
+    node ./tools/flatc.js --root ort --out ./source/onnx-schema.js ./third_party/source/onnxruntime/core/flatbuffers/schema/ort.fbs
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./source/ort-schema.js ./source/ort-schema.js
+        unix2dos --quiet --newfile ./source/onnx-schema.js ./source/onnx-schema.js
     fi
 }
 

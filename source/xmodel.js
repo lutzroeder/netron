@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var xmodel = xmodel || {};
 var protobuf = protobuf || require('./protobuf');
@@ -63,33 +62,40 @@ xmodel.Graph = class {
         const metadata = new xmodel.Metadata(graph.op_defs);
         this._inputs = [];
         this._outputs = [];
-        const count = new Map();
+        const counts = new Map();
         for (const op_node of graph.op_node) {
             for (const arg of op_node.args) {
                 for (const arg_op of arg.arg_ops) {
-                    count.set(arg_op, count.has(arg_op) ? count.get(arg_op) + 1 : 1);
+                    counts.set(arg_op, counts.has(arg_op) ? counts.get(arg_op) + 1 : 1);
                 }
             }
         }
-        const initializers = new Map();
+        const args = new Map();
+        const arg = (name, node, initializer) => {
+            if (!args.has(name)) {
+                args.set(name, new xmodel.Argument(name, node, initializer));
+            }
+            return args.get(name);
+        };
         const nodes = [];
-        for (const op_node of graph.op_node) {
-            if (op_node.op_type === 'const-fix' && op_node.args.length === 0 && count.get(op_node.op_name) === 1) {
-                const type = xmodel.Utility.type(op_node.op_attr);
-                initializers.set(op_node.op_name, new xmodel.Tensor(type, op_node.op_type));
-                continue;
+        for (const node of graph.op_node) {
+            if (node.args.length === 0) {
+                if (node.op_type === 'data' || node.op_type === 'data-fix') {
+                    const argument = arg(node.op_name, node);
+                    this._inputs.push(new xmodel.Parameter(node.op_name, [ argument ]));
+                    continue;
+                }
             }
-            if (op_node.op_type === 'data-fix' && op_node.args.length === 0) {
-                const type = xmodel.Utility.type(op_node.op_attr);
-                const quantization = xmodel.Utility.quantization(op_node.op_attr);
-                this._inputs.push(new xmodel.Parameter(op_node.op_name, [
-                    new xmodel.Argument(op_node.op_name, type, quantization.out, null)
-                ]));
-                continue;
+            if (node.args.length === 0 && counts.get(node.op_name) === 1) {
+                if (node.op_type === 'const' || node.op_type === 'const-fix') {
+                    arg(node.op_name, node, true);
+                    continue;
+                }
             }
-            nodes.push(op_node);
+            arg(node.op_name, node);
+            nodes.push(node);
         }
-        this._nodes = nodes.map((node) => new xmodel.Node(metadata, node, initializers));
+        this._nodes = nodes.map((node) => new xmodel.Node(metadata, node, arg));
     }
 
     get inputs() {
@@ -127,14 +133,22 @@ xmodel.Parameter = class {
 
 xmodel.Argument = class {
 
-    constructor(name, type, quantization, initializer) {
+    constructor(name, node, initializer) {
         if (typeof name !== 'string') {
             throw new xmodel.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
-        this._type = type || null;
-        this._quantization = quantization;
-        this._initializer = initializer || null;
+        if (node) {
+            const tensor = node.output_tensor;
+            if (tensor && tensor.tensor_attr && tensor.data_type) {
+                if (initializer) {
+                    this._initializer = new xmodel.Tensor(node);
+                }
+                else {
+                    this._type = new xmodel.TensorType(tensor);
+                }
+            }
+        }
     }
 
     get name() {
@@ -148,26 +162,6 @@ xmodel.Argument = class {
         return this._type;
     }
 
-    get quantization() {
-        if (this._quantization) {
-            const list = [];
-            if (this._quantization.bit_width !== undefined) {
-                list.push('bit_width: ' + this._quantization.bit_width);
-            }
-            if (this._quantization.pos !== undefined) {
-                list.push('pos: ' + this._quantization.pos);
-            }
-            if (this._quantization.signed !== undefined) {
-                list.push('signed: ' + this._quantization.signed);
-            }
-            if (this._quantization.round_mode !== undefined) {
-                list.push('round_mode: ' + this._quantization.round_mode);
-            }
-            return list.join(', ');
-        }
-        return null;
-    }
-
     get initializer() {
         return this._initializer;
     }
@@ -175,26 +169,44 @@ xmodel.Argument = class {
 
 xmodel.Node = class {
 
-    constructor(metadata, op_node, initializers) {
+    constructor(metadata, op_node, arg) {
         this._name = op_node.op_name || '';
-        this._type = metadata.type(op_node.op_type) || { name: op_node.op_type };
+        this._type = metadata.type(op_node.op_type);
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
-        for (const name of Object.keys(op_node.op_attr)) {
-            if (!name.startsWith('quant_in_') && !name.startsWith('quant_out_') && name !== 'workload') {
-                const attribute = xmodel.Utility.attribute(op_node.op_attr[name]);
-                this._attributes.push(new xmodel.Attribute(metadata.attribute(this._type, name), name, attribute.type, attribute.value));
+        this._chain = [];
+        if (op_node.op_attr) {
+            for (const entry of Object.entries(op_node.op_attr)) {
+                const name = entry[0];
+                const value = entry[1];
+                if (name === 'device') {
+                    this._device = value.string_value;
+                    continue;
+                }
+                if (name === 'workload') {
+                    continue;
+                }
+                if (name.startsWith('quant_in_') || name.startsWith('quant_out_')) {
+                    continue;
+                }
+                const attribute = xmodel.Utility.attribute(value);
+                if (name === 'nonlinear' && attribute.value && attribute.value !== 'NONE') {
+                    this._chain.push(new xmodel.Node(metadata, { op_type: attribute.value.toLowerCase() }, arg));
+                    continue;
+                }
+                this._attributes.push(new xmodel.Attribute(metadata.attribute(this._type, name), name, attribute));
             }
         }
-        const quantization = xmodel.Utility.quantization(op_node.op_attr);
-        for (const arg of op_node.args) {
-            const args = arg.arg_ops.map((arg_op) => new xmodel.Argument(arg_op, null, quantization.in, initializers.get(arg_op)));
-            this._inputs.push(new xmodel.Parameter(arg.arg_name, args));
+        if (op_node.args) {
+            for (const input of op_node.args) {
+                const args = input.arg_ops.map((arg_op) => arg(arg_op));
+                this._inputs.push(new xmodel.Parameter(input.arg_name, args));
+            }
         }
-        this._outputs.push(new xmodel.Parameter('output', [
-            new xmodel.Argument(op_node.op_name, null, quantization.out, null)
-        ]));
+        if (op_node.op_name) {
+            this._outputs.push(new xmodel.Parameter('output', [ arg(op_node.op_name) ]));
+        }
     }
 
     get type() {
@@ -203,6 +215,10 @@ xmodel.Node = class {
 
     get name() {
         return this._name;
+    }
+
+    get device() {
+        return this._device;
     }
 
     get inputs() {
@@ -216,14 +232,18 @@ xmodel.Node = class {
     get attributes() {
         return this._attributes;
     }
+
+    get chain() {
+        return this._chain;
+    }
 };
 
 xmodel.Attribute = class {
 
-    constructor(metadata, name, type, value) {
+    constructor(metadata, name, attribute) {
         this._name = name;
-        this._type = type;
-        this._value = value;
+        this._type = attribute.type;
+        this._value = attribute.value;
         if (metadata) {
             if (metadata.default !== undefined) {
                 if (metadata.default === this._value) {
@@ -256,9 +276,38 @@ xmodel.Attribute = class {
 
 xmodel.TensorType = class {
 
-    constructor(dataType, shape) {
-        this._dataType = dataType || '?';
-        this._shape = shape;
+    constructor(tensor) {
+        switch (tensor.data_type) {
+            case 0: this._dataType = 'int'; break;
+            case 1: this._dataType = 'uint'; break;
+            case 2: this._dataType = 'xint'; break;
+            case 3: this._dataType = 'xuint'; break;
+            case 4: this._dataType = 'float'; break;
+            default: throw new xmodel.Error('...');
+        }
+        this._dataType += tensor.tensor_bit_width.toString();
+        this._shape = new xmodel.TensorShape(tensor.tensor_dim);
+        if (tensor.tensor_attr) {
+            const attr = {};
+            for (const entry of Object.entries(tensor.tensor_attr)) {
+                const key = entry[0];
+                const value = entry[1][entry[1].value];
+                if (key.startsWith('quant_')) {
+                    continue;
+                }
+                attr[key] = value;
+                const denotation = [];
+                if (attr.fix_point !== undefined) {
+                    denotation.push(attr.fix_point.toString() + '.');
+                }
+                if (attr.round_mode !== undefined) {
+                    denotation.push(attr.round_mode.toString());
+                }
+                if (denotation.length > 0) {
+                    this._denotation = denotation.join(' ');
+                }
+            }
+        }
     }
 
     get dataType() {
@@ -267,6 +316,10 @@ xmodel.TensorType = class {
 
     get shape() {
         return this._shape;
+    }
+
+    get denotation() {
+        return this._denotation;
     }
 
     toString() {
@@ -294,9 +347,9 @@ xmodel.TensorShape = class {
 
 xmodel.Tensor = class {
 
-    constructor(type, kind) {
-        this._type = type;
-        this._kind = kind;
+    constructor(node) {
+        this._type = new xmodel.TensorType(node.output_tensor);
+        this._kind = node.op_type;
     }
 
     get kind() {
@@ -345,95 +398,84 @@ xmodel.Tensor = class {
 
 xmodel.Utility = class {
 
-    static attribute(attr) {
-        const key = attr.value;
-        const value = {
-            value: attr[key],
-            type: key.replace(/_value$/, '')
-        };
-        switch (value.type) {
-            case 'bool': {
-                value.type = 'boolean';
-                break;
-            }
-            case 'int32_vec': {
-                value.type = 'int32[]';
-                value.value = value.value.value;
-                break;
-            }
+    static attribute(attr_value) {
+        const key = attr_value.value;
+        const type = key.replace(/_value$/, '');
+        const value = attr_value[attr_value.value];
+        switch (type) {
+            case 'bool': return { type: 'boolean', value: value };
+            case 'int32': return { type: 'int32', value: value };
+            case 'int32_vec': return { type: 'int32[]', value: value.value };
+            case 'int64': return { type: 'int64', value: value };
+            case 'uint64': return { type: 'uint64', value: value };
+            case 'float': return { type: 'float32', value: value };
+            case 'float_vec': return { type: 'float32[]', value: value.value };
+            case 'double': return { type: 'float64', value: value };
+            case 'string': return { type: 'string', value: value };
+            case 'bytes': return { type: 'byte[]', value: value.value };
         }
-        return value;
-    }
-
-    static type(attr) {
-        let dataType = '?';
-        const data_type = attr.data_type.string_value;
-        switch (data_type) {
-            case 'XINT8': dataType = 'int8'; break;
-            default: throw new xmodel.Error("Unknown data_type '" + data_type + "'.");
-        }
-        const shape = attr.shape.int32_vec_value.value;
-        return new xmodel.TensorType(dataType, new xmodel.TensorShape(shape));
-    }
-
-    static quantization(attr) {
-        const quant = { in: {}, out: {} };
-        for (const name of Object.keys(attr)) {
-            const attribute = xmodel.Utility.attribute(attr[name]);
-            switch (name) {
-                case 'quant_in_bit_width':
-                    quant.in.bit_width = attribute.value;
-                    break;
-                case 'quant_in_quantize_pos':
-                    quant.in.pos = attribute.value;
-                    break;
-                case 'quant_in_signed':
-                    quant.in.signed = attribute.value;
-                    break;
-                case 'quant_in_round_mode':
-                    quant.in.round_mode = attribute.value;
-                    break;
-                case 'quant_out_bit_width':
-                    quant.out.bit_width = attribute.value;
-                    break;
-                case 'quant_out_quantize_pos':
-                    quant.out.pos = attribute.value;
-                    break;
-                case 'quant_out_signed':
-                    quant.out.signed = attribute.value;
-                    break;
-                case 'quant_out_round_mode':
-                    quant.out.round_mode = attribute.value;
-                    break;
-            }
-        }
-        return quant;
+        throw new xmodel.Error("Unknown attribute type '" + type + "'.");
     }
 };
 
 xmodel.Metadata = class {
 
     constructor(op_defs) {
-        this._map = new Map();
-        this._attributeCache = new Map();
+        this._types = new Map();
+        this._attributes = new Map();
         const categories = new Map([
-            [ 'conv2d-fix', 'Layer' ],
-            [ 'depthwise-conv2d-fix', 'Layer' ],
-            [ 'upsample-fix', 'Layer' ],
-            [ 'pool-fix', 'Pool' ],
+            [ 'avgpool2d', 'Pool' ],
             [ 'batchnorm', 'Normalization' ],
+            [ 'celu', 'Activation' ],
             [ 'concat-fix', 'Tensor' ],
+            [ 'concat', 'Tensor' ],
+            [ 'conv2d-fix', 'Layer' ],
+            [ 'conv2d', 'Layer' ],
+            [ 'depthwise-conv2d-fix', 'Layer' ],
+            [ 'depthwise-conv2d', 'Layer' ],
+            [ 'elu', 'Activation' ],
+            [ 'fix', 'Quantization' ],
+            [ 'fix2float', 'Quantization' ],
+            [ 'flatten', 'Shape' ],
+            [ 'float2fix', 'Quantization' ],
+            [ 'gelu', 'Activation' ],
+            [ 'hard-sigmoid', 'Activation' ],
+            [ 'hard-swish', 'Activation' ],
+            [ 'hard-tanh', 'Activation' ],
+            [ 'identity', 'Control' ],
+            [ 'inner-product', 'Layer' ],
+            [ 'l2_normalize', 'Normalization' ],
+            [ 'leaky-relu', 'Activation' ],
+            [ 'maxpool2d', 'Pool' ],
+            [ 'pool-fix', 'Pool' ],
+            [ 'relu', 'Activation' ],
+            [ 'relu6', 'Activation' ],
             [ 'reshape-fix', 'Shape' ],
-            [ 'softmax', 'Activation' ]
+            [ 'reshape', 'Shape' ],
+            [ 'scale', 'Layer' ],
+            [ 'selu', 'Activation' ],
+            [ 'shape', 'Shape' ],
+            [ 'sigmoid', 'Activation' ],
+            [ 'softmax', 'Activation' ],
+            [ 'squeeze', 'Transform' ],
+            [ 'stack', 'Tensor' ],
+            [ 'strided_slice', 'Tensor' ],
+            [ 'swish', 'Activation' ],
+            [ 'tanh', 'Activation' ],
+            [ 'threshold', 'Quantization' ],
+            [ 'transpose', 'Tensor' ],
+            [ 'transposed-conv2d', 'Layer' ],
+            [ 'transposed-depthwise-conv2d', 'Layer' ],
+            [ 'upsample-fix', 'Data' ],
         ]);
         for (const op_def of op_defs) {
             const name = op_def.name;
-            const schema = {};
-            schema.name = name;
+            const metadata = {};
+            metadata.name = name;
             if (op_def.annotation) {
-                schema.description = op_def.annotation;
+                metadata.description = op_def.annotation;
             }
-            schema.inputs = op_def.input_args.map((input_arg) => {
+            metadata.inputs = op_def.input_args.map((input_arg) => {
                 const input = {};
                 input.name = input_arg.name;
                 if (input_arg.annotation) {
@@ -441,7 +483,7 @@ xmodel.Metadata = class {
                 }
                 return input;
             });
-            schema.attributes = op_def.attrs.map((attr) => {
+            metadata.attributes = op_def.attrs.map((attr) => {
                 const attribute = {};
                 attribute.name = attr.name;
                 const value = xmodel.Utility.attribute(attr.default_value);
@@ -449,23 +491,26 @@ xmodel.Metadata = class {
                 if (attr.annotation) {
                     attribute.description = attr.annotation;
                 }
-                this._attributeCache.set(name + ':' + attr.name, attribute);
+                this._attributes.set(name + ':' + attr.name, attribute);
                 return attribute;
             });
             if (categories.has(name)) {
-                schema.category = categories.get(name);
+                metadata.category = categories.get(name);
             }
-            this._map.set(name, schema);
+            this._types.set(name, metadata);
         }
     }
 
     type(name) {
-        return this._map.get(name);
+        if (!this._types.has(name)) {
+            this._types.set(name, { name: name });
+        }
+        return this._types.get(name);
     }
 
     attribute(type, name) {
         const key = type + ':' + name;
-        return this._attributeCache.get(key);
+        return this._attributes.get(key);
     }
 };
 

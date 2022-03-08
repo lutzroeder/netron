@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var mslite = mslite || {};
 var flatbuffers = flatbuffers || require('./flatbuffers');
@@ -125,10 +124,6 @@ mslite.Graph = class {
 
     get name() {
         return this._name;
-    }
-
-    get groups() {
-        return false;
     }
 
     get inputs() {

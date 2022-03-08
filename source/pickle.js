@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 // Experimental
 
@@ -27,10 +26,16 @@ pickle.ModelFactory = class {
             let format = 'Pickle';
             const obj = context.open('pkl');
             if (obj === null || obj === undefined) {
-                context.exception(new pickle.Error('Unknown Pickle null object.'));
+                context.exception(new pickle.Error("Unknown Pickle null object in '" + context.identifier + "'."));
             }
             else if (Array.isArray(obj)) {
-                context.exception(new pickle.Error('Unknown Pickle array object.'));
+                if (obj.length > 0 && obj[0] && obj.every((item) => item && item.__class__ && obj[0].__class__ && item.__class__.__module__ === obj[0].__class__.__module__ && item.__class__.__name__ === obj[0].__class__.__name__)) {
+                    const type = obj[0].__class__.__module__ + "." + obj[0].__class__.__name__;
+                    context.exception(new pickle.Error("Unknown Pickle '" + type + "' array object in '" + context.identifier + "'."));
+                }
+                else {
+                    context.exception(new pickle.Error("Unknown Pickle array object in '" + context.identifier + "'."));
+                }
             }
             else if (obj && obj.__class__) {
                 const formats = new Map([
@@ -41,11 +46,11 @@ pickle.ModelFactory = class {
                     format = formats.get(type);
                 }
                 else {
-                    context.exception(new pickle.Error("Unknown Pickle type '" + type + "'."));
+                    context.exception(new pickle.Error("Unknown Pickle type '" + type +  "' in '" + context.identifier + "'."));
                 }
             }
             else {
-                context.exception(new pickle.Error('Unknown Pickle object.'));
+                context.exception(new pickle.Error("Unknown Pickle object in '" + context.identifier + "'."));
             }
             resolve(new pickle.Model(obj, format));
         });

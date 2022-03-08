@@ -1,14 +1,14 @@
 [
   {
-    "name": "Dropout",
+    "name": "com.intel.analytics.bigdl.nn.Dropout",
     "category": "Dropout"
   },
   {
-    "name": "InferReshape",
+    "name": "com.intel.analytics.bigdl.nn.InferReshape",
     "category": "Shape"
   },
   {
-    "name": "JoinTable",
+    "name": "com.intel.analytics.bigdl.nn.JoinTable",
     "category": "Tensor",
     "inputs": [
       { "name": "inputs", "list": true }
@@ -18,7 +18,7 @@
     ]
   },
   {
-    "name": "Linear",
+    "name": "com.intel.analytics.bigdl.nn.Linear",
     "category": "Layer",
     "inputs": [
       { "name": "inputs" },
@@ -27,7 +27,7 @@
     ]
   },
   {
-    "name": "NormalizeScale",
+    "name": "com.intel.analytics.bigdl.nn.NormalizeScale",
     "category": "Normalization",
     "inputs": [
       { "name": "inputs" },
@@ -35,7 +35,7 @@
     ]
   },
   {
-    "name": "ReLU",
+    "name": "com.intel.analytics.bigdl.nn.ReLU",
     "category": "Activation"
   },
   {
@@ -52,15 +52,15 @@
     "category": "Activation"
   },
   {
-    "name": "SpatialAveragePooling",
+    "name": "com.intel.analytics.bigdl.nn.SpatialAveragePooling",
     "category": "Pool"
   },
   {
-    "name": "SpatialBatchNormalization",
+    "name": "com.intel.analytics.bigdl.nn.SpatialBatchNormalization",
     "category": "Normalization"
   },
   {
-    "name": "SpatialConvolution",
+    "name": "com.intel.analytics.bigdl.nn.quantized.SpatialConvolution",
     "category": "Layer",
     "inputs": [
       { "name": "inputs" },
@@ -69,11 +69,11 @@
     ]
   },
   {
-    "name": "SpatialCrossMapLRN",
+    "name": "com.intel.analytics.bigdl.nn.SpatialCrossMapLRN",
     "category": "Normalization"
   },
   {
-    "name": "SpatialDilatedConvolution",
+    "name": "com.intel.analytics.bigdl.nn.SpatialDilatedConvolution",
     "category": "Layer",
     "inputs": [
       { "name": "inputs" },
@@ -82,14 +82,14 @@
     ]
   },
   {
-    "name": "SpatialMaxPooling",
+    "name": "com.intel.analytics.bigdl.nn.SpatialMaxPooling",
     "category": "Pool"
   },
   {
-    "name": "Transpose",
+    "name": "com.intel.analytics.bigdl.nn.Transpose",
     "category": "Shape"
   },
   {
-    "name": "View"
+    "name": "com.intel.analytics.bigdl.nn.View"
   }
 ]

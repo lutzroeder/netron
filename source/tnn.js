@@ -1,6 +1,6 @@
-/* jshint esversion: 6 */
 
 var tnn = tnn || {};
+var text = text || require('./text');
 var base = base || require('./base');
 
 tnn.ModelFactory = class {
@@ -9,10 +9,10 @@ tnn.ModelFactory = class {
         const identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('.tnnproto')) {
             try {
-                const reader = base.TextReader.open(context.stream.peek(), 2048);
-                const text = reader.read();
-                if (text !== undefined) {
-                    const line = text.trim();
+                const reader = text.Reader.open(context.stream.peek(), 2048);
+                const content = reader.read();
+                if (content !== undefined) {
+                    const line = content.trim();
                     if (line.startsWith('"') && line.endsWith('"')) {
                         const header = line.replace(/(^")|("$)/g, '').split(',').shift().trim().split(' ');
                         if (header.length === 3 || (header.length >= 4 && (header[3] === '4206624770' || header[3] == '4206624772'))) {
@@ -628,7 +628,7 @@ tnn.Metadata = class {
 tnn.TextProtoReader = class {
 
     constructor(buffer) {
-        const reader = base.TextReader.open(buffer);
+        const reader = text.Reader.open(buffer);
         let lines = [];
         for (;;) {
             const line = reader.read();
@@ -727,7 +727,7 @@ tnn.LayerResourceReader = class {
     constructor(buffer) {
         this._layerResources = [];
         if (buffer) {
-            const reader = new tnn.BinaryReader(buffer);
+            const reader = new base.BinaryReader(buffer);
             const magic_number = reader.uint32();
             if (magic_number !== 0xFABC0002 && magic_number !== 0xFABC0004) {
                 throw new tnn.Error("Invalid blob header signature '" + magic_number.toString() + "'.");
@@ -749,14 +749,20 @@ tnn.LayerResourceReader = class {
                 let dims = null;
                 if (magic_number === 0xFABC0004) {
                     const dim_size = reader.int32();
-                    dims = reader.bytes(dim_size * 4);
+                    dims = reader.read(dim_size * 4);
                 }
                 return {
                     dataType: [ 'float32', 'float16', 'int8', 'int32', 'bfloat16' ][data_type],
                     length: length / [ 4, 2, 1, 4, 2 ][data_type],
-                    value: reader.bytes(length),
+                    value: reader.read(length),
                     shape: dims
                 };
+            };
+            const expect = (reader, name) => {
+                const content = reader.string();
+                if (name !== content) {
+                    throw new tnn.Error("Invalid string '" + content + "' instead of '" + name + "'.");
+                }
             };
             for (let i = 0; i < layerCount; i++) {
                 const resource = {};
@@ -768,19 +774,19 @@ tnn.LayerResourceReader = class {
                     case 'ConvolutionDepthWise':
                     case 'Deconvolution':
                     case 'DeconvolutionDepthWise': {
-                        reader.expect(resource.name);
+                        expect(reader, resource.name);
                         const bias = reader.int32();
                         resource.filter = raw(reader);
                         if (bias) {
                             resource.bias = raw(reader);
                         }
                         if (resource.filter.dataType === 'int8') {
-                            resource.quantized = raw();
+                            resource.quantized = raw(reader);
                         }
                         break;
                     }
                     case 'Conv3D': {
-                        reader.expect(resource.name);
+                        expect(reader, resource.name);
                         const bias = reader.int32();
                         resource.filter = raw(reader);
                         if (bias) {
@@ -789,16 +795,16 @@ tnn.LayerResourceReader = class {
                         break;
                     }
                     case 'InnerProduct': {
-                        reader.expect(resource.name);
+                        expect(reader, resource.name);
                         resource.weight = raw(reader);
                         resource.bias = raw(reader);
                         if (resource.weight.dataType === 'int8') {
-                            resource.scale = raw();
+                            resource.scale = raw(reader);
                         }
                         break;
                     }
                     case 'PReLU': {
-                        reader.expect(resource.name);
+                        expect(reader, resource.name);
                         resource.slope = raw(reader);
                         break;
                     }
@@ -844,7 +850,7 @@ tnn.LayerResourceReader = class {
                 }
                 this._layerResources.push(resource);
             }
-            if (!reader.end()) {
+            if (reader.position !== reader.length) {
                 throw new tnn.Error("Invalid blob size.");
             }
         }
@@ -856,59 +862,6 @@ tnn.LayerResourceReader = class {
             throw new tnn.Error("Invalid blob layer name '" + name + "'.");
         }
         return resource;
-    }
-};
-
-tnn.BinaryReader = class {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-        this._position = 0;
-    }
-
-    end() {
-        return this._position === this._buffer.length;
-    }
-
-    skip(size) {
-        this._position += size;
-        if (this._position > this._buffer.length) {
-            throw new tnn.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
-        }
-    }
-
-    bytes(size) {
-        const position = this._position;
-        this.skip(size);
-        return this._buffer.subarray(position, this._position);
-    }
-
-    uint32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getUint32(position, true);
-    }
-
-    int32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getInt32(position, true);
-    }
-
-    string() {
-        const length = this.int32();
-        const position = this._position;
-        this.skip(length);
-        const data = this._buffer.subarray(position, this._position);
-        return new TextDecoder('utf-8').decode(data);
-    }
-
-    expect(name) {
-        const text = this.string();
-        if (name !== text) {
-            throw new tnn.Error("Invalid string '" + text + "' instead of '" + name + "'.");
-        }
     }
 };
 

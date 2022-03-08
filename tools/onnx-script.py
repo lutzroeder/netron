@@ -23,6 +23,7 @@ categories = {
     'LSTM': 'Layer',
     'GRU': 'Layer',
     'Gemm': 'Layer',
+    'FusedConv': 'Layer',
 
     'Dropout': 'Dropout',
 
@@ -39,6 +40,7 @@ categories = {
     'Softmax': 'Activation',
     'Softplus': 'Activation',
     'Softsign': 'Activation',
+    'Clip': 'Activation',
 
     'BatchNormalization': 'Normalization',
     'InstanceNormalization': 'Normalization',
@@ -86,9 +88,12 @@ attribute_type_table = {
     'floats': 'float32[]', 'ints': 'int64[]', 'strings': 'string[]', 'tensors': 'tensor[]', 'graphs': 'graph[]',
 }
 
-def generate_json_attr_type(type):
-    assert isinstance(type, onnx.defs.OpSchema.AttrType)
-    s = str(type)
+def generate_json_attr_type(attribute_type, attribute_name, op_type, op_domain):
+    assert isinstance(attribute_type, onnx.defs.OpSchema.AttrType)
+    key = op_domain + ':' + op_type + ':' + attribute_name
+    if key == ':Cast:to' or key == ':EyeLike:dtype' or key == ':RandomNormal:dtype':
+        return 'DataType'
+    s = str(attribute_type)
     s = s[s.rfind('.')+1:].lower()
     if s in attribute_type_table:
         return attribute_type_table[s]
@@ -132,9 +137,11 @@ def format_description(description):
     description = re.sub("\\[(.+)\\]\\(([^ ]+?)( \"(.+)\")?\\)", replace_line, description)
     return description
 
-def generate_json(schemas, json_file):
+def metadata():
+    json_file = os.path.join(os.path.dirname(__file__), '../source/onnx-metadata.json')
     json_root = []
-    for schema in schemas:
+    all_schemas_with_history = onnx.defs.get_all_schemas_with_history()
+    for schema in all_schemas_with_history:
         json_schema = {}
         json_schema['name'] = schema.name
         if schema.domain:
@@ -150,7 +157,7 @@ def generate_json(schemas, json_file):
             for _, attribute in sorted(schema.attributes.items()):
                 json_attribute = {}
                 json_attribute['name'] = attribute.name
-                attribute_type = generate_json_attr_type(attribute.type)
+                attribute_type = generate_json_attr_type(attribute.type, attribute.name, schema.name, schema.domain)
                 if attribute_type:
                     json_attribute['type'] = attribute_type
                 elif 'type' in json_attribute:
@@ -219,6 +226,10 @@ def generate_json(schemas, json_file):
             json_schema['category'] = categories[schema.name]
         json_root.append(json_schema);
     json_root = sorted(json_root, key=lambda item: item['name'] + ':' + str(item['version'] if 'version' in item else 0).zfill(4))
+    with io.open(json_file, 'r') as file:
+        content = file.read();
+        items = json.loads(content)
+        json_root = json_root + list(filter(lambda item: item['module'] == "com.microsoft", items))
     with io.open(json_file, 'w', newline='') as fout:
         json_root = json.dumps(json_root, indent=2)
         for line in json_root.splitlines():
@@ -227,11 +238,6 @@ def generate_json(schemas, json_file):
                 line = str(line)
             fout.write(line)
             fout.write('\n')
-
-def metadata():
-    json_file = os.path.join(os.path.dirname(__file__), '../source/onnx-metadata.json')
-    all_schemas_with_history = onnx.defs.get_all_schemas_with_history()
-    generate_json(all_schemas_with_history, json_file)
 
 def optimize():
     import onnx

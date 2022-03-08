@@ -6,18 +6,23 @@ pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 clean() {
     echo "paddle clean"
     rm -rf "./third_party/source/paddle"
+    rm -rf "./third_party/source/Paddle-Lite"
 }
 
 sync() {
     echo "paddle sync"
     mkdir -p "./third_party/source/paddle/paddle/fluid/framework"
     curl --silent --location --output "./third_party/source/paddle/paddle/fluid/framework/framework.proto" "https://github.com/PaddlePaddle/Paddle/blob/develop/paddle/fluid/framework/framework.proto?raw=true"
+    mkdir -p "./third_party/source/Paddle-Lite/lite/model_parser/flatbuffers"
+    curl --silent --location --output "./third_party/source/Paddle-Lite/lite/model_parser/flatbuffers/framework.fbs" "https://github.com/PaddlePaddle/Paddle-Lite/blob/develop/lite/model_parser/flatbuffers/framework.fbs?raw=true"
+    curl --silent --location --output "./third_party/source/Paddle-Lite/lite/model_parser/flatbuffers/param.fbs" "https://github.com/PaddlePaddle/Paddle-Lite/blob/develop/lite/model_parser/flatbuffers/param.fbs?raw=true"
 }
 
 schema() {
     echo "paddle schema"
     [[ $(grep -U $'\x0D' ./source/paddle-proto.js) ]] && crlf=1
     node ./tools/protoc.js --root paddle --text --out ./source/paddle-proto.js ./third_party/source/paddle/paddle/fluid/framework/framework.proto
+    node ./tools/flatc.js --text --root paddlelite --out ./source/paddle-schema.js ./third_party/source/Paddle-Lite/lite/model_parser/flatbuffers/param.fbs
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/paddle-proto.js ./source/paddle-proto.js
     fi

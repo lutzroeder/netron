@@ -93,7 +93,7 @@
         "name": "causal"
       },
       {
-        "description": "Float between 0 and 1. Fraction of the units to drop for the\n    attention scores. Defaults to 0.0.\n\nCall Args:",
+        "description": "Float between 0 and 1. Fraction of the units to drop for the\n    attention scores. Defaults to 0.0.",
         "name": "dropout"
       },
       {
@@ -111,6 +111,10 @@
       {
         "description": "Python boolean indicating whether the layer should behave in\n    training mode (adding dropout) or in inference mode (no dropout).\n\nOutput:\n\n  Attention outputs of shape `[batch_size, Tq, dim]`.\n  [Optional] Attention scores after masking and softmax with shape\n    `[batch_size, Tq, Tv]`.\n\nThe meaning of `query`, `value` and `key` depend on the application. In the\ncase of text similarity, for example, `query` is the sequence embeddings of\nthe first piece of text and `value` is the sequence embeddings of the second\npiece of text. `key` is usually the same tensor as `value`.\n\nHere is a code example for using `Attention` in a CNN+Attention network:\n\n```python\n# Variable-length int sequences.\nquery_input = tf.keras.Input(shape=(None,), dtype='int32')\nvalue_input = tf.keras.Input(shape=(None,), dtype='int32')\n\n# Embedding lookup.\ntoken_embedding = tf.keras.layers.Embedding(input_dim=1000, output_dim=64)\n# Query embeddings of shape [batch_size, Tq, dimension].\nquery_embeddings = token_embedding(query_input)\n# Value embeddings of shape [batch_size, Tv, dimension].\nvalue_embeddings = token_embedding(value_input)\n\n# CNN layer.\ncnn_layer = tf.keras.layers.Conv1D(\n    filters=100,\n    kernel_size=4,\n    # Use 'same' padding so outputs have the same shape as inputs.\n    padding='same')\n# Query encoding of shape [batch_size, Tq, filters].\nquery_seq_encoding = cnn_layer(query_embeddings)\n# Value encoding of shape [batch_size, Tv, filters].\nvalue_seq_encoding = cnn_layer(value_embeddings)\n\n# Query-value attention of shape [batch_size, Tq, filters].\nquery_value_attention_seq = tf.keras.layers.Attention()(\n    [query_seq_encoding, value_seq_encoding])\n\n# Reduce over the sequence axis to produce encodings of shape\n# [batch_size, filters].\nquery_encoding = tf.keras.layers.GlobalAveragePooling1D()(\n    query_seq_encoding)\nquery_value_attention = tf.keras.layers.GlobalAveragePooling1D()(\n    query_value_attention_seq)\n\n# Concatenate query and document encodings to produce a DNN input layer.\ninput_layer = tf.keras.layers.Concatenate()(\n    [query_encoding, query_value_attention])\n\n# Add DNN layers, and create Model.\n# ...\n```",
         "name": "training"
+      },
+      {
+        "name": "score_mode",
+        "description": "Function to use to compute attention scores, one of\n    `{\"dot\", \"concat\"}`. `\"dot\"` refers to the dot product between the query\n    and key vectors. `\"concat\"` refers to the hyperbolic tangent of the\n    concatenation of the query and key vectors.\n\nCall Args:"
       }
     ]
   },
@@ -701,7 +705,7 @@
       },
       {
         "default": "valid",
-        "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding with zeros evenly\n    to the left/right or up/down of the input such that output has the same\n    height/width dimension as the input.",
+        "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding with zeros evenly\n    to the left/right or up/down of the input. When `padding=\"same\"` and\n    `strides=1`, the output has the same size as the input.",
         "name": "padding"
       },
       {
@@ -854,7 +858,7 @@
         "name": "data_format"
       },
       {
-        "description": "an integer or tuple/list of 2 integers, specifying\n    the dilation rate to use for dilated convolution.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.\n    Currently, specifying any `dilation_rate` value != 1 is\n    incompatible with specifying any stride value != 1.",
+        "description": "an integer, specifying the dilation rate for all spatial\n    dimensions for dilated convolution. Specifying different dilation rates\n    for different dimensions is not supported.\n    Currently, specifying any `dilation_rate` value != 1 is\n    incompatible with specifying any stride value != 1.",
         "name": "dilation_rate"
       },
       {
@@ -1204,7 +1208,7 @@
       },
       {
         "default": "valid",
-        "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding with zeros evenly\n    to the left/right or up/down of the input such that output has the same\n    height/width dimension as the input.",
+        "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding with zeros evenly\n    to the left/right or up/down of the input. When `padding=\"same\"` and\n    `strides=1`, the output has the same size as the input.",
         "name": "padding"
       },
       {
@@ -1830,7 +1834,7 @@
     "name": "Embedding",
     "module": "tensorflow.keras.layers",
     "category": "Transform",
-    "description": "Turns positive integers (indexes) into dense vectors of fixed size.\n\ne.g. `[[4], [20]] -> [[0.25, 0.1], [0.6, -0.2]]`\n\nThis layer can only be used as the first layer in a model.",
+    "description": "Turns positive integers (indexes) into dense vectors of fixed size.\n\ne.g. `[[4], [20]] -> [[0.25, 0.1], [0.6, -0.2]]`\n\nThis layer can only be used on positive integer inputs of a fixed range. The\n`tf.keras.layers.TextVectorization`, `tf.keras.layers.StringLookup`,\nand `tf.keras.layers.IntegerLookup` preprocessing layers can help prepare\ninputs for an `Embedding` layer.\n\nThis layer accepts `tf.Tensor` and `tf.RaggedTensor` inputs. It cannot be\ncalled with `tf.SparseTensor` input.",
     "attributes": [
       {
         "default": false,
@@ -3100,7 +3104,7 @@
   {
     "name": "MultiHeadAttention",
     "module": "tensorflow.keras.layers",
-    "description": "MultiHeadAttention layer.\n\nThis is an implementation of multi-headed attention as described in the paper\n\"Attention is all you Need\" (Vaswani et al., 2017).\nIf `query`, `key,` `value` are the same, then\nthis is self-attention. Each timestep in `query` attends to the\ncorresponding sequence in `key`, and returns a fixed-width vector.\n\nThis layer first projects `query`, `key` and `value`. These are\n(effectively) a list of tensors of length `num_attention_heads`, where the\ncorresponding shapes are `(batch_size, <query dimensions>, key_dim)`,\n`(batch_size, <key/value dimensions>, key_dim)`,\n`(batch_size, <key/value dimensions>, value_dim)`.\n\nThen, the query and key tensors are dot-producted and scaled. These are\nsoftmaxed to obtain attention probabilities. The value tensors are then\ninterpolated by these probabilities, then concatenated back to a single\ntensor.\n\nFinally, the result tensor with the last dimension as value_dim can take an\nlinear projection and return.",
+    "description": "MultiHeadAttention layer.\n\nThis is an implementation of multi-headed attention as described in the paper\n\"Attention is all you Need\" (Vaswani et al., 2017).\nIf `query`, `key,` `value` are the same, then\nthis is self-attention. Each timestep in `query` attends to the\ncorresponding sequence in `key`, and returns a fixed-width vector.\n\nThis layer first projects `query`, `key` and `value`. These are\n(effectively) a list of tensors of length `num_attention_heads`, where the\ncorresponding shapes are `(batch_size, <query dimensions>, key_dim)`,\n`(batch_size, <key/value dimensions>, key_dim)`,\n`(batch_size, <key/value dimensions>, value_dim)`.\n\nThen, the query and key tensors are dot-producted and scaled. These are\nsoftmaxed to obtain attention probabilities. The value tensors are then\ninterpolated by these probabilities, then concatenated back to a single\ntensor.\n\nFinally, the result tensor with the last dimension as value_dim can take an\nlinear projection and return.\n\nWhen using MultiHeadAttention inside a custom Layer, the custom Layer must\nimplement `build()` and call MultiHeadAttention's `_build_from_signature()`.\nThis enables weights to be restored correctly when the model is loaded.\nTODO(b/172609172): link to documentation about calling custom build functions\nwhen used in a custom Layer.",
     "attributes": [
       {
         "description": "Number of attention heads.",
@@ -3458,7 +3462,7 @@
         "name": "data_format"
       },
       {
-        "description": "A single integer, specifying\n    the dilation rate to use for dilated convolution.\n    Currently, specifying any `dilation_rate` value != 1 is\n    incompatible with specifying any stride value != 1.",
+        "description": "A single integer, specifying\n    the dilation rate to use for dilated convolution.",
         "name": "dilation_rate"
       },
       {
@@ -3520,7 +3524,7 @@
     ],
     "inputs": [
       {
-        "description": "3D tensor with shape:\n`(batch_size, channels, steps)` if data_format='channels_first'\nor 5D tensor with shape:\n`(batch_size, steps, channels)` if data_format='channels_last'.",
+        "description": "3D tensor with shape:\n`(batch_size, channels, steps)` if data_format='channels_first'\nor 3D tensor with shape:\n`(batch_size, steps, channels)` if data_format='channels_last'.",
         "name": "input"
       }
     ],
@@ -3571,7 +3575,7 @@
           1,
           1
         ],
-        "description": "An integer or tuple/list of 2 integers, specifying\n    the dilation rate to use for dilated convolution.\n    Currently, specifying any `dilation_rate` value != 1 is\n    incompatible with specifying any `strides` value != 1.",
+        "description": "An integer or tuple/list of 2 integers, specifying\n    the dilation rate to use for dilated convolution.",
         "name": "dilation_rate"
       },
       {
@@ -4354,18 +4358,17 @@
     "module": "tensorflow.keras.layers",
     "inputs": [
       {
-        "name": "query"
+        "name": "query",
+        "type": "Tensor[]"
       },
       {
-        "name": "value"
-      },
-      {
-        "name": "key"
+        "name": "value",
+        "type": "Tensor[]"
       }
     ],
     "outputs": [
       {
-        "name": "outputs"
+        "name": "output"
       }
     ],
     "description": "Dot-product attention layer, a.k.a. Luong-style attention.\n\nInputs are `query` tensor of shape `[batch_size, Tq, dim]`, `value` tensor of\nshape `[batch_size, Tv, dim]` and `key` tensor of shape\n`[batch_size, Tv, dim]`. The calculation follows the steps:\n\n1. Calculate scores with shape `[batch_size, Tq, Tv]` as a `query`-`key` dot\n   product: `scores = tf.matmul(query, key, transpose_b=True)`.\n2. Use scores to calculate a distribution with shape\n   `[batch_size, Tq, Tv]`: `distribution = tf.nn.softmax(scores)`.\n3. Use `distribution` to create a linear combination of `value` with\n   shape `[batch_size, Tq, dim]`:\n   `return tf.matmul(distribution, value)`.",
@@ -4380,7 +4383,7 @@
       },
       {
         "name": "dropout",
-        "description": "Float between 0 and 1. Fraction of the units to drop for the\n    attention scores. Defaults to 0.0.\n\nCall Args:"
+        "description": "Float between 0 and 1. Fraction of the units to drop for the\n    attention scores. Defaults to 0.0."
       },
       {
         "name": "inputs",
@@ -4397,6 +4400,159 @@
       {
         "name": "training",
         "description": "Python boolean indicating whether the layer should behave in\n    training mode (adding dropout) or in inference mode (no dropout).\n\nOutput:\n\n  Attention outputs of shape `[batch_size, Tq, dim]`.\n  [Optional] Attention scores after masking and softmax with shape\n    `[batch_size, Tq, Tv]`.\n\nThe meaning of `query`, `value` and `key` depend on the application. In the\ncase of text similarity, for example, `query` is the sequence embeddings of\nthe first piece of text and `value` is the sequence embeddings of the second\npiece of text. `key` is usually the same tensor as `value`.\n\nHere is a code example for using `Attention` in a CNN+Attention network:\n\n```python\n# Variable-length int sequences.\nquery_input = tf.keras.Input(shape=(None,), dtype='int32')\nvalue_input = tf.keras.Input(shape=(None,), dtype='int32')\n\n# Embedding lookup.\ntoken_embedding = tf.keras.layers.Embedding(input_dim=1000, output_dim=64)\n# Query embeddings of shape [batch_size, Tq, dimension].\nquery_embeddings = token_embedding(query_input)\n# Value embeddings of shape [batch_size, Tv, dimension].\nvalue_embeddings = token_embedding(value_input)\n\n# CNN layer.\ncnn_layer = tf.keras.layers.Conv1D(\n    filters=100,\n    kernel_size=4,\n    # Use 'same' padding so outputs have the same shape as inputs.\n    padding='same')\n# Query encoding of shape [batch_size, Tq, filters].\nquery_seq_encoding = cnn_layer(query_embeddings)\n# Value encoding of shape [batch_size, Tv, filters].\nvalue_seq_encoding = cnn_layer(value_embeddings)\n\n# Query-value attention of shape [batch_size, Tq, filters].\nquery_value_attention_seq = tf.keras.layers.Attention()(\n    [query_seq_encoding, value_seq_encoding])\n\n# Reduce over the sequence axis to produce encodings of shape\n# [batch_size, filters].\nquery_encoding = tf.keras.layers.GlobalAveragePooling1D()(\n    query_seq_encoding)\nquery_value_attention = tf.keras.layers.GlobalAveragePooling1D()(\n    query_value_attention_seq)\n\n# Concatenate query and document encodings to produce a DNN input layer.\ninput_layer = tf.keras.layers.Concatenate()(\n    [query_encoding, query_value_attention])\n\n# Add DNN layers, and create Model.\n# ...\n```"
+      },
+      {
+        "name": "score_mode",
+        "description": "Function to use to compute attention scores, one of\n    `{\"dot\", \"concat\"}`. `\"dot\"` refers to the dot product between the query\n    and key vectors. `\"concat\"` refers to the hyperbolic tangent of the\n    concatenation of the query and key vectors.\n\nCall Args:"
+      }
+    ]
+  },
+  {
+    "name": "nn.relu",
+    "category": "Activation",
+    "inputs": [
+      {
+        "name": "input"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output"
+      }
+    ]
+  },
+  {
+    "name": "math.add",
+    "inputs": [
+      {
+        "name": "x",
+        "type": "Tensor"
+      },
+      {
+        "name": "y",
+        "type": "Tensor"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "z"
+      }
+    ]
+  },
+  {
+    "name": "__operators__.add",
+    "inputs": [
+      {
+        "name": "x",
+        "type": "Tensor"
+      },
+      {
+        "name": "y",
+        "type": "Tensor"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "z"
+      }
+    ]
+  },
+  {
+    "name": "linalg.matmul",
+    "attributes": [
+      {
+        "name": "transpose_a",
+        "type": "boolean"
+      },
+      {
+        "name": "transpose_b",
+        "type": "boolean"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "a",
+        "type": "Tensor"
+      },
+      {
+        "name": "b",
+        "type": "Tensor"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "type": "Tensor"
+      }
+    ]
+  },
+  {
+    "name": "nn.abs",
+    "inputs": [
+      {
+        "name": "input"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output"
+      }
+    ]
+  },
+  {
+    "name": "math.sigmoid",
+    "category": "Activation",
+    "inputs": [
+      {
+        "name": "input"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output"
+      }
+    ]
+  },
+  {
+    "name": "reshape",
+    "category": "Shape",
+    "inputs": [
+      {
+        "name": "input"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output"
+      }
+    ]
+  },
+  {
+    "name": "concat",
+    "category": "Tensor",
+    "inputs": [
+      {
+        "name": "inputs",
+        "list": true
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output"
+      }
+    ]
+  },
+  {
+    "name": "compat.v1.transpose",
+    "category": "Shape",
+    "inputs": [
+      {
+        "name": "input"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output"
       }
     ]
   }

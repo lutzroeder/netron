@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 const protoc = {};
 const fs = require('fs');
@@ -66,7 +65,7 @@ protoc.Namespace = class extends protoc.Object {
             if (type instanceof protoc.Type) {
                 return type;
             }
-            throw new protoc.Type('Invalid type');
+            throw new protoc.Error('Invalid type');
         }
         return new protoc.Type(parent, typeName);
     }
@@ -149,6 +148,9 @@ protoc.Root = class extends protoc.Namespace {
             const type = this.defineType('google.protobuf.Any');
             new protoc.Field(type, 'type_url', 1, 'string');
             new protoc.Field(type, 'value', 2, 'bytes');
+        });
+        this._library.set('google/protobuf/wrappers.proto', () => {
+            new protoc.Field(this.defineType('google.protobuf.BoolValue'), 'value', 1, 'bool');
         });
         this.load(paths, files);
     }

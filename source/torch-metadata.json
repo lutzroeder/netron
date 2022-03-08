@@ -36,6 +36,10 @@
     "category": "Layer"
   },
   {
+    "name": "cudnn.normal3DConv",
+    "category": "Layer"
+  },
+  {
     "name": "cudnn.SpatialAveragePooling",
     "category": "Pool",
     "attributes": [
@@ -105,6 +109,22 @@
       { "name": "pad", "default": [   0,   0 ] },
       { "name": "iheight", "visible": false },
       { "name": "iwidth", "visible": false }
+    ]
+  },
+  {
+    "name": "cudnn.VolumetricBatchNormalization",
+    "category": "Normalization",
+    "attributes": [
+      { "name": "affine", "default": true },
+      { "name": "momentum", "default": 0.1 },
+      { "name": "eps", "default": 0.00001 }
+    ]
+  },
+  {
+    "name": "cudnn.VolumetricMaxPooling",
+    "category": "Pool",
+    "attributes": [
+      { "name": "ceil_mode", "default": false }
     ]
   },
   {

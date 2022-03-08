@@ -1,8 +1,11 @@
+// codespace-kstuart1992-vinculum-analytics-kr3-netron-r4r57jqg5cwqq6
 
 
 // Add your instrumentation key or use the APPLICATIONINSIGHTSKEY environment variable on your production machine to start collecting data.
 var ai = require('applicationinsights');
 ai.setup(process.env.APPLICATIONINSIGHTSKEY || 'your_instrumentation_key').start();/* jshint esversion: 6 */
+
+>>>> main
 
 const electron = require('electron');
 const updater = require('electron-updater');
@@ -51,9 +54,7 @@ class Application {
         electron.ipcMain.on('get-environment', (event) => {
             event.returnValue = {
                 version: electron.app.getVersion(),
-                package: electron.app.isPackaged,
-                zoom: 'drag'
-                // zoom: 'scroll'
+                package: electron.app.isPackaged
             };
         });
         electron.ipcMain.on('get-configuration', (event, obj) => {
@@ -154,8 +155,8 @@ class Application {
         require("crypto").randomFillSync(buffer);
         buffer[6] = buffer[6] & 0x0f | 0x40;
         buffer[8] = buffer[8] & 0x3f | 0x80;
-        const text = Array.from(buffer).map((value) => value < 0x10 ? '0' + value.toString(16) : value.toString(16)).join('');
-        return text.slice(0, 8) + '-' + text.slice(8, 12) + '-' + text.slice(12, 16) + '-' + text.slice(16, 20) + '-' + text.slice(20, 32);
+        const code = Array.from(buffer).map((value) => value < 0x10 ? '0' + value.toString(16) : value.toString(16)).join('');
+        return code.slice(0, 8) + '-' + code.slice(8, 12) + '-' + code.slice(12, 16) + '-' + code.slice(16, 20) + '-' + code.slice(20, 32);
     }
 
     _openFileDialog() {
@@ -163,17 +164,17 @@ class Application {
             properties: [ 'openFile' ],
             filters: [
                 { name: 'All Model Files',  extensions: [
-                    'onnx', 'pb',
+                    'onnx', 'ort', 'pb',
                     'h5', 'hd5', 'hdf5', 'json', 'keras',
                     'mlmodel', 'mlpackage',
                     'caffemodel',
                     'model', 'dnn', 'cmf', 'mar', 'params',
-                    'pdmodel', 'pdparams',
+                    'pdmodel', 'pdparams', 'nb',
                     'meta',
                     'tflite', 'lite', 'tfl',
-                    'armnn', 'mnn', 'nn', 'uff', 'uff.txt', 'rknn', 'xmodel',
-                    'ncnn', 'param', 'tnnproto', 'tmfile', 'ms',
-                    'pt', 'pth', 't7',
+                    'armnn', 'mnn', 'nn', 'uff', 'uff.txt', 'rknn', 'xmodel', 'kmodel',
+                    'ncnn', 'param', 'tnnproto', 'tmfile', 'ms', 'om',
+                    'pt', 'pth', 'ptl', 't7',
                     'pkl', 'joblib',
                     'pbtxt', 'prototxt',
                     'cfg', 'xml',
@@ -294,7 +295,9 @@ class Application {
         const promise = autoUpdater.checkForUpdates();
         if (promise) {
             promise.catch((error) => {
+                /* eslint-disable */
                 console.log(error.message);
+                /* eslint-enable */
             });
         }
     }
@@ -324,7 +327,6 @@ class Application {
             fullscreenable: false,
             webPreferences: {
                 nodeIntegration: true,
-                contextIsolation: true,
             }
         };
         if (process.platform === 'darwin') {
@@ -512,24 +514,29 @@ class Application {
             label: '&View',
             submenu: [
                 {
-                    id: 'view.show-attributes',
+                    id: 'view.toggle-attributes',
                     accelerator: 'CmdOrCtrl+D',
-                    click: () => this.execute('toggle-attributes', null),
+                    click: () => this.execute('toggle', 'attributes'),
                 },
                 {
-                    id: 'view.show-initializers',
+                    id: 'view.toggle-initializers',
                     accelerator: 'CmdOrCtrl+I',
-                    click: () => this.execute('toggle-initializers', null),
+                    click: () => this.execute('toggle', 'initializers'),
                 },
                 {
-                    id: 'view.show-names',
+                    id: 'view.toggle-names',
                     accelerator: 'CmdOrCtrl+U',
-                    click: () => this.execute('toggle-names', null),
+                    click: () => this.execute('toggle', 'names'),
                 },
                 {
-                    id: 'view.show-horizontal',
+                    id: 'view.toggle-direction',
                     accelerator: 'CmdOrCtrl+K',
-                    click: () => this.execute('toggle-direction', null),
+                    click: () => { this.execute('toggle', 'direction'); }
+                },
+                {
+                    id: 'view.toggle-mousewheel',
+                    accelerator: 'CmdOrCtrl+M',
+                    click: () => this.execute('toggle', 'mousewheel'),
                 },
                 { type: 'separator' },
                 {
@@ -627,21 +634,25 @@ class Application {
         commandTable.set('edit.find', {
             enabled: (context) => { return context.view && context.view.path ? true : false; }
         });
-        commandTable.set('view.show-attributes', {
+        commandTable.set('view.toggle-attributes', {
             enabled: (context) => { return context.view && context.view.path ? true : false; },
-            label: (context) => { return !context.view || !context.view.get('show-attributes') ? 'Show &Attributes' : 'Hide &Attributes'; }
+            label: (context) => { return !context.view || !context.view.get('attributes') ? 'Hide &Attributes' : 'Show &Attributes'; }
         });
-        commandTable.set('view.show-initializers', {
+        commandTable.set('view.toggle-initializers', {
             enabled: (context) => { return context.view && context.view.path ? true : false; },
-            label: (context) => { return !context.view || !context.view.get('show-initializers') ? 'Show &Initializers' : 'Hide &Initializers'; }
+            label: (context) => { return !context.view || context.view.get('initializers') ? 'Hide &Initializers' : 'Show &Initializers'; }
         });
-        commandTable.set('view.show-names', {
+        commandTable.set('view.toggle-names', {
             enabled: (context) => { return context.view && context.view.path ? true : false; },
-            label: (context) => { return !context.view || !context.view.get('show-names') ? 'Show &Names' : 'Hide &Names'; }
+            label: (context) => { return !context.view || context.view.get('names') ? 'Hide &Names' : 'Show &Names'; }
         });
-        commandTable.set('view.show-horizontal', {
+        commandTable.set('view.toggle-direction', {
             enabled: (context) => { return context.view && context.view.path ? true : false; },
-            label: (context) => { return !context.view || !context.view.get('show-horizontal') ? 'Show &Horizontal' : 'Show &Vertical'; }
+            label: (context) => { return !context.view || context.view.get('direction') === 'vertical' ? 'Show &Horizontal' : 'Show &Vertical'; }
+        });
+        commandTable.set('view.toggle-mousewheel', {
+            enabled: (context) => { return context.view && context.view.path ? true : false; },
+            label: (context) => { return !context.view || context.view.get('mousewheel') === 'scroll' ? '&Mouse Wheel: Zoom' : '&Mouse Wheel: Scroll'; }
         });
         commandTable.set('view.reload', {
             enabled: (context) => { return context.view && context.view.path ? true : false; }
@@ -696,8 +707,7 @@ class View {
             height: size.height > 768 ? 768 : size.height,
             webPreferences: {
                 preload: path.join(__dirname, 'electron.js'),
-                nodeIntegration: true,
-                contextIsolation: true
+                nodeIntegration: true
             }
         };
         if (this._owner.count > 0 && View._position && View._position.length == 2) {
@@ -714,7 +724,9 @@ class View {
         View._position = this._window.getPosition();
         this._updateCallback = (event, data) => {
             if (event.sender == this._window.webContents) {
-                this.update(data.name, data.value);
+                for (const entry of Object.entries(data)) {
+                    this.update(entry[0], entry[1]);
+                }
                 this._raise('updated');
             }
         };

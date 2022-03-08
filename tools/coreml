@@ -27,9 +27,7 @@ clean() {
 sync() {
     echo "coreml sync"
     [ -d "./third_party/source/coremltools" ] || git clone --quiet https://github.com/apple/coremltools.git "./third_party/source/coremltools"
-    pushd "./third_party/source/coremltools" > /dev/null
-    git pull --quiet --prune
-    popd > /dev/null
+    git -C "./third_party/source/coremltools" pull --quiet --prune
 }
 
 schema() {

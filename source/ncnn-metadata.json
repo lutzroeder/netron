@@ -39,7 +39,11 @@
   },
   {
     "name": "Cast",
-    "operator": 64
+    "operator": 64,
+    "attributes": [
+      { "name": "type_from", "type": "CastOpType", "default": 0 },
+      { "name": "type_to", "type": "CastOpType", "default": 0 }
+    ]
   },
   {
     "name": "Clip",
@@ -75,17 +79,78 @@
       { "name": "pad_left", "type": "int32", "default": 0 },
       { "name": "bias_term", "default": 0, "visible": false },
       { "name": "weight_data_size", "type": "int32", "default": 0, "visible": false },
-      { "name": "group", "type": "int32", "default": 0 },
+      { "name": "" },
       { "name": "int8_scale_term", "default": 0 },
       { "name": "activation_type", "default": 0 },
       { "name": "activation_params", "default": [] },
       { "name": "kernel_h", "type": "int32", "default": 0 },
       { "name": "dilation_h", "type": "int32", "default": 1 },
       { "name": "stride_h", "type": "int32", "default": 1 },
-      { "name": "pad_right", "type": "int32", "default": 0 },
       { "name": "pad_top", "type": "int32", "default": 0 },
+      { "name": "pad_right", "type": "int32", "default": 0 },
       { "name": "pad_bottom", "type": "int32", "default": 0 },
-      { "name": "pad_value", "type": "float32", "default": 0 }
+      { "name": "" },
+      { "name": "pad_value", "type": "float32", "default": 0 },
+      { "name": "dynamic_weight", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "Convolution1D",
+    "operator": 81,
+    "category": "Layer",
+    "attributes": [
+      { "name": "num_output", "type": "int32", "default": 0 },
+      { "name": "kernel_w", "type": "int32", "default": 0 },
+      { "name": "dilation_w", "type": "int32", "default": 1 },
+      { "name": "stride_w", "type": "int32", "default": 1 },
+      { "name": "pad_left", "type": "int32", "default": 0 },
+      { "name": "bias_term", "default": 0, "visible": false },
+      { "name": "weight_data_size", "type": "int32", "default": 0, "visible": false },
+      { "name": "" },
+      { "name": "" },
+      { "name": "activation_type", "default": 0 },
+      { "name": "activation_params", "default": [] },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "pad_right", "type": "int32", "default": 0 },
+      { "name": "" },
+      { "name": "" },
+      { "name": "pad_value", "type": "float32", "default": 0 },
+      { "name": "dynamic_weight", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "Convolution3D",
+    "operator": 84,
+    "category": "Layer",
+    "attributes": [
+      { "name": "num_output", "type": "int32", "default": 0 },
+      { "name": "kernel_w", "type": "int32", "default": 0 },
+      { "name": "dilation_w", "type": "int32", "default": 1 },
+      { "name": "stride_w", "type": "int32", "default": 1 },
+      { "name": "pad_left", "type": "int32", "default": 0 },
+      { "name": "bias_term", "default": 0, "visible": false },
+      { "name": "weight_data_size", "type": "int32", "default": 0, "visible": false },
+      { "name": "" },
+      { "name": "" },
+      { "name": "activation_type", "default": 0 },
+      { "name": "activation_params", "default": [] },
+      { "name": "kernel_h", "type": "int32", "default": 0 },
+      { "name": "dilation_h", "type": "int32", "default": 1 },
+      { "name": "stride_h", "type": "int32", "default": 1 },
+      { "name": "pad_top", "type": "int32", "default": 0 },
+      { "name": "pad_right", "type": "int32", "default": 0 },
+      { "name": "pad_bottom", "type": "int32", "default": 0 },
+      { "name": "pad_behind", "type": "int32", "default": 0 },
+      { "name": "pad_value", "type": "float32", "default": 0 },
+      { "name": "" },
+      { "name": "" },
+      { "name": "kernel_d", "type": "int32", "default": 0 },
+      { "name": "dilation_d", "type": "int32", "default": 1 },
+      { "name": "stride_d", "type": "int32", "default": 1 },
+      { "name": "pad_front", "type": "int32", "default": 0 }
     ]
   },
   {
@@ -107,10 +172,71 @@
       { "name": "kernel_h", "default": 0 },
       { "name": "dilation_h", "default": 1 },
       { "name": "stride_h", "default": 1 },
-      { "name": "pad_right", "type": "int32", "default": 0 },
       { "name": "pad_top", "type": "int32", "default": 0 },
+      { "name": "pad_right", "type": "int32", "default": 0 },
       { "name": "pad_bottom", "type": "int32", "default": 0 },
-      { "name": "pad_value", "type": "float32", "default": 0 }
+      { "name": "" },
+      { "name": "pad_value", "type": "float32", "default": 0 },
+      { "name": "dynamic_weight", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "ConvolutionDepthWise1D",
+    "operator": 83,
+    "category": "Layer",
+    "attributes": [
+      { "name": "num_output", "default": 0 },
+      { "name": "kernel_w", "default": 0 },
+      { "name": "dilation_w", "default": 1 },
+      { "name": "stride_w", "default": 1 },
+      { "name": "pad_left", "default": 0 },
+      { "name": "bias_term", "default": 0, "visible": false },
+      { "name": "weight_data_size", "default": 0, "visible": false },
+      { "name": "group", "default": 0 },
+      { "name": "" },
+      { "name": "activation_type", "default": 0 },
+      { "name": "activation_params", "default": [] },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "pad_right", "type": "int32", "default": 0 },
+      { "name": "" },
+      { "name": "" },
+      { "name": "pad_value", "type": "float32", "default": 0 },
+      { "name": "dynamic_weight", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "ConvolutionDepthWise3D",
+    "operator": 85,
+    "category": "Layer",
+    "attributes": [
+      { "name": "num_output", "default": 0 },
+      { "name": "kernel_w", "default": 0 },
+      { "name": "dilation_w", "default": 1 },
+      { "name": "stride_w", "default": 1 },
+      { "name": "pad_left", "default": 0 },
+      { "name": "bias_term", "default": 0, "visible": false },
+      { "name": "weight_data_size", "default": 0, "visible": false },
+      { "name": "group", "default": 0 },
+      { "name": "" },
+      { "name": "activation_type", "default": 0 },
+      { "name": "activation_params", "default": [] },
+      { "name": "kernel_h", "default": 0 },
+      { "name": "dilation_h", "default": 1 },
+      { "name": "stride_h", "default": 1 },
+      { "name": "pad_top", "type": "int32", "default": 0 },
+      { "name": "pad_right", "type": "int32", "default": 0 },
+      { "name": "pad_bottom", "type": "int32", "default": 0 },
+      { "name": "pad_behind", "type": "int32", "default": 0 },
+      { "name": "pad_value", "type": "float32", "default": 0 },
+      { "name": "" },
+      { "name": "" },
+      { "name": "kernel_d", "type": "int32", "default": 0 },
+      { "name": "dilation_d", "type": "int32", "default": 1 },
+      { "name": "stride_d", "type": "int32", "default": 1 },
+      { "name": "pad_front", "type": "int32", "default": 0 }
     ]
   },
   {
@@ -144,14 +270,22 @@
       { "name": "pad_w", "default": 0 },
       { "name": "bias_term", "default": 0, "visible": false },
       { "name": "weight_data_size", "default": 0, "visible": false },
-      { "name": "group", "default": 0 },
+      { "name": "" },
       { "name": "int8_scale_term", "default": 0 },
       { "name": "activation_type", "default": 0 },
       { "name": "activation_params", "default": [] },
       { "name": "kernel_h", "default": 0 },
       { "name": "dilation_h", "default": 1 },
       { "name": "stride_h", "default": 1 },
-      { "name": "pad_h", "default": 0 }
+      { "name": "pad_top", "default": 0 },
+      { "name": "pad_right", "default": 0 },
+      { "name": "" },
+      { "name": "pad_bottom", "default": 0 },
+      { "name": "" },
+      { "name": "output_pad_right", "default": 0 },
+      { "name": "output_pad_bottom", "default": 0 },
+      { "name": "output_w", "default": 0 },
+      { "name": "output_h", "default": 0 }
     ]
   },
   {
@@ -173,7 +307,15 @@
       { "name": "kernel_h", "default": 0 },
       { "name": "dilation_h", "default": 1 },
       { "name": "stride_h", "default": 1 },
-      { "name": "pad_h", "default": 0 }
+      { "name": "pad_top", "default": 0 },
+      { "name": "pad_right", "default": 0 },
+      { "name": "" },
+      { "name": "pad_bottom", "default": 0 },
+      { "name": "" },
+      { "name": "output_pad_right", "default": 0 },
+      { "name": "output_pad_bottom", "default": 0 },
+      { "name": "output_w", "default": 0 },
+      { "name": "output_h", "default": 0 }
     ]
   },
   {
@@ -182,7 +324,11 @@
   },
   {
     "name": "Dequantize",
-    "operator": 58
+    "operator": 58,
+    "attributes": [
+      { "name": "scale_data_size", "default": 1, "visible": false },
+      { "name": "bias_data_size", "default": 0, "visible": false }
+    ]
   },
   {
     "name": "DetectionOutput",
@@ -220,7 +366,11 @@
   },
   {
     "name": "ELU",
-    "operator": 11
+    "operator": 11,
+    "category": "Activation",
+    "attributes": [
+      { "name": "alpha", "type": "float32", "default": 0.1 }
+    ]
   },
   {
     "name": "Embed",
@@ -229,21 +379,29 @@
     "attributes": [
       { "name": "num_output", "default": 0 },
       { "name": "input_dim", "default": 0 },
-      { "name": "bias_term", "default": 0 },
-      { "name": "weight_data_size", "default": 0 }
+      { "name": "bias_term", "default": 0, "visible": false },
+      { "name": "weight_data_size", "default": 0, "visible": false }
     ]
   },
   {
     "name": "Exp",
-    "operator": 13
-  },
-  {
-    "name": "Exp",
-    "operator": 17
+    "operator": 13,
+    "attributes": [
+      { "name": "base", "type": "float32", "default": -1 },
+      { "name": "scale", "type": "float32", "default": 1 },
+      { "name": "shift", "type": "float32", "default": 0 }
+    ]
   },
   {
     "name": "ExpandDims",
-    "operator": 45
+    "operator": 45,
+    "category": "Shape",
+    "attributes": [
+      { "name": "expand_w", "default": 0 },
+      { "name": "expand_h", "default": 0 },
+      { "name": "expand_c", "default": 0 },
+      { "name": "axes", "default": [] }
+    ]
   },
   {
     "name": "Flatten",
@@ -251,9 +409,23 @@
     "category": "Shape"
   },
   {
+    "name": "GELU",
+    "operator": 80,
+    "category": "Activation",
+    "attributes": [
+      { "name": "fast_gelu", "type": "int32", "default": 0 }
+    ]
+  },
+  {
     "name": "Gemm",
     "operator": 74,
-    "category": "Layer"
+    "category": "Layer",
+    "attributes": [
+      { "name": "alpha", "type": "float32", "default": 1 },
+      { "name": "beta", "type": "float32", "default": 1 },
+      { "name": "transA", "type": "int32", "default": 0 },
+      { "name": "transB", "type": "int32", "default": 0 }
+    ]
   },
   {
     "name": "GroupNorm",
@@ -309,7 +481,7 @@
       { "name": "" },
       { "name": "int8_scale_term", "default": 0 },
       { "name": "activation_type", "default": 0 },
-      { "name": "activation_params", "default": 0 }
+      { "name": "activation_params", "default": [] }
     ]
   },
   {
@@ -349,6 +521,15 @@
     ]
   },
   {
+    "name": "Log",
+    "operator": 17,
+    "attributes": [
+      { "name": "base", "type": "float32", "default": -1 },
+      { "name": "scale", "type": "float32", "default": 1 },
+      { "name": "shift", "type": "float32", "default": 0 }
+    ]
+  },
+  {
     "name": "LRN",
     "operator": 18,
     "category": "Normalization",
@@ -376,7 +557,16 @@
     "attributes": [
       { "name": "w", "default": 0 },
       { "name": "h", "default": 0 },
-      { "name": "c", "default": 0 }
+      { "name": "c", "default": 0 },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "d", "default": 0 }
     ]
   },
   {
@@ -385,8 +575,24 @@
     "category": "Activation"
   },
   {
+    "name": "MultiHeadAttention",
+    "operator": 79,
+    "category": "Layer",
+    "attributes": [
+      { "name": "embed_dim", "default": 0 },
+      { "name": "num_head", "default": 1 },
+      { "name": "weight_data_size", "default": 0, "visible": false }
+    ]
+  },
+  {
     "name": "MVN",
-    "operator": 20
+    "operator": 20,
+    "category": "Normalization",
+    "attributes": [
+      { "name": "normalize_variance", "default": 0 },
+      { "name": "across_channels", "default": 0 },
+      { "name": "eps", "type": "float32", "default": 0.0001 }
+    ]
   },
   {
     "name": "Noop",
@@ -411,7 +617,16 @@
   },
   {
     "name": "Packing",
-    "operator": 62
+    "operator": 62,
+    "category": "Shape",
+    "attributes": [
+      { "name": "out_elempack", "default": 1 },
+      { "name": "use_padding", "default": 0 },
+      { "name": "cast_type_from", "default": 0 },
+      { "name": "cast_type_to", "default": 0 },
+      { "name": "storage_type_from", "default": 0 },
+      { "name": "storage_type_to", "default": 0 }
+    ]
   },
   {
     "name": "Padding",
@@ -422,7 +637,7 @@
       { "name": "bottom", "default": 0 },
       { "name": "left", "default": 0 },
       { "name": "right", "default": 0 },
-      { "name": "type", "default": 0 },
+      { "name": "type", "type": "PaddingType", "default": 0 },
       { "name": "value", "type": "float32", "default": 0 },
       { "name": "per_channel_pad_data_size", "default": 0, "visible": false },
       { "name": "front", "default": 0 },
@@ -440,6 +655,7 @@
   {
     "name": "PixelShuffle",
     "operator": 69,
+    "category": "Shape",
     "attributes": [
       { "name": "upscale_factor", "default": 1 },
       { "name": "mode", "default": 0 }
@@ -472,8 +688,71 @@
     ]
   },
   {
+    "name": "Pooling1D",
+    "operator": 82,
+    "category": "Pool",
+    "attributes": [
+      { "name": "pooling_type", "type": "PoolingType", "default": 0 },
+      { "name": "kernel_w", "default": 0 },
+      { "name": "stride_w", "default": 1 },
+      { "name": "pad_left", "default": 0 },
+      { "name": "global_pooling", "default": 0 },
+      { "name": "pad_mode", "default": 0 },
+      { "name": "avgpool_count_include_pad", "default": 0 },
+      { "name": "adaptive_pooling", "default": 0 },
+      { "name": "out_w", "default": 0 },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "pad_right", "default": 0 }
+    ]
+  },
+  {
+    "name": "Pooling3D",
+    "operator": 86,
+    "category": "Pool",
+    "attributes": [
+      { "name": "pooling_type", "type": "PoolingType", "default": 0 },
+      { "name": "kernel_w", "default": 0 },
+      { "name": "stride_w", "default": 1 },
+      { "name": "pad_left", "default": 0 },
+      { "name": "global_pooling", "default": 0 },
+      { "name": "pad_mode", "default": 0 },
+      { "name": "avgpool_count_include_pad", "default": 0 },
+      { "name": "adaptive_pooling", "default": 0 },
+      { "name": "out_w", "default": 0 },
+      { "name": "" },
+      { "name": "" },
+      { "name": "kernel_h", "default": 0 },
+      { "name": "stride_h", "default": 1 },
+      { "name": "pad_top", "default": 0 },
+      { "name": "pad_right", "default": 0 },
+      { "name": "pad_bottom", "default": 0 },
+      { "name": "pad_behind", "default": 0 },
+      { "name": "" },
+      { "name": "out_h", "default": 0 },
+      { "name": "" },
+      { "name": "" },
+      { "name": "kernel_d", "default": 0 },
+      { "name": "stride_d", "default": 1 },
+      { "name": "pad_front", "default": 0 },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "out_d", "default": 0 }
+    ]
+  },
+  {
     "name": "Power",
-    "operator": 22
+    "operator": 22,
+    "attributes": [
+      { "name": "power", "type": "float32", "default": 1 },
+      { "name": "scale", "type": "float32", "default": 1 },
+      { "name": "shift", "type": "float32", "default": 0 }
+    ]
   },
   {
     "name": "PReLU",
@@ -513,11 +792,21 @@
   },
   {
     "name": "Quantize",
-    "operator": 57
+    "operator": 57,
+    "attributes": [
+      { "name": "scale_data_size", "default": 1, "visible": false }
+    ]
   },
   {
-    "name": "Reducation",
-    "operator": 25
+    "name": "Reduction",
+    "operator": 25,
+    "attributes": [
+      { "name": "op_type", "type": "ReductionOpType", "default": 0 },
+      { "name": "reduce_all", "type": "int32", "default": 1 },
+      { "name": "coeff", "type": "float32", "default": 1.0 },
+      { "name": "axes", "default": [] },
+      { "name": "keepdims", "type": "int32", "default": 0 }
+    ]
   },
   {
     "name": "ReLU",
@@ -534,6 +823,7 @@
   {
     "name": "Reorg",
     "operator": 55,
+    "category": "Shape",
     "attributes": [
       { "name": "stride", "default": 1 },
       { "name": "mode", "default": 0 }
@@ -541,7 +831,14 @@
   },
   {
     "name": "Requantize",
-    "operator": 63
+    "operator": 63,
+    "attributes": [
+      { "name": "scale_in_data_size", "default": 1, "visible": false },
+      { "name": "scale_out_data_size", "default": 1, "visible": false },
+      { "name": "bias_data_size", "default": 0, "visible": false },
+      { "name": "activation_type", "default": 0 },
+      { "name": "activation_params", "default": [] }
+    ]
   },
   {
     "name": "Reshape",
@@ -551,7 +848,15 @@
       { "name": "w", "default": -233 },
       { "name": "h", "default": -233 },
       { "name": "c", "default": -233 },
-      { "name": "permute", "default": 0 }
+      { "name": "permute", "default": 0 },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "" },
+      { "name": "d", "default": -233 }
     ]
   },
   {
@@ -593,6 +898,7 @@
   {
     "name": "ShuffleChannel",
     "operator": 52,
+    "category": "Shape",
     "attributes": [
       { "name": "group", "default": 1 },
       { "name": "reverse", "default": 0 }
@@ -610,6 +916,12 @@
     "attributes": [
       { "name": "slices", "default": [] },
       { "name": "axis", "default": 0 }
+    ],
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output", "option": "variadic" }
     ]
   },
   {
@@ -618,7 +930,7 @@
     "category": "Activation",
     "attributes": [
       { "name": "axis", "type": "int32", "default": 0 },
-      { "name": "fixbug0", "type": "int32", "default": 0 }
+      { "name": "fixbug0", "type": "int32", "default": 0, "visible": false }
     ]
   },
   {
@@ -644,7 +956,14 @@
   },
   {
     "name": "Squeeze",
-    "operator": 44
+    "operator": 44,
+    "category": "Shape",
+    "attributes": [
+      { "name": "squeeze_w", "default": 0 },
+      { "name": "squeeze_h", "default": 0 },
+      { "name": "squeeze_c", "default": 0 },
+      { "name": "axes", "default": [] }
+    ]
   },
   {
     "name": "StatisticsPooling",
@@ -673,7 +992,7 @@
     "name": "UnaryOp",
     "operator": 41,
     "attributes": [
-      { "name": "op_type", "type": "int32", "default": 0 }
+      { "name": "op_type", "type": "UnaryOpType", "default": 0 }
     ]
   },
   {

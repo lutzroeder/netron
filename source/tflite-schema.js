@@ -18,7 +18,8 @@ $root.tflite.TensorType = {
     UINT64: 12,
     RESOURCE: 13,
     VARIANT: 14,
-    UINT32: 15
+    UINT32: 15,
+    UINT16: 16
 };
 
 $root.tflite.CustomQuantization = class CustomQuantization {
@@ -364,7 +365,13 @@ $root.tflite.BuiltinOperator = {
     VAR_HANDLE: 142,
     READ_VARIABLE: 143,
     ASSIGN_VARIABLE: 144,
-    BROADCAST_ARGS: 145
+    BROADCAST_ARGS: 145,
+    RANDOM_STANDARD_NORMAL: 146,
+    BUCKETIZE: 147,
+    RANDOM_UNIFORM: 148,
+    MULTINOMIAL: 149,
+    GELU: 150,
+    DYNAMIC_UPDATE_SLICE: 151
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -484,6 +491,10 @@ $root.tflite.BuiltinOptions = class {
             case 111: return $root.tflite.VarHandleOptions.decode(reader, position);
             case 112: return $root.tflite.ReadVariableOptions.decode(reader, position);
             case 113: return $root.tflite.AssignVariableOptions.decode(reader, position);
+            case 114: return $root.tflite.RandomOptions.decode(reader, position);
+            case 115: return $root.tflite.BucketizeOptions.decode(reader, position);
+            case 116: return $root.tflite.GeluOptions.decode(reader, position);
+            case 117: return $root.tflite.DynamicUpdateSliceOptions.decode(reader, position);
         }
         return undefined;
     }
@@ -603,6 +614,10 @@ $root.tflite.BuiltinOptions = class {
             case 'VarHandleOptions': return $root.tflite.VarHandleOptions.decodeText(reader, json);
             case 'ReadVariableOptions': return $root.tflite.ReadVariableOptions.decodeText(reader, json);
             case 'AssignVariableOptions': return $root.tflite.AssignVariableOptions.decodeText(reader, json);
+            case 'RandomOptions': return $root.tflite.RandomOptions.decodeText(reader, json);
+            case 'BucketizeOptions': return $root.tflite.BucketizeOptions.decodeText(reader, json);
+            case 'GeluOptions': return $root.tflite.GeluOptions.decodeText(reader, json);
+            case 'DynamicUpdateSliceOptions': return $root.tflite.DynamicUpdateSliceOptions.decodeText(reader, json);
         }
         return undefined;
     }
@@ -2398,6 +2413,66 @@ $root.tflite.AssignVariableOptions = class AssignVariableOptions {
     }
 };
 
+$root.tflite.RandomOptions = class RandomOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.RandomOptions();
+        $.seed = reader.int64_(position, 4, 0);
+        $.seed2 = reader.int64_(position, 6, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.RandomOptions();
+        $.seed = reader.value(json.seed, 0);
+        $.seed2 = reader.value(json.seed2, 0);
+        return $;
+    }
+};
+
+$root.tflite.BucketizeOptions = class BucketizeOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.BucketizeOptions();
+        $.boundaries = reader.typedArray(position, 4, Float32Array);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.BucketizeOptions();
+        $.boundaries = reader.typedArray(json.boundaries, Float32Array);
+        return $;
+    }
+};
+
+$root.tflite.GeluOptions = class GeluOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.GeluOptions();
+        $.approximate = reader.bool_(position, 4, false);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.GeluOptions();
+        $.approximate = reader.value(json.approximate, false);
+        return $;
+    }
+};
+
+$root.tflite.DynamicUpdateSliceOptions = class DynamicUpdateSliceOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.tflite.DynamicUpdateSliceOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.tflite.DynamicUpdateSliceOptions();
+        return $;
+    }
+};
+
 $root.tflite.OperatorCode = class OperatorCode {
 
     static decode(reader, position) {
@@ -2597,7 +2672,8 @@ $root.tflite.AssociatedFileType = {
     TENSOR_AXIS_LABELS: 2,
     TENSOR_VALUE_LABELS: 3,
     TENSOR_AXIS_SCORE_CALIBRATION: 4,
-    VOCABULARY: 5
+    VOCABULARY: 5,
+    SCANN_INDEX_FILE: 6
 };
 
 $root.tflite.AssociatedFile = class AssociatedFile {

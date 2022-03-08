@@ -1,13 +1,13 @@
-/* jshint esversion: 6 */
 
 var json = json || {};
-var base = base || require('./base');
+var text = text || require('./text');
 
 json.TextReader = class {
 
     static open(data) {
-        const decoder = base.TextDecoder.open(data);
-        for (let i = 0; i < 0x100; i++) {
+        const decoder = text.Decoder.open(data);
+        let state = 'start';
+        for (let i = 0; i < 0x1000; i++) {
             const c = decoder.decode();
             if (c === undefined || c === '\0') {
                 if (i === 0) {
@@ -15,17 +15,43 @@ json.TextReader = class {
                 }
                 break;
             }
-            if (c < ' ' && c !== '\n' && c !== '\r' && c !== '\t') {
-                return null;
+            if (c <= ' ') {
+                if (c !== ' ' && c !== '\n' && c !== '\r' && c !== '\t') {
+                    return null;
+                }
+                continue;
             }
-            if (i === 0) {
-                if (c === '#' || c === '[' || c === '{') {
+            switch (state) {
+                case 'start':
+                    if (c === '#') {
+                        state = 'comment';
+                        break;
+                    }
+                    if (c === '[') {
+                        state = 'list';
+                        break;
+                    }
+                    if (c === '{') {
+                        state = 'object';
+                        break;
+                    }
+                    if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z') {
+                        state = '';
+                        break;
+                    }
+                    return null;
+                case 'list':
+                    if (c === '"' || c === '-' || c === '+' || c === '{' || c === '[' || (c >= '0' && c <= '9')) {
+                        state = '';
+                        break;
+                    }
+                    return null;
+                case 'object':
+                    if (c != '"') {
+                        return null;
+                    }
+                    state = '';
                     continue;
-                }
-                if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z') {
-                    continue;
-                }
-                return null;
             }
         }
         return new json.TextReader(data);
@@ -37,7 +63,7 @@ json.TextReader = class {
     }
 
     read() {
-        const decoder = base.TextDecoder.open(this._data);
+        const decoder = text.Decoder.open(this._data);
         const stack = [];
         this._decoder = decoder;
         this._position = 0;
@@ -324,9 +350,9 @@ json.TextReader = class {
         return value;
     }
 
-    _expect(text) {
-        for (let i = 0; i < text.length; i++) {
-            if (text[i] !== this._char) {
+    _expect(value) {
+        for (let i = 0; i < value.length; i++) {
+            if (value[i] !== this._char) {
                 this._unexpected();
             }
             this._next();
@@ -360,7 +386,7 @@ json.TextReader = class {
         this._decoder.position = 0;
         let c;
         do {
-            if (this._decoder.position === this.position) {
+            if (this._decoder.position === this._position) {
                 return ' at ' + line.toString() + ':' + column.toString() + '.';
             }
             c = this._decoder.decode();

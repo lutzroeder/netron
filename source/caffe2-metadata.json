@@ -11898,6 +11898,10 @@
       {
         "description": "Non negative vector with sum of elements equal to indices length",
         "name": "lengths"
+      },
+      {
+        "name": "counter",
+        "description": "Optional input when weight_decay is adjusted by frequency ignored when counter_halflife == -1"
       }
     ],
     "outputs": [
@@ -11951,6 +11955,10 @@
       {
         "description": "Non negative vector with sum of elements equal to indices length",
         "name": "lengths"
+      },
+      {
+        "name": "counter",
+        "description": "Optional input when weight_decay is adjusted by frequency ignored when counter_halflife == -1"
       }
     ],
     "outputs": [
@@ -12004,6 +12012,10 @@
       {
         "description": "Non negative vector with sum of elements equal to indices length",
         "name": "lengths"
+      },
+      {
+        "name": "counter",
+        "description": "Optional input when weight_decay is adjusted by frequency ignored when counter_halflife == -1"
       }
     ],
     "outputs": [
@@ -12057,6 +12069,10 @@
       {
         "description": "Non negative vector with sum of elements equal to indices length",
         "name": "lengths"
+      },
+      {
+        "name": "counter",
+        "description": "Optional input when weight_decay is adjusted by frequency ignored when counter_halflife == -1"
       }
     ],
     "outputs": [
@@ -12109,6 +12125,10 @@
       {
         "description": "Non negative vector with sum of elements equal to indices length",
         "name": "lengths"
+      },
+      {
+        "name": "counter",
+        "description": "Optional input when weight_decay is adjusted by frequency ignored when counter_halflife == -1"
       }
     ],
     "outputs": [
@@ -12165,6 +12185,10 @@
       {
         "description": "Non negative vector with sum of elements equal to indices length",
         "name": "lengths"
+      },
+      {
+        "name": "counter",
+        "description": "Optional input when weight_decay is adjusted by frequency ignored when counter_halflife == -1"
       }
     ],
     "outputs": [

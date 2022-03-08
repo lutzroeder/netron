@@ -43,7 +43,7 @@ def metadata():
         'Slice': 'Tensor',
         'Softmax': 'Activation',
         'Split': 'Tensor',
-        'Squeeze': 'Shape',
+        'Squeeze': 'Transform',
         'StridedSlice': 'Tensor',
         'swish_f32': 'Activation',
         'Variable': 'Control',

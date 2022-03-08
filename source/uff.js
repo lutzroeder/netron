@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 // Experimental
 
@@ -17,7 +16,7 @@ uff.ModelFactory = class {
                 tags.has(2) && tags.get(2) === 0 &&
                 tags.has(3) && tags.get(3) === 2 &&
                 tags.has(4) && tags.get(4) === 2 &&
-                tags.has(5) && tags.get(5) === 2) {
+                (!tags.has(5) || tags.get(5) === 2)) {
                 return 'uff.pb';
             }
         }
@@ -509,32 +508,30 @@ uff.Metadata = class {
     }
 
     constructor(data) {
-        this._map = new Map();
-        this._attributeCache = new Map();
+        this._types = new Map();
+        this._attributes = new Map();
         if (data) {
             const metadata = JSON.parse(data);
-            this._map = new Map(metadata.map((item) => [ item.name, item ]));
+            this._types = new Map(metadata.map((item) => [ item.name, item ]));
         }
     }
 
     type(name) {
-        return this._map.get(name);
+        return this._types.get(name);
     }
 
     attribute(type, name) {
         const key = type + ':' + name;
-        if (!this._attributeCache.has(key)) {
-            const schema = this.type(type);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (const attribute of schema.attributes) {
-                    this._attributeCache.set(type + ':' + attribute.name, attribute);
+        if (!this._attributes.has(key)) {
+            this._attributes.set(key, null);
+            const metadata = this.type(type);
+            if (metadata && Array.isArray(metadata.attributes)) {
+                for (const attribute of metadata.attributes) {
+                    this._attributes.set(type + ':' + attribute.name, attribute);
                 }
             }
-            if (!this._attributeCache.has(key)) {
-                this._attributeCache.set(key, null);
-            }
         }
-        return this._attributeCache.get(key);
+        return this._attributes.get(key);
     }
 };
 

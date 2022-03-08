@@ -6,7 +6,7 @@
         "email": "lutzroeder@users.noreply.github.com",
         "url": "https://www.lutzroeder.com"
     },
-    "version": "5.1.5",
+    "version": "5.6.2",
     "description": "Visualizer for neural network, deep learning, and machine learning models",
     "license": "MIT",
     "repository": "lutzroeder/netron",
@@ -14,18 +14,128 @@
     "scripts": {
         "postinstall": "electron-builder install-app-deps",
         "start": "[ -d node_modules ] || npm install && npx electron .",
-        "server": "[ -d node_modules ] || npm install && python setup.py --quiet build && python -c 'import sys, os; sys.path.insert(0, os.path.join(\"dist\", \"lib\")); import netron; netron.main()' $@"
+        "server": "node ./publish/server.js"
     },
     "dependencies": {
+ //codespace-kstuart1992-vinculum-analytics-kr3-netron-r4r57jqg5cwqq6
         "applicationinsights": "^2.1.6",
         "dagre": "0.8.5",
         "electron-updater": "4.3.9"
+//>>>>>>>>main
+        "electron-updater": "4.6.5"
     },
     "devDependencies": {
-        "electron": "13.2.1",
-        "electron-builder": "22.11.7",
-        "electron-notarize": "1.1.0",
-        "eslint": "7.32.0",
-        "@xmldom/xmldom": "0.7.2"
+        "electron": "17.1.0",
+        "electron-builder": "22.14.13",
+        "electron-notarize": "1.1.1",
+        "eslint": "8.10.0"
+    },
+    "eslintConfig": {
+        "env": {
+            "es6": true,
+            "browser": true,
+            "node": true
+        },
+        "extends": "eslint:recommended",
+        "parserOptions": {
+            "ecmaVersion": 2015,
+            "sourceType": "module"
+        },
+        "rules": {
+            "brace-style": [ "error", "stroustrup", { "allowSingleLine": true } ],
+            "indent": [ "error", 4, { "SwitchCase": 1 } ],
+            "linebreak-style": "off",
+            "no-trailing-spaces": "error",
+            "no-console": "error",
+            "prefer-const": [ "error", { "destructuring": "all" } ],
+            "semi": [ "error", "always" ]
+        },
+        "globals": {
+            "flatbuffers": "readonly",
+            "protobuf": "readonly"
+        }
+    },
+    "build": {
+        "appId": "com.lutzroeder.netron",
+        "productName": "Netron",
+        "files": [ "source/**/*" ],
+        "directories": { "buildResources": "./publish" },
+        "fileAssociations": [
+            { "ext": "armnn",      "name": "Arm NN Model"          },
+            { "ext": "cmf",        "name": "CNTK Model"            },
+            { "ext": "dnn",        "name": "CNTK Model"            },
+            { "ext": "h5",         "name": "Keras Model"           },
+            { "ext": "hd5",        "name": "Keras Model"           },
+            { "ext": "hdf5",       "name": "Keras Model"           },
+            { "ext": "keras",      "name": "Keras Model"           },
+            { "ext": "kmodel",     "name": "Kendryte Model"        },
+            { "ext": "lite",       "name": "TensorFlow Lite Model" },
+            { "ext": "mar",        "name": "MXNet Model"           },
+            { "ext": "meta",       "name": "TensorFlow Meta Graph" },
+            { "ext": "mlmodel",    "name": "Core ML Model"         },
+            { "ext": "mlpackage",  "name": "Core ML Model Package", "isPackage": true },
+            { "ext": "mnn",        "name": "MNN Model"             },
+            { "ext": "model",      "name": "Model"                 },
+            { "ext": "nn",         "name": "Barracuda Model"       },
+            { "ext": "onnx",       "name": "ONNX Model"            },
+            { "ext": "om",         "name": "DaVinci OM Model"      },
+            { "ext": "ort",        "name": "ONNX Runtime Model"    },
+            { "ext": "pb",         "name": "Protocol Buffer"       },
+            { "ext": "pbtxt",      "name": "Text Protocol Buffer"  },
+            { "ext": "prototxt",   "name": "Text Protocol Buffer"  },
+            { "ext": "caffemodel", "name": "Caffe Model"           },
+            { "ext": "param",      "name": "NCNN Model"            },
+            { "ext": "pth",        "name": "PyTorch Model"         },
+            { "ext": "ptl",        "name": "PyTorch Model"         },
+            { "ext": "pt",         "name": "PyTorch Model"         },
+            { "ext": "t7",         "name": "Torch Model"           },
+            { "ext": "tflite",     "name": "TensorFlow Lite Model" },
+            { "ext": "tfl",        "name": "TensorFlow Lite Model" },
+            { "ext": "tmfile",     "name": "Tengine"               },
+            { "ext": "paddle",     "name": "PaddlePaddle"          },
+            { "ext": "pdmodel",    "name": "PaddlePaddle"          },
+            { "ext": "pdparams",   "name": "PaddlePaddle"          },
+            { "ext": "nb",         "name": "Paddle Lite"           },
+            { "ext": "rknn",       "name": "RKNN"                  },
+            { "ext": "uff",        "name": "UFF Model"             },
+            { "ext": "xmodel",     "name": "Vitis AI Model"        }
+        ],
+        "afterSign": "./publish/notarize.js",
+        "publish": [
+            { "provider": "github", "releaseType": "release" }
+        ],
+        "linux": {
+            "target": [ "AppImage", "snap" ]
+        },
+        "mac": {
+            "artifactName": "${productName}-${version}-mac.${ext}",
+            "category": "public.app-category.developer-tools",
+            "darkModeSupport": true,
+            "gatekeeperAssess": false,
+            "hardenedRuntime": true,
+            "target": [ "dmg", "zip" ]
+        },
+        "win": {
+            "target": [ "nsis" ],
+            "signingHashAlgorithms": [ "sha256" ],
+            "verifyUpdateCodeSignature": false
+        },
+        "dmg": {
+            "artifactName": "${productName}-${version}.${ext}",
+            "title": "${productName} ${version}",
+            "writeUpdateInfo": false,
+            "iconSize": 160,
+            "contents": [
+                { "x": 180, "y": 170 },
+                { "x": 480, "y": 170, "type": "link", "path": "/Applications" }
+            ]
+        },
+        "nsis": {
+            "differentialPackage": false
+        },
+        "snap": {
+            "plugs": [ "default", "removable-media" ],
+            "publish": [ { "provider": "snapStore", "channels": [ "stable" ] } ]
+        }
     }
 }

@@ -1,0 +1,204 @@
+syntax = "proto3";
+
+package ge.proto;
+
+enum DataType
+{
+    DT_UNDEFINED = 0;  // Used to indicate a DataType field has not been set.
+    DT_FLOAT     = 1;  // float type
+    DT_FLOAT16   = 2;  // fp16 type
+    DT_INT8      = 3;  // int8 type
+    DT_UINT8     = 4;  // uint8 type
+    DT_INT16     = 5;  // int16 type
+    DT_UINT16    = 6;  // uint16 type
+    DT_INT32     = 7;  //
+    DT_INT64     = 8;  // int64 type
+    DT_UINT32    = 9;  // unsigned int32
+    DT_UINT64    = 10;  // unsigned int64
+    DT_BOOL      = 11;  // bool type
+    DT_DOUBLE    = 12; // double type
+    DT_STRING = 13;            // string type
+    DT_DUAL_SUB_INT8 = 14;    /**< dual output int8 type */
+    DT_DUAL_SUB_UINT8 = 15;    /**< dual output uint8 type */
+    DT_COMPLEX64 = 16;         // complex64 type
+    DT_COMPLEX128 = 17;        // complex128 type
+    DT_QINT8 = 18;             // qint8 type
+    DT_QINT16 = 19;            // qint16 type
+    DT_QINT32 = 20;            // qint32 type
+    DT_QUINT8 = 21;            // quint8 type
+    DT_QUINT16 = 22;           // quint16 type
+    DT_RESOURCE  = 23;         // resource type
+    DT_STRING_REF = 24;        // string_ref type
+    DT_DUAL      = 25;              /**< dual output type */
+    DT_VARIANT = 26;           // variant type
+    DT_BF16 = 27;              // bf16 type
+    DT_INT4 = 28;              // int4 type
+    DT_UINT1 = 29;             // uint1 type
+    DT_INT2 = 30;              // int2 type
+    DT_UINT2 = 31;             // uint2 type
+}
+
+message AttrDef
+{
+    message ListValue
+    {
+        enum ListValueType{
+          VT_LIST_NONE = 0;
+          VT_LIST_STRING = 1;
+          VT_LIST_INT = 2;
+          VT_LIST_FLOAT = 3;
+          VT_LIST_BOOL = 4;
+          VT_LIST_BYTES = 5;
+          VT_LIST_TENSOR_DESC = 6;
+          VT_LIST_TENSOR = 7;
+          VT_LIST_GRAPH = 8;
+          VT_LIST_NAMED_ATTRS = 9;
+          VT_LIST_DATA_TYPE = 10;
+        }
+        repeated bytes s             = 2;                    // "list(string)"
+        repeated int64 i             = 3;  // "list(int)"
+        repeated float f             = 4;   // "list(float)"
+        repeated bool  b             = 5;  // "list(bool)"
+        repeated bytes bt            = 7;
+        repeated TensorDescriptor td = 8;
+        repeated TensorDef t         = 9;
+        repeated GraphDef g          = 10;
+	    repeated NamedAttrs na       = 11;
+	    repeated int64 dt            = 12; // list ge::DataType
+
+	    ListValueType val_type       = 20;
+    }
+
+    message ListListInt{
+        message ListInt{
+            repeated int64 list_i             = 1; // list int
+        }
+        repeated ListInt list_list_i             = 1; // list list int
+    }
+
+    message ListListFloat{
+        message ListFloat{
+            repeated float list_f             = 1; // list float
+        }
+        repeated ListFloat list_list_f             = 1; // list list float
+    }
+
+    oneof value
+    {
+        bytes            s    = 2;  // "string"
+        int64            i    = 3;  // "int"
+        float            f    = 4;  // "float"
+        bool             b    = 5;  // "bool"
+        bytes            bt   = 7;
+        ListValue        list = 1;   // any "list(...)"
+        NamedAttrs       func = 10;  // Used to support attr nesting
+        TensorDescriptor td   = 11;  // GeTensorDesc type
+        TensorDef        t    = 12;  // GeTensor type
+        GraphDef         g    = 13;  // Graph type
+        ListListInt      list_list_int  = 14;  // List List Int type
+        int64            dt   = 15; // ge::DataType
+        ListListFloat    list_list_float  = 16;  // List List Float type
+    }
+}
+
+// A list of attr names and their values. The whole list is attached
+// with a string name.  E.g., MatMul[T=float].
+message NamedAttrs
+{
+    string               name = 1;
+    map<string, AttrDef> attr = 2;
+}
+
+// Shape / dimension description, using row-major order
+message ShapeDef
+{
+    repeated int64 dim = 1;  // Size of each dimension
+}
+
+// Multidimensional data description
+message TensorDescriptor
+{
+    string   name   = 1;  // Optional parameter, tensor name
+
+    DataType dtype  = 2;  // tensor datatype
+    ShapeDef shape  = 3;  // Shape / dimension
+    string   layout = 4;  // Tensor format, eg: "NCHW", "NHWC", "CHW", "ND"
+
+    bool has_out_attr = 9;
+    int64 size = 10;
+    int64 weight_size = 11;
+    bool reuse_input = 12;
+    bool output_tensor = 13;
+    string device_type = 14;
+    bool input_tensor =15;
+    int64 real_dim_cnt = 16;
+    int64 reuse_input_index = 17;
+    int64 data_offset = 18;
+    int64 cmps_size = 19;
+    string cmps_tab = 20;
+    int64 cmps_tab_offset = 21;
+
+	map<string, AttrDef> attr = 5;  // Set of extra parameter fields
+}
+
+// GeTensor definition
+message TensorDef
+{
+    TensorDescriptor desc = 1;  // Tensor description
+    bytes            data = 2;  // Tensor data
+}
+
+
+// Operator description
+message OpDef
+{
+    string name = 1;  // name
+    string type = 2;  // type
+
+    repeated string input = 5;  // input original op name + outgoing index. op_name：index
+
+    map<string, AttrDef> attr = 10;  // Set of operator parameter fields
+
+    bool has_out_attr = 20;
+    int64 id = 21;
+    int64 stream_id =22;
+    repeated string input_name = 23;
+    repeated string src_name = 24;
+    repeated int64 src_index = 25;
+    repeated string dst_name = 26;
+    repeated int64 dst_index = 27;
+    repeated int64 input_i = 28;
+    repeated int64 output_i = 29;
+    repeated int64 workspace = 30;
+    repeated int64 workspace_bytes = 31;
+    repeated bool is_input_const = 32;
+    repeated TensorDescriptor input_desc = 33;
+    repeated TensorDescriptor output_desc = 34;
+    repeated string subgraph_name = 35;
+}
+
+// Graph definition
+message GraphDef
+{
+    string name   = 1;   //  name
+
+    repeated string input  = 4;  // Graph input
+    repeated string output = 5;  // Graph output
+
+    repeated OpDef op      = 6;  // List of operators
+
+	map<string, AttrDef> attr = 11;  // Extended field
+}
+
+// model definition
+message ModelDef
+{
+	string name         = 1;  // name
+	uint32 version      = 2;  // IR Proto verion
+	string custom_version = 3;  // User model version number, passed in by user
+
+    repeated GraphDef graph = 7;  // Graph definition，graph[0] represents the main diagram in modeldef
+
+    map<string, AttrDef> attr = 11;  // Extended field
+}
+

@@ -1,17 +1,13 @@
 #!/usr/bin/env node
 
-/* jshint esversion: 6 */
 /* eslint "no-console": off */
 
 const fs = require('fs');
 const path = require('path');
 const process = require('process');
-const http = require('http');
-const https = require('https');
 const util = require('util');
-const xmldom = require('@xmldom/xmldom');
 
-const json = require('../source/json');
+// const json = require('../source/json');
 const protobuf = require('../source/protobuf');
 const flatbuffers = require('../source/flatbuffers');
 const sidebar = require('../source/view-sidebar.js');
@@ -24,11 +20,9 @@ const base = require('../source/base');
 global.Int64 = base.Int64;
 global.Uint64 = base.Uint64;
 
-global.json = json;
+// global.json = json;
 global.protobuf = protobuf;
 global.flatbuffers = flatbuffers;
-
-global.DOMParser = xmldom.DOMParser;
 
 global.TextDecoder = class {
 
@@ -109,8 +103,8 @@ class TestHost {
             return Promise.reject(new Error("The file '" + file + "' does not exist."));
         }
         if (encoding) {
-            const text = fs.readFileSync(pathname, encoding);
-            return Promise.resolve(text);
+            const content = fs.readFileSync(pathname, encoding);
+            return Promise.resolve(content);
         }
         const buffer = fs.readFileSync(pathname, null);
         const stream = new TestBinaryStream(buffer);
@@ -302,10 +296,6 @@ class HTMLElement {
         return this._attributes.get(name);
     }
 
-    getBBox() {
-        return { x: 0, y: 0, width: 10, height: 10 };
-    }
-
     getElementsByClassName(name) {
         const elements = [];
         for (const node of this._childNodes) {
@@ -328,6 +318,20 @@ class HTMLElement {
 
     get classList() {
         return new DOMTokenList(this);
+    }
+
+    getBBox() {
+        return { x: 0, y: 0, width: 10, height: 10 };
+    }
+
+    getBoundingClientRect() {
+        return { left: 0, top: 0, wigth: 0, height: 0 };
+    }
+
+    scrollTo() {
+    }
+
+    focus() {
     }
 }
 
@@ -353,12 +357,6 @@ class DOMTokenList {
     add(/* token */) {
     }
 }
-
-const makeDir = (dir) => {
-    if (!fs.existsSync(dir)){
-        fs.mkdirSync(dir, { recursive: true });
-    }
-};
 
 const clearLine = () => {
     if (process.stdout.clearLine) {
@@ -387,31 +385,20 @@ const decompress = (buffer) => {
 
 const request = (location, cookie) => {
     const options = { rejectUnauthorized: false };
-    let httpRequest = null;
     const url = new URL(location);
-    const protocol = url.protocol;
-    switch (protocol) {
-        case 'http:':
-            httpRequest = http.request(location, options);
-            break;
-        case 'https:':
-            httpRequest = https.request(location, options);
-            break;
-    }
+    const protocol = url.protocol === 'https:' ? require('https') : require('http');
+    const request = protocol.request(location, options);
     return new Promise((resolve, reject) => {
-        if (!httpRequest) {
-            reject(new Error("Unknown HTTP request."));
-        }
         if (cookie && cookie.length > 0) {
-            httpRequest.setHeader('Cookie', cookie);
+            request.setHeader('Cookie', cookie);
         }
-        httpRequest.on('response', (response) => {
+        request.on('response', (response) => {
             resolve(response);
         });
-        httpRequest.on('error', (error) => {
+        request.on('error', (error) => {
             reject(error);
         });
-        httpRequest.end();
+        request.end();
     });
 };
 
@@ -495,7 +482,8 @@ const download = (folder, targets, sources) => {
         }
     }
     for (const target of targets) {
-        makeDir(path.dirname(folder + '/' + target));
+        const dir = path.dirname(folder + '/' + target);
+        fs.existsSync(dir) || fs.mkdirSync(dir, { recursive: true });
     }
     return downloadFile(source).then((data) => {
         if (sourceFiles.length > 0) {
@@ -508,7 +496,7 @@ const download = (folder, targets, sources) => {
                 if (name !== '.') {
                     const stream = archive.entries.get(name);
                     if (!stream) {
-                        throw new Error("Entry not found '" + name + '. Archive contains entries: ' + JSON.stringify(archive.entries.map((entry) => entry.name)) + " .");
+                        throw new Error("Entry not found '" + name + '. Archive contains entries: ' + JSON.stringify(Array.from(archive.entries.keys())) + " .");
                     }
                     const target = targets.shift();
                     const buffer = stream.peek();
@@ -678,6 +666,21 @@ const loadModel = (target, item) => {
                         if (argument.initializer) {
                             argument.initializer.toString();
                             argument.initializer.type.toString();
+                            /*
+                            const python = require('../source/python');
+                            const tensor = argument.initializer;
+                            if (tensor.type && tensor.type.dataType !== '?') {
+                                let data_type = tensor.type.dataType;
+                                switch (data_type) {
+                                    case 'boolean': data_type = 'bool'; break;
+                                }
+                                const execution = new python.Execution(null);
+                                const bytes = execution.invoke('io.BytesIO', []);
+                                const dtype = execution.invoke('numpy.dtype', [ data_type ]);
+                                const array = execution.invoke('numpy.asarray', [ tensor.value, dtype ]);
+                                execution.invoke('numpy.save', [ bytes, array ]);
+                            }
+                            */
                         }
                     }
                 }
@@ -715,12 +718,8 @@ const renderModel = (model, item) => {
     try {
         const host = new TestHost();
         const currentView = new view.View(host);
-        if (!currentView.showAttributes) {
-            currentView.toggleAttributes();
-        }
-        if (!currentView.showInitializers) {
-            currentView.toggleInitializers();
-        }
+        currentView.options.attributes = true;
+        currentView.options.initializers = true;
         return currentView.renderGraph(model, model.graphs[0]);
     }
     catch (error) {

@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var mnn = mnn || {};
 var flatbuffers = flatbuffers || require('./flatbuffers');
@@ -117,10 +116,6 @@ mnn.Graph = class {
 
     get name() {
         return '';
-    }
-
-    get groups() {
-        return false;
     }
 
     get nodes() {
@@ -263,10 +258,6 @@ mnn.Node = class {
 
     get name() {
         return this._name;
-    }
-
-    get group() {
-        return null;
     }
 
     get inputs() {

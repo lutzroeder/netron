@@ -1,4 +1,4 @@
-/* jshint esversion: 6 */
+
 /* eslint "no-global-assign": ["error", {"exceptions": [ "TextDecoder", "TextEncoder", "URLSearchParams" ] } ] */
 /* global view */
 
@@ -9,6 +9,7 @@ host.BrowserHost = class {
     constructor() {
         this._document = window.document;
         this._window = window;
+        this._navigator = navigator;
         if (this._window.location.hostname.endsWith('.github.io')) {
             this._window.location.replace('https://netron.app');
         }
@@ -26,8 +27,8 @@ host.BrowserHost = class {
         this._version = this._meta.version ? this._meta.version[0] : null;
         this._telemetry = this._version && this._version !== '0.0.0';
         this._environment = new Map();
-        this._environment.set('zoom', 'drag');
-        // this._environment.set('zoom', 'scroll');
+        this._environment.set('zoom', 'scroll');
+        // this._environment.set('zoom', 'drag');
     }
 
     get window() {
@@ -46,8 +47,12 @@ host.BrowserHost = class {
         return this._type;
     }
 
-    get browser() {
-        return true;
+    get agent() {
+        const userAgent = this._navigator.userAgent.toLowerCase();
+        if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1) {
+            return 'safari';
+        }
+        return 'any';
     }
 
     initialize(view) {
@@ -133,24 +138,29 @@ host.BrowserHost = class {
         });
         this._menu.add({});
         this._menu.add({
-            label: () => this._view.showAttributes ? 'Hide Attributes' : 'Show Attributes',
+            label: () => this._view.options.attributes ? 'Hide Attributes' : 'Show Attributes',
             accelerator: 'CmdOrCtrl+D',
-            click: () => this._view.toggleAttributes()
+            click: () => this._view.toggle('attributes')
         });
         this._menu.add({
-            label: () => this._view.showInitializers ? 'Hide Initializers' : 'Show Initializers',
+            label: () => this._view.options.initializers ? 'Hide Initializers' : 'Show Initializers',
             accelerator: 'CmdOrCtrl+I',
-            click: () => this._view.toggleInitializers()
+            click: () => this._view.toggle('initializers')
         });
         this._menu.add({
-            label: () => this._view.showNames ? 'Hide Names' : 'Show Names',
+            label: () => this._view.options.names ? 'Hide Names' : 'Show Names',
             accelerator: 'CmdOrCtrl+U',
-            click: () => this._view.toggleNames()
+            click: () => this._view.toggle('names')
         });
         this._menu.add({
-            label: () => !this._view.showHorizontal ? 'Show Horizontal' : 'Show Vertical',
+            label: () => this._view.options.direction === 'vertical' ? 'Show Horizontal' : 'Show Vertical',
             accelerator: 'CmdOrCtrl+K',
-            click: () => this._view.toggleDirection()
+            click: () => this._view.toggle('direction')
+        });
+        this._menu.add({
+            label: () => this._view.options.mousewheel === 'scroll' ? 'Mouse Wheel: Zoom' : 'Mouse Wheel: Scroll',
+            accelerator: 'CmdOrCtrl+M',
+            click: () => this._view.toggle('mousewheel')
         });
         this._menu.add({});
         this._menu.add({
@@ -215,7 +225,6 @@ host.BrowserHost = class {
             return;
         }
 
-        this._view.show('welcome');
         const openFileButton = this.document.getElementById('open-file-button');
         const openFileDialog = this.document.getElementById('open-file-dialog');
         if (openFileButton && openFileDialog) {
@@ -257,6 +266,8 @@ host.BrowserHost = class {
                 }
             }
         });
+
+        this._view.show('welcome');
     }
 
     environment(name) {
@@ -991,12 +1002,14 @@ if (!HTMLCanvasElement.prototype.toBlob) {
 
 if (!('scrollBehavior' in window.document.documentElement.style)) {
     const __scrollTo__ = Element.prototype.scrollTo;
-    Element.prototype.scrollTo = function() {
-        if (arguments[0] === undefined) {
+    Element.prototype.scrollTo = function(options) {
+        if (options === undefined) {
             return;
         }
-        if (arguments[0] === null || typeof arguments[0] !== 'object' || arguments[0].behavior === undefined || arguments[0].behavior === 'auto' || arguments[0].behavior === 'instant') {
-            __scrollTo__.apply(this, arguments);
+        if (options === null || typeof options !== 'object' || options.behavior === undefined || arguments[0].behavior === 'auto' || options.behavior === 'instant') {
+            if (__scrollTo__) {
+                __scrollTo__.apply(this, arguments);
+            }
             return;
         }
         const now = () => {
@@ -1017,8 +1030,8 @@ if (!('scrollBehavior' in window.document.documentElement.style)) {
         };
         const context = {
             element: this,
-            x: typeof arguments[0].left === 'undefined' ? this.scrollLeft : ~~arguments[0].left,
-            y: typeof arguments[0].top === 'undefined' ? this.scrollTop : ~~arguments[0].top,
+            x: typeof options.left === 'undefined' ? this.scrollLeft : ~~options.left,
+            y: typeof options.top === 'undefined' ? this.scrollTop : ~~options.top,
             startX: this.scrollLeft,
             startY: this.scrollTop,
             startTime: now()

@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 // Experimental HDF5 JavaScript reader
 
@@ -92,11 +91,11 @@ hdf5.Group = class {
         if (this._groups.has(path)) {
             return this._groups.get(path);
         }
-        const split = path.split('/', 2);
-        if (split.length > 1) {
-            const group = this.group(split[0]);
+        const index = path.indexOf('/');
+        if (index !== -1) {
+            const group = this.group(path.substring(0, index));
             if (group) {
-                return group.group(split[1]);
+                return group.group(path.substring(index + 1));
             }
         }
         return null;
@@ -212,30 +211,25 @@ hdf5.Variable = class {
                 }
                 break;
             case 2: { // Chunked
-                const tree = new hdf5.Tree(this._reader.at(this._dataLayout.address), this._dataLayout.dimensionality);
-                if (this._dataLayout.dimensionality == 2 && this._dataspace.shape.length == 1) {
-                    let size = this._dataLayout.datasetElementSize;
-                    for (let i = 0; i < this._dataspace.shape.length; i++) {
-                        size *= this._dataspace.shape[i];
-                    }
+                const dimensionality = this._dataLayout.dimensionality;
+                if (dimensionality === 2) {
+                    const tree = new hdf5.Tree(this._reader.at(this._dataLayout.address), dimensionality);
+                    const itemsize = this._dataLayout.datasetElementSize;
+                    const shape = this._dataspace.shape;
+                    const size = shape.reduce((a, b) => a * b, 1) * itemsize;
                     const data = new Uint8Array(size);
                     for (const node of tree.nodes) {
-                        if (node.fields.length !== 2 || node.fields[1] !== 0) {
-                            return null;
-                        }
                         if (node.filterMask !== 0) {
                             return null;
                         }
-                        const start = node.fields[0] * this._dataLayout.datasetElementSize;
+                        const start = node.fields.slice(0, 1).reduce((a, b) => a * b, 1) * itemsize;
                         let chunk = node.data;
                         if (this._filterPipeline) {
                             for (const filter of this._filterPipeline.filters) {
                                 chunk = filter.decode(chunk);
                             }
                         }
-                        for (let i = 0; i < chunk.length; i++) {
-                            data[start + i] = chunk[i];
-                        }
+                        data.set(chunk, start);
                     }
                     return data;
                 }
@@ -377,20 +371,20 @@ hdf5.Reader = class {
     }
 
     static decode(data, encoding) {
-        let text = '';
+        let content = '';
         if (encoding == 'utf-8') {
             if (!hdf5.Reader._utf8Decoder) {
                 hdf5.Reader._utf8Decoder = new TextDecoder('utf-8');
             }
-            text = hdf5.Reader._utf8Decoder.decode(data);
+            content = hdf5.Reader._utf8Decoder.decode(data);
         }
         else {
             if (!hdf5.Reader._asciiDecoder) {
                 hdf5.Reader._asciiDecoder = new TextDecoder('ascii');
             }
-            text = hdf5.Reader._asciiDecoder.decode(data);
+            content = hdf5.Reader._asciiDecoder.decode(data);
         }
-        return text.replace(/\0/g, '');
+        return content.replace(/\0/g, '');
     }
 
     offset() {
@@ -1007,6 +1001,14 @@ hdf5.FillValue = class {
                         }
                         break;
                     }
+                    case 3: {
+                        const flags = reader.byte();
+                        if ((flags & 0x20) !== 0) {
+                            const size = reader.uint32();
+                            this.data = reader.read(size);
+                        }
+                        break;
+                    }
                     default:
                         throw new hdf5.Error('Unsupported fill value version \'' + version + '\'.');
                 }
@@ -1170,7 +1172,7 @@ hdf5.Filter = class {
         switch (this.id) {
             case 1: { // gzip
                 const archive = zip.Archive.open(data);
-                return archive.entries.get('');
+                return archive.entries.get('').peek();
             }
             default:
                 throw hdf5.Error("Unsupported filter '" + this.name + "'.");
@@ -1237,8 +1239,8 @@ hdf5.ObjectHeaderContinuation = class {
 hdf5.SymbolTable = class {
 
     constructor(reader) {
-        this._treeAddress = reader.offset();
-        this._heapAddress = reader.offset();
+        this.treeAddress = reader.offset(); // hdf5.Tree pointer
+        this.heapAddress = reader.offset(); // hdf5.Heap pointer
     }
 };
 

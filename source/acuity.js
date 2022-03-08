@@ -1,5 +1,3 @@
-/* jshint esversion: 6 */
-/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var acuity = acuity || {};
 var json = json || require('./json');

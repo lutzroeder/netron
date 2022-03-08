@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 // Experimental Python parser
 
@@ -1625,7 +1624,9 @@ python.Execution = class {
         this.registerModule('copy_reg');
         this.registerModule('cuml');
         this.registerModule('gensim');
+        this.registerModule('io');
         this.registerModule('joblib');
+        this.registerModule('keras');
         this.registerModule('lightgbm');
         this.registerModule('numpy');
         this.registerModule('nolearn');
@@ -1698,73 +1699,69 @@ python.Execution = class {
                 }
             }
         });
-        this.registerType('numpy.core._multiarray_umath.scalar', class {
-            constructor(dtype, rawData) {
-                let data = rawData;
-                if (typeof rawData === 'string') {
-                    data = new Uint8Array(rawData.length);
-                    for (let i = 0; i < rawData.length; i++) {
-                        data[i] = rawData.charCodeAt(i);
-                    }
-                }
-                const dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
-                switch (dtype.name) {
-                    case 'uint8':
-                        return dataView.getUint8(0);
-                    case 'float32':
-                        return dataView.getFloat32(0, true);
-                    case 'float64':
-                        return dataView.getFloat64(0, true);
-                    case 'int8':
-                        return dataView.getInt8(0, true);
-                    case 'int16':
-                        return dataView.getInt16(0, true);
-                    case 'int32':
-                        return dataView.getInt32(0, true);
-                    case 'int64':
-                        return dataView.getInt64(0, true);
-                }
-                throw new python.Error("Unknown scalar type '" + dtype.name + "'.");
+        this.registerType('io.BytesIO', class {
+            constructor(buf, mode) {
+                this.mode = mode || 'r';
+                this._buf = this.mode === 'w' ? null : buf;
+                this._point = 0;
+            }
+            seek(offset) {
+                this._point = offset;
+            }
+            read(size) {
+                const start = this._point;
+                this._point = size !== undefined ? start + size : this._buf.length;
+                return this._buf.subarray(start, this._point);
+            }
+            write(data) {
+                const src = this._buf || new Uint8Array();
+                this._point = src.length + data.length;
+                this._buf = new Uint8Array(this._point);
+                this._buf.set(src, 0);
+                this._buf.set(data, src.length);
             }
         });
         this.registerType('numpy.dtype', class {
             constructor(obj, align, copy) {
-                this.align = align;
-                this.copy = copy;
                 switch (obj) {
-                    case 'i1': this.name = 'int8'; this.itemsize = 1; break;
-                    case 'i2': this.name = 'int16'; this.itemsize = 2; break;
-                    case 'i4': this.name = 'int32'; this.itemsize = 4; break;
-                    case 'i8': this.name = 'int64'; this.itemsize = 8; break;
-                    case 'b1': this.name = 'int8'; this.itemsize = 1; break;
-                    case 'u1': this.name = 'uint8'; this.itemsize = 1; break;
-                    case 'u2': this.name = 'uint16'; this.itemsize = 2; break;
-                    case 'u4': this.name = 'uint32'; this.itemsize = 4; break;
-                    case 'u8': this.name = 'uint64'; this.itemsize = 8; break;
-                    case 'f2': this.name = 'float16'; this.itemsize = 2; break;
-                    case 'f4': this.name = 'float32'; this.itemsize = 4; break;
-                    case 'f8': this.name = 'float64'; this.itemsize = 8; break;
-                    case 'c8':  this.name = 'complex64'; this.itemsize = 8; break;
-                    case 'c16': this.name = 'complex128'; this.itemsize = 16; break;
+                    case 'b1': case 'bool': this.name = 'bool'; this.itemsize = 1; this.kind = 'b'; break;
+                    case 'i1': case 'int8': this.name = 'int8'; this.itemsize = 1; this.kind = 'i'; break;
+                    case 'i2': case 'int16': this.name = 'int16'; this.itemsize = 2; this.kind = 'i'; break;
+                    case 'i4': case 'int32': this.name = 'int32'; this.itemsize = 4; this.kind = 'i'; break;
+                    case 'i8': case 'int64': case 'int': this.name = 'int64'; this.itemsize = 8; this.kind = 'i'; break;
+                    case 'u1': case 'uint8': this.name = 'uint8'; this.itemsize = 1; this.kind = 'u'; break;
+                    case 'u2': case 'uint16': this.name = 'uint16'; this.itemsize = 2; this.kind = 'u'; break;
+                    case 'u4': case 'uint32': this.name = 'uint32'; this.itemsize = 4; this.kind = 'u'; break;
+                    case 'u8': case 'uint64': case 'uint': this.name = 'uint64'; this.itemsize = 8; this.kind = 'u'; break;
+                    case 'f2': case 'float16': this.name = 'float16'; this.itemsize = 2; this.kind = 'f'; break;
+                    case 'f4': case 'float32': this.name = 'float32'; this.itemsize = 4; this.kind = 'f'; break;
+                    case 'f8': case 'float64': case 'float': this.name = 'float64'; this.itemsize = 8; this.kind = 'f'; break;
+                    case 'c8': case 'complex64': this.name = 'complex64'; this.itemsize = 8; this.kind = 'c'; break;
+                    case 'c16': case 'complex128': case 'complex': this.name = 'complex128'; this.itemsize = 16; this.kind = 'c'; break;
                     default:
                         if (obj.startsWith('V')) {
                             this.itemsize = Number(obj.substring(1));
+                            this.kind = 'V';
                             this.name = 'void' + (this.itemsize * 8).toString();
                         }
                         else if (obj.startsWith('O')) {
                             this.itemsize = Number(obj.substring(1));
+                            this.kind = 'O';
                             this.name = 'object';
                         }
                         else if (obj.startsWith('S')) {
                             this.itemsize = Number(obj.substring(1));
+                            this.kind = 'S';
                             this.name = 'string';
                         }
                         else if (obj.startsWith('U')) {
                             this.itemsize = Number(obj.substring(1));
+                            this.kind = 'U';
                             this.name = 'string';
                         }
                         else if (obj.startsWith('M')) {
                             this.itemsize = Number(obj.substring(1));
+                            this.kind = 'M';
                             this.name = 'datetime';
                         }
                         else {
@@ -1772,6 +1769,16 @@ python.Execution = class {
                         }
                         break;
                 }
+                this.byteorder = '=';
+                if (align) {
+                    this.align = align;
+                }
+                if (copy) {
+                    this.copy = copy;
+                }
+            }
+            get str() {
+                return (this.byteorder === '=' ? '<' : this.byteorder) + this.kind + this.itemsize.toString();
             }
             __setstate__(state) {
                 switch (state.length) {
@@ -1811,6 +1818,7 @@ python.Execution = class {
         this.registerType('gensim.models.fasttext.FastTextKeyedVectors', class {});
         this.registerType('gensim.models.keyedvectors.Doc2VecKeyedVectors', class {});
         this.registerType('gensim.models.keyedvectors.FastTextKeyedVectors', class {});
+        this.registerType('gensim.models.keyedvectors.KeyedVectors', class {});
         this.registerType('gensim.models.keyedvectors.Vocab', class {});
         this.registerType('gensim.models.keyedvectors.Word2VecKeyedVectors', class {});
         this.registerType('gensim.models.phrases.Phrases', class {});
@@ -1840,9 +1848,134 @@ python.Execution = class {
                 return self.invoke(this.subclass, [ this.shape, this.dtype, this.data ]);
             }
         });
+        this.registerType('keras.engine.sequential.Sequential', class {});
         this.registerType('lightgbm.sklearn.LGBMRegressor', class {});
         this.registerType('lightgbm.sklearn.LGBMClassifier', class {});
-        this.registerType('lightgbm.basic.Booster', class {});
+        this.registerType('lightgbm.basic.Booster', class {
+            constructor() {
+                this.average_output = false;
+                this.models = [];
+                this.loaded_parameter = '';
+            }
+            __setstate__(state) {
+                if (typeof state.handle === 'string') {
+                    this.LoadModelFromString(state.handle);
+                    return;
+                }
+                Object.assign(this, state);
+            }
+            LoadModelFromString(model_str) {
+                const lines = model_str.split('\n');
+                const signature = lines.shift() || '?';
+                if (signature.trim() !== 'tree') {
+                    throw new python.Error("Invalid signature '" + signature.trim() + "'.");
+                }
+                // GBDT::LoadModelFromString() in https://github.com/microsoft/LightGBM/blob/master/src/boosting/gbdt_model_text.cpp
+                const key_vals = new Map();
+                while (lines.length > 0 && !lines[0].startsWith('Tree=')) {
+                    const cur_line = lines.shift().trim();
+                    if (cur_line.length > 0) {
+                        const strs = cur_line.split('=');
+                        if (strs.length === 1) {
+                            key_vals.set(strs[0], '');
+                        }
+                        else if (strs.length === 2) {
+                            key_vals.set(strs[0], strs[1]);
+                        }
+                        else if (strs.length > 2) {
+                            if (strs[0] === "feature_names") {
+                                key_vals.set(strs[0], cur_line.substring("feature_names=".length));
+                            }
+                            else if (strs[0] == 'monotone_constraints') {
+                                key_vals.set(strs[0], cur_line.substring('monotone_constraints='.length));
+                            }
+                            else {
+                                throw new python.Error('Wrong line: ' + cur_line.substring(0, Math.min(128, cur_line.length)));
+                            }
+                        }
+                    }
+                }
+                const atoi = (key, value) => {
+                    if (key_vals.has(key)) {
+                        return parseInt(key_vals.get(key), 10);
+                    }
+                    if (value !== undefined) {
+                        return value;
+                    }
+                    throw new python.Error('Model file does not specify ' + key + '.');
+                };
+                const list = (key, size) => {
+                    if (key_vals.has(key)) {
+                        const value = key_vals.get(key).split(' ');
+                        if (value.length !== size) {
+                            throw new python.Error('Wrong size of ' + key + '.');
+                        }
+                        return value;
+                    }
+                    throw new python.Error('Model file does not contain ' + key + '.');
+                };
+                this.version = key_vals.get('version') || '';
+                this.num_class = atoi('num_class');
+                this.num_tree_per_iteration = atoi('num_tree_per_iteration', this.num_class);
+                this.label_index = atoi('label_index');
+                this.max_feature_idx = atoi('max_feature_idx');
+                if (key_vals.has('average_output')) {
+                    this.average_output = true;
+                }
+                this.feature_names = list('feature_names', this.max_feature_idx + 1);
+                this.feature_infos = list('feature_infos', this.max_feature_idx + 1);
+                if (key_vals.has('monotone_constraints')) {
+                    this.monotone_constraints = list('monotone_constraints', this.max_feature_idx + 1, true);
+                }
+                if (key_vals.has('objective')) {
+                    this.objective = key_vals.get('objective');
+                }
+                let tree = null;
+                // let lineNumber = 0;
+                while (lines.length > 0) {
+                    // lineNumber++;
+                    const text = lines.shift();
+                    const line = text.trim();
+                    if (line.length === 0) {
+                        continue;
+                    }
+                    if (line.startsWith('Tree=')) {
+                        tree = { index: parseInt(line.split('=').pop(), 10) };
+                        this.models.push(tree);
+                        continue;
+                    }
+                    if (line === 'end of trees') {
+                        break;
+                    }
+                    const param = line.split('=');
+                    if (param.length !== 2) {
+                        throw new python.Error("Invalid property '" + line + "'.");
+                    }
+                    const name = param[0].trim();
+                    const value = param[1].trim();
+                    tree[name] = value;
+                }
+                const ss = [];
+                let is_inparameter = false;
+                while (lines.length > 0) {
+                    const text = lines.shift();
+                    const line = text.trim();
+                    if (line === 'parameters:') {
+                        is_inparameter = true;
+                        continue;
+                    }
+                    else if (line === 'end of parameters') {
+                        break;
+                    }
+                    else if (is_inparameter) {
+                        ss.push(line);
+                    }
+                }
+                if (ss.length > 0) {
+                    this.loaded_parameter = ss.join('\n');
+                }
+            }
+        });
         this.registerType('nolearn.lasagne.base.BatchIterator', class {});
         this.registerType('nolearn.lasagne.base.Layers', class {});
         this.registerType('nolearn.lasagne.base.NeuralNet', class {});
@@ -1857,12 +1990,13 @@ python.Execution = class {
                 this.offset = offset !== undefined ? offset : 0;
                 this.strides = strides !== undefined ? strides : null;
                 this.order = offset !== undefined ? order : null;
+                this.flags = {};
             }
             __setstate__(state) {
                 this.version = state[0];
                 this.shape = state[1];
                 this.dtype = state[2];
-                this.isFortran = state[3];
+                this.flags.fnc = state[3];
                 this.data = state[4];
             }
             __read__(unpickler) {
@@ -1881,10 +2015,18 @@ python.Execution = class {
                 }
                 return this;
             }
+            tobytes() {
+                return this.data;
+            }
         });
         this.registerType('numpy.ma.core.MaskedArray', class extends numpy.ndarray {
             constructor(data /*, mask, dtype, copy, subok, ndmin, fill_value, keep_mask, hard_mask, shrink, order */) {
                 super(data.shape, data.dtype, data.data);
+            }
+        });
+        this.registerType('numpy.core.memmap.memmap', class extends numpy.ndarray {
+            constructor(shape, dtype) {
+                super(shape, dtype);
             }
         });
         this.registerType('pathlib.PosixPath', class {
@@ -1907,6 +2049,7 @@ python.Execution = class {
         this.registerType('sklearn.discriminant_analysis.LinearDiscriminantAnalysis', class {});
         this.registerType('sklearn.discriminant_analysis.QuadraticDiscriminantAnalysis', class {});
         this.registerType('sklearn.dummy.DummyClassifier', class {});
+        this.registerType('sklearn.dummy.DummyRegressor', class {});
         this.registerType('sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper', class {
             constructor(/* subtype, shape, dtype */) {
             }
@@ -1928,7 +2071,18 @@ python.Execution = class {
                 return self.invoke(this.subclass, [ this.shape, this.dtype, this.data ]);
             }
         });
-        this.registerType('sklearn.externals.joblib.numpy_pickle.NDArrayWrapper', class {});
+        this.registerType('sklearn.externals.joblib.numpy_pickle.NDArrayWrapper', class {
+            constructor(/* subtype, shape, dtype */) {
+            }
+            __setstate__(state) {
+                this.subclass = state.subclass;
+                this.filename = state.state;
+                this.allow_mmap = state.allow_mmap;
+            }
+            __read__(/* unpickler */) {
+                return this; // return self.invoke(this.subclass, [ this.shape, this.dtype, this.data ]);
+            }
+        });
         this.registerType('sklearn.ensemble._bagging.BaggingClassifier', class {});
         this.registerType('sklearn.ensemble._forest.RandomForestRegressor', class {});
         this.registerType('sklearn.ensemble._forest.RandomForestClassifier', class {});
@@ -1992,11 +2146,14 @@ python.Execution = class {
         this.registerType('sklearn.linear_model.stochastic_gradient.SGDClassifier', class {});
         this.registerType('sklearn.metrics._scorer._PredictScorer', class {});
         this.registerType('sklearn.metrics.scorer._PredictScorer', class {});
+        this.registerType('sklearn.metrics._scorer._ThresholdScorer', class {});
         this.registerType('sklearn.mixture._bayesian_mixture.BayesianGaussianMixture', class {});
         this.registerType('sklearn.model_selection._search.GridSearchCV', class {});
         this.registerType('sklearn.model_selection._search.RandomizedSearchCV', class {});
         this.registerType('sklearn.model_selection._split.KFold', class {});
+        this.registerType('sklearn.model_selection._split.StratifiedKFold', class {});
         this.registerType('sklearn.multiclass.OneVsRestClassifier', class {});
+        this.registerType('sklearn.multioutput.MultiOutputClassifier', class {});
         this.registerType('sklearn.multioutput.MultiOutputRegressor', class {});
         this.registerType('sklearn.naive_bayes.BernoulliNB', class {});
         this.registerType('sklearn.naive_bayes.ComplementNB', class {});
@@ -2049,6 +2206,7 @@ python.Execution = class {
         this.registerType('sklearn.preprocessing.label.LabelBinarizer', class {});
         this.registerType('sklearn.preprocessing.label.LabelEncoder', class {});
         this.registerType('sklearn.preprocessing.label.MultiLabelBinarizer', class {});
+        this.registerType('sklearn.svm._classes.LinearSVC', class {});
         this.registerType('sklearn.svm._classes.SVC', class {});
         this.registerType('sklearn.svm._classes.SVR', class {});
         this.registerType('sklearn.svm.classes.LinearSVC', class {});
@@ -2075,6 +2233,7 @@ python.Execution = class {
         this.registerType('sklearn.tree.tree.DecisionTreeClassifier', class {});
         this.registerType('sklearn.tree.tree.DecisionTreeRegressor', class {});
         this.registerType('sklearn.tree.tree.ExtraTreeClassifier', class {});
+        this.registerType('sklearn.utils.Bunch', class {});
         this.registerType('sklearn.utils.deprecation.DeprecationDict', class {});
         this.registerType('re.Pattern', function(pattern, flags) {
             this.pattern = pattern;
@@ -2338,8 +2497,195 @@ python.Execution = class {
                     return dataView.getInt32(0, true);
                 case 'int64':
                     return dataView.getInt64(0, true);
+                case 'bool':
+                    return dataView.getInt8(0, true) ? true : false;
             }
             throw new python.Error("Unknown scalar type '" + dtype.name + "'.");
+        });
+        this.registerFunction('numpy.core._multiarray_umath.scalar', function(dtype, rawData) {
+            let data = rawData;
+            if (typeof rawData === 'string') {
+                data = new Uint8Array(rawData.length);
+                for (let i = 0; i < rawData.length; i++) {
+                    data[i] = rawData.charCodeAt(i);
+                }
+            }
+            const dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
+            switch (dtype.name) {
+                case 'uint8':
+                    return dataView.getUint8(0);
+                case 'float32':
+                    return dataView.getFloat32(0, true);
+                case 'float64':
+                    return dataView.getFloat64(0, true);
+                case 'int8':
+                    return dataView.getInt8(0, true);
+                case 'int16':
+                    return dataView.getInt16(0, true);
+                case 'int32':
+                    return dataView.getInt32(0, true);
+                case 'int64':
+                    return dataView.getInt64(0, true);
+            }
+            throw new python.Error("Unknown scalar type '" + dtype.name + "'.");
+        });
+        this.registerFunction('numpy.load', function(file) {
+            // https://github.com/numpy/numpy/blob/main/numpy/lib/format.py
+            const signature = [ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59 ];
+            if (!file.read(6).every((v, i) => v == signature[i])) {
+                throw new numpy.Error('Invalid signature.');
+            }
+            const major = file.read(1)[0];
+            const minor = file.read(1)[0];
+            if (major > 3) {
+                throw new python.Error("Invalid version '" + [ major, minor ].join('.') + "'.");
+            }
+            const buffer = new Uint8Array([ 0, 0, 0, 0 ]);
+            buffer.set(file.read(major >= 2 ? 4 : 2), 0);
+            const header_length = buffer[3] << 24 | buffer[2] << 16 | buffer[1] << 8 | buffer[0];
+            let header = file.read(header_length);
+            const decoder = new TextDecoder(major >= 3 ? 'utf-8' : 'ascii');
+            header = decoder.decode(header);
+            header = JSON.parse(header.replace(/\(/,'[').replace(/\)/,']').replace('[,','[1,]').replace(',]',',1]').replace(/'/g, '"').replace(/:\s*False\s*,/,':false,').replace(/:\s*True\s*,/,':true,').replace(/,\s*\}/, ' }'));
+            if (!header.descr || header.descr.length < 2) {
+                throw new numpy.Error("Missing property 'descr'.");
+            }
+            if (!header.shape) {
+                throw new numpy.Error("Missing property 'shape'.");
+            }
+            const shape = header.shape;
+            const dtype = self.invoke('numpy.dtype', [ header.descr.substring(1) ]);
+            dtype.byteorder = header.descr[0];
+            let data = null;
+            switch (dtype.byteorder) {
+                case '|': {
+                    data = file.read();
+                    break;
+                }
+                case '>':
+                case '<': {
+                    if (header.descr.length !== 3) {
+                        throw new numpy.Error("Unsupported data type '" + header.descr + "'.");
+                    }
+                    const count = shape.length === 0 ? 1 : shape.reduce((a, b) => a * b, 1);
+                    data = file.read(dtype.itemsize * count);
+                    break;
+                }
+                default: {
+                    throw new numpy.Error("Unsupported data type '" + header.descr + "'.");
+                }
+            }
+            if (header.fortran_order) {
+                data = null;
+            }
+            return self.invoke('numpy.ndarray', [ shape, dtype, data ]);
+        });
+        this.registerFunction('numpy.save', function(file, arr) {
+            const descr = arr.dtype.str;
+            if (descr[0] !== '<' && descr[0] !== '>') {
+                throw new numpy.Error("Unknown byte order '" + descr + "'.");
+            }
+            if (descr.length !== 3 || (descr[1] !== 'f' && descr[1] !== 'i' && descr[1] !== 'u' && descr.substring(1) !== 'b1')) {
+                throw new numpy.Error("Unsupported data type '" + descr + "'.");
+            }
+            let shape = '';
+            switch (arr.shape.length) {
+                case 0: shape = '()'; break;
+                case 1: shape = '(' + arr.shape[0].toString() + ',)'; break;
+                default: shape = '(' + arr.shape.map((dimension) => dimension.toString()).join(', ') + ')'; break;
+            }
+            const properties = [
+                "'descr': '" + descr + "'",
+                "'fortran_order': False",
+                "'shape': " + shape
+            ];
+            let header = '{ ' + properties.join(', ') + ' }';
+            header += ' '.repeat(64 - ((header.length + 2 + 8 + 1) & 0x3f)) + '\n';
+            const encoder = new TextEncoder('ascii');
+            file.write([ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59, 0x01, 0x00 ]); // '\\x93NUMPY' + version
+            file.write([ header.length & 0xff, (header.length >> 8) & 0xff ]);
+            file.write(encoder.encode(header));
+            file.write(arr.tobytes());
+        });
+        this.registerFunction('numpy.asarray', function(a, dtype) {
+            const encode = (context, data, dim) => {
+                const size = context.shape[dim];
+                const littleendian = context.littleendian;
+                if (dim == context.shape.length - 1) {
+                    for (let i = 0; i < size; i++) {
+                        switch (context.dtype) {
+                            case 'f2':
+                                context.view.setFloat16(context.position, data[i], littleendian);
+                                break;
+                            case 'f4':
+                                context.view.setFloat32(context.position, data[i], littleendian);
+                                break;
+                            case 'f8':
+                                context.view.setFloat64(context.position, data[i], littleendian);
+                                break;
+                            case 'i1':
+                                context.view.setInt8(context.position, data[i], littleendian);
+                                break;
+                            case 'i2':
+                                context.view.setInt16(context.position, data[i], littleendian);
+                                break;
+                            case 'i4':
+                                context.view.setInt32(context.position, data[i], littleendian);
+                                break;
+                            case 'i8':
+                                context.view.setInt64(context.position, data[i], littleendian);
+                                break;
+                            case 'u1':
+                                context.view.setUint8(context.position, data[i], littleendian);
+                                break;
+                            case 'u2':
+                                context.view.setUint16(context.position, data[i], littleendian);
+                                break;
+                            case 'u4':
+                                context.view.setUint32(context.position, data[i], littleendian);
+                                break;
+                            case 'u8':
+                                context.view.setUint64(context.position, data[i], littleendian);
+                                break;
+                        }
+                        context.position += context.itemsize;
+                    }
+                }
+                else {
+                    for (let j = 0; j < size; j++) {
+                        encode(context, data[j], dim + 1);
+                    }
+                }
+            };
+            const array_size = (value) => {
+                if (value.every((item) => Array.isArray(item))) {
+                    const dims = value.map((item) => array_size(item));
+                    const dim = dims[0];
+                    for (let i = 1; i < dims.length; i++) {
+                        if (dim.length === dims[i].length) {
+                            if (!dims[i].every((value, i) => value ===dim[i])) {
+                                throw new python.Error('Invalid array shape.');
+                            }
+                        }
+                    }
+                    return [ value.length ].concat(dim);
+                }
+                return [ value.length ];
+            };
+            const shape = Array.isArray(a) ? array_size(a) : [];
+            const size = dtype.itemsize * shape.reduce((a, b) => a * b, 1);
+            const context = {
+                position: 0,
+                itemsize: dtype.itemsize,
+                dtype: dtype.str.substring(1),
+                littleendian: dtype.str[0],
+                shape: shape,
+                data: new Uint8Array(size)
+            };
+            context.view = new DataView(context.data.buffer, context.data.byteOffset, size);
+            encode(context, a, 0);
+            return self.invoke('numpy.ndarray', [ shape, dtype, context.data ]);
+
         });
         this.registerFunction('numpy.ma.core._mareconstruct', function(subtype, baseclass, baseshape, basetype) {
             const data = self.invoke(baseclass, [ baseshape, basetype ]);
@@ -2441,7 +2787,6 @@ python.Execution = class {
                 }
                 const obj = {};
                 obj.__proto__ = target;
-                obj.__class__ = target;
                 if (obj.__init__ && typeof obj.__init__ === 'function') {
                     obj.__init__.apply(obj, args);
                 }
@@ -2578,7 +2923,7 @@ python.Execution = class {
                 break;
             }
             case 'var': {
-                context.set(statement.name, undefined);
+                context.set(statement.name, statement.initializer ? this.expression(statement.initializer, context) : undefined);
                 break;
             }
             case '=': {
@@ -2677,7 +3022,9 @@ python.Execution = class {
                     return;
                 }
                 else if (target.type === 'tuple') {
+                    context.target.push(target.value);
                     const value = this.expression(expression.expression, context);
+                    context.target.pop();
                     if  (target.value.every((item) => item.type === 'id')) {
                         if (target.value.length < value.length) {
                             throw new python.Error('ValueError: too many values to unpack (expected ' + target.value.length + ', actual ' + value.length + ').');
@@ -2942,6 +3289,11 @@ python.Execution.Context = class {
         }
         return undefined;
     }
+
+    get target() {
+        this._target = this._target || [];
+        return this._target;
+    }
 };
 
 python.Utility = class {
@@ -3124,6 +3476,12 @@ python.Unpickler = class {
                     }
                     break;
                 }
+                case OpCode.FROZENSET: {
+                    const items = stack;
+                    stack = marker.pop();
+                    stack.push(items);
+                    break;
+                }
                 case OpCode.DICT: {
                     const items = stack;
                     stack = marker.pop();
@@ -3296,7 +3654,7 @@ python.Unpickler = class {
                 case OpCode.STOP:
                     return stack.pop();
                 default:
-                    throw new python.Error("Unknown opcode '" + opcode + "'.");
+                    throw new python.Error('Unknown opcode ' + opcode + ' at position ' + (reader.position - 1).toString() + '.');
             }
         }
         throw new python.Error('Unexpected end of file.');

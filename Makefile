@@ -21,12 +21,14 @@ update: install
 	@./tools/armnn sync schema
 	@./tools/bigdl sync schema
 	@./tools/caffe sync schema
+	@./tools/circle sync schema metadata
 	@./tools/cntk sync schema
 	@./tools/coreml sync schema
 	@./tools/dnn schema
 	@./tools/mnn sync schema
 	@./tools/mslite sync schema metadata
 	@./tools/onnx sync install schema metadata
+	@./tools/om schema
 	@./tools/paddle sync schema
 	@./tools/pytorch sync install schema metadata
 	@./tools/sklearn sync install metadata
@@ -36,7 +38,7 @@ update: install
 
 build_python: install
 	python -m pip install --user wheel
-	python ./setup.py build --version bdist_wheel
+	python ./publish/setup.py build --version bdist_wheel
 
 install_python: build_python
 	pip install --force-reinstall --quiet dist/dist/*.whl
@@ -84,7 +86,6 @@ build_web:
 	cp -R ./source/*.ico ./dist/web
 	cp -R ./source/*.png ./dist/web
 	rm -rf ./dist/web/electron.* ./dist/web/app.js
-	cp -R ./node_modules/dagre/dist/dagre.js ./dist/web
 	sed -i "s/0\.0\.0/$$(grep '"version":' package.json -m1 | cut -d\" -f4)/g" ./dist/web/index.html
 
 publish_web: build_web
@@ -106,8 +107,6 @@ publish_cask:
 	git -C ./dist/homebrew-cask push
 	curl -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/Homebrew/homebrew-cask/pulls -d "{\"title\":\"Update $$(node -pe "require('./package.json').name") to $$(node -pe "require('./package.json').version")\",\"base\":\"master\",\"head\":\"$(GITHUB_USER):master\",\"body\":\"\"}" 2>&1 > /dev/null
 	rm -rf ./dist/homebrew-cask
-	sleep 4
-	curl -s -H "Authorization: token $(GITHUB_TOKEN)" -X "DELETE" https://api.github.com/repos/$(GITHUB_USER)/homebrew-cask # 2>&1 > /dev/null
 
 publish_winget:
 	curl -s -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/microsoft/winget-pkgs/forks -d '' 2>&1 > /dev/null
@@ -120,8 +119,6 @@ publish_winget:
 	git -C ./dist/winget-pkgs push
 	curl -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/microsoft/winget-pkgs/pulls -d "{\"title\":\"Update $$(node -pe "require('./package.json').productName") to $$(node -pe "require('./package.json').version")\",\"base\":\"master\",\"head\":\"$(GITHUB_USER):master\",\"body\":\"\"}" 2>&1 > /dev/null
 	rm -rf ./dist/winget-pkgs
-	sleep 4
-	curl -s -H "Authorization: token $(GITHUB_TOKEN)" -X "DELETE" https://api.github.com/repos/$(GITHUB_USER)/winget-pkgs # 2>&1 > /dev/null
 
 version:
 	node ./publish/version.js ./package.json

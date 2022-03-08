@@ -1,5 +1,4 @@
 
-
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
@@ -83,12 +82,6 @@ get(location).then((data) => {
         '  desc "' + description + '"',
         '  homepage "' + repository + '"',
         '',
-        '  livecheck do',
-        '    url :url',
-        '    strategy :git',
-        '    regex(/^v(\\d+(?:\\.\\d+)*)$/)',
-        '  end',
-        '',
         '  auto_updates true',
         '',
         '  app "' + productName + '.app"',
@@ -96,5 +89,7 @@ get(location).then((data) => {
         ''
     ].join('\n'));
 }).catch((err) => {
+    /* eslint-disable */
     console.log(err.message);
+    /* eslint-enable */
 });

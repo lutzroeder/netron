@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: "Netron, Visualizer for neural network, deep learning, and machine learning models"
+authors:
+- family-names: "Roeder"
+  given-names: "Lutz"
+  orcid: "https://orcid.org/0000-0003-4994-7839"
+doi: 10.5281/zenodo.5854962
+date-released: 2017-12-04
+message: "If you use Netron in your research, please cite it using these metadata."
+url: "https://github.com/lutzroeder/netron"

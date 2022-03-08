@@ -1,0 +1,2950 @@
+[
+  {
+    "name": "Acos",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Acosh",
+    "category": "Activation",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Activation",
+    "category": "Activation",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "mode", "type": "Enum", "enum": [   "Sigmoid",   "ReLU",   "Tanh",   "Clipped ReLU",   "ELU",   "PReLU",   "Abs",   "Relu1",   "Softsign",   "Softplus",   "Hardsigmoid",   "Threshold ReLU",   "Selu",   "Linear",   "Relu6",   "GeLU" ] },
+      { "name": "coef" },
+      { "name": "negative_slope" }
+    ]
+  },
+  {
+    "name": "ReLU",
+    "category": "Activation"
+  },
+  {
+    "name": "Add",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "ArgMax",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "keep_dims" },
+      { "name": "axis" },
+      { "name": "output_type" },
+      { "name": "outmaxval" },
+      { "name": "topk" }
+    ]
+  },
+  {
+    "name": "ArgMaxExt2",
+    "inputs": [
+      { "name": "x" },
+      { "name": "axis" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "output_type" },
+      { "name": "keep_dims" },
+      { "name": "outmaxval" },
+      { "name": "topk" }
+    ]
+  },
+  {
+    "name": "ArgMin",
+    "inputs": [
+      { "name": "x" },
+      { "name": "axis" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Asin",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Asinh",
+    "category": "Activation",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Atan",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Atanh",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "AxisAlignedBboxTransform",
+    "inputs": [
+      { "name": "roi" },
+      { "name": "bbox_deltas" },
+      { "name": "batch_split" },
+      { "name": "im_info" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "BatchMatMul",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "adj_x1" },
+      { "name": "adj_x2" }
+    ]
+  },
+  {
+    "name": "BatchNorm",
+    "category": "Normalization",
+    "inputs": [
+      { "name": "x" },
+      { "name": "scale" },
+      { "name": "b" },
+      { "name": "mean" },
+      { "name": "variance" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "momentum" },
+      { "name": "epsilon" },
+      { "name": "mode" },
+      { "name": "use_global_stats" }
+    ]
+  },
+  {
+    "name": "BatchNormExt2",
+    "inputs": [
+      { "name": "x" },
+      { "name": "scale" },
+      { "name": "offset" },
+      { "name": "mean" },
+      { "name": "variance" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "momentum" },
+      { "name": "epsilon" },
+      { "name": "mode" },
+      { "name": "use_global_stats" }
+    ]
+  },
+  {
+    "name": "BatchReindex",
+    "inputs": [
+      { "name": "x" },
+      { "name": "reindex" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "BatchToSpaceND",
+    "inputs": [
+      { "name": "x" },
+      { "name": "block_shape" },
+      { "name": "crops" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Bias",
+    "inputs": [
+      { "name": "x" },
+      { "name": "bias" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "axis" }
+    ]
+  },
+  {
+    "name": "BiasAdd",
+    "category": "Layer",
+    "inputs": [
+      { "name": "x" },
+      { "name": "bias" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "data_format" }
+    ]
+  },
+  {
+    "name": "BidirectionLSTM",
+    "inputs": [
+      { "name": "x" },
+      { "name": "seq_len" },
+      { "name": "w_fw" },
+      { "name": "w_bw" },
+      { "name": "c_0_fw" },
+      { "name": "h_0_fw" },
+      { "name": "c_0_bw" },
+      { "name": "h_0_bw" }
+    ],
+    "outputs": [
+      { "name": "y_fw" },
+      { "name": "y_bw" },
+      { "name": "h_t_fw" },
+      { "name": "c_t_fw" },
+      { "name": "h_t_bw" },
+      { "name": "c_t_bw" }
+    ],
+    "attributes": [
+      { "name": "forget_bias" },
+      { "name": "num_layers" },
+      { "name": "activation" },
+      { "name": "cell_type" },
+      { "name": "state_is_tuple" }
+    ]
+  },
+  {
+    "name": "BNInference",
+    "inputs": [
+      { "name": "x" },
+      { "name": "mean" },
+      { "name": "variance" },
+      { "name": "scale" },
+      { "name": "offset" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "momentum" },
+      { "name": "epsilon" },
+      { "name": "mode" },
+      { "name": "use_global_stats" }
+    ]
+  },
+  {
+    "name": "BNLL",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "BroadcastTo",
+    "inputs": [
+      { "name": "x" },
+      { "name": "shape" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Cast",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "SrcT" },
+      { "name": "DstT" }
+    ]
+  },
+  {
+    "name": "CastT",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "src_dtype" },
+      { "name": "dst_dtype" }
+    ]
+  },
+  {
+    "name": "Ceil",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "ChannelAxpy",
+    "inputs": [
+      { "name": "a" },
+      { "name": "x" },
+      { "name": "y" }
+    ],
+    "outputs": [
+      { "name": "z" }
+    ]
+  },
+  {
+    "name": "ChannelShuffle",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "axis" },
+      { "name": "num_group" }
+    ]
+  },
+  {
+    "name": "Clip",
+    "inputs": [
+      { "name": "x" },
+      { "name": "clip_value_min" },
+      { "name": "clip_value_max" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Clipboxes",
+    "inputs": [
+      { "name": "x" },
+      { "name": "im_info" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "ClipByValue",
+    "inputs": [
+      { "name": "x" },
+      { "name": "clip_value_min" },
+      { "name": "clip_value_max" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Concat",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "ConcatD",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Const",
+    "category": "Constant",
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "Conv2D",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "DepthwiseConv2D",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Convolution",
+    "category": "Layer",
+    "inputs": [
+      { "name": "x" },
+      { "name": "filter" },
+      { "name": "bias" },
+      { "name": "offset_w" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "strides" },
+      { "name": "dilations" },
+      { "name": "pads" },
+      { "name": "pad_mode", "type": "Padding" },
+      { "name": "groups" },
+      { "name": "data_format" },
+      { "name": "offset_x" },
+      { "name": "mode", "type": "Enum", "enum": [   "Convolution",   "Cross Correlation",   "Deconvolution",   "Depthwise" ] },
+      { "name": "algo", "type": "Enum", "enum": [   "GEMM",   "Winograd",   "GEMM_ACCU_Float32" ] }
+    ]
+  },
+  {
+    "name": "ConvolutionDepthwise",
+    "category": "Layer",
+    "inputs": [
+      { "name": "x" },
+      { "name": "filter" },
+      { "name": "bias" },
+      { "name": "offset_w" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "strides" },
+      { "name": "dilations" },
+      { "name": "pads" },
+      { "name": "pad_mode", "type": "Padding" },
+      { "name": "data_format" },
+      { "name": "offset_x" }
+    ]
+  },
+  {
+    "name": "ConvTranspose",
+    "category": "Layer",
+    "inputs": [
+      { "name": "output_shape" },
+      { "name": "filter" },
+      { "name": "x" },
+      { "name": "bias" },
+      { "name": "offset_w" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "strides" },
+      { "name": "pads" },
+      { "name": "pad_mode", "type": "Padding" },
+      { "name": "dilations" },
+      { "name": "groups" },
+      { "name": "data_format" },
+      { "name": "offset_x" }
+    ]
+  },
+  {
+    "name": "Copy",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Cos",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Cosh",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Crop",
+    "inputs": [
+      { "name": "x" },
+      { "name": "size" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "axis" },
+      { "name": "offsets" }
+    ]
+  },
+  {
+    "name": "CropAndResize",
+    "inputs": [
+      { "name": "x" },
+      { "name": "boxes" },
+      { "name": "box_index" },
+      { "name": "crop_size" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "extrapolation_value" },
+      { "name": "method" }
+    ]
+  },
+  {
+    "name": "Cumprod",
+    "inputs": [
+      { "name": "x" },
+      { "name": "axis" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "exclusive" },
+      { "name": "reverse" }
+    ]
+  },
+  {
+    "name": "Cumsum",
+    "inputs": [
+      { "name": "x" },
+      { "name": "axis" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "exclusive" },
+      { "name": "reverse" }
+    ]
+  },
+  {
+    "name": "Data",
+    "category": "Data",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "index" }
+    ]
+  },
+  {
+    "name": "DecodeBBox",
+    "inputs": [
+      { "name": "box_predictions" },
+      { "name": "anchors" }
+    ],
+    "outputs": [
+      { "name": "decoded_boxes" }
+    ],
+    "attributes": [
+      { "name": "decode_clip" }
+    ]
+  },
+  {
+    "name": "Deconvolution",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input_sizes" },
+      { "name": "filter" },
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "group" },
+      { "name": "num_output" },
+      { "name": "pad" },
+      { "name": "stride" },
+      { "name": "dilation" },
+      { "name": "pad_mode", "type": "Padding" },
+      { "name": "Padding" },
+      { "name": "bias_term" },
+      { "name": "kernel" }
+    ]
+  },
+  {
+    "name": "DepthToSpace",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "block_size" },
+      { "name": "mode" },
+      { "name": "data_format" }
+    ]
+  },
+  {
+    "name": "Dequantize",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "x" },
+      { "name": "min_range" },
+      { "name": "max_range" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "mode" }
+    ]
+  },
+  {
+    "name": "DetectionPostprocessing",
+    "inputs": [
+      { "name": "score" },
+      { "name": "bbox_delta" },
+      { "name": "anchors" }
+    ],
+    "outputs": [
+      { "name": "detect_scores" },
+      { "name": "rois" },
+      { "name": "detect_class" },
+      { "name": "actual_rois_num" }
+    ]
+  },
+  {
+    "name": "DynamicImageData",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "max_src_image_size" },
+      { "name": "image_type" }
+    ]
+  },
+  {
+    "name": "Eltwise",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "N" },
+      { "name": "mode", "type": "Enum", "enum": [ "Product", "Sum", "Max" ] },
+      { "name": "coeff" }
+    ]
+  },
+  {
+    "name": "Equal",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Erf",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Exp",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "base" },
+      { "name": "scale" },
+      { "name": "shift" }
+    ]
+  },
+  {
+    "name": "ExpandDims",
+    "inputs": [
+      { "name": "x" },
+      { "name": "axis" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Expm1",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "ExtractImagePatches",
+    "inputs": [
+      { "name": "images" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "ksizes" },
+      { "name": "strides" },
+      { "name": "rates" },
+      { "name": "padding" }
+    ]
+  },
+  {
+    "name": "FakeQuantWithMinMaxVars",
+    "inputs": [
+      { "name": "x" },
+      { "name": "min" },
+      { "name": "max" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "num_bits" },
+      { "name": "narrow_range" }
+    ]
+  },
+  {
+    "name": "FakeQuantWithMinMaxVarsPerChannel",
+    "inputs": [
+      { "name": "x" },
+      { "name": "min" },
+      { "name": "max" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "num_bits" },
+      { "name": "narrow_range" }
+    ]
+  },
+  {
+    "name": "Fill",
+    "inputs": [
+      { "name": "dims" },
+      { "name": "value" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Flatten",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "FlattenV2",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "axis" },
+      { "name": "end_axis" }
+    ]
+  },
+  {
+    "name": "Floor",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "FloorDiv",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "FloorMod",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "FractionalPooling",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" },
+      { "name": "row_pooling_sequence" },
+      { "name": "col_pooling_sequence" }
+    ],
+    "attributes": [
+      { "name": "mode" },
+      { "name": "pooling_ratio" },
+      { "name": "pseudo_random" },
+      { "name": "overlapping" },
+      { "name": "deterministic" },
+      { "name": "seed" },
+      { "name": "seed2" }
+    ]
+  },
+  {
+    "name": "FSRDetectionOutput",
+    "inputs": [
+      { "name": "rois" },
+      { "name": "bbox_delta" },
+      { "name": "score" },
+      { "name": "im_info" },
+      { "name": "actual_rois_num" }
+    ],
+    "outputs": [
+      { "name": "actual_bbox_num" },
+      { "name": "box" }
+    ],
+    "attributes": [
+      { "name": "num_classes" },
+      { "name": "score_threshold" },
+      { "name": "iou_threshold" },
+      { "name": "batch_rois" }
+    ]
+  },
+  {
+    "name": "FullConnection",
+    "category": "Layer",
+    "inputs": [
+      { "name": "x" },
+      { "name": "w" },
+      { "name": "b" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "num_output" }
+    ]
+  },
+  {
+    "name": "FullyConnection",
+    "category": "Layer",
+    "inputs": [
+      { "name": "X" },
+      { "name": "W" },
+      { "name": "B" },
+      { "name": "offset_w" }
+    ],
+    "outputs": [
+      { "name": "Y" }
+    ]
+  },
+  {
+    "name": "Gather",
+    "inputs": [
+      { "name": "params" },
+      { "name": "indices" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "axis" }
+    ]
+  },
+  {
+    "name": "GatherNd",
+    "inputs": [
+      { "name": "x" },
+      { "name": "indices" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "GatherV2D",
+    "inputs": [
+      { "name": "x" },
+      { "name": "indices" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "axis" }
+    ]
+  },
+  {
+    "name": "GemmD",
+    "inputs": [
+      { "name": "a" },
+      { "name": "b" },
+      { "name": "c" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "alpha" },
+      { "name": "beta" },
+      { "name": "transpose_a" },
+      { "name": "transpose_b" }
+    ]
+  },
+  {
+    "name": "GraphOp",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Greater",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "GreaterEqual",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "HardSwish",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "HeatmapMaxKeypoint",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y1" },
+      { "name": "y2" }
+    ]
+  },
+  {
+    "name": "ImageChannelSwap",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "rbuv_swap_switch" },
+      { "name": "ax_swap_switch" }
+    ]
+  },
+  {
+    "name": "ImageColorSpaceConvertion",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "target_format" }
+    ]
+  },
+  {
+    "name": "ImageCrop",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "load_start_pos_h" },
+      { "name": "load_start_pos_w" },
+      { "name": "crop_size_h" },
+      { "name": "crop_size_w" }
+    ]
+  },
+  {
+    "name": "ImageData",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "input_format" },
+      { "name": "src_image_size_w" },
+      { "name": "src_image_size_h" },
+      { "name": "image_type" }
+    ]
+  },
+  {
+    "name": "ImageDataTypeConversion",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "mean_chn_0" },
+      { "name": "mean_chn_1" },
+      { "name": "mean_chn_2" },
+      { "name": "mean_chn_3" },
+      { "name": "min_chn_0" },
+      { "name": "min_chn_1" },
+      { "name": "min_chn_2" },
+      { "name": "min_chn_3" },
+      { "name": "var_reci_chn_0" },
+      { "name": "var_reci_chn_1" },
+      { "name": "var_reci_chn_2" },
+      { "name": "var_reci_chn_3" }
+    ]
+  },
+  {
+    "name": "ImagePadding",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "left_padding_size" },
+      { "name": "right_padding_size" },
+      { "name": "top_padding_size" },
+      { "name": "bottom_padding_size" }
+    ]
+  },
+  {
+    "name": "ImageResize",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "resize_output_h" },
+      { "name": "resize_output_w" }
+    ]
+  },
+  {
+    "name": "ImageRotation",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "rotation_angle" }
+    ]
+  },
+  {
+    "name": "InstanceNorm",
+    "inputs": [
+      { "name": "x" },
+      { "name": "gamma" },
+      { "name": "beta" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "data_format" },
+      { "name": "epsilon" }
+    ]
+  },
+  {
+    "name": "Interp",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "InvertPermutation",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "L2Normalize",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "axis" },
+      { "name": "eps" }
+    ]
+  },
+  {
+    "name": "LayerNorm",
+    "category": "Normalization",
+    "inputs": [
+      { "name": "x" },
+      { "name": "gamma" },
+      { "name": "beta" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "begin_norm_axis" },
+      { "name": "begin_params_axis" },
+      { "name": "epsilon" }
+    ]
+  },
+  {
+    "name": "Less",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "LessEqual",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Log",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Log1p",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "LogicalAnd",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "LogicalNot",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "LogicalOr",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "LogicalXor",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "LogSoftmax",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "axis" }
+    ]
+  },
+  {
+    "name": "LRN",
+    "category": "Normalization",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "depth_radius" },
+      { "name": "bias" },
+      { "name": "alpha" },
+      { "name": "beta" },
+      { "name": "norm_region" }
+    ]
+  },
+  {
+    "name": "LSTM",
+    "inputs": [
+      { "name": "x" },
+      { "name": "cont" },
+      { "name": "w_x" },
+      { "name": "bias" },
+      { "name": "w_h" },
+      { "name": "x_static" },
+      { "name": "h_0" },
+      { "name": "c_0" },
+      { "name": "w_x_static" }
+    ],
+    "outputs": [
+      { "name": "h" },
+      { "name": "h_t" },
+      { "name": "c_t" }
+    ],
+    "attributes": [
+      { "name": "expose_hidden" }
+    ]
+  },
+  {
+    "name": "MatMul",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" },
+      { "name": "bias" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "transpose_x1" },
+      { "name": "transpose_x2" }
+    ]
+  },
+  {
+    "name": "Maximum",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "MaxPool",
+    "category": "Pool",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Minimum",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "MirrorPad",
+    "inputs": [
+      { "name": "x" },
+      { "name": "paddings" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "mode" }
+    ]
+  },
+  {
+    "name": "Mish",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "MsrGenerateRpnProposals",
+    "inputs": [
+      { "name": "scores" },
+      { "name": "boxes" },
+      { "name": "img_shape" }
+    ],
+    "outputs": [
+      { "name": "proposal_scores" },
+      { "name": "proposal_boxes" },
+      { "name": "proposal_num" }
+    ],
+    "attributes": [
+      { "name": "pre_nms_topk" },
+      { "name": "post_nums_topk" },
+      { "name": "rpn_mini_size" },
+      { "name": "rpn_proposal_nms_thresh" }
+    ]
+  },
+  {
+    "name": "Mul",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Multinomial",
+    "inputs": [
+      { "name": "x" },
+      { "name": "num_samples" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "seed" },
+      { "name": "seed2" }
+    ]
+  },
+  {
+    "name": "MVN",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "normalizeVariance" },
+      { "name": "acrossChannel" }
+    ]
+  },
+  {
+    "name": "Neg",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "NetOutput",
+    "category": "Data",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "NonMaxSuppression",
+    "inputs": [
+      { "name": "boxes" },
+      { "name": "scores" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "max_output_size" },
+      { "name": "iou_threshold" },
+      { "name": "score_threshold" }
+    ]
+  },
+  {
+    "name": "NonMaxSuppressionV3D",
+    "inputs": [
+      { "name": "boxes" },
+      { "name": "scores" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "max_output_size" },
+      { "name": "iou_threshold" },
+      { "name": "score_threshold" }
+    ]
+  },
+  {
+    "name": "NonMaxSuppressionV6",
+    "inputs": [
+      { "name": "boxes" },
+      { "name": "scores" },
+      { "name": "max_output_boxes_per_class" },
+      { "name": "iou_threshold" },
+      { "name": "score_threshold" }
+    ],
+    "outputs": [
+      { "name": "selected_indices" }
+    ],
+    "attributes": [
+      { "name": "center_point_box" }
+    ]
+  },
+  {
+    "name": "Normalize",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "across_spatial" },
+      { "name": "channel_shared" },
+      { "name": "eps" }
+    ]
+  },
+  {
+    "name": "NotEqual",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "OneHot",
+    "inputs": [
+      { "name": "x" },
+      { "name": "depth" },
+      { "name": "on_value" },
+      { "name": "off_value" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "axis" }
+    ]
+  },
+  {
+    "name": "Pack",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "axis" },
+      { "name": "N" }
+    ]
+  },
+  {
+    "name": "Pad",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "x" },
+      { "name": "paddings" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "PadV2",
+    "inputs": [
+      { "name": "x" },
+      { "name": "paddings" },
+      { "name": "constant_values" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Permute",
+    "category": "Shape",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Pooling",
+    "category": "Pool",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "mode" },
+      { "name": "pad_mode", "type": "Padding" },
+      { "name": "global_pooling" },
+      { "name": "window" },
+      { "name": "pad" },
+      { "name": "stride" },
+      { "name": "ceil_mode" },
+      { "name": "data_mode" }
+    ]
+  },
+  {
+    "name": "PoolingD",
+    "category": "Pool",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "mode" },
+      { "name": "pad_mode", "type": "Padding" },
+      { "name": "global_pooling" },
+      { "name": "window" },
+      { "name": "pad" },
+      { "name": "stride" },
+      { "name": "ceil_mode" },
+      { "name": "data_mode" }
+    ]
+  },
+  {
+    "name": "Pow",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Power",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "scale" },
+      { "name": "shift" },
+      { "name": "power" }
+    ]
+  },
+  {
+    "name": "PRelu",
+    "inputs": [
+      { "name": "x" },
+      { "name": "weight" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "PReLU",
+    "category": "Activation",
+    "inputs": [
+      { "name": "x" },
+      { "name": "param" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "PriorBox",
+    "inputs": [
+      { "name": "x" },
+      { "name": "img" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Proposal",
+    "inputs": [
+      { "name": "cls_prob" },
+      { "name": "bbox_pred" },
+      { "name": "im_info" }
+    ],
+    "outputs": [
+      { "name": "rois" }
+    ],
+    "attributes": [
+      { "name": "feat_stride" },
+      { "name": "base_size" },
+      { "name": "min_size" },
+      { "name": "ratio" },
+      { "name": "scale" },
+      { "name": "pre_nms_topn" },
+      { "name": "post_nms_topn" },
+      { "name": "nms_thresh" }
+    ]
+  },
+  {
+    "name": "PSROIPooling",
+    "inputs": [
+      { "name": "x" },
+      { "name": "rois" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "spatial_scale" },
+      { "name": "output_dim" },
+      { "name": "group_size" }
+    ]
+  },
+  {
+    "name": "Quantize",
+    "inputs": [
+      { "name": "x" },
+      { "name": "min_range" },
+      { "name": "max_range" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "mode" }
+    ]
+  },
+  {
+    "name": "QuantizedConvolution",
+    "inputs": [
+      { "name": "x" },
+      { "name": "filter" },
+      { "name": "bias" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "strides" },
+      { "name": "dilations" },
+      { "name": "pads" },
+      { "name": "pad_mode", "type": "Padding" },
+      { "name": "groups" },
+      { "name": "data_format" },
+      { "name": "x_quant_type" },
+      { "name": "filter_quant_type" },
+      { "name": "x_quant_scale" },
+      { "name": "x_quant_offset" },
+      { "name": "filter_quant_scales" }
+    ]
+  },
+  {
+    "name": "QuantizedConvolutionDepthwise",
+    "category": "Layer",
+    "inputs": [
+      { "name": "x" },
+      { "name": "filter" },
+      { "name": "bias" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "strides" },
+      { "name": "dilations" },
+      { "name": "pads" },
+      { "name": "pad_mode", "type": "Padding" },
+      { "name": "data_format" },
+      { "name": "x_quant_type" },
+      { "name": "filter_quant_type" },
+      { "name": "x_quant_scale" },
+      { "name": "x_quant_offset" },
+      { "name": "filter_quant_scales" }
+    ]
+  },
+  {
+    "name": "QuantizedFullConnection",
+    "inputs": [
+      { "name": "x" },
+      { "name": "filter" },
+      { "name": "bias" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "num_output" },
+      { "name": "x_quant_type" },
+      { "name": "filter_quant_type" },
+      { "name": "x_quant_scale" },
+      { "name": "x_quant_offset" },
+      { "name": "filter_quant_scales" }
+    ]
+  },
+  {
+    "name": "QuantizedFullyConnection",
+    "inputs": [
+      { "name": "x" },
+      { "name": "w" },
+      { "name": "b" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "num_output" },
+      { "name": "transpose" },
+      { "name": "axis" },
+      { "name": "x_quant_type" },
+      { "name": "w_quant_type" },
+      { "name": "x_quant_scale" },
+      { "name": "x_quant_offset" },
+      { "name": "w_quant_scales" }
+    ]
+  },
+  {
+    "name": "QuantizedMatMul",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" },
+      { "name": "bias" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "transpose_x1" },
+      { "name": "transpose_x2" },
+      { "name": "x1_quant_type" },
+      { "name": "x2_quant_type" },
+      { "name": "x1_quant_scale" },
+      { "name": "x1_quant_offset" },
+      { "name": "x2_quant_scales" }
+    ]
+  },
+  {
+    "name": "RandomNormal",
+    "inputs": [
+      { "name": "shape" },
+      { "name": "mean" },
+      { "name": "stddev" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "RandomNormalNoSeed",
+    "inputs": [
+      { "name": "shape" },
+      { "name": "mean" },
+      { "name": "stddev" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "RandomShuffle",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "RandomShuffleNoSeed",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "RandomUniform",
+    "inputs": [
+      { "name": "shape" },
+      { "name": "minval" },
+      { "name": "maxval" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "RandomUniformInt",
+    "inputs": [
+      { "name": "shape" },
+      { "name": "minval" },
+      { "name": "maxval" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "RandomUniformNoSeed",
+    "inputs": [
+      { "name": "shape" },
+      { "name": "minval" },
+      { "name": "maxval" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Range",
+    "inputs": [
+      { "name": "start" },
+      { "name": "limit" },
+      { "name": "delta" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Rank",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "RealDiv",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Reciprocal",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "ReduceAll",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ],
+    "attributes": [
+      { "name": "axes" },
+      { "name": "keep_dims" }
+    ]
+  },
+  {
+    "name": "ReduceAllD",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "axes" },
+      { "name": "keep_dims" }
+    ]
+  },
+  {
+    "name": "ReduceAny",
+    "inputs": [
+      { "name": "x" },
+      { "name": "axes" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "keep_dims" }
+    ]
+  },
+  {
+    "name": "ReduceL2D",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "axes" },
+      { "name": "keep_dims" }
+    ]
+  },
+  {
+    "name": "ReduceLogSumExp",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "axes" },
+      { "name": "keep_dims" }
+    ]
+  },
+  {
+    "name": "ReduceMax",
+    "inputs": [
+      { "name": "x" },
+      { "name": "axes" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "keep_dims" }
+    ]
+  },
+  {
+    "name": "ReduceMean",
+    "inputs": [
+      { "name": "x" },
+      { "name": "axes" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "keep_dims" }
+    ]
+  },
+  {
+    "name": "ReduceMin",
+    "inputs": [
+      { "name": "x" },
+      { "name": "axes" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "keep_dims" }
+    ]
+  },
+  {
+    "name": "ReduceProd",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "keep_dims" },
+      { "name": "axes" }
+    ]
+  },
+  {
+    "name": "ReduceProdD",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "axes" },
+      { "name": "keep_dims" }
+    ]
+  },
+  {
+    "name": "ReduceSum",
+    "inputs": [
+      { "name": "x" },
+      { "name": "axes" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "keep_dims" }
+    ]
+  },
+  {
+    "name": "Reduction",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "operation" },
+      { "name": "axis" },
+      { "name": "coeff" }
+    ]
+  },
+  {
+    "name": "Reshape",
+    "category": "Shape",
+    "inputs": [
+      { "name": "x" },
+      { "name": "shape" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "ResizeBilinear",
+    "inputs": [
+      { "name": "x" },
+      { "name": "size" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "align_corners" }
+    ]
+  },
+  {
+    "name": "ResizeBilinearV2",
+    "inputs": [
+      { "name": "x" },
+      { "name": "size" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "align_corners" },
+      { "name": "half_pixel_centers" }
+    ]
+  },
+  {
+    "name": "ResizeNearestNeighbor",
+    "inputs": [
+      { "name": "x" },
+      { "name": "size" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "align_corners" }
+    ]
+  },
+  {
+    "name": "ResizeNearestNeighborV2",
+    "inputs": [
+      { "name": "x" },
+      { "name": "size" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "align_corners" },
+      { "name": "half_pixel_centers" }
+    ]
+  },
+  {
+    "name": "Reverse",
+    "inputs": [
+      { "name": "x" },
+      { "name": "axis" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "ReverseSequence",
+    "inputs": [
+      { "name": "x" },
+      { "name": "seq_lengths" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "seq_dim" },
+      { "name": "batch_dim" }
+    ]
+  },
+  {
+    "name": "Rint",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "ROIAlignV2",
+    "inputs": [
+      { "name": "features" },
+      { "name": "rois" },
+      { "name": "rois_n" },
+      { "name": "batch_indices" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "spatial_scale" },
+      { "name": "pooled_height" },
+      { "name": "pooled_width" },
+      { "name": "sample_num" },
+      { "name": "roi_end_mode" },
+      { "name": "mode" }
+    ]
+  },
+  {
+    "name": "ROIPooling",
+    "category": "Pool",
+    "inputs": [
+      { "name": "x" },
+      { "name": "rois" },
+      { "name": "roi_actual_num" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "pooled_h" },
+      { "name": "pooled_w" },
+      { "name": "spatial_scale_h" },
+      { "name": "spatial_scale_w" }
+    ]
+  },
+  {
+    "name": "Round",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Rsqrt",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Scale",
+    "category": "Layer",
+    "inputs": [
+      { "name": "x" },
+      { "name": "scale" },
+      { "name": "bias" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "axis" },
+      { "name": "num_axes" },
+      { "name": "scale_from_blob" }
+    ]
+  },
+  {
+    "name": "ScatterNd",
+    "inputs": [
+      { "name": "indices" },
+      { "name": "x" },
+      { "name": "shape" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "ScatterUpdate",
+    "inputs": [
+      { "name": "var" },
+      { "name": "indices" },
+      { "name": "updates" }
+    ],
+    "outputs": [
+      { "name": "var" }
+    ],
+    "attributes": [
+      { "name": "use_locking" },
+      { "name": "axis" }
+    ]
+  },
+  {
+    "name": "SegmentMax",
+    "inputs": [
+      { "name": "x" },
+      { "name": "segment_ids" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "SegmentMean",
+    "inputs": [
+      { "name": "x" },
+      { "name": "segment_ids" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "SegmentMin",
+    "inputs": [
+      { "name": "x" },
+      { "name": "segment_ids" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "SegmentProd",
+    "inputs": [
+      { "name": "x" },
+      { "name": "segment_ids" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "SegmentSum",
+    "inputs": [
+      { "name": "x" },
+      { "name": "segment_ids" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Select",
+    "inputs": [
+      { "name": "condition" },
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Shape",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "dtype" }
+    ]
+  },
+  {
+    "name": "ShuffleChannel",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "group" }
+    ]
+  },
+  {
+    "name": "ShuffleChannelV2",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "axis" },
+      { "name": "group" }
+    ]
+  },
+  {
+    "name": "Sign",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Sin",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Sinh",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Size",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "dtype" }
+    ]
+  },
+  {
+    "name": "Slice",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "x" },
+      { "name": "offsets" },
+      { "name": "size" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Softmax",
+    "category": "Activation",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "SoftmaxV2",
+    "category": "Activation",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "SpaceToBatchND",
+    "inputs": [
+      { "name": "x" },
+      { "name": "block_shape" },
+      { "name": "paddings" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "SpaceToDepth",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "block_size" },
+      { "name": "data_format" }
+    ]
+  },
+  {
+    "name": "SparseToDense",
+    "inputs": [
+      { "name": "indices" },
+      { "name": "output_shape" },
+      { "name": "values" },
+      { "name": "default_value" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Split",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "axis" },
+      { "name": "output_num" },
+      { "name": "slice_point" },
+      { "name": "size_split" }
+    ]
+  },
+  {
+    "name": "SplitD",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "split_dim" },
+      { "name": "num_split" }
+    ]
+  },
+  {
+    "name": "SplitV",
+    "inputs": [
+      { "name": "x" },
+      { "name": "size_splits" },
+      { "name": "split_dim" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "num_split" }
+    ]
+  },
+  {
+    "name": "SPP",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "pyramidHeight" },
+      { "name": "poolingMode" }
+    ]
+  },
+  {
+    "name": "Sqrt",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Square",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "SquaredDifference",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Squeeze",
+    "category": "Shape",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "axis" }
+    ]
+  },
+  {
+    "name": "SSDDetectionOutput",
+    "inputs": [
+      { "name": "mbox_conf" },
+      { "name": "mbox_loc" },
+      { "name": "mbox_priorbox" }
+    ],
+    "outputs": [
+      { "name": "out_boxnum" },
+      { "name": "regionProposal" }
+    ],
+    "attributes": [
+      { "name": "num_classes" },
+      { "name": "shared_location" },
+      { "name": "background_label_id" },
+      { "name": "nms_threshold" },
+      { "name": "top_k" },
+      { "name": "eta" },
+      { "name": "variance_encoded_in_target" },
+      { "name": "code_type" },
+      { "name": "keep_top_k" },
+      { "name": "confidence_threshold" }
+    ]
+  },
+  {
+    "name": "StopGradient",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "StridedSlice",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "x" },
+      { "name": "begin" },
+      { "name": "end" },
+      { "name": "strides" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "begin_mask" },
+      { "name": "end_mask" },
+      { "name": "ellipsis_mask" },
+      { "name": "new_axis_mask" },
+      { "name": "shrink_axis_mask" }
+    ]
+  },
+  {
+    "name": "StridedSliceV2",
+    "inputs": [
+      { "name": "x" },
+      { "name": "begin" },
+      { "name": "end" },
+      { "name": "axes" },
+      { "name": "strides" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "begin_mask" },
+      { "name": "end_mask" },
+      { "name": "ellipsis_mask" },
+      { "name": "new_axis_mask" },
+      { "name": "shrink_axis_mask" }
+    ]
+  },
+  {
+    "name": "Sub",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "SVDF",
+    "inputs": [
+      { "name": "x" },
+      { "name": "weights_feature" },
+      { "name": "weights_time" },
+      { "name": "bias" },
+      { "name": "state_in" }
+    ],
+    "outputs": [
+      { "name": "state_out" },
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "rank" },
+      { "name": "use_bias" }
+    ]
+  },
+  {
+    "name": "Swish",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "scale" }
+    ]
+  },
+  {
+    "name": "Tan",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "TensorArray",
+    "inputs": [
+      { "name": "data" }
+    ],
+    "outputs": [
+      { "name": "handle" },
+      { "name": "flow" },
+      { "name": "memory" }
+    ]
+  },
+  {
+    "name": "TensorArrayGather",
+    "inputs": [
+      { "name": "handle" },
+      { "name": "indices" },
+      { "name": "flow_in" }
+    ],
+    "outputs": [
+      { "name": "flow" }
+    ]
+  },
+  {
+    "name": "TensorArrayScatter",
+    "inputs": [
+      { "name": "handle" },
+      { "name": "indices" },
+      { "name": "value" },
+      { "name": "flow_in" }
+    ],
+    "outputs": [
+      { "name": "flow" }
+    ]
+  },
+  {
+    "name": "Threshold",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "threshold" }
+    ]
+  },
+  {
+    "name": "Tile",
+    "inputs": [
+      { "name": "x" },
+      { "name": "multiples" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "TopK",
+    "inputs": [
+      { "name": "x" },
+      { "name": "k" }
+    ],
+    "outputs": [
+      { "name": "values" },
+      { "name": "indices" }
+    ],
+    "attributes": [
+      { "name": "sorted" }
+    ]
+  },
+  {
+    "name": "TransData",
+    "category": "Shape",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Transpose",
+    "category": "Shape",
+    "inputs": [
+      { "name": "x" },
+      { "name": "w" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "order" }
+    ]
+  },
+  {
+    "name": "TruncateDiv",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "TruncateMod",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Undefined",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Unpack",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "num" },
+      { "name": "axis" }
+    ]
+  },
+  {
+    "name": "UnsortedSegmentSum",
+    "inputs": [
+      { "name": "x" },
+      { "name": "segment_ids" },
+      { "name": "num_segments" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Upsample",
+    "category": "Data",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ],
+    "attributes": [
+      { "name": "stride_h" },
+      { "name": "stride_w" },
+      { "name": "scale" }
+    ]
+  },
+  {
+    "name": "Xlogy",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  }
+]

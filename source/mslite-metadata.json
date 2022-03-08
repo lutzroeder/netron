@@ -149,6 +149,13 @@
     ]
   },
   {
+    "name": "AllGather",
+    "attributes": [
+      { "name": "group", "type": "string", "default": null },
+      { "name": "rank_size", "type": "int32", "default": 0 }
+    ]
+  },
+  {
     "name": "ApplyMomentum",
     "attributes": [
       { "name": "gradientScale", "type": "float32", "default": 0 },
@@ -447,7 +454,10 @@
     ]
   },
   {
-    "name": "Call"
+    "name": "Call",
+    "attributes": [
+      { "name": "is_tail_call", "type": "boolean", "default": true }
+    ]
   },
   {
     "name": "Cast",
@@ -693,6 +703,7 @@
   },
   {
     "name": "Crop",
+    "category": "Data",
     "attributes": [
       { "name": "axis", "type": "int64", "default": 0 },
       { "name": "offsets", "type": "int64[]", "default": 0 }
@@ -992,6 +1003,13 @@
     "attributes": [
       { "name": "ratio", "type": "float32", "default": 0.5 },
       { "name": "keep_prob", "type": "float32", "default": 0 }
+    ]
+  },
+  {
+    "name": "DynamicQuant",
+    "attributes": [
+      { "name": "symmetric", "type": "boolean", "default": false },
+      { "name": "dst_type", "type": "int64", "default": 32 }
     ]
   },
   {
@@ -1368,7 +1386,8 @@
     ]
   },
   {
-    "name": "Identity"
+    "name": "Identity",
+    "category": "Control"
   },
   {
     "name": "If"
@@ -1681,6 +1700,34 @@
     ]
   },
   {
+    "name": "LSTMGradData",
+    "attributes": [
+      { "name": "bidirectional", "type": "boolean", "default": false },
+      { "name": "has_bias", "type": "boolean", "default": false },
+      { "name": "input_size", "type": "int64", "default": 0 },
+      { "name": "hidden_size", "type": "int64", "default": 0 },
+      { "name": "num_layers", "type": "int64", "default": 0 },
+      { "name": "num_directions", "type": "int64", "default": 0 },
+      { "name": "dropout", "type": "float32", "default": 0 },
+      { "name": "zoneout_cell", "type": "float32", "default": 0 },
+      { "name": "zoneout_hidden", "type": "float32", "default": 0 }
+    ]
+  },
+  {
+    "name": "LSTMGradWeight",
+    "attributes": [
+      { "name": "bidirectional", "type": "boolean", "default": false },
+      { "name": "has_bias", "type": "boolean", "default": false },
+      { "name": "input_size", "type": "int64", "default": 0 },
+      { "name": "hidden_size", "type": "int64", "default": 0 },
+      { "name": "num_layers", "type": "int64", "default": 0 },
+      { "name": "num_directions", "type": "int64", "default": 0 },
+      { "name": "dropout", "type": "float32", "default": 0 },
+      { "name": "zoneout_cell", "type": "float32", "default": 0 },
+      { "name": "zoneout_hidden", "type": "float32", "default": 0 }
+    ]
+  },
+  {
     "name": "make_tuple"
   },
   {
@@ -1702,6 +1749,14 @@
     ],
     "outputs": [
       { "name": "C" }
+    ]
+  },
+  {
+    "name": "MatMulFusion",
+    "attributes": [
+      { "name": "transpose_a", "type": "boolean", "default": false },
+      { "name": "transpose_b", "type": "boolean", "default": false },
+      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
     ]
   },
   {
@@ -2221,6 +2276,14 @@
       { "name": "mode", "type": "ReduceMode", "default": "ReduceMean" },
       { "name": "reduce_to_end", "type": "boolean", "default": false },
       { "name": "coeff", "type": "float32", "default": 0 }
+    ]
+  },
+  {
+    "name": "ReduceScatter",
+    "attributes": [
+      { "name": "group", "type": "string", "default": null },
+      { "name": "mode", "type": "ReduceMode", "default": "ReduceMean" },
+      { "name": "rank_size", "type": "int32", "default": 0 }
     ]
   },
   {
@@ -2778,6 +2841,9 @@
     "name": "Switch"
   },
   {
+    "name": "SwitchLayer"
+  },
+  {
     "name": "Tan",
     "inputs": [
       { "name": "x" }
@@ -2967,6 +3033,7 @@
   },
   {
     "name": "Upsample",
+    "category": "Data",
     "attributes": [
       { "name": "mode", "type": "string" },
       { "name": "scales", "type": "float32[]" }

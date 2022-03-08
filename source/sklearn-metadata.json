@@ -219,7 +219,7 @@
       },
       {
         "default": true,
-        "description": "Determines how the calibrator is fitted when `cv` is not `'prefit'`.\nIgnored if `cv='prefit'`.\n\nIf `True`, the `base_estimator` is fitted using training data and\ncalibrated using testing data, for each `cv` fold. The final estimator\nis an ensemble of `n_cv` fitted classifer and calibrator pairs, where\n`n_cv` is the number of cross-validation folds. The output is the\naverage predicted probabilities of all pairs.\n\nIf `False`, `cv` is used to compute unbiased predictions, via\n:func:`~sklearn.model_selection.cross_val_predict`, which are then\nused for calibration. At prediction time, the classifier used is the\n`base_estimator` trained on all the data.\nNote that this method is also internally implemented  in\n:mod:`sklearn.svm` estimators with the `probabilities=True` parameter.\n\n.. versionadded:: 0.24\n",
+        "description": "Determines how the calibrator is fitted when `cv` is not `'prefit'`.\nIgnored if `cv='prefit'`.\n\nIf `True`, the `base_estimator` is fitted using training data, and\ncalibrated using testing data, for each `cv` fold. The final estimator\nis an ensemble of `n_cv` fitted classifier and calibrator pairs, where\n`n_cv` is the number of cross-validation folds. The output is the\naverage predicted probabilities of all pairs.\n\nIf `False`, `cv` is used to compute unbiased predictions, via\n:func:`~sklearn.model_selection.cross_val_predict`, which are then\nused for calibration. At prediction time, the classifier used is the\n`base_estimator` trained on all the data.\nNote that this method is also internally implemented  in\n:mod:`sklearn.svm` estimators with the `probabilities=True` parameter.\n\n.. versionadded:: 0.24\n",
         "name": "ensemble",
         "type": "boolean"
       }
@@ -259,6 +259,18 @@
         "description": "If True, the time elapsed while fitting each transformer will be\nprinted as it is completed.\n",
         "name": "verbose",
         "type": "boolean"
+      },
+      {
+        "name": "prefix_feature_names_out",
+        "description": "If True, :meth:`get_feature_names_out` will prefix all feature names\nwith the name of the transformer that generated that feature.\nIf False, :meth:`get_feature_names_out` will not prefix any feature\nnames and will error if feature names are not unique.\n\n.. versionadded:: 1.0\n",
+        "type": "boolean",
+        "default": true
+      },
+      {
+        "name": "verbose_feature_names_out",
+        "description": "If True, :meth:`get_feature_names_out` will prefix all feature names\nwith the name of the transformer that generated that feature.\nIf False, :meth:`get_feature_names_out` will not prefix any feature\nnames and will error if feature names are not unique.\n\n.. versionadded:: 1.0\n",
+        "type": "boolean",
+        "default": true
       }
     ]
   },
@@ -307,6 +319,17 @@
         "description": "Used when the 'arpack' or 'randomized' solvers are used. Pass an int\nfor reproducible results across multiple function calls.\nSee :term:`Glossary <random_state>`.\n\n.. versionadded:: 0.18.0\n",
         "name": "random_state",
         "type": "int32"
+      },
+      {
+        "name": "n_oversamples",
+        "description": "This parameter is only relevant when `svd_solver=\"randomized\"`.\nIt corresponds to the additional number of random vectors to sample the\nrange of `X` so as to ensure proper conditioning. See\n:func:`~sklearn.utils.extmath.randomized_svd` for more details.\n\n.. versionadded:: 1.1\n",
+        "type": "int32",
+        "default": 10
+      },
+      {
+        "name": "power_iteration_normalizer",
+        "description": "Power iteration normalizer for randomized SVD solver.\nNot used by ARPACK. See :func:`~sklearn.utils.extmath.randomized_svd`\nfor more details.\n\n.. versionadded:: 1.1\n",
+        "default": "\u2019auto\u2019"
       }
     ]
   },
@@ -316,7 +339,7 @@
     "attributes": [
       {
         "default": 2,
-        "description": "Desired dimensionality of output data.\nMust be strictly less than the number of features.\nThe default value is useful for visualisation. For LSA, a value of\n100 is recommended.\n",
+        "description": "Desired dimensionality of output data.\nIf algorithm='arpack', must be strictly less than the number of features.\nIf algorithm='randomized', must be less than or equal to the number of features.\nThe default value is useful for visualisation. For LSA, a value of\n100 is recommended.\n",
         "name": "n_components",
         "type": "int32"
       },
@@ -345,6 +368,17 @@
         "name": "tol",
         "option": "optional",
         "type": "float32"
+      },
+      {
+        "name": "n_oversamples",
+        "description": "Number of oversamples for randomized SVD solver. Not used by ARPACK.\nSee :func:`~sklearn.utils.extmath.randomized_svd` for a complete\ndescription.\n\n.. versionadded:: 1.1\n",
+        "type": "int32",
+        "default": 10
+      },
+      {
+        "name": "power_iteration_normalizer",
+        "description": "Power iteration normalizer for randomized SVD solver.\nNot used by ARPACK. See :func:`~sklearn.utils.extmath.randomized_svd`\nfor more details.\n\n.. versionadded:: 1.1\n",
+        "default": "\u2019auto\u2019"
       }
     ]
   },
@@ -395,6 +429,17 @@
         "name": "random_state",
         "option": "optional",
         "type": "int32"
+      },
+      {
+        "name": "n_oversamples",
+        "description": "This parameter is only relevant when `svd_solver=\"randomized\"`.\nIt corresponds to the additional number of random vectors to sample the\nrange of `X` so as to ensure proper conditioning. See\n:func:`~sklearn.utils.extmath.randomized_svd` for more details.\n\n.. versionadded:: 1.1\n",
+        "type": "int32",
+        "default": 10
+      },
+      {
+        "name": "power_iteration_normalizer",
+        "description": "Power iteration normalizer for randomized SVD solver.\nNot used by ARPACK. See :func:`~sklearn.utils.extmath.randomized_svd`\nfor more details.\n\n.. versionadded:: 1.1\n",
+        "default": "\u2019auto\u2019"
       }
     ]
   },
@@ -424,7 +469,7 @@
       },
       {
         "default": false,
-        "description": "If True, explicitely compute the weighted within-class covariance\nmatrix when solver is 'svd'. The matrix is always computed\nand stored for the other solvers.\n\n.. versionadded:: 0.17\n",
+        "description": "If True, explicitly compute the weighted within-class covariance\nmatrix when solver is 'svd'. The matrix is always computed\nand stored for the other solvers.\n\n.. versionadded:: 0.17\n",
         "name": "store_covariance",
         "type": "boolean"
       },
@@ -701,7 +746,7 @@
   },
   {
     "name": "sklearn.feature_extraction.text.CountVectorizer",
-    "description": "Convert a collection of text documents to a matrix of token counts\n\nThis implementation produces a sparse representation of the counts using\nscipy.sparse.csr_matrix.\n\nIf you do not provide an a-priori dictionary and you do not use an analyzer\nthat does some kind of feature selection then the number of features will\nbe equal to the vocabulary size found by analyzing the data.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
+    "description": "Convert a collection of text documents to a matrix of token counts.\n\nThis implementation produces a sparse representation of the counts using\nscipy.sparse.csr_matrix.\n\nIf you do not provide an a-priori dictionary and you do not use an analyzer\nthat does some kind of feature selection then the number of features will\nbe equal to the vocabulary size found by analyzing the data.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
     "attributes": [
       {
         "default": "content",
@@ -733,7 +778,7 @@
       },
       {
         "default": null,
-        "description": "Override the preprocessing (strip_accents and lowercase) stage while\npreserving the tokenizing and n-grams generation steps.\nOnly applies if ``analyzer is not callable``.\n",
+        "description": "Override the preprocessing (strip_accents and lowercase) stage while\npreserving the tokenizing and n-grams generation steps.\nOnly applies if ``analyzer`` is not callable.\n",
         "name": "preprocessor"
       },
       {
@@ -755,7 +800,7 @@
       },
       {
         "default": "(1, 1)",
-        "description": "The lower and upper boundary of the range of n-values for different\nword n-grams or char n-grams to be extracted. All values of n such\nsuch that min_n <= n <= max_n will be used. For example an\n``ngram_range`` of ``(1, 1)`` means only unigrams, ``(1, 2)`` means\nunigrams and bigrams, and ``(2, 2)`` means only bigrams.\nOnly applies if ``analyzer is not callable``.\n",
+        "description": "The lower and upper boundary of the range of n-values for different\nword n-grams or char n-grams to be extracted. All values of n such\nsuch that min_n <= n <= max_n will be used. For example an\n``ngram_range`` of ``(1, 1)`` means only unigrams, ``(1, 2)`` means\nunigrams and bigrams, and ``(2, 2)`` means only bigrams.\nOnly applies if ``analyzer`` is not callable.\n",
         "name": "ngram_range"
       },
       {
@@ -834,7 +879,7 @@
       },
       {
         "default": null,
-        "description": "Override the preprocessing (string transformation) stage while\npreserving the tokenizing and n-grams generation steps.\nOnly applies if ``analyzer is not callable``.\n",
+        "description": "Override the preprocessing (string transformation) stage while\npreserving the tokenizing and n-grams generation steps.\nOnly applies if ``analyzer`` is not callable.\n",
         "name": "preprocessor"
       },
       {
@@ -859,7 +904,7 @@
       },
       {
         "default": "(1, 1)",
-        "description": "The lower and upper boundary of the range of n-values for different\nn-grams to be extracted. All values of n such that min_n <= n <= max_n\nwill be used. For example an ``ngram_range`` of ``(1, 1)`` means only\nunigrams, ``(1, 2)`` means unigrams and bigrams, and ``(2, 2)`` means\nonly bigrams.\nOnly applies if ``analyzer is not callable``.\n",
+        "description": "The lower and upper boundary of the range of n-values for different\nn-grams to be extracted. All values of n such that min_n <= n <= max_n\nwill be used. For example an ``ngram_range`` of ``(1, 1)`` means only\nunigrams, ``(1, 2)`` means unigrams and bigrams, and ``(2, 2)`` means\nonly bigrams.\nOnly applies if ``analyzer`` is not callable.\n",
         "name": "ngram_range"
       },
       {
@@ -898,12 +943,12 @@
       },
       {
         "default": "l2",
-        "description": "Each output row will have unit norm, either:\n* 'l2': Sum of squares of vector elements is 1. The cosine\nsimilarity between two vectors is their dot product when l2 norm has\nbeen applied.\n* 'l1': Sum of absolute values of vector elements is 1.\nSee :func:`preprocessing.normalize`.\n",
+        "description": "Each output row will have unit norm, either:\n\n- 'l2': Sum of squares of vector elements is 1. The cosine\nsimilarity between two vectors is their dot product when l2 norm has\nbeen applied.\n- 'l1': Sum of absolute values of vector elements is 1.\nSee :func:`preprocessing.normalize`.\n",
         "name": "norm"
       },
       {
         "default": true,
-        "description": "Enable inverse-document-frequency reweighting.\n",
+        "description": "Enable inverse-document-frequency reweighting. If False, idf(t) = 1.\n",
         "name": "use_idf",
         "type": "boolean"
       },
@@ -943,7 +988,7 @@
     "description": "Imputation transformer for completing missing values.\n\nRead more in the :ref:`User Guide <impute>`.\n\n.. versionadded:: 0.20\n`SimpleImputer` replaces the previous `sklearn.preprocessing.Imputer`\nestimator which is now removed.\n",
     "attributes": [
       {
-        "description": "The placeholder for the missing values. All occurrences of\n`missing_values` will be imputed. For pandas' dataframes with\nnullable integer dtypes with missing values, `missing_values`\nshould be set to `np.nan`, since `pd.NA` will be converted to `np.nan`.\n",
+        "description": "The placeholder for the missing values. All occurrences of\n`missing_values` will be imputed. For pandas' dataframes with\nnullable integer dtypes with missing values, `missing_values`\ncan be set to either `np.nan` or `pd.NA`.\n",
         "name": "missing_values"
       },
       {
@@ -959,13 +1004,13 @@
       },
       {
         "default": 0,
-        "description": "Controls the verbosity of the imputer.\n",
+        "description": "Controls the verbosity of the imputer.\n\n.. deprecated:: 1.1\nThe 'verbose' parameter was deprecated in version 1.1 and will be\nremoved in 1.3. A warning will always be raised upon the removal of\nempty columns in the future version.\n",
         "name": "verbose",
         "type": "int32"
       },
       {
         "default": true,
-        "description": "If True, a copy of X will be created. If False, imputation will\nbe done in-place whenever possible. Note that, in the following cases,\na new copy will always be made, even if `copy=False`:\n\n- If X is not an array of floating values;\n- If X is encoded as a CSR matrix;\n- If add_indicator=True.\n",
+        "description": "If True, a copy of X will be created. If False, imputation will\nbe done in-place whenever possible. Note that, in the following cases,\na new copy will always be made, even if `copy=False`:\n\n- If `X` is not an array of floating values;\n- If `X` is encoded as a CSR matrix;\n- If `add_indicator=True`.\n",
         "name": "copy",
         "type": "boolean"
       },
@@ -1071,7 +1116,7 @@
   },
   {
     "name": "sklearn.linear_model.LassoLars",
-    "description": "Lasso model fit with Least Angle Regression a.k.a. Lars\n\nIt is a Linear Model trained with an L1 prior as regularizer.\n\nThe optimization objective for Lasso is::\n\n(1 / (2 * n_samples)) * ||y - Xw||^2_2 + alpha * ||w||_1\n\nRead more in the :ref:`User Guide <least_angle_regression>`.\n",
+    "description": "Lasso model fit with Least Angle Regression a.k.a. Lars.\n\nIt is a Linear Model trained with an L1 prior as regularizer.\n\nThe optimization objective for Lasso is::\n\n(1 / (2 * n_samples)) * ||y - Xw||^2_2 + alpha * ||w||_1\n\nRead more in the :ref:`User Guide <least_angle_regression>`.\n",
     "attributes": [
       {
         "default": 1.0,
@@ -1081,7 +1126,7 @@
       },
       {
         "default": true,
-        "description": "whether to calculate the intercept for this model. If set\nto false, no intercept will be used in calculations\n(i.e. data is expected to be centered).\n",
+        "description": "Whether to calculate the intercept for this model. If set\nto false, no intercept will be used in calculations\n(i.e. data is expected to be centered).\n",
         "name": "fit_intercept",
         "type": "boolean"
       },
@@ -1177,7 +1222,7 @@
       },
       {
         "default": null,
-        "description": "The number of jobs to use for the computation. This will only provide\nspeedup for n_targets > 1 and sufficient large problems.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\n",
+        "description": "The number of jobs to use for the computation. This will only provide\nspeedup in case of sufficiently large problems, that is if firstly\n`n_targets > 1` and secondly `X` is sparse or if `positive` is set\nto `True`. ``None`` means 1 unless in a\n:obj:`joblib.parallel_backend` context. ``-1`` means using all\nprocessors. See :term:`Glossary <n_jobs>` for more details.\n",
         "name": "n_jobs",
         "option": "optional",
         "type": "int32"
@@ -1322,7 +1367,8 @@
       },
       {
         "description": "Controls the number of jobs that get dispatched during parallel\nexecution. Reducing this number can be useful to avoid an\nexplosion of memory consumption when more jobs get dispatched\nthan CPUs can process. This parameter can be:\n\n- None, in which case all the jobs are immediately\ncreated and spawned. Use this for lightweight and\nfast-running jobs, to avoid delays due to on-demand\nspawning of the jobs\n\n- An int, giving the exact number of total jobs that are\nspawned\n\n- A str, giving an expression as a function of n_jobs,\nas in '2*n_jobs'\n",
-        "name": "pre_dispatch"
+        "name": "pre_dispatch",
+        "default": "2*n_jobs"
       },
       {
         "default": false,
@@ -1353,7 +1399,7 @@
       },
       {
         "default": false,
-        "description": "If ``False``, the ``cv_results_`` attribute will not include training\nscores.\nComputing training scores is used to get insights on how different\nparameter settings impact the overfitting/underfitting trade-off.\nHowever computing the scores on the training set can be computationally\nexpensive and is not strictly required to select the parameters that\nyield the best generalization performance.\n\n.. versionadded:: 0.19\n\n.. versionchanged:: 0.21\nDefault value was changed from ``True`` to ``False``\n\n",
+        "description": "If ``False``, the ``cv_results_`` attribute will not include training\nscores.\nComputing training scores is used to get insights on how different\nparameter settings impact the overfitting/underfitting trade-off.\nHowever computing the scores on the training set can be computationally\nexpensive and is not strictly required to select the parameters that\nyield the best generalization performance.\n\n.. versionadded:: 0.19\n\n.. versionchanged:: 0.21\nDefault value was changed from ``True`` to ``False``\n",
         "name": "return_train_score",
         "type": "boolean"
       }
@@ -1385,7 +1431,7 @@
       },
       {
         "default": null,
-        "description": "Prior probabilities of the classes. If specified the priors are not\nadjusted according to the data.\n",
+        "description": "Prior probabilities of the classes. If specified, the priors are not\nadjusted according to the data.\n",
         "name": "class_prior",
         "option": "optional"
       }
@@ -1426,7 +1472,7 @@
   },
   {
     "name": "sklearn.naive_bayes.MultinomialNB",
-    "description": "\nNaive Bayes classifier for multinomial models\n\nThe multinomial Naive Bayes classifier is suitable for classification with\ndiscrete features (e.g., word counts for text classification). The\nmultinomial distribution normally requires integer feature counts. However,\nin practice, fractional counts such as tf-idf may also work.\n\nRead more in the :ref:`User Guide <multinomial_naive_bayes>`.\n",
+    "description": "\nNaive Bayes classifier for multinomial models.\n\nThe multinomial Naive Bayes classifier is suitable for classification with\ndiscrete features (e.g., word counts for text classification). The\nmultinomial distribution normally requires integer feature counts. However,\nin practice, fractional counts such as tf-idf may also work.\n\nRead more in the :ref:`User Guide <multinomial_naive_bayes>`.\n",
     "attributes": [
       {
         "default": 1.0,
@@ -1444,7 +1490,7 @@
       },
       {
         "default": null,
-        "description": "Prior probabilities of the classes. If specified the priors are not\nadjusted according to the data.\n",
+        "description": "Prior probabilities of the classes. If specified, the priors are not\nadjusted according to the data.\n",
         "name": "class_prior",
         "option": "optional"
       }
@@ -1489,7 +1535,7 @@
       },
       {
         "default": "minkowski",
-        "description": "The distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. See the documentation of :class:`DistanceMetric` for a\nlist of available metrics.\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`,\nin which case only \"nonzero\" elements may be considered neighbors.\n",
+        "description": "The distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. For a list of available metrics, see the documentation of\n:class:`~sklearn.metrics.DistanceMetric` and the metrics listed in\n`sklearn.metrics.pairwise.PAIRWISE_DISTANCE_FUNCTIONS`. Note that the\n\"cosine\" metric uses :func:`~sklearn.metrics.pairwise.cosine_distances`.\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`,\nin which case only \"nonzero\" elements may be considered neighbors.\n",
         "name": "metric"
       },
       {
@@ -1519,7 +1565,7 @@
         "type": "int32"
       },
       {
-        "description": "weight function used in prediction.  Possible values:\n\n- 'uniform' : uniform weights.  All points in each neighborhood\nare weighted equally.\n- 'distance' : weight points by the inverse of their distance.\nin this case, closer neighbors of a query point will have a\ngreater influence than neighbors which are further away.\n- [callable] : a user-defined function which accepts an\narray of distances, and returns an array of the same shape\ncontaining the weights.\n\nUniform weights are used by default.\n",
+        "description": "Weight function used in prediction.  Possible values:\n\n- 'uniform' : uniform weights.  All points in each neighborhood\nare weighted equally.\n- 'distance' : weight points by the inverse of their distance.\nin this case, closer neighbors of a query point will have a\ngreater influence than neighbors which are further away.\n- [callable] : a user-defined function which accepts an\narray of distances, and returns an array of the same shape\ncontaining the weights.\n\nUniform weights are used by default.\n",
         "name": "weights"
       },
       {
@@ -1544,7 +1590,7 @@
       },
       {
         "default": "minkowski",
-        "description": "the distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. See the documentation of :class:`DistanceMetric` for a\nlist of available metrics.\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`,\nin which case only \"nonzero\" elements may be considered neighbors.\n",
+        "description": "The distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. For a list of available metrics, see the documentation of\n:class:`~sklearn.metrics.DistanceMetric` and the metrics listed in\n`sklearn.metrics.pairwise.PAIRWISE_DISTANCE_FUNCTIONS`. Note that the\n\"cosine\" metric uses :func:`~sklearn.metrics.pairwise.cosine_distances`.\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`,\nin which case only \"nonzero\" elements may be considered neighbors.\n",
         "name": "metric"
       },
       {
@@ -1702,10 +1748,10 @@
   },
   {
     "name": "sklearn.pipeline.FeatureUnion",
-    "description": "Concatenates results of multiple transformer objects.\n\nThis estimator applies a list of transformer objects in parallel to the\ninput data, then concatenates the results. This is useful to combine\nseveral feature extraction mechanisms into a single transformer.\n\nParameters of the transformers may be set using its name and the parameter\nname separated by a '__'. A transformer may be replaced entirely by\nsetting the parameter with its name to another transformer,\nor removed by setting to 'drop'.\n\nRead more in the :ref:`User Guide <feature_union>`.\n\n.. versionadded:: 0.13\n",
+    "description": "Concatenates results of multiple transformer objects.\n\nThis estimator applies a list of transformer objects in parallel to the\ninput data, then concatenates the results. This is useful to combine\nseveral feature extraction mechanisms into a single transformer.\n\nParameters of the transformers may be set using its name and the parameter\nname separated by a '__'. A transformer may be replaced entirely by\nsetting the parameter with its name to another transformer, removed by\nsetting to 'drop' or disabled by setting to 'passthrough' (features are\npassed without transformation).\n\nRead more in the :ref:`User Guide <feature_union>`.\n\n.. versionadded:: 0.13\n",
     "attributes": [
       {
-        "description": "List of transformer objects to be applied to the data. The first\nhalf of each tuple is the name of the transformer. The tranformer can\nbe 'drop' for it to be ignored.\n\n.. versionchanged:: 0.22\nDeprecated `None` as a transformer in favor of 'drop'.\n",
+        "description": "List of transformer objects to be applied to the data. The first\nhalf of each tuple is the name of the transformer. The transformer can\nbe 'drop' for it to be ignored or can be 'passthrough' for features to\nbe passed unchanged.\n\n.. versionadded:: 1.1\nAdded the option `\"passthrough\"`.\n\n.. versionchanged:: 0.22\nDeprecated `None` as a transformer in favor of 'drop'.\n",
         "name": "transformer_list"
       },
       {
@@ -1729,7 +1775,7 @@
   },
   {
     "name": "sklearn.preprocessing._data.StandardScaler",
-    "description": "Standardize features by removing the mean and scaling to unit variance.\n\nThe standard score of a sample `x` is calculated as:\n\nz = (x - u) / s\n\nwhere `u` is the mean of the training samples or zero if `with_mean=False`,\nand `s` is the standard deviation of the training samples or one if\n`with_std=False`.\n\nCentering and scaling happen independently on each feature by computing\nthe relevant statistics on the samples in the training set. Mean and\nstandard deviation are then stored to be used on later data using\n:meth:`transform`.\n\nStandardization of a dataset is a common requirement for many\nmachine learning estimators: they might behave badly if the\nindividual features do not more or less look like standard normally\ndistributed data (e.g. Gaussian with 0 mean and unit variance).\n\nFor instance many elements used in the objective function of\na learning algorithm (such as the RBF kernel of Support Vector\nMachines or the L1 and L2 regularizers of linear models) assume that\nall features are centered around 0 and have variance in the same\norder. If a feature has a variance that is orders of magnitude larger\nthat others, it might dominate the objective function and make the\nestimator unable to learn from other features correctly as expected.\n\nThis scaler can also be applied to sparse CSR or CSC matrices by passing\n`with_mean=False` to avoid breaking the sparsity structure of the data.\n\nRead more in the :ref:`User Guide <preprocessing_scaler>`.\n",
+    "description": "Standardize features by removing the mean and scaling to unit variance.\n\nThe standard score of a sample `x` is calculated as:\n\nz = (x - u) / s\n\nwhere `u` is the mean of the training samples or zero if `with_mean=False`,\nand `s` is the standard deviation of the training samples or one if\n`with_std=False`.\n\nCentering and scaling happen independently on each feature by computing\nthe relevant statistics on the samples in the training set. Mean and\nstandard deviation are then stored to be used on later data using\n:meth:`transform`.\n\nStandardization of a dataset is a common requirement for many\nmachine learning estimators: they might behave badly if the\nindividual features do not more or less look like standard normally\ndistributed data (e.g. Gaussian with 0 mean and unit variance).\n\nFor instance many elements used in the objective function of\na learning algorithm (such as the RBF kernel of Support Vector\nMachines or the L1 and L2 regularizers of linear models) assume that\nall features are centered around 0 and have variance in the same\norder. If a feature has a variance that is orders of magnitude larger\nthan others, it might dominate the objective function and make the\nestimator unable to learn from other features correctly as expected.\n\nThis scaler can also be applied to sparse CSR or CSC matrices by passing\n`with_mean=False` to avoid breaking the sparsity structure of the data.\n\nRead more in the :ref:`User Guide <preprocessing_scaler>`.\n",
     "attributes": [
       {
         "default": true,
@@ -1761,7 +1807,7 @@
         "name": "categories"
       },
       {
-        "description": "Specifies a methodology to use to drop one of the categories per\nfeature. This is useful in situations where perfectly collinear\nfeatures cause problems, such as when feeding the resulting data\ninto a neural network or an unregularized regression.\n\nHowever, dropping one category breaks the symmetry of the original\nrepresentation and can therefore induce a bias in downstream models,\nfor instance for penalized linear classification or regression models.\n\n- None : retain all features (the default).\n- 'first' : drop the first category in each feature. If only one\ncategory is present, the feature will be dropped entirely.\n- 'if_binary' : drop the first category in each feature with two\ncategories. Features with 1 or more than 2 categories are\nleft intact.\n- array : ``drop[i]`` is the category in feature ``X[:, i]`` that\nshould be dropped.\n\n.. versionadded:: 0.21\nThe parameter `drop` was added in 0.21.\n\n.. versionchanged:: 0.23\nThe option `drop='if_binary'` was added in 0.23.\n",
+        "description": "Specifies a methodology to use to drop one of the categories per\nfeature. This is useful in situations where perfectly collinear\nfeatures cause problems, such as when feeding the resulting data\ninto an unregularized linear regression model.\n\nHowever, dropping one category breaks the symmetry of the original\nrepresentation and can therefore induce a bias in downstream models,\nfor instance for penalized linear classification or regression models.\n\n- None : retain all features (the default).\n- 'first' : drop the first category in each feature. If only one\ncategory is present, the feature will be dropped entirely.\n- 'if_binary' : drop the first category in each feature with two\ncategories. Features with 1 or more than 2 categories are\nleft intact.\n- array : ``drop[i]`` is the category in feature ``X[:, i]`` that\nshould be dropped.\n\n.. versionadded:: 0.21\nThe parameter `drop` was added in 0.21.\n\n.. versionchanged:: 0.23\nThe option `drop='if_binary'` was added in 0.23.\n",
         "name": "drop"
       },
       {
@@ -1927,7 +1973,7 @@
       },
       {
         "default": "rbf",
-        "description": "Specifies the kernel type to be used in the algorithm.\nIt must be one of 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed' or\na callable.\nIf none is given, 'rbf' will be used. If a callable is given it is\nused to pre-compute the kernel matrix from data matrices; that matrix\nshould be an array of shape ``(n_samples, n_samples)``.\n",
+        "description": "Specifies the kernel type to be used in the algorithm.\nIf none is given, 'rbf' will be used. If a callable is given it is\nused to pre-compute the kernel matrix from data matrices; that matrix\nshould be an array of shape ``(n_samples, n_samples)``.\n",
         "name": "kernel",
         "option": "optional",
         "type": "string"
@@ -1983,7 +2029,7 @@
       },
       {
         "default": null,
-        "description": "Set the parameter C of class i to class_weight[i]*C for\nSVC. If not given, all classes are supposed to have\nweight one.\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``\n",
+        "description": "Set the parameter C of class i to class_weight[i]*C for\nSVC. If not given, all classes are supposed to have\nweight one.\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``.\n",
         "name": "class_weight",
         "option": "optional"
       },
@@ -2034,7 +2080,7 @@
       },
       {
         "default": "rbf",
-        "description": "Specifies the kernel type to be used in the algorithm.\nIt must be one of 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed' or\na callable.\nIf none is given, 'rbf' will be used. If a callable is given it is\nused to pre-compute the kernel matrix from data matrices; that matrix\nshould be an array of shape ``(n_samples, n_samples)``.\n",
+        "description": "Specifies the kernel type to be used in the algorithm.\nIf none is given, 'rbf' will be used. If a callable is given it is\nused to pre-compute the kernel matrix from data matrices; that matrix\nshould be an array of shape ``(n_samples, n_samples)``.\n",
         "name": "kernel",
         "option": "optional",
         "type": "string"
@@ -2090,7 +2136,7 @@
       },
       {
         "default": null,
-        "description": "Set the parameter C of class i to class_weight[i]*C for\nSVC. If not given, all classes are supposed to have\nweight one.\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``\n",
+        "description": "Set the parameter C of class i to class_weight[i]*C for\nSVC. If not given, all classes are supposed to have\nweight one.\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``.\n",
         "name": "class_weight",
         "option": "optional"
       },
