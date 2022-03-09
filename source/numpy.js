@@ -537,7 +537,7 @@ numpy.Utility = class {
         const keys = [ '', 'blobs' ];
         for (const key of keys) {
             const weights = dict(obj, key);
-            if (weights) {
+            if (weights && weights.size > 0) {
                 return weights;
             }
         }
