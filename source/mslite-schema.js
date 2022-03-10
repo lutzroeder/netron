@@ -379,6 +379,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 203: return $root.mindspore.schema.DynamicQuant.decode(reader, position);
             case 204: return $root.mindspore.schema.LSTMGradData.decode(reader, position);
             case 205: return $root.mindspore.schema.LSTMGradWeight.decode(reader, position);
+            case 206: return $root.mindspore.schema.RandomNormal.decode(reader, position);
         }
         return undefined;
     }
@@ -590,6 +591,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'DynamicQuant': return $root.mindspore.schema.DynamicQuant.decodeText(reader, json);
             case 'LSTMGradData': return $root.mindspore.schema.LSTMGradData.decodeText(reader, json);
             case 'LSTMGradWeight': return $root.mindspore.schema.LSTMGradWeight.decodeText(reader, json);
+            case 'RandomNormal': return $root.mindspore.schema.RandomNormal.decodeText(reader, json);
         }
         return undefined;
     }
@@ -4074,6 +4076,25 @@ $root.mindspore.schema.LSTMGradWeight = class LSTMGradWeight {
         $.dropout = reader.value(json.dropout, 0);
         $.zoneout_cell = reader.value(json.zoneout_cell, 0);
         $.zoneout_hidden = reader.value(json.zoneout_hidden, 0);
+        return $;
+    }
+};
+
+$root.mindspore.schema.RandomNormal = class RandomNormal {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.RandomNormal();
+        $.seed = reader.float32_(position, 4, 0);
+        $.mean = reader.float32_(position, 6, 0);
+        $.scale = reader.float32_(position, 8, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.RandomNormal();
+        $.seed = reader.value(json.seed, 0);
+        $.mean = reader.value(json.mean, 0);
+        $.scale = reader.value(json.scale, 0);
         return $;
     }
 };

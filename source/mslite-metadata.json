@@ -2212,6 +2212,14 @@
     "name": "RaggedRange"
   },
   {
+    "name": "RandomNormal",
+    "attributes": [
+      { "name": "seed", "type": "float32", "default": 0 },
+      { "name": "mean", "type": "float32", "default": 0 },
+      { "name": "scale", "type": "float32", "default": 0 }
+    ]
+  },
+  {
     "name": "RandomStandardNormal",
     "attributes": [
       { "name": "seed", "type": "int64", "default": 0 },
