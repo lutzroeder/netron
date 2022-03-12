@@ -552,6 +552,7 @@ onnx.Argument = class {
 onnx.Node = class {
 
     constructor(context, op_type, domain, name, description, attributes, inputs, outputs) {
+        attributes = attributes || [];
         this._type = context.metadata.type(op_type, domain) || { name: op_type, module: domain };
         if (this.type.module !== domain && !(this._type instanceof onnx.Function)) {
             this._type = Object.assign({}, this.type);
@@ -560,18 +561,20 @@ onnx.Node = class {
         }
         this._name = name || '';
         this._description = description || '';
-        this._chain = [];
         this._inputs = inputs;
         this._outputs = outputs;
-        this._attributes = (attributes || []).map((attribute) => new onnx.Attribute(context, op_type, domain, attribute));
-        attributes = Object.fromEntries(attributes.map((entry) => [ entry.name, entry ]));
+        this._attributes = attributes.map((attribute) => new onnx.Attribute(context, op_type, domain, attribute));
+        this._chain = [];
         const identifier = domain ? domain + '.' + op_type : op_type;
         switch (identifier) {
-            case 'com.microsoft.FusedConv':
-                if (attributes.activation) {
-                    this._chain.push(new onnx.Node(context, attributes.activation.s, '', '', '', [], [], []));
+            case 'com.microsoft.FusedConv': {
+                const activation = attributes.find((attribute) => attribute.name === 'activation');
+                if (activation) {
+                    const type = context.decodeText(activation.s);
+                    this._chain.push(new onnx.Node(context, type, '', '', '', [], [], []));
                 }
                 break;
+            }
         }
     }
 

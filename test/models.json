@@ -3348,6 +3348,13 @@
   },
   {
     "type":   "onnx",
+    "target": "maskDet_opt.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/8238283/maskDet_opt.onnx.zip[maskDet_opt.onnx]",
+    "format": "ONNX v4",
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
+  },
+  {
+    "type":   "onnx",
     "target": "maskrcnn.onnx.zip",
     "source": "https://github.com/lutzroeder/netron/files/5322320/maskrcnn.onnx.zip",
     "format": "ONNX v6",
