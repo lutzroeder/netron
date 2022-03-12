@@ -2493,6 +2493,41 @@
     ]
   },
   {
+    "name": "AssertPrevDataset",
+    "summary": "A transformation that asserts which transformations happened previously.",
+    "description": "This transformation checks the names and, optionally, the attribute name-value\npairs in the `transformations` argument against those of the transformations\nthat preceded this transformation.  If there is a mismatch, the transformation\nraises an exception.\n\nThe check occurs when iterating over the contents of the dataset, which\nmeans that the check happens *after* any static optimizations are applied\nto the dataset graph.",
+    "attributes": [
+      {
+        "name": "output_types",
+        "type": "type[]",
+        "minimum": 1
+      },
+      {
+        "name": "output_shapes",
+        "type": "shape[]",
+        "minimum": 1
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input_dataset",
+        "description": "A variant tensor representing the input dataset.\n`AssertPrevDataset` passes through the outputs of its input dataset.",
+        "type": 21
+      },
+      {
+        "name": "transformations",
+        "description": "A `tf.string` vector `tf.Tensor` identifying the transformations, with optional\nattribute name-value pairs, that are expected to have happened previously.",
+        "type": 7
+      }
+    ],
+    "outputs": [
+      {
+        "name": "handle",
+        "type": 21
+      }
+    ]
+  },
+  {
     "name": "Assign",
     "category": "Control",
     "summary": "Update 'ref' by assigning 'value' to it.",
@@ -7969,6 +8004,26 @@
       {
         "name": "data",
         "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "CollectiveAssignGroupV2",
+    "summary": "Assign group keys based on group assignment.",
+    "inputs": [
+      {
+        "name": "group_assignment",
+        "type": 3
+      },
+      {
+        "name": "device_index",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "group_key",
+        "type": 3
       }
     ]
   },
