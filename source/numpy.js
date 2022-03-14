@@ -88,7 +88,7 @@ numpy.ModelFactory = class {
                 const weights = match.value;
                 let separator = '_';
                 if (Array.from(weights.keys()).every((key) => key.indexOf('.') !== -1) &&
-                    !Array.from(weights.keys()).every((key) => key.indexOf('_') !== -1)) {
+                    !Array.from(weights.keys()).every((key) => key.indexOf('_') > key.indexOf('.') )) {
                     separator = '.';
                 }
                 for (const pair of weights) {
@@ -481,6 +481,9 @@ numpy.Utility = class {
                             }
                             continue;
                         }
+                        else if (key === '_metadata') {
+                            continue;
+                        }
                         return null;
                     }
                     return weights;
@@ -534,7 +537,7 @@ numpy.Utility = class {
                 return weights;
             }
         };
-        const keys = [ '', 'blobs' ];
+        const keys = [ '', 'blobs', 'model' ];
         for (const key of keys) {
             const weights = dict(obj, key);
             if (weights && weights.size > 0) {
