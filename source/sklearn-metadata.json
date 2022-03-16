@@ -1807,7 +1807,7 @@
         "name": "categories"
       },
       {
-        "description": "Specifies a methodology to use to drop one of the categories per\nfeature. This is useful in situations where perfectly collinear\nfeatures cause problems, such as when feeding the resulting data\ninto an unregularized linear regression model.\n\nHowever, dropping one category breaks the symmetry of the original\nrepresentation and can therefore induce a bias in downstream models,\nfor instance for penalized linear classification or regression models.\n\n- None : retain all features (the default).\n- 'first' : drop the first category in each feature. If only one\ncategory is present, the feature will be dropped entirely.\n- 'if_binary' : drop the first category in each feature with two\ncategories. Features with 1 or more than 2 categories are\nleft intact.\n- array : ``drop[i]`` is the category in feature ``X[:, i]`` that\nshould be dropped.\n\n.. versionadded:: 0.21\nThe parameter `drop` was added in 0.21.\n\n.. versionchanged:: 0.23\nThe option `drop='if_binary'` was added in 0.23.\n",
+        "description": "Specifies a methodology to use to drop one of the categories per\nfeature. This is useful in situations where perfectly collinear\nfeatures cause problems, such as when feeding the resulting data\ninto an unregularized linear regression model.\n\nHowever, dropping one category breaks the symmetry of the original\nrepresentation and can therefore induce a bias in downstream models,\nfor instance for penalized linear classification or regression models.\n\n- None : retain all features (the default).\n- 'first' : drop the first category in each feature. If only one\ncategory is present, the feature will be dropped entirely.\n- 'if_binary' : drop the first category in each feature with two\ncategories. Features with 1 or more than 2 categories are\nleft intact.\n- array : ``drop[i]`` is the category in feature ``X[:, i]`` that\nshould be dropped.\n\n.. versionadded:: 0.21\nThe parameter `drop` was added in 0.21.\n\n.. versionchanged:: 0.23\nThe option `drop='if_binary'` was added in 0.23.\n\n.. versionchanged:: 1.1\nSupport for dropping infrequent categories.\n",
         "name": "drop"
       },
       {
@@ -1823,8 +1823,19 @@
       },
       {
         "default": "error",
-        "description": "Whether to raise an error or ignore if an unknown categorical feature\nis present during transform (default is to raise). When this parameter\nis set to 'ignore' and an unknown category is encountered during\ntransform, the resulting one-hot encoded columns for this feature\nwill be all zeros. In the inverse transform, an unknown category\nwill be denoted as None.\n",
+        "description": "Specifies the way unknown categories are handled during :meth:`transform`.\n\n- 'error' : Raise an error if an unknown category is present during transform.\n- 'ignore' : When an unknown category is encountered during\ntransform, the resulting one-hot encoded columns for this feature\nwill be all zeros. In the inverse transform, an unknown category\nwill be denoted as None.\n- 'infrequent_if_exist' : When an unknown category is encountered\nduring transform, the resulting one-hot encoded columns for this\nfeature will map to the infrequent category if it exists. The\ninfrequent category will be mapped to the last position in the\nencoding. During inverse transform, an unknown category will be\nmapped to the category denoted `'infrequent'` if it exists. If the\n`'infrequent'` category does not exist, then :meth:`transform` and\n:meth:`inverse_transform` will handle an unknown category as with\n`handle_unknown='ignore'`. Infrequent categories exist based on\n`min_frequency` and `max_categories`. Read more in the\n:ref:`User Guide <one_hot_encoder_infrequent_categories>`.\n\n.. versionchanged:: 1.1\n`'infrequent_if_exist'` was added to automatically handle unknown\ncategories and infrequent categories.\n",
         "name": "handle_unknown"
+      },
+      {
+        "name": "min_frequency",
+        "description": "Specifies the minimum frequency below which a category will be\nconsidered infrequent.\n\n- If `int`, categories with a smaller cardinality will be considered\ninfrequent.\n\n- If `float`, categories with a smaller cardinality than\n`min_frequency * n_samples`  will be considered infrequent.\n\n.. versionadded:: 1.1\nRead more in the :ref:`User Guide <one_hot_encoder_infrequent_categories>`.\n",
+        "default": null
+      },
+      {
+        "name": "max_categories",
+        "description": "Specifies an upper limit to the number of output features for each input\nfeature when considering infrequent categories. If there are infrequent\ncategories, `max_categories` includes the category representing the\ninfrequent categories along with the frequent categories. If `None`,\nthere is no limit to the number of output features.\n\n.. versionadded:: 1.1\nRead more in the :ref:`User Guide <one_hot_encoder_infrequent_categories>`.\n",
+        "type": "int32",
+        "default": null
       }
     ]
   },
