@@ -2332,6 +2332,17 @@
     ]
   },
   {
+    "name": "torch.rot90",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "k", "type": "int64", "default": 1 },
+      { "name": "dims", "type": "int64[]", "default": [ 0, 1 ] }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.round",
     "inputs": [
       { "name": "self", "type": "Tensor" }
