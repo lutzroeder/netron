@@ -86,10 +86,10 @@ numpy.ModelFactory = class {
                 format = 'NumPy Weights';
                 const layers = new Map();
                 const weights = match.value;
-                let separator = '_';
-                if (Array.from(weights.keys()).every((key) => key.indexOf('.') !== -1) &&
-                    !Array.from(weights.keys()).every((key) => key.indexOf('_') > key.indexOf('.') )) {
-                    separator = '.';
+                let separator = '.';
+                if (Array.from(weights.keys()).filter((key) => key.indexOf('_') !== -1) &&
+                    Array.from(weights.keys()).every((key) => key.indexOf('_') > key.indexOf('.'))) {
+                    separator = '_';
                 }
                 for (const pair of weights) {
                     const name = pair[0];
