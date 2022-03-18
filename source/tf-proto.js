@@ -9116,7 +9116,9 @@ $root.tensorflow.RewriterConfig.Toggle = {
     "DEFAULT": 0,
     "ON": 1,
     "OFF": 2,
-    "AGGRESSIVE": 3
+    "AGGRESSIVE": 3,
+    "EXPERIMENTAL_MLIR": 4,
+    "EXPERIMENTAL_BOTH": 5
 };
 
 $root.tensorflow.RewriterConfig.CpuLayout = {
