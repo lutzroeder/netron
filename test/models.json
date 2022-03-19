@@ -5995,6 +5995,13 @@
   },
   {
     "type":     "tflite",
+    "target":   "efficientnet_lite1_int8_2.tflite",
+    "source":   "https://github.com/lutzroeder/netron/files/8309257/efficientnet_lite1_int8_2.tflite.zip[efficientnet_lite1_int8_2.tflite]",
+    "format":   "TensorFlow Lite v3",
+    "link":     "https://github.com/lutzroeder/netron/issues/34"
+  },
+  {
+    "type":     "tflite",
     "target":   "face_detection_front.json",
     "source":   "https://github.com/lutzroeder/netron/files/4606685/face_detection_front.zip[face_detection_front.json]",
     "format":   "TensorFlow Lite v3"

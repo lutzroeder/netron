@@ -505,7 +505,7 @@ tflite.Argument = class {
                 list.push(value);
             }
             if (list.length > 0 && !list.every((value) => value === 'q')) {
-                this._quantization = list.length === 1 ? list[0] : '\n\n' + list.map((value) => '  ' + value).join('\n');
+                this._quantization = list.length === 1 ? list[0] : list;
             }
         }
     }

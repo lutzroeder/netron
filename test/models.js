@@ -620,6 +620,8 @@ const loadModel = (target, item) => {
                     if (argument.type) {
                         argument.type.toString();
                     }
+                    argument.quantization;
+                    argument.initializer;
                 }
             }
             for (const output of graph.outputs) {
