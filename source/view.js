@@ -458,27 +458,13 @@ view.View = class {
     }
 
     _updateGraph(model, graphs) {
-        const update = () => {
-            const nameButton = this._getElementById('name-button');
-            const backButton = this._getElementById('back-button');
-            if (this._graphs.length > 1) {
-                const graph = this.activeGraph;
-                nameButton.innerHTML = graph ? graph.name : '';
-                backButton.style.opacity = 1;
-                nameButton.style.opacity = 1;
-            }
-            else {
-                backButton.style.opacity = 0;
-                nameButton.style.opacity = 0;
-            }
-        };
-        const previousModel = model;
-        const previousGraphs = graphs;
+        const lastModel = this._model;
+        const lastGraphs = this._graphs;
         this._model = model;
         this._graphs = graphs;
         const graph = this.activeGraph;
         return this._timeout(100).then(() => {
-            if (graph && graph != this._graphs[0]) {
+            if (graph && graph != lastGraphs[0]) {
                 const nodes = graph.nodes;
                 if (nodes.length > 2048) {
                     if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
@@ -488,6 +474,20 @@ view.View = class {
                     }
                 }
             }
+            const update = () => {
+                const nameButton = this._getElementById('name-button');
+                const backButton = this._getElementById('back-button');
+                if (this._graphs.length > 1) {
+                    const graph = this.activeGraph;
+                    nameButton.innerHTML = graph ? graph.name : '';
+                    backButton.style.opacity = 1;
+                    nameButton.style.opacity = 1;
+                }
+                else {
+                    backButton.style.opacity = 0;
+                    nameButton.style.opacity = 0;
+                }
+            };
             return this.renderGraph(this._model, this.activeGraph).then(() => {
                 if (this._page !== 'default') {
                     this.show('default');
@@ -495,8 +495,8 @@ view.View = class {
                 update();
                 return this._model;
             }).catch((error) => {
-                this._model = previousModel;
-                this._graphs = previousGraphs;
+                this._model = lastModel;
+                this._graphs = lastGraphs;
                 return this.renderGraph(this._model, this.activeGraph).then(() => {
                     if (this._page !== 'default') {
                         this.show('default');
