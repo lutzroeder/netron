@@ -29556,6 +29556,66 @@
     ]
   },
   {
+    "name": "ParallelFilterDataset",
+    "summary": "Creates a dataset containing elements of `input_dataset` matching `predicate`.",
+    "description": "The `predicate` function must return a scalar boolean and accept the\nfollowing arguments:\n\n* One tensor for each component of an element of `input_dataset`.\n* One tensor for each value in `other_arguments`.\n\nUnlike a \"FilterDataset\", which applies `predicate` sequentially, this dataset\ninvokes up to `num_parallel_calls` copies of `predicate` in parallel.\n  ",
+    "attributes": [
+      {
+        "name": "predicate",
+        "type": "function",
+        "description": "A function returning a scalar boolean."
+      },
+      {
+        "name": "deterministic",
+        "type": "string",
+        "description": "A string indicating the op-level determinism to use. Deterministic controls\nwhether the interleave is allowed to return elements out of order if the next\nelement to be returned isn't available, but a later element is. Options are\n\"true\", \"false\", and \"default\". \"default\" indicates that determinism should be\ndecided by the `experimental_deterministic` parameter of `tf.data.Options`.",
+        "default": "default"
+      },
+      {
+        "name": "Targuments",
+        "type": "type[]",
+        "minimum": 0
+      },
+      {
+        "name": "output_types",
+        "type": "type[]",
+        "minimum": 1
+      },
+      {
+        "name": "output_shapes",
+        "type": "shape[]",
+        "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input_dataset",
+        "type": 21
+      },
+      {
+        "name": "other_arguments",
+        "description": "A list of tensors, typically values that were captured when\nbuilding a closure for `predicate`.",
+        "typeListAttr": "Targuments"
+      },
+      {
+        "name": "num_parallel_calls",
+        "description": "The number of concurrent invocations of `predicate` that process\nelements from `input_dataset` in parallel.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "handle",
+        "type": 21
+      }
+    ]
+  },
+  {
     "name": "ParallelInterleaveDataset",
     "summary": "Creates a dataset that applies `f` to the outputs of `input_dataset`.",
     "description": "The resulting dataset is similar to the `InterleaveDataset`, with the exception\nthat if retrieving the next value from a dataset would cause the requester to\nblock, it will skip that input dataset. This dataset is especially useful\nwhen loading data from a variable-latency datastores (e.g. HDFS, GCS), as it\nallows the training step to proceed so long as some data is available.\n\n!! WARNING !! If the `sloppy` parameter is set to `True`, the operation of this\ndataset will not be deterministic!\n\nThis dataset has been superseded by `ParallelInterleaveDatasetV2`.  New code\nshould use `ParallelInterleaveDatasetV2`.\n\nThe Python API `tf.data.experimental.parallel_interleave` creates instances of\nthis op. `tf.data.experimental.parallel_interleave` is a deprecated API.",
