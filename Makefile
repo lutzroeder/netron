@@ -97,6 +97,8 @@ publish_web: build_web
 	git -C ./dist/gh-pages push --force origin gh-pages
 
 publish_cask:
+	curl -s -H "Authorization: token ${GITHUB_TOKEN}" -X "DELETE" https://api.github.com/repos/${GITHUB_USER}/homebrew-cask 2>&1 > /dev/null
+	sleep 4
 	curl -s -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/Homebrew/homebrew-cask/forks -d '' 2>&1 > /dev/null
 	rm -rf ./dist/homebrew-cask
 	sleep 4
@@ -109,6 +111,8 @@ publish_cask:
 	rm -rf ./dist/homebrew-cask
 
 publish_winget:
+	curl -s -H "Authorization: token ${GITHUB_TOKEN}" -X "DELETE" https://api.github.com/repos/${GITHUB_USER}/winget-pkgs 2>&1 > /dev/null
+	sleep 4
 	curl -s -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/microsoft/winget-pkgs/forks -d '' 2>&1 > /dev/null
 	rm -rf ./dist/winget-pkgs
 	sleep 4
