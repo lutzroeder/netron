@@ -747,7 +747,7 @@ sidebar.ArgumentView = class {
                 if (quantization) {
                     const quantizationLine = this._host.document.createElement('div');
                     quantizationLine.className = 'sidebar-view-item-value-line-border';
-                    quantizationLine.innerHTML = '<span class=\'sidebar-view-item-value-line-content\'>quantization: ' + '<b>' + quantization + '</b></span>';
+                    quantizationLine.innerHTML = '<span class=\'sidebar-view-item-value-line-content\'>quantization: ' + '<b>' + quantization.replace(/(?:\n)/g, '<br>') + '</b></span>';
                     this._element.appendChild(quantizationLine);
                 }
 

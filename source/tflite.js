@@ -487,20 +487,25 @@ tflite.Argument = class {
         this._initializer = initializer;
         const quantization = tensor.quantization;
         if (quantization) {
-            let value = 'q';
-            const scale = (quantization.scale.length == 1) ? quantization.scale[0] : 0;
-            const zeroPoint = ((quantization.zero_point.length == 1) ? quantization.zero_point[0] : 0).toString();
-            if (scale !== 0 || zeroPoint !== '0') {
-                value = scale.toString() + ' * ' + (zeroPoint === '0' ? 'q' : ('(q' + (!zeroPoint.startsWith('-') ? ' - ' + zeroPoint : ' + ' + zeroPoint.substring(1)) + ')'));
+            const length = Math.max(quantization.scale.length, quantization.zero_point.length, quantization.min.length, quantization.max.length);
+            const list = [];
+            for (let i = 0; i < length; i++) {
+                let value = 'q';
+                const scale = i < quantization.scale.length ? quantization.scale[i] : 0;
+                const zeroPoint = (i < quantization.zero_point.length ? quantization.zero_point[i] : 0).toString();
+                if (scale !== 0 || zeroPoint !== '0') {
+                    value = scale.toString() + ' * ' + (zeroPoint === '0' ? 'q' : ('(q' + (!zeroPoint.startsWith('-') ? ' - ' + zeroPoint : ' + ' + zeroPoint.substring(1)) + ')'));
+                }
+                if (i < quantization.min.length) {
+                    value = quantization.min[i].toString() + ' \u2264 ' + value;
+                }
+                if (i < quantization.max.length) {
+                    value = value + ' \u2264 ' + quantization.max[i].toString();
+                }
+                list.push(value);
             }
-            if (quantization.min.length == 1) {
-                value = quantization.min[0].toString() + ' \u2264 ' + value;
-            }
-            if (quantization.max.length == 1) {
-                value = value + ' \u2264 ' + quantization.max[0].toString();
-            }
-            if (value !== 'q') {
-                this._quantization = value;
+            if (list.length > 0 && !list.every((value) => value === 'q')) {
+                this._quantization = list.length === 1 ? list[0] : '\n\n' + list.map((value) => '  ' + value).join('\n');
             }
         }
     }
