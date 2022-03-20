@@ -2864,12 +2864,76 @@
     ]
   },
   {
-    "name": "torch.flatten",
+    "name": "torch.flatten:using_ints",
+    "category": "Shape",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "start_dim", "type": "int64", "default": 0 },
+      { "name": "end_dim", "type": "int64", "default": -1 }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.flatten:named_out_dim",
     "category": "Shape",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "start_dim", "type": "int64" },
-      { "name": "end_dim", "type": "int64" }
+      { "name": "end_dim", "type": "int64" },
+      { "name": "out_dim", "type": "Dimname" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.flatten:using_names",
+    "category": "Shape",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "start_dim", "type": "Dimname" },
+      { "name": "end_dim", "type": "Dimname" },
+      { "name": "out_dim", "type": "Dimname" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.flatten:DimnameList",
+    "category": "Shape",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dims", "type": "Dimname[]" },
+      { "name": "out_dim", "type": "Dimname" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.unflatten:int",
+    "category": "Shape",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "sizes", "type": "int64[]" },
+      { "name": "names", "type": "Dimname[]", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.unflatten:Dimname",
+    "category": "Shape",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "sizes", "type": "int64[]" },
+      { "name": "names", "type": "Dimname[]", "optional": true, "default": null }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
