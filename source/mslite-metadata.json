@@ -333,7 +333,8 @@
   {
     "name": "BatchNormGrad",
     "attributes": [
-      { "name": "epsilon", "type": "float32", "default": 0 }
+      { "name": "epsilon", "type": "float32", "default": 0 },
+      { "name": "is_training", "type": "boolean", "default": false }
     ]
   },
   {
@@ -1948,6 +1949,18 @@
     ],
     "outputs": [
       { "name": "output" }
+    ]
+  },
+  {
+    "name": "NLLLoss",
+    "attributes": [
+      { "name": "reduction", "type": "Reduction", "default": "REDUCTION_SUM" }
+    ]
+  },
+  {
+    "name": "NLLLossGrad",
+    "attributes": [
+      { "name": "reduction", "type": "Reduction", "default": "REDUCTION_SUM" }
     ]
   },
   {
