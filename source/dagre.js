@@ -145,46 +145,6 @@ dagre.layout = (graph, options) => {
             }
         };
 
-        // A helper that preforms a pre- or post-order traversal on the input graph and returns the nodes in the order they were visited.
-        // If the graph is undirected then this algorithm will navigate using neighbors.
-        // If the graph is directed then this algorithm will navigate using successors.
-        // Order must be one of 'pre' or 'post'.
-        const dfs = (g, vs, postorder) => {
-            const doDfs = (g, v, postorder, visited, navigation, acc) => {
-                if (!visited.has(v)) {
-                    visited.add(v);
-                    if (!postorder) {
-                        acc.push(v);
-                    }
-                    for (const w of navigation(v)) {
-                        doDfs(g, w, postorder, visited, navigation, acc);
-                    }
-                    if (postorder) {
-                        acc.push(v);
-                    }
-                }
-            };
-            if (!Array.isArray(vs)) {
-                vs = [ vs ];
-            }
-            const navigation = (g.isDirected() ? g.successors : g.neighbors).bind(g);
-            const acc = [];
-            const visited = new Set();
-            for (const v of vs) {
-                if (!g.hasNode(v)) {
-                    throw new Error('Graph does not have node: ' + v);
-                }
-                doDfs(g, v, postorder, visited, navigation, acc);
-            }
-            return acc;
-        };
-        const postorder = (g, vs) => {
-            return dfs(g, vs, true);
-        };
-        const preorder = (g, vs) => {
-            return dfs(g, vs, false);
-        };
-
         const removeSelfEdges = (g) => {
             for (const e of g.edges.values()) {
                 if (e.v === e.w) {
@@ -199,31 +159,28 @@ dagre.layout = (graph, options) => {
         };
 
         const acyclic_run = (g) => {
-            const dfsFAS = (g) => {
-                const fas = [];
-                const stack = new Set();
-                const visited = new Set();
-                const dfs = (v) => {
-                    if (!visited.has(v)) {
-                        visited.add(v);
-                        stack.add(v);
-                        for (const e of g.node(v).out) {
-                            if (stack.has(e.w)) {
-                                fas.push(e);
-                            }
-                            else {
-                                dfs(e.w);
-                            }
+            const fas = [];
+            const stack = new Set();
+            const visited = new Set();
+            const dfs = (v) => {
+                if (!visited.has(v)) {
+                    visited.add(v);
+                    stack.add(v);
+                    for (const e of g.node(v).out) {
+                        if (stack.has(e.w)) {
+                            fas.push(e);
                         }
-                        stack.delete(v);
+                        else {
+                            dfs(e.w);
+                        }
                     }
-                };
-                for (const v of g.nodes.keys()) {
-                    dfs(v);
+                    stack.delete(v);
                 }
-                return fas;
             };
-            for (const e of dfsFAS(g)) {
+            for (const v of g.nodes.keys()) {
+                dfs(v);
+            }
+            for (const e of fas) {
                 const label = e.label;
                 g.removeEdge(e);
                 label.forwardName = e.name;
@@ -455,8 +412,7 @@ dagre.layout = (graph, options) => {
                             const other = isOutEdge ? e.w : e.v;
                             if (other !== parent) {
                                 const pointsToHead = isOutEdge === childIsTail;
-                                const otherWeight = e.label.weight;
-                                cutValue += pointsToHead ? otherWeight : -otherWeight;
+                                cutValue += pointsToHead ? e.label.weight : -e.label.weight;
                                 const edge = t.edge(child, other);
                                 if (edge) {
                                     const otherCutValue = edge.label.cutvalue;
@@ -466,15 +422,28 @@ dagre.layout = (graph, options) => {
                         }
                         return cutValue;
                     };
-                    const assignCutValue = (t, g, child) => {
-                        const childLabel = t.node(child).label;
-                        const parent = childLabel.parent;
-                        t.edge(child, parent).label.cutvalue = calcCutValue(t, g, child);
+                    const postorder = (g, vs) => {
+                        const visited = new Set();
+                        const result = [];
+                        const dfs = (v) => {
+                            if (!visited.has(v)) {
+                                visited.add(v);
+                                for (const w of g.neighbors(v)) {
+                                    dfs(w);
+                                }
+                                result.push(v);
+                            }
+                        };
+                        for (const v of vs) {
+                            dfs(v);
+                        }
+                        return result;
                     };
-                    let vs = postorder(t, Array.from(t.nodes.keys()));
-                    vs = vs.slice(0, vs.length - 1);
-                    for (const v of vs) {
-                        assignCutValue(t, g, v);
+                    const vs = postorder(t, Array.from(t.nodes.keys()));
+                    for (const v of vs.slice(0, vs.length - 1)) {
+                        const childLabel = t.node(v).label;
+                        const parent = childLabel.parent;
+                        t.edge(v, parent).label.cutvalue = calcCutValue(t, g, v);
                     }
                 };
                 const leaveEdge = (tree) => {
@@ -525,9 +494,19 @@ dagre.layout = (graph, options) => {
                     initCutValues(t, g);
                     // update ranks
                     const root = Array.from(t.nodes.keys()).find((v) => !g.node(v).label.parent);
-                    let vs = preorder(t, root);
-                    vs = vs.slice(1);
-                    for (const v of vs) {
+                    const stack = [ root ];
+                    const visited = new Set();
+                    while (stack.length > 0) {
+                        const v = stack.pop();
+                        if (!visited.has(v)) {
+                            visited.add(v);
+                            for (const w of t.neighbors(v).reverse()) {
+                                stack.push(w);
+                            }
+                        }
+                    }
+                    const vs = Array.from(visited);
+                    for (const v of vs.slice(1)) {
                         const parent = t.node(v).label.parent;
                         let edge = g.edge(v, parent);
                         let flipped = false;
@@ -550,21 +529,17 @@ dagre.layout = (graph, options) => {
                     exchangeEdges(t, g, e, f);
                 }
             };
-
             switch(g.options.ranker) {
-                case 'tight-tree': {
+                case 'tight-tree':
                     longestPath(g);
                     feasibleTree(g);
                     break;
-                }
-                case 'longest-path': {
+                case 'longest-path':
                     longestPath(g);
                     break;
-                }
-                default: {
+                default:
                     networkSimplex(g);
                     break;
-                }
             }
         };
 
@@ -910,14 +885,10 @@ dagre.layout = (graph, options) => {
                     g.setEdge(prev, curr, { weight: 1 });
                 }
             };
-            const dfs = (v) => {
-                const children = g.children(v);
+            const queue = g.children();
+            while (queue.length > 0) {
+                const v = queue.shift();
                 const node = g.node(v).label;
-                if (children.length) {
-                    for (const v of children) {
-                        dfs(v);
-                    }
-                }
                 if ('minRank' in node) {
                     node.borderLeft = [];
                     node.borderRight = [];
@@ -927,9 +898,12 @@ dagre.layout = (graph, options) => {
                         addBorderNode(g, 'borderRight', '_br', v, node, rank);
                     }
                 }
-            };
-            for (const v of g.children()) {
-                dfs(v);
+                const children = g.children(v);
+                if (children.length) {
+                    for (const v of children) {
+                        queue.push(v);
+                    }
+                }
             }
         };
 
