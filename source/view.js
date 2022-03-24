@@ -663,39 +663,38 @@ view.View = class {
         const lastIndex = file.lastIndexOf('.');
         const extension = (lastIndex != -1) ? file.substring(lastIndex + 1) : '';
         if (this.activeGraph && (extension === 'png' || extension === 'svg')) {
-            const graphElement = this._getElementById('canvas');
-            const exportElement = graphElement.cloneNode(true);
-            this.applyStyleSheet(exportElement, 'view-grapher.css');
-            exportElement.setAttribute('id', 'export');
-            exportElement.removeAttribute('viewBox');
-            exportElement.removeAttribute('width');
-            exportElement.removeAttribute('height');
-            exportElement.style.removeProperty('opacity');
-            exportElement.style.removeProperty('display');
-            const backgroundElement = exportElement.querySelector('#background');
-            const originElement = exportElement.querySelector('#origin');
-            originElement.setAttribute('transform', 'translate(0,0) scale(1)');
-            backgroundElement.removeAttribute('width');
-            backgroundElement.removeAttribute('height');
+            const canvas = this._getElementById('canvas');
+            const clone = canvas.cloneNode(true);
+            this.applyStyleSheet(clone, 'view-grapher.css');
+            clone.setAttribute('id', 'export');
+            clone.removeAttribute('viewBox');
+            clone.removeAttribute('width');
+            clone.removeAttribute('height');
+            clone.style.removeProperty('opacity');
+            clone.style.removeProperty('display');
+            const background = clone.querySelector('#background');
+            const origin = clone.querySelector('#origin');
+            origin.setAttribute('transform', 'translate(0,0) scale(1)');
+            background.removeAttribute('width');
+            background.removeAttribute('height');
 
-            const parentElement = graphElement.parentElement;
-            parentElement.insertBefore(exportElement, graphElement);
-            const size = exportElement.getBBox();
-            parentElement.removeChild(exportElement);
-            parentElement.removeChild(graphElement);
-            parentElement.appendChild(graphElement);
-
+            const parent = canvas.parentElement;
+            parent.insertBefore(clone, canvas);
+            const size = clone.getBBox();
+            parent.removeChild(clone);
+            parent.removeChild(canvas);
+            parent.appendChild(canvas);
             const delta = (Math.min(size.width, size.height) / 2.0) * 0.1;
             const width = Math.ceil(delta + size.width + delta);
             const height = Math.ceil(delta + size.height + delta);
-            originElement.setAttribute('transform', 'translate(' + delta.toString() + ', ' + delta.toString() + ') scale(1)');
-            exportElement.setAttribute('width', width);
-            exportElement.setAttribute('height', height);
-            backgroundElement.setAttribute('width', width);
-            backgroundElement.setAttribute('height', height);
-            backgroundElement.setAttribute('fill', '#fff');
+            origin.setAttribute('transform', 'translate(' + (delta - size.x).toString() + ', ' + (delta - size.y).toString() + ') scale(1)');
+            clone.setAttribute('width', width);
+            clone.setAttribute('height', height);
+            background.setAttribute('width', width);
+            background.setAttribute('height', height);
+            background.setAttribute('fill', '#fff');
 
-            const data = new XMLSerializer().serializeToString(exportElement);
+            const data = new XMLSerializer().serializeToString(clone);
 
             if (extension === 'svg') {
                 const blob = new Blob([ data ], { type: 'image/svg' });
