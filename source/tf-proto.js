@@ -8468,6 +8468,9 @@ $root.tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
                 case 7:
                     message.shutdown_barrier_timeout_in_ms = reader.int64();
                     break;
+                case 8:
+                    message.agent_destruction_without_shutdown = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -8503,6 +8506,9 @@ $root.tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
                 case "shutdown_barrier_timeout_in_ms":
                     message.shutdown_barrier_timeout_in_ms = reader.int64();
                     break;
+                case "agent_destruction_without_shutdown":
+                    message.agent_destruction_without_shutdown = reader.bool();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -8518,6 +8524,7 @@ $root.tensorflow.CoordinationServiceConfig.prototype.enable_health_check = false
 $root.tensorflow.CoordinationServiceConfig.prototype.cluster_register_timeout_in_ms = protobuf.Int64.create(0);
 $root.tensorflow.CoordinationServiceConfig.prototype.heartbeat_timeout_in_ms = protobuf.Int64.create(0);
 $root.tensorflow.CoordinationServiceConfig.prototype.shutdown_barrier_timeout_in_ms = protobuf.Int64.create(0);
+$root.tensorflow.CoordinationServiceConfig.prototype.agent_destruction_without_shutdown = false;
 
 $root.tensorflow.DebugTensorWatch = class DebugTensorWatch {
 
