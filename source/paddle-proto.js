@@ -813,7 +813,8 @@ $root.paddle.framework.proto.VarType.Type = {
     "STRING": 25,
     "STRINGS": 26,
     "VOCAB": 27,
-    "FEED_LIST": 28
+    "FEED_LIST": 28,
+    "PSTRING": 29
 };
 
 $root.paddle.framework.proto.VarType.TensorDesc = class TensorDesc {
