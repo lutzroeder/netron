@@ -8018,9 +8018,17 @@
       {
         "name": "device_index",
         "type": 3
+      },
+      {
+        "name": "base_key",
+        "type": 3
       }
     ],
     "outputs": [
+      {
+        "name": "group_size",
+        "type": 3
+      },
       {
         "name": "group_key",
         "type": 3
@@ -29605,7 +29613,7 @@
       {
         "name": "num_parallel_calls",
         "description": "The number of concurrent invocations of `predicate` that process\nelements from `input_dataset` in parallel.",
-        "type": 3
+        "type": 9
       }
     ],
     "outputs": [
