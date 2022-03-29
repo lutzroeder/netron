@@ -394,56 +394,59 @@ dagre.layout = (graph, options) => {
                 };
                 // Initializes cut values for all edges in the tree.
                 const initCutValues = (t, g) => {
-                    // Given the tight tree, its graph, and a child in the graph calculate and
-                    // return the cut value for the edge between the child and its parent.
-                    const calcCutValue = (t, g, child) => {
-                        const childLabel = t.node(child).label;
+                    const vs = [];
+                    const visited = new Set();
+                    const stack = [ Array.from(t.nodes.keys()).reverse() ];
+                    while (stack.length > 0) {
+                        const current = stack[stack.length - 1];
+                        if (Array.isArray(current)) {
+                            const v = current.pop();
+                            if (current.length === 0) {
+                                stack.pop();
+                            }
+                            if (!visited.has(v)) {
+                                visited.add(v);
+                                const children = t.neighbors(v);
+                                if (children.length > 0) {
+                                    stack.push(v);
+                                    stack.push(children.reverse());
+                                }
+                                else {
+                                    vs.push(v);
+                                }
+                            }
+                        }
+                        else {
+                            vs.push(stack.pop());
+                        }
+                    }
+                    for (const v of vs.slice(0, vs.length - 1)) {
+                        // Given the tight tree, its graph, and a child in the graph calculate and
+                        // return the cut value for the edge between the child and its parent.
+                        const childLabel = t.node(v).label;
                         const parent = childLabel.parent;
                         // The graph's view of the tree edge we're inspecting
-                        const edge = g.edge(child, parent);
+                        const edge = g.edge(v, parent);
                         // True if the child is on the tail end of the edge in the directed graph
                         const childIsTail = edge ? true : false;
                         // The accumulated cut value for the edge between this node and its parent
-                        const graphEdge = edge ? edge.label : g.edge(parent, child).label;
+                        const graphEdge = edge ? edge.label : g.edge(parent, v).label;
                         let cutValue = graphEdge.weight;
-                        const node = g.node(child);
+                        const node = g.node(v);
                         for (const e of node.in.concat(node.out)) {
-                            const isOutEdge = e.v === child;
+                            const isOutEdge = e.v === v;
                             const other = isOutEdge ? e.w : e.v;
                             if (other !== parent) {
                                 const pointsToHead = isOutEdge === childIsTail;
                                 cutValue += pointsToHead ? e.label.weight : -e.label.weight;
-                                const edge = t.edge(child, other);
+                                const edge = t.edge(v, other);
                                 if (edge) {
                                     const otherCutValue = edge.label.cutvalue;
                                     cutValue += pointsToHead ? -otherCutValue : otherCutValue;
                                 }
                             }
                         }
-                        return cutValue;
-                    };
-                    const postorder = (g, vs) => {
-                        const visited = new Set();
-                        const result = [];
-                        const dfs = (v) => {
-                            if (!visited.has(v)) {
-                                visited.add(v);
-                                for (const w of g.neighbors(v)) {
-                                    dfs(w);
-                                }
-                                result.push(v);
-                            }
-                        };
-                        for (const v of vs) {
-                            dfs(v);
-                        }
-                        return result;
-                    };
-                    const vs = postorder(t, Array.from(t.nodes.keys()));
-                    for (const v of vs.slice(0, vs.length - 1)) {
-                        const childLabel = t.node(v).label;
-                        const parent = childLabel.parent;
-                        t.edge(v, parent).label.cutvalue = calcCutValue(t, g, v);
+                        t.edge(v, parent).label.cutvalue = cutValue;
                     }
                 };
                 const leaveEdge = (tree) => {
