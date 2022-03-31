@@ -814,14 +814,14 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input to boolean tensor.",
+        "description": "Constrain input to boolean tensor.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(bool)"
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -871,14 +871,14 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input to boolean tensor.",
+        "description": "Constrain input to boolean tensor.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(bool)"
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -902,7 +902,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the indices of the max elements of the input tensor's element along the\nprovided axis. The resulted tensor has the same rank as the input if keepdims equal 1.\nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned.\nThe type of the output tensor is integer.",
+    "description": "Computes the indices of the max elements of the input tensor's element along the\nprovided axis. The resulting tensor has the same rank as the input if keepdims equals 1.\nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned.\nThe type of the output tensor is integer.",
     "attributes": [
       {
         "name": "axis",
@@ -915,7 +915,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -995,7 +995,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "Computes the indices of the max elements of the input tensor's element along the\nprovided axis. The resulting tensor has the same rank as the input if keepdims equal 1.\nIf keepdims equal 0, then the resulting tensor have the reduced dimension pruned.\nThe type of the output tensor is integer.",
+    "description": "Computes the indices of the max elements of the input tensor's element along the\nprovided axis. The resulting tensor has the same rank as the input if keepdims equals 1.\nIf keepdims equal 0, then the resulting tensor has the reduced dimension pruned.\nThe type of the output tensor is integer.",
     "attributes": [
       {
         "name": "axis",
@@ -1008,7 +1008,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -1088,7 +1088,7 @@
     "module": "ai.onnx",
     "version": 12,
     "support_level": "common",
-    "description": "Computes the indices of the max elements of the input tensor's element along the\nprovided axis. The resulting tensor has the same rank as the input if keepdims equal 1.\nIf keepdims equal 0, then the resulting tensor have the reduced dimension pruned.\nIf select_last_index is True (default False), the index of the last occurrence of the max\nis selected if the max appears more than once in the input. Otherwise the index of the\nfirst occurrence is selected.\nThe type of the output tensor is integer.",
+    "description": "Computes the indices of the max elements of the input tensor's element along the\nprovided axis. The resulting tensor has the same rank as the input if keepdims equals 1.\nIf keepdims equal 0, then the resulting tensor has the reduced dimension pruned.\nIf select_last_index is True (default False), the index of the last occurrence of the max\nis selected if the max appears more than once in the input. Otherwise the index of the\nfirst occurrence is selected.\nThe type of the output tensor is integer.",
     "attributes": [
       {
         "name": "axis",
@@ -1101,7 +1101,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       },
       {
         "name": "select_last_index",
@@ -1187,7 +1187,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the indices of the max elements of the input tensor's element along the\nprovided axis. The resulting tensor has the same rank as the input if keepdims equal 1.\nIf keepdims equal 0, then the resulting tensor have the reduced dimension pruned.\nIf select_last_index is True (default False), the index of the last occurrence of the max\nis selected if the max appears more than once in the input. Otherwise the index of the\nfirst occurrence is selected.\nThe type of the output tensor is integer.",
+    "description": "Computes the indices of the max elements of the input tensor's element along the\nprovided axis. The resulting tensor has the same rank as the input if keepdims equals 1.\nIf keepdims equals 0, then the resulting tensor has the reduced dimension pruned.\nIf select_last_index is True (default False), the index of the last occurrence of the max\nis selected if the max appears more than once in the input. Otherwise the index of the\nfirst occurrence is selected.\nThe type of the output tensor is integer.",
     "attributes": [
       {
         "name": "axis",
@@ -1200,7 +1200,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       },
       {
         "name": "select_last_index",
@@ -1287,7 +1287,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the indices of the min elements of the input tensor's element along the\nprovided axis. The resulted tensor has the same rank as the input if keepdims equal 1.\nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned.\nThe type of the output tensor is integer.",
+    "description": "Computes the indices of the min elements of the input tensor's element along the\nprovided axis. The resulting tensor has the same rank as the input if keepdims equals 1.\nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned.\nThe type of the output tensor is integer.",
     "attributes": [
       {
         "name": "axis",
@@ -1300,7 +1300,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -1380,7 +1380,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "Computes the indices of the min elements of the input tensor's element along the\nprovided axis. The resulting tensor has the same rank as the input if keepdims equal 1.\nIf keepdims equal 0, then the resulting tensor have the reduced dimension pruned.\nThe type of the output tensor is integer.",
+    "description": "Computes the indices of the min elements of the input tensor's element along the\nprovided axis. The resulting tensor has the same rank as the input if keepdims equals 1.\nIf keepdims equal 0, then the resulting tensor has the reduced dimension pruned.\nThe type of the output tensor is integer.",
     "attributes": [
       {
         "name": "axis",
@@ -1393,7 +1393,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -1473,7 +1473,7 @@
     "module": "ai.onnx",
     "version": 12,
     "support_level": "common",
-    "description": "Computes the indices of the min elements of the input tensor's element along the\nprovided axis. The resulting tensor has the same rank as the input if keepdims equal 1.\nIf keepdims equal 0, then the resulting tensor have the reduced dimension pruned.\nIf select_last_index is True (default False), the index of the last occurrence of the min\nis selected if the min appears more than once in the input. Otherwise the index of the\nfirst occurrence is selected.\nThe type of the output tensor is integer.",
+    "description": "Computes the indices of the min elements of the input tensor's element along the\nprovided axis. The resulting tensor has the same rank as the input if keepdims equals 1.\nIf keepdims equal 0, then the resulting tensor has the reduced dimension pruned.\nIf select_last_index is True (default False), the index of the last occurrence of the min\nis selected if the min appears more than once in the input. Otherwise the index of the\nfirst occurrence is selected.\nThe type of the output tensor is integer.",
     "attributes": [
       {
         "name": "axis",
@@ -1486,7 +1486,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       },
       {
         "name": "select_last_index",
@@ -1572,7 +1572,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the indices of the min elements of the input tensor's element along the\nprovided axis. The resulting tensor has the same rank as the input if keepdims equal 1.\nIf keepdims equal 0, then the resulting tensor have the reduced dimension pruned.\nIf select_last_index is True (default False), the index of the last occurrence of the min\nis selected if the min appears more than once in the input. Otherwise the index of the\nfirst occurrence is selected.\nThe type of the output tensor is integer.",
+    "description": "Computes the indices of the min elements of the input tensor's element along the\nprovided axis. The resulting tensor has the same rank as the input if keepdims equals 1.\nIf keepdims equals 0, then the resulting tensor has the reduced dimension pruned.\nIf select_last_index is True (default False), the index of the last occurrence of the min\nis selected if the min appears more than once in the input. Otherwise the index of the\nfirst occurrence is selected.\nThe type of the output tensor is integer.",
     "attributes": [
       {
         "name": "axis",
@@ -1585,7 +1585,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       },
       {
         "name": "select_last_index",
@@ -4420,7 +4420,7 @@
         ]
       },
       {
-        "description": "Constrains to boolean tensors.",
+        "description": "Constrain to boolean tensors.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -4506,7 +4506,7 @@
         ]
       },
       {
-        "description": "Constrains to boolean tensors.",
+        "description": "Constrain to boolean tensors.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -7913,7 +7913,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input to integral tensors.",
+        "description": "Constrain input to integral tensors.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(bool)",
@@ -7922,7 +7922,7 @@
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -7972,7 +7972,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input to integral tensors.",
+        "description": "Constrain input to integral tensors.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(bool)",
@@ -7981,7 +7981,7 @@
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -8031,7 +8031,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input types to all numeric tensors.",
+        "description": "Constrain input types to all numeric tensors.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(bool)",
@@ -8049,7 +8049,7 @@
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -8099,7 +8099,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input types to all numeric tensors.",
+        "description": "Constrain input types to all numeric tensors.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(bool)",
@@ -8118,7 +8118,7 @@
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -8378,7 +8378,7 @@
     "module": "ai.onnx",
     "version": 8,
     "support_level": "common",
-    "description": "Broadcast the input tensor following the given shape and the broadcast rule.\nThe broadcast rule is similar to numpy.array(input) * numpy.ones(shape):\nDimensions are right alignment;\nTwo corresponding dimension must have the same value, or one of them is equal to 1.\nAlso, this operator is similar to numpy.broadcast_to(input, shape),\nbut the major difference is numpy.broadcast_to() does not allow shape to be smaller than input.size().\nIt is possible that the output.shape is not equal to shape, when some dimensions in shape is equal to 1,\nor the shape.ndim < input.shape.ndim.\n",
+    "description": "Broadcast the input tensor following the given shape and the broadcast rule.\nThe broadcast rule is similar to numpy.array(input) * numpy.ones(shape):\nDimensions are right alignment;\nTwo corresponding dimensions must have the same value, or one of them is equal to 1.\nAlso, this operator is similar to numpy.broadcast_to(input, shape),\nbut the major difference is numpy.broadcast_to() does not allow shape to be smaller than input.size().\nIt is possible that the output.shape is not equal to shape, when some dimensions in shape is equal to 1,\nor the shape.ndim < input.shape.ndim.\n",
     "inputs": [
       {
         "name": "input",
@@ -8441,7 +8441,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Broadcast the input tensor following the given shape and the broadcast rule.\nThe broadcast rule is similar to numpy.array(input) * numpy.ones(shape):\nDimensions are right alignment;\nTwo corresponding dimension must have the same value, or one of them is equal to 1.\nAlso, this operator is similar to numpy.broadcast_to(input, shape),\nbut the major difference is numpy.broadcast_to() does not allow shape to be smaller than input.size().\nIt is possible that the output.shape is not equal to shape, when some dimensions in shape is equal to 1,\nor the shape.ndim < input.shape.ndim.\n",
+    "description": "Broadcast the input tensor following the given shape and the broadcast rule.\nThe broadcast rule is similar to numpy.array(input) * numpy.ones(shape):\nDimensions are right alignment;\nTwo corresponding dimensions must have the same value, or one of them is equal to 1.\nAlso, this operator is similar to numpy.broadcast_to(input, shape),\nbut the major difference is numpy.broadcast_to() does not allow shape to be smaller than input.size().\nIt is possible that the output.shape is not equal to shape, when some dimensions in shape is equal to 1,\nor the shape.ndim < input.shape.ndim.\n",
     "inputs": [
       {
         "name": "input",
@@ -11363,7 +11363,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input to float tensors.",
+        "description": "Constrain input to float tensors.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(float16)",
@@ -11372,7 +11372,7 @@
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -11430,7 +11430,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input to float tensors.",
+        "description": "Constrain input to float tensors.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(float16)",
@@ -11439,7 +11439,7 @@
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -11497,7 +11497,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input types to all numeric tensors.",
+        "description": "Constrain input types to all numeric tensors.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(uint8)",
@@ -11514,7 +11514,7 @@
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -11572,7 +11572,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input types to all numeric tensors.",
+        "description": "Constrain input types to all numeric tensors.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(uint8)",
@@ -11590,7 +11590,7 @@
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -11648,7 +11648,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input types to all numeric tensors.",
+        "description": "Constrain input types to all numeric tensors.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(uint8)",
@@ -11665,7 +11665,7 @@
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -11704,7 +11704,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input types to all numeric tensors.",
+        "description": "Constrain input types to all numeric tensors.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(uint8)",
@@ -11722,7 +11722,7 @@
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -14286,7 +14286,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input to float tensors.",
+        "description": "Constrain input to float tensors.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(float16)",
@@ -14295,7 +14295,7 @@
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -14353,7 +14353,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input to float tensors.",
+        "description": "Constrain input to float tensors.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(float16)",
@@ -14362,7 +14362,7 @@
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -14420,7 +14420,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input types to all numeric tensors.",
+        "description": "Constrain input types to all numeric tensors.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(uint8)",
@@ -14437,7 +14437,7 @@
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -14495,7 +14495,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input types to all numeric tensors.",
+        "description": "Constrain input types to all numeric tensors.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(uint8)",
@@ -14513,7 +14513,7 @@
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -14571,7 +14571,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input types to all numeric tensors.",
+        "description": "Constrain input types to all numeric tensors.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(uint8)",
@@ -14588,7 +14588,7 @@
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -14627,7 +14627,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input types to all numeric tensors.",
+        "description": "Constrain input types to all numeric tensors.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(uint8)",
@@ -14645,7 +14645,7 @@
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -19364,7 +19364,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input/output to boolean tensors.",
+        "description": "Constrain input/output to boolean tensors.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -19424,7 +19424,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input to only numeric types.",
+        "description": "Constrain input to only numeric types.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(uint8)",
@@ -19441,7 +19441,7 @@
         ]
       },
       {
-        "description": "Constrains input to only numeric types.",
+        "description": "Constrain input to only numeric types.",
         "type_param_str": "T2",
         "allowed_type_strs": [
           "tensor(uint8)",
@@ -19543,7 +19543,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input to only numeric types.",
+        "description": "Constrain input to only numeric types.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(uint8)",
@@ -19560,7 +19560,7 @@
         ]
       },
       {
-        "description": "Constrains input to only numeric types.",
+        "description": "Constrain input to only numeric types.",
         "type_param_str": "T2",
         "allowed_type_strs": [
           "tensor(uint8)",
@@ -19711,7 +19711,7 @@
     "inputs_range": "0 - 1",
     "type_constraints": [
       {
-        "description": "Constrains input type to all tensor and sequence types.",
+        "description": "Constrain input type to all tensor and sequence types.",
         "type_param_str": "V",
         "allowed_type_strs": [
           "tensor(uint8)",
@@ -19747,7 +19747,7 @@
         ]
       },
       {
-        "description": "Constrains output type to all optional tensor or optional sequence types.",
+        "description": "Constrain output type to all optional tensor or optional sequence types.",
         "type_param_str": "O",
         "allowed_type_strs": [
           "optional(seq(tensor(uint8)))",
@@ -19810,7 +19810,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input type to optional tensor and optional sequence types.",
+        "description": "Constrain input type to optional tensor and optional sequence types.",
         "type_param_str": "O",
         "allowed_type_strs": [
           "optional(seq(tensor(uint8)))",
@@ -19909,7 +19909,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input type to optional tensor and optional sequence types.",
+        "description": "Constrain input type to optional tensor and optional sequence types.",
         "type_param_str": "O",
         "allowed_type_strs": [
           "optional(seq(tensor(uint8)))",
@@ -19945,7 +19945,7 @@
         ]
       },
       {
-        "description": "Constrains output to a boolean tensor.",
+        "description": "Constrain output to a boolean tensor.",
         "type_param_str": "B",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -20016,14 +20016,14 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input to boolean tensor.",
+        "description": "Constrain input to boolean tensor.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(bool)"
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -20073,14 +20073,14 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input to boolean tensor.",
+        "description": "Constrain input to boolean tensor.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(bool)"
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -20559,7 +20559,7 @@
     "inputs_range": "2 - 3",
     "type_constraints": [
       {
-        "description": "Constrains input and output to only numeric types.",
+        "description": "Constrain input and output to only numeric types.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(uint8)",
@@ -22313,7 +22313,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the L1 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the L1 norm of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -22326,7 +22326,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -22386,7 +22386,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "Computes the L1 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the L1 norm of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -22399,7 +22399,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -22459,7 +22459,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the L1 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the L1 norm of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -22472,7 +22472,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -22533,7 +22533,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the L2 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the L2 norm of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -22546,7 +22546,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -22606,7 +22606,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "Computes the L2 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the L2 norm of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -22619,7 +22619,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -22679,7 +22679,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the L2 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the L2 norm of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -22692,7 +22692,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -22753,7 +22753,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the log sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the log sum of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -22766,7 +22766,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -22822,7 +22822,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "Computes the log sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the log sum of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -22835,7 +22835,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -22891,7 +22891,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the log sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the log sum of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -22904,7 +22904,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -22961,7 +22961,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the log sum exponent of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the log sum exponent of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -22974,7 +22974,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -23034,7 +23034,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "Computes the log sum exponent of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the log sum exponent of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -23047,7 +23047,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -23107,7 +23107,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the log sum exponent of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the log sum exponent of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -23120,7 +23120,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -23181,7 +23181,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the max of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the max of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -23194,7 +23194,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -23254,7 +23254,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "Computes the max of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the max of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -23267,7 +23267,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -23327,7 +23327,7 @@
     "module": "ai.onnx",
     "version": 12,
     "support_level": "common",
-    "description": "Computes the max of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the max of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -23340,7 +23340,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -23402,7 +23402,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the max of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the max of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -23415,7 +23415,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -23478,7 +23478,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the mean of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the mean of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -23491,7 +23491,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -23551,7 +23551,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "Computes the mean of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the mean of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -23564,7 +23564,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -23624,7 +23624,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the mean of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the mean of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -23637,7 +23637,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -23698,7 +23698,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the min of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the min of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -23711,7 +23711,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -23771,7 +23771,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "Computes the min of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the min of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -23784,7 +23784,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -23844,7 +23844,7 @@
     "module": "ai.onnx",
     "version": 12,
     "support_level": "common",
-    "description": "Computes the min of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the min of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -23857,7 +23857,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -23919,7 +23919,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the min of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the min of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -23932,7 +23932,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -23995,7 +23995,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the product of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the product of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -24008,7 +24008,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -24068,7 +24068,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "Computes the product of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the product of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -24081,7 +24081,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -24141,7 +24141,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the product of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the product of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -24154,7 +24154,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -24215,7 +24215,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the sum of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -24228,7 +24228,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -24292,7 +24292,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "Computes the sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the sum of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -24305,7 +24305,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -24369,14 +24369,14 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the sum of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "keepdims",
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       },
       {
         "name": "noop_with_empty_axes",
@@ -24454,7 +24454,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the sum square of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the sum square of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -24467,7 +24467,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -24527,7 +24527,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "Computes the sum square of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the sum square of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -24540,7 +24540,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -24600,7 +24600,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the sum square of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+    "description": "Computes the sum square of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -24613,7 +24613,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension."
+        "description": "Keep the reduced dimension or not, default 1 means keep reduced dimension."
       }
     ],
     "inputs": [
@@ -26287,7 +26287,7 @@
     "module": "ai.onnx",
     "version": 8,
     "support_level": "common",
-    "description": "Scan can be used to iterate over one or more scan_input tensors,\nconstructing zero or more scan_output tensors. It combines ideas from general recurrences,\nfunctional programming constructs such as scan, fold, map, and zip and is intended to enable\ngeneralizations of RNN-like constructs for sequence-to-sequence processing.\nOther tensors (referred to as state_variables here) can be used to carry a state\nwhen iterating from one element to another (similar to hidden-state in RNNs, also referred\nto as loop-carried dependences in the context of loops). All these tensors are required to\nhave the same shape in each iteration of the loop (a restriction imposed to enable efficient\nmemory allocation). Many common usages involve a single scan_input tensor (where functionality\nsimilar to scan, fold and map can be obtained). When more than one scan_input is used,\na behavior similar to zip is obtained.\n\nThe attribute body must be a graph, specifying the computation to be performed in\nevery iteration. It takes as input the current values of the state_variables and\nthe current iterated element of the scan_inputs. It must return the (updated) values\nof the state_variables and zero or more scan_output_element tensors. The values of the\nscan_output_element tensors are concatenated over all the iterations to produce the\nscan_output values of the scan construct (similar to the concatenated intermediate\nhidden-state values of RNN-like constructs).\n\nThe scan operation returns the final values of the state_variables as well as the\nscan_outputs.\n\nThe operation supports batching, and the batch-axis is required to be 0.\nWhen multiple scan_input tensors are used, they must all have the same batch-size,\nand they must all have the same maximum-sequence-length (the dimensionality of the\nsequence axis or scan axis). The sequence axis or scan axis is required to be 1.\n\nThe operation has an optional sequence_lens input (of shape [BATCH_SIZE]) to\nallow variable length sequences of length <= the maximum-sequence-length. If this\ninput is not specified, all sequences are assumed to be of length equal to\nmaximum-sequence-length. For variable length input sequences, the scan_outputs\nwill consist of a sequence of same length as the input, padded to the\nmaximum-sequence-length.\n\nThe optional attribute directions can be used to scan a sequence in the reverse direction.\nIf this attribute is omitted, all sequences are scanned in the forward direction.\nA bidirectional scan be performed by specifying the same tensor input twice in the\nscan_inputs, once with a forward direction, and once with a backward direction.\n\nNote that because of the ONNX restriction that only the last parameter of an operator can\nbe variadic, the initial-states and scan-inputs are listed together as one input parameter.\nSimilarly, the final-states and scan-outputs are listed together as one output parameter.\nThe attribute num_scan_inputs indicates the number M of scan-inputs.\n\nThe behavior of\n\n    Scan <\n        num_scan_inputs = m,\n        body = loop-body\n    > (sequence_lengths, init_1, ..., init_n, scan_1, ..., scan_m)\n\nis equivalent to the following pseudo-code:\n\n    // T.shape[0] denotes the batch-size of T\n    // The batch-size of scan_1, ..., scan_m are all required to be equal\n    batch_size = scan_1.shape[0];\n\n    // scan_i.shape[1] denotes the (max) sequence-length of scan_i\n    // scan_i.shape[1] is required to be equal to scan_j.shape[1] for all i,j.\n    max_sequence_length = scan_1.shape[1];\n\n    for (int batch = 0; batch < batch_size; ++batch) {\n        // initialize state-variables\n        st_1 = init_1; ... st_n = init_n;\n        // initialize scan-output variables: [] denotes an empty tensor\n        scan_out_1 = []; ...; scan_out_k = [];\n        // identify number of iterations:\n        N = (sequence_lengths specified) ? sequence_lengths[batch] : max_sequence_length;\n\n        // execute loop\n        for (int t = 0; t < N; ++t) {\n            // generate the scan-input elements: the notation T<axis=k>[t] indicates the sub-tensor\n            // of rank one less than T obtained by indexing T at position t along axis k.\n            si_1 = (scan_1<axis=0>[batch])<axis=1>[t];\n            ... ;\n            si_m = (scan_m<axis=0>[batch])<axis=1>[t];\n            // execute loop-body\n            st_1, ..., st_n, so_1, ..., so_k = loop-body(st_1, ..., st_n, si_1, ..., si_m)\n            // accumulate the scan-output elements\n            scan_out_1 = Concat<axis=0>(scan_out_1, so_1); ... ; scan_out_k = Concat<axis=0>(scan_out_k, so_k);\n        }\n        // accumulate the outputs for this batch:\n        bst_1[batch] = st_1; ..., bst_n[batch] = st_n;\n        // Note scan-outputs will have size max_sequence_length, but only first N values will be meaningful.\n        // The remaining values have an undefined value.\n        b_scan_out_1[batch] = scan_out_1; ...; b_scan_out_k[batch] = scan_out_k;\n    }\n    return bst_1, ..., bst_n, b_scan_out_1, ..., b_scan_out_k;\n\n\n\n*Sample usage: Encoding RNN using a Scan*\n\nThe following example shows how a simple RNN over an input tensor %X, with weight tensor %Wi,\nrecurrence weight tensor %Ri, bias tensors %Wbi and %Rbi, and initial hidden-state %H_0 can\nbe encoded as a ScanLoop. Note that the loop-body is a nested graph, and it directly computes\n%Wi, %Ri, %Wbi, and %Rbi (typically constants or initializers in the body graph). If these\nvalues are computed in the outer graph, they need to be passed in as extra state_variables.\n\n    graph rnn-encoding {\n      %H_0 = ...\n      %X = ...\n      %Y_h, %Y = Scan[body = <graph rnn-cell-1>, num_scan_inputs=1](\"\", %H_0, %X)\n      return %Y, %Y_h\n    }\n\n    graph rnn-cell-1 (\n      %H_tminus1[FLOAT, tensor]\n      %X_t[FLOAT, tensor]\n    ) {\n      %Wi = ...\n      %Ri = ...\n      %Wbi = ...\n      %Rbi = ...\n      %t1 = X_t * (Wi^T)\n      %t2 = H_tminus1*(Ri^T)\n      %t3 = Add(%t1, %t2)\n      %t4 = Add(%t3, %Wbi)\n      %t5 = Add(%t4, %Rbi)\n      %Ht = Tanh(%t5)\n      %Accumulate = Identity(%Ht)\n      return %Ht, %Accumulate\n    }\n\n",
+    "description": "Scan can be used to iterate over one or more scan_input tensors,\nconstructing zero or more scan_output tensors. It combines ideas from general recurrences,\nfunctional programming constructs such as scan, fold, map, and zip, and is intended to enable\ngeneralizations of RNN-like constructs for sequence-to-sequence processing.\nOther tensors (referred to as state_variables here) can be used to carry a state\nwhen iterating from one element to another (similar to hidden-state in RNNs, also referred\nto as loop-carried dependences in the context of loops). All these tensors are required to\nhave the same shape in each iteration of the loop (a restriction imposed to enable efficient\nmemory allocation). Many common usages involve a single scan_input tensor (where functionality\nsimilar to scan, fold and map can be obtained). When more than one scan_input is used,\na behavior similar to zip is obtained.\n\nThe attribute body must be a graph, specifying the computation to be performed in\nevery iteration. It takes as input the current values of the state_variables and\nthe current iterated element of the scan_inputs. It must return the (updated) values\nof the state_variables and zero or more scan_output_element tensors. The values of the\nscan_output_element tensors are concatenated over all the iterations to produce the\nscan_output values of the scan construct (similar to the concatenated intermediate\nhidden-state values of RNN-like constructs).\n\nThe scan operation returns the final values of the state_variables as well as the\nscan_outputs.\n\nThe operation supports batching, and the batch-axis is required to be 0.\nWhen multiple scan_input tensors are used, they must all have the same batch-size,\nand they must all have the same maximum-sequence-length (the dimensionality of the\nsequence axis or scan axis). The sequence axis or scan axis is required to be 1.\n\nThe operation has an optional sequence_lens input (of shape [BATCH_SIZE]) to\nallow variable length sequences of length <= the maximum-sequence-length. If this\ninput is not specified, all sequences are assumed to be of length equal to\nmaximum-sequence-length. For variable length input sequences, the scan_outputs\nwill consist of a sequence of same length as the input, padded to the\nmaximum-sequence-length.\n\nThe optional attribute directions can be used to scan a sequence in the reverse direction.\nIf this attribute is omitted, all sequences are scanned in the forward direction.\nA bidirectional scan be performed by specifying the same tensor input twice in the\nscan_inputs, once with a forward direction, and once with a backward direction.\n\nNote that because of the ONNX restriction that only the last parameter of an operator can\nbe variadic, the initial-states and scan-inputs are listed together as one input parameter.\nSimilarly, the final-states and scan-outputs are listed together as one output parameter.\nThe attribute num_scan_inputs indicates the number M of scan-inputs.\n\nThe behavior of\n\n    Scan <\n        num_scan_inputs = m,\n        body = loop-body\n    > (sequence_lengths, init_1, ..., init_n, scan_1, ..., scan_m)\n\nis equivalent to the following pseudo-code:\n\n    // T.shape[0] denotes the batch-size of T\n    // The batch-size of scan_1, ..., scan_m are all required to be equal\n    batch_size = scan_1.shape[0];\n\n    // scan_i.shape[1] denotes the (max) sequence-length of scan_i\n    // scan_i.shape[1] is required to be equal to scan_j.shape[1] for all i,j.\n    max_sequence_length = scan_1.shape[1];\n\n    for (int batch = 0; batch < batch_size; ++batch) {\n        // initialize state-variables\n        st_1 = init_1; ... st_n = init_n;\n        // initialize scan-output variables: [] denotes an empty tensor\n        scan_out_1 = []; ...; scan_out_k = [];\n        // identify number of iterations:\n        N = (sequence_lengths specified) ? sequence_lengths[batch] : max_sequence_length;\n\n        // execute loop\n        for (int t = 0; t < N; ++t) {\n            // generate the scan-input elements: the notation T<axis=k>[t] indicates the sub-tensor\n            // of rank one less than T obtained by indexing T at position t along axis k.\n            si_1 = (scan_1<axis=0>[batch])<axis=1>[t];\n            ... ;\n            si_m = (scan_m<axis=0>[batch])<axis=1>[t];\n            // execute loop-body\n            st_1, ..., st_n, so_1, ..., so_k = loop-body(st_1, ..., st_n, si_1, ..., si_m)\n            // accumulate the scan-output elements\n            scan_out_1 = Concat<axis=0>(scan_out_1, so_1); ... ; scan_out_k = Concat<axis=0>(scan_out_k, so_k);\n        }\n        // accumulate the outputs for this batch:\n        bst_1[batch] = st_1; ..., bst_n[batch] = st_n;\n        // Note scan-outputs will have size max_sequence_length, but only first N values will be meaningful.\n        // The remaining values have an undefined value.\n        b_scan_out_1[batch] = scan_out_1; ...; b_scan_out_k[batch] = scan_out_k;\n    }\n    return bst_1, ..., bst_n, b_scan_out_1, ..., b_scan_out_k;\n\n\n\n*Sample usage: Encoding RNN using a Scan*\n\nThe following example shows how a simple RNN over an input tensor %X, with weight tensor %Wi,\nrecurrence weight tensor %Ri, bias tensors %Wbi and %Rbi, and initial hidden-state %H_0 can\nbe encoded as a ScanLoop. Note that the loop-body is a nested graph, and it directly computes\n%Wi, %Ri, %Wbi, and %Rbi (typically constants or initializers in the body graph). If these\nvalues are computed in the outer graph, they need to be passed in as extra state_variables.\n\n    graph rnn-encoding {\n      %H_0 = ...\n      %X = ...\n      %Y_h, %Y = Scan[body = <graph rnn-cell-1>, num_scan_inputs=1](\"\", %H_0, %X)\n      return %Y, %Y_h\n    }\n\n    graph rnn-cell-1 (\n      %H_tminus1[FLOAT, tensor]\n      %X_t[FLOAT, tensor]\n    ) {\n      %Wi = ...\n      %Ri = ...\n      %Wbi = ...\n      %Rbi = ...\n      %t1 = X_t * (Wi^T)\n      %t2 = H_tminus1*(Ri^T)\n      %t3 = Add(%t1, %t2)\n      %t4 = Add(%t3, %Wbi)\n      %t5 = Add(%t4, %Rbi)\n      %Ht = Tanh(%t5)\n      %Accumulate = Identity(%Ht)\n      return %Ht, %Accumulate\n    }\n\n",
     "attributes": [
       {
         "name": "body",
@@ -26382,7 +26382,7 @@
     "module": "ai.onnx",
     "version": 9,
     "support_level": "common",
-    "description": "Scan can be used to iterate over one or more scan_input tensors,\nconstructing zero or more scan_output tensors. It combines ideas from general recurrences,\nfunctional programming constructs such as scan, fold, map, and zip and is intended to enable\ngeneralizations of RNN-like constructs for sequence-to-sequence processing.\nOther tensors (referred to as state_variables here) can be used to carry a state\nwhen iterating from one element to another (similar to hidden-state in RNNs, also referred\nto as loop-carried dependences in the context of loops).\nMany common usages involve a single scan_input tensor (where functionality\nsimilar to scan, fold and map can be obtained). When more than one scan_input is used,\na behavior similar to zip is obtained.\n\nThe attribute body must be a graph, specifying the computation to be performed in\nevery iteration. It takes as input the current values of the state_variables and\nthe current iterated element of the scan_inputs. It must return the (updated) values\nof the state_variables and zero or more scan_output_element tensors. The values of the\nscan_output_element tensors are concatenated over all the iterations to produce the\nscan_output values of the scan construct (similar to the concatenated intermediate\nhidden-state values of RNN-like constructs). All the output tensors (state_variables as\nwell as scan_output_element tensors) are required to have the same shape in each iteration\nof the loop (a restriction imposed to enable efficient memory allocation).\n\nNote that the iterated element passed to the body subgraph does not have a sequence\naxis. It will have a rank one less than the rank of the corresponding scan_input.\n\nThe scan operation returns the final values of the state_variables as well as the\nscan_outputs.\n\nThe optional attribute scan_input_directions specifies the direction (forward or backward)\nfor each scan input. If this attribute is omitted, all sequences are scanned in the forward\ndirection. A bidirectional scan may be performed by specifying the same tensor input twice\nin the scan_inputs, once with a forward direction, and once with a backward direction.\n\nThe scan_output of the operation is produced by concatenating the scan_output_element\nvalues produced by the body in each iteration.  The optional attribute scan_output_directions\nspecifies the direction in which scan_output is constructed (by appending or prepending the\nscan_output_element to scan_output in each iteration) for each scan_output. If this attribute\nis omitted, the scan_output_element is appended to the scan_output in each iteration.\n\nThe optional attribute scan_input_axes specifies the axis to be scanned for each scan_input.\nIf omitted, every scan_input will be scanned in axis 0. For example, if axis 0 is the\nbatch axis and axis 1 is the time axis (to be scanned), specify an axis value of 1.\nNote that scanning a non-zero axis may be less efficient than scanning axis zero.\n\nThe optional attribute scan_output_axes specifies the axis along which the scan_outputs\nare accumulated for each scan_output. For example, if axis 1 is the time axis (to be\nscanned) for both inputs and outputs, specify a scan_input axis and scan_output axis\nvalue of 1.\n\nNote that because of the ONNX restriction that only the last parameter of an operator can\nbe variadic, the initial-states and scan-inputs are listed together as one input parameter.\nSimilarly, the final-states and scan-outputs are listed together as one output parameter.\nThe attribute num_scan_inputs indicates the number M of scan-inputs.\n\nThe behavior of\n\n    Scan <\n        num_scan_inputs = m,\n        body = loop-body,\n        scan_input_axes = [axis_1, ..., axis_m]\n    > (init_1, ..., init_n, scan_1, ..., scan_m)\n\nis equivalent to the following pseudo-code:\n\n    // scan_i.shape[axis_i] denotes the (max) sequence-length of scan_i\n    // scan_i.shape[axis_i] is required to be equal to scan_j.shape[axis_j] for all i,j.\n    sequence_length = scan_1.shape[axis_1];\n\n    // initialize state-variables\n    st_1 = init_1; ... st_n = init_n;\n    // initialize scan-output variables: [] denotes an empty tensor\n    scan_out_1 = []; ...; scan_out_k = [];\n    // identify number of iterations:\n\n    // execute loop\n    for (int t = 0; t < sequence_length; ++t) {\n        // generate the scan-input elements: the notation T<axis=k>[t] indicates the sub-tensor\n        // of rank one less than T obtained by indexing T at position t along axis k.\n        si_1 = scan_1<axis=axis_1>[t];\n        ... ;\n        si_m = scan_m<axis=axis_m>[t];\n        // execute loop-body\n        st_1, ..., st_n, so_1, ..., so_k = loop-body(st_1, ..., st_n, si_1, ..., si_m)\n        // accumulate the scan-output elements\n        scan_out_1 = Concat<axis=0>(scan_out_1, so_1); ... ; scan_out_k = Concat<axis=0>(scan_out_k, so_k);\n    }\n\n    return st_1, ..., st_n, scan_out_1, ..., scan_out_k;\n\n*Sample usage: Encoding RNN using a Scan*\n\nThe following example shows how a simple RNN over an input tensor %X, with weight tensor %Wi,\nrecurrence weight tensor %Ri, bias tensors %Wbi and %Rbi, and initial hidden-state %H_0 can\nbe encoded as a ScanLoop. Note that the loop-body is a nested graph, and it directly computes\n%Wi, %Ri, %Wbi, and %Rbi (typically constants or initializers in the body graph). If these\nvalues are computed in the outer graph, they need to be passed in as extra state_variables.\n\n    graph rnn-encoding {\n      %H_0 = ...\n      %X = ...\n      %Y_h, %Y = Scan[body = <graph rnn-cell-1>, num_scan_inputs=1](%H_0, %X)\n      return %Y, %Y_h\n    }\n\n    graph rnn-cell-1 (\n      %H_tminus1[FLOAT, tensor]\n      %X_t[FLOAT, tensor]\n    ) {\n      %Wi = ...\n      %Ri = ...\n      %Wbi = ...\n      %Rbi = ...\n      %t1 = X_t * (Wi^T)\n      %t2 = H_tminus1*(Ri^T)\n      %t3 = Add(%t1, %t2)\n      %t4 = Add(%t3, %Wbi)\n      %t5 = Add(%t4, %Rbi)\n      %Ht = Tanh(%t5)\n      %Accumulate = Identity(%Ht)\n      return %Ht, %Accumulate\n    }\n\n",
+    "description": "Scan can be used to iterate over one or more scan_input tensors,\nconstructing zero or more scan_output tensors. It combines ideas from general recurrences,\nfunctional programming constructs such as scan, fold, map, and zip, and is intended to enable\ngeneralizations of RNN-like constructs for sequence-to-sequence processing.\nOther tensors (referred to as state_variables here) can be used to carry a state\nwhen iterating from one element to another (similar to hidden-state in RNNs, also referred\nto as loop-carried dependences in the context of loops).\nMany common usages involve a single scan_input tensor (where functionality\nsimilar to scan, fold and map can be obtained). When more than one scan_input is used,\na behavior similar to zip is obtained.\n\nThe attribute body must be a graph, specifying the computation to be performed in\nevery iteration. It takes as input the current values of the state_variables and\nthe current iterated element of the scan_inputs. It must return the (updated) values\nof the state_variables and zero or more scan_output_element tensors. The values of the\nscan_output_element tensors are concatenated over all the iterations to produce the\nscan_output values of the scan construct (similar to the concatenated intermediate\nhidden-state values of RNN-like constructs). All the output tensors (state_variables as\nwell as scan_output_element tensors) are required to have the same shape in each iteration\nof the loop (a restriction imposed to enable efficient memory allocation).\n\nNote that the iterated element passed to the body subgraph does not have a sequence\naxis. It will have a rank one less than the rank of the corresponding scan_input.\n\nThe scan operation returns the final values of the state_variables as well as the\nscan_outputs.\n\nThe optional attribute scan_input_directions specifies the direction (forward or backward)\nfor each scan input. If this attribute is omitted, all sequences are scanned in the forward\ndirection. A bidirectional scan may be performed by specifying the same tensor input twice\nin the scan_inputs, once with a forward direction, and once with a backward direction.\n\nThe scan_output of the operation is produced by concatenating the scan_output_element\nvalues produced by the body in each iteration.  The optional attribute scan_output_directions\nspecifies the direction in which scan_output is constructed (by appending or prepending the\nscan_output_element to scan_output in each iteration) for each scan_output. If this attribute\nis omitted, the scan_output_element is appended to the scan_output in each iteration.\n\nThe optional attribute scan_input_axes specifies the axis to be scanned for each scan_input.\nIf omitted, every scan_input will be scanned in axis 0. For example, if axis 0 is the\nbatch axis and axis 1 is the time axis (to be scanned), specify an axis value of 1.\nNote that scanning a non-zero axis may be less efficient than scanning axis zero.\n\nThe optional attribute scan_output_axes specifies the axis along which the scan_outputs\nare accumulated for each scan_output. For example, if axis 1 is the time axis (to be\nscanned) for both inputs and outputs, specify a scan_input axis and scan_output axis\nvalue of 1.\n\nNote that because of the ONNX restriction that only the last parameter of an operator can\nbe variadic, the initial-states and scan-inputs are listed together as one input parameter.\nSimilarly, the final-states and scan-outputs are listed together as one output parameter.\nThe attribute num_scan_inputs indicates the number M of scan-inputs.\n\nThe behavior of\n\n    Scan <\n        num_scan_inputs = m,\n        body = loop-body,\n        scan_input_axes = [axis_1, ..., axis_m]\n    > (init_1, ..., init_n, scan_1, ..., scan_m)\n\nis equivalent to the following pseudo-code:\n\n    // scan_i.shape[axis_i] denotes the (max) sequence-length of scan_i\n    // scan_i.shape[axis_i] is required to be equal to scan_j.shape[axis_j] for all i,j.\n    sequence_length = scan_1.shape[axis_1];\n\n    // initialize state-variables\n    st_1 = init_1; ... st_n = init_n;\n    // initialize scan-output variables: [] denotes an empty tensor\n    scan_out_1 = []; ...; scan_out_k = [];\n    // identify number of iterations:\n\n    // execute loop\n    for (int t = 0; t < sequence_length; ++t) {\n        // generate the scan-input elements: the notation T<axis=k>[t] indicates the sub-tensor\n        // of rank one less than T obtained by indexing T at position t along axis k.\n        si_1 = scan_1<axis=axis_1>[t];\n        ... ;\n        si_m = scan_m<axis=axis_m>[t];\n        // execute loop-body\n        st_1, ..., st_n, so_1, ..., so_k = loop-body(st_1, ..., st_n, si_1, ..., si_m)\n        // accumulate the scan-output elements\n        scan_out_1 = Concat<axis=0>(scan_out_1, so_1); ... ; scan_out_k = Concat<axis=0>(scan_out_k, so_k);\n    }\n\n    return st_1, ..., st_n, scan_out_1, ..., scan_out_k;\n\n*Sample usage: Encoding RNN using a Scan*\n\nThe following example shows how a simple RNN over an input tensor %X, with weight tensor %Wi,\nrecurrence weight tensor %Ri, bias tensors %Wbi and %Rbi, and initial hidden-state %H_0 can\nbe encoded as a ScanLoop. Note that the loop-body is a nested graph, and it directly computes\n%Wi, %Ri, %Wbi, and %Rbi (typically constants or initializers in the body graph). If these\nvalues are computed in the outer graph, they need to be passed in as extra state_variables.\n\n    graph rnn-encoding {\n      %H_0 = ...\n      %X = ...\n      %Y_h, %Y = Scan[body = <graph rnn-cell-1>, num_scan_inputs=1](%H_0, %X)\n      return %Y, %Y_h\n    }\n\n    graph rnn-cell-1 (\n      %H_tminus1[FLOAT, tensor]\n      %X_t[FLOAT, tensor]\n    ) {\n      %Wi = ...\n      %Ri = ...\n      %Wbi = ...\n      %Rbi = ...\n      %t1 = X_t * (Wi^T)\n      %t2 = H_tminus1*(Ri^T)\n      %t3 = Add(%t1, %t2)\n      %t4 = Add(%t3, %Wbi)\n      %t5 = Add(%t4, %Rbi)\n      %Ht = Tanh(%t5)\n      %Accumulate = Identity(%Ht)\n      return %Ht, %Accumulate\n    }\n\n",
     "attributes": [
       {
         "name": "body",
@@ -26482,7 +26482,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "Scan can be used to iterate over one or more scan_input tensors,\nconstructing zero or more scan_output tensors. It combines ideas from general recurrences,\nfunctional programming constructs such as scan, fold, map, and zip and is intended to enable\ngeneralizations of RNN-like constructs for sequence-to-sequence processing.\nOther tensors (referred to as state_variables here) can be used to carry a state\nwhen iterating from one element to another (similar to hidden-state in RNNs, also referred\nto as loop-carried dependences in the context of loops).\nMany common usages involve a single scan_input tensor (where functionality\nsimilar to scan, fold and map can be obtained). When more than one scan_input is used,\na behavior similar to zip is obtained.\n\nThe attribute body must be a graph, specifying the computation to be performed in\nevery iteration. It takes as input the current values of the state_variables and\nthe current iterated element of the scan_inputs. It must return the (updated) values\nof the state_variables and zero or more scan_output_element tensors. The values of the\nscan_output_element tensors are concatenated over all the iterations to produce the\nscan_output values of the scan construct (similar to the concatenated intermediate\nhidden-state values of RNN-like constructs). All the output tensors (state_variables as\nwell as scan_output_element tensors) are required to have the same shape in each iteration\nof the loop (a restriction imposed to enable efficient memory allocation).\n\nNote that the iterated element passed to the body subgraph does not have a sequence\naxis. It will have a rank one less than the rank of the corresponding scan_input.\n\nThe scan operation returns the final values of the state_variables as well as the\nscan_outputs.\n\nThe optional attribute scan_input_directions specifies the direction (forward or backward)\nfor each scan input. If this attribute is omitted, all sequences are scanned in the forward\ndirection. A bidirectional scan may be performed by specifying the same tensor input twice\nin the scan_inputs, once with a forward direction, and once with a backward direction.\n\nThe scan_output of the operation is produced by concatenating the scan_output_element\nvalues produced by the body in each iteration.  The optional attribute scan_output_directions\nspecifies the direction in which scan_output is constructed (by appending or prepending the\nscan_output_element to scan_output in each iteration) for each scan_output. If this attribute\nis omitted, the scan_output_element is appended to the scan_output in each iteration.\n\nThe optional attribute scan_input_axes specifies the axis to be scanned for each scan_input.\nIf omitted, every scan_input will be scanned in axis 0. For example, if axis 0 is the\nbatch axis and axis 1 is the time axis (to be scanned), specify an axis value of 1.\nNote that scanning a non-zero axis may be less efficient than scanning axis zero.\n\nThe optional attribute scan_output_axes specifies the axis along which the scan_outputs\nare accumulated for each scan_output. For example, if axis 1 is the time axis (to be\nscanned) for both inputs and outputs, specify a scan_input axis and scan_output axis\nvalue of 1.\n\nNote that because of the ONNX restriction that only the last parameter of an operator can\nbe variadic, the initial-states and scan-inputs are listed together as one input parameter.\nSimilarly, the final-states and scan-outputs are listed together as one output parameter.\nThe attribute num_scan_inputs indicates the number M of scan-inputs.\n\nThe behavior of\n\n    Scan <\n        num_scan_inputs = m,\n        body = loop-body,\n        scan_input_axes = [axis_1, ..., axis_m]\n    > (init_1, ..., init_n, scan_1, ..., scan_m)\n\nis equivalent to the following pseudo-code:\n\n    // scan_i.shape[axis_i] denotes the (max) sequence-length of scan_i\n    // scan_i.shape[axis_i] is required to be equal to scan_j.shape[axis_j] for all i,j.\n    sequence_length = scan_1.shape[axis_1];\n\n    // initialize state-variables\n    st_1 = init_1; ... st_n = init_n;\n    // initialize scan-output variables: [] denotes an empty tensor\n    scan_out_1 = []; ...; scan_out_k = [];\n    // identify number of iterations:\n\n    // execute loop\n    for (int t = 0; t < sequence_length; ++t) {\n        // generate the scan-input elements: the notation T<axis=k>[t] indicates the sub-tensor\n        // of rank one less than T obtained by indexing T at position t along axis k.\n        si_1 = scan_1<axis=axis_1>[t];\n        ... ;\n        si_m = scan_m<axis=axis_m>[t];\n        // execute loop-body\n        st_1, ..., st_n, so_1, ..., so_k = loop-body(st_1, ..., st_n, si_1, ..., si_m)\n        // accumulate the scan-output elements\n        scan_out_1 = Concat<axis=0>(scan_out_1, so_1); ... ; scan_out_k = Concat<axis=0>(scan_out_k, so_k);\n    }\n\n    return st_1, ..., st_n, scan_out_1, ..., scan_out_k;\n\n*Sample usage: Encoding RNN using a Scan*\n\nThe following example shows how a simple RNN over an input tensor %X, with weight tensor %Wi,\nrecurrence weight tensor %Ri, bias tensors %Wbi and %Rbi, and initial hidden-state %H_0 can\nbe encoded as a ScanLoop. Note that the loop-body is a nested graph, and it directly computes\n%Wi, %Ri, %Wbi, and %Rbi (typically constants or initializers in the body graph). If these\nvalues are computed in the outer graph, they need to be passed in as extra state_variables.\n\n    graph rnn-encoding {\n      %H_0 = ...\n      %X = ...\n      %Y_h, %Y = Scan[body = <graph rnn-cell-1>, num_scan_inputs=1](%H_0, %X)\n      return %Y, %Y_h\n    }\n\n    graph rnn-cell-1 (\n      %H_tminus1[FLOAT, tensor]\n      %X_t[FLOAT, tensor]\n    ) {\n      %Wi = ...\n      %Ri = ...\n      %Wbi = ...\n      %Rbi = ...\n      %t1 = X_t * (Wi^T)\n      %t2 = H_tminus1*(Ri^T)\n      %t3 = Add(%t1, %t2)\n      %t4 = Add(%t3, %Wbi)\n      %t5 = Add(%t4, %Rbi)\n      %Ht = Tanh(%t5)\n      %Accumulate = Identity(%Ht)\n      return %Ht, %Accumulate\n    }\n\n",
+    "description": "Scan can be used to iterate over one or more scan_input tensors,\nconstructing zero or more scan_output tensors. It combines ideas from general recurrences,\nfunctional programming constructs such as scan, fold, map, and zip, and is intended to enable\ngeneralizations of RNN-like constructs for sequence-to-sequence processing.\nOther tensors (referred to as state_variables here) can be used to carry a state\nwhen iterating from one element to another (similar to hidden-state in RNNs, also referred\nto as loop-carried dependences in the context of loops).\nMany common usages involve a single scan_input tensor (where functionality\nsimilar to scan, fold and map can be obtained). When more than one scan_input is used,\na behavior similar to zip is obtained.\n\nThe attribute body must be a graph, specifying the computation to be performed in\nevery iteration. It takes as input the current values of the state_variables and\nthe current iterated element of the scan_inputs. It must return the (updated) values\nof the state_variables and zero or more scan_output_element tensors. The values of the\nscan_output_element tensors are concatenated over all the iterations to produce the\nscan_output values of the scan construct (similar to the concatenated intermediate\nhidden-state values of RNN-like constructs). All the output tensors (state_variables as\nwell as scan_output_element tensors) are required to have the same shape in each iteration\nof the loop (a restriction imposed to enable efficient memory allocation).\n\nNote that the iterated element passed to the body subgraph does not have a sequence\naxis. It will have a rank one less than the rank of the corresponding scan_input.\n\nThe scan operation returns the final values of the state_variables as well as the\nscan_outputs.\n\nThe optional attribute scan_input_directions specifies the direction (forward or backward)\nfor each scan input. If this attribute is omitted, all sequences are scanned in the forward\ndirection. A bidirectional scan may be performed by specifying the same tensor input twice\nin the scan_inputs, once with a forward direction, and once with a backward direction.\n\nThe scan_output of the operation is produced by concatenating the scan_output_element\nvalues produced by the body in each iteration.  The optional attribute scan_output_directions\nspecifies the direction in which scan_output is constructed (by appending or prepending the\nscan_output_element to scan_output in each iteration) for each scan_output. If this attribute\nis omitted, the scan_output_element is appended to the scan_output in each iteration.\n\nThe optional attribute scan_input_axes specifies the axis to be scanned for each scan_input.\nIf omitted, every scan_input will be scanned in axis 0. For example, if axis 0 is the\nbatch axis and axis 1 is the time axis (to be scanned), specify an axis value of 1.\nNote that scanning a non-zero axis may be less efficient than scanning axis zero.\n\nThe optional attribute scan_output_axes specifies the axis along which the scan_outputs\nare accumulated for each scan_output. For example, if axis 1 is the time axis (to be\nscanned) for both inputs and outputs, specify a scan_input axis and scan_output axis\nvalue of 1.\n\nNote that because of the ONNX restriction that only the last parameter of an operator can\nbe variadic, the initial-states and scan-inputs are listed together as one input parameter.\nSimilarly, the final-states and scan-outputs are listed together as one output parameter.\nThe attribute num_scan_inputs indicates the number M of scan-inputs.\n\nThe behavior of\n\n    Scan <\n        num_scan_inputs = m,\n        body = loop-body,\n        scan_input_axes = [axis_1, ..., axis_m]\n    > (init_1, ..., init_n, scan_1, ..., scan_m)\n\nis equivalent to the following pseudo-code:\n\n    // scan_i.shape[axis_i] denotes the (max) sequence-length of scan_i\n    // scan_i.shape[axis_i] is required to be equal to scan_j.shape[axis_j] for all i,j.\n    sequence_length = scan_1.shape[axis_1];\n\n    // initialize state-variables\n    st_1 = init_1; ... st_n = init_n;\n    // initialize scan-output variables: [] denotes an empty tensor\n    scan_out_1 = []; ...; scan_out_k = [];\n    // identify number of iterations:\n\n    // execute loop\n    for (int t = 0; t < sequence_length; ++t) {\n        // generate the scan-input elements: the notation T<axis=k>[t] indicates the sub-tensor\n        // of rank one less than T obtained by indexing T at position t along axis k.\n        si_1 = scan_1<axis=axis_1>[t];\n        ... ;\n        si_m = scan_m<axis=axis_m>[t];\n        // execute loop-body\n        st_1, ..., st_n, so_1, ..., so_k = loop-body(st_1, ..., st_n, si_1, ..., si_m)\n        // accumulate the scan-output elements\n        scan_out_1 = Concat<axis=0>(scan_out_1, so_1); ... ; scan_out_k = Concat<axis=0>(scan_out_k, so_k);\n    }\n\n    return st_1, ..., st_n, scan_out_1, ..., scan_out_k;\n\n*Sample usage: Encoding RNN using a Scan*\n\nThe following example shows how a simple RNN over an input tensor %X, with weight tensor %Wi,\nrecurrence weight tensor %Ri, bias tensors %Wbi and %Rbi, and initial hidden-state %H_0 can\nbe encoded as a ScanLoop. Note that the loop-body is a nested graph, and it directly computes\n%Wi, %Ri, %Wbi, and %Rbi (typically constants or initializers in the body graph). If these\nvalues are computed in the outer graph, they need to be passed in as extra state_variables.\n\n    graph rnn-encoding {\n      %H_0 = ...\n      %X = ...\n      %Y_h, %Y = Scan[body = <graph rnn-cell-1>, num_scan_inputs=1](%H_0, %X)\n      return %Y, %Y_h\n    }\n\n    graph rnn-cell-1 (\n      %H_tminus1[FLOAT, tensor]\n      %X_t[FLOAT, tensor]\n    ) {\n      %Wi = ...\n      %Ri = ...\n      %Wbi = ...\n      %Rbi = ...\n      %t1 = X_t * (Wi^T)\n      %t2 = H_tminus1*(Ri^T)\n      %t3 = Add(%t1, %t2)\n      %t4 = Add(%t3, %Wbi)\n      %t5 = Add(%t4, %Rbi)\n      %Ht = Tanh(%t5)\n      %Accumulate = Identity(%Ht)\n      return %Ht, %Accumulate\n    }\n\n",
     "attributes": [
       {
         "name": "body",
@@ -26582,7 +26582,7 @@
     "module": "ai.onnx",
     "version": 16,
     "support_level": "common",
-    "description": "Scan can be used to iterate over one or more scan_input tensors,\nconstructing zero or more scan_output tensors. It combines ideas from general recurrences,\nfunctional programming constructs such as scan, fold, map, and zip and is intended to enable\ngeneralizations of RNN-like constructs for sequence-to-sequence processing.\nOther tensors (referred to as state_variables here) can be used to carry a state\nwhen iterating from one element to another (similar to hidden-state in RNNs, also referred\nto as loop-carried dependences in the context of loops).\nMany common usages involve a single scan_input tensor (where functionality\nsimilar to scan, fold and map can be obtained). When more than one scan_input is used,\na behavior similar to zip is obtained.\n\nThe attribute body must be a graph, specifying the computation to be performed in\nevery iteration. It takes as input the current values of the state_variables and\nthe current iterated element of the scan_inputs. It must return the (updated) values\nof the state_variables and zero or more scan_output_element tensors. The values of the\nscan_output_element tensors are concatenated over all the iterations to produce the\nscan_output values of the scan construct (similar to the concatenated intermediate\nhidden-state values of RNN-like constructs). All the output tensors (state_variables as\nwell as scan_output_element tensors) are required to have the same shape in each iteration\nof the loop (a restriction imposed to enable efficient memory allocation).\n\nNote that the iterated element passed to the body subgraph does not have a sequence\naxis. It will have a rank one less than the rank of the corresponding scan_input.\n\nThe scan operation returns the final values of the state_variables as well as the\nscan_outputs.\n\nThe optional attribute scan_input_directions specifies the direction (forward or backward)\nfor each scan input. If this attribute is omitted, all sequences are scanned in the forward\ndirection. A bidirectional scan may be performed by specifying the same tensor input twice\nin the scan_inputs, once with a forward direction, and once with a backward direction.\n\nThe scan_output of the operation is produced by concatenating the scan_output_element\nvalues produced by the body in each iteration.  The optional attribute scan_output_directions\nspecifies the direction in which scan_output is constructed (by appending or prepending the\nscan_output_element to scan_output in each iteration) for each scan_output. If this attribute\nis omitted, the scan_output_element is appended to the scan_output in each iteration.\n\nThe optional attribute scan_input_axes specifies the axis to be scanned for each scan_input.\nIf omitted, every scan_input will be scanned in axis 0. For example, if axis 0 is the\nbatch axis and axis 1 is the time axis (to be scanned), specify an axis value of 1.\nNote that scanning a non-zero axis may be less efficient than scanning axis zero.\n\nThe optional attribute scan_output_axes specifies the axis along which the scan_outputs\nare accumulated for each scan_output. For example, if axis 1 is the time axis (to be\nscanned) for both inputs and outputs, specify a scan_input axis and scan_output axis\nvalue of 1.\n\nNote that because of the ONNX restriction that only the last parameter of an operator can\nbe variadic, the initial-states and scan-inputs are listed together as one input parameter.\nSimilarly, the final-states and scan-outputs are listed together as one output parameter.\nThe attribute num_scan_inputs indicates the number M of scan-inputs.\n\nThe behavior of\n\n    Scan <\n        num_scan_inputs = m,\n        body = loop-body,\n        scan_input_axes = [axis_1, ..., axis_m]\n    > (init_1, ..., init_n, scan_1, ..., scan_m)\n\nis equivalent to the following pseudo-code:\n\n    // scan_i.shape[axis_i] denotes the (max) sequence-length of scan_i\n    // scan_i.shape[axis_i] is required to be equal to scan_j.shape[axis_j] for all i,j.\n    sequence_length = scan_1.shape[axis_1];\n\n    // initialize state-variables\n    st_1 = init_1; ... st_n = init_n;\n    // initialize scan-output variables: [] denotes an empty tensor\n    scan_out_1 = []; ...; scan_out_k = [];\n    // identify number of iterations:\n\n    // execute loop\n    for (int t = 0; t < sequence_length; ++t) {\n        // generate the scan-input elements: the notation T<axis=k>[t] indicates the sub-tensor\n        // of rank one less than T obtained by indexing T at position t along axis k.\n        si_1 = scan_1<axis=axis_1>[t];\n        ... ;\n        si_m = scan_m<axis=axis_m>[t];\n        // execute loop-body\n        st_1, ..., st_n, so_1, ..., so_k = loop-body(st_1, ..., st_n, si_1, ..., si_m)\n        // accumulate the scan-output elements\n        scan_out_1 = Concat<axis=0>(scan_out_1, so_1); ... ; scan_out_k = Concat<axis=0>(scan_out_k, so_k);\n    }\n\n    return st_1, ..., st_n, scan_out_1, ..., scan_out_k;\n\n*Sample usage: Encoding RNN using a Scan*\n\nThe following example shows how a simple RNN over an input tensor %X, with weight tensor %Wi,\nrecurrence weight tensor %Ri, bias tensors %Wbi and %Rbi, and initial hidden-state %H_0 can\nbe encoded as a ScanLoop. Note that the loop-body is a nested graph, and it directly computes\n%Wi, %Ri, %Wbi, and %Rbi (typically constants or initializers in the body graph). If these\nvalues are computed in the outer graph, they need to be passed in as extra state_variables.\n\n    graph rnn-encoding {\n      %H_0 = ...\n      %X = ...\n      %Y_h, %Y = Scan[body = <graph rnn-cell-1>, num_scan_inputs=1](%H_0, %X)\n      return %Y, %Y_h\n    }\n\n    graph rnn-cell-1 (\n      %H_tminus1[FLOAT, tensor]\n      %X_t[FLOAT, tensor]\n    ) {\n      %Wi = ...\n      %Ri = ...\n      %Wbi = ...\n      %Rbi = ...\n      %t1 = X_t * (Wi^T)\n      %t2 = H_tminus1*(Ri^T)\n      %t3 = Add(%t1, %t2)\n      %t4 = Add(%t3, %Wbi)\n      %t5 = Add(%t4, %Rbi)\n      %Ht = Tanh(%t5)\n      %Accumulate = Identity(%Ht)\n      return %Ht, %Accumulate\n    }\n\n",
+    "description": "Scan can be used to iterate over one or more scan_input tensors,\nconstructing zero or more scan_output tensors. It combines ideas from general recurrences,\nfunctional programming constructs such as scan, fold, map, and zip, and is intended to enable\ngeneralizations of RNN-like constructs for sequence-to-sequence processing.\nOther tensors (referred to as state_variables here) can be used to carry a state\nwhen iterating from one element to another (similar to hidden-state in RNNs, also referred\nto as loop-carried dependences in the context of loops).\nMany common usages involve a single scan_input tensor (where functionality\nsimilar to scan, fold and map can be obtained). When more than one scan_input is used,\na behavior similar to zip is obtained.\n\nThe attribute body must be a graph, specifying the computation to be performed in\nevery iteration. It takes as input the current values of the state_variables and\nthe current iterated element of the scan_inputs. It must return the (updated) values\nof the state_variables and zero or more scan_output_element tensors. The values of the\nscan_output_element tensors are concatenated over all the iterations to produce the\nscan_output values of the scan construct (similar to the concatenated intermediate\nhidden-state values of RNN-like constructs). All the output tensors (state_variables as\nwell as scan_output_element tensors) are required to have the same shape in each iteration\nof the loop (a restriction imposed to enable efficient memory allocation).\n\nNote that the iterated element passed to the body subgraph does not have a sequence\naxis. It will have a rank one less than the rank of the corresponding scan_input.\n\nThe scan operation returns the final values of the state_variables as well as the\nscan_outputs.\n\nThe optional attribute scan_input_directions specifies the direction (forward or backward)\nfor each scan input. If this attribute is omitted, all sequences are scanned in the forward\ndirection. A bidirectional scan may be performed by specifying the same tensor input twice\nin the scan_inputs, once with a forward direction, and once with a backward direction.\n\nThe scan_output of the operation is produced by concatenating the scan_output_element\nvalues produced by the body in each iteration.  The optional attribute scan_output_directions\nspecifies the direction in which scan_output is constructed (by appending or prepending the\nscan_output_element to scan_output in each iteration) for each scan_output. If this attribute\nis omitted, the scan_output_element is appended to the scan_output in each iteration.\n\nThe optional attribute scan_input_axes specifies the axis to be scanned for each scan_input.\nIf omitted, every scan_input will be scanned in axis 0. For example, if axis 0 is the\nbatch axis and axis 1 is the time axis (to be scanned), specify an axis value of 1.\nNote that scanning a non-zero axis may be less efficient than scanning axis zero.\n\nThe optional attribute scan_output_axes specifies the axis along which the scan_outputs\nare accumulated for each scan_output. For example, if axis 1 is the time axis (to be\nscanned) for both inputs and outputs, specify a scan_input axis and scan_output axis\nvalue of 1.\n\nNote that because of the ONNX restriction that only the last parameter of an operator can\nbe variadic, the initial-states and scan-inputs are listed together as one input parameter.\nSimilarly, the final-states and scan-outputs are listed together as one output parameter.\nThe attribute num_scan_inputs indicates the number M of scan-inputs.\n\nThe behavior of\n\n    Scan <\n        num_scan_inputs = m,\n        body = loop-body,\n        scan_input_axes = [axis_1, ..., axis_m]\n    > (init_1, ..., init_n, scan_1, ..., scan_m)\n\nis equivalent to the following pseudo-code:\n\n    // scan_i.shape[axis_i] denotes the (max) sequence-length of scan_i\n    // scan_i.shape[axis_i] is required to be equal to scan_j.shape[axis_j] for all i,j.\n    sequence_length = scan_1.shape[axis_1];\n\n    // initialize state-variables\n    st_1 = init_1; ... st_n = init_n;\n    // initialize scan-output variables: [] denotes an empty tensor\n    scan_out_1 = []; ...; scan_out_k = [];\n    // identify number of iterations:\n\n    // execute loop\n    for (int t = 0; t < sequence_length; ++t) {\n        // generate the scan-input elements: the notation T<axis=k>[t] indicates the sub-tensor\n        // of rank one less than T obtained by indexing T at position t along axis k.\n        si_1 = scan_1<axis=axis_1>[t];\n        ... ;\n        si_m = scan_m<axis=axis_m>[t];\n        // execute loop-body\n        st_1, ..., st_n, so_1, ..., so_k = loop-body(st_1, ..., st_n, si_1, ..., si_m)\n        // accumulate the scan-output elements\n        scan_out_1 = Concat<axis=0>(scan_out_1, so_1); ... ; scan_out_k = Concat<axis=0>(scan_out_k, so_k);\n    }\n\n    return st_1, ..., st_n, scan_out_1, ..., scan_out_k;\n\n*Sample usage: Encoding RNN using a Scan*\n\nThe following example shows how a simple RNN over an input tensor %X, with weight tensor %Wi,\nrecurrence weight tensor %Ri, bias tensors %Wbi and %Rbi, and initial hidden-state %H_0 can\nbe encoded as a ScanLoop. Note that the loop-body is a nested graph, and it directly computes\n%Wi, %Ri, %Wbi, and %Rbi (typically constants or initializers in the body graph). If these\nvalues are computed in the outer graph, they need to be passed in as extra state_variables.\n\n    graph rnn-encoding {\n      %H_0 = ...\n      %X = ...\n      %Y_h, %Y = Scan[body = <graph rnn-cell-1>, num_scan_inputs=1](%H_0, %X)\n      return %Y, %Y_h\n    }\n\n    graph rnn-cell-1 (\n      %H_tminus1[FLOAT, tensor]\n      %X_t[FLOAT, tensor]\n    ) {\n      %Wi = ...\n      %Ri = ...\n      %Wbi = ...\n      %Rbi = ...\n      %t1 = X_t * (Wi^T)\n      %t2 = H_tminus1*(Ri^T)\n      %t3 = Add(%t1, %t2)\n      %t4 = Add(%t3, %Wbi)\n      %t5 = Add(%t4, %Rbi)\n      %Ht = Tanh(%t5)\n      %Accumulate = Identity(%Ht)\n      return %Ht, %Accumulate\n    }\n\n",
     "attributes": [
       {
         "name": "body",
@@ -28145,7 +28145,7 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input to only numeric types.",
+        "description": "Constrain input to only numeric types.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(uint8)",
@@ -31677,7 +31677,7 @@
       {
         "name": "output",
         "type": "T",
-        "description": "Output tensor of the same dimension and type as tensor input. output_dim[i] = input_dim[i] * repeats[i]"
+        "description": "Output tensor of the same dimensions and type as tensor input. output_dim[i] = input_dim[i] * repeats[i]"
       }
     ],
     "min_output": 1,
@@ -31748,7 +31748,7 @@
       {
         "name": "output",
         "type": "T",
-        "description": "Output tensor of the same dimension and type as tensor input. output_dim[i] = input_dim[i] * repeats[i]"
+        "description": "Output tensor of the same dimensions and type as tensor input. output_dim[i] = input_dim[i] * repeats[i]"
       }
     ],
     "min_output": 1,
@@ -33775,14 +33775,14 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input to boolean tensor.",
+        "description": "Constrain input to boolean tensor.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(bool)"
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
@@ -33832,14 +33832,14 @@
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrains input to boolean tensor.",
+        "description": "Constrain input to boolean tensor.",
         "type_param_str": "T",
         "allowed_type_strs": [
           "tensor(bool)"
         ]
       },
       {
-        "description": "Constrains output to boolean tensor.",
+        "description": "Constrain output to boolean tensor.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(bool)"
