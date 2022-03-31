@@ -361,7 +361,8 @@ keras.Model = class {
         this._format = format;
         this._backend = backend;
         this._producer = producer;
-        this._graphs = [ new keras.Graph(new keras.GraphMetadata(metadata), config, weights) ];
+        metadata = new keras.GraphMetadata(metadata);
+        this._graphs = [ new keras.Graph(metadata, config, weights) ];
     }
 
     get name() {
@@ -794,7 +795,7 @@ keras.Node = class {
                     else if (value && typeof value.class_name === 'string' && value.config) {
                         const type = value.class_name;
                         if (!metadata.type(type)) {
-                            metadata.add(type, { category: 'Activation' });
+                            metadata.add(type, { name: type, category: 'Activation' });
                         }
                         this.chain.push(new keras.Node(metadata, value, null, null));
                     }
@@ -1301,12 +1302,12 @@ keras.GraphMetadata = class {
 
     constructor(metadata) {
         this._metadata = metadata;
-        this._map = new Map();
+        this._types = new Map();
     }
 
     type(name) {
-        if (this._map.has(name)) {
-            return this._map.get(name);
+        if (this._types.has(name)) {
+            return this._types.get(name);
         }
         return this._metadata.type(name);
     }
@@ -1316,7 +1317,7 @@ keras.GraphMetadata = class {
     }
 
     add(type, metadata) {
-        this._map.set(type, metadata);
+        this._types.set(type, metadata);
     }
 };
 
