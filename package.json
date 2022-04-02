@@ -45,6 +45,7 @@
             "no-await-in-loop": "error",
             "no-console": "error",
             "no-constructor-return": "error",
+            "no-duplicate-imports": "error",
             "no-trailing-spaces": "error",
             "no-unmodified-loop-condition": "error",
             "no-unused-private-class-members": "error",
