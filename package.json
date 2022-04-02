@@ -42,6 +42,7 @@
             "curly": "error",
             "indent": [ "error", 4, { "SwitchCase": 1 } ],
             "linebreak-style": "off",
+            "no-await-in-loop": "error",
             "no-console": "error",
             "no-trailing-spaces": "error",
             "no-unmodified-loop-condition": "error",
