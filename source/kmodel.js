@@ -680,7 +680,6 @@ kmodel.Reader = class {
                         type.callback(layer, reader);
                         delete layer.offset;
                         delete layer.body_size;
-                        // console.log(JSON.stringify(Object.fromEntries(Object.entries(layer).filter((entry) => !(entry[1] instanceof Uint8Array))), null, 2));
                     }
                     if (this._layers.length > 0) {
                         this._layers.unshift({
@@ -802,7 +801,18 @@ kmodel.Reader = class {
                         layer.offset = offset;
                         offset += layer.body_size;
                     }
-                    register(  0x00, 'binary', '');
+                    register(  0x00, 'binary', '', (layer, reader) => {
+                        layer.inputs = [
+                            reader.parameter('a'),
+                            reader.parameter('b')
+                        ];
+                        layer.outputs = [ reader.parameter('outputs') ];
+                        layer.binary_op = reader.binary_op_t();
+                        layer.inputs[0].arguments[0].shape = reader.runtime_shape_t();
+                        layer.inputs[1].arguments[0].shape = reader.runtime_shape_t();
+                        layer.outputs[0].arguments[0].shape = reader.runtime_shape_t();
+                        layer.fused_activation = [ reader.float32(), reader.float32() ];
+                    });
                     register(  0x01, 'concat', 'Tensor', (layer, reader) => {
                         layer.outputs = [ reader.parameter('output') ];
                         layer.inner_size = reader.uint32();
@@ -1003,11 +1013,10 @@ kmodel.Reader = class {
                         }
                         delete layer.offset;
                         delete layer.body_size;
+                        delete layer.opcode;
                         if (reader.position != (layer.offset + layer.body_size)) {
                             // debugger;
                         }
-                        // console.log(JSON.stringify(Object.fromEntries(Object.entries(layer).filter((entry) => !(entry[1] instanceof Uint8Array))), null, 2));
-                        delete layer.opcode;
                     }
                     for (const input of inputs) {
                         this._layers.unshift({

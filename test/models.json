@@ -2323,6 +2323,13 @@
   },
   {
     "type":     "kmodel",
+    "target":   "LPbox_1_branch.kmodel",
+    "source":   "https://github.com/lutzroeder/netron/files/8402871/LPbox_1_branch.kmodel.zip[LPbox_1_branch.kmodel]",
+    "format":   "kmodel v4",
+    "link":     "https://github.com/lutzroeder/netron/issues/871"
+  },
+  {
+    "type":     "kmodel",
     "target":   "mbnetv1.kmodel",
     "source":   "https://github.com/lutzroeder/netron/files/8111310/mbnetv1.kmodel.zip[mbnetv1.kmodel]",
     "format":   "kmodel v3",
