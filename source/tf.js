@@ -324,6 +324,9 @@ tf.ModelFactory = class {
                             run_metadata.push(metadata);
                             break;
                         }
+                        default: {
+                            throw new tf.Error("Unknown event type '" + event.what + "'.");
+                        }
                     }
                 }
                 if (saved_model.meta_graphs.every((meta_graph) => meta_graph.graph_def.node.every((node) => node.op.startsWith('aten::') || node.op.startsWith('prim::') || node.op === 'IO Node'))) {
@@ -1130,6 +1133,9 @@ tf.Attribute = class {
                     this._value = [];
                 }
                 break;
+            }
+            default: {
+                throw new tf.Error("Unknown attribute value type '" + JSON.stringify(value.value) + "'.");
             }
         }
         if (schema) {
