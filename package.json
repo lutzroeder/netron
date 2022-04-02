@@ -46,6 +46,7 @@
             "no-console": "error",
             "no-constructor-return": "error",
             "no-duplicate-imports": "error",
+            "no-promise-executor-return": "error",
             "no-template-curly-in-string": "error",
             "no-trailing-spaces": "error",
             "no-unmodified-loop-condition": "error",
