@@ -1,0 +1,78 @@
+#!/bin/bash
+
+set -e
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
+
+case "${OSTYPE}" in
+    msys*) python="winpty python";;
+    *) python="python";;
+esac
+
+venv() {
+    env_dir=./third_party/env/nnabla
+    [ -d "${env_dir}" ] || ${python} -m venv ${env_dir}
+    case "${OSTYPE}" in
+        msys*) source ${env_dir}/Scripts/activate;;
+        *) source ${env_dir}/bin/activate;;
+    esac
+    ${python} -m pip install --quiet --upgrade pip
+}
+
+clean() {
+    echo "nnabla clean"
+    rm -rf "./third_party/source/nnabla"
+}
+
+sync() {
+    echo "nnabla sync"
+    mkdir -p "./third_party/source/nnabla/build-tools/code_generator"
+    curl --silent --location --output "./third_party/source/nnabla/build-tools/code_generator/functions.yaml" "https://github.com/sony/nnabla/blob/master/build-tools/code_generator/functions.yaml?raw=true"
+    curl --silent --location --output "./third_party/source/nnabla/build-tools/code_generator/solvers.yaml" "https://github.com/sony/nnabla/blob/master/build-tools/code_generator/solvers.yaml?raw=true"
+    mkdir -p "./third_party/source/nnabla/src/nbla/proto"
+    curl --silent --location --output "./third_party/source/nnabla/src/nbla/proto/nnabla.proto.tmpl" "https://github.com/sony/nnabla/blob/master/src/nbla/proto/nnabla.proto.tmpl?raw=true"
+    echo 'package nnabla;' | cat - ./third_party/source/nnabla/src/nbla/proto/nnabla.proto.tmpl > ./third_party/source/nnabla/src/nbla/proto/nnabla.proto.tmpl.temp && mv ./third_party/source/nnabla/src/nbla/proto/nnabla.proto.tmpl.temp ./third_party/source/nnabla/src/nbla/proto/nnabla.proto.tmpl
+}
+
+install() {
+    echo "nnabla install"
+    venv
+    ${python} -m pip install --quiet --upgrade six mako pyyaml
+    deactivate
+}
+
+schema() {
+    echo "nnabla schema"
+    venv
+    ${python} -m pip --quiet install pyyaml mako
+    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+    ${python} ./tools/nnabla-script.py proto
+    deactivate
+    [[ $(grep -U $'\x0D' ./source/nnabla-proto.js) ]] && crlf=1
+    node ./tools/protoc.js --text --root nnabla --out ./source/nnabla-proto.js ./third_party/source/nnabla/src/nbla/proto/nnabla.proto
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/nnabla-proto.js ./source/nnabla-proto.js
+    fi
+}
+
+metadata() {
+    echo "nnabla metadata"
+    venv
+    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+    if [[ $(grep -U $'\x0D' ./source/nnabla-metadata.json) ]]; then crlf=1; else crlf=; fi
+    ${python} ./tools/nnabla-script.py metadata
+    deactivate
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/nnabla-metadata.json ./source/nnabla-metadata.json
+    fi
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+        "install") install;;
+        "schema") schema;;
+        "metadata") metadata;;
+    esac
+done

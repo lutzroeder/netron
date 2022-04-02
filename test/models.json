@@ -3061,6 +3061,41 @@
     "link":     "https://github.com/Tencent/ncnn"
   },
   {
+    "type":     "nnabla",
+    "target":   "Resnet-18.nnp",
+    "source":   "https://nnabla.org/pretrained-models/nnp_models/imagenet/Resnet-18/Resnet-18.nnp",
+    "format":   "nnabla v0.1",
+    "link":     "https://nnabla.readthedocs.io/en/latest/python/api/models/imagenet.html"
+  },
+  {
+    "type":     "nnabla",
+    "target":   "MobileNet-v2.nnp",
+    "source":   "https://nnabla.org/pretrained-models/nnp_models/imagenet/MobileNet-v2/MobileNet-v2.nnp",
+    "format":   "nnabla v0.1",
+    "link":     "https://nnabla.readthedocs.io/en/latest/python/api/models/imagenet.html"
+  },
+  {
+    "type":     "nnabla",
+    "target":   "SqueezeNet-1.1.nnp",
+    "source":   "https://nnabla.org/pretrained-models/nnp_models/imagenet/SqueezeNet-1.1/SqueezeNet-1.1.nnp",
+    "format":   "nnabla v0.1",
+    "link":     "https://nnabla.readthedocs.io/en/latest/python/api/models/imagenet.html"
+  },
+  {
+    "type":     "nnabla",
+    "target":   "NIN.nnp",
+    "source":   "https://nnabla.org/pretrained-models/nnp_models/imagenet/NIN/NIN.nnp",
+    "format":   "nnabla v0.1",
+    "link":     "https://nnabla.readthedocs.io/en/latest/python/api/models/imagenet.html"
+  },
+  {
+    "type":     "nnabla",
+    "target":   "ShuffleNet-0.5x.nnp",
+    "source":   "https://nnabla.org/pretrained-models/nnp_models/imagenet/ShuffleNet-0.5x/ShuffleNet-0.5x.nnp",
+    "format":   "nnabla v0.1",
+    "link":     "https://nnabla.readthedocs.io/en/latest/python/api/models/imagenet.html"
+  },
+  {
     "type":     "numpy",
     "target":   "cifar10-1w-1a.npz",
     "source":   "https://raw.githubusercontent.com/Xilinx/BNN-PYNQ/master/bnn/src/training/cifar10-1w-1a.npz",
