@@ -1289,7 +1289,9 @@ dagre.layout = (graph, options) => {
             //    5. The weights for copied edges are aggregated as need, since the output graph is not a multi-graph.
             const buildLayerGraph = (g, nodes, rank, relationship) => {
                 let root;
-                while (g.hasNode((root = uniqueId('_root'))));
+                while (g.hasNode((root = uniqueId('_root')))) {
+                    // continue
+                }
                 const graph = new dagre.Graph({ compound: true });
                 graph.options = { root: root };
                 graph.setDefaultNodeLabel((v) => { const node = g.node(v); return node ? node.label : undefined; });
