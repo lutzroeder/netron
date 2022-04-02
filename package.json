@@ -38,13 +38,14 @@
         },
         "rules": {
             "brace-style": [ "error", "stroustrup", { "allowSingleLine": true } ],
+            "curly": "error",
             "indent": [ "error", 4, { "SwitchCase": 1 } ],
             "linebreak-style": "off",
-            "no-trailing-spaces": "error",
             "no-console": "error",
+            "no-trailing-spaces": "error",
+            "no-unmodified-loop-condition": "error",
             "prefer-const": [ "error", { "destructuring": "all" } ],
-            "semi": [ "error", "always" ],
-            "curly": "error"
+            "semi": [ "error", "always" ]
         },
         "globals": {
             "flatbuffers": "readonly",

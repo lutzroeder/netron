@@ -29,8 +29,11 @@ zip.Archive = class {
                             return true;
                         }
                     }
+                    if (!signature) {
+                        break;
+                    }
                 }
-                while (position > 0 && signature);
+                while (position > 0);
                 return false;
             };
             if (!seek([ 0x50, 0x4B, 0x05, 0x06 ])) {
