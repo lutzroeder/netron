@@ -44,6 +44,7 @@
             "no-console": "error",
             "no-trailing-spaces": "error",
             "no-unmodified-loop-condition": "error",
+            "no-unused-private-class-members": "error",
             "prefer-const": [ "error", { "destructuring": "all" } ],
             "semi": [ "error", "always" ]
         },
