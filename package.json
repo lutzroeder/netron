@@ -37,6 +37,7 @@
             "sourceType": "module"
         },
         "rules": {
+            "array-callback-return": "error",
             "brace-style": [ "error", "stroustrup", { "allowSingleLine": true } ],
             "curly": "error",
             "indent": [ "error", 4, { "SwitchCase": 1 } ],

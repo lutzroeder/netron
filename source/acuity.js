@@ -555,9 +555,9 @@ acuity.Inference = class {
                 axis_list.sort((a, b) => {
                     return b - a;
                 });
-                axis_list.map((item) => {
+                for (const item of axis_list) {
                     newShape.splice(item, 1);
-                });
+                }
                 if (!newShape.length) {
                     newShape.splice(0, 0, 0);
                 }
@@ -601,9 +601,9 @@ acuity.Inference = class {
         operators.set('squeeze', (inputs, params) => {
             const newShape = inputs[0].slice();
             const axis_list = [...new Set(params.axis_list)].sort((a, b) => b - a);
-            axis_list.map((item) => {
+            for (const item of axis_list) {
                 newShape.splice(item, 1);
-            });
+            }
             return [ newShape ];
         });
         operators.set('space2depth', (inputs, params) => {

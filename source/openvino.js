@@ -686,8 +686,8 @@ openvino.Attribute = class {
                     case 'int32[]':
                         if (this._value.length > 2) {
                             let ints = [];
-                            this._value.split(',').map((item) => {
-                                item = item.trim();
+                            for (const entry of this._value.split(',')) {
+                                const item = entry.trim();
                                 const intValue = Number.parseInt(item, 10);
                                 if (Number.isNaN(item - intValue)) {
                                     ints = null;
@@ -695,7 +695,7 @@ openvino.Attribute = class {
                                 else if (ints != null) {
                                     ints.push(intValue);
                                 }
-                            });
+                            }
                             if (ints != null) {
                                 this._value = ints;
                             }
@@ -704,8 +704,8 @@ openvino.Attribute = class {
                     case 'float32[]':
                         if (this._value.length > 2) {
                             let floats = [];
-                            this._value.split(',').map((item) => {
-                                item = item.trim();
+                            for (const entry of this._value.split(',')) {
+                                const item = entry.trim();
                                 const floatValue = Number.parseFloat(item);
                                 if (Number.isNaN(item - floatValue)) {
                                     floats = null;
@@ -713,7 +713,7 @@ openvino.Attribute = class {
                                 else if (floats != null) {
                                     floats.push(floatValue);
                                 }
-                            });
+                            }
                             if (floats != null) {
                                 this._value = floats;
                             }
