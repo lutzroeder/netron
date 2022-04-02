@@ -43,7 +43,8 @@
             "no-trailing-spaces": "error",
             "no-console": "error",
             "prefer-const": [ "error", { "destructuring": "all" } ],
-            "semi": [ "error", "always" ]
+            "semi": [ "error", "always" ],
+            "curly": "error"
         },
         "globals": {
             "flatbuffers": "readonly",
