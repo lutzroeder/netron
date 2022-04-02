@@ -1401,10 +1401,11 @@ protoc.Generator = class {
                 this._builder.outdent();
                 this._builder.add('}');
                 for (const field of Array.from(type.fields.values()).filter((field) => field.required)) {
-                    this._builder.add('if (!Object.prototype.hasOwnProperty.call(message, "' + field.name + '"))');
+                    this._builder.add('if (!Object.prototype.hasOwnProperty.call(message, "' + field.name + '")) {');
                     this._builder.indent();
                         this._builder.add('throw new protobuf.Error("Excepted \'' + field.name + '\'.");');
                     this._builder.outdent();
+                    this._builder.add('}');
                 }
                 this._builder.add('return message;');
             }
