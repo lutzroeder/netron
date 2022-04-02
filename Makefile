@@ -27,6 +27,7 @@ update: install
 	@./tools/dnn schema
 	@./tools/mnn sync schema
 	@./tools/mslite sync schema metadata
+	@./tools/nnabla sync schema metadata
 	@./tools/onnx sync install schema metadata
 	@./tools/om schema
 	@./tools/paddle sync schema

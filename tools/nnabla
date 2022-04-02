@@ -57,6 +57,7 @@ schema() {
 metadata() {
     echo "nnabla metadata"
     venv
+    ${python} -m pip --quiet install pyyaml mako
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     if [[ $(grep -U $'\x0D' ./source/nnabla-metadata.json) ]]; then crlf=1; else crlf=; fi
     ${python} ./tools/nnabla-script.py metadata
