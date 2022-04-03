@@ -3147,6 +3147,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         break;
                                     case 'torch.broadcast_tensors':
                                     case 'torch.split':
+                                    case 'torch.split_with_sizes':
                                         if (context.target.length > 0) {
                                             count = context.target[context.target.length - 1].length;
                                         }
