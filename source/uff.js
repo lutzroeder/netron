@@ -105,10 +105,10 @@ uff.Graph = class {
         this._nodes = [];
 
         const args = new Map();
-        const inputCountMap = new Map();
+        const counts = new Map();
         for (const node of graph.nodes) {
             for (const input of node.inputs) {
-                inputCountMap.set(input, inputCountMap.has(input) ? inputCountMap.get(input) + 1 : 1);
+                counts.set(input, counts.has(input) ? counts.get(input) + 1 : 1);
                 args.set(input, new uff.Argument(input));
             }
             if (!args.has(node.id)) {
@@ -117,7 +117,7 @@ uff.Graph = class {
         }
         for (let i = graph.nodes.length - 1; i >= 0; i--) {
             const node = graph.nodes[i];
-            if (node.operation === 'Const' && node.inputs.length === 0 && inputCountMap.get(node.id) === 1) {
+            if (node.operation === 'Const' && node.inputs.length === 0 && counts.get(node.id) === 1) {
                 const fields = {};
                 for (const field of node.fields) {
                     fields[field.key] = field.value;
