@@ -4202,7 +4202,7 @@
         "name": "size"
       },
       {
-        "description": "A string, one of `nearest` or `bilinear`.",
+        "description": "A string, one of `\"area\"`, `\"bicubic\"`, `\"bilinear\"`,\n    `\"gaussian\"`, `\"lanczos3\"`, `\"lanczos5\"`, `\"mitchellcubic\"`, `\"nearest\"`.",
         "name": "interpolation"
       }
     ],
