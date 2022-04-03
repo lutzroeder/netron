@@ -2631,27 +2631,21 @@ pytorch.Container.Zip = class {
                 this._type = 'script';
                 return;
             }
-            if (this._data instanceof Map && this._data.has('engine')) {
-                // https://github.com/NVIDIA-AI-IOT/torch2trt/blob/master/torch2trt/torch2trt.py
-                const signature = [ 0x70, 0x74, 0x72, 0x74 ]; // ptrt
-                const buffer = this._data.get('engine');
-                if (buffer instanceof Uint8Array && buffer.length > signature.length && signature.every((value, index) => value === buffer[index])) {
-                    throw new pytorch.Error('Invalid file content. File contains undocumented PyTorch TensorRT engine data.');
-                }
-            }
             const root = pytorch.Utility.findModule(this._data);
             if (root) {
                 this._type = 'module';
                 this._data = root;
-                return;
             }
-            const weights = pytorch.Utility.findWeights(this._data);
-            if (weights) {
-                this._type = 'weights';
-                this._data = weights;
-                return;
+            else {
+                const weights = pytorch.Utility.findWeights(this._data);
+                if (weights) {
+                    this._type = 'weights';
+                    this._data = weights;
+                }
+                else {
+                    throw new pytorch.Error('File does not contain root module or state dictionary.');
+                }
             }
-            throw new pytorch.Error('File does not contain root module or state dictionary.');
         }
     }
 
@@ -3570,6 +3564,14 @@ pytorch.Utility = class {
             const keys = [ '', 'model', 'net' ];
             for (const key of keys) {
                 const obj = key === '' ? root : root[key];
+                if (obj && obj instanceof Map && obj.has('engine')) {
+                    // https://github.com/NVIDIA-AI-IOT/torch2trt/blob/master/torch2trt/torch2trt.py
+                    const signature = [ 0x70, 0x74, 0x72, 0x74 ]; // ptrt
+                    const buffer = obj.get('engine');
+                    if (buffer instanceof Uint8Array && buffer.length > signature.length && signature.every((value, index) => value === buffer[index])) {
+                        throw new pytorch.Error('Invalid file content. File contains undocumented PyTorch TensorRT engine data.');
+                    }
+                }
                 if (obj) {
                     if (obj._modules) {
                         return [ { name: '', obj: obj } ];
@@ -3744,7 +3746,7 @@ pytorch.Utility = class {
             return tensor;
         };
         const flatten = (obj) => {
-            if (!obj || Array.isArray(obj)) {
+            if (!obj || Array.isArray(obj) || ArrayBuffer.isView(obj)) {
                 return null;
             }
             if (obj instanceof Map) {
