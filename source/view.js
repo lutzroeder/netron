@@ -702,8 +702,8 @@ view.View = class {
             }
 
             if (extension === 'png') {
-                const imageElement = new Image();
-                imageElement.onload = () => {
+                const image = new Image();
+                image.onload = () => {
                     const max = Math.max(width, height);
                     const scale = Math.min(24000.0 / max, 2.0);
                     const canvas = this._host.document.createElement('canvas');
@@ -711,7 +711,7 @@ view.View = class {
                     canvas.height = Math.ceil(height * scale);
                     const context = canvas.getContext('2d');
                     context.scale(scale, scale);
-                    context.drawImage(imageElement, 0, 0);
+                    context.drawImage(image, 0, 0);
                     canvas.toBlob((blob) => {
                         if (blob) {
                             this._host.export(file, blob);
@@ -725,7 +725,7 @@ view.View = class {
                         }
                     }, 'image/png');
                 };
-                imageElement.src = 'data:image/svg+xml;base64,' + this._host.window.btoa(unescape(encodeURIComponent(data)));
+                image.src = 'data:image/svg+xml;base64,' + this._host.window.btoa(unescape(encodeURIComponent(data)));
             }
         }
     }
