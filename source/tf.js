@@ -1103,7 +1103,7 @@ tf.Attribute = class {
             case 'func': {
                 const name = value.func.name;
                 this._type = 'function';
-                this._value = metadata.type(name);
+                this._value = tf.Utility.buildFuncAttrObj(value.func)
                 break;
             }
             case 'list': {
@@ -1127,7 +1127,7 @@ tf.Attribute = class {
                 }
                 else if (list.func && list.func.length > 0) {
                     this._type = 'function[]';
-                    this._value = list.func.map((func) => metadata.type(func.name));
+                    this._value = list.func.map((func) => tf.Utility.buildFuncAttrObj(func));
                 }
                 else {
                     this._value = [];
@@ -2477,7 +2477,83 @@ tf.Utility = class {
         }
         return context;
     }
+
+    static buildFuncAttrObj(func) {
+        var objectContent = new Map()
+        Object.keys(func.attr).forEach(k => {
+            var v=func.attr[k]
+            switch (v.value) {
+                case 'i':
+                    objectContent.set(k,new tf.FuncAttr("i", v.i));
+                    break;
+                case 'f':
+                    objectContent.set(k,new tf.FuncAttr("f",v.f));
+                    break;
+                case 'b':
+                    objectContent.set(k,new tf.FuncAttr("b", v.b));
+                    break;
+                // case 'shape':
+                //     this._type = 'shape';
+                //     this._value = new tf.TensorShape(value.shape);
+                //     break;
+                case 's':
+                    objectContent.set(k,new tf.FuncAttr("s", tf.Utility.decodeText(v.s)));
+                    break;
+                // case 'tensor': {
+                //     this._type = 'tensor';
+                //     this._value = new tf.Tensor(value.tensor);
+                //     break;
+                // }
+                case 'func': {
+                    objectContent.set(k, new tf.FuncAttr("func", this.buildFuncAttrObj(v.func)));
+                    break;
+                }
+                case 'list': {
+                    const list = v.list;
+                    if (list.s && list.s.length > 0) {
+                        objectContent.set(k,new tf.FuncAttr("list", list.s.map((s) => tf.Utility.decodeText(s))));
+                    }
+                    else if (list.i && list.i.length > 0) {
+                        objectContent.set(k, new tf.FuncAttr("list", list.i));
+                    }
+                    else if (list.f && list.f.length > 0) {
+                        objectContent.set(k, new tf.FuncAttr("list", list.f));
+                    }
+                    // else if (list.type && list.type.length > 0) {
+                    //     this._type = 'type[]';
+                    //     this._value = list.type.map((type) => tf.Utility.dataType(type));
+                    // }
+                    // else if (list.shape && list.shape.length > 0) {
+                    //     this._type = 'shape[]';
+                    //     this._value = list.shape.map((shape) => new tf.TensorShape(shape));
+                    // }
+                    else if (list.func && list.func.length > 0) {
+                        objectContent.set(k, new tf.FuncAttr("list", list.func.map(attr=>this.buildFuncAttrObj(attr.attr))));
+                    }
+                    else {
+                        objectContent.set(k, new tf.FuncAttr("list", []));
+                    }
+                    break;
+                }
+            }
+        })
+        return new tf.FuncCont(func.name, objectContent)
+    }
 };
+
+tf.FuncCont = class {
+    constructor(name, attr) {
+        this.name = name
+        this.attr = attr
+    }
+}
+
+tf.FuncAttr = class {
+    constructor(type, value) {
+        this.type = type
+        this.value = value
+    }
+}
 
 tf.JsonReader = class {
 

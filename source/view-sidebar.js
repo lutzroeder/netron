@@ -300,7 +300,7 @@ sidebar.NodeSidebar = class {
             case 'function':
                 return value.name;
             case 'function[]':
-                return value ? value.map((item) => item.name).join(', ') : '(null)';
+                return "List";
         }
         if (typeof value === 'string' && (!type || type != 'string')) {
             return quote ? '"' + value + '"' : value;
@@ -514,11 +514,8 @@ class NodeAttributeView {
             case 'graph':
             case 'function': {
                 const line = this._host.document.createElement('div');
-                line.className = 'sidebar-view-item-value-line-link';
+                line.className = 'sidebar-view-item-value-line';
                 line.innerHTML = value.name;
-                line.addEventListener('click', () => {
-                    this._raise('show-graph', value);
-                });
                 this._element.appendChild(line);
                 break;
             }
@@ -554,7 +551,7 @@ class NodeAttributeView {
                 typeLine.innerHTML = 'type: ' + '<code><b>' + value.type.toString() + '</b></code>';
                 this._element.appendChild(typeLine);
             }
-            else {
+            else if (!type.startsWith('function')) {
                 typeLine.innerHTML = 'type: ' + '<code><b>' + this._attribute.type + '</b></code>';
                 this._element.appendChild(typeLine);
             }
@@ -575,6 +572,71 @@ class NodeAttributeView {
                 contentLine.innerHTML = state || value.toString();
                 valueLine.appendChild(contentLine);
                 this._element.appendChild(valueLine);
+            }
+            else if (this._attribute.type.startsWith('function') && value) {
+                if (this._attribute.type=='function')
+                    openFunction(this._host.document, this._element, value, 1)
+                else if (this._attribute.type=='function[]') {
+                    openFunctionList(this._host.document, this._element, value)
+                }
+                function openFunction(host, nav, iInnerAttr, indentNum) {
+                    iInnerAttr.attr.forEach((v, k) => {   
+                        const iValueLine = host.createElement('div');
+                        iValueLine.className = 'sidebar-view-item-value-line';
+                        iValueLine.style.paddingLeft=(6+indentNum*4).toString()+'px'
+                        switch (v.type) {
+                            case 'func':
+                                iValueLine.innerAttr = createInnerAttr(host, nav, v.value, indentNum+1)
+                                break;
+                        default:
+                            iValueLine.innerHTML = k.bold() + ":" + v.value.toString();
+                            nav.appendChild(iValueLine);
+                        }
+                    })
+                }
+
+                function openFunctionList(host, nav, l) {
+                    l.forEach((v, k) => {   
+                        let indent = 1
+                        const iValueLine = host.createElement('div');
+                        iValueLine.className = 'sidebar-view-item-value-line';
+                        iValueLine.innerAttr = createInnerAttr(host, nav, v, indent, k)
+                        iValueLine.style.paddingLeft = (6+indent*4).toString + 'px'
+                    })
+                }
+                function toggleInnerFunc(host, nav, expander, iInnerAttr, indentNum) {
+                    if (expander.innerText=='+') {
+                        expander.innerText='-'
+                        openFunction(host, nav, iInnerAttr, indentNum)
+                    } else {
+                        expander.innerText='+'
+                        while (nav.childElementCount > 2) {
+                            nav.removeChild(nav.lastChild);
+                        }
+                    }
+                    
+                }                    
+            
+                function createInnerAttr(host, nav, innerAttr, indentNum, index) {
+                    const valueLineName = host.createElement('div');
+                    valueLineName.className = 'sidebar-view-item-value';
+
+                    const expander = host.createElement('div');
+                    expander.className = 'sidebar-view-item-value-expander';
+                    expander.innerText = '+';
+                    valueLineName.appendChild(expander);
+                    expander.addEventListener('click', () => {
+                        toggleInnerFunc(host, valueLineName, expander, innerAttr, indentNum+1);
+                    });
+
+                    const contentLineName = host.createElement('div');
+                    contentLineName.className= 'sidebar-view-item-value-line'
+                    contentLineName.innerHTML = (innerAttr.name + (index!=undefined ? '['+index + ']' : '')).bold()
+                    contentLineName.style.paddingLeft = (6+indentNum*4).toString()+'px'
+                    valueLineName.appendChild(contentLineName);
+
+                    nav.appendChild(valueLineName);
+                }
             }
         }
         else {
