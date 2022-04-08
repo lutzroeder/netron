@@ -2140,6 +2140,13 @@
   },
   {
     "type":     "keras",
+    "target":   "model_denoise.h5",
+    "source":   "https://github.com/lutzroeder/netron/files/8452765/model_denoise.h5.zip[model_denoise.h5]",
+    "format":   "Keras v2.4.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/900"
+  },
+  {
+    "type":     "keras",
     "target":   "model_float32.h5",
     "source":   "https://github.com/lutzroeder/netron/files/7759357/model_float32.h5.zip[model_float32.h5]",
     "format":   "Keras v2.7.0",
