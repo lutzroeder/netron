@@ -3286,10 +3286,10 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                 }
             }
             if (statements.length > 1) {
-                const size = statements[0];
-                const statement = statements[1];
                 // getattr_1 = torch.size(x)
                 // getitem = torch.slice(getattr_1, -2, 9223372036854775807, 1)
+                const size = statements[0];
+                const statement = statements[1];
                 if (size.type === '=' && statement.type === '=' &&
                     size.target.type === 'id' &&
                     pytorch.Utility.isCall(size.expression, 'torch.size', 1) &&
@@ -3298,6 +3298,57 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                     const tensor = this.expression(size.expression.arguments[0], context);
                     if (pytorch.Utility.isTensor(tensor) && tensor.__origin__ === 'graph-input' && tensor.shape === undefined) {
                         tensor.resize_([ 1, 3, 299, 299 ]);
+                    }
+                }
+            }
+            if (statements.length > 1) {
+                // _0 = torch.split_with_sizes(...)
+                // a, a_1, a_2, = _0
+                const statement = statements[0];
+                const tuple = statements[1];
+                if (statement.type === '=' && statement.target.type === 'id' && statement.expression.type == 'call' &&
+                    tuple.type === '=' && tuple.target.type === 'tuple' &&
+                    tuple.target.value.every((item) => item.type === 'id') &&
+                    tuple.expression.value === statement.target.value) {
+                    const containsVariableReference = (queue, value) => {
+                        while (queue.length > 0) {
+                            const obj = queue.shift();
+                            if (obj && obj.type === 'id' && obj.value === value) {
+                                return true;
+                            }
+                            else if (Array.isArray(obj)) {
+                                for (const item of obj) {
+                                    if (Array.isArray(item) || (Object(item) === item && item.type)) {
+                                        queue.push(item);
+                                    }
+                                }
+                            }
+                            else if (Object(obj) === obj) {
+                                for (const entry of Object.entries(obj)) {
+                                    const key = entry[0];
+                                    const value = entry[1];
+                                    if (key === 'location') {
+                                        continue;
+                                    }
+                                    if (Array.isArray(value)) {
+                                        for (const item of value) {
+                                            if (Array.isArray(item) || (Object(item) === item && item.type)) {
+                                                queue.push(item);
+                                            }
+                                        }
+                                    }
+                                    else if (Object(value) === value && value.type) {
+                                        queue.push(value);
+                                    }
+                                }
+                            }
+                        }
+                        return false;
+                    };
+                    if (!containsVariableReference(statements.slice(2, statements.length - 1), statement.target.value)) {
+                        statements[0] = Object.assign({}, statement);
+                        statements[0].target = tuple.target;
+                        statements.splice(1, 1);
                     }
                 }
             }

@@ -4661,6 +4661,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "model_fnet.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/8457286/model_fnet.pt.zip[model_fnet.pt]",
+    "format":   "TorchScript v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/882"
+  },
+  {
+    "type":     "pytorch",
     "target":   "model-reddit16-f140225004_2.pt1",
     "source":   "https://raw.githubusercontent.com/pytorch/android-demo-app/master/PyTorchDemoApp/app/src/main/assets/model-reddit16-f140225004_2.pt1",
     "format":   "TorchScript v1.3",
@@ -4961,7 +4968,7 @@
     "type":     "pytorch",
     "target":   "rvm_mobilenetv3_fp16.torchscript",
     "source":   "https://github.com/PeterL1n/RobustVideoMatting/releases/download/v1.0.0/rvm_mobilenetv3_fp16.torchscript",
-    "error":    "ValueError: not enough values to unpack (expected 2, actual 1) in 'rvm_mobilenetv3_fp16.torchscript'.",
+    "format":   "TorchScript v1.6",
     "link":     "https://github.com/PeterL1n/RobustVideoMatting"
   },
   {
@@ -5192,6 +5199,14 @@
     "source":   "https://github.com/lutzroeder/netron/files/7447547/wav2vec2.ptl.zip[wav2vec2.ptl]",
     "format":   "TorchScript v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/827"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "yolov5n.torchscript",
+    "source":   "https://github.com/lutzroeder/netron/files/8457287/yolov5n.torchscript.zip[yolov5n.torchscript]",
+    "format":   "TorchScript v1.6",
+    "error":    "Offset is outside the bounds of the DataView",
+    "link":     "https://github.com/lutzroeder/netron/issues/882"
   },
   {
     "type":     "pytorch",
