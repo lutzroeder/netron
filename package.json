@@ -17,7 +17,7 @@
         "server": "node ./publish/server.js"
     },
     "dependencies": {
-        "electron-updater": "4.6.5"
+        "electron-updater": "5.0.1"
     },
     "devDependencies": {
         "electron": "17.2.0",
