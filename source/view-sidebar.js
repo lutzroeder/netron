@@ -298,9 +298,9 @@ sidebar.NodeSidebar = class {
                 }
                 return '[...]';
             case 'function':
-                return value.name;
+                return value.type.name;
             case 'function[]':
-                return value ? value.map((item) => item.name).join(', ') : '(null)';
+                return value ? value.map((item) => item.type.name).join(', ') : '(null)';
         }
         if (typeof value === 'string' && (!type || type != 'string')) {
             return quote ? '"' + value + '"' : value;
@@ -515,9 +515,9 @@ class NodeAttributeView {
             case 'function': {
                 const line = this._host.document.createElement('div');
                 line.className = 'sidebar-view-item-value-line-link';
-                line.innerHTML = value.name;
+                line.innerHTML = value.type.name;
                 line.addEventListener('click', () => {
-                    this._raise('show-graph', value);
+                    this._raise('show-graph', value.type);
                 });
                 this._element.appendChild(line);
                 break;

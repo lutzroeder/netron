@@ -805,7 +805,7 @@ view.View = class {
 
     showDocumentation(type) {
         if (type && (type.description || type.inputs || type.outputs || type.attributes)) {
-            if (type.nodes) {
+            if (type.nodes && type.nodes.length > 0) {
                 this.pushGraph(type);
             }
             const documentationSidebar = new sidebar.DocumentationSidebar(this._host, type);
@@ -1013,7 +1013,7 @@ view.Node = class extends grapher.Node {
         const tooltip = this.context.view.options.names && (node.name || node.location) ? type.name : (node.name || node.location);
         const title = header.add(null, styles, content, tooltip);
         title.on('click', () => this.context.view.showNodeProperties(node, null));
-        if (node.type.nodes) {
+        if (node.type.nodes && node.type.nodes.length > 0) {
             const definition = header.add(null, styles, '\u0192', 'Show Function Definition');
             definition.on('click', () => this.context.view.pushGraph(node.type));
         }
