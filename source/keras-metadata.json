@@ -2785,7 +2785,7 @@
       },
       {
         "default": false,
-        "description": "Boolean. Whether to return the last output. in the output\n    sequence, or the full sequence. Default: `False`.",
+        "description": "Boolean. Whether to return the last output in the output\n    sequence, or the full sequence. Default: `False`.",
         "name": "return_sequences"
       },
       {

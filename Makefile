@@ -45,7 +45,7 @@ install_python: build_python
 	pip install --force-reinstall --quiet dist/dist/*.whl
 
 build_electron: install
-	CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac --universal --publish never
+	npx electron-builder --mac --universal --publish never -c.mac.identity=null
 	npx electron-builder --win --x64 --arm64 --publish never
 	npx electron-builder --linux appimage --x64 --publish never
 	npx electron-builder --linux snap --x64 --publish never

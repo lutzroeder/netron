@@ -424,7 +424,7 @@ keras.Graph = class {
         if (config) {
             this._name = config.name || (config.config && config.config.name ? config.config.name : '');
             const is_connection = (item) => {
-                return Array.isArray(item) && (item.length === 3 || item.length === 4) && typeof item[0] === 'string' && Number.isInteger(item[1]) && Number.isInteger(item[2]);
+                return Array.isArray(item) && (item.length === 3 || item.length === 4) && typeof item[0] === 'string' && typeof item[1] === 'number'  && typeof item[2] === 'number';
             };
             switch (config.class_name) {
                 case 'AllCNN':

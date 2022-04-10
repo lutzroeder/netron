@@ -6,7 +6,7 @@
         "email": "lutzroeder@users.noreply.github.com",
         "url": "https://www.lutzroeder.com"
     },
-    "version": "5.6.7",
+    "version": "5.6.8",
     "description": "Visualizer for neural network, deep learning, and machine learning models",
     "license": "MIT",
     "repository": "lutzroeder/netron",
@@ -17,13 +17,13 @@
         "server": "node ./publish/server.js"
     },
     "dependencies": {
-        "electron-updater": "4.6.5"
+        "electron-updater": "5.0.1"
     },
     "devDependencies": {
-        "electron": "17.2.0",
-        "electron-builder": "22.14.13",
+        "electron": "18.0.3",
+        "electron-builder": "23.0.4",
         "electron-notarize": "1.2.1",
-        "eslint": "8.12.0"
+        "eslint": "8.13.0"
     },
     "eslintConfig": {
         "env": {
@@ -83,26 +83,27 @@
             { "ext": "mlpackage",   "name": "Core ML Model Package", "isPackage": true },
             { "ext": "mnn",         "name": "MNN Model"                },
             { "ext": "model",       "name": "Model"                    },
-            { "ext": "nb",          "name": "Paddle Lite"              },
+            { "ext": "nb",          "name": "Paddle Lite Model"        },
             { "ext": "nn",          "name": "Barracuda Model"          },
             { "ext": "nnp",         "name": "Neural Network Libraries" },
             { "ext": "om",          "name": "DaVinci OM Model"         },
             { "ext": "ort",         "name": "ONNX Runtime Model"       },
-            { "ext": "paddle",      "name": "PaddlePaddle"             },
+            { "ext": "paddle",      "name": "PaddlePaddle Model"       },
             { "ext": "param",       "name": "NCNN Model"               },
             { "ext": "pb",          "name": "Protocol Buffer"          },
             { "ext": "pbtxt",       "name": "Text Protocol Buffer"     },
-            { "ext": "pdmodel",     "name": "PaddlePaddle"             },
-            { "ext": "pdparams",    "name": "PaddlePaddle"             },
+            { "ext": "pdmodel",     "name": "PaddlePaddle Model"       },
+            { "ext": "pdparams",    "name": "PaddlePaddle Model"       },
             { "ext": "prototxt",    "name": "Text Protocol Buffer"     },
             { "ext": "pt",          "name": "PyTorch Model"            },
             { "ext": "pth",         "name": "PyTorch Model"            },
             { "ext": "ptl",         "name": "PyTorch Model"            },
-            { "ext": "rknn",        "name": "RKNN"                     },
+            { "ext": "rknn",        "name": "RKNN Model"               },
             { "ext": "t7",          "name": "Torch Model"              },
             { "ext": "tfl",         "name": "TensorFlow Lite Model"    },
             { "ext": "tflite",      "name": "TensorFlow Lite Model"    },
-            { "ext": "tmfile",      "name": "Tengine"                  },
+            { "ext": "tmfile",      "name": "Tengine Model"            },
+            { "ext": "tnnproto",    "name": "TNN Model"                },
             { "ext": "torchscript", "name": "PyTorch Model"            },
             { "ext": "uff",         "name": "UFF Model"                },
             { "ext": "xmodel",      "name": "Vitis AI Model"           }
