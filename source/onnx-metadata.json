@@ -27906,6 +27906,133 @@
     ]
   },
   {
+    "name": "SequenceMap",
+    "module": "ai.onnx",
+    "version": 16,
+    "support_level": "common",
+    "description": "Applies a sub-graph to each sample in the input sequence(s).\n\nInputs can be either tensors or sequences, with the exception of the first input which must\nbe a sequence. The length of the first input sequence will determine the number of samples in the\noutputs. Any other sequence inputs should have the same number of samples. The number of inputs\nand outputs, should match the one of the subgraph.\n\nFor each i-th element in the output, a sample will be extracted from the input sequence(s) at\nthe i-th position and the sub-graph will be applied to it.\nThe outputs will contain the outputs of the sub-graph for each sample, in the same order as in\nthe input.\n\nThis operator assumes that processing each sample is independent and could executed in parallel\nor in any order. Users cannot expect any specific ordering in which each subgraph is computed.",
+    "attributes": [
+      {
+        "name": "body",
+        "type": "graph",
+        "required": true,
+        "description": "The graph to be run for each sample in the sequence(s). It should have as many inputs and outputs as inputs and outputs to the SequenceMap function."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input_sequence",
+        "type": "S",
+        "description": "Input sequence."
+      },
+      {
+        "name": "additional_inputs",
+        "type": "V",
+        "list": true,
+        "description": "Additional inputs to the graph"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 2147483647,
+    "outputs": [
+      {
+        "name": "out_sequence",
+        "type": "S",
+        "list": true,
+        "description": "Output sequence(s)"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 2147483647,
+    "inputs_range": "1 - &#8734;",
+    "outputs_range": "1 - &#8734;",
+    "type_constraints": [
+      {
+        "description": "Constrain input types to any sequence type.",
+        "type_param_str": "S",
+        "allowed_type_strs": [
+          "seq(tensor(uint8))",
+          "seq(tensor(uint16))",
+          "seq(tensor(uint32))",
+          "seq(tensor(uint64))",
+          "seq(tensor(int8))",
+          "seq(tensor(int16))",
+          "seq(tensor(int32))",
+          "seq(tensor(int64))",
+          "seq(tensor(float16))",
+          "seq(tensor(float))",
+          "seq(tensor(double))",
+          "seq(tensor(string))",
+          "seq(tensor(bool))",
+          "seq(tensor(complex64))",
+          "seq(tensor(complex128))"
+        ]
+      },
+      {
+        "description": "Constrain to any tensor or sequence type.",
+        "type_param_str": "V",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(string)",
+          "tensor(bool)",
+          "tensor(complex64)",
+          "tensor(complex128)",
+          "seq(tensor(uint8))",
+          "seq(tensor(uint16))",
+          "seq(tensor(uint32))",
+          "seq(tensor(uint64))",
+          "seq(tensor(int8))",
+          "seq(tensor(int16))",
+          "seq(tensor(int32))",
+          "seq(tensor(int64))",
+          "seq(tensor(float16))",
+          "seq(tensor(float))",
+          "seq(tensor(double))",
+          "seq(tensor(string))",
+          "seq(tensor(bool))",
+          "seq(tensor(complex64))",
+          "seq(tensor(complex128))"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "sequence_map_add_1_sequence_1_tensor",
+        "code": "body = onnx.helper.make_graph(\n    [onnx.helper.make_node('Add', ['in0', 'in1'], ['out0'])],\n    'seq_map_body',\n    [onnx.helper.make_tensor_value_info('in0', onnx.TensorProto.FLOAT, ['N']),\n     onnx.helper.make_tensor_value_info('in1', onnx.TensorProto.FLOAT, ['N'])],\n    [onnx.helper.make_tensor_value_info(\n        'out0', onnx.TensorProto.FLOAT, ['N'])]\n)\n\nnode = onnx.helper.make_node(\n    'SequenceMap',\n    inputs=['x0', 'x1'],\n    outputs=['y0'],\n    body=body\n)\n\nx0 = [np.random.uniform(0.0, 1.0, 10).astype(np.float32) for k in range(3)]\nx1 = np.random.uniform(0.0, 1.0, 10).astype(np.float32)\ny0 = [x0[i] + x1 for i in range(3)]\ninput_type_protos = [\n    onnx.helper.make_sequence_type_proto(\n        onnx.helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, ['N'])),\n    onnx.helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, ['N']),\n]\noutput_type_protos = [\n    onnx.helper.make_sequence_type_proto(\n        onnx.helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, ['N'])),\n]\nexpect(node, inputs=[x0, x1], outputs=[y0],\n       input_type_protos=input_type_protos,\n       output_type_protos=output_type_protos,\n       name='test_sequence_map_add_1_sequence_1_tensor')"
+      },
+      {
+        "summary": "sequence_map_add_2_sequences",
+        "code": "body = onnx.helper.make_graph(\n    [onnx.helper.make_node('Add', ['in0', 'in1'], ['out0'])],\n    'seq_map_body',\n    [onnx.helper.make_tensor_value_info('in0', onnx.TensorProto.FLOAT, ['N']),\n     onnx.helper.make_tensor_value_info('in1', onnx.TensorProto.FLOAT, ['N'])],\n    [onnx.helper.make_tensor_value_info(\n        'out0', onnx.TensorProto.FLOAT, ['N'])]\n)\n\nnode = onnx.helper.make_node(\n    'SequenceMap',\n    inputs=['x0', 'x1'],\n    outputs=['y0'],\n    body=body\n)\n\nN = [np.random.randint(1, 10) for _ in range(3)]\nx0 = [np.random.uniform(0.0, 1.0, N[k]).astype(np.float32)\n      for k in range(3)]\nx1 = [np.random.uniform(0.0, 1.0, N[k]).astype(np.float32)\n      for k in range(3)]\ny0 = [x0[k] + x1[k] for k in range(3)]\ninput_type_protos = [\n    onnx.helper.make_sequence_type_proto(\n        onnx.helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, ['N'])),\n    onnx.helper.make_sequence_type_proto(\n        onnx.helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, ['N'])),\n]\noutput_type_protos = [\n    onnx.helper.make_sequence_type_proto(\n        onnx.helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, ['N'])),\n]\nexpect(node, inputs=[x0, x1], outputs=[y0],\n       input_type_protos=input_type_protos,\n       output_type_protos=output_type_protos,\n       name='test_sequence_map_add_2_sequences')"
+      },
+      {
+        "summary": "sequence_map_extract_shapes",
+        "code": "body = onnx.helper.make_graph(\n    [onnx.helper.make_node('Shape', ['x'], ['shape'])],\n    'seq_map_body',\n    [onnx.helper.make_tensor_value_info('x', onnx.TensorProto.FLOAT, ['H', 'W', 'C'])],\n    [onnx.helper.make_tensor_value_info('shape', onnx.TensorProto.INT64, [3])]\n)\n\nnode = onnx.helper.make_node(\n    'SequenceMap',\n    inputs=['in_seq'],\n    outputs=['shapes'],\n    body=body\n)\n\nshapes = [\n    np.array([40, 30, 3], dtype=np.int64),\n    np.array([20, 10, 3], dtype=np.int64),\n    np.array([10, 5, 3], dtype=np.int64),\n]\nx0 = [np.zeros(shape, dtype=np.float32) for shape in shapes]\ninput_type_protos = [\n    onnx.helper.make_sequence_type_proto(\n        onnx.helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, ['H', 'W', 'C'])),\n]\noutput_type_protos = [\n    onnx.helper.make_sequence_type_proto(\n        onnx.helper.make_tensor_type_proto(onnx.TensorProto.INT64, [3])),\n]\nexpect(node, inputs=[x0], outputs=[shapes],\n       input_type_protos=input_type_protos,\n       output_type_protos=output_type_protos,\n       name='test_sequence_map_extract_shapes')"
+      },
+      {
+        "summary": "sequence_map_identity_1_sequence",
+        "code": "body = onnx.helper.make_graph(\n    [onnx.helper.make_node('Identity', ['in0'], ['out0'])],\n    'seq_map_body',\n    [onnx.helper.make_tensor_value_info(\n        'in0', onnx.TensorProto.FLOAT, ['N'])],\n    [onnx.helper.make_tensor_value_info(\n        'out0', onnx.TensorProto.FLOAT, ['M'])]\n)\n\nnode = onnx.helper.make_node(\n    'SequenceMap',\n    inputs=['x'],\n    outputs=['y'],\n    body=body\n)\n\nx = [np.random.uniform(0.0, 1.0, 10).astype(np.float32)\n     for _ in range(3)]\ny = x\ninput_type_protos = [\n    onnx.helper.make_sequence_type_proto(\n        onnx.helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, ['N'])),\n]\noutput_type_protos = [\n    onnx.helper.make_sequence_type_proto(\n        onnx.helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, ['N'])),\n]\nexpect(node, inputs=[x], outputs=[y],\n       input_type_protos=input_type_protos,\n       output_type_protos=output_type_protos,\n       name='test_sequence_map_identity_1_sequence')"
+      },
+      {
+        "summary": "sequence_map_identity_1_sequence_1_tensor",
+        "code": "body = onnx.helper.make_graph(\n    [onnx.helper.make_node('Identity', ['in0'], ['out0']),\n     onnx.helper.make_node('Identity', ['in1'], ['out1'])],\n    'seq_map_body',\n    [onnx.helper.make_tensor_value_info('in0', onnx.TensorProto.FLOAT, ['N']),\n     onnx.helper.make_tensor_value_info('in1', onnx.TensorProto.FLOAT, ['M'])],\n    [onnx.helper.make_tensor_value_info(\n        'out0', onnx.TensorProto.FLOAT, ['N']),\n     onnx.helper.make_tensor_value_info(\n        'out1', onnx.TensorProto.FLOAT, ['M'])]\n)\n\nnode = onnx.helper.make_node(\n    'SequenceMap',\n    inputs=['x0', 'x1'],\n    outputs=['y0', 'y1'],\n    body=body\n)\n\nx0 = [np.random.uniform(0.0, 1.0, np.random.randint(\n    1, 10)).astype(np.float32) for _ in range(3)]\nx1 = np.random.uniform(0.0, 1.0, np.random.randint(\n    1, 10)).astype(np.float32)\ny0 = x0\ny1 = [x1 for _ in range(3)]\ninput_type_protos = [\n    onnx.helper.make_sequence_type_proto(\n        onnx.helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, ['N'])),\n    onnx.helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, ['M']),\n]\noutput_type_protos = [\n    onnx.helper.make_sequence_type_proto(\n        onnx.helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, ['N'])),\n    onnx.helper.make_sequence_type_proto(\n        onnx.helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, ['M'])),\n]\nexpect(node, inputs=[x0, x1], outputs=[y0, y1],\n       input_type_protos=input_type_protos,\n       output_type_protos=output_type_protos,\n       name='test_sequence_map_identity_1_sequence_1_tensor')"
+      },
+      {
+        "summary": "sequence_map_identity_2_sequences",
+        "code": "body = onnx.helper.make_graph(\n    [onnx.helper.make_node('Identity', ['in0'], ['out0']),\n     onnx.helper.make_node('Identity', ['in1'], ['out1'])],\n    'seq_map_body',\n    [onnx.helper.make_tensor_value_info('in0', onnx.TensorProto.FLOAT, ['N']),\n     onnx.helper.make_tensor_value_info('in1', onnx.TensorProto.FLOAT, ['M'])],\n    [onnx.helper.make_tensor_value_info('out0', onnx.TensorProto.FLOAT, ['N']),\n     onnx.helper.make_tensor_value_info('out1', onnx.TensorProto.FLOAT, ['M'])]\n)\n\nnode = onnx.helper.make_node(\n    'SequenceMap',\n    inputs=['x0', 'x1'],\n    outputs=['y0', 'y1'],\n    body=body\n)\n\nx0 = [np.random.uniform(0.0, 1.0, np.random.randint(\n    1, 10)).astype(np.float32) for _ in range(3)]\nx1 = [np.random.uniform(0.0, 1.0, np.random.randint(\n    1, 10)).astype(np.float32) for _ in range(3)]\ny0 = x0\ny1 = x1\ninput_type_protos = [\n    onnx.helper.make_sequence_type_proto(\n        onnx.helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, ['N'])),\n    onnx.helper.make_sequence_type_proto(\n        onnx.helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, ['M'])),\n]\noutput_type_protos = [\n    onnx.helper.make_sequence_type_proto(\n        onnx.helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, ['N'])),\n    onnx.helper.make_sequence_type_proto(\n        onnx.helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, ['M'])),\n]\nexpect(node, inputs=[x0, x1], outputs=[y0, y1],\n       input_type_protos=input_type_protos,\n       output_type_protos=output_type_protos,\n       name='test_sequence_map_identity_2_sequences')"
+      }
+    ]
+  },
+  {
     "name": "Shape",
     "module": "ai.onnx",
     "version": 1,
