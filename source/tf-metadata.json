@@ -13830,6 +13830,18 @@
     ]
   },
   {
+    "name": "DisableCopyOnRead",
+    "summary": "Turns off the copy-on-read mode.",
+    "description": "Turns off the copy-on-read mode of a resource variable. If the variable is not in copy-on-read mode, this op has no effect.  ",
+    "inputs": [
+      {
+        "name": "resource",
+        "description": "The resource handle of the resource variable.",
+        "type": 20
+      }
+    ]
+  },
+  {
     "name": "Div",
     "summary": "Returns x / y element-wise.",
     "description": "*NOTE*: `Div` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
