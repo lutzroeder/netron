@@ -457,31 +457,31 @@ grapher.Node.List = class {
         for (const item of this._items) {
             const yPadding = 1;
             const xPadding = 6;
-            const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             if (item.id) {
-                textElement.setAttribute('id', item.id);
+                text.setAttribute('id', item.id);
             }
-            textElement.setAttribute('xml:space', 'preserve');
-            this.element.appendChild(textElement);
+            text.setAttribute('xml:space', 'preserve');
+            this.element.appendChild(text);
             if (item.tooltip) {
                 const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
                 title.textContent = item.tooltip;
-                textElement.appendChild(title);
+                text.appendChild(title);
             }
-            const textNameElement = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
-            textNameElement.textContent = item.name;
+            const name = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+            name.textContent = item.name;
             if (item.separator.trim() != '=') {
-                textNameElement.style.fontWeight = 'bold';
+                name.style.fontWeight = 'bold';
             }
-            textElement.appendChild(textNameElement);
+            text.appendChild(name);
             const textValueElement = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
             textValueElement.textContent = item.separator + item.value;
-            textElement.appendChild(textValueElement);
-            const size = textElement.getBBox();
+            text.appendChild(textValueElement);
+            const size = text.getBBox();
             const width = xPadding + size.width + xPadding;
             this.width = Math.max(width, this.width);
-            textElement.setAttribute('x', x + xPadding);
-            textElement.setAttribute('y', this.height + yPadding - size.y);
+            text.setAttribute('x', x + xPadding);
+            text.setAttribute('y', this.height + yPadding - size.y);
             this.height += yPadding + size.height + yPadding;
         }
         this.height += 3;
