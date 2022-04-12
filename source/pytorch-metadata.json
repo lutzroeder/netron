@@ -5559,12 +5559,68 @@
     ]
   },
   {
-    "name": "torch.var_mean:",
-    "attributes": [
+    "name": "torch.var:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "unbiased", "type": "boolean", "default": true }
     ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.var:dim",
     "inputs": [
-      { "name": "self", "type": "Tensor" }
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64[]" },
+      { "name": "unbiased", "type": "boolean", "default": true },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.var:correction",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64[]", "optional": true },
+      { "name": "correction", "type": "int64", "optional": true },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.var:names_dim",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname[]" },
+      { "name": "unbiased", "type": "boolean", "default": true },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.var:correction_names",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname[]" },
+      { "name": "correction", "type": "int64", "default": true },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.var_mean:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "unbiased", "type": "boolean", "default": true }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" },
@@ -5573,13 +5629,11 @@
   },
   {
     "name": "torch.var_mean:dim",
-    "attributes": [
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64[]" },
       { "name": "unbiased", "type": "boolean", "default": true },
       { "name": "keepdim", "type": "boolean", "default": false }
-    ],
-    "inputs": [
-      { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" },
