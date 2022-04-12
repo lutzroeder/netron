@@ -1101,6 +1101,11 @@ tf.Attribute = class {
                 this._value = new tf.Node(metadata, { op: value.func.name, attr: value.func.attr });
                 break;
             }
+            case 'placeholder': {
+                this._type = 'placeholder';
+                this._value = value;
+                break;
+            }
             case 'list': {
                 const list = value.list;
                 if (list.s && list.s.length > 0) {
