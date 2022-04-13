@@ -2008,6 +2008,7 @@ $root.tensorflow.FullTypeId = {
     "TFT_STRING": 214,
     "TFT_DATASET": 10102,
     "TFT_RAGGED": 10103,
+    "TFT_ITERATOR": 10104,
     "TFT_MUTEX_LOCK": 10202,
     "TFT_LEGACY_VARIANT": 10203
 };
