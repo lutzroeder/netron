@@ -133,8 +133,11 @@ text.Decoder.Utf8 = class {
                     if (c3 >= 0x80 && c3 <= 0xBF) {
                         const c4 = this.buffer[this.position + 2];
                         if (c4 >= 0x80 && c4 <= 0xBF) {
-                            this.position += 3;
-                            return String.fromCodePoint(((c & 0x07) << 18) | ((c2 & 0x3F) << 12) | ((c3 & 0x3F) << 6) | (c4 & 0x3F));
+                            const codePoint = ((c & 0x07) << 18) | ((c2 & 0x3F) << 12) | ((c3 & 0x3F) << 6) | (c4 & 0x3F);
+                            if (codePoint <= 0x10ffff) {
+                                this.position += 3;
+                                return String.fromCodePoint(codePoint);
+                            }
                         }
                     }
                 }
