@@ -2169,6 +2169,73 @@
     ]
   },
   {
+    "name": "ApproxTopK",
+    "summary": "Returns min/max k values and their indices of the input operand in an approximate manner.",
+    "description": "Returns min/max k values and their indices of the input operand in an approximate manner.",
+    "attributes": [
+      {
+        "name": "k",
+        "type": "int64",
+        "description": "Specifies the number of min/max-k.",
+        "minimum": 0
+      },
+      {
+        "name": "reduction_dimension",
+        "type": "int64",
+        "description": "Integer dimension along which to search. Default: -1.",
+        "default": -1
+      },
+      {
+        "name": "recall_target",
+        "type": "float32",
+        "description": "Recall target for the approximation. Range in (0,1]",
+        "default": 0.949999988079071
+      },
+      {
+        "name": "is_max_k",
+        "type": "boolean",
+        "description": "When true, computes max-k; otherwise computes min-k.",
+        "default": true
+      },
+      {
+        "name": "reduction_input_size_override",
+        "type": "int64",
+        "description": "When set to a positive value, it overrides the size determined by\n`input[reduction_dim]` for evaluating the recall. This option is useful when\nthe given `input` is only a subset of the overall computation in SPMD or\ndistributed pipelines, where the true input size cannot be deferred by the\n`input` shape.",
+        "default": -1
+      },
+      {
+        "name": "aggregate_to_topk",
+        "type": "boolean",
+        "description": "When true, aggregates approximate results to top-k. When false, returns the\napproximate results. The number of the approximate results is implementation\ndefined and is greater equals to the specified `k`.",
+        "default": true
+      },
+      {
+        "name": "T",
+        "type": "type",
+        "description": "Must be one of the following: `float16`, `bfloat16`, `float32`."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Array to search. Must be at least 1-D of the floating type",
+        "typeAttr": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "values",
+        "description": "The min/max k values along the `reduction_dimension` of the `input` operand.\nThe dimension are the same as the `input` operand except for the\n`reduction_dimension`: when `aggregate_to_topk` is true, the reduction\ndimension is `k`; otherwise, it is greater equals to `k` where the size is\nimplementation-defined.",
+        "typeAttr": "T"
+      },
+      {
+        "name": "indices",
+        "description": "The indices of `values` along the `reduction_dimension` of the `input` operand.",
+        "type": 3
+      }
+    ]
+  },
+  {
     "name": "ApproximateEqual",
     "summary": "Returns the truth value of abs(x-y) < tolerance element-wise.",
     "attributes": [
