@@ -1135,7 +1135,7 @@ tf.Attribute = class {
                 break;
             }
             default: {
-                throw new tf.Error("Unknown attribute value type '" + JSON.stringify(value.value) + "'.");
+                throw new tf.Error("Unknown attribute value type '" + JSON.stringify(value).substring(0, 32) + "'.");
             }
         }
         if (schema) {
