@@ -27908,7 +27908,7 @@
   {
     "name": "SequenceMap",
     "module": "ai.onnx",
-    "version": 16,
+    "version": 17,
     "support_level": "common",
     "description": "Applies a sub-graph to each sample in the input sequence(s).\n\nInputs can be either tensors or sequences, with the exception of the first input which must\nbe a sequence. The length of the first input sequence will determine the number of samples in the\noutputs. Any other sequence inputs should have the same number of samples. The number of inputs\nand outputs, should match the one of the subgraph.\n\nFor each i-th element in the output, a sample will be extracted from the input sequence(s) at\nthe i-th position and the sub-graph will be applied to it.\nThe outputs will contain the outputs of the sub-graph for each sample, in the same order as in\nthe input.\n\nThis operator assumes that processing each sample is independent and could executed in parallel\nor in any order. Users cannot expect any specific ordering in which each subgraph is computed.",
     "attributes": [
