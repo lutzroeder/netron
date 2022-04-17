@@ -40,6 +40,7 @@
             "array-callback-return": "error",
             "brace-style": [ "error", "stroustrup", { "allowSingleLine": true } ],
             "curly": "error",
+            "default-case-last": "error",
             "indent": [ "error", 4, { "SwitchCase": 1 } ],
             "linebreak-style": "off",
             "no-await-in-loop": "error",
