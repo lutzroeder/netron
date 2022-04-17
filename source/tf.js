@@ -294,7 +294,7 @@ tf.ModelFactory = class {
                                 [ 'brain.Event:2', 'TensorFlow Event File v2' ]
                             ]);
                             if (!formats.has(event.file_version)) {
-                                throw new tf.Error("Unknown event file version '" + event.file_version + "'.");
+                                throw new tf.Error("Unsupported event file version '" + event.file_version + "'.");
                             }
                             format = formats.get(event.file_version);
                             break;
@@ -325,7 +325,7 @@ tf.ModelFactory = class {
                             break;
                         }
                         default: {
-                            throw new tf.Error("Unknown event type '" + event.what + "'.");
+                            throw new tf.Error("Unsupported event type '" + event.what + "'.");
                         }
                     }
                 }
@@ -421,7 +421,7 @@ tf.ModelFactory = class {
                                     }
                                     default: {
                                         if (!dtype_size_map.has(dtype)) {
-                                            throw new tf.Error("Unknown weight data type size '" + dtype + "'.");
+                                            throw new tf.Error("Unsupported weight data type size '" + dtype + "'.");
                                         }
                                         const itemsize = dtype_size_map.get(dtype);
                                         const length = itemsize * size;
@@ -653,7 +653,7 @@ tf.ModelFactory = class {
                 case 'tf.pb.mmap':
                     return openMemmappedFileSystemDirectory(context);
                 default:
-                    throw new tf.Error("Unknown TensorFlow format '" + match + "'.");
+                    throw new tf.Error("Unsupported TensorFlow format '" + match + "'.");
             }
         });
     }
@@ -1135,7 +1135,7 @@ tf.Attribute = class {
                 break;
             }
             default: {
-                throw new tf.Error("Unknown attribute value type '" + JSON.stringify(value).substring(0, 32) + "'.");
+                throw new tf.Error("Unsupported attribute value type '" + JSON.stringify(value).substring(0, 32) + "'.");
             }
         }
         if (schema) {

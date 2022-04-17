@@ -385,9 +385,8 @@ sklearn.Tensor = class {
     constructor(value) {
         if (!sklearn.Utility.isTensor(value)) {
             const type = value.__class__.__module__ + '.' + value.__class__.__name__;
-            throw new sklearn.Error("Unknown tensor type '" + type + "'.");
+            throw new sklearn.Error("Unsupported tensor type '" + type + "'.");
         }
-        this._kind = 'NumPy Array';
         this._type = new sklearn.TensorType(value.dtype.name, new sklearn.TensorShape(value.shape));
         this._data = value.data;
         if (value.dtype.name === 'string') {
@@ -400,7 +399,7 @@ sklearn.Tensor = class {
     }
 
     get kind() {
-        return this._kind;
+        return 'NumPy Array';
     }
 
     get state() {
@@ -462,6 +461,9 @@ sklearn.Tensor = class {
                 context.data = this._data;
                 context.itemsize = this._itemsize;
                 context.decoder = new TextDecoder('utf-8');
+                break;
+            case 'object':
+                context.data = this._data;
                 break;
             default:
                 context.state = "Tensor data type '" + context.dataType + "' is not implemented.";
@@ -525,6 +527,14 @@ sklearn.Tensor = class {
                         context.index += context.itemsize;
                         context.count++;
                         break;
+                    }
+                    case 'object': {
+                        results.push(context.data[context.index++]);
+                        context.count++;
+                        break;
+                    }
+                    default: {
+                        throw new sklearn.Error("Unsupported tensor data type '" + context.dataType + "'.");
                     }
                 }
             }

@@ -73,7 +73,7 @@ tflite.ModelFactory = class {
                     break;
                 }
                 default: {
-                    throw new tflite.Error("Unknown TensorFlow Lite format '" + match + "'.");
+                    throw new tflite.Error("Unsupported TensorFlow Lite format '" + match + "'.");
                 }
             }
             return tflite.Metadata.open(context).then((metadata) => {
@@ -126,6 +126,9 @@ tflite.Model = class {
                             this._author = modelMetadata.author || '';
                             this._license = modelMetadata.license || '';
                         }
+                        break;
+                    }
+                    default: {
                         break;
                     }
                 }
@@ -223,8 +226,10 @@ tflite.Graph = class {
                     else if (contentProperties instanceof tflite.schema.ImageProperties) {
                         denotation = 'Image';
                         switch(contentProperties.color_space) {
+                            case 0: denotation += '(Unknown)'; break;
                             case 1: denotation += '(RGB)'; break;
                             case 2: denotation += '(Grayscale)'; break;
+                            default: throw tflite.Error("Unsupported image color space '" + contentProperties.color_space + "'.");
                         }
                     }
                     else if (contentProperties instanceof tflite.schema.BoundingBoxProperties) {
@@ -370,7 +375,7 @@ tflite.Node = class {
                     if (name === 'fused_activation_function' && value !== 0) {
                         const activationFunctionMap = { 1: 'Relu', 2: 'ReluN1To1', 3: 'Relu6', 4: 'Tanh', 5: 'SignBit' };
                         if (!activationFunctionMap[value]) {
-                            throw new tflite.Error("Unknown activation funtion index '" + JSON.stringify(value) + "'.");
+                            throw new tflite.Error("Unsupported activation funtion index '" + JSON.stringify(value) + "'.");
                         }
                         const type = activationFunctionMap[value];
                         this._chain = [ new tflite.Node(metadata, null, { name: type }, null, []) ];
@@ -972,8 +977,10 @@ flexbuffers.Reference = class {
             case 0x1a: { // bool
                 return this._reader.uint(this._offset, this._parentWidth) !== 0;
             }
+            default: {
+                throw new flexbuffers.Error("Unsupported reference type '" + this._type);
+            }
         }
-        return undefined;
     }
 
     _indirect() {
@@ -1022,8 +1029,8 @@ flexbuffers.BinaryReader = class {
             case 2: return this._view.getInt16(offset, true);
             case 4: return this._view.getInt32(offset, true);
             case 8: return this._view.getInt64(offset, true);
+            default: throw new flexbuffers.Error("Invalid int size '" + size + "'.");
         }
-        throw new flexbuffers.Error("Invalid int size '" + size + "'.");
     }
 
     uint(offset, size) {
@@ -1032,16 +1039,16 @@ flexbuffers.BinaryReader = class {
             case 2: return this._view.getUint16(offset, true);
             case 4: return this._view.getUint32(offset, true);
             case 8: return this._view.getUint64(offset, true);
+            default: throw new flexbuffers.Error("Invalid uint size '" + size + "'.");
         }
-        throw new flexbuffers.Error("Invalid uint size '" + size + "'.");
     }
 
     float(offset, size) {
         switch (size) {
             case 4: return this._view.getFloat32(offset, true);
             case 8: return this._view.getFloat64(offset, true);
+            default: throw new flexbuffers.Error("Invalid float size '" + size + "'.");
         }
-        throw new flexbuffers.Error("Invalid float size '" + size + "'.");
     }
 
     string(offset, size) {

@@ -382,8 +382,8 @@ $root.mindspore.schema.PrimitiveType = class {
             case 206: return $root.mindspore.schema.RandomNormal.decode(reader, position);
             case 207: return $root.mindspore.schema.NLLLoss.decode(reader, position);
             case 208: return $root.mindspore.schema.NLLLossGrad.decode(reader, position);
+            default: return undefined;
         }
-        return undefined;
     }
 
     static decodeText(reader, json, type) {
@@ -596,8 +596,8 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'RandomNormal': return $root.mindspore.schema.RandomNormal.decodeText(reader, json);
             case 'NLLLoss': return $root.mindspore.schema.NLLLoss.decodeText(reader, json);
             case 'NLLLossGrad': return $root.mindspore.schema.NLLLossGrad.decodeText(reader, json);
+            default: return undefined;
         }
-        return undefined;
     }
 };
 

@@ -10,21 +10,17 @@ mxnet.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        switch (extension) {
-            case 'json': {
-                const obj = context.open('json');
-                if (obj && obj.nodes && obj.arg_nodes && obj.heads) {
-                    return 'mxnet.json';
-                }
-                break;
+        if (extension === 'json') {
+            const obj = context.open('json');
+            if (obj && obj.nodes && obj.arg_nodes && obj.heads) {
+                return 'mxnet.json';
             }
-            case 'params': {
-                const stream = context.stream;
-                const signature = [ 0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
-                if (stream.length > signature.length && stream.peek(signature.length).every((value, index) => value == signature[index])) {
-                    return 'mxnet.params';
-                }
-                break;
+        }
+        if (extension === 'params') {
+            const stream = context.stream;
+            const signature = [ 0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
+            if (stream.length > signature.length && stream.peek(signature.length).every((value, index) => value == signature[index])) {
+                return 'mxnet.params';
             }
         }
         return undefined;
@@ -921,7 +917,7 @@ mxnet.TensorType = class {
             case 5: this._dataType = 'int8'; break;
             case 6: this._dataType = 'int64'; break;
             case -1: this._dataType = '?'; break;
-            default: throw new mxnet.Error("Unknown type '" + dataType + "'.");
+            default: throw new mxnet.Error("Unsupported type '" + dataType + "'.");
         }
         this._shape = shape;
     }
@@ -1027,6 +1023,7 @@ mxnet.ndarray.NDArray = class {
                     case 0: num_aux_data = 0; break; // kDefaultStorage
                     case 1: num_aux_data = 1; break; // kRowSparseStorage
                     case 2: num_aux_data = 2; break; // kCSRStorage
+                    default: throw mxnet.Error("Unsupported NDArray type '" + stype + "'.");
                 }
                 this.sshape = null;
                 if (num_aux_data > 0) {

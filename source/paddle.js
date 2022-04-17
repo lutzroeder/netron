@@ -78,7 +78,7 @@ paddle.ModelFactory = class {
                                     break;
                                 }
                                 default: {
-                                    throw new paddle.Error("Unknown Paddle format '" + match + "'.");
+                                    throw new paddle.Error("Unsupported Paddle format '" + match + "'.");
                                 }
                             }
                             const programDesc = program.desc;
@@ -157,6 +157,9 @@ paddle.ModelFactory = class {
                                     });
                                 }
                                 return loadEntries(context, program);
+                            }
+                            default: {
+                                throw new paddle.Error("Unsupported PaddlePaddle format '" + match + "'.");
                             }
                         }
                     });
@@ -623,7 +626,6 @@ paddle.Tensor = class {
                         context.index += 8;
                         context.count++;
                         break;
-
                 }
             }
         }

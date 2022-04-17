@@ -27,10 +27,12 @@ text.Decoder = class {
             return new text.Decoder.Utf16BE(buffer, 2);
         }
         if (length >= 4 && buffer[0] === 0x00 && buffer[1] === 0x00 && buffer[2] === 0xfe && buffer[3] === 0xff) {
-            throw new text.Error("Unsupported UTF-32 big-endian encoding.");
+            assert(encoding, 'utf-32');
+            return new text.Decoder.Utf32LE(buffer, 2);
         }
         if (length >= 4 && buffer[0] === 0xff && buffer[1] === 0xfe && buffer[2] === 0x00 && buffer[3] === 0x00) {
-            throw new text.Error("Unsupported UTF-32 little-endian encoding.");
+            assert(encoding, 'utf-32');
+            return new text.Decoder.Utf32BE(buffer, 2);
         }
         if (length >= 5 && buffer[0] === 0x2B && buffer[1] === 0x2F && buffer[2] === 0x76 && buffer[3] === 0x38 && buffer[4] === 0x2D) {
             throw new text.Error("Unsupported UTF-7 encoding.");
@@ -134,7 +136,7 @@ text.Decoder.Utf8 = class {
                         const c4 = this.buffer[this.position + 2];
                         if (c4 >= 0x80 && c4 <= 0xBF) {
                             const codePoint = ((c & 0x07) << 18) | ((c2 & 0x3F) << 12) | ((c3 & 0x3F) << 6) | (c4 & 0x3F);
-                            if (codePoint <= 0x10ffff) {
+                            if (codePoint <= 0x10FFFF) {
                                 this.position += 3;
                                 return String.fromCodePoint(codePoint);
                             }
@@ -228,6 +230,54 @@ text.Decoder.Utf16BE = class {
                         return String.fromCodePoint(0x10000 + ((c & 0x3ff) << 10) + (c2 & 0x3ff));
                     }
                 }
+            }
+            return String.fromCharCode(0xfffd);
+        }
+        return undefined;
+    }
+};
+
+text.Decoder.Utf32LE = class {
+
+    constructor(buffer, position) {
+        this.buffer = buffer;
+        this.position = position || 0;
+        this.length = buffer.length;
+    }
+
+    get encoding() {
+        return 'utf-32';
+    }
+
+    decode() {
+        if (this.position + 3 < this.length) {
+            const c = this.buffer[this.position++] | (this.buffer[this.position++] << 8) || (this.buffer[this.position++] << 16) || (this.buffer[this.position++] << 24);
+            if (c < 0x10FFFF) {
+                return String.fromCodePoint(c);
+            }
+            return String.fromCharCode(0xfffd);
+        }
+        return undefined;
+    }
+};
+
+text.Decoder.Utf32BE = class {
+
+    constructor(buffer, position) {
+        this.buffer = buffer;
+        this.position = position || 0;
+        this.length = buffer.length;
+    }
+
+    get encoding() {
+        return 'utf-32';
+    }
+
+    decode() {
+        if (this.position + 3 < this.length) {
+            const c = (this.buffer[this.position++] << 24) || (this.buffer[this.position++] << 16) || (this.buffer[this.position++] << 8) | this.buffer[this.position++];
+            if (c < 0x10FFFF) {
+                return String.fromCodePoint(c);
             }
             return String.fromCharCode(0xfffd);
         }

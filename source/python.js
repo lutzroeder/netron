@@ -35,7 +35,7 @@ python.Parser = class {
             if (this._tokenizer.eat('indent') && this._tokenizer.peek().type == 'eof') {
                 continue;
             }
-            throw new python.Error('Unknown statement' + this._tokenizer.location());
+            throw new python.Error('Unsupported statement' + this._tokenizer.location());
         }
         return node;
     }
@@ -386,7 +386,6 @@ python.Parser = class {
                 }
                 return node;
             }
-            let statement = false;
             switch (expression.type) {
                 case '=':
                 case ':=':
@@ -444,13 +443,10 @@ python.Parser = class {
                 case 'tuple':
                 case 'lambda':
                 case 'await':
-                    statement = true;
-                    break;
+                    return expression;
+                default:
+                    throw new python.Error("Unhandled expression" + this._tokenizer.location());
             }
-            if (statement) {
-                return expression;
-            }
-            throw new python.Error("Unhandled expression" + this._tokenizer.location());
         }
 
         return null;
@@ -536,6 +532,8 @@ python.Parser = class {
                     node.expression = this._parseExpression(-1, terminal, true);
                     stack.push(node);
                     continue;
+                default:
+                    break;
             }
             node = this._eat('id', 'if');
             if (node) {
@@ -658,6 +656,7 @@ python.Parser = class {
                         switch (literal.value) {
                             case 'inf': literal.value = Infinity; break;
                             case '-inf': literal.value = -Infinity; break;
+                            default: break;
                         }
                     }
                     stack.push(literal);
@@ -1037,8 +1036,9 @@ python.Tokenizer = class {
             case '\u2028': // 8232
             case '\u2029': // 8233
                 return true;
+            default:
+                return false;
         }
-        return false;
     }
 
     static _isIdentifierStartChar(c) {
@@ -1220,11 +1220,8 @@ python.Tokenizer = class {
                 type = 'dedent';
                 this._outdent = this._indentation.length;
             }
-
-            switch (type) {
-                case 'indent':
-                case 'dedent':
-                    return { type: type, value: indent };
+            if (type === 'indent' || type === 'dedent') {
+                return { type: type, value: indent };
             }
         }
         if (this._position >= this._text.length) {
@@ -1487,12 +1484,12 @@ python.Tokenizer = class {
                 break;
             case ':':
                 length = c1 === '=' ? 2 : 1;
+                break;
+            default:
+                return null;
         }
-        if (length > 0) {
-            const text = this._text.substring(this._position, this._position + length);
-            return { type: text, value: text };
-        }
-        return null;
+        const text = this._text.substring(this._position, this._position + length);
+        return { type: text, value: text };
     }
 
     _string() {
@@ -1510,6 +1507,8 @@ python.Tokenizer = class {
                 case 'u':
                     prefix = c;
                     break;
+                default:
+                    break;
             }
         }
         else if (this._get(i + 2) === "'" || this._get(i + 2) === '"') {
@@ -1521,6 +1520,8 @@ python.Tokenizer = class {
                 case 'rf':
                 case 'ur':
                     prefix = cc;
+                    break;
+                default:
                     break;
             }
         }
@@ -1539,6 +1540,9 @@ python.Tokenizer = class {
                 case '"':
                     quote = q0;
                     count = (q1 === '"' && q2 === '"') ? 3 : 1;
+                    break;
+                default:
+                    throw new python.Error("Unsupported string quote '" + q0 + "'.");
             }
             i += count;
             if (count == 1) {
@@ -1597,8 +1601,9 @@ python.Tokenizer = class {
             case 'not':
             case 'or':
                 return true;
+            default:
+                return false;
         }
-        return false;
     }
 };
 
@@ -1740,32 +1745,32 @@ python.Execution = class {
                     case 'c16': case 'complex128': case 'complex': this.name = 'complex128'; this.itemsize = 16; this.kind = 'c'; break;
                     default:
                         if (obj.startsWith('V')) {
-                            this.itemsize = Number(obj.substring(1));
+                            this.itemsize = parseInt(obj.substring(1), 10);
                             this.kind = 'V';
                             this.name = 'void' + (this.itemsize * 8).toString();
                         }
                         else if (obj.startsWith('O')) {
-                            this.itemsize = Number(obj.substring(1));
+                            this.itemsize = parseInt(obj.substring(1), 10);
                             this.kind = 'O';
                             this.name = 'object';
                         }
                         else if (obj.startsWith('S')) {
-                            this.itemsize = Number(obj.substring(1));
+                            this.itemsize = parseInt(obj.substring(1), 10);
                             this.kind = 'S';
                             this.name = 'string';
                         }
-                        else if (obj.startsWith('U')) {
-                            this.itemsize = Number(obj.substring(1));
+                        else if (obj.startsWith('U')) { // Unicode string
+                            this.itemsize = 4 * parseInt(obj.substring(1), 10);
                             this.kind = 'U';
-                            this.name = 'string';
+                            this.name = 'string'; // 'str' + (8 * this.itemsize)
                         }
-                        else if (obj.startsWith('M')) {
-                            this.itemsize = Number(obj.substring(1));
+                        else if (obj.startsWith('M')) { // datetime
+                            this.itemsize = parseInt(obj.substring(1), 10);
                             this.kind = 'M';
                             this.name = 'datetime';
                         }
                         else {
-                            throw new python.Error("Unknown dtype '" + obj.toString() + "'.");
+                            throw new python.Error("Unsupported dtype '" + obj.toString() + "'.");
                         }
                         break;
                 }
@@ -1804,7 +1809,7 @@ python.Execution = class {
                         this.metadata = state[8];
                         break;
                     default:
-                        throw new python.Error("Unknown numpy.dtype setstate length '" + state.length.toString() + "'.");
+                        throw new python.Error("Unsupported numpy.dtype setstate length '" + state.length.toString() + "'.");
                 }
             }
         });
@@ -2424,7 +2429,7 @@ python.Execution = class {
                 }
                 return obj;
             }
-            throw new python.Error("Unknown copy_reg._reconstructor base type '" + base + "'.");
+            throw new python.Error("Unsupported copy_reg._reconstructor base type '" + base + "'.");
         });
         this.registerFunction('dill._dill._create_cell', function(/* args */) {
             return function() {
@@ -2481,26 +2486,54 @@ python.Execution = class {
                     data[i] = rawData.charCodeAt(i);
                 }
             }
-            const dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
-            switch (dtype.name) {
-                case 'float32':
-                    return dataView.getFloat32(0, true);
-                case 'float64':
-                    return dataView.getFloat64(0, true);
-                case 'uint8':
-                    return dataView.getUint8(0, true);
-                case 'int8':
-                    return dataView.getInt8(0, true);
-                case 'int16':
-                    return dataView.getInt16(0, true);
-                case 'int32':
-                    return dataView.getInt32(0, true);
-                case 'int64':
-                    return dataView.getInt64(0, true);
-                case 'bool':
-                    return dataView.getInt8(0, true) ? true : false;
+            switch (dtype.kind) {
+                case 'b': {
+                    const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+                    switch (dtype.itemsize) {
+                        case 1: return view.getInt8(0, true) ? true : false;
+                        default: throw new python.Error("Unsupported scalar dtype boolean itemsize '" + this.itemsize + "'.");
+                    }
+                }
+                case 'f': {
+                    const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+                    switch (dtype.itemsize) {
+                        case 4: return view.getFloat32(0, true);
+                        case 8: return view.getFloat64(0, true);
+                        default: throw new python.Error("Unsupported scalar dtype float itemsize '" + this.itemsize + "'.");
+                    }
+                }
+                case 'i': {
+                    const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+                    switch (dtype.itemsize) {
+                        case 1: return view.getInt8(0, true);
+                        case 2: return view.getInt16(0, true);
+                        case 4: return view.getInt32(0, true);
+                        case 8: return view.getInt64(0, true);
+                        default: throw new python.Error("Unsupported scalar dtype int itemsize '" + this.itemsize + "'.");
+                    }
+                }
+                case 'u': {
+                    const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+                    switch (dtype.itemsize) {
+                        case 1: return view.getUint8(0, true);
+                        case 2: return view.getUint16(0, true);
+                        case 4: return view.getUint32(0, true);
+                        case 8: return view.getUint64(0, true);
+                        default: throw new python.Error("Unsupported scalar dtype uint itemsize '" + this.itemsize + "'.");
+                    }
+                }
+                case 'U': {
+                    const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+                    const list = [];
+                    for (let i = 0; i < dtype.itemsize; i += 4) {
+                        list.push(String.fromCodePoint(view.getUint32(i, true)));
+                    }
+                    return list.join('');
+                }
+                default: {
+                    throw new python.Error("Unsupported scalar dtype kind '" + dtype.kind + "'.");
+                }
             }
-            throw new python.Error("Unknown scalar type '" + dtype.name + "'.");
         });
         this.registerFunction('numpy.core._multiarray_umath.scalar', function(dtype, rawData) {
             let data = rawData;
@@ -2526,8 +2559,9 @@ python.Execution = class {
                     return dataView.getInt32(0, true);
                 case 'int64':
                     return dataView.getInt64(0, true);
+                default:
+                    throw new python.Error("Unsupported scalar type '" + dtype.name + "'.");
             }
-            throw new python.Error("Unknown scalar type '" + dtype.name + "'.");
         });
         this.registerFunction('numpy.load', function(file) {
             // https://github.com/numpy/numpy/blob/main/numpy/lib/format.py
@@ -2583,7 +2617,7 @@ python.Execution = class {
         this.registerFunction('numpy.save', function(file, arr) {
             const descr = arr.dtype.str;
             if (descr[0] !== '<' && descr[0] !== '>') {
-                throw new numpy.Error("Unknown byte order '" + descr + "'.");
+                throw new numpy.Error("Unsupported byte order '" + descr + "'.");
             }
             if (descr.length !== 3 || (descr[1] !== 'f' && descr[1] !== 'i' && descr[1] !== 'u' && descr.substring(1) !== 'b1')) {
                 throw new numpy.Error("Unsupported data type '" + descr + "'.");
@@ -2647,6 +2681,8 @@ python.Execution = class {
                             case 'u8':
                                 context.view.setUint64(context.position, data[i], littleendian);
                                 break;
+                            default:
+                                throw new numpy.Error("Unsupported tensor data type '" + context.dtype + "'.");
                         }
                         context.position += context.itemsize;
                     }
@@ -2946,7 +2982,7 @@ python.Execution = class {
                     }
                     break;
                 }
-                throw new python.Error("Unknown condition.");
+                throw new python.Error("Unsupported condition.");
             }
             case 'for': {
                 if (statement.target.length == 1 &&
@@ -2989,7 +3025,7 @@ python.Execution = class {
                 break;
             }
             default: {
-                throw new python.Error("Unknown statement '" + statement.type + "'.");
+                throw new python.Error("Unsupported statement '" + statement.type + "'.");
             }
         }
     }
@@ -3096,30 +3132,32 @@ python.Execution = class {
                     case 'None': return null;
                     case 'True': return true;
                     case 'False': return false;
-                }
-                const type = (value) => {
-                    return value &&
-                        (value.__class__ === this._context.scope.builtins.type ||
-                         value.__class__ === this._context.scope.typing._TupleType ||
-                         value.__class__ === this._context.scope.typing._SpecialGenericAlias ||
-                         value.__class__ === this._context.scope.typing._SpecialForm);
-                };
-                const builtin = this._context.scope.builtins[expression.value];
-                if (type(builtin)) {
-                    return builtin;
-                }
-                const value = context.get(expression.value);
-                if (value === undefined) {
-                    const typing = this._context.scope.typing[expression.value];
-                    if (type(typing)) {
-                        return typing;
+                    default: {
+                        const type = (value) => {
+                            return value &&
+                                (value.__class__ === this._context.scope.builtins.type ||
+                                 value.__class__ === this._context.scope.typing._TupleType ||
+                                 value.__class__ === this._context.scope.typing._SpecialGenericAlias ||
+                                 value.__class__ === this._context.scope.typing._SpecialForm);
+                        };
+                        const builtin = this._context.scope.builtins[expression.value];
+                        if (type(builtin)) {
+                            return builtin;
+                        }
+                        const value = context.get(expression.value);
+                        if (value === undefined) {
+                            const typing = this._context.scope.typing[expression.value];
+                            if (type(typing)) {
+                                return typing;
+                            }
+                            const torch = this._context.scope.torch[expression.value];
+                            if (type(torch)) {
+                                return torch;
+                            }
+                        }
+                        return value;
                     }
-                    const torch = this._context.scope.torch[expression.value];
-                    if (type(torch)) {
-                        return torch;
-                    }
                 }
-                return value;
             }
             case 'tuple': {
                 return expression.value.map((expression) => this.expression(expression, context));
@@ -3136,8 +3174,10 @@ python.Execution = class {
                 }
                 return dict;
             }
+            default: {
+                throw new python.Error("Unsupported expression '" + expression.type + "'.");
+            }
         }
-        throw new python.Error("Unknown expression '" + expression.type + "'.");
     }
 
     _target(expression, context) {
@@ -3211,7 +3251,7 @@ python.Execution = class {
             this._unknownNameMap.add(name);
             const module = name.split('.').shift();
             if (this._context.scope[module] && this._context.scope[module].__class__ == this._context.scope.builtins.module) {
-                this._exceptionCallback(new python.Error("Unknown function '" + name + "'."), false);
+                this._exceptionCallback(new python.Error("Unsupported function '" + name + "'."), false);
             }
         }
     }

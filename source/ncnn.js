@@ -110,6 +110,9 @@ ncnn.ModelFactory = class {
                         });
                     });
                 }
+                default: {
+                    throw new ncnn.Error("Unsupported ncnn format '" + match + "'.");
+                }
             }
         });
     }
@@ -540,6 +543,9 @@ ncnn.Node = class {
                 attributes.delete('2');
                 break;
             }
+            default: {
+                break;
+            }
         }
 
         this._attributes = Array.from(attributes).map((attribute) => {
@@ -737,6 +743,8 @@ ncnn.Tensor = class {
                         context.index += 2;
                         context.count++;
                         break;
+                    default:
+                        throw new ncnn.Error("Unsupported tensor data type " + this._type.dataType + "'.");
                 }
             }
         }
@@ -1022,7 +1030,7 @@ ncnn.BlobReader = class {
                             break;
                         case 0x0002C056: // size * sizeof(float) - raw data with extra scaling
                         default:
-                            throw new ncnn.Error("Unknown weight type '" + type + "'.");
+                            throw new ncnn.Error("Unsupported weight type '" + type + "'.");
                     }
                 }
                 else {
@@ -1062,7 +1070,7 @@ ncnn.BlobReader = class {
                             data = null;
                             break;
                         default:
-                            throw new ncnn.Error("Unknown weight type '" + dataType + "'.");
+                            throw new ncnn.Error("Unsupported weight type '" + dataType + "'.");
                     }
                 }
             }

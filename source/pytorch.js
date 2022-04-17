@@ -906,7 +906,7 @@ pytorch.Execution = class extends python.Execution {
             __setstate__(state) {
                 const pack_version = state[0];
                 if (pack_version !== '2') {
-                    throw new pytorch.Error("Unknown pack version '" + pack_version.toString() + "'.");
+                    throw new pytorch.Error("Unsupported pack version '" + pack_version.toString() + "'.");
                 }
                 const tensors = state[1];
                 const opt_tensors = state[2];
@@ -924,7 +924,7 @@ pytorch.Execution = class extends python.Execution {
             __setstate__(state) {
                 const pack_version = state[0];
                 if (pack_version !== '2') {
-                    throw new pytorch.Error("Unknown pack version '" + pack_version.toString() + "'.");
+                    throw new pytorch.Error("Unsupported pack version '" + pack_version.toString() + "'.");
                 }
                 const tensors = state[1];
                 const opt_tensors = state[2];
@@ -1282,7 +1282,7 @@ pytorch.Execution = class extends python.Execution {
             if (pytorch.Utility.isTensor(value)) {
                 return true;
             }
-            throw new pytorch.Error("Unknown bool expression '" + JSON.stringify(value) + "'.");
+            throw new pytorch.Error("Unsupported bool expression '" + JSON.stringify(value) + "'.");
         });
         this.registerFunction('int', function(value) {
             if (pytorch.Utility.isTensor(value)) {
@@ -1474,7 +1474,7 @@ pytorch.Execution = class extends python.Execution {
             if ((left !== null && right === null) || (left === null && right !== null)) {
                 return false;
             }
-            throw new pytorch.Error("Unknown 'torch.__is__' expression type.");
+            throw new pytorch.Error("Unsupported 'torch.__is__' expression type.");
         });
         this.registerFunction('torch.__isnot__', function(left, right) {
             if (left === null && right === null) {
@@ -1483,13 +1483,13 @@ pytorch.Execution = class extends python.Execution {
             if ((left !== null && right === null) || (left === null && right !== null)) {
                 return true;
             }
-            throw new pytorch.Error("Unknown 'torch.__isnot__' expression type.");
+            throw new pytorch.Error("Unsupported 'torch.__isnot__' expression type.");
         });
         this.registerFunction('torch.__not__', function(value) {
             if (typeof value === 'boolean') {
                 return !value;
             }
-            throw new pytorch.Error("Unknown 'torch.__not__' expression type.");
+            throw new pytorch.Error("Unsupported 'torch.__not__' expression type.");
         });
         this.registerFunction('torch.__range_length', function(lo, hi, step) {
             if (step === 0) {
@@ -1516,7 +1516,7 @@ pytorch.Execution = class extends python.Execution {
             if (typeof left === 'string' && typeof right === 'string') {
                 return left + right;
             }
-            throw new pytorch.Error('Unknown torch.add expression type.');
+            throw new pytorch.Error('Unsupported torch.add expression type.');
         });
         this.registerFunction('torch.append', function(list, value) {
             list.push(value);
@@ -1589,7 +1589,7 @@ pytorch.Execution = class extends python.Execution {
             if (Array.isArray(left) && Array.isArray(right)) {
                 return left.length === right.length && left.every((item, index) => item === right[index]);
             }
-            throw new pytorch.Error("Unknown 'torch.eq' expression type.");
+            throw new pytorch.Error("Unsupported 'torch.eq' expression type.");
         });
         this.registerFunction('torch.floor', function(value) {
             return Math.floor(value);
@@ -1620,7 +1620,7 @@ pytorch.Execution = class extends python.Execution {
             if (isNaN(left) && !isNaN(right)) {
                 return true;
             }
-            throw new pytorch.Error("Unknown 'torch.gt' expression type.");
+            throw new pytorch.Error("Unsupported 'torch.gt' expression type.");
         });
         this.registerFunction('torch.ge', function(left, right) {
             if (typeof left === 'number' && typeof right === 'number') {
@@ -1631,7 +1631,7 @@ pytorch.Execution = class extends python.Execution {
             if (isNaN(left) && !isNaN(right)) {
                 return true;
             }
-            throw new pytorch.Error("Unknown 'torch.ge' expression type.");
+            throw new pytorch.Error("Unsupported 'torch.ge' expression type.");
         });
         this.registerFunction('torch.is_floating_point', function(tensor) {
             const type = tensor.dtype.scalar_type();
@@ -1678,7 +1678,7 @@ pytorch.Execution = class extends python.Execution {
             if (left === undefined || right === undefined) {
                 return true;
             }
-            throw new pytorch.Error("Unknown 'torch.le' expression type.");
+            throw new pytorch.Error("Unsupported 'torch.le' expression type.");
         });
         this.registerFunction('torch.list', function(args) {
             return args;
@@ -1690,7 +1690,7 @@ pytorch.Execution = class extends python.Execution {
             if (typeof left === 'number' && typeof right === 'number') {
                 return left < right;
             }
-            throw new pytorch.Error("Unknown 'torch.lt' expression type.");
+            throw new pytorch.Error("Unsupported 'torch.lt' expression type.");
         });
         this.registerFunction('torch.mul', function(left, right) {
             if (typeof left === 'number' && typeof right === 'number') {
@@ -1702,7 +1702,7 @@ pytorch.Execution = class extends python.Execution {
             if (Array.isArray(left) && left.every((value) => typeof value === 'number') && typeof right === 'number') {
                 return left.map((value) => value * right);
             }
-            throw new pytorch.Error("Unknown 'torch.mul' expression type.");
+            throw new pytorch.Error("Unsupported 'torch.mul' expression type.");
         });
         this.registerFunction('torch.div', function(left, right) {
             if (typeof left === 'number' && typeof right === 'number') {
@@ -1711,7 +1711,7 @@ pytorch.Execution = class extends python.Execution {
             if (isNaN(left) || isNaN(right)) {
                 return NaN;
             }
-            throw new pytorch.Error("Unknown 'torch.div' expression type.");
+            throw new pytorch.Error("Unsupported 'torch.div' expression type.");
         });
         this.registerFunction('torch.remainder', function(left, right) {
             if (typeof left === 'number' && typeof right === 'number') {
@@ -1720,7 +1720,7 @@ pytorch.Execution = class extends python.Execution {
             if (isNaN(left) || isNaN(right)) {
                 return NaN;
             }
-            throw new pytorch.Error("Unknown 'torch.remainder' expression type.");
+            throw new pytorch.Error("Unsupported 'torch.remainder' expression type.");
         });
         this.registerFunction('torch.ne', function(left, right) {
             if (typeof left === 'number' && typeof right === 'number') {
@@ -1738,13 +1738,13 @@ pytorch.Execution = class extends python.Execution {
             if (left === undefined || right === undefined) {
                 return true;
             }
-            throw new pytorch.Error("Unknown 'torch.ne' expression type.");
+            throw new pytorch.Error("Unsupported 'torch.ne' expression type.");
         });
         this.registerFunction('torch.neg', function(value) {
             if (typeof value === 'number') {
                 return -value;
             }
-            throw new pytorch.Error("Unknown 'torch.neg' expression type.");
+            throw new pytorch.Error("Unsupported 'torch.neg' expression type.");
         });
         this.registerFunction('torch.q_scale', function(/* tensor */) {
             return -1; // TODO
@@ -1791,7 +1791,7 @@ pytorch.Execution = class extends python.Execution {
             if (typeof left === 'number' && typeof right === 'number') {
                 return left - right;
             }
-            throw new pytorch.Error("Unknown 'torch.sub' expression type.");
+            throw new pytorch.Error("Unsupported 'torch.sub' expression type.");
         });
         this.registerFunction('torch.values', function(dict) {
             return Object.keys(dict).map((key) => dict[key]);
@@ -2308,8 +2308,10 @@ pytorch.Container.Pickle = class {
                     }
                     return deserialized_objects.get(root_key);
                 }
+                default: {
+                    throw new pytorch.Error("Unsupported persistent load type '" + typename + "'.");
+                }
             }
-            throw new pytorch.Error("Unknown persistent load type '" + typename + "'.");
         };
 
         const obj = unpickler.load((name, args) => execution.invoke(name, args), persistent_load);
@@ -2553,7 +2555,7 @@ pytorch.Container.Zip = class {
                     this._constants = constants.map((constant) => {
                         const key = this._prefix + constant.data.key;
                         if (!tensorTypeMap.has(constant.dataType)) {
-                            throw new pytorch.Error("Unknown tensor data type '" + constant.dataType + "'.");
+                            throw new pytorch.Error("Unsupported tensor data type '" + constant.dataType + "'.");
                         }
                         const type = tensorTypeMap.get(constant.dataType);
                         const shape = constant.dims ? constant.dims.map((dim) => parseInt(dim, 10)) : null;
@@ -2654,7 +2656,7 @@ pytorch.Container.Zip = class {
         const persistent_load = (saved_id) => {
             const typename = saved_id.shift();
             if (typename !== 'storage') {
-                throw new pytorch.Error("Unknown persistent load type '" + typename + "'.");
+                throw new pytorch.Error("Unsupported persistent load type '" + typename + "'.");
             }
             const name = saved_id.shift();
             const data_type = this.execution.type(name);
@@ -2752,7 +2754,7 @@ pytorch.Container.Zip = class {
                                     return undefined;
                             }
                         }
-                        throw new pytorch.Error("Unknown function parameter type '" + JSON.stringify(type) + "'.");
+                        throw new pytorch.Error("Unsupported function parameter type '" + JSON.stringify(type) + "'.");
                     };
                     if (parameter.name !== 'self') {
                         const type = parameter.parameterType;
@@ -3521,7 +3523,7 @@ pytorch.Utility = class {
         if (scalarType < pytorch.Utility._scalarTypes.length) {
             return pytorch.Utility._scalarTypes[scalarType];
         }
-        throw new pytorch.Error("Unknown scalar type '" + scalarType + "'.");
+        throw new pytorch.Error("Unsupported scalar type '" + scalarType + "'.");
     }
 
     static target(expression) {

@@ -4311,7 +4311,7 @@
     "target":   "batches.meta",
     "source":   "https://raw.githubusercontent.com/MadryLab/cifar10_challenge/master/cifar10_data/batches.meta",
     "format":   "Pickle",
-    "error":    "Unknown Pickle object in 'batches.meta'.",
+    "error":    "Unsupported Pickle object in 'batches.meta'.",
     "link":     "https://github.com/MadryLab/cifar10_challenge"
   },
   {
@@ -4326,7 +4326,7 @@
     "target":   "robinhood-portfolio_data_user.pkl.pkl",
     "source":   "https://raw.githubusercontent.com/omdv/robinhood-portfolio/4622dc61e0556a85ce52c4de178d01a9838acbc5/data/user.pkl",
     "format":   "Pickle",
-    "error":    "Unknown Pickle object in 'robinhood-portfolio_data_user.pkl.pkl'.",
+    "error":    "Unsupported Pickle object in 'robinhood-portfolio_data_user.pkl.pkl'.",
     "link":     "https://github.com/omdv/robinhood-portfolio/tree/4622dc61e0556a85ce52c4de178d01a9838acbc5"
   },
   {
@@ -4493,7 +4493,7 @@
     "type":     "pytorch",
     "target":   "fasterrcnn_resnet50_fpn.pt",
     "source":   "https://github.com/lutzroeder/netron/files/7677467/fasterrcnn_resnet50_fpn.pt.zip[fasterrcnn_resnet50_fpn.pt]",
-    "error":    "Unknown torch.add expression type in 'fasterrcnn_resnet50_fpn.pt'.",
+    "error":    "Unsupported torch.add expression type in 'fasterrcnn_resnet50_fpn.pt'.",
     "link":     "https://github.com/lutzroeder/netron/issues/689"
   },
   {
@@ -4754,7 +4754,7 @@
     "type":     "pytorch",
     "target":   "netron_issue_547_1.pt",
     "source":   "https://github.com/lutzroeder/netron/files/5137393/netron_issue_547_1.zip[netron_issue_547_1.pt]",
-    "error":    "Unknown torch.add expression type in 'netron_issue_547_1.pt'.",
+    "error":    "Unsupported torch.add expression type in 'netron_issue_547_1.pt'.",
     "link":     "https://github.com/lutzroeder/netron/issues/547"
   },
   {

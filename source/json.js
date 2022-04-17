@@ -486,7 +486,7 @@ json.BinaryReader = class {
                     const size = view.getInt32(start, true);
                     const subtype = buffer[start + 4];
                     if (subtype !== 0x00) {
-                        throw new json.Error("Unknown binary subtype '" + subtype + "'.", true);
+                        throw new json.Error("Unsupported binary subtype '" + subtype + "'.", true);
                     }
                     skip(size);
                     value = buffer.subarray(start + 5, position);
@@ -522,8 +522,9 @@ json.BinaryReader = class {
                     value = view.getInt64(start, true).toNumber();
                     break;
                 }
-                default:
-                    throw new json.Error("Unknown value type '" + type + "'.", true);
+                default: {
+                    throw new json.Error("Unsupported value type '" + type + "'.", true);
+                }
             }
             if (Array.isArray(obj))  {
                 if (obj.length !== parseInt(key, 10)) {

@@ -947,7 +947,7 @@ if (typeof TextEncoder === 'undefined') {
                     return"utf-8";
                 }
                 else {
-                    throw TypeError("Illegal invocation");
+                    throw new TypeError("Illegal invocation");
                 }
             }
         });

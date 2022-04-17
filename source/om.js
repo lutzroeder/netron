@@ -14,7 +14,7 @@ om.ModelFactory = class {
     open(context, match) {
         const file = match;
         if (!file.model) {
-            throw om.Error('File does not contain a model definition.');
+            throw new om.Error('File does not contain a model definition.');
         }
         return context.require('./om-proto').then(() => {
             let model = null;
@@ -314,6 +314,9 @@ om.Attribute = class {
                 this._value = null;
                 break;
             }
+            default: {
+                throw new om.Error("Unsupported attribute type '" + JSON.stringify(value).substring(32) + "'.");
+            }
         }
     }
 
@@ -558,7 +561,7 @@ om.File = class {
                         break;
                     }
                     default: {
-                        throw new om.Error("Unknown partition type '" + partition.type + "'.");
+                        throw new om.Error("Unsupported partition type '" + partition.type + "'.");
                     }
                 }
             }
@@ -578,7 +581,7 @@ om.Utility = class {
         if (value < om.Utility._types.length) {
             return om.Utility._types[value];
         }
-        throw new om.Error("Unknown dtype '" + value + "'.");
+        throw new om.Error("Unsupported dtype '" + value + "'.");
     }
 
     static decodeText(value) {

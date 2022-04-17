@@ -639,6 +639,8 @@ grapher.Edge.Curve = class {
                     case 2:
                         this._path.lineTo(this._x1, this._y1);
                         break;
+                    default:
+                        break;
                 }
                 if (this._line || (this._line !== 0 && this._point === 1)) {
                     this._path.closePath();

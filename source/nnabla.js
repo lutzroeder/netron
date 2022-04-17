@@ -44,7 +44,7 @@ nnabla.ModelFactory = class {
                     });
                 }
                 default: {
-                    throw new nnabla.Error("Unknown nnabla format '" + match + "'.");
+                    throw new nnabla.Error("Unsupported nnabla format '" + match + "'.");
                 }
             }
         });

@@ -36,15 +36,15 @@ $root.circle.QuantizationDetails = class {
     static decode(reader, position, type) {
         switch (type) {
             case 1: return $root.circle.CustomQuantization.decode(reader, position);
+            default: return undefined;
         }
-        return undefined;
     }
 
     static decodeText(reader, json, type) {
         switch (type) {
             case 'CustomQuantization': return $root.circle.CustomQuantization.decodeText(reader, json);
+            default: return undefined;
         }
-        return undefined;
     }
 };
 
@@ -130,8 +130,8 @@ $root.circle.SparseIndexVector = class {
             case 1: return $root.circle.Int32Vector.decode(reader, position);
             case 2: return $root.circle.Uint16Vector.decode(reader, position);
             case 3: return $root.circle.Uint8Vector.decode(reader, position);
+            default: return undefined;
         }
-        return undefined;
     }
 
     static decodeText(reader, json, type) {
@@ -139,8 +139,8 @@ $root.circle.SparseIndexVector = class {
             case 'Int32Vector': return $root.circle.Int32Vector.decodeText(reader, json);
             case 'Uint16Vector': return $root.circle.Uint16Vector.decodeText(reader, json);
             case 'Uint8Vector': return $root.circle.Uint8Vector.decodeText(reader, json);
+            default: return undefined;
         }
-        return undefined;
     }
 };
 
@@ -454,8 +454,8 @@ $root.circle.BuiltinOptions = class {
             case 252: return $root.circle.BCQGatherOptions.decode(reader, position);
             case 253: return $root.circle.BCQFullyConnectedOptions.decode(reader, position);
             case 254: return $root.circle.InstanceNormOptions.decode(reader, position);
+            default: return undefined;
         }
-        return undefined;
     }
 
     static decodeText(reader, json, type) {
@@ -564,8 +564,8 @@ $root.circle.BuiltinOptions = class {
             case 'BCQGatherOptions': return $root.circle.BCQGatherOptions.decodeText(reader, json);
             case 'BCQFullyConnectedOptions': return $root.circle.BCQFullyConnectedOptions.decodeText(reader, json);
             case 'InstanceNormOptions': return $root.circle.InstanceNormOptions.decodeText(reader, json);
+            default: return undefined;
         }
-        return undefined;
     }
 };
 

@@ -134,7 +134,7 @@ caffe.ModelFactory = class {
                     return openModel(context, netParameter);
                 }
                 default: {
-                    throw new caffe.Error("Unknown Caffe format '" + match + "'.");
+                    throw new caffe.Error("Unsupported Caffe format '" + match + "'.");
                 }
             }
         });

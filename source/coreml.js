@@ -177,7 +177,7 @@ coreml.ModelFactory = class {
                         return openManifestStream(context, '../../../');
                     }
                     default: {
-                        throw new coreml.Error("Unknown Core ML format '" + match + "'.");
+                        throw new coreml.Error("Unsupported Core ML format '" + match + "'.");
                     }
                 }
             });
@@ -612,8 +612,10 @@ coreml.Graph = class {
             case 'mlProgram': {
                 return this._loadProgram(model.mlProgram, scope, group, weights);
             }
+            default: {
+                throw new coreml.Error("Unsupported model type '" + JSON.stringify(Object.keys(model)) + "'.");
+            }
         }
-        throw new coreml.Error("Unknown model type '" + JSON.stringify(Object.keys(model)) + "'.");
     }
 
     _loadProgram(program, scope, group, weights) {

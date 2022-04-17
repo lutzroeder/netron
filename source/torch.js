@@ -13,7 +13,7 @@ torch.ModelFactory = class {
             const reader = match;
             reader.callback = (name) => {
                 if (name && name != 'nn.JointTrainModule' && !name.startsWith('nn.MSDNet_') && !name.startsWith('onmt.')) {
-                    context.exception(new torch.Error("Unknown type '" + name + "' in '" + identifier + "'."), false);
+                    context.exception(new torch.Error("Unsupported type '" + name + "' in '" + identifier + "'."), false);
                 }
                 return null;
             };
@@ -337,6 +337,8 @@ torch.Node = class {
                 break;
             case 'nn.StereoJoin':
                 delete module.output_L;
+                break;
+            default:
                 break;
         }
         this._attributes = [];
@@ -728,6 +730,8 @@ torch.T7Reader = class {
                             case 'float64':
                                 array[i] = reader.float64();
                                 break;
+                            default:
+                                throw new torch.Error("Unsupported data type '" + dataType + "'.");
                         }
                     }
                     this._data = array;
@@ -1260,7 +1264,7 @@ torch.TextReader = class {
         const data = this.line(size);
         const content = this._textDecoder.decode(data);
         if (size != content.length) {
-            throw torch.Error('Invalid string length.');
+            throw new torch.Error('Invalid string length.');
         }
         return content;
     }

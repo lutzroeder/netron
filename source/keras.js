@@ -63,7 +63,7 @@ keras.ModelFactory = class {
                 for (const weight of manifest.weights) {
                     const dtype = weight.quantization && weight.quantization.dtype ? weight.quantization.dtype : weight.dtype;
                     if (!dtype_size_map.has(dtype)) {
-                        throw new keras.Error("Unknown weight data type size '" + dtype + "'.");
+                        throw new keras.Error("Unsupported weight data type size '" + dtype + "'.");
                     }
                     const itemsize = dtype_size_map.get(dtype);
                     const size = weight.shape.reduce((a, b) => a * b, 1);
@@ -913,7 +913,7 @@ keras.Node = class {
         }
 
         if (typeof this.type.name !== 'string' || !this.type.name.split) { // #416
-            throw new keras.Error("Unknown node type '" + JSON.stringify(this.type.name) + "'.");
+            throw new keras.Error("Unsupported node type '" + JSON.stringify(this.type.name) + "'.");
         }
     }
 

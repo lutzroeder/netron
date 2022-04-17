@@ -42,15 +42,15 @@ $root.tflite.QuantizationDetails = class {
     static decode(reader, position, type) {
         switch (type) {
             case 1: return $root.tflite.CustomQuantization.decode(reader, position);
+            default: return undefined;
         }
-        return undefined;
     }
 
     static decodeText(reader, json, type) {
         switch (type) {
             case 'CustomQuantization': return $root.tflite.CustomQuantization.decodeText(reader, json);
+            default: return undefined;
         }
-        return undefined;
     }
 };
 
@@ -136,8 +136,8 @@ $root.tflite.SparseIndexVector = class {
             case 1: return $root.tflite.Int32Vector.decode(reader, position);
             case 2: return $root.tflite.Uint16Vector.decode(reader, position);
             case 3: return $root.tflite.Uint8Vector.decode(reader, position);
+            default: return undefined;
         }
-        return undefined;
     }
 
     static decodeText(reader, json, type) {
@@ -145,8 +145,8 @@ $root.tflite.SparseIndexVector = class {
             case 'Int32Vector': return $root.tflite.Int32Vector.decodeText(reader, json);
             case 'Uint16Vector': return $root.tflite.Uint16Vector.decodeText(reader, json);
             case 'Uint8Vector': return $root.tflite.Uint8Vector.decodeText(reader, json);
+            default: return undefined;
         }
-        return undefined;
     }
 };
 
@@ -495,8 +495,8 @@ $root.tflite.BuiltinOptions = class {
             case 115: return $root.tflite.BucketizeOptions.decode(reader, position);
             case 116: return $root.tflite.GeluOptions.decode(reader, position);
             case 117: return $root.tflite.DynamicUpdateSliceOptions.decode(reader, position);
+            default: return undefined;
         }
-        return undefined;
     }
 
     static decodeText(reader, json, type) {
@@ -618,8 +618,8 @@ $root.tflite.BuiltinOptions = class {
             case 'BucketizeOptions': return $root.tflite.BucketizeOptions.decodeText(reader, json);
             case 'GeluOptions': return $root.tflite.GeluOptions.decodeText(reader, json);
             case 'DynamicUpdateSliceOptions': return $root.tflite.DynamicUpdateSliceOptions.decodeText(reader, json);
+            default: return undefined;
         }
-        return undefined;
     }
 };
 
@@ -2763,8 +2763,8 @@ $root.tflite.ContentProperties = class {
             case 2: return $root.tflite.ImageProperties.decode(reader, position);
             case 3: return $root.tflite.BoundingBoxProperties.decode(reader, position);
             case 4: return $root.tflite.AudioProperties.decode(reader, position);
+            default: return undefined;
         }
-        return undefined;
     }
 
     static decodeText(reader, json, type) {
@@ -2773,8 +2773,8 @@ $root.tflite.ContentProperties = class {
             case 'ImageProperties': return $root.tflite.ImageProperties.decodeText(reader, json);
             case 'BoundingBoxProperties': return $root.tflite.BoundingBoxProperties.decodeText(reader, json);
             case 'AudioProperties': return $root.tflite.AudioProperties.decodeText(reader, json);
+            default: return undefined;
         }
-        return undefined;
     }
 };
 
@@ -2872,8 +2872,8 @@ $root.tflite.ProcessUnitOptions = class {
             case 4: return $root.tflite.BertTokenizerOptions.decode(reader, position);
             case 5: return $root.tflite.SentencePieceTokenizerOptions.decode(reader, position);
             case 6: return $root.tflite.RegexTokenizerOptions.decode(reader, position);
+            default: return undefined;
         }
-        return undefined;
     }
 
     static decodeText(reader, json, type) {
@@ -2884,8 +2884,8 @@ $root.tflite.ProcessUnitOptions = class {
             case 'BertTokenizerOptions': return $root.tflite.BertTokenizerOptions.decodeText(reader, json);
             case 'SentencePieceTokenizerOptions': return $root.tflite.SentencePieceTokenizerOptions.decodeText(reader, json);
             case 'RegexTokenizerOptions': return $root.tflite.RegexTokenizerOptions.decodeText(reader, json);
+            default: return undefined;
         }
-        return undefined;
     }
 };
 

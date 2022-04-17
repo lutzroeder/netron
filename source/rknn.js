@@ -94,6 +94,8 @@ rknn.Graph = class {
                 case 'output':
                     model.nodes[connection.node_id].output.push(connection);
                     break;
+                default:
+                    throw new rknn.Error("Unsupported left connection '" + connection.left + "'.");
             }
         }
 
@@ -103,14 +105,14 @@ rknn.Graph = class {
             const name = graph.left + (graph.left_tensor_id === 0 ? '' : graph.left_tensor_id.toString());
             const parameter = new rknn.Parameter(name, [ argument ]);
             switch (graph.left) {
-                case 'input': {
+                case 'input':
                     this._inputs.push(parameter);
                     break;
-                }
-                case 'output': {
+                case 'output':
                     this._outputs.push(parameter);
                     break;
-                }
+                default:
+                    throw new rknn.Error("Unsupported left graph connection '" + graph.left + "'.");
             }
         }
 
@@ -281,6 +283,7 @@ rknn.Tensor = class {
             case 'int32': size = 4; break;
             case 'float16': size = 2; break;
             case 'float32': size = 4; break;
+            default: throw new rknn.Error("Unsupported tensor data type '" + this._type.dataType + "'.");
         }
         const shape = type.shape.dimensions;
         size = size * shape.reduce((a, b) => a * b, 1);
@@ -370,6 +373,8 @@ rknn.Tensor = class {
                         context.index += 4;
                         context.count++;
                         break;
+                    default:
+                        throw new rknn.Error("Unsupported tensor data type '" + context.dataType + "'.");
                 }
             }
         }

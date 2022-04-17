@@ -143,6 +143,9 @@ numpy.ModelFactory = class {
                 }
                 break;
             }
+            default: {
+                throw new numpy.Error("Unsupported NumPy format '" + match.name + "'.");
+            }
         }
         const model = new numpy.Model(format, graphs);
         return Promise.resolve(model);
@@ -368,6 +371,8 @@ numpy.Tensor = class  {
                         case 'uint32':
                             results.push(context.rawData.getUint32(context.index, littleEndian));
                             break;
+                        default:
+                            throw new numpy.Error("Unsupported tensor data type '" + context.dataType + "'.");
                     }
                     context.index += context.itemSize;
                     context.count++;

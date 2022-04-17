@@ -98,7 +98,7 @@ base.Int64 = class Int64 {
     toString(radix) {
         const r = radix || 10;
         if (r < 2 || r > 16) {
-            throw RangeError('radix');
+            throw new RangeError('radix');
         }
         if (this.isZero) {
             return '0';
@@ -216,7 +216,7 @@ base.Uint64 = class Uint64 {
     toString(radix) {
         const r = radix || 10;
         if (r < 2 || 36 < r) {
-            throw RangeError('radix');
+            throw new RangeError('radix');
         }
         if (this.isZero) {
             return '0';
@@ -325,7 +325,7 @@ base.Utility = class {
 
     static divide(a, b, unsigned) {
         if (b.isZero) {
-            throw Error('Division by zero.');
+            throw new Error('Division by zero.');
         }
         if (a.isZero) {
             return unsigned ? base.Uint64.zero : base.Int64.zero;

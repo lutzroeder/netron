@@ -313,7 +313,7 @@ mlnet.TensorType = class {
                 this._dataType = mlnet.TensorType._map.get(codec.itemType.name);
             }
             else {
-                throw new mlnet.Error("Unknown data type '" + codec.itemType.name + "'.");
+                throw new mlnet.Error("Unsupported data type '" + codec.itemType.name + "'.");
             }
             this._shape = new mlnet.TensorShape(codec.dims);
         }
@@ -321,7 +321,7 @@ mlnet.TensorType = class {
             this._dataType = 'key2';
         }
         else {
-            throw new mlnet.Error("Unknown data type '" + codec.name + "'.");
+            throw new mlnet.Error("Unsupported data type '" + codec.name + "'.");
         }
     }
 
@@ -526,7 +526,7 @@ mlnet.ComponentCatalog = class {
 
     create(signature, context) {
         if (!this._map.has(signature)) {
-            throw new mlnet.Error("Unknown loader signature '" + signature + "'.");
+            throw new mlnet.Error("Unsupported loader signature '" + signature + "'.");
         }
         const type = this._map.get(signature);
         return Reflect.construct(type, [ context ]);
@@ -1665,7 +1665,7 @@ mlnet.NormalizingTransformer = class extends mlnet.OneToOneTransformerBase {
             switch (itemKind) {
                 case 9: itemType = 'float32'; break;
                 case 10: itemType = 'float64'; break;
-                default: throw new mlnet.Error("Unknown NormalizingTransformer item kind '" + itemKind + "'.");
+                default: throw new mlnet.Error("Unsupported NormalizingTransformer item kind '" + itemKind + "'.");
             }
             const type = itemType + (!isVector ? '' : '[' + shape.map((dim) => dim.toString()).join(',') + ']');
             const name = 'Normalizer_' + ('00' + i).slice(-3);
@@ -1724,7 +1724,7 @@ mlnet.TermMap = class {
                 break;
             }
             default:
-                throw new mlnet.Error("Unknown term map type '" + mtype.toString() + "'.");
+                throw new mlnet.Error("Unsupported term map type '" + mtype.toString() + "'.");
         }
     }
 };
@@ -2113,9 +2113,9 @@ mlnet.InternalTreeEnsemble = class {
                 case mlnet.InternalTreeEnsemble.TreeType.Affine:
                     // Affine regression trees do not actually work, nor is it clear how they ever
                     // could have worked within TLC, so the chance of this happening seems remote.
-                    throw new mlnet.Error('Affine regression trees unsupported');
+                    throw new mlnet.Error('Affine regression trees unsupported.');
                 default:
-                    throw new mlnet.Error('Unknown ensemble tree type.');
+                    throw new mlnet.Error('Unsupported ensemble tree type.');
             }
         }
         this.Bias = reader.float64();
@@ -2289,7 +2289,7 @@ mlnet.Codec = class {
                 this.count = reader.uint64();
                 break;
             default:
-                throw new mlnet.Error("Unknown codec '" + this.name + "'.");
+                throw new mlnet.Error("Unsupported codec '" + this.name + "'.");
         }
     }
 
@@ -2312,7 +2312,7 @@ mlnet.Codec = class {
                 }
                 break;
             default:
-                throw new mlnet.Error("Unknown codec read operation '" + this.name + "'.");
+                throw new mlnet.Error("Unsupported codec read operation '" + this.name + "'.");
         }
         return values;
     }

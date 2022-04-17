@@ -587,8 +587,8 @@ mnn.Utility = class {
             case mnn.schema.DataType.DT_HALF: return 'float16';
             case mnn.schema.DataType.DT_RESOURCE: return 'resource';
             case mnn.schema.DataType.DT_VARIANT: return 'variant';
+            default: throw new mnn.Error("Unsupported data type '" + JSON.stringify(type) + "'.");
         }
-        throw new mnn.Error("Unknown data type '" + JSON.stringify(type) + "'.");
     }
 
     static enum(name, value) {
@@ -620,8 +620,7 @@ mnn.Utility = class {
             case 'int64': data = param.int64s; break;
             case 'float16': data = param.uint8s; break;
             case 'float32': data = param.float32s; break;
-            default:
-                throw new mnn.Error("Unknown blob data type '" + JSON.stringify(type.dataType) + "'.");
+            default: throw new mnn.Error("Unsupported blob data type '" + JSON.stringify(type.dataType) + "'.");
         }
         return new mnn.Tensor(kind, type, data);
     }

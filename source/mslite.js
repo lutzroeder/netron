@@ -27,6 +27,8 @@ mslite.ModelFactory = class {
                     throw new mslite.Error('MSL1 format is deprecated.', false);
                 case 'MSL2':
                     break;
+                default:
+                    throw new mslite.Error("Unsupported file identifier '" + reader.identifier + "'.");
             }
             let model = null;
             try {
@@ -501,8 +503,7 @@ mslite.TensorType = class {
             case 43: this._dataType = "float32"; break;
             case 44: this._dataType = "float64"; break;
             case 45: this._dataType = "complex64"; break;
-            default:
-                throw new mslite.Error("Unknown data type '" + dataType.toString() + "'.");
+            default: throw new mslite.Error("Unsupported data type '" + dataType.toString() + "'.");
         }
         this._shape = new mslite.TensorShape(Array.from(dimensions));
     }

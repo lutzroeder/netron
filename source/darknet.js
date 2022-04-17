@@ -61,7 +61,7 @@ darknet.ModelFactory = class {
                         return openModel(metadata, context.stream.peek(), null);
                     });
                 default: {
-                    throw new darknet.Error("Unknown Darknet format '" + match + "'.");
+                    throw new darknet.Error("Unsupported Darknet format '" + match + "'.");
                 }
             }
         });
@@ -314,6 +314,8 @@ darknet.Graph = class {
                     }
                     break;
                 }
+                default:
+                    break;
             }
             if (infer) {
                 switch (section.type) {
@@ -944,6 +946,10 @@ darknet.Attribute = class {
         if (schema) {
             this._type = schema.type || '';
             switch (this._type) {
+                case '':
+                case 'string': {
+                    break;
+                }
                 case 'int32': {
                     const number = parseInt(this._value, 10);
                     if (Number.isInteger(number)) {
@@ -964,6 +970,9 @@ darknet.Attribute = class {
                         this._value = numbers;
                     }
                     break;
+                }
+                default: {
+                    throw new darknet.Error("Unsupported attribute type '" + this._type + "'.");
                 }
             }
             if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {

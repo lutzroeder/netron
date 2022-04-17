@@ -256,6 +256,8 @@ kmodel.Tensor = class {
                         context.index += 4;
                         context.count++;
                         break;
+                    default:
+                        throw new kmodel.Error("Unsupported data type '" + context.dataType + "'.");
                 }
             }
         }

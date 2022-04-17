@@ -247,7 +247,7 @@ flatc.Field = class extends flatc.Object {
                         this.defaultValue = this.type.values.get(this.defaultValue);
                     }
                     else if (!new Set(this.type.values.values()).has(this.defaultValue)) {
-                        throw new flatc.Error("Unknown enum value '" + this.defaultValue + "'.");
+                        throw new flatc.Error("Unsupported enum value '" + this.defaultValue + "'.");
                     }
                 }
             }
@@ -492,8 +492,9 @@ flatc.Parser = class {
                 return token.value;
             case 'id':
                 return token.token;
+            default:
+                throw new flatc.Error("Expected scalar instead of '" + token.token + "'" + this._tokenizer.location());
         }
-        throw new flatc.Error("Expected scalar instead of '" + token.token + "'" + this._tokenizer.location());
     }
 
     _parseSingleValue() {
@@ -504,8 +505,9 @@ flatc.Parser = class {
             case 'integer':
             case 'float':
                 return token.value;
+            default:
+                throw new flatc.Error("Expected single value instead of '" + token.token + "'" + this._token.location());
         }
-        throw new flatc.Error("Expected single value instead of '" + token.token + "'" + this._token.location());
     }
 };
 
@@ -665,9 +667,9 @@ flatc.Parser.Tokenizer = class {
             case '=':
             case ',':
                 return { type: c, token: c };
+            default:
+                throw new flatc.Error("Unsupported character '" + c + "' " + this.location());
         }
-
-        throw new flatc.Error("Unknown character '" + c + "' " + this.location());
     }
 
     _get(position) {
@@ -739,8 +741,9 @@ flatc.Parser.Tokenizer = class {
             case '\u2028': // 8232
             case '\u2029': // 8233
                 return true;
+            default:
+                return false;
         }
-        return false;
     }
 
     _newLine(position) {
@@ -1139,9 +1142,9 @@ flatc.Generator = class {
                         const valueType = '$root.' + pair[1].parent.name + '.' + pair[1].name;
                         this._builder.add('case ' + pair[0] + ': return ' + valueType + '.decode(reader, position);');
                     }
+                    this._builder.add('default: return undefined;');
                 this._builder.outdent();
                 this._builder.add('}');
-                this._builder.add('return undefined;');
             this._builder.outdent();
             this._builder.add('}');
 
@@ -1154,9 +1157,9 @@ flatc.Generator = class {
                         const valueType = '$root.' + pair[1].parent.name + '.' + pair[1].name;
                         this._builder.add('case \'' + pair[1].name + '\': return ' + valueType + '.decodeText(reader, json);');
                     }
+                    this._builder.add('default: return undefined;');
                 this._builder.outdent();
                 this._builder.add('}');
-                this._builder.add('return undefined;');
             this._builder.outdent();
             this._builder.add('}');
 

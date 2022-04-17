@@ -55,6 +55,9 @@ tnn.ModelFactory = class {
                         return new tnn.Model(metadata, buffer, context.stream.peek());
                     });
                 }
+                default: {
+                    throw new tnn.Error("Unsupported TNN format '" + match + "'.");
+                }
             }
         });
     }
@@ -343,6 +346,9 @@ tnn.Node = class {
                 }
                 break;
             }
+            default: {
+                break;
+            }
         }
     }
 
@@ -388,15 +394,22 @@ tnn.Attribute = class {
                 this._type = schema.type;
             }
             switch (this._type) {
+                case '':
+                    break;
                 case 'int32':
                     this._value = parseInt(this._value, 10);
                     break;
                 case 'float32':
                     this._value = parseFloat(this._value);
                     break;
+                case 'int32[]':
+                    this._value = this._value.map((v) => parseInt(v, 10));
+                    break;
                 case 'float32[]':
                     this._value = this._value.map((v) => parseFloat(v));
                     break;
+                default:
+                    throw new tnn.Error("Unsupported attribute type '" + this._type + "'.");
             }
             if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
@@ -520,6 +533,8 @@ tnn.Tensor = class {
                         context.index += 2;
                         context.count++;
                         break;
+                    default:
+                        throw new tnn.Error("Unsupported tensor data type '" + this._type.dataType + "'.");
                 }
             }
         }
@@ -740,7 +755,7 @@ tnn.LayerResourceReader = class {
                 }
                 const data_type = reader.int32();
                 if (data_type > 4) {
-                    throw new tnn.Error("Unknown data type '" + data_type + "'.");
+                    throw new tnn.Error("Unsupported data type '" + data_type + "'.");
                 }
                 const length = reader.int32();
                 if (length <= 0) {
@@ -846,7 +861,7 @@ tnn.LayerResourceReader = class {
                         break;
                     }
                     default:
-                        throw new tnn.Error("Unknown layer resource type '" + resource.type + "'.");
+                        throw new tnn.Error("Unsupported layer resource type '" + resource.type + "'.");
                 }
                 this._layerResources.push(resource);
             }

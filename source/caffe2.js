@@ -266,7 +266,7 @@ caffe2.Graph = class {
                         case 'ConstantFill':
                             break;
                         default:
-                            throw new caffe2.Error("Unknown init op '" + op.type + "'.");
+                            throw new caffe2.Error("Unsupported init op '" + op.type + "'.");
                     }
                     if (initializer.values && initializer.values.floats && (initializer.values.floats.length !== 1 || initializer.values.floats[0] !== 0)) {
                         initializer.input = false;

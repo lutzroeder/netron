@@ -413,8 +413,8 @@ xmodel.Utility = class {
             case 'double': return { type: 'float64', value: value };
             case 'string': return { type: 'string', value: value };
             case 'bytes': return { type: 'byte[]', value: value.value };
+            default: throw new xmodel.Error("Unsupported attribute type '" + type + "'.");
         }
-        throw new xmodel.Error("Unknown attribute type '" + type + "'.");
     }
 };
 

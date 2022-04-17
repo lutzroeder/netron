@@ -381,6 +381,8 @@ tengine.Tensor = class {
                         context.index += 2;
                         context.count++;
                         break;
+                    default:
+                        throw new tengine.Error("Unsupported tensor data type '" + this._type.dataType + "'.");
                 }
             }
         }
@@ -410,7 +412,7 @@ tengine.TensorType = class {
             case 3: this._dataType = 'uint8'; break;
             case 4: this._dataType = 'int32'; break;
             case 5: this._dataType = 'int16'; break;
-            default: throw new tengine.Error("Unknown data type'" + dataType + "'.");
+            default: throw new tengine.Error("Unsupported data type'" + dataType + "'.");
         }
         this._shape = shape;
     }
@@ -775,6 +777,8 @@ tengine.ModelFileReader = class {
                         case 1: // NHWC
                             node.params[6] = subgraph.tensors[node.inputs[1]].dims[3];
                             break;
+                        default:
+                            throw new tengine.Error("Unsupported 'Convolution' layout '" + subgraph.graphLayout + "'.");
                     }
                 }
             }
@@ -802,7 +806,7 @@ tengine.ModelFileReader = class {
             case 11: return 'OneFlow';
             case 12: return 'Horizon';
             case 13: return 'Bitman';
-            default: throw new tengine.Error("Unknown source '" + this._originalFormat.toString() + "'.");
+            default: throw new tengine.Error("Unsupported source '" + this._originalFormat.toString() + "'.");
         }
     }
 

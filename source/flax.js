@@ -32,7 +32,7 @@ flax.ModelFactory = class {
                         return execution.invoke('numpy.ndarray', [ tuple[0], dtype, tuple[2] ]);
                     }
                     default:
-                        throw new flax.Error("Unknown MessagePack extension '" + code + "'.");
+                        throw new flax.Error("Unsupported MessagePack extension '" + code + "'.");
                 }
             });
             const obj = reader.read();
@@ -305,6 +305,8 @@ flax.Tensor = class {
                         case 'uint32':
                             results.push(context.rawData.getUint32(context.index, littleEndian));
                             break;
+                        default:
+                            throw new flax.Error("Unsupported tensor data type '" + context.dataType + "'.");
                     }
                     context.index += context.itemSize;
                     context.count++;

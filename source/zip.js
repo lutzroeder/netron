@@ -235,7 +235,7 @@ zip.Inflater = class {
                         break;
                     }
                     default: {
-                        throw new zip.Error('Unknown block type.');
+                        throw new zip.Error('Unsupported block type.');
                     }
                 }
             } while ((type & 1) == 0);

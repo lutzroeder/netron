@@ -520,14 +520,14 @@ $root.paddle.lite.fbs.proto.ParamDesc_.VariableDesc = class {
     static decode(reader, position, type) {
         switch (type) {
             case 1: return $root.paddle.lite.fbs.proto.ParamDesc_.LoDTensorDesc.decode(reader, position);
+            default: return undefined;
         }
-        return undefined;
     }
 
     static decodeText(reader, json, type) {
         switch (type) {
             case 'LoDTensorDesc': return $root.paddle.lite.fbs.proto.ParamDesc_.LoDTensorDesc.decodeText(reader, json);
+            default: return undefined;
         }
-        return undefined;
     }
 };

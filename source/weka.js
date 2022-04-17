@@ -84,8 +84,10 @@ java.io.InputObjectStream = class {
             case 0x74: { // TC_STRING
                 return this._newString(false);
             }
+            default: {
+                throw new java.io.Error("Unsupported code '" + code + "'.");
+            }
         }
-        throw new java.io.Error("Unsupported code '" + code + "'.");
     }
 
     _classDesc() {
@@ -99,8 +101,9 @@ java.io.InputObjectStream = class {
             case 0x70: // TC_NULL
                 this._reader.byte();
                 return null;
+            default:
+                throw new java.io.Error("Unsupported code '" + code + "'.");
         }
-        throw new java.io.Error("Unsupported code '" + code + "'.");
     }
 
     _newClassDesc() {
@@ -131,8 +134,9 @@ java.io.InputObjectStream = class {
             }
             case 0x7D: // TC_PROXYCLASSDESC
                 break;
+            default:
+                throw new java.io.Error("Unsupported code '" + code + "'.");
         }
-        throw new java.io.Error("Unsupported code '" + code + "'.");
     }
 
     _classData(/* obj */) {

@@ -451,20 +451,22 @@ protoc.Parser = class {
                 return 0x1fffffff;
             case '0':
                 return 0;
+            default: {
+                if (!acceptNegative && token.charAt(0) === "-") {
+                    throw this._parseError(token, 'id');
+                }
+                if (/^-?[1-9][0-9]*$/.test(token)) {
+                    return parseInt(token, 10);
+                }
+                if (/^-?0[x][0-9a-fA-F]+$/.test(token)) {
+                    return parseInt(token, 16);
+                }
+                if (/^-?0[0-7]+$/.test(token)) {
+                    return parseInt(token, 8);
+                }
+                throw this._parseError(token, 'id');
+            }
         }
-        if (!acceptNegative && token.charAt(0) === "-") {
-            throw this._parseError(token, "id");
-        }
-        if (/^-?[1-9][0-9]*$/.test(token)) {
-            return parseInt(token, 10);
-        }
-        if (/^-?0[x][0-9a-fA-F]+$/.test(token)) {
-            return parseInt(token, 16);
-        }
-        if (/^-?0[0-7]+$/.test(token)) {
-            return parseInt(token, 8);
-        }
-        throw this._parseError(token, "id");
     }
 
     _parsePackage() {
@@ -473,7 +475,7 @@ protoc.Parser = class {
         }
         this._package = this._tokenizer.next();
         if (!protoc.Parser._isTypeReference(this._package)) {
-            throw this._parseError(this._package, "name");
+            throw this._parseError(this._package, 'name');
         }
         this._context = this._context.defineNamespace(this._package);
         this._tokenizer.expect(";");
@@ -503,7 +505,7 @@ protoc.Parser = class {
         this._tokenizer.expect("=");
         this._syntax = this._readString();
         if (this._syntax !== 'proto2' && this._syntax !== 'proto3') {
-            throw this._parseError(this._syntax, "syntax");
+            throw this._parseError(this._syntax, 'syntax');
         }
         this._tokenizer.expect(";");
     }
@@ -525,8 +527,9 @@ protoc.Parser = class {
                 return true;
             case 'service':
                 throw new protoc.Error("Keyword '" + token + "' is not supported" + this._tokenizer.location());
+            default:
+                return false;
         }
-        return false;
     }
 
     _ifBlock(obj, ifCallback, elseCallback) {
@@ -551,7 +554,7 @@ protoc.Parser = class {
     _parseType(parent, token) {
         token = this._tokenizer.next();
         if (!protoc.Parser._isName(token)) {
-            throw this._parseError(token, "type");
+            throw this._parseError(token, 'type');
         }
         const type = new protoc.Type(parent, token);
         const self = this;
@@ -560,18 +563,18 @@ protoc.Parser = class {
                 return;
             }
             switch (token) {
-                case "map":
+                case 'map':
                     self._parseMapField(type, token);
                     break;
-                case "required":
-                case "optional":
-                case "repeated":
+                case 'required':
+                case 'optional':
+                case 'repeated':
                     self._parseField(type, token);
                     break;
-                case "oneof":
+                case 'oneof':
                     self._parseOneOf(type, token);
                     break;
-                case "reserved":
+                case 'reserved':
                     self._readRanges(type.reserved, true);
                     break;
                 case 'extensions':
@@ -583,7 +586,7 @@ protoc.Parser = class {
                         throw self._parseError(token);
                     }
                     self._tokenizer.push(token);
-                    self._parseField(type, "optional");
+                    self._parseField(type, 'optional');
                     break;
             }
         });
@@ -596,11 +599,11 @@ protoc.Parser = class {
             return;
         }
         if (!protoc.Parser._isTypeReference(type)) {
-            throw this._parseError(type, "type");
+            throw this._parseError(type, 'type');
         }
         const name = this._tokenizer.next();
         if (!protoc.Parser._isName(name)) {
-            throw this._parseError(name, "name");
+            throw this._parseError(name, 'name');
         }
         this._tokenizer.expect("=");
         const id = this._parseId(this._tokenizer.next());
@@ -622,7 +625,7 @@ protoc.Parser = class {
     _parseGroup(parent, rule) {
         let name = this._tokenizer.next();
         if (!protoc.Parser._isName(name)) {
-            throw this._parseError(name, "name");
+            throw this._parseError(name, 'name');
         }
         const fieldName = name.charAt(0).toLowerCase() + name.substring(1);
         if (name === fieldName) {
@@ -657,17 +660,17 @@ protoc.Parser = class {
         const keyType = this._tokenizer.next();
         const resolvedKeyType = protoc.PrimitiveType.get(keyType);
         if (!resolvedKeyType || !resolvedKeyType.mapKey) {
-            throw this._parseError(keyType, "type");
+            throw this._parseError(keyType, 'type');
         }
         this._tokenizer.expect(",");
         const valueType = this._tokenizer.next();
         if (!protoc.Parser._isTypeReference(valueType)) {
-            throw this._parseError(valueType, "type");
+            throw this._parseError(valueType, 'type');
         }
         this._tokenizer.expect(">");
         const name = this._tokenizer.next();
         if (!protoc.Parser._isName(name)) {
-            throw this._parseError(name, "name");
+            throw this._parseError(name, 'name');
         }
         this._tokenizer.expect("=");
         const id = this._parseId(this._tokenizer.next());
@@ -691,7 +694,7 @@ protoc.Parser = class {
 
         token = this._tokenizer.next();
         if (!protoc.Parser._isName(token)) {
-            throw this._parseError(token, "name");
+            throw this._parseError(token, 'name');
         }
         const oneof = new protoc.OneOf(parent, token);
         const self = this;
@@ -702,7 +705,7 @@ protoc.Parser = class {
             }
             else {
                 self._tokenizer.push(token);
-                self._parseField(oneof, "optional");
+                self._parseField(oneof, 'optional');
             }
         });
     }
@@ -710,7 +713,7 @@ protoc.Parser = class {
     _parseEnum(parent, token) {
         token = this._tokenizer.next();
         if (!protoc.Parser._isName(token)) {
-            throw this._parseError(token, "name");
+            throw this._parseError(token, 'name');
         }
         const obj = new protoc.Enum(parent, token);
         const self = this;
@@ -732,7 +735,7 @@ protoc.Parser = class {
 
     _parseEnumValue(parent, token) {
         if (!protoc.Parser._isName(token)) {
-            throw this._parseError(token, "name");
+            throw this._parseError(token, 'name');
         }
         this._tokenizer.expect("=");
         const value = this._parseId(this._tokenizer.next(), true);
@@ -756,7 +759,7 @@ protoc.Parser = class {
     _parseExtend(parent, token) {
         token = this._tokenizer.next();
         if (!protoc.Parser._isTypeReference(token)) {
-            throw this._parseError(token, "reference");
+            throw this._parseError(token, 'reference');
         }
         const reference = token;
         const self = this;
@@ -772,7 +775,7 @@ protoc.Parser = class {
                         throw self._parseError(token);
                     }
                     self._tokenizer.push(token);
-                    self._parseField(parent, "optional", reference);
+                    self._parseField(parent, 'optional', reference);
                     break;
             }
         });
@@ -782,7 +785,7 @@ protoc.Parser = class {
         const custom = this._tokenizer.eat("(");
         token = this._tokenizer.next();
         if (!protoc.Parser._isTypeReference(token)) {
-            throw this._parseError(token, "name");
+            throw this._parseError(token, 'name');
         }
         let name = token;
         if (custom) {
@@ -864,15 +867,17 @@ protoc.Parser = class {
             case 'false':
             case 'FALSE':
                 return false;
+            default: {
+                const value = this._parseNumber(token);
+                if (value !== undefined) {
+                    return value;
+                }
+                if (protoc.Parser._isTypeReference(token)) {
+                    return token;
+                }
+                throw this._parseError(token, 'value');
+            }
         }
-        const value = this._parseNumber(token);
-        if (value !== undefined) {
-            return value;
-        }
-        if (protoc.Parser._isTypeReference(token)) {
-            return token;
-        }
-        throw this._parseError(token, 'value');
     }
 
     _readRanges(target, acceptStrings) {
@@ -898,26 +903,36 @@ protoc.Parser = class {
             token = token.substring(1);
         }
         switch (token) {
-            case 'inf': case 'INF': case 'Inf':
+            case 'inf':
+            case 'INF':
+            case 'Inf': {
                 return sign * Infinity;
-            case 'nan': case 'NAN': case 'Nan': case 'NaN':
+            }
+            case 'nan':
+            case 'NAN':
+            case 'Nan':
+            case 'NaN': {
                 return NaN;
-            case '0':
+            }
+            case '0': {
                 return 0;
+            }
+            default: {
+                if (/^[1-9][0-9]*$/.test(token)) {
+                    return sign * parseInt(token, 10);
+                }
+                if (/^0[x][0-9a-fA-F]+$/.test(token)) {
+                    return sign * parseInt(token, 16);
+                }
+                if (/^0[0-7]+$/.test(token)) {
+                    return sign * parseInt(token, 8);
+                }
+                if (/^(?![eE])[0-9]*(?:\.[0-9]*)?(?:[eE][+-]?[0-9]+)?$/.test(token)) {
+                    return sign * parseFloat(token);
+                }
+                return undefined;
+            }
         }
-        if (/^[1-9][0-9]*$/.test(token)) {
-            return sign * parseInt(token, 10);
-        }
-        if (/^0[x][0-9a-fA-F]+$/.test(token)) {
-            return sign * parseInt(token, 16);
-        }
-        if (/^0[0-7]+$/.test(token)) {
-            return sign * parseInt(token, 8);
-        }
-        if (/^(?![eE])[0-9]*(?:\.[0-9]*)?(?:[eE][+-]?[0-9]+)?$/.test(token)) {
-            return sign * parseFloat(token);
-        }
-        return undefined;
     }
 
     static _isName(value) {

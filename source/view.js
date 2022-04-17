@@ -77,20 +77,16 @@ view.View = class {
             this._sidebar.close();
         }
         this._host.document.body.setAttribute('class', page);
-        switch (page) {
-            case 'default': {
-                const container = this._getElementById('graph');
-                if (container) {
-                    container.focus();
-                }
-                break;
+        if (page === 'default') {
+            const container = this._getElementById('graph');
+            if (container) {
+                container.focus();
             }
-            case 'welcome': {
-                const element = this._getElementById('open-file-button');
-                if (element) {
-                    element.focus();
-                }
-                break;
+        }
+        if (page === 'welcome') {
+            const element = this._getElementById('open-file-button');
+            if (element) {
+                element.focus();
             }
         }
         this._page = page;
@@ -151,6 +147,8 @@ view.View = class {
             case 'mousewheel':
                 this._options.mousewheel = this._options.mousewheel === 'scroll' ? 'zoom' : 'scroll';
                 break;
+            default:
+                throw new view.Error("Unsupported toogle '" + name + "'.");
         }
     }
 
@@ -765,8 +763,8 @@ view.View = class {
                     this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
                         try {
                             let data_type = tensor.type.dataType;
-                            switch (data_type) {
-                                case 'boolean': data_type = 'bool'; break;
+                            if (data_type === 'boolean') {
+                                data_type = 'bool';
                             }
                             const execution = new python.Execution(null);
                             const bytes = execution.invoke('io.BytesIO', []);
@@ -1007,7 +1005,7 @@ view.Node = class extends grapher.Node {
         }
         if (typeof type.name !== 'string' || !type.name.split) { // #416
             const identifier = this.context.model && this.context.model.identifier ? this.context.model.identifier : '?';
-            throw new view.Error("Unknown node type '" + JSON.stringify(type.name) + "' in '" + identifier + "'.");
+            throw new view.Error("Unsupported node type '" + JSON.stringify(type.name) + "' in '" + identifier + "'.");
         }
         const content = this.context.view.options.names && (node.name || node.location) ? (node.name || node.location) : type.name.split('.').pop();
         const tooltip = this.context.view.options.names && (node.name || node.location) ? type.name : (node.name || node.location);
@@ -1360,6 +1358,9 @@ view.ModelContext = class {
                         }
                         break;
                     }
+                    default: {
+                        throw new view.Error("Unsupported open format type '" + type + "'.");
+                    }
                 }
             }
             if (stream.position !== position) {
@@ -1425,6 +1426,9 @@ view.ModelContext = class {
                                     tags.set(name, element);
                                 }
                                 break;
+                            }
+                            default: {
+                                throw new view.Error("Unsupported tags format type '" + type + "'.");
                             }
                         }
                     }

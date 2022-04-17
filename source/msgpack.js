@@ -27,54 +27,52 @@ msgpack.BinaryReader = class {
         if (c >= 0xe0) {
             return c - 0x100;
         }
-        else if (c < 0xC0) {
+        if (c < 0xC0) {
             if (c < 0x80) {
                 return c;
             }
-            else if (c < 0x90) {
+            if (c < 0x90) {
                 return this.map(c - 0x80);
             }
-            else if (c < 0xa0) {
+            if (c < 0xa0) {
                 return this.array(c - 0x90);
             }
             return this.string(c - 0xa0);
         }
-        else {
-            switch (c) {
-                case 0xC0: return null;
-                case 0xC2: return false;
-                case 0xC3: return true;
-                case 0xC4: return this.bytes(this.byte());
-                case 0xC5: return this.bytes(this.uint16());
-                case 0xC6: return this.bytes(this.uint32());
-                case 0xC7: return this.extension(this.byte());
-                case 0xC8: return this.extension(this.uint16());
-                case 0xC9: return this.extension(this.uint32());
-                case 0xCA: return this.float32();
-                case 0xCB: return this.float64();
-                case 0xCC: return this.byte();
-                case 0xCD: return this.uint16();
-                case 0xCE: return this.uint32();
-                case 0xCF: return this.uint64();
-                case 0xD0: return this.int8();
-                case 0xD1: return this.int16();
-                case 0xD2: return this.int32();
-                case 0xD3: return this.int64();
-                case 0xD4: return this.extension(1);
-                case 0xD5: return this.extension(2);
-                case 0xD6: return this.extension(4);
-                case 0xD7: return this.extension(8);
-                case 0xD8: return this.extension(16);
-                case 0xD9: return this.string(this.byte());
-                case 0xDA: return this.string(this.uint16());
-                case 0xDB: return this.string(this.uint32());
-                case 0xDC: return this.array(this.uint16());
-                case 0xDD: return this.array(this.uint32());
-                case 0xDE: return this.map(this.uint16());
-                case 0xDF: return this.map(this.uint32());
-            }
+        switch (c) {
+            case 0xC0: return null;
+            case 0xC2: return false;
+            case 0xC3: return true;
+            case 0xC4: return this.bytes(this.byte());
+            case 0xC5: return this.bytes(this.uint16());
+            case 0xC6: return this.bytes(this.uint32());
+            case 0xC7: return this.extension(this.byte());
+            case 0xC8: return this.extension(this.uint16());
+            case 0xC9: return this.extension(this.uint32());
+            case 0xCA: return this.float32();
+            case 0xCB: return this.float64();
+            case 0xCC: return this.byte();
+            case 0xCD: return this.uint16();
+            case 0xCE: return this.uint32();
+            case 0xCF: return this.uint64();
+            case 0xD0: return this.int8();
+            case 0xD1: return this.int16();
+            case 0xD2: return this.int32();
+            case 0xD3: return this.int64();
+            case 0xD4: return this.extension(1);
+            case 0xD5: return this.extension(2);
+            case 0xD6: return this.extension(4);
+            case 0xD7: return this.extension(8);
+            case 0xD8: return this.extension(16);
+            case 0xD9: return this.string(this.byte());
+            case 0xDA: return this.string(this.uint16());
+            case 0xDB: return this.string(this.uint32());
+            case 0xDC: return this.array(this.uint16());
+            case 0xDD: return this.array(this.uint32());
+            case 0xDE: return this.map(this.uint16());
+            case 0xDF: return this.map(this.uint32());
+            default: throw new msgpack.Error("Invalid code '" + c + "'.");
         }
-        throw new msgpack.Error("Invalid code '" + c + "'.");
     }
 
     map(size) {

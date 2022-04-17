@@ -258,7 +258,7 @@ onnx.ModelFactory = class {
                 });
             }
             default: {
-                throw new onnx.Error("Unknown ONNX format '" + match + "'.");
+                throw new onnx.Error("Unsupported ONNX format '" + match + "'.");
             }
         }
     }
@@ -566,14 +566,11 @@ onnx.Node = class {
         this._attributes = attributes.map((attribute) => new onnx.Attribute(context, op_type, domain, attribute));
         this._chain = [];
         const identifier = domain ? domain + '.' + op_type : op_type;
-        switch (identifier) {
-            case 'com.microsoft.FusedConv': {
-                const activation = attributes.find((attribute) => attribute.name === 'activation');
-                if (activation) {
-                    const type = context.decodeText(activation.s);
-                    this._chain.push(new onnx.Node(context, type, '', '', '', [], [], []));
-                }
-                break;
+        if (identifier === 'com.microsoft.FusedConv') {
+            const activation = attributes.find((attribute) => attribute.name === 'activation');
+            if (activation) {
+                const type = context.decodeText(activation.s);
+                this._chain.push(new onnx.Node(context, type, '', '', '', [], [], []));
             }
         }
     }
@@ -679,7 +676,7 @@ onnx.Attribute = class {
                 this._type = 'type[]';
                 break;
             default:
-                throw new onnx.Error("Unknown attribute type '" + attribute.type + "'.");
+                throw new onnx.Error("Unsupported attribute type '" + attribute.type + "'.");
         }
 
         const metadata = context.metadata.attribute(op_type, domain, attribute.name);
@@ -850,6 +847,8 @@ onnx.Tensor = class {
                     case onnx.DataType.STRING:
                         data = tensor.string_data;
                         break;
+                    default:
+                        throw new onnx.Error("Unsupported tensor data type '" + tensor.data_type + "'.");
                 }
                 if (data && (Array.isArray(data) || ArrayBuffer.isView(data)) && data.length === 0) {
                     data = undefined;
@@ -1588,6 +1587,9 @@ onnx.GraphContext = class {
         }
         let denotation = '';
         switch (type.denotation) {
+            case null:
+            case '':
+                break;
             case 'TENSOR':
                 denotation = 'Tensor';
                 break;
@@ -1600,22 +1602,18 @@ onnx.GraphContext = class {
             case 'TEXT':
                 denotation = 'Text';
                 break;
+            default:
+                throw new onnx.Error("Unsuppored tensor type denotation '" + type.denotation + "'.");
         }
         switch (type.value) {
             case 'tensor_type': {
                 const tensor_type = type.tensor_type;
-                let shape = [];
-                if (tensor_type.shape && tensor_type.shape.dim) {
-                    shape = tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value ? dim.dim_value : null);
-                }
+                const shape = tensor_type.shape && tensor_type.shape.dim ? tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value ? dim.dim_value : null) : [];
                 return this.createTensorType(tensor_type.elem_type, shape, denotation);
             }
             case 'sparse_tensor_type': {
                 const tensor_type = type.sparse_tensor_type;
-                let shape = [];
-                if (tensor_type.shape && tensor_type.shape.dim) {
-                    shape = tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value);
-                }
+                const shape = tensor_type.shape && tensor_type.shape.dim ? tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value ? dim.dim_value : null) : [];
                 return this.createTensorType(tensor_type.elem_type, shape, denotation);
             }
             case 'map_type': {
@@ -1627,8 +1625,10 @@ onnx.GraphContext = class {
             case 'opaque_type': {
                 return new onnx.OpaqueType(type.opaque_type.domain, type.opaque_type.name);
             }
+            // default: {
+            //     throw new onnx.Error("Unsupported tensor type '" + type.value + "'.");
+            // }
         }
-        return null;
     }
 
     createTensorType(dataType, shape, denotation) {
@@ -1649,8 +1649,8 @@ onnx.GraphContext = class {
         switch (value) {
             case onnx.DataLocation.DEFAULT: return 'default';
             case onnx.DataLocation.EXTERNAL: return 'external';
+            default: return 'UNDEFINED';
         }
-        return 'UNDEFINED';
     }
 
     decodeText(value) {
@@ -1811,15 +1811,14 @@ onnx.Runtime.Reader = class {
         node.input = node.inputs;
         node.output = node.outputs;
         node.attribute = node.attributes.map((attribute) => {
-            switch (attribute.type) {
-                case onnx.AttributeType.GRAPH:
-                    this._graph(attribute.g);
-                    break;
-                case onnx.AttributeType.GRAPHS:
-                    for (const graph of attribute.graphs) {
-                        this._graph(graph);
-                    }
-                    break;
+            const type = attribute.type;
+            if (type === onnx.AttributeType.GRAPH) {
+                this._graph(attribute.g);
+            }
+            else if (type === onnx.AttributeType.GRAPHS) {
+                for (const graph of attribute.graphs) {
+                    this._graph(graph);
+                }
             }
             return attribute;
         });

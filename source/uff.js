@@ -57,6 +57,9 @@ uff.ModelFactory = class {
                     }
                     break;
                 }
+                default: {
+                    throw new uff.Error("Unsupported UFF format '" + match + "'.");
+                }
             }
             return uff.Metadata.open(context).then((metadata) => {
                 return new uff.Model(metadata, meta_graph);
@@ -290,7 +293,7 @@ uff.Attribute = class {
             case 'dtype_list': this._value = value.dtype_list.map((type) => new uff.TensorType(type, null).dataType); this._type = 'uff.DataType[]'; break;
             case 'dim_orders': this._value = value.dim_orders; break;
             case 'dim_orders_list': this._value = value.dim_orders_list.val; break;
-            default: throw new uff.Error("Unknown attribute '" + name + "' value '" + JSON.stringify(value) + "'.");
+            default: throw new uff.Error("Unsupported attribute '" + name + "' value '" + JSON.stringify(value) + "'.");
         }
     }
 
@@ -317,7 +320,7 @@ uff.Tensor = class {
         this._type = new uff.TensorType(dataType, shape);
         switch (values.type) {
             case 'blob': this._data = values.blob; break;
-            default: throw new uff.Error("Unknown values format '" + JSON.stringify(values.type) + "'.");
+            default: throw new uff.Error("Unsupported values format '" + JSON.stringify(values.type) + "'.");
         }
     }
 
@@ -452,8 +455,7 @@ uff.TensorType = class {
             case uff.proto.DataType.DT_FLOAT16: this._dataType = 'float16'; break;
             case uff.proto.DataType.DT_FLOAT32: this._dataType = 'float32'; break;
             case 7: this._dataType = '?'; break;
-            default:
-                throw new uff.Error("Unknown data type '" + JSON.stringify(dataType) + "'.");
+            default: throw new uff.Error("Unsupported data type '" + JSON.stringify(dataType) + "'.");
         }
         this._shape = shape ? new uff.TensorShape(shape) : null;
     }
@@ -475,7 +477,7 @@ uff.TensorShape = class {
 
     constructor(shape) {
         if (shape.type !== 'i_list') {
-            throw new uff.Error("Unknown shape format '" + JSON.stringify(shape.type) + "'.");
+            throw new uff.Error("Unsupported shape format '" + JSON.stringify(shape.type) + "'.");
         }
         this._dimensions = shape.i_list.val;
     }

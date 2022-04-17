@@ -5,15 +5,15 @@ var flatbuffers = flatbuffers || require('./flatbuffers');
 armnn.ModelFactory = class {
 
     match(context) {
-        switch (context.identifier.split('.').pop().toLowerCase()) {
-            case 'armnn': {
-                return 'armnn.flatbuffers';
-            }
-            case 'json': {
-                const obj = context.open('json');
-                if (obj && obj.layers && obj.inputIds && obj.outputIds) {
-                    return 'armnn.flatbuffers.json';
-                }
+        const identifier = context.identifier;
+        const extension = identifier.split('.').pop().toLowerCase();
+        if (extension === 'armnn') {
+            return 'armnn.flatbuffers';
+        }
+        if (extension === 'json') {
+            const obj = context.open('json');
+            if (obj && obj.layers && obj.inputIds && obj.outputIds) {
+                return 'armnn.flatbuffers.json';
             }
         }
         return undefined;
@@ -47,6 +47,9 @@ armnn.ModelFactory = class {
                         throw new armnn.Error('File text format is not armnn.SerializedGraph (' + message.replace(/\.$/, '') + ').');
                     }
                     break;
+                }
+                default: {
+                    throw new armnn.Error("Unsupported Arm NN '" + match + "'.");
                 }
             }
             return armnn.Metadata.open(context).then((metadata) => {
@@ -467,7 +470,7 @@ armnn.TensorType = class {
             case 8: this._dataType = 'qint8'; break; // QAsymmS8
             case 9: this._dataType = 'qint8'; break; // QSymmS8
             default:
-                throw new armnn.Error("Unknown data type '" + JSON.stringify(dataType) + "'.");
+                throw new armnn.Error("Unsupported data type '" + JSON.stringify(dataType) + "'.");
         }
         this._shape = new armnn.TensorShape(tensorInfo.dimensions);
     }

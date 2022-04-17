@@ -174,7 +174,7 @@ barracuda.Node = class {
         if (layer.activation !== undefined && (layer.type === 50 || layer.activation !== 0)) {
             const type = barracuda.Activation[layer.activation];
             if (!type) {
-                throw new barracuda.Error("Unknown activation '" + layer.activation + "'.");
+                throw new barracuda.Error("Unsupported activation '" + layer.activation + "'.");
             }
             this._chain = [ new barracuda.Node(metadata, {}, { name: type, category: 'Activation' }, initializers) ];
         }
@@ -339,6 +339,8 @@ barracuda.Tensor = class {
                         context.index += 4;
                         context.count++;
                         break;
+                    default:
+                        throw new barracuda.Error("Unsupported tensor data type '" + this._type.dataType + "'.");
                 }
             }
         }

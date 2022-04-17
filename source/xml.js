@@ -1360,10 +1360,13 @@ xml.Node = class {
 
     lookupNamespaceURI(prefix) {
         switch (prefix) {
-            case 'xml': return 'http://www.w3.org/XML/1998/namespace';
-            case 'xmlns': return 'http://www.w3.org/2000/xmlns/';
+            case 'xml':
+                return 'http://www.w3.org/XML/1998/namespace';
+            case 'xmlns':
+                return 'http://www.w3.org/2000/xmlns/';
+            default:
+                return null;
         }
-        return null;
     }
 };
 

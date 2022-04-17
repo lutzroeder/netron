@@ -60,7 +60,7 @@ circle.ModelFactory = class {
                     break;
                 }
                 default: {
-                    throw new circle.Error("Unknown Circle format '" + match + "'.");
+                    throw new circle.Error("Unsupported Circle format '" + match + "'.");
                 }
             }
             return circle.Metadata.open(context).then((metadata) => {
@@ -357,7 +357,7 @@ circle.Node = class {
                     if (name === 'fused_activation_function' && value !== 0) {
                         const activationFunctionMap = { 1: 'Relu', 2: 'ReluN1To1', 3: 'Relu6', 4: 'Tanh', 5: 'SignBit' };
                         if (!activationFunctionMap[value]) {
-                            throw new circle.Error("Unknown activation funtion index '" + JSON.stringify(value) + "'.");
+                            throw new circle.Error("Unsupported activation funtion index '" + JSON.stringify(value) + "'.");
                         }
                         const type = activationFunctionMap[value];
                         this._chain = [ new circle.Node(metadata, null, { name: type }, null, []) ];

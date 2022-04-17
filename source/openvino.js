@@ -12,11 +12,8 @@ openvino.ModelFactory = class {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'bin') {
-            switch (identifier) {
-                case 'natives_blob.bin':
-                case 'snapshot_blob.bin':
-                case 'v8_context_snapshot.bin':
-                    return undefined;
+            if (identifier === 'natives_blob.bin' || identifier === 'snapshot_blob.bin' || identifier === 'v8_context_snapshot.bin') {
+                return undefined;
             }
             const stream = context.stream;
             const signature = [ 0x21, 0xA8, 0xEF, 0xBE, 0xAD, 0xDE ];
@@ -77,6 +74,8 @@ openvino.ModelFactory = class {
                 return context.request(identifier.substring(0, identifier.length - 4) + '.xml', null).then((stream) => {
                     return open(stream, context.stream.peek());
                 });
+            default:
+                throw new openvino.Error("Unsupported OpenVINO format '" + match + "'.");
         }
     }
 };
@@ -973,7 +972,7 @@ openvino.TensorType = class {
             case 'bin':     this._dataType = 'bit'; break;
             case '':        this._dataType = '?'; break;
             case null:      this._dataType = '?'; break;
-            default:        throw new openvino.Error("Unknown precision '" + JSON.stringify(precision) + "'.");
+            default:        throw new openvino.Error("Unsupported precision '" + JSON.stringify(precision) + "'.");
         }
         this._shape = shape;
     }
@@ -1136,6 +1135,7 @@ openvino.XmlReader = class {
                                 switch (port.localName) {
                                     case 'input': layer.port_map.input.push(item); break;
                                     case 'output': layer.port_map.output.push(item); break;
+                                    default: throw new openvino.Error("Unsupported port local name '" + port.localName + "'.");
                                 }
                             }
                         }

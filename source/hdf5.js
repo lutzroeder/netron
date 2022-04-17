@@ -236,7 +236,7 @@ hdf5.Variable = class {
                 break;
             }
             default: {
-                throw new hdf5.Error("Unknown data layout class '" + this.layoutClass + "'.");
+                throw new hdf5.Error("Unsupported data layout class '" + this.layoutClass + "'.");
             }
         }
         return null;
@@ -320,12 +320,13 @@ hdf5.Reader = class {
         return this._dataView.getUint64(offset, true).toNumber();
     }
 
-    uint(type) {
-        switch (type) {
+    uint(size) {
+        switch (size) {
             case 0: return this.byte();
             case 1: return this.uint16();
             case 2: return this.uint32();
             case 3: return this.uint64();
+            default: throw new hdf5.Error("Unsupported uint size '" + size + "'.");
         }
     }
 
@@ -843,6 +844,7 @@ hdf5.Datatype = class {
                             case 2: return 'int16';
                             case 4: return 'int32';
                             case 8: return 'int64';
+                            default: throw new hdf5.Error("Unsupported int size '" + this._size + "'.");
                         }
                     }
                     else {
@@ -851,6 +853,7 @@ hdf5.Datatype = class {
                             case 2: return 'uint16';
                             case 4: return 'uint32';
                             case 8: return 'uint64';
+                            default: throw new hdf5.Error("Unsupported uint size '" + this._size + "'.");
                         }
                     }
                 }
@@ -882,8 +885,10 @@ hdf5.Datatype = class {
                     return 'char[]';
                 }
                 break;
+            default:
+                break;
         }
-        throw new hdf5.Error('Unsupported datatype class \'' + this._class + '\'.');
+        throw new hdf5.Error("Unsupported datatype class '" + this._class + "'.");
     }
 
     get littleEndian() {
@@ -1174,8 +1179,9 @@ hdf5.Filter = class {
                 const archive = zip.Archive.open(data);
                 return archive.entries.get('').peek();
             }
-            default:
-                throw hdf5.Error("Unsupported filter '" + this.name + "'.");
+            default: {
+                throw new hdf5.Error("Unsupported filter '" + this.name + "'.");
+            }
         }
     }
 };

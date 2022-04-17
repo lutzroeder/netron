@@ -297,6 +297,7 @@ bigdl.Attribute = class {
                 switch (value.dataFormatValue) {
                     case 0: this._value = 'NCHW'; break;
                     case 1: this._value = 'NHWC'; break;
+                    default: throw new bigdl.Error("Unsupported data format '" + value.dataFormatValue + "'.");
                 }
                 break;
             }

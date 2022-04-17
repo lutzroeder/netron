@@ -42,6 +42,10 @@ lightgbm.ModelFactory = class {
                         obj = execution.invoke('lightgbm.basic.Booster', []);
                         obj.LoadModelFromString(model_str);
                         format = 'LightGBM';
+                        break;
+                    }
+                    default: {
+                        throw new lightgbm.Error("Unsupported LightGBM format '" + match + "'.");
                     }
                 }
                 resolve(new lightgbm.Model(obj, format));

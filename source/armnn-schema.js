@@ -157,8 +157,8 @@ $root.armnnSerializer.ConstTensorData = class {
             case 2: return $root.armnnSerializer.ShortData.decode(reader, position);
             case 3: return $root.armnnSerializer.IntData.decode(reader, position);
             case 4: return $root.armnnSerializer.LongData.decode(reader, position);
+            default: return undefined;
         }
-        return undefined;
     }
 
     static decodeText(reader, json, type) {
@@ -167,8 +167,8 @@ $root.armnnSerializer.ConstTensorData = class {
             case 'ShortData': return $root.armnnSerializer.ShortData.decodeText(reader, json);
             case 'IntData': return $root.armnnSerializer.IntData.decodeText(reader, json);
             case 'LongData': return $root.armnnSerializer.LongData.decodeText(reader, json);
+            default: return undefined;
         }
-        return undefined;
     }
 };
 
@@ -2367,8 +2367,8 @@ $root.armnnSerializer.Layer = class {
             case 57: return $root.armnnSerializer.QLstmLayer.decode(reader, position);
             case 58: return $root.armnnSerializer.FillLayer.decode(reader, position);
             case 59: return $root.armnnSerializer.RankLayer.decode(reader, position);
+            default: return undefined;
         }
-        return undefined;
     }
 
     static decodeText(reader, json, type) {
@@ -2432,8 +2432,8 @@ $root.armnnSerializer.Layer = class {
             case 'QLstmLayer': return $root.armnnSerializer.QLstmLayer.decodeText(reader, json);
             case 'FillLayer': return $root.armnnSerializer.FillLayer.decodeText(reader, json);
             case 'RankLayer': return $root.armnnSerializer.RankLayer.decodeText(reader, json);
+            default: return undefined;
         }
-        return undefined;
     }
 };
 
