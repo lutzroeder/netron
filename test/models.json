@@ -4317,9 +4317,17 @@
   {
     "type":     "pickle",
     "target":   "myModel.model",
-    "source":   "https://github.com/lutzroeder/netron/files/6047227/myModel.model.zip[myModel.model]",
+    "source":   "https://github.com/lutzroeder/netron/files/8506779/myModel.model.zip[myModel.model]",
     "format":   "cuML",
-    "link":     "https://github.com/lutzroeder/netron/issues/550"
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
+  },
+  {
+    "type":     "pickle",
+    "target":   "net.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/8506780/net.pkl.zip[net.pkl]",
+    "format":   "Pickle",
+    "error":    "Maximum call stack size exceeded",
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
   },
   {
     "type":     "pickle",
