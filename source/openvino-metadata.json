@@ -463,8 +463,7 @@
         "default": 1,
         "description": " if \"true\", variance is encoded in target. Otherwise, we need to adjust the predicted offset accordingly.",
         "name": "variance_encoded_in_target",
-        "required": true,
-        "type": " logical values"
+        "required": true
       },
       {
         "default": 1,
@@ -490,8 +489,7 @@
         "default": 1,
         "description": " bounding boxes are shared among different classes.",
         "name": "share_location",
-        "required": true,
-        "type": " logical values"
+        "required": true
       },
       {
         "default": 1,
@@ -715,15 +713,13 @@
         "default": 1,
         "description": " *across_spatial* is a flag that denotes if normalization is performed over CHW or HW. For example, *across_spatial* equals 0 means that normalization is not shared across channels.",
         "name": "across_spatial",
-        "required": true,
-        "type": "\n    * 0\n    * 1 - not supported"
+        "required": true
       },
       {
         "default": 1,
         "description": " *channel_shared* is a flag that denotes if scale parameters are shared across channels. For example, *channel_shared* equal 0 means that scale parameters are not shared across channels.",
         "name": "channel_shared",
-        "required": true,
-        "type": "\n    * 0 - scale parameters are not shared across channels\n    * 1 - not supported"
+        "required": true
       },
       {
         "default": 1,
@@ -892,8 +888,7 @@
         "default": "ceil",
         "description": " *rounding_type* is a type of rounding to be applied.",
         "name": "rounding-type",
-        "required": true,
-        "type": "\n    * *ceil*\n    * *floor*"
+        "required": true
       }
     ],
     "support_level": "default"

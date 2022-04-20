@@ -1485,6 +1485,7 @@ dagre.layout = (graph, options) => {
                                 switch (vLabel.labelpos) {
                                     case 'l': delta = -vLabel.width / 2; break;
                                     case 'r': delta = vLabel.width / 2; break;
+                                    default: throw new dagre.Error("Unsupported label position '" + vLabel.labelpos + "'.");
                                 }
                             }
                             if (delta) {
@@ -1498,6 +1499,7 @@ dagre.layout = (graph, options) => {
                                 switch (wLabel.labelpos) {
                                     case 'l': delta = wLabel.width / 2; break;
                                     case 'r': delta = -wLabel.width / 2; break;
+                                    default: throw new dagre.Error("Unsupported label position '" + wLabel.labelpos + "'.");
                                 }
                             }
                             if (delta) {
@@ -1859,6 +1861,7 @@ dagre.layout = (graph, options) => {
                     switch (edge.labelpos) {
                         case 'l': edge.x -= edge.width / 2 + edge.labeloffset; break;
                         case 'r': edge.x += edge.width / 2 + edge.labeloffset; break;
+                        default: throw new dagre.Error("Unsupported label position '" + edge.labelpos + "'.");
                     }
                 }
             }

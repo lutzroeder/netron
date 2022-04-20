@@ -374,10 +374,7 @@ paddle.Node = class {
         this._outputs = [];
         this._chain = [];
         if (op.attrs) {
-            for (const attr of op.attrs) {
-                const schema = metadata.attribute(type, this._name);
-                this._attributes.push(new paddle.Attribute(schema, attr));
-            }
+            this._attributes = op.attrs.map((attr) => new paddle.Attribute(metadata.attribute(type, this._name), attr));
         }
         if (op.inputs) {
             for (const input of op.inputs) {
@@ -494,6 +491,8 @@ paddle.Attribute = class {
             case 'op_namescope':
             case 'is_test':
                 this._visible = false;
+                break;
+            default:
                 break;
         }
         if (schema) {
@@ -626,6 +625,8 @@ paddle.Tensor = class {
                         context.index += 8;
                         context.count++;
                         break;
+                    default:
+                        throw new paddle.Error("Unsupported tensor data type '" + context.dataType + "'.");
                 }
             }
         }
@@ -717,19 +718,13 @@ paddle.Utility = class {
 
     static createTensorType(data_type, shape) {
         if (!paddle.Utility._dataTypes) {
-            const length = Math.max.apply(null, Object.values(paddle.DataType));
+            const length = Math.max.apply(null, Object.entries(paddle.DataType).map((entry) => entry[1]));
             paddle.Utility._dataTypes = new Array(length);
-            for (const key of Object.keys(paddle.DataType)) {
-                const index = paddle.DataType[key];
-                let name = key.toLowerCase();
-                switch (name) {
-                    case 'bool': name = 'boolean'; break;
-                    case 'bf16': name = 'bfloat16'; break;
-                    case 'fp16': name = 'float16'; break;
-                    case 'fp32': name = 'float32'; break;
-                    case 'fp64': name = 'float64'; break;
-                }
-                paddle.Utility._dataTypes[index] = name;
+            const map = new Map([ [ 'bool', 'boolean' ], [ 'bf16', 'bfloat16' ], [ 'fp16', 'float16' ], [ 'fp32', 'float32' ], [ 'fp64', 'float64' ] ]);
+            for (const entry of Object.entries(paddle.DataType)) {
+                const index = entry[1];
+                const key = entry[0].toLowerCase();
+                paddle.Utility._dataTypes[index] = map.has(key) ? map.get(key) : key;
             }
         }
         const dataType = data_type < paddle.Utility._dataTypes.length ? paddle.Utility._dataTypes[data_type] : '?';
@@ -786,29 +781,25 @@ paddle.Weights = class {
         if (extension) {
             const entries = new Map(Array.from(context.entries(extension)).filter((entry) => !entry[0].endsWith('/') && !entry[0].split('/').pop().startsWith('.')).slice());
             if (entries.size > 2 && Array.from(entries).every((entry) => entry[0].split('_').length > 0 && entry[1].peek(16).every((value) => value === 0x00))) {
-                return new paddle.Weights('entries', entries);
+                return new paddle.Weights.Entries(entries);
             }
         }
         const obj = context.open('pkl');
         if (obj && !Array.isArray(obj) && Object(obj) === obj) {
-            return new paddle.Weights('pdparams', obj);
+            return new paddle.Weights.Pickle(obj);
         }
         return null;
     }
+};
 
-    constructor(format, data) {
-        this._format = format;
+paddle.Weights.Entries = class {
+
+    constructor(data) {
         this._data = data;
     }
 
     get format() {
-        switch (this._format) {
-            case 'entries':
-                return 'PaddlePaddle Weights';
-            case 'pdparams':
-                return 'PaddlePaddle Pickle';
-        }
-        return null;
+        return 'PaddlePaddle Weights';
     }
 
     get model() {
@@ -823,46 +814,62 @@ paddle.Weights = class {
 
     _initialize() {
         if (!this._weights) {
-            switch (this._format) {
-                case 'entries': {
-                    let rootFolder = null;
-                    for (const entry of this._data) {
-                        const name = entry[0];
-                        if (name.startsWith('.') && !name.startsWith('./')) {
-                            continue;
-                        }
-                        const parts = name.split('/');
-                        const folder = ((parts.length > 2 && parts[0] === '.') ? ('./' + parts[1] + '/') : (parts.length > 1 ? parts[0] + '/' : ''));
-                        rootFolder = (rootFolder === null) ? folder : (rootFolder !== '' && folder !== rootFolder) ? '' : folder;
-                    }
-                    this._weights = new Map();
-                    for (const entry of this._data) {
-                        if (entry[0].startsWith(rootFolder)) {
-                            const name = entry[0].substring(rootFolder.length);
-                            const stream = entry[1];
-                            const tensor = paddle.Utility.openTensor(stream);
-                            this._weights.set(name, tensor);
-                        }
-                    }
-                    break;
-                }
-                case 'pdparams': {
-                    const map = null; // this._data['StructuredToParameterName@@'];
-                    this._weights = new Map();
-                    for (const key of Object.keys(this._data)) {
-                        const value = this._data[key];
-                        if (value && !Array.isArray(value) && value.__class__ && value.__class__.__module__ === 'numpy' && value.__class__.__name__ === 'ndarray') {
-                            const name = map ? map[key] : key;
-                            const type = new paddle.TensorType(value.dtype.name, new paddle.TensorShape(value.shape));
-                            const data = value.data;
-                            const tensor = new paddle.Tensor(type, data, 'NumPy Array');
-                            this._weights.set(name, tensor);
-                        }
-                    }
-                    break;
+            let rootFolder = null;
+            for (const entry of this._data) {
+                const name = entry[0];
+                if (!name.startsWith('.') || name.startsWith('./')) {
+                    const parts = name.split('/');
+                    const folder = ((parts.length > 2 && parts[0] === '.') ? ('./' + parts[1] + '/') : (parts.length > 1 ? parts[0] + '/' : ''));
+                    rootFolder = (rootFolder === null) ? folder : (rootFolder !== '' && folder !== rootFolder) ? '' : folder;
                 }
             }
-            delete this._format;
+            this._weights = new Map();
+            for (const entry of this._data) {
+                if (entry[0].startsWith(rootFolder)) {
+                    const name = entry[0].substring(rootFolder.length);
+                    const stream = entry[1];
+                    const tensor = paddle.Utility.openTensor(stream);
+                    this._weights.set(name, tensor);
+                }
+            }
+        }
+    }
+};
+
+paddle.Weights.Pickle = class {
+
+    constructor(data) {
+        this._data = data;
+    }
+
+    get format() {
+        return 'PaddlePaddle Pickle';
+    }
+
+    get model() {
+        this._initialize();
+        return this._model;
+    }
+
+    get weights() {
+        this._initialize();
+        return this._weights;
+    }
+
+    _initialize() {
+        if (!this._weights) {
+            const map = null; // this._data['StructuredToParameterName@@'];
+            this._weights = new Map();
+            for (const key of Object.keys(this._data)) {
+                const value = this._data[key];
+                if (value && !Array.isArray(value) && value.__class__ && value.__class__.__module__ === 'numpy' && value.__class__.__name__ === 'ndarray') {
+                    const name = map ? map[key] : key;
+                    const type = new paddle.TensorType(value.dtype.name, new paddle.TensorShape(value.shape));
+                    const data = value.data;
+                    const tensor = new paddle.Tensor(type, data, 'NumPy Array');
+                    this._weights.set(name, tensor);
+                }
+            }
         }
     }
 };

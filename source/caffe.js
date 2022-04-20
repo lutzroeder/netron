@@ -426,6 +426,9 @@ caffe.Node = class {
                 type = layer.type;
                 break;
             }
+            default: {
+                throw new new caffe.Error("Unsupported Caffe version '" + version + "'.");
+            }
         }
         this._type = metadata.type(type) || { name: type };
 
@@ -473,6 +476,9 @@ caffe.Node = class {
                 }
                 initializers = layer.blobs.map((blob) => new caffe.Tensor(blob));
                 break;
+            }
+            default: {
+                throw new caffe.Error("Unsupported Caffe version '" + version + "'.");
             }
         }
         this._inputs = [];

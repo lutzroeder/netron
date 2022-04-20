@@ -301,6 +301,8 @@ sidebar.NodeSidebar = class {
                 return value.type.name;
             case 'function[]':
                 return value ? value.map((item) => item.type.name).join(', ') : '(null)';
+            default:
+                break;
         }
         if (typeof value === 'string' && (!type || type != 'string')) {
             return quote ? '"' + value + '"' : value;
@@ -1816,6 +1818,8 @@ markdown.Generator = class {
                                     i = ref.length;
                                 }
                                 break;
+                            default:
+                                break;
                         }
                     }
                 }
@@ -1976,6 +1980,9 @@ markdown.Generator = class {
                     for (const item of token.items) {
                         this._tokenizeBlock(item.tokens, links);
                     }
+                    break;
+                }
+                default: {
                     break;
                 }
             }

@@ -48,6 +48,8 @@ pytorch.Model = class {
                     this._graphs.push(new pytorch.Graph(metadata, type, data, container));
                 }
                 break;
+            default:
+                throw new pytorch.Error("Unsupported container type '" + type + "'.");
         }
     }
 
@@ -193,6 +195,10 @@ pytorch.Graph = class {
                     };
                     this._nodes.push(new pytorch.Node(metadata, '', obj, null));
                 }
+                break;
+            }
+            default: {
+                throw new pytorch.Error("Unsupported container type '" + type + "'.");
             }
         }
     }
@@ -772,6 +778,8 @@ pytorch.Tensor = class {
                         context.index += 8;
                         context.count++;
                         break;
+                    default:
+                        throw new pytorch.Error("Unsupported tensor data type '" + context.dataType + "'.");
                 }
             }
         }
@@ -2002,12 +2010,17 @@ pytorch.Execution = class extends python.Execution {
             }
             __setstate__(state) {
                 switch (state.length) {
+                    case 3:
+                        this.data = null;
+                        break;
                     case 4:
                         this.data = state[0];
                         break;
                     case 5:
                         this.data = state[0];
                         break;
+                    default:
+                        throw new pytorch.Error("Unsupported parameter state length '" + state.length + "'.");
                 }
             }
         });
@@ -2752,6 +2765,8 @@ pytorch.Container.Zip = class {
                                     return false;
                                 case 'Optional':
                                     return undefined;
+                                default:
+                                    break;
                             }
                         }
                         throw new pytorch.Error("Unsupported function parameter type '" + JSON.stringify(type) + "'.");
@@ -2881,6 +2896,8 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                     copyArgs.shift();
                                     copyEvalArgs.shift();
                                     continue;
+                                default:
+                                    break;
                             }
                         }
 
@@ -3128,6 +3145,8 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         case 'torch.contiguous':
                                             parameter.__source__ = evalArgs[0];
                                             break;
+                                        default:
+                                            break;
                                     }
                                 }
                                 parameter.__variable__ = this.variable();
@@ -3153,6 +3172,8 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         if (context.target.length > 0) {
                                             count = context.target[context.target.length - 1].length;
                                         }
+                                        break;
+                                    default:
                                         break;
                                 }
                                 const tensors = [];
@@ -3537,29 +3558,29 @@ pytorch.Utility = class {
     }
 
     static isTensor(obj) {
-        if (obj && obj.__class__) {
-            switch (obj.__class__.__module__) {
-                case 'torch':
-                case 'torch.cuda':
-                    return obj.__class__.__name__.endsWith('Tensor');
-                case 'torch.nn.parameter':
-                    return obj.__class__.__name__ === 'Parameter';
-            }
+        const name = obj && obj.__class__ ? obj.__class__.__module__ : null;
+        switch (name) {
+            case 'torch':
+            case 'torch.cuda':
+                return obj.__class__.__name__.endsWith('Tensor');
+            case 'torch.nn.parameter':
+                return obj.__class__.__name__ === 'Parameter';
+            default:
+                return false;
         }
-        return false;
     }
 
     static toTensor(obj) {
-        if (obj && obj.__class__) {
-            switch (obj.__class__.__module__) {
-                case 'torch':
-                case 'torch.cuda':
-                    return obj.__class__.__name__.endsWith('Tensor') ? obj : null;
-                case 'torch.nn.parameter':
-                    return obj.__class__.__name__ === 'Parameter' ? obj.data : null;
-            }
+        const name = obj && obj.__class__ ? obj.__class__.__module__ : null;
+        switch (name) {
+            case 'torch':
+            case 'torch.cuda':
+                return obj.__class__.__name__.endsWith('Tensor') ? obj : null;
+            case 'torch.nn.parameter':
+                return obj.__class__.__name__ === 'Parameter' ? obj.data : null;
+            default:
+                return null;
         }
-        return null;
     }
 
     static createTensor(name, tensor, littleEndian) {
@@ -3596,8 +3617,9 @@ pytorch.Utility = class {
                 return Number.isInteger(obj) || obj === null;
             case 'Device':
                 return obj === null || obj === Object(obj);
+            default:
+                return true;
         }
-        return true;
     }
 
     static isCall(expression, name, size) {

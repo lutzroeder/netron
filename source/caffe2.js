@@ -7,44 +7,39 @@ caffe2.ModelFactory = class {
     match(context) {
         const identifier = context.identifier.toLowerCase();
         const extension = identifier.split('.').pop().toLowerCase();
-        switch (extension) {
-            case 'pb': {
-                const tags = context.tags('pb');
-                if (tags.size > 0 &&
-                    Array.from(tags.keys()).every((tag) => tag <= 9) &&
-                    Array.from(tags.values()).every((type) => type <= 4)) {
-                    if (tags.size === 1 && tags.get(2) === 2 && identifier.endsWith('saved_model.pb')) {
-                        return undefined;
-                    }
-                    const schema = [[1,2],[2,2],[3,2],[4,0],[5,2],[6,2],[7,2],[8,2],[9,2]];
-                    if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
-                        const stream = context.stream;
-                        if (stream.length > 3) {
-                            const buffer = stream.peek(Math.min(stream.length, 67));
-                            if (buffer[0] == 0x0A) {
-                                const size = buffer[1];
-                                if (size < 64 &&
-                                    buffer.length > 2 + size + 1 &&
-                                    buffer.slice(2, 2 + size).every((c) => c >= 32 && c <= 127) &&
-                                    buffer[2 + size] == 0x12) {
-                                    return 'caffe2.pb';
-                                }
-                            }
-                            if (buffer[0] == 0x12) {
+        if (extension === 'pb') {
+            const tags = context.tags('pb');
+            if (tags.size > 0 &&
+                Array.from(tags.keys()).every((tag) => tag <= 9) &&
+                Array.from(tags.values()).every((type) => type <= 4)) {
+                if (tags.size === 1 && tags.get(2) === 2 && identifier.endsWith('saved_model.pb')) {
+                    return undefined;
+                }
+                const schema = [[1,2],[2,2],[3,2],[4,0],[5,2],[6,2],[7,2],[8,2],[9,2]];
+                if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
+                    const stream = context.stream;
+                    if (stream.length > 3) {
+                        const buffer = stream.peek(Math.min(stream.length, 67));
+                        if (buffer[0] == 0x0A) {
+                            const size = buffer[1];
+                            if (size < 64 &&
+                                buffer.length > 2 + size + 1 &&
+                                buffer.slice(2, 2 + size).every((c) => c >= 32 && c <= 127) &&
+                                buffer[2 + size] == 0x12) {
                                 return 'caffe2.pb';
                             }
                         }
+                        if (buffer[0] == 0x12) {
+                            return 'caffe2.pb';
+                        }
                     }
                 }
-                break;
             }
-            case 'pbtxt':
-            case 'prototxt': {
-                const tags = context.tags('pbtxt');
-                if (tags.has('op') && !tags.has('op.attr') && !tags.has('op.graph_op_name') && !tags.has('op.endpoint')) {
-                    return 'caffe2.pbtxt';
-                }
-                break;
+        }
+        if (extension === 'pbtxt' || extension === 'prototxt') {
+            const tags = context.tags('pbtxt');
+            if (tags.has('op') && !tags.has('op.attr') && !tags.has('op.graph_op_name') && !tags.has('op.endpoint')) {
+                return 'caffe2.pbtxt';
             }
         }
         return undefined;
@@ -179,6 +174,9 @@ caffe2.ModelFactory = class {
                         }).catch(() => {
                             return openBinary(context.stream.peek(), null);
                         });
+                    }
+                    default: {
+                        throw new caffe2.Error("Unsupported Caffe2 format '" + match + "'.");
                     }
                 }
             });
@@ -416,12 +414,8 @@ caffe2.Node = class {
         this._device = op.engine || '';
         this._metadata = metadata;
         this._chain = [];
-        this._attributes = [];
         this._type = metadata.type(op.type);
-        for (const arg of op.arg) {
-            const attribute = new caffe2.Attribute(metadata, metadata.attribute(this._type.name, arg.name), arg);
-            this._attributes.push(attribute);
-        }
+        this._attributes = op.arg.map((arg) => new caffe2.Attribute(metadata, this._type.name, arg));
         const inputs = op.input;
         const outputs = op.output;
         const tensors = {};
@@ -515,7 +509,7 @@ caffe2.Node = class {
 
 caffe2.Attribute = class {
 
-    constructor(metadata, schema, arg) {
+    constructor(metadata, type, arg) {
         this._name = arg.name;
         if (arg.floats && arg.floats.length > 0) {
             this._value = arg.floats;
@@ -537,24 +531,22 @@ caffe2.Attribute = class {
         else {
             this._value = arg.i;
         }
-        if (schema) {
-            if (Object.prototype.hasOwnProperty.call(schema, 'type')) {
-                this._type = schema.type;
+        metadata = metadata.attribute(type, arg.name);
+        if (metadata) {
+            if (Object.prototype.hasOwnProperty.call(metadata, 'type')) {
+                this._type = metadata.type;
                 if (this._type == 'boolean') {
-                    switch (this._value) {
-                        case 1: this._value = true; break;
-                        case 0: this._value = false; break;
-                    }
+                    this._value = this._value !== 0 && this._value.toString() !== '0' ? true : false;
                 }
             }
         }
 
-        if (schema) {
-            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
+        if (metadata) {
+            if (Object.prototype.hasOwnProperty.call(metadata, 'visible') && !metadata.visible) {
                 this._visible = false;
             }
-            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                if (this._value == schema.default || (this._value && this._value.toString() == schema.default.toString())) {
+            else if (metadata.default !== undefined) {
+                if (this._value == metadata.default || (this._value && this._value.toString() == metadata.default.toString())) {
                     this._visible = false;
                 }
             }

@@ -375,6 +375,8 @@ sklearn.Tensor = class {
             case 'int64':
             case 'uint64':
                 return sklearn.Tensor._stringify(value, '', '    ');
+            default:
+                break;
         }
         return JSON.stringify(value, null, 4);
     }

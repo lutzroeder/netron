@@ -492,6 +492,10 @@ xml.TextReader = class {
                             else {
                                 this._unexpected();
                             }
+                            break;
+                        }
+                        default: {
+                            break;
                         }
                     }
                     break;

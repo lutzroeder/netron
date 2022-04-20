@@ -870,6 +870,10 @@ if (typeof TextDecoder === "undefined") {
                             const c3 = buffer[i++];
                             const c4 = buffer[i++];
                             result += String.fromCodePoint(((c & 0x07) << 18) | ((c2 & 0x3F) << 12) | ((c3 & 0x3F) << 6) | (c4 & 0x3F));
+                            break;
+                        }
+                        default: {
+                            break;
                         }
                     }
                 }
@@ -878,6 +882,8 @@ if (typeof TextDecoder === "undefined") {
                 while (i < length) {
                     result += String.fromCharCode(buffer[i++]);
                 }
+                break;
+            default:
                 break;
         }
         return result;

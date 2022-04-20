@@ -851,6 +851,8 @@ keras.Node = class {
                             inputName = innerSchema.inputs[inputIndex].name;
                         }
                         break;
+                    default:
+                        break;
                 }
             }
             const input = !list ? [ inputs.shift() ] : inputs.splice(0, inputs.length);
@@ -1164,6 +1166,8 @@ keras.Tensor = class {
                         results.push(context.view[context.index]);
                         context.index++;
                         break;
+                    default:
+                        throw new keras.Error("Unsupported tensor data type '" + context.dataType + "'.");
                 }
                 context.count++;
             }

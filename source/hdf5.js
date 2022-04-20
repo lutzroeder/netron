@@ -406,8 +406,10 @@ hdf5.Reader = class {
                 }
                 return value;
             }
+            default: {
+                throw new hdf5.Error('Unsupported offset size \'' + this._offsetSize + '\'.');
+            }
         }
-        throw new hdf5.Error('Unsupported offset size \'' + this._offsetSize + '\'.');
     }
 
     length() {
@@ -428,8 +430,10 @@ hdf5.Reader = class {
                 }
                 return value;
             }
+            default: {
+                throw new hdf5.Error('Unsupported length size \'' + this._lengthSize + '\'.');
+            }
         }
-        throw new hdf5.Error('Unsupported length size \'' + this._lengthSize + '\'.');
     }
 
     at(position) {
@@ -806,12 +810,12 @@ hdf5.Datatype = class {
                 this._flags = reader.byte() | reader.byte() << 8 | reader.byte() << 16;
                 this._size = reader.uint32();
                 switch (this._class) {
-                    case 0: {
+                    case 0: { // fixed-Point
                         this._bitOffset = reader.uint16();
                         this._bitPrecision = reader.uint16();
                         break;
                     }
-                    case 8: {
+                    case 8: { // enumerated
                         this._base = new hdf5.Datatype(reader);
                         this._names = [];
                         this._values = [];
@@ -826,11 +830,15 @@ hdf5.Datatype = class {
                         }
                         break;
                     }
+                    default: {
+                        break;
+                    }
                 }
                 break;
             }
-            default:
+            default: {
                 throw new hdf5.Error('Unsupported datatype version \'' + version + '\'.');
+            }
         }
     }
 
@@ -896,8 +904,9 @@ hdf5.Datatype = class {
             case 0: // fixed-point
             case 1: // floating-point
                 return (this.flags & 0x01) == 0;
+            default:
+                return true;
         }
-        return true;
     }
 
     read(reader) {
@@ -933,8 +942,9 @@ hdf5.Datatype = class {
                         return hdf5.Reader.decode(reader.read(this._size), 'ascii');
                     case 1:
                         return hdf5.Reader.decode(reader.read(this._size), 'utf-8');
+                    default:
+                        throw new hdf5.Error('Unsupported character encoding.');
                 }
-                throw new hdf5.Error('Unsupported character encoding.');
             case 5: // opaque
                 return reader.read(this._size);
             case 8: // enumerated
@@ -944,8 +954,9 @@ hdf5.Datatype = class {
                     length: reader.uint32(),
                     globalHeapID: new hdf5.GlobalHeapID(reader)
                 };
+            default:
+                throw new hdf5.Error('Unsupported datatype class \'' + this._class + '\'.');
         }
-        throw new hdf5.Error('Unsupported datatype class \'' + this._class + '\'.');
     }
 
     decode(data, globalHeap) {
@@ -969,8 +980,9 @@ hdf5.Datatype = class {
                             return hdf5.Reader.decode(globalHeapObject.data, 'ascii');
                         case 1:
                             return hdf5.Reader.decode(globalHeapObject.data, 'utf-8');
+                        default:
+                            throw new hdf5.Error('Unsupported character encoding.');
                     }
-                    throw new hdf5.Error('Unsupported character encoding.');
                 }
                 break;
             }
@@ -1043,6 +1055,8 @@ hdf5.Link = class {
                         break;
                     case 1: // soft link
                         break;
+                    default:
+                        throw new hdf5.Error('Unsupported link message type \'' + this.type + '\'.');
                 }
                 break;
             }
@@ -1276,6 +1290,9 @@ hdf5.ObjectModificationTime = class {
                         throw new hdf5.Error('Unsupported object modification time message version \'' + version + '\'.');
                 }
                 break;
+            }
+            default: {
+                throw new hdf5.Error('Unsupported object modification time message type \'' + type + '\'.');
             }
         }
     }

@@ -1005,6 +1005,8 @@ onnx.Tensor = class {
                         data[i] = view.getUint64(i << 3, true);
                     }
                     break;
+                default:
+                    throw new onnx.Error("Unsupported tensor data type '" + type + "'.");
             }
             return data;
         };
@@ -1032,6 +1034,8 @@ onnx.Tensor = class {
                             break;
                         case 'int64':
                         case 'uint64':
+                            break;
+                        default:
                             break;
                     }
                     if (indices.length > 0) {
@@ -1625,9 +1629,10 @@ onnx.GraphContext = class {
             case 'opaque_type': {
                 return new onnx.OpaqueType(type.opaque_type.domain, type.opaque_type.name);
             }
-            // default: {
-            //     throw new onnx.Error("Unsupported tensor type '" + type.value + "'.");
-            // }
+            default: {
+                // throw new onnx.Error("Unsupported tensor type '" + type.value + "'.");
+                break;
+            }
         }
     }
 

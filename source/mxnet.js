@@ -677,12 +677,9 @@ mxnet.Attribute = class {
             switch (schema.type) {
                 case 'boolean':
                     switch (value) {
-                        case 'True':
-                            this._value = true;
-                            break;
-                        case 'False':
-                            this._value = false;
-                            break;
+                        case 'True': this._value = true; break;
+                        case 'False': this._value = false; break;
+                        default: throw new mxnet.Error("Unsupported attribute boolean value '" + value + "'.");
                     }
                     break;
                 case 'int32':
@@ -714,6 +711,8 @@ mxnet.Attribute = class {
                         }
                     }
                     break;
+                default:
+                    throw new mxnet.Error("Unsupported attribute type '" + schema.type + "'.");
             }
         }
 
@@ -876,6 +875,8 @@ mxnet.Tensor = class {
                         context.index += 8;
                         context.count++;
                         break;
+                    default:
+                        throw new mxnet.Error("Unsupported tensor data type '" + context.dataType + "'.");
                 }
             }
         }

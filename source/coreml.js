@@ -31,30 +31,25 @@ coreml.ModelFactory = class {
             }
             return 'coreml.pb';
         }
-        switch (identifier) {
-            case 'manifest.json': {
-                const obj = context.open('json');
-                if (obj && obj.rootModelIdentifier && obj.itemInfoEntries) {
-                    const entries = Object.keys(obj.itemInfoEntries).map((key) => obj.itemInfoEntries[key]);
-                    if (entries.filter((entry) => entry.path.toLowerCase().endsWith('.mlmodel').length === 1)){
-                        return 'coreml.manifest';
-                    }
+        if (identifier === 'manifest.json') {
+            const obj = context.open('json');
+            if (obj && obj.rootModelIdentifier && obj.itemInfoEntries) {
+                const entries = Object.keys(obj.itemInfoEntries).map((key) => obj.itemInfoEntries[key]);
+                if (entries.filter((entry) => entry.path.toLowerCase().endsWith('.mlmodel').length === 1)){
+                    return 'coreml.manifest';
                 }
-                break;
             }
-            case 'metadata.json': {
-                const obj = context.open('json');
-                if (obj && obj.rootModelIdentifier && obj.itemInfoEntries) {
-                    return 'coreml.metadata';
-                }
-                break;
+        }
+        if (identifier === 'metadata.json') {
+            const obj = context.open('json');
+            if (obj && obj.rootModelIdentifier && obj.itemInfoEntries) {
+                return 'coreml.metadata';
             }
-            case 'featuredescriptions.json': {
-                const obj = context.open('json');
-                if (obj && (obj.Inputs || obj.Outputs)) {
-                    return 'coreml.featuredescriptions';
-                }
-                break;
+        }
+        if (identifier === 'featuredescriptions.json') {
+            const obj = context.open('json');
+            if (obj && (obj.Inputs || obj.Outputs)) {
+                return 'coreml.featuredescriptions';
             }
         }
         if (extension === 'bin' && stream.length > 16) {
@@ -684,8 +679,10 @@ coreml.Graph = class {
                     }
                     return new coreml.Tensor('Blob', type, data);
                 }
+                default: {
+                    throw new coreml.Error("Unsupported value '" + value.value + "'.");
+                }
             }
-            throw new coreml.Error("Unsupported value '" + value.value + "'.");
         };
 
         const args = new Map();
@@ -1013,8 +1010,9 @@ coreml.Graph = class {
             case 'nonMaximumSuppression':
                 data.stringClassLabels = this._convertVector(data.stringClassLabels);
                 return {};
+            default:
+                return {};
         }
-        return {};
     }
 
     _convertVector(value) {
@@ -1311,7 +1309,8 @@ coreml.Tensor = class {
                         results.push(context.data.getBits(context.index, context.bits));
                         context.index++;
                         break;
-
+                    default:
+                        break;
                 }
                 context.count++;
             }
@@ -1398,10 +1397,26 @@ coreml.MapType = class {
     }
 };
 
+coreml.SequenceType = class {
+
+    constructor(type) {
+        this._type = type;
+    }
+
+    get type() {
+        return this._type;
+    }
+
+    toString() {
+        return 'sequence<' + this._type + '>';
+    }
+};
+
 coreml.ImageType = class {
 
     constructor(colorSpace, width, height) {
-        this._colorSpace = '?';
+        this._width = width;
+        this._height = height;
         switch (colorSpace) {
             case coreml.proto.ImageFeatureType.ColorSpace.GRAYSCALE:
                 this._colorSpace = 'Grayscale';
@@ -1412,9 +1427,9 @@ coreml.ImageType = class {
             case coreml.proto.ImageFeatureType.ColorSpace.BGR:
                 this._colorSpace = 'BGR';
                 break;
+            default:
+                throw new coreml.Error("Unsupported image color space '" + colorSpace + "'.");
         }
-        this._width = width;
-        this._height = height;
     }
 
     toString() {
@@ -1466,6 +1481,9 @@ coreml.Utility = class {
                     }
                     let dataType = '?';
                     switch (type.multiArrayType.dataType) {
+                        case coreml.proto.ArrayFeatureType.ArrayDataType.INVALID_ARRAY_DATA_TYPE:
+                            dataType = '?';
+                            break;
                         case coreml.proto.ArrayFeatureType.ArrayDataType.FLOAT32:
                             dataType = 'float32';
                             break;
@@ -1475,6 +1493,8 @@ coreml.Utility = class {
                         case coreml.proto.ArrayFeatureType.ArrayDataType.DOUBLE:
                             dataType = 'float64';
                             break;
+                        default:
+                            throw new coreml.Error("Unsupported array data type '" + type.multiArrayType.dataType + "'.");
                     }
                     result = new coreml.TensorType(dataType, shape);
                     break;
@@ -1495,9 +1515,16 @@ coreml.Utility = class {
                     result = new coreml.MapType(type.dictionaryType.KeyType.replace('KeyType', ''), 'float64');
                     break;
                 }
+                case 'sequenceType': {
+                    result = new coreml.SequenceType(coreml.Utility.featureType(type[type.Type]));
+                    break;
+                }
                 case 'imageType': {
                     result = new coreml.ImageType(type.imageType.colorSpace, type.imageType.width, type.imageType.height);
                     break;
+                }
+                default: {
+                    throw new coreml.Error("Unsupported feature type '" + type.Type + "'.");
                 }
             }
             if (type.isOptional) {

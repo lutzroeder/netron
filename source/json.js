@@ -52,6 +52,8 @@ json.TextReader = class {
                     }
                     state = '';
                     continue;
+                default:
+                    break;
             }
         }
         return new json.TextReader(data);
@@ -154,6 +156,8 @@ json.TextReader = class {
                         case 'constructor':
                         case 'prototype':
                             throw new json.Error("Invalid key '" + key + "'" + this._location());
+                        default:
+                            break;
                     }
                     this._whitespace();
                     if (this._char !== ':') {
@@ -247,8 +251,8 @@ json.TextReader = class {
             case 'N': this._expect('NaN'); return NaN;
             case 'I': this._expect('Infinity'); return Infinity;
             case '-': return this._number();
+            default: this._unexpected();
         }
-        this._unexpected();
     }
 
     _number() {
@@ -538,6 +542,8 @@ json.BinaryReader = class {
                     case 'constructor':
                     case 'prototype':
                         throw new json.Error("Invalid key '" + key + "' at " + position.toString() + "'.", true);
+                    default:
+                        break;
                 }
                 obj[key] = value;
             }

@@ -1157,11 +1157,8 @@ tf.Attribute = class {
                                 throw new tf.Error(JSON.stringify(defaultValue));
                         }
                     }
-                    switch (typeof value) {
-                        case 'boolean':
-                        case 'number':
-                        case 'string':
-                            return value === defaultValue;
+                    if (typeof value === 'boolean' || typeof value === 'number' || typeof value === 'string') {
+                        return value === defaultValue;
                     }
                     if (value instanceof base.Int64 || value instanceof base.Uint64) {
                         return value.toNumber() === defaultValue;
@@ -1250,6 +1247,8 @@ tf.Tensor = class {
                     case DataType.DT_STRING:
                         this._data = tensor.string_val || null;
                         break;
+                    default:
+                        throw new tf.Error("Unsupported tensor data type '" + tensor.dtype + "'.");
                 }
             }
         }
@@ -1344,6 +1343,8 @@ tf.Tensor = class {
                         return context;
                     }
                     context.rawData = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
+                    break;
+                default:
                     break;
             }
         }
@@ -1667,6 +1668,9 @@ tf.TensorBundle = class {
                 });
                 break;
             }
+            default: {
+                throw new tf.Error("Unsupported Tensor Bundle format '" + format + "'.");
+            }
         }
     }
 
@@ -1887,6 +1891,9 @@ tf.BinaryReader = class {
                     length = (c >>> 2) + 1;
                     const offset = this.uint32();
                     data.set(data.subarray(position - offset, position - offset + length), position);
+                    break;
+                }
+                default: {
                     break;
                 }
             }

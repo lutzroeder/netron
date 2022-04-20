@@ -172,6 +172,8 @@ cntk.Graph = class {
                         case 'LearnableParameter':
                             arg(node.name, version, node);
                             break;
+                        default:
+                            break;
                     }
                 }
                 for (const name of Object.keys(obj.nodes)) {
@@ -664,6 +666,7 @@ cntk.TensorType = class {
                     case 'double': this._dataType = 'float64'; break;
                     case 'half': this._dataType = 'float16'; break;
                     case '': this._dataType = 'float32'; break;
+                    default: throw new cntk.Error("Unsupported tensor data type '" + dataType + "'.");
                 }
                 this._shape = new cntk.TensorShape(version, shape);
                 break;
@@ -671,6 +674,7 @@ cntk.TensorType = class {
                 dataType = dataType.toNumber();
                 switch (dataType) {
                     case 1: this._dataType = 'float32'; break;
+                    default: throw new cntk.Error("Unsupported tensor data type '" + dataType + "'.");
                 }
                 this._shape = new cntk.TensorShape(version, shape);
                 break;

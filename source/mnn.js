@@ -49,6 +49,7 @@ mnn.Model = class {
             case NetSource.TFLITE: this._source = 'TensorFlow Lite'; break;
             case NetSource.ONNX: this._source = 'ONNX'; break;
             case NetSource.TORCH: this._source = 'Torch'; break;
+            default: throw new mnn.Error("Unsupported model source '" + net.sourceType + "'.");
         }
         this._graphs = [ new mnn.Graph(metadata, net) ];
     }
@@ -469,11 +470,14 @@ mnn.TensorType = class {
     constructor(dataType, shape, format) {
         this._dataType = mnn.Utility.dataType(dataType);
         this._shape = shape;
-        switch (format) {
-            case mnn.schema.MNN_DATA_FORMAT.NCHW:   this._denotation = 'NCHW'; break;
-            case mnn.schema.MNN_DATA_FORMAT.NHWC:   this._denotation = 'NHWC'; break;
-            case mnn.schema.MNN_DATA_FORMAT.NC4HW4: this._denotation = 'NC4HW4'; break;
-            case mnn.schema.MNN_DATA_FORMAT.NHWC4:  this._denotation = 'NHWC4'; break;
+        if (format) {
+            switch (format) {
+                case mnn.schema.MNN_DATA_FORMAT.NCHW: this._denotation = 'NCHW'; break;
+                case mnn.schema.MNN_DATA_FORMAT.NHWC: this._denotation = 'NHWC'; break;
+                case mnn.schema.MNN_DATA_FORMAT.NC4HW4: this._denotation = 'NC4HW4'; break;
+                case mnn.schema.MNN_DATA_FORMAT.NHWC4: this._denotation = 'NHWC4'; break;
+                default: throw new mnn.Error("Unsupported tensor type format '" + format + "'.");
+            }
         }
     }
 

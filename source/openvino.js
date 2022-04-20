@@ -563,6 +563,8 @@ openvino.Node = class {
                         }
                         break;
                     }
+                    default:
+                        break;
                 }
             }
             const shape = dimensions ? new openvino.TensorShape(dimensions) : null;
@@ -657,6 +659,9 @@ openvino.Attribute = class {
             if (Object.prototype.hasOwnProperty.call(schema, 'type')) {
                 this._type = schema.type;
                 switch (schema.type) {
+                    case '':
+                    case 'string':
+                        break;
                     case 'boolean':
                         switch (value) {
                             case '1':
@@ -669,6 +674,8 @@ openvino.Attribute = class {
                             case 'False':
                                 this._value = false;
                                 break;
+                            default:
+                                throw new openvino.Error("Unsupported attribute boolean value '" + value + "'.");
                         }
                         break;
                     case 'int32': {
@@ -718,6 +725,8 @@ openvino.Attribute = class {
                             }
                         }
                         break;
+                    default:
+                        throw new openvino.Error("Unsupported attribute type '" + schema.type + "'.");
                 }
             }
             if (Object.prototype.hasOwnProperty.call(schema, 'visible') && schema.visible == false) {
@@ -901,6 +910,8 @@ openvino.Tensor = class {
                         context.index += 8;
                         context.count++;
                         break;
+                    default:
+                        throw new openvino.Error("Unsupported tensor data type '" + this._type.dataType + "'.");
                 }
             }
         }
