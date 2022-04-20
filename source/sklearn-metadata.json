@@ -208,7 +208,7 @@
         "default": null,
         "description": "Determines the cross-validation splitting strategy.\nPossible inputs for cv are:\n\n- None, to use the default 5-fold cross-validation,\n- integer, to specify the number of folds.\n- :term:`CV splitter`,\n- An iterable yielding (train, test) splits as arrays of indices.\n\nFor integer/None inputs, if ``y`` is binary or multiclass,\n:class:`~sklearn.model_selection.StratifiedKFold` is used. If ``y`` is\nneither binary nor multiclass, :class:`~sklearn.model_selection.KFold`\nis used.\n\nRefer to the :ref:`User Guide <cross_validation>` for the various\ncross-validation strategies that can be used here.\n\nIf \"prefit\" is passed, it is assumed that `base_estimator` has been\nfitted already and all data is used for calibration.\n\n.. versionchanged:: 0.22\n``cv`` default value if None changed from 3-fold to 5-fold.\n",
         "name": "cv",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       },
       {
@@ -294,7 +294,7 @@
         "default": false,
         "description": "When True (False by default) the `components_` vectors are multiplied\nby the square root of n_samples and then divided by the singular values\nto ensure uncorrelated outputs with unit component-wise variances.\n\nWhitening will remove some information from the transformed signal\n(the relative variance scales of the components) but can sometime\nimprove the predictive accuracy of the downstream estimators by\nmaking their data respect some hard-wired assumptions.\n",
         "name": "whiten",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       },
       {
@@ -306,7 +306,7 @@
         "default": 0.0,
         "description": "Tolerance for singular values computed by svd_solver == 'arpack'.\nMust be of range [0.0, infinity).\n\n.. versionadded:: 0.18.0\n",
         "name": "tol",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       },
       {
@@ -353,7 +353,7 @@
         "default": 5,
         "description": "Number of iterations for randomized SVD solver. Not used by ARPACK. The\ndefault is larger than the default in\n:func:`~sklearn.utils.extmath.randomized_svd` to handle sparse\nmatrices that may have large slowly decaying spectrum.\n",
         "name": "n_iter",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       },
       {
@@ -366,7 +366,7 @@
         "default": 0.0,
         "description": "Tolerance for ARPACK. 0 means machine precision. Ignored by randomized\nSVD solver.\n",
         "name": "tol",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       },
       {
@@ -402,7 +402,7 @@
         "default": false,
         "description": "When True (False by default) the `components_` vectors are multiplied\nby the square root of n_samples and then divided by the singular values\nto ensure uncorrelated outputs with unit component-wise variances.\n\nWhitening will remove some information from the transformed signal\n(the relative variance scales of the components) but can sometime\nimprove the predictive accuracy of the downstream estimators by\nmaking their data respect some hard-wired assumptions.\n",
         "name": "whiten",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       },
       {
@@ -415,7 +415,7 @@
         "default": 0.0,
         "description": "Tolerance for singular values computed by svd_solver == 'arpack'.\nMust be of range [0.0, infinity).\n\n.. versionadded:: 0.18.0\n",
         "name": "tol",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       },
       {
@@ -427,7 +427,7 @@
         "default": null,
         "description": "Used when the 'arpack' or 'randomized' solvers are used. Pass an int\nfor reproducible results across multiple function calls.\nSee :term:`Glossary <random_state>`.\n\n.. versionadded:: 0.18.0\n",
         "name": "random_state",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       },
       {
@@ -829,7 +829,7 @@
         "default": null,
         "description": "Either a Mapping (e.g., a dict) where keys are terms and values are\nindices in the feature matrix, or an iterable over terms. If not\ngiven, a vocabulary is determined from the input documents. Indices\nin the mapping should not be repeated and should not have any gap\nbetween 0 and the largest index.\n",
         "name": "vocabulary",
-        "option": "optional"
+        "optional": true
       },
       {
         "default": false,
@@ -841,7 +841,7 @@
         "default": "np.int64",
         "description": "Type of the matrix returned by fit_transform() or transform().\n",
         "name": "dtype",
-        "option": "optional"
+        "optional": true
       }
     ]
   },
@@ -927,7 +927,7 @@
         "default": null,
         "description": "Either a Mapping (e.g., a dict) where keys are terms and values are\nindices in the feature matrix, or an iterable over terms. If not\ngiven, a vocabulary is determined from the input documents.\n",
         "name": "vocabulary",
-        "option": "optional"
+        "optional": true
       },
       {
         "default": false,
@@ -939,7 +939,7 @@
         "default": "float64",
         "description": "Type of the matrix returned by fit_transform() or transform().\n",
         "name": "dtype",
-        "option": "optional"
+        "optional": true
       },
       {
         "default": "l2",
@@ -979,7 +979,7 @@
         "default": "10",
         "description": "Number of top features to select.\nThe \"all\" option bypasses selection, for use in a parameter search.\n",
         "name": "k",
-        "option": "optional"
+        "optional": true
       }
     ]
   },
@@ -1134,13 +1134,13 @@
         "default": "False",
         "description": "Sets the verbosity amount.\n",
         "name": "verbose",
-        "option": "optional"
+        "optional": true
       },
       {
         "default": true,
         "description": "This parameter is ignored when ``fit_intercept`` is set to False.\nIf True, the regressors X will be normalized before regression by\nsubtracting the mean and dividing by the l2-norm.\nIf you wish to standardize, please use\n:class:`~sklearn.preprocessing.StandardScaler` before calling ``fit``\non an estimator with ``normalize=False``.\n\n.. deprecated:: 1.0\n``normalize`` was deprecated in version 1.0. It will default\nto False in 1.2 and be removed in 1.4.\n",
         "name": "normalize",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       },
       {
@@ -1153,20 +1153,20 @@
         "default": 500,
         "description": "Maximum number of iterations to perform.\n",
         "name": "max_iter",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       },
       {
         "description": "The machine-precision regularization in the computation of the\nCholesky diagonal factors. Increase this for very ill-conditioned\nsystems. Unlike the ``tol`` parameter in some iterative\noptimization-based algorithms, this parameter does not control\nthe tolerance of the optimization.\n",
         "name": "eps",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       },
       {
         "default": true,
         "description": "If True, X will be copied; else, it may be overwritten.\n",
         "name": "copy_X",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       },
       {
@@ -1203,28 +1203,28 @@
         "default": true,
         "description": "Whether to calculate the intercept for this model. If set\nto False, no intercept will be used in calculations\n(i.e. data is expected to be centered).\n",
         "name": "fit_intercept",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       },
       {
         "default": false,
         "description": "This parameter is ignored when ``fit_intercept`` is set to False.\nIf True, the regressors X will be normalized before regression by\nsubtracting the mean and dividing by the l2-norm.\nIf you wish to standardize, please use\n:class:`~sklearn.preprocessing.StandardScaler` before calling ``fit``\non an estimator with ``normalize=False``.\n\n.. deprecated:: 1.0\n`normalize` was deprecated in version 1.0 and will be\nremoved in 1.2.\n",
         "name": "normalize",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       },
       {
         "default": true,
         "description": "If True, X will be copied; else, it may be overwritten.\n",
         "name": "copy_X",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       },
       {
         "default": null,
         "description": "The number of jobs to use for the computation. This will only provide\nspeedup in case of sufficiently large problems, that is if firstly\n`n_targets > 1` and secondly `X` is sparse or if `positive` is set\nto `True`. ``None`` means 1 unless in a\n:obj:`joblib.parallel_backend` context. ``-1`` means using all\nprocessors. See :term:`Glossary <n_jobs>` for more details.\n",
         "name": "n_jobs",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       },
       {
@@ -1243,101 +1243,101 @@
         "default": "l2",
         "description": "Specify the norm of the penalty:\n\n- `'none'`: no penalty is added;\n- `'l2'`: add a L2 penalty term and it is the default choice;\n- `'l1'`: add a L1 penalty term;\n- `'elasticnet'`: both L1 and L2 penalty terms are added.\n\n.. warning::\nSome penalties may not work with some solvers. See the parameter\n`solver` below, to know the compatibility between the penalty and\nsolver.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n",
         "name": "penalty",
-        "option": "optional"
+        "optional": true
       },
       {
         "default": false,
         "description": "Dual or primal formulation. Dual formulation is only implemented for\nl2 penalty with liblinear solver. Prefer dual=False when\nn_samples > n_features.\n",
         "name": "dual",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       },
       {
         "default": 0.0001,
         "description": "Tolerance for stopping criteria.\n",
         "name": "tol",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       },
       {
         "default": 1.0,
         "description": "Inverse of regularization strength; must be a positive float.\nLike in support vector machines, smaller values specify stronger\nregularization.\n",
         "name": "C",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       },
       {
         "default": true,
         "description": "Specifies if a constant (a.k.a. bias or intercept) should be\nadded to the decision function.\n",
         "name": "fit_intercept",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       },
       {
         "default": 1.0,
         "description": "Useful only when the solver 'liblinear' is used\nand self.fit_intercept is set to True. In this case, x becomes\n[x, self.intercept_scaling],\ni.e. a \"synthetic\" feature with constant value equal to\nintercept_scaling is appended to the instance vector.\nThe intercept becomes ``intercept_scaling * synthetic_feature_weight``.\n\nNote! the synthetic feature weight is subject to l1/l2 regularization\nas all other features.\nTo lessen the effect of regularization on synthetic feature weight\n(and therefore on the intercept) intercept_scaling has to be increased.\n",
         "name": "intercept_scaling",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       },
       {
         "default": null,
         "description": "Weights associated with classes in the form ``{class_label: weight}``.\nIf not given, all classes are supposed to have weight one.\n\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``.\n\nNote that these weights will be multiplied with sample_weight (passed\nthrough the fit method) if sample_weight is specified.\n\n.. versionadded:: 0.17\n*class_weight='balanced'*\n",
         "name": "class_weight",
-        "option": "optional"
+        "optional": true
       },
       {
         "default": null,
         "description": "Used when ``solver`` == 'sag', 'saga' or 'liblinear' to shuffle the\ndata. See :term:`Glossary <random_state>` for details.\n",
         "name": "random_state",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       },
       {
         "default": "lbfgs",
         "description": "\nAlgorithm to use in the optimization problem. Default is 'lbfgs'.\nTo choose a solver, you might want to consider the following aspects:\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag'\nand 'saga' are faster for large ones;\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and\n'lbfgs' handle multinomial loss;\n- 'liblinear' is limited to one-versus-rest schemes.\n\n.. warning::\nThe choice of the algorithm depends on the penalty chosen:\nSupported penalties by solver:\n\n- 'newton-cg'   -   ['l2', 'none']\n- 'lbfgs'       -   ['l2', 'none']\n- 'liblinear'   -   ['l1', 'l2']\n- 'sag'         -   ['l2', 'none']\n- 'saga'        -   ['elasticnet', 'l1', 'l2', 'none']\n\n.. note::\n'sag' and 'saga' fast convergence is only guaranteed on\nfeatures with approximately the same scale. You can\npreprocess the data with a scaler from :mod:`sklearn.preprocessing`.\n\n.. seealso::\nRefer to the User Guide for more information regarding\n:class:`LogisticRegression` and more specifically the\n`Table <https://scikit-learn.org/dev/modules/linear_model.html#logistic-regression>`_\nsummarazing solver/penalty supports.\n<!--\n# noqa: E501\n-->\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.22\nThe default solver changed from 'liblinear' to 'lbfgs' in 0.22.\n",
         "name": "solver",
-        "option": "optional"
+        "optional": true
       },
       {
         "default": 100,
         "description": "Maximum number of iterations taken for the solvers to converge.\n",
         "name": "max_iter",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       },
       {
         "default": "auto",
         "description": "If the option chosen is 'ovr', then a binary problem is fit for each\nlabel. For 'multinomial' the loss minimised is the multinomial loss fit\nacross the entire probability distribution, *even when the data is\nbinary*. 'multinomial' is unavailable when solver='liblinear'.\n'auto' selects 'ovr' if the data is binary, or if solver='liblinear',\nand otherwise selects 'multinomial'.\n\n.. versionadded:: 0.18\nStochastic Average Gradient descent solver for 'multinomial' case.\n.. versionchanged:: 0.22\nDefault changed from 'ovr' to 'auto' in 0.22.\n",
         "name": "multi_class",
-        "option": "optional"
+        "optional": true
       },
       {
         "default": 0,
         "description": "For the liblinear and lbfgs solvers set verbose to any positive\nnumber for verbosity.\n",
         "name": "verbose",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       },
       {
         "default": false,
         "description": "When set to True, reuse the solution of the previous call to fit as\ninitialization, otherwise, just erase the previous solution.\nUseless for liblinear solver. See :term:`the Glossary <warm_start>`.\n\n.. versionadded:: 0.17\n*warm_start* to support *lbfgs*, *newton-cg*, *sag*, *saga* solvers.\n",
         "name": "warm_start",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       },
       {
         "default": null,
         "description": "Number of CPU cores used when parallelizing over classes if\nmulti_class='ovr'\". This parameter is ignored when the ``solver`` is\nset to 'liblinear' regardless of whether 'multi_class' is specified or\nnot. ``None`` means 1 unless in a :obj:`joblib.parallel_backend`\ncontext. ``-1`` means using all processors.\nSee :term:`Glossary <n_jobs>` for more details.\n",
         "name": "n_jobs",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       },
       {
         "default": null,
         "description": "The Elastic-Net mixing parameter, with ``0 <= l1_ratio <= 1``. Only\nused if ``penalty='elasticnet'``. Setting ``l1_ratio=0`` is equivalent\nto using ``penalty='l2'``, while setting ``l1_ratio=1`` is equivalent\nto using ``penalty='l1'``. For ``0 < l1_ratio <1``, the penalty is a\ncombination of L1 and L2.\n",
         "name": "l1_ratio",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       }
     ]
@@ -1413,27 +1413,27 @@
         "default": 1.0,
         "description": "Additive (Laplace/Lidstone) smoothing parameter\n(0 for no smoothing).\n",
         "name": "alpha",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       },
       {
         "default": "0.0",
         "description": "Threshold for binarizing (mapping to booleans) of sample features.\nIf None, input is presumed to already consist of binary vectors.\n",
         "name": "binarize",
-        "option": "optional"
+        "optional": true
       },
       {
         "default": true,
         "description": "Whether to learn class prior probabilities or not.\nIf false, a uniform prior will be used.\n",
         "name": "fit_prior",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       },
       {
         "default": null,
         "description": "Prior probabilities of the classes. If specified, the priors are not\nadjusted according to the data.\n",
         "name": "class_prior",
-        "option": "optional"
+        "optional": true
       }
     ]
   },
@@ -1445,27 +1445,27 @@
         "default": 1.0,
         "description": "Additive (Laplace/Lidstone) smoothing parameter (0 for no smoothing).\n",
         "name": "alpha",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       },
       {
         "default": true,
         "description": "Only used in edge case with a single class in the training set.\n",
         "name": "fit_prior",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       },
       {
         "default": null,
         "description": "Prior probabilities of the classes. Not used.\n",
         "name": "class_prior",
-        "option": "optional"
+        "optional": true
       },
       {
         "default": false,
         "description": "Whether or not a second normalization of the weights is performed. The\ndefault behavior mirrors the implementations found in Mahout and Weka,\nwhich do not follow the full algorithm described in Table 9 of the\npaper.\n",
         "name": "norm",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       }
     ]
@@ -1478,21 +1478,21 @@
         "default": 1.0,
         "description": "Additive (Laplace/Lidstone) smoothing parameter\n(0 for no smoothing).\n",
         "name": "alpha",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       },
       {
         "default": true,
         "description": "Whether to learn class prior probabilities or not.\nIf false, a uniform prior will be used.\n",
         "name": "fit_prior",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       },
       {
         "default": null,
         "description": "Prior probabilities of the classes. If specified, the priors are not\nadjusted according to the data.\n",
         "name": "class_prior",
-        "option": "optional"
+        "optional": true
       }
     ]
   },
@@ -1504,33 +1504,33 @@
         "default": 5,
         "description": "Number of neighbors to use by default for :meth:`kneighbors` queries.\n",
         "name": "n_neighbors",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       },
       {
         "default": "uniform",
         "description": "Weight function used in prediction.  Possible values:\n\n- 'uniform' : uniform weights.  All points in each neighborhood\nare weighted equally.\n- 'distance' : weight points by the inverse of their distance.\nin this case, closer neighbors of a query point will have a\ngreater influence than neighbors which are further away.\n- [callable] : a user-defined function which accepts an\narray of distances, and returns an array of the same shape\ncontaining the weights.\n",
         "name": "weights",
-        "option": "optional"
+        "optional": true
       },
       {
         "default": "auto",
         "description": "Algorithm used to compute the nearest neighbors:\n\n- 'ball_tree' will use :class:`BallTree`\n- 'kd_tree' will use :class:`KDTree`\n- 'brute' will use a brute-force search.\n- 'auto' will attempt to decide the most appropriate algorithm\nbased on the values passed to :meth:`fit` method.\n\nNote: fitting on sparse input will override the setting of\nthis parameter, using brute force.\n",
         "name": "algorithm",
-        "option": "optional"
+        "optional": true
       },
       {
         "default": 30,
         "description": "Leaf size passed to BallTree or KDTree.  This can affect the\nspeed of the construction and query, as well as the memory\nrequired to store the tree.  The optimal value depends on the\nnature of the problem.\n",
         "name": "leaf_size",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       },
       {
         "default": 2,
         "description": "Power parameter for the Minkowski metric. When p = 1, this is\nequivalent to using manhattan_distance (l1), and euclidean_distance\n(l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used.\n",
         "name": "p",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       },
       {
@@ -1542,13 +1542,13 @@
         "default": null,
         "description": "Additional keyword arguments for the metric function.\n",
         "name": "metric_params",
-        "option": "optional"
+        "optional": true
       },
       {
         "default": null,
         "description": "The number of parallel jobs to run for neighbors search.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\nDoesn't affect :meth:`fit` method.\n",
         "name": "n_jobs",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       }
     ]
@@ -1561,7 +1561,7 @@
         "default": 5,
         "description": "Number of neighbors to use by default for :meth:`kneighbors` queries.\n",
         "name": "n_neighbors",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       },
       {
@@ -1572,20 +1572,20 @@
         "default": "auto",
         "description": "Algorithm used to compute the nearest neighbors:\n\n- 'ball_tree' will use :class:`BallTree`\n- 'kd_tree' will use :class:`KDTree`\n- 'brute' will use a brute-force search.\n- 'auto' will attempt to decide the most appropriate algorithm\nbased on the values passed to :meth:`fit` method.\n\nNote: fitting on sparse input will override the setting of\nthis parameter, using brute force.\n",
         "name": "algorithm",
-        "option": "optional"
+        "optional": true
       },
       {
         "default": 30,
         "description": "Leaf size passed to BallTree or KDTree.  This can affect the\nspeed of the construction and query, as well as the memory\nrequired to store the tree.  The optimal value depends on the\nnature of the problem.\n",
         "name": "leaf_size",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       },
       {
         "default": 2,
         "description": "Power parameter for the Minkowski metric. When p = 1, this is\nequivalent to using manhattan_distance (l1), and euclidean_distance\n(l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used.\n",
         "name": "p",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       },
       {
@@ -1597,13 +1597,13 @@
         "default": null,
         "description": "Additional keyword arguments for the metric function.\n",
         "name": "metric_params",
-        "option": "optional"
+        "optional": true
       },
       {
         "default": null,
         "description": "The number of parallel jobs to run for neighbors search.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\nDoesn't affect :meth:`fit` method.\n",
         "name": "n_jobs",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       }
     ]
@@ -1781,7 +1781,7 @@
         "default": true,
         "description": "If False, try to avoid a copy and do inplace scaling instead.\nThis is not guaranteed to always work inplace; e.g. if the data is\nnot a NumPy array or scipy.sparse CSR matrix, a copy may still be\nreturned.\n",
         "name": "copy",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       },
       {
@@ -1847,14 +1847,14 @@
         "default": true,
         "description": "Set to False to perform inplace binarization and avoid a copy (if\nthe input is already a numpy array or a scipy.sparse CSR matrix).\n",
         "name": "copy",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       },
       {
         "default": 0.0,
         "description": "Feature values below or equal to this are replaced by 0, above it by 1.\nThreshold may not be less than 0 for operations on sparse matrices.\n",
         "name": "threshold",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       }
     ]
@@ -1871,7 +1871,7 @@
         "default": null,
         "description": "Indicates an ordering for the class labels.\nAll entries should be unique (cannot contain duplicate classes).\n",
         "name": "classes",
-        "option": "optional"
+        "optional": true
       },
       {
         "default": false,
@@ -1979,70 +1979,70 @@
         "default": 1.0,
         "description": "Regularization parameter. The strength of the regularization is\ninversely proportional to C. Must be strictly positive. The penalty\nis a squared l2 penalty.\n",
         "name": "C",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       },
       {
         "default": "rbf",
         "description": "Specifies the kernel type to be used in the algorithm.\nIf none is given, 'rbf' will be used. If a callable is given it is\nused to pre-compute the kernel matrix from data matrices; that matrix\nshould be an array of shape ``(n_samples, n_samples)``.\n",
         "name": "kernel",
-        "option": "optional",
+        "optional": true,
         "type": "string"
       },
       {
         "default": 3,
         "description": "Degree of the polynomial kernel function ('poly').\nIgnored by all other kernels.\n",
         "name": "degree",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       },
       {
         "default": "auto",
         "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\n- if ``gamma='scale'`` (default) is passed then it uses\n1 / (n_features * X.var()) as value of gamma,\n- if 'auto', uses 1 / n_features.\n\n.. versionchanged:: 0.22\nThe default value of ``gamma`` changed from 'auto' to 'scale'.\n",
         "name": "gamma",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       },
       {
         "default": 0.0,
         "description": "Independent term in kernel function.\nIt is only significant in 'poly' and 'sigmoid'.\n",
         "name": "coef0",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       },
       {
         "default": false,
         "description": "Whether to enable probability estimates. This must be enabled prior\nto calling `fit`, will slow down that method as it internally uses\n5-fold cross-validation, and `predict_proba` may be inconsistent with\n`predict`. Read more in the :ref:`User Guide <scores_probabilities>`.\n",
         "name": "probability",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       },
       {
         "default": true,
         "description": "Whether to use the shrinking heuristic.\nSee the :ref:`User Guide <shrinking_svm>`.\n",
         "name": "shrinking",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       },
       {
         "default": 0.001,
         "description": "Tolerance for stopping criterion.\n",
         "name": "tol",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       },
       {
         "default": 200.0,
         "description": "Specify the size of the kernel cache (in MB).\n",
         "name": "cache_size",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       },
       {
         "default": null,
         "description": "Set the parameter C of class i to class_weight[i]*C for\nSVC. If not given, all classes are supposed to have\nweight one.\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``.\n",
         "name": "class_weight",
-        "option": "optional"
+        "optional": true
       },
       {
         "default": false,
@@ -2054,7 +2054,7 @@
         "default": -1,
         "description": "Hard limit on iterations within solver, or -1 for no limit.\n",
         "name": "max_iter",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       },
       {
@@ -2066,14 +2066,14 @@
         "default": null,
         "description": "Controls the pseudo random number generation for shuffling the data for\nprobability estimates. Ignored when `probability` is False.\nPass an int for reproducible output across multiple function calls.\nSee :term:`Glossary <random_state>`.\n",
         "name": "random_state",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       },
       {
         "default": false,
         "description": "If true, ``decision_function_shape='ovr'``, and number of classes > 2,\n:term:`predict` will break ties according to the confidence values of\n:term:`decision_function`; otherwise the first class among the tied\nclasses is returned. Please note that breaking ties comes at a\nrelatively high computational cost compared to a simple predict.\n\n.. versionadded:: 0.22\n",
         "name": "break_ties",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       }
     ]
@@ -2086,70 +2086,70 @@
         "default": 1.0,
         "description": "Regularization parameter. The strength of the regularization is\ninversely proportional to C. Must be strictly positive. The penalty\nis a squared l2 penalty.\n",
         "name": "C",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       },
       {
         "default": "rbf",
         "description": "Specifies the kernel type to be used in the algorithm.\nIf none is given, 'rbf' will be used. If a callable is given it is\nused to pre-compute the kernel matrix from data matrices; that matrix\nshould be an array of shape ``(n_samples, n_samples)``.\n",
         "name": "kernel",
-        "option": "optional",
+        "optional": true,
         "type": "string"
       },
       {
         "default": 3,
         "description": "Degree of the polynomial kernel function ('poly').\nIgnored by all other kernels.\n",
         "name": "degree",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       },
       {
         "default": "auto",
         "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\n- if ``gamma='scale'`` (default) is passed then it uses\n1 / (n_features * X.var()) as value of gamma,\n- if 'auto', uses 1 / n_features.\n\n.. versionchanged:: 0.22\nThe default value of ``gamma`` changed from 'auto' to 'scale'.\n",
         "name": "gamma",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       },
       {
         "default": 0.0,
         "description": "Independent term in kernel function.\nIt is only significant in 'poly' and 'sigmoid'.\n",
         "name": "coef0",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       },
       {
         "default": true,
         "description": "Whether to use the shrinking heuristic.\nSee the :ref:`User Guide <shrinking_svm>`.\n",
         "name": "shrinking",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       },
       {
         "default": false,
         "description": "Whether to enable probability estimates. This must be enabled prior\nto calling `fit`, will slow down that method as it internally uses\n5-fold cross-validation, and `predict_proba` may be inconsistent with\n`predict`. Read more in the :ref:`User Guide <scores_probabilities>`.\n",
         "name": "probability",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       },
       {
         "default": 0.001,
         "description": "Tolerance for stopping criterion.\n",
         "name": "tol",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       },
       {
         "default": 200.0,
         "description": "Specify the size of the kernel cache (in MB).\n",
         "name": "cache_size",
-        "option": "optional",
+        "optional": true,
         "type": "float32"
       },
       {
         "default": null,
         "description": "Set the parameter C of class i to class_weight[i]*C for\nSVC. If not given, all classes are supposed to have\nweight one.\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``.\n",
         "name": "class_weight",
-        "option": "optional"
+        "optional": true
       },
       {
         "default": false,
@@ -2161,7 +2161,7 @@
         "default": -1,
         "description": "Hard limit on iterations within solver, or -1 for no limit.\n",
         "name": "max_iter",
-        "option": "optional",
+        "optional": true,
         "type": "int32"
       },
       {
@@ -2173,13 +2173,13 @@
         "default": null,
         "description": "Controls the pseudo random number generation for shuffling the data for\nprobability estimates. Ignored when `probability` is False.\nPass an int for reproducible output across multiple function calls.\nSee :term:`Glossary <random_state>`.\n",
         "name": "random_state",
-        "option": "optional"
+        "optional": true
       },
       {
         "default": false,
         "description": "If true, ``decision_function_shape='ovr'``, and number of classes > 2,\n:term:`predict` will break ties according to the confidence values of\n:term:`decision_function`; otherwise the first class among the tied\nclasses is returned. Please note that breaking ties comes at a\nrelatively high computational cost compared to a simple predict.\n\n.. versionadded:: 0.22\n",
         "name": "break_ties",
-        "option": "optional",
+        "optional": true,
         "type": "boolean"
       }
     ]

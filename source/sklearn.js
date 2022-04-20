@@ -245,7 +245,8 @@ sklearn.Node = class {
                 this._inputs.push(paramter);
             }
             else if (!name.startsWith('_')) {
-                this._attributes.push(new sklearn.Attribute(metadata.attribute(this._type, name), name, value));
+                const attribute = new sklearn.Attribute(metadata.attribute(type, name), name, value);
+                this._attributes.push(attribute);
             }
         }
     }
@@ -281,15 +282,23 @@ sklearn.Attribute = class {
         this._name = name;
         this._value = value;
         if (metadata) {
-            if (metadata.option === 'optional' && this._value == null) {
+            if (metadata.optional && this._value == null) {
                 this._visible = false;
             }
             else if (metadata.visible === false) {
                 this._visible = false;
             }
-            else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
-                if (sklearn.Attribute._isEquivalent(metadata.default, this._value)) {
-                    this._visible = false;
+            else if (metadata.default !== undefined) {
+                if (Array.isArray(value)) {
+                    if (Array.isArray(metadata.default)) {
+                        this._visible = value.length !== metadata.default || !this.value.every((item, index) => item == metadata.default[index]);
+                    }
+                    else {
+                        this._visible = !this.value.every((item) => item == metadata.default);
+                    }
+                }
+                else {
+                    this._visible = this.value !== metadata.default;
                 }
             }
         }
@@ -317,66 +326,6 @@ sklearn.Attribute = class {
 
     get visible() {
         return this._visible == false ? false : true;
-    }
-
-    static _isEquivalent(a, b) {
-        if (a === b) {
-            return a !== 0 || 1 / a === 1 / b;
-        }
-        if (a == null || b == null) {
-            return false;
-        }
-        if (a !== a) {
-            return b !== b;
-        }
-        const type = typeof a;
-        if (type !== 'function' && type !== 'object' && typeof b != 'object') {
-            return false;
-        }
-        const className = toString.call(a);
-        if (className !== toString.call(b)) {
-            return false;
-        }
-        switch (className) {
-            case '[object RegExp]':
-            case '[object String]':
-                return '' + a === '' + b;
-            case '[object Number]': {
-                if (+a !== +a) {
-                    return +b !== +b;
-                }
-                return +a === 0 ? 1 / +a === 1 / b : +a === +b;
-            }
-            case '[object Date]':
-            case '[object Boolean]': {
-                return +a === +b;
-            }
-            case '[object Array]': {
-                let length = a.length;
-                if (length !== b.length) {
-                    return false;
-                }
-                while (length--) {
-                    if (!sklearn.Attribute._isEquivalent(a[length], b[length])) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        }
-
-        const keys = Object.keys(a);
-        let size = keys.length;
-        if (Object.keys(b).length != size) {
-            return false;
-        }
-        while (size--) {
-            const key = keys[size];
-            if (!(Object.prototype.hasOwnProperty.call(b, key) && sklearn.Attribute._isEquivalent(a[key], b[key]))) {
-                return false;
-            }
-        }
-        return true;
     }
 };
 

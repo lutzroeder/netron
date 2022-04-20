@@ -37,7 +37,7 @@ def update_description(schema, lines):
             lines[i] = lines[i].lstrip(' ')
         schema['description'] = '\n'.join(lines)
 
-def update_attribute(schema, name, description, attribute_type, option, default_value):
+def update_attribute(schema, name, description, attribute_type, optional, default_value):
     attribute = None
     if not 'attributes' in schema:
         schema['attributes'] = []
@@ -52,8 +52,8 @@ def update_attribute(schema, name, description, attribute_type, option, default_
     attribute['description'] = description
     if attribute_type:
         attribute['type'] = attribute_type
-    if option:
-        attribute['option'] = option
+    if optional:
+        attribute['optional'] = True
     if default_value:
         if attribute_type == 'float32':
             if default_value == 'None':
@@ -205,15 +205,15 @@ def update_attributes(schema, lines):
         #    v = 'map'
         # else:
         #    raise Exception("Unknown attribute type '" + attribute_type + "'.")
-        option = None
+        optional = False
         default = None
         while len(line.strip(' ')) > 0:
             line = line.strip(' ')
             if line.startswith('optional ') or line.startswith('optional,'):
-                option = 'optional'
+                optional = True
                 line = line[9:]
             elif line.startswith('optional'):
-                option = 'optional'
+                optional = True
                 line = ''
             elif line.startswith('('):
                 close = line.index(')')
@@ -240,7 +240,7 @@ def update_attributes(schema, lines):
             attribute_lines.append(lines[index].lstrip(' '))
             index = index + 1
         description = '\n'.join(attribute_lines)
-        update_attribute(schema, name, description, attribute_type, option, default)
+        update_attribute(schema, name, description, attribute_type, optional, default)
 
 for schema in json_root:
     name = schema['name']
