@@ -517,7 +517,8 @@
     "category": "Normalization",
     "attributes": [
       { "name": "channels", "default": 0 },
-      { "name": "eps", "type": "float32", "default": 0.001 }
+      { "name": "eps", "type": "float32", "default": 0.001 },
+      { "name": "affine", "type": "int32", "default": 1 }
     ]
   },
   {
