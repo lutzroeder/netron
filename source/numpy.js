@@ -541,6 +541,7 @@ numpy.Utility = class {
                 }
                 return weights;
             }
+            return null;
         };
         const keys = [ '', 'blobs', 'model' ];
         for (const key of keys) {

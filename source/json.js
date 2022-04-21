@@ -253,6 +253,7 @@ json.TextReader = class {
             case '-': return this._number();
             default: this._unexpected();
         }
+        return null;
     }
 
     _number() {

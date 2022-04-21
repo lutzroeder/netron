@@ -2144,6 +2144,7 @@ dagre.Graph = class {
                 return parent;
             }
         }
+        return null;
     }
 
     children(v) {
@@ -2156,6 +2157,7 @@ dagre.Graph = class {
         else if (this.hasNode(v)) {
             return [];
         }
+        return null;
     }
 
     predecessors(v) {

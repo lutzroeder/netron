@@ -3472,6 +3472,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                 return value;
             }
         }
+        return undefined;
     }
 
     push(node) {

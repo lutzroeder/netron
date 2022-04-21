@@ -1631,7 +1631,7 @@ onnx.GraphContext = class {
             }
             default: {
                 // throw new onnx.Error("Unsupported tensor type '" + type.value + "'.");
-                break;
+                return undefined;
             }
         }
     }

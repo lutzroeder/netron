@@ -13,4 +13,5 @@ exports.default = function (context) {
             });
         }
     }
+    return null;
 };

@@ -518,6 +518,7 @@ view.View = class {
             this._sidebar.close();
             return this._updateGraph(this._model, this._graphs.slice(1));
         }
+        return null;
     }
 
     renderGraph(model, graph) {
@@ -1612,6 +1613,7 @@ view.ModelFactoryService = class {
             }
 
             const modelContext = new view.ModelContext(context, containers);
+            /* eslint-disable consistent-return */
             return this._openContext(modelContext).then((model) => {
                 if (model) {
                     return model;
@@ -1626,6 +1628,7 @@ view.ModelFactoryService = class {
                 }
                 this._unsupported(modelContext);
             });
+            /* eslint-enable consistent-return */
         });
     }
 

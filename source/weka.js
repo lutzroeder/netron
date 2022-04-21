@@ -133,7 +133,7 @@ java.io.InputObjectStream = class {
                 return classDesc;
             }
             case 0x7D: // TC_PROXYCLASSDESC
-                break;
+                return null;
             default:
                 throw new java.io.Error("Unsupported code '" + code + "'.");
         }

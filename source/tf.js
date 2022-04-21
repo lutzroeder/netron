@@ -1959,6 +1959,7 @@ tf.EventFileReader = class {
             this._stream.skip(4); // masked crc of data
             return event;
         }
+        return null;
     }
 };
 

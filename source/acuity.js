@@ -472,6 +472,7 @@ acuity.Inference = class {
                 const out_h = ~~((inputs[0][1] + params.stride - 1) / params.stride);
                 return [ [ inputs[0][0], out_h, params.weights ] ];
             }
+            return null;
         });
         operators.set('convolution', (inputs, params) => {
             if (params.padding == 'VALID') {
@@ -484,6 +485,7 @@ acuity.Inference = class {
                 const out_w = ~~((inputs[0][2] + params.stride_w - 1) / params.stride_w);
                 return [ [ inputs[0][0], out_h, out_w, params.weights ] ];
             }
+            return null;
         });
         operators.set('deconvolution', (inputs, params) => {
             return [ params.output_shape.map((item, index) => item == 0 ? inputs[0][index] : item) ];
@@ -540,6 +542,7 @@ acuity.Inference = class {
                 const out_w = ~~((inputs[0][2] + params.stride_w - 1) / params.stride_w);
                 return [ [inputs[0][0], out_h, out_w, inputs[0][3]] ];
             }
+            return null;
         });
         operators.set('reduce', (inputs, params) => {
             const newShape = inputs[0].slice();

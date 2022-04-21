@@ -935,6 +935,7 @@ xml.TextReader = class {
         }
     }
 
+    /* eslint-disable consistent-return */
     _entityReference() {
         if (this._char === '&') {
             const position = this._position;
@@ -982,6 +983,7 @@ xml.TextReader = class {
         }
         this._unexpected();
     }
+    /* eslint-enable consistent-return */
 
     _comment() {
         const data = this._terminal('--');

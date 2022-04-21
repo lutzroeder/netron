@@ -523,7 +523,7 @@ const download = (folder, targets, sources) => {
         if (sources.length > 0) {
             return download(folder, targets, sources);
         }
-        return;
+        return null;
     });
 };
 
@@ -755,24 +755,22 @@ const next = () => {
     clearLine();
 
     const sources = item.source;
-    return download(folder, targets, sources).then(() => {
+    download(folder, targets, sources).then(() => {
         return loadModel(folder + '/' + target, item).then((model) => {
             return renderModel(model, item).then(() => {
-                if (item.error) {
-                    console.error('Expected error.');
+                if (!item.error) {
+                    next();
+                    return;
                 }
-                else {
-                    return next();
-                }
+                console.error('Expected error.');
             });
         });
     }).catch((error) => {
-        if (!item.error || item.error != error.message) {
-            console.error(error.message);
+        if (item.error && item.error == error.message) {
+            next();
+            return;
         }
-        else {
-            return next();
-        }
+        console.error(error.message);
     });
 };
 

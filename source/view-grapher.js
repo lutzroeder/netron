@@ -86,6 +86,7 @@ grapher.Graph = class {
                 return parent;
             }
         }
+        return null;
     }
 
     children(key) {
@@ -102,6 +103,7 @@ grapher.Graph = class {
         else if (this.hasNode(key)) {
             return [];
         }
+        return null;
     }
 
     build(document, origin) {

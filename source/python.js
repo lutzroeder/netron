@@ -2458,6 +2458,7 @@ python.Execution = class {
                 if (safe) {
                     return null;
                 }
+                throw err;
             }
         });
         this.registerFunction('dill.dill._load_type', function(name) {
@@ -2909,6 +2910,7 @@ python.Execution = class {
                 return value;
             }
         }
+        return undefined;
     }
 
     statement(statement, context) {
@@ -3028,6 +3030,7 @@ python.Execution = class {
                 throw new python.Error("Unsupported statement '" + statement.type + "'.");
             }
         }
+        return undefined;
     }
 
 
@@ -3038,7 +3041,7 @@ python.Execution = class {
                 const target = expression.target;
                 if (target.type === 'id') {
                     context.set(target.value, this.expression(expression.expression, context));
-                    return;
+                    return undefined;
                 }
                 else if (target.type === '[]') {
                     if (target.target.type === 'id' &&
@@ -3049,13 +3052,13 @@ python.Execution = class {
                             context.set(target.target.value, context.get(target.target.value) || {});
                         }
                         context.get(target.target.value)[index] = this.expression(expression.expression, context);
-                        return;
+                        return undefined;
                     }
                 }
                 else if (target.type === '.' &&
                     target.member.type === 'id') {
                     this.expression(target.target, context)[target.member.value] = this.expression(expression.expression, context);
-                    return;
+                    return undefined;
                 }
                 else if (target.type === 'tuple') {
                     context.target.push(target.value);
@@ -3071,7 +3074,7 @@ python.Execution = class {
                         for (let i = 0; i < value.length; i++) {
                             context.set(target.value[i].value, value[i]);
                         }
-                        return;
+                        return undefined;
                     }
                 }
                 break;
@@ -3178,6 +3181,7 @@ python.Execution = class {
                 throw new python.Error("Unsupported expression '" + expression.type + "'.");
             }
         }
+        return undefined;
     }
 
     _target(expression, context) {
