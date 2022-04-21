@@ -2059,7 +2059,7 @@
       },
       {
         "default": "ovr",
-        "description": "Whether to return a one-vs-rest ('ovr') decision function of shape\n(n_samples, n_classes) as all other classifiers, or the original\none-vs-one ('ovo') decision function of libsvm which has shape\n(n_samples, n_classes * (n_classes - 1) / 2). However, one-vs-one\n('ovo') is always used as multi-class strategy. The parameter is\nignored for binary classification.\n\n.. versionchanged:: 0.19\ndecision_function_shape is 'ovr' by default.\n\n.. versionadded:: 0.17\n*decision_function_shape='ovr'* is recommended.\n\n.. versionchanged:: 0.17\nDeprecated *decision_function_shape='ovo' and None*.\n",
+        "description": "Whether to return a one-vs-rest ('ovr') decision function of shape\n(n_samples, n_classes) as all other classifiers, or the original\none-vs-one ('ovo') decision function of libsvm which has shape\n(n_samples, n_classes * (n_classes - 1) / 2). However, note that\ninternally, one-vs-one ('ovo') is always used as a multi-class strategy\nto train models; an ovr matrix is only constructed from the ovo matrix.\nThe parameter is ignored for binary classification.\n\n.. versionchanged:: 0.19\ndecision_function_shape is 'ovr' by default.\n\n.. versionadded:: 0.17\n*decision_function_shape='ovr'* is recommended.\n\n.. versionchanged:: 0.17\nDeprecated *decision_function_shape='ovo' and None*.\n",
         "name": "decision_function_shape"
       },
       {
@@ -2166,7 +2166,7 @@
       },
       {
         "default": "ovr",
-        "description": "Whether to return a one-vs-rest ('ovr') decision function of shape\n(n_samples, n_classes) as all other classifiers, or the original\none-vs-one ('ovo') decision function of libsvm which has shape\n(n_samples, n_classes * (n_classes - 1) / 2). However, one-vs-one\n('ovo') is always used as multi-class strategy. The parameter is\nignored for binary classification.\n\n.. versionchanged:: 0.19\ndecision_function_shape is 'ovr' by default.\n\n.. versionadded:: 0.17\n*decision_function_shape='ovr'* is recommended.\n\n.. versionchanged:: 0.17\nDeprecated *decision_function_shape='ovo' and None*.\n",
+        "description": "Whether to return a one-vs-rest ('ovr') decision function of shape\n(n_samples, n_classes) as all other classifiers, or the original\none-vs-one ('ovo') decision function of libsvm which has shape\n(n_samples, n_classes * (n_classes - 1) / 2). However, note that\ninternally, one-vs-one ('ovo') is always used as a multi-class strategy\nto train models; an ovr matrix is only constructed from the ovo matrix.\nThe parameter is ignored for binary classification.\n\n.. versionchanged:: 0.19\ndecision_function_shape is 'ovr' by default.\n\n.. versionadded:: 0.17\n*decision_function_shape='ovr'* is recommended.\n\n.. versionchanged:: 0.17\nDeprecated *decision_function_shape='ovo' and None*.\n",
         "name": "decision_function_shape"
       },
       {
