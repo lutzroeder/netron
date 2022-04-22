@@ -9142,6 +9142,17 @@
     ]
   },
   {
+    "name": "ConfigureAndInitializeGlobalTPU",
+    "summary": "An op that sets up the centralized structures for a distributed TPU system.",
+    "outputs": [
+      {
+        "name": "output",
+        "description": "A vector containing the global TPU id of each TPU on the host.",
+        "type": 3
+      }
+    ]
+  },
+  {
     "name": "ConfigureDistributedTPU",
     "summary": "Sets up the centralized structures for a distributed TPU system.",
     "attributes": [
@@ -9885,6 +9896,36 @@
       {
         "name": "input",
         "description": "Input tensor.",
+        "typeAttr": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "CopyToMesh",
+    "attributes": [
+      {
+        "name": "layout",
+        "type": "string"
+      },
+      {
+        "name": "source_layout",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "T",
+        "type": "type"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
         "typeAttr": "T"
       }
     ],
@@ -11425,6 +11466,86 @@
       {
         "name": "out",
         "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "DTensorRestoreV2",
+    "attributes": [
+      {
+        "name": "input_shapes",
+        "type": "shape[]"
+      },
+      {
+        "name": "input_layouts",
+        "type": "string[]"
+      },
+      {
+        "name": "dtypes",
+        "type": "type[]",
+        "minimum": 1
+      }
+    ],
+    "inputs": [
+      {
+        "name": "prefix",
+        "type": 7
+      },
+      {
+        "name": "tensor_names",
+        "type": 7
+      },
+      {
+        "name": "shape_and_slices",
+        "type": 7
+      }
+    ],
+    "outputs": [
+      {
+        "name": "tensors",
+        "typeListAttr": "dtypes"
+      }
+    ]
+  },
+  {
+    "name": "DTensorShardedPrefix",
+    "attributes": [
+      {
+        "name": "dtypes",
+        "type": "type[]",
+        "minimum": 1
+      }
+    ],
+    "inputs": [
+      {
+        "name": "prefix",
+        "type": 7
+      },
+      {
+        "name": "tensor_names",
+        "type": 7
+      },
+      {
+        "name": "shape_and_slices",
+        "type": 7
+      },
+      {
+        "name": "mesh",
+        "type": 7
+      },
+      {
+        "name": "layouts",
+        "type": 7
+      },
+      {
+        "name": "tensors",
+        "typeListAttr": "dtypes"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "type": 7
       }
     ]
   },
@@ -38492,6 +38613,31 @@
     ]
   },
   {
+    "name": "Relayout",
+    "attributes": [
+      {
+        "name": "layout",
+        "type": "string"
+      },
+      {
+        "name": "T",
+        "type": "type"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "typeAttr": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
     "name": "Relu",
     "category": "Activation",
     "summary": "Computes rectified linear: `max(features, 0)`.",
@@ -46998,6 +47144,17 @@
     "name": "ShutdownDistributedTPU",
     "summary": "Shuts down a running distributed TPU system.",
     "description": "The op returns an error if no system is running."
+  },
+  {
+    "name": "ShutdownTPUSystem",
+    "summary": "An op that shuts down the TPU system.",
+    "outputs": [
+      {
+        "name": "success",
+        "description": "A boolean that indicates if the shut down process succeeds.",
+        "type": 10
+      }
+    ]
   },
   {
     "name": "Sigmoid",
@@ -59408,13 +59565,10 @@
   },
   {
     "name": "UnsortedSegmentJoin",
-    "summary": "Joins the elements of `inputs` based on `segment_ids`.",
-    "description": "Computes the string join along segments of a tensor.\nGiven `segment_ids` with rank `N` and `data` with rank `N+M`:\n\n    `output[i, k1...kM] = strings.join([data[j1...jN, k1...kM])`\n\nwhere the join is over all [j1...jN] such that segment_ids[j1...jN] = i.\nStrings are joined in row-major order.\n\nFor example:\n\n```python\ninputs = [['Y', 'q', 'c'], ['Y', '6', '6'], ['p', 'G', 'a']]\noutput_array = string_ops.unsorted_segment_join(inputs=inputs,\n                                                segment_ids=[1, 0, 1],\n                                                num_segments=2,\n                                                separator=':'))\n# output_array ==> [['Y', '6', '6'], ['Y:p', 'q:G', 'c:a']]\n\n\ninputs = ['this', 'is', 'a', 'test']\noutput_array = string_ops.unsorted_segment_join(inputs=inputs,\n                                                segment_ids=[0, 0, 0, 0],\n                                                num_segments=1,\n                                                separator=':'))\n# output_array ==> ['this:is:a:test']\n```",
     "attributes": [
       {
         "name": "separator",
         "type": "string",
-        "description": "The separator to use when joining.",
         "default": ""
       },
       {
@@ -59435,17 +59589,14 @@
     "inputs": [
       {
         "name": "inputs",
-        "description": "The input to be joined.",
         "type": 7
       },
       {
         "name": "segment_ids",
-        "description": "A tensor whose shape is a prefix of data.shape.  Negative segment ids are not\nsupported.",
         "typeAttr": "Tindices"
       },
       {
         "name": "num_segments",
-        "description": "A scalar.",
         "typeAttr": "Tnumsegments"
       }
     ],
