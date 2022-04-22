@@ -1204,6 +1204,13 @@
     ]
   },
   {
+    "name": "FormatTranspose",
+    "attributes": [
+      { "name": "src_format", "type": "Format", "default": "NHWC" },
+      { "name": "dst_format", "type": "Format", "default": "NHWC" }
+    ]
+  },
+  {
     "name": "FullConnection",
     "category": "Layer",
     "attributes": [

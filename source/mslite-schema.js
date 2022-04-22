@@ -382,6 +382,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 206: return $root.mindspore.schema.RandomNormal.decode(reader, position);
             case 207: return $root.mindspore.schema.NLLLoss.decode(reader, position);
             case 208: return $root.mindspore.schema.NLLLossGrad.decode(reader, position);
+            case 209: return $root.mindspore.schema.FormatTranspose.decode(reader, position);
             default: return undefined;
         }
     }
@@ -596,6 +597,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'RandomNormal': return $root.mindspore.schema.RandomNormal.decodeText(reader, json);
             case 'NLLLoss': return $root.mindspore.schema.NLLLoss.decodeText(reader, json);
             case 'NLLLossGrad': return $root.mindspore.schema.NLLLossGrad.decodeText(reader, json);
+            case 'FormatTranspose': return $root.mindspore.schema.FormatTranspose.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -4131,6 +4133,23 @@ $root.mindspore.schema.NLLLossGrad = class NLLLossGrad {
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.NLLLossGrad();
         $.reduction = $root.mindspore.schema.Reduction[json.reduction];
+        return $;
+    }
+};
+
+$root.mindspore.schema.FormatTranspose = class FormatTranspose {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.FormatTranspose();
+        $.src_format = reader.int32_(position, 4, 1);
+        $.dst_format = reader.int32_(position, 6, 1);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.FormatTranspose();
+        $.src_format = $root.mindspore.schema.Format[json.src_format];
+        $.dst_format = $root.mindspore.schema.Format[json.dst_format];
         return $;
     }
 };
