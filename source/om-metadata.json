@@ -1699,6 +1699,7 @@
   },
   {
     "name": "PRelu",
+    "category": "Activation",
     "inputs": [
       { "name": "x" },
       { "name": "weight" }
