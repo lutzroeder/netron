@@ -1082,7 +1082,7 @@ view.Node = class extends grapher.Node {
 
             for (const attribute of sortedAttributes) {
                 if (attribute.visible) {
-                    let value = sidebar.NodeSidebar.formatAttributeValue(attribute.value, attribute.type);
+                    let value = new sidebar.Formatter(attribute.value, attribute.type).toString();
                     if (value && value.length > 25) {
                         value = value.substring(0, 25) + '\u2026';
                     }

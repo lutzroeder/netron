@@ -649,7 +649,7 @@ const loadModel = (target, item) => {
                 for (const attribute of node.attributes) {
                     attribute.name.toString();
                     attribute.name.length;
-                    let value = sidebar.NodeSidebar.formatAttributeValue(attribute.value, attribute.type);
+                    let value = new sidebar.Formatter(attribute.value, attribute.type).toString();
                     if (value && value.length > 1000) {
                         value = value.substring(0, 1000) + '...';
                     }

@@ -269,104 +269,6 @@ sidebar.NodeSidebar = class {
             }
         }
     }
-
-    static formatAttributeValue(value, type, quote) {
-        if (typeof value === 'function') {
-            return value();
-        }
-        if (value && (value instanceof base.Int64 || value instanceof base.Uint64)) {
-            return value.toString();
-        }
-        if (Number.isNaN(value)) {
-            return 'NaN';
-        }
-        switch (type) {
-            case 'shape':
-                return value ? value.toString() : '(null)';
-            case 'shape[]':
-                if (value && !Array.isArray(value)) {
-                    throw new Error("Invalid shape '" + JSON.stringify(value) + "'.");
-                }
-                return value ? value.map((item) => item.toString()).join(', ') : '(null)';
-            case 'graph':
-                return value ? value.name : '(null)';
-            case 'graph[]':
-                return value ? value.map((graph) => graph.name).join(', ') : '(null)';
-            case 'tensor':
-                if (value && value.type && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length == 0) {
-                    return value.toString();
-                }
-                return '[...]';
-            case 'function':
-                return value.type.name;
-            case 'function[]':
-                return value ? value.map((item) => item.type.name).join(', ') : '(null)';
-            default:
-                break;
-        }
-        if (typeof value === 'string' && (!type || type != 'string')) {
-            return quote ? '"' + value + '"' : value;
-        }
-        if (Array.isArray(value)) {
-            if (value.length == 0) {
-                return quote ? '[]' : '';
-            }
-            let ellipsis = false;
-            if (value.length > 1000) {
-                value = value.slice(0, 1000);
-                ellipsis = true;
-            }
-            const itemType = (type && type.endsWith('[]')) ? type.substring(0, type.length - 2) : null;
-            const array = value.map((item) => {
-                if (item && (item instanceof base.Int64 || item instanceof base.Uint64)) {
-                    return item.toString();
-                }
-                if (Number.isNaN(item)) {
-                    return 'NaN';
-                }
-                const quote = !itemType || itemType === 'string';
-                return sidebar.NodeSidebar.formatAttributeValue(item, itemType, quote);
-            });
-            if (ellipsis) {
-                array.push('\u2026');
-            }
-            return quote ? [ '[', array.join(', '), ']' ].join(' ') : array.join(', ');
-        }
-        if (value === null) {
-            return quote ? 'null' : '';
-        }
-        if (value === undefined) {
-            return 'undefined';
-        }
-        if (value !== Object(value)) {
-            return value.toString();
-        }
-        const list = [];
-        const keys = Object.keys(value).filter((key) => !key.startsWith('__') && !key.endsWith('__'));
-        if (keys.length == 1) {
-            list.push(sidebar.NodeSidebar.formatAttributeValue(value[Object.keys(value)[0]], null, true));
-        }
-        else {
-            for (const key of keys) {
-                list.push(key + ': ' + sidebar.NodeSidebar.formatAttributeValue(value[key], null, true));
-            }
-        }
-        let objectType = value.__type__;
-        if (!objectType && value.constructor.name && value.constructor.name !== 'Object') {
-            objectType = value.constructor.name;
-        }
-        if (objectType) {
-            return objectType + (list.length == 0 ? '()' : [ '(', list.join(', '), ')' ].join(''));
-        }
-        switch (list.length) {
-            case 0:
-                return quote ? '()' : '';
-            case 1:
-                return list[0];
-            default:
-                return quote ? [ '(', list.join(', '), ')' ].join(' ') : list.join(', ');
-        }
-    }
 };
 
 sidebar.NameValueView = class {
@@ -534,7 +436,7 @@ class NodeAttributeView {
                 break;
             }
             default: {
-                let content = sidebar.NodeSidebar.formatAttributeValue(value, type);
+                let content = new sidebar.Formatter(value, type).toString();
                 if (content && content.length > 1000) {
                     content = content.substring(0, 1000) + '\u2026';
                 }
@@ -1471,6 +1373,123 @@ sidebar.FindSidebar = class {
     }
 };
 
+sidebar.Formatter = class {
+
+    constructor(value, type, quote) {
+        this._value = value;
+        this._type = type;
+        this._quote = quote;
+        this._values = new Set();
+    }
+
+    toString() {
+        return this._format(this._value, this._type, this._quote);
+    }
+
+    _format(value, type, quote) {
+
+        if (typeof value === 'function') {
+            return value();
+        }
+        if (value && (value instanceof base.Int64 || value instanceof base.Uint64)) {
+            return value.toString();
+        }
+        if (Number.isNaN(value)) {
+            return 'NaN';
+        }
+        switch (type) {
+            case 'shape':
+                return value ? value.toString() : '(null)';
+            case 'shape[]':
+                if (value && !Array.isArray(value)) {
+                    throw new Error("Invalid shape '" + JSON.stringify(value) + "'.");
+                }
+                return value ? value.map((item) => item.toString()).join(', ') : '(null)';
+            case 'graph':
+                return value ? value.name : '(null)';
+            case 'graph[]':
+                return value ? value.map((graph) => graph.name).join(', ') : '(null)';
+            case 'tensor':
+                if (value && value.type && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length == 0) {
+                    return value.toString();
+                }
+                return '[...]';
+            case 'function':
+                return value.type.name;
+            case 'function[]':
+                return value ? value.map((item) => item.type.name).join(', ') : '(null)';
+            default:
+                break;
+        }
+        if (typeof value === 'string' && (!type || type != 'string')) {
+            return quote ? '"' + value + '"' : value;
+        }
+        if (Array.isArray(value)) {
+            if (value.length == 0) {
+                return quote ? '[]' : '';
+            }
+            let ellipsis = false;
+            if (value.length > 1000) {
+                value = value.slice(0, 1000);
+                ellipsis = true;
+            }
+            const itemType = (type && type.endsWith('[]')) ? type.substring(0, type.length - 2) : null;
+            const array = value.map((item) => {
+                if (item && (item instanceof base.Int64 || item instanceof base.Uint64)) {
+                    return item.toString();
+                }
+                if (Number.isNaN(item)) {
+                    return 'NaN';
+                }
+                const quote = !itemType || itemType === 'string';
+                return this._format(item, itemType, quote);
+            });
+            if (ellipsis) {
+                array.push('\u2026');
+            }
+            return quote ? [ '[', array.join(', '), ']' ].join(' ') : array.join(', ');
+        }
+        if (value === null) {
+            return quote ? 'null' : '';
+        }
+        if (value === undefined) {
+            return 'undefined';
+        }
+        if (value !== Object(value)) {
+            return value.toString();
+        }
+        if (this._values.has(value)) {
+            return '\u2026';
+        }
+        this._values.add(value);
+        const list = [];
+        const entries = Object.entries(value).filter((entry) => !entry[0].startsWith('__') && !entry[0].endsWith('__'));
+        if (entries.length == 1) {
+            list.push(this._format(entries[0][1], null, true));
+        }
+        else {
+            for (const entry of entries) {
+                list.push(entry[0] + ': ' + this._format(entry[1], null, true));
+            }
+        }
+        let objectType = value.__type__;
+        if (!objectType && value.constructor.name && value.constructor.name !== 'Object') {
+            objectType = value.constructor.name;
+        }
+        if (objectType) {
+            return objectType + (list.length == 0 ? '()' : [ '(', list.join(', '), ')' ].join(''));
+        }
+        switch (list.length) {
+            case 0:
+                return quote ? '()' : '';
+            case 1:
+                return list[0];
+            default:
+                return quote ? [ '(', list.join(', '), ')' ].join(' ') : list.join(', ');
+        }
+    }
+};
+
 const markdown = {};
 
 markdown.Generator = class {
@@ -2227,4 +2246,5 @@ if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.NodeSidebar = sidebar.NodeSidebar;
     module.exports.DocumentationSidebar = sidebar.DocumentationSidebar;
     module.exports.FindSidebar = sidebar.FindSidebar;
+    module.exports.Formatter = sidebar.Formatter;
 }

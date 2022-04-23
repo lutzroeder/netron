@@ -125,9 +125,10 @@ pickle.Node = class {
         else {
             const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'Object';
             this._type = { name: type };
-            for (const key of Object.keys(obj)) {
-                const value = obj[key];
-                this._attributes.push(new pickle.Attribute(key, value));
+            for (const entry of Object.entries(obj)) {
+                const name = entry[0];
+                const value = entry[1];
+                this._attributes.push(new pickle.Attribute(name, value));
             }
         }
     }

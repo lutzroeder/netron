@@ -4326,7 +4326,7 @@
     "target":   "net.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/8506780/net.pkl.zip[net.pkl]",
     "format":   "Pickle",
-    "error":    "Maximum call stack size exceeded",
+    "error":    "Unsupported Pickle type '__main__.LeNetConvPoolLayer' in 'net.pkl'.",
     "link":     "https://github.com/lutzroeder/netron/issues/901"
   },
   {
