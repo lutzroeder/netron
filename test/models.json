@@ -5628,6 +5628,13 @@
   },
   {
     "type":     "tf",
+    "target":   "float16.txt",
+    "source":   "https://github.com/lutzroeder/netron/files/8547644/float16.txt.zip[float16.txt]",
+    "format":   "TensorFlow Graph",
+    "link":     "https://github.com/lutzroeder/netron/issues/187"
+  },
+  {
+    "type":     "tf",
     "target":   "graph_missing_function.pbtxt",
     "source":   "https://github.com/lutzroeder/netron/files/7464813/graph_missing_function.pbtxt.zip[graph_missing_function.pbtxt]",
     "format":   "TensorFlow Graph",
