@@ -8,7 +8,7 @@ hdf5.File = class {
 
     static open(data) {
         const buffer = data instanceof Uint8Array ? data : data.peek();
-        const reader = new hdf5.Reader(buffer, 0);
+        const reader = new hdf5.BinaryReader(buffer, 0);
         if (reader.match('\x89HDF\r\n\x1A\n')) {
             return new hdf5.File(reader);
         }
@@ -196,7 +196,7 @@ hdf5.Variable = class {
     get value() {
         const data = this.data;
         if (data) {
-            const reader = new hdf5.Reader(data);
+            const reader = new hdf5.BinaryReader(data);
             const array = this._dataspace.read(this._datatype, reader);
             return this._dataspace.decode(this._datatype, array, array, this._globalHeap);
         }
@@ -243,7 +243,7 @@ hdf5.Variable = class {
     }
 };
 
-hdf5.Reader = class {
+hdf5.BinaryReader = class {
 
     constructor(buffer) {
         if (buffer) {
@@ -368,22 +368,22 @@ hdf5.Reader = class {
             size = position - this._position - this._offset + 1;
         }
         const data = this.read(size);
-        return hdf5.Reader.decode(data, encoding);
+        return hdf5.BinaryReader.decode(data, encoding);
     }
 
     static decode(data, encoding) {
         let content = '';
         if (encoding == 'utf-8') {
-            if (!hdf5.Reader._utf8Decoder) {
-                hdf5.Reader._utf8Decoder = new TextDecoder('utf-8');
+            if (!hdf5.BinaryReader._utf8Decoder) {
+                hdf5.BinaryReader._utf8Decoder = new TextDecoder('utf-8');
             }
-            content = hdf5.Reader._utf8Decoder.decode(data);
+            content = hdf5.BinaryReader._utf8Decoder.decode(data);
         }
         else {
-            if (!hdf5.Reader._asciiDecoder) {
-                hdf5.Reader._asciiDecoder = new TextDecoder('ascii');
+            if (!hdf5.BinaryReader._asciiDecoder) {
+                hdf5.BinaryReader._asciiDecoder = new TextDecoder('ascii');
             }
-            content = hdf5.Reader._asciiDecoder.decode(data);
+            content = hdf5.BinaryReader._asciiDecoder.decode(data);
         }
         return content.replace(/\0/g, '');
     }
@@ -437,7 +437,7 @@ hdf5.Reader = class {
     }
 
     at(position) {
-        const reader = new hdf5.Reader(null);
+        const reader = new hdf5.BinaryReader(null);
         reader._buffer = this._buffer;
         reader._dataView = this._dataView;
         reader._position = position;
@@ -448,7 +448,7 @@ hdf5.Reader = class {
     }
 
     clone() {
-        const reader =  new hdf5.Reader(this._buffer, this._position);
+        const reader =  new hdf5.BinaryReader(this._buffer, this._position);
         reader._buffer = this._buffer;
         reader._dataView = this._dataView;
         reader._position = this._position;
@@ -939,9 +939,9 @@ hdf5.Datatype = class {
             case 3: // string
                 switch ((this._flags >> 8) & 0x0f) { // character set
                     case 0:
-                        return hdf5.Reader.decode(reader.read(this._size), 'ascii');
+                        return hdf5.BinaryReader.decode(reader.read(this._size), 'ascii');
                     case 1:
-                        return hdf5.Reader.decode(reader.read(this._size), 'utf-8');
+                        return hdf5.BinaryReader.decode(reader.read(this._size), 'utf-8');
                     default:
                         throw new hdf5.Error('Unsupported character encoding.');
                 }
@@ -977,9 +977,9 @@ hdf5.Datatype = class {
                     const characterSet = (this._flags >> 8) & 0x0f;
                     switch (characterSet) {
                         case 0:
-                            return hdf5.Reader.decode(globalHeapObject.data, 'ascii');
+                            return hdf5.BinaryReader.decode(globalHeapObject.data, 'ascii');
                         case 1:
-                            return hdf5.Reader.decode(globalHeapObject.data, 'utf-8');
+                            return hdf5.BinaryReader.decode(globalHeapObject.data, 'utf-8');
                         default:
                             throw new hdf5.Error('Unsupported character encoding.');
                     }
