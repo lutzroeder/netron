@@ -1,28 +1,73 @@
 
 var flexbuffers = {};
 
-flexbuffers.Reader = class {
+flexbuffers.BinaryReader = class {
 
     static open(buffer) {
-        return new flexbuffers.Reader(buffer);
+        const length = buffer.length;
+        if (length >= 3) {
+            const byteWidth = buffer[length - 1];
+            if (byteWidth <= 8) {
+                const packedType = buffer[length - 2];
+                return new flexbuffers.BinaryReader(buffer, length - 2 - byteWidth, byteWidth, 1 << (packedType & 3), packedType >> 2);
+            }
+        }
+        return null;
     }
 
-    constructor(buffer) {
-        this._reader = new flexbuffers.BinaryReader(buffer);
+    constructor(buffer, offset, parentWidth, byteWidth, type) {
+        this._buffer = buffer;
+        this._length = buffer.length;
+        this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+        this._utf8Decoder = new TextDecoder('utf-8');
+        this._root = new flexbuffers.Reference(this, offset, parentWidth, byteWidth, type);
     }
 
     read() {
-        const end = this._reader.length;
-        if (end < 3) {
-            throw new flexbuffers.Error('Invalid buffer size.');
+        return this._root.read();
+    }
+
+    get length() {
+        return this._length;
+    }
+
+    int(offset, size) {
+        switch (size) {
+            case 1: return this._view.getInt8(offset);
+            case 2: return this._view.getInt16(offset, true);
+            case 4: return this._view.getInt32(offset, true);
+            case 8: return this._view.getInt64(offset, true);
+            default: throw new flexbuffers.Error("Invalid int size '" + size + "'.");
         }
-        const byteWidth = this._reader.uint(end - 1, 1);
-        if (byteWidth > 8) {
-            throw new flexbuffers.Error('Invalid byte size.');
+    }
+
+    uint(offset, size) {
+        switch (size) {
+            case 1: return this._view.getUint8(offset);
+            case 2: return this._view.getUint16(offset, true);
+            case 4: return this._view.getUint32(offset, true);
+            case 8: return this._view.getUint64(offset, true);
+            default: throw new flexbuffers.Error("Invalid uint size '" + size + "'.");
         }
-        const packedType = this._reader.uint(end - 2, 1);
-        const reference = new flexbuffers.Reference(this._reader, end - 2 - byteWidth, byteWidth, 1 << (packedType & 3), packedType >> 2);
-        return reference.read();
+    }
+
+    float(offset, size) {
+        switch (size) {
+            case 4: return this._view.getFloat32(offset, true);
+            case 8: return this._view.getFloat64(offset, true);
+            default: throw new flexbuffers.Error("Invalid float size '" + size + "'.");
+        }
+    }
+
+    string(offset, size) {
+        let end = size === undefined ? this._buffer.indexOf(0, offset) : offset + size;
+        end = end === -1 ? this._buffer.length : end;
+        const bytes = this._buffer.subarray(offset, end);
+        return this._utf8Decoder.decode(bytes);
+    }
+
+    bytes(offset, size) {
+        return this._buffer.slice(offset, offset + size);
     }
 };
 
@@ -139,59 +184,6 @@ flexbuffers.Reference = class {
     }
 };
 
-flexbuffers.BinaryReader = class {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-        this._length = buffer.length;
-        this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-        this._utf8Decoder = new TextDecoder('utf-8');
-    }
-
-    get length() {
-        return this._length;
-    }
-
-    int(offset, size) {
-        switch (size) {
-            case 1: return this._view.getInt8(offset);
-            case 2: return this._view.getInt16(offset, true);
-            case 4: return this._view.getInt32(offset, true);
-            case 8: return this._view.getInt64(offset, true);
-            default: throw new flexbuffers.Error("Invalid int size '" + size + "'.");
-        }
-    }
-
-    uint(offset, size) {
-        switch (size) {
-            case 1: return this._view.getUint8(offset);
-            case 2: return this._view.getUint16(offset, true);
-            case 4: return this._view.getUint32(offset, true);
-            case 8: return this._view.getUint64(offset, true);
-            default: throw new flexbuffers.Error("Invalid uint size '" + size + "'.");
-        }
-    }
-
-    float(offset, size) {
-        switch (size) {
-            case 4: return this._view.getFloat32(offset, true);
-            case 8: return this._view.getFloat64(offset, true);
-            default: throw new flexbuffers.Error("Invalid float size '" + size + "'.");
-        }
-    }
-
-    string(offset, size) {
-        let end = size === undefined ? this._buffer.indexOf(0, offset) : offset + size;
-        end = end === -1 ? this._buffer.length : end;
-        const bytes = this._buffer.subarray(offset, end);
-        return this._utf8Decoder.decode(bytes);
-    }
-
-    bytes(offset, size) {
-        return this._buffer.slice(offset, offset + size);
-    }
-};
-
 flexbuffers.Error = class extends Error {
 
     constructor(message) {
@@ -202,5 +194,5 @@ flexbuffers.Error = class extends Error {
 };
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.Reader = flexbuffers.Reader;
+    module.exports.BinaryReader = flexbuffers.BinaryReader;
 }

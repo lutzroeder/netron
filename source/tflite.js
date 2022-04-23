@@ -341,22 +341,24 @@ tflite.Node = class {
                 let decoded = false;
                 if (node.custom_options_format === tflite.schema.CustomOptionsFormat.FLEXBUFFERS) {
                     try {
-                        const reader = flexbuffers.Reader.open(node.custom_options);
-                        const custom_options = reader.read();
-                        if (Array.isArray(custom_options)) {
-                            const attribute = new tflite.Attribute(null, 'custom_options', custom_options);
-                            this._attributes.push(attribute);
-                            decoded = true;
-                        }
-                        else if (custom_options) {
-                            for (const pair of Object.entries(custom_options)) {
-                                const key = pair[0];
-                                const value = pair[1];
-                                const schema = metadata.attribute(type.name, key);
-                                const attribute = new tflite.Attribute(schema, key, value);
+                        const reader = flexbuffers.BinaryReader.open(node.custom_options);
+                        if (reader) {
+                            const custom_options = reader.read();
+                            if (Array.isArray(custom_options)) {
+                                const attribute = new tflite.Attribute(null, 'custom_options', custom_options);
                                 this._attributes.push(attribute);
+                                decoded = true;
                             }
-                            decoded = true;
+                            else if (custom_options) {
+                                for (const pair of Object.entries(custom_options)) {
+                                    const key = pair[0];
+                                    const value = pair[1];
+                                    const schema = metadata.attribute(type.name, key);
+                                    const attribute = new tflite.Attribute(schema, key, value);
+                                    this._attributes.push(attribute);
+                                }
+                                decoded = true;
+                            }
                         }
                     }
                     catch (err) {
