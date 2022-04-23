@@ -6444,6 +6444,39 @@
     ]
   },
   {
+    "name": "torch.tensor_split:sections",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "sections", "type": "int64" },
+      { "name": "dim", "type": "int64", "default": 0 }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor[]" }
+    ]
+  },
+  {
+    "name": "torch.tensor_split:indices",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "indices", "type": "int64[]" },
+      { "name": "dim", "type": "int64", "default": 0 }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor[]" }
+    ]
+  },
+  {
+    "name": "torch.tensor_split:tensor_indices_or_sections",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "tensor_indices_or_sections", "type": "Tensor" },
+      { "name": "dim", "type": "int64", "default": 0 }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor[]" }
+    ]
+  },
+  {
     "name": "torch.__upsample:",
     "category": "Layer",
     "inputs": [
