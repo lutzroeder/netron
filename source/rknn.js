@@ -280,6 +280,7 @@ rknn.Tensor = class {
         switch (this._type.dataType) {
             case 'uint8': size = 1; break;
             case 'int8': size = 1; break;
+            case 'int16': size = 2; break;
             case 'int32': size = 4; break;
             case 'float16': size = 2; break;
             case 'float32': size = 4; break;
@@ -366,6 +367,11 @@ rknn.Tensor = class {
                     case 'int8':
                         results.push(context.view.getInt8(context.index, true));
                         context.index += 1;
+                        context.count++;
+                        break;
+                    case 'int16':
+                        results.push(context.view.getInt16(context.index, true));
+                        context.index += 2;
                         context.count++;
                         break;
                     case 'int32':
