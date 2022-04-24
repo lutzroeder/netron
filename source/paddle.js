@@ -2,6 +2,7 @@
 var paddle = paddle || {};
 var flatbuffers = flatbuffers || require('./flatbuffers');
 var protobuf = protobuf || require('./protobuf');
+var python = python || require('./python');
 var base = base || require('./base');
 
 paddle.ModelFactory = class {
@@ -25,8 +26,11 @@ paddle.ModelFactory = class {
         if (stream.length > 16 && stream.peek(16).every((value) => value === 0x00)) {
             return 'paddle.params';
         }
-        if (paddle.Weights.open(context)) {
-            return 'paddle.weights';
+        if (paddle.Pickle.open(context)) {
+            return 'paddle.pickle';
+        }
+        if (paddle.Entries.open(context)) {
+            return 'paddle.entries';
         }
         if (paddle.NaiveBuffer.open(context)) {
             return 'paddle.naive';
@@ -53,7 +57,6 @@ paddle.ModelFactory = class {
                         const base = parts.join('.');
                         const openProgram = (stream, match) => {
                             const program = {};
-                            program.format = 'PaddlePaddle';
                             switch (match) {
                                 case 'paddle.pbtxt': {
                                     try {
@@ -81,10 +84,25 @@ paddle.ModelFactory = class {
                                     throw new paddle.Error("Unsupported Paddle format '" + match + "'.");
                                 }
                             }
-                            const programDesc = program.desc;
-                            program.format += paddle.Utility.formatVersion(programDesc.version);
+                            const formatVersion = (version) => {
+                                if (version && version.version && version.version.toNumber) {
+                                    const number = version.version.toNumber();
+                                    if (number > 0) {
+                                        const list = [ Math.floor(number / 1000000) % 1000, Math.floor(number / 1000) % 1000, number % 1000 ];
+                                        if (list.slice(-1).pop() === 0) {
+                                            list.pop();
+                                            if (list.slice(-1).pop() === 0) {
+                                                list.pop();
+                                            }
+                                        }
+                                        return ' v' + list.map((item) => item.toString()).join('.');
+                                    }
+                                }
+                                return '';
+                            };
+                            program.format = 'PaddlePaddle' + formatVersion(program.desc.version);
                             const variables = new Set();
-                            for (const block of programDesc.blocks) {
+                            for (const block of program.desc.blocks) {
                                 const blockVars = new Set();
                                 for (const variable of block.vars) {
                                     if (variable.persistable && variable.type &&
@@ -106,52 +124,84 @@ paddle.ModelFactory = class {
                             program.vars = Array.from(variables).sort();
                             return program;
                         };
+                        const createModel = (metadata, format, desc, tensors) => {
+                            return new paddle.Model(metadata, format, desc, tensors);
+                        };
                         const loadParams = (metadata, program, stream) => {
-                            const tensors = new Map();
+                            const weights = new Map();
                             while (stream.position < stream.length) {
                                 const tensor = paddle.Utility.openTensor(stream);
-                                tensors.set(program.vars.shift(), tensor);
+                                weights.set(program.vars.shift(), tensor);
                             }
-                            return new paddle.Model(metadata, program.format, program.desc, tensors);
+                            return weights;
                         };
                         switch (match) {
-                            case 'paddle.weights': {
-                                const container = paddle.Weights.open(context);
-                                return new paddle.Model(metadata, container.format, null, container.weights);
+                            case 'paddle.pickle': {
+                                const container = paddle.Pickle.open(context);
+                                return createModel(metadata, container.format, null, container.weights);
+                            }
+                            case 'paddle.entries': {
+                                const container = paddle.Entries.open(context);
+                                return createModel(metadata, container.format, null, container.weights);
                             }
                             case 'paddle.params': {
                                 const file = identifier !== 'params' ? base + '.pdmodel' : 'model';
                                 return context.request(file, null).then((stream) => {
                                     const program = openProgram(stream, 'paddle.pb');
-                                    return loadParams(metadata, program, context.stream);
+                                    const tensors = loadParams(metadata, program, context.stream);
+                                    return createModel(metadata, program.format, program.desc, tensors);
                                 });
                             }
                             case 'paddle.pb':
                             case 'paddle.pbtxt': {
-                                const program = openProgram(context.stream, match);
                                 const loadEntries = (context, program) => {
-                                    const promises = program.vars.map((name) => context.request(name, null));
                                     const tensors = new Map();
+                                    const promises = program.vars.map((name) => context.request(name, null));
                                     return Promise.all(promises).then((streams) => {
                                         for (let i = 0; i < program.vars.length; i++) {
                                             const tensor = paddle.Utility.openTensor(streams[i]);
                                             tensors.set(program.vars[i], tensor);
                                         }
-                                        return new paddle.Model(metadata, program.format, program.desc, tensors);
+                                        return createModel(metadata, program.format, program.desc, tensors);
                                     }).catch((/* err */) => {
-                                        return new paddle.Model(metadata, program.format, program.desc, tensors);
+                                        return createModel(metadata, program.format, program.desc, tensors);
                                     });
                                 };
+                                const openPickle = (stream, weights) => {
+                                    const execution = new python.Execution(null);
+                                    const unpickler = python.Unpickler.open(stream);
+                                    const obj = unpickler.load((name, args) => execution.invoke(name, args));
+                                    paddle.Utility.openPickle(obj, weights);
+                                };
+                                const program = openProgram(context.stream, match);
                                 if (extension === 'pdmodel') {
                                     return context.request(base + '.pdiparams', null).then((stream) => {
-                                        return loadParams(metadata, program, stream);
+                                        const weights = loadParams(metadata, program, stream);
+                                        return createModel(metadata, program.format, program.desc, weights);
                                     }).catch((/* err */) => {
-                                        return loadEntries(context, program);
+                                        const weights = new Map();
+                                        return context.request(base + '.pdparams', null).then((stream) => {
+                                            openPickle(stream, weights);
+                                            return context.request(base + '.pdopt', null).then((stream) => {
+                                                openPickle(stream, weights);
+                                                return createModel(metadata, program.format, program.desc, weights);
+                                            }).catch((/* err */) => {
+                                                return createModel(metadata, program.format, program.desc, weights);
+                                            });
+                                        }).catch((/* err */) => {
+                                            return context.request(base + '.pdopt', null).then((stream) => {
+                                                openPickle(stream, weights);
+                                                return createModel(metadata, program.format, program.desc, weights);
+                                            }).catch((/* err */) => {
+                                                return loadEntries(context, program);
+                                            });
+                                        });
                                     });
                                 }
                                 if (identifier === 'model') {
                                     return context.request('params', null).then((stream) => {
-                                        return loadParams(metadata, program, stream);
+                                        const weights = loadParams(metadata, program, stream);
+                                        return createModel(metadata, program.format, program.desc, weights);
                                     }).catch((/* err */) => {
                                         return loadEntries(context, program);
                                     });
@@ -732,16 +782,11 @@ paddle.Utility = class {
     }
 
     static openTensor(stream) {
-        const uint32 = (stream) => {
-            const buffer = stream.read(4);
-            const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-            return view.getUint32(0, true);
-        };
         const signature = stream.read(16);
         if (!signature.every((value) => value === 0x00)) {
             throw new paddle.Error('Invalid paddle.TensorDesc signature.');
         }
-        const length = uint32(stream);
+        const length = new base.BinaryReader(stream.read(4)).uint32();
         const buffer = stream.read(length);
         const reader = protobuf.BinaryReader.open(buffer);
         const tensorDesc = paddle.proto.VarType.TensorDesc.decode(reader);
@@ -756,43 +801,34 @@ paddle.Utility = class {
         return new paddle.Tensor(type, data);
     }
 
-    static formatVersion(version) {
-        if (version && version.version && version.version.toNumber) {
-            const number = version.version.toNumber();
-            if (number > 0) {
-                const list = [ Math.floor(number / 1000000) % 1000, Math.floor(number / 1000) % 1000, number % 1000 ];
-                if (list.slice(-1).pop() === 0) {
-                    list.pop();
-                    if (list.slice(-1).pop() === 0) {
-                        list.pop();
-                    }
-                }
-                return ' v' + list.map((item) => item.toString()).join('.');
+    static openPickle(obj, weights) {
+        const map = null; // this._data['StructuredToParameterName@@'];
+        for (const entry of Object.entries(obj)) {
+            const key = entry[0];
+            const value = entry[1];
+            if (value && !Array.isArray(value) && value.__class__ && value.__class__.__module__ === 'numpy' && value.__class__.__name__ === 'ndarray') {
+                const name = map ? map[key] : key;
+                const type = new paddle.TensorType(value.dtype.name, new paddle.TensorShape(value.shape));
+                const data = value.data;
+                const tensor = new paddle.Tensor(type, data, 'NumPy Array');
+                weights.set(name, tensor);
             }
         }
-        return '';
     }
 };
 
-paddle.Weights = class {
+paddle.Entries = class {
 
     static open(context) {
         const extension = [ 'zip', 'tar' ].find((extension) => context.entries(extension).size > 0);
         if (extension) {
             const entries = new Map(Array.from(context.entries(extension)).filter((entry) => !entry[0].endsWith('/') && !entry[0].split('/').pop().startsWith('.')).slice());
             if (entries.size > 2 && Array.from(entries).every((entry) => entry[0].split('_').length > 0 && entry[1].peek(16).every((value) => value === 0x00))) {
-                return new paddle.Weights.Entries(entries);
+                return new paddle.Entries(entries);
             }
-        }
-        const obj = context.open('pkl');
-        if (obj && !Array.isArray(obj) && Object(obj) === obj) {
-            return new paddle.Weights.Pickle(obj);
         }
         return null;
     }
-};
-
-paddle.Weights.Entries = class {
 
     constructor(data) {
         this._data = data;
@@ -836,7 +872,15 @@ paddle.Weights.Entries = class {
     }
 };
 
-paddle.Weights.Pickle = class {
+paddle.Pickle = class {
+
+    static open(context) {
+        const obj = context.open('pkl');
+        if (obj && !Array.isArray(obj) && Object(obj) === obj) {
+            return new paddle.Pickle(obj);
+        }
+        return null;
+    }
 
     constructor(data) {
         this._data = data;
@@ -858,18 +902,8 @@ paddle.Weights.Pickle = class {
 
     _initialize() {
         if (!this._weights) {
-            const map = null; // this._data['StructuredToParameterName@@'];
             this._weights = new Map();
-            for (const key of Object.keys(this._data)) {
-                const value = this._data[key];
-                if (value && !Array.isArray(value) && value.__class__ && value.__class__.__module__ === 'numpy' && value.__class__.__name__ === 'ndarray') {
-                    const name = map ? map[key] : key;
-                    const type = new paddle.TensorType(value.dtype.name, new paddle.TensorShape(value.shape));
-                    const data = value.data;
-                    const tensor = new paddle.Tensor(type, data, 'NumPy Array');
-                    this._weights.set(name, tensor);
-                }
-            }
+            paddle.Utility.openPickle(this._data, this._weights);
         }
     }
 };
@@ -901,7 +935,7 @@ paddle.NaiveBuffer = class {
 
     get format() {
         this._read();
-        return 'Paddle Lite' + (this.opt_version ? ' ' + this.opt_version : '');
+        return this._format;
     }
 
     get model() {
@@ -920,7 +954,8 @@ paddle.NaiveBuffer = class {
             delete this.reader;
             const decoder = new TextDecoder();
             const opt_version = reader.read(16);
-            this.opt_version = decoder.decode(opt_version.slice(0, opt_version.indexOf(0x00)));
+            const version = decoder.decode(opt_version.slice(0, opt_version.indexOf(0x00)));
+            this._format = 'Paddle Lite' + (version ? ' ' + version : '');
             const topo_size = reader.uint64();
             const openProgramDesc = (buffer) => {
                 const reader = flatbuffers.BinaryReader.open(buffer);

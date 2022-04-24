@@ -161,7 +161,7 @@ class Application {
                     'mlmodel', 'mlpackage',
                     'caffemodel',
                     'model', 'dnn', 'cmf', 'mar', 'params',
-                    'pdmodel', 'pdparams', 'nb',
+                    'pdmodel', 'pdiparams', 'pdparams', 'pdopt', 'nb',
                     'meta',
                     'tflite', 'lite', 'tfl',
                     'armnn', 'mnn', 'nn', 'uff', 'uff.txt', 'rknn', 'xmodel', 'kmodel',

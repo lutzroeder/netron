@@ -1530,9 +1530,9 @@ view.ModelFactoryService = class {
         this.register('./lightgbm', [ '.txt', '.pkl', '.model' ]);
         this.register('./keras', [ '.h5', '.hd5', '.hdf5', '.keras', '.json', '.cfg', '.model', '.pb', '.pth', '.weights', '.pkl', '.lite', '.tflite', '.ckpt' ], [ '.zip' ]);
         this.register('./sklearn', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z' ]);
-        this.register('./pickle', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z' ]);
+        this.register('./pickle', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z', '.pdstates' ]);
         this.register('./cntk', [ '.model', '.cntk', '.cmf', '.dnn' ]);
-        this.register('./paddle', [ '.pdmodel', '.pdparams', '.pdiparams', '.paddle', '__model__', '.__model__', '.pbtxt', '.txt', '.tar', '.tar.gz', '.nb' ]);
+        this.register('./paddle', [ '.pdmodel', '.pdiparams', '.pdparams', '.pdopt', '.paddle', '__model__', '.__model__', '.pbtxt', '.txt', '.tar', '.tar.gz', '.nb' ]);
         this.register('./bigdl', [ '.model', '.bigdl' ]);
         this.register('./darknet', [ '.cfg', '.model', '.txt', '.weights' ]);
         this.register('./weka', [ '.model' ]);
@@ -1955,7 +1955,9 @@ view.ModelFactoryService = class {
                         // Paddle
                         if (matches.length > 0 &&
                             matches.some((e) => e.name.toLowerCase().endsWith('.pdmodel')) &&
-                            matches.some((e) => e.name.toLowerCase().endsWith('.pdiparams'))) {
+                            (matches.some((e) => e.name.toLowerCase().endsWith('.pdparams')) ||
+                             matches.some((e) => e.name.toLowerCase().endsWith('.pdopt')) ||
+                             matches.some((e) => e.name.toLowerCase().endsWith('.pdiparams')))) {
                             matches = matches.filter((e) => e.name.toLowerCase().endsWith('.pdmodel'));
                         }
                         // Paddle Lite
