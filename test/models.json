@@ -3183,6 +3183,14 @@
   },
   {
     "type":     "onnx",
+    "target":   "mnist_bfloat16.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/8556259/mnist_bfloat16.onnx.zip[mnist_bfloat16.onnx]",
+    "format":   "ONNX v4",
+    "producer": "pytorch 1.12.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
     "target":   "bvlc_alexnet_opset_3.onnx.zip",
     "source":   "https://github.com/lutzroeder/netron/files/5296267/bvlc_alexnet_opset_3.onnx.zip",
     "format":   "ONNX v3",

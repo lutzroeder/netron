@@ -847,6 +847,8 @@ onnx.Tensor = class {
                     case onnx.DataType.STRING:
                         data = tensor.string_data;
                         break;
+                    case onnx.DataType.BFLOAT16:
+                        break;
                     default:
                         throw new onnx.Error("Unsupported tensor data type '" + tensor.data_type + "'.");
                 }
@@ -1003,6 +1005,12 @@ onnx.Tensor = class {
                     data = new Array(buffer.length >> 3);
                     for (let i = 0; i < data.length; i++) {
                         data[i] = view.getUint64(i << 3, true);
+                    }
+                    break;
+                case onnx.DataType.BFLOAT16:
+                    data = new Array(buffer.length >> 1);
+                    for (let i = 0; i < data.length; i++) {
+                        data[i] = view.getBfloat16(i << 1, true);
                     }
                     break;
                 default:

@@ -501,6 +501,22 @@ if (!DataView.prototype.setFloat16) {
     }
 }
 
+if (!DataView.prototype.getBfloat16) {
+    DataView.prototype.getBfloat16 = function(byteOffset, littleEndian) {
+        if (littleEndian) {
+            DataView.__bfloat16_uint16[0] = 0;
+            DataView.__bfloat16_uint16[1] = this.getUint16(byteOffset, littleEndian);
+        }
+        else {
+            DataView.__bfloat16_uint16[0] = this.getUint16(byteOffset, littleEndian);
+            DataView.__bfloat16_uint16[1] = 0;
+        }
+        return DataView.__bfloat16_float32[0];
+    };
+    DataView.__bfloat16_float32 = new Float32Array(1);
+    DataView.__bfloat16_uint16 = new Uint16Array(DataView.__bfloat16_float32.buffer, DataView.__bfloat16_float32.byteOffset, 2);
+}
+
 DataView.prototype.getInt64 = DataView.prototype.getInt64 || function(byteOffset, littleEndian) {
     return littleEndian ?
         new base.Int64(this.getUint32(byteOffset, true), this.getUint32(byteOffset + 4, true)) :
