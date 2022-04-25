@@ -693,6 +693,7 @@ pytorch.Tensor = class {
             case 'float16':
             case 'float32':
             case 'float64':
+            case 'bfloat16':
                 break;
             default:
                 context.state = "Tensor data type '" + this._type.dataType + "' is not supported.";
@@ -776,6 +777,11 @@ pytorch.Tensor = class {
                     case 'float64':
                         results.push(context.dataView.getFloat64(context.index, this._littleEndian));
                         context.index += 8;
+                        context.count++;
+                        break;
+                    case 'bfloat16':
+                        results.push(context.dataView.getBfloat16(context.index, this._littleEndian));
+                        context.index += 2;
                         context.count++;
                         break;
                     default:
@@ -1949,6 +1955,11 @@ pytorch.Execution = class extends python.Execution {
                 super(size, torch.qint32);
             }
         });
+        this.registerType('torch.BFloat16Storage', class extends torch.storage._StorageBase {
+            constructor(size) {
+                super(size, torch.bfloat16);
+            }
+        });
         this.registerType('torch.Size', class extends Array {
             constructor(size) {
                 super(size.length);
@@ -2043,6 +2054,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.QInt8Tensor', class extends torch.Tensor {});
         this.registerType('torch.QUInt8Tensor', class extends torch.Tensor {});
         this.registerType('torch.QInt32Tensor', class extends torch.Tensor {});
+        this.registerType('torch.BFloat16Tensor', class extends torch.Tensor {});
         this.registerType('torch.cuda.FloatTensor', class extends torch.Tensor {});
         this.registerType('torch.cuda.DoubleTensor', class extends torch.Tensor {});
         torch.uint8 = new torch.dtype(pytorch.ScalarType.uint8);
