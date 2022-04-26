@@ -4603,7 +4603,7 @@
   {
     "type":     "pytorch",
     "target":   "mnist_bfloat16.pt",
-    "source":   "https://github.com/lutzroeder/netron/files/8556279/mnist_bfloat16.pt.zip[mnist_bfloat16.pt]",
+    "source":   "https://github.com/lutzroeder/netron/files/8556403/mnist_bfloat16.pt.zip[mnist_bfloat16.pt]",
     "format":   "PyTorch v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
