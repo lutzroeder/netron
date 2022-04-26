@@ -109,7 +109,7 @@ onnx.ModelFactory = class {
             if (buffer[0] === 0x08 && buffer[1] < 0x0A && buffer[2] === 0x12) {
                 const producers = [
                     'backend-test', 'BrainwaveCompiler',
-                    'CNTK',
+                    'CNTK', 'customvision',
                     'keras2onnx', 'Kneron', 'kneron_formatter', 'kneron_kl530_test_case',
                     'darknet to ONNX example',
                     'htshinichi',
