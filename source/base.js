@@ -504,17 +504,16 @@ if (!DataView.prototype.setFloat16) {
 if (!DataView.prototype.getBfloat16) {
     DataView.prototype.getBfloat16 = function(byteOffset, littleEndian) {
         if (littleEndian) {
-            DataView.__bfloat16_uint16[0] = 0;
-            DataView.__bfloat16_uint16[1] = this.getUint16(byteOffset, littleEndian);
+            DataView.__bfloat16_get_uint16_le[1] = this.getUint16(byteOffset, littleEndian);
+            return DataView.__bfloat16_get_float32_le[0];
         }
-        else {
-            DataView.__bfloat16_uint16[0] = this.getUint16(byteOffset, littleEndian);
-            DataView.__bfloat16_uint16[1] = 0;
-        }
-        return DataView.__bfloat16_float32[0];
+        DataView.__bfloat16_uint16_be[0] = this.getUint16(byteOffset, littleEndian);
+        return DataView.__bfloat16_get_float32_be[0];
     };
-    DataView.__bfloat16_float32 = new Float32Array(1);
-    DataView.__bfloat16_uint16 = new Uint16Array(DataView.__bfloat16_float32.buffer, DataView.__bfloat16_float32.byteOffset, 2);
+    DataView.__bfloat16_get_float32_le = new Float32Array(1);
+    DataView.__bfloat16_get_float32_be = new Float32Array(1);
+    DataView.__bfloat16_get_uint16_le = new Uint16Array(DataView.__bfloat16_get_float32_le.buffer, DataView.__bfloat16_get_float32_le.byteOffset, 2);
+    DataView.__bfloat16_get_uint16_be = new Uint16Array(DataView.__bfloat16_get_float32_be.buffer, DataView.__bfloat16_get_float32_be.byteOffset, 2);
 }
 
 DataView.prototype.getInt64 = DataView.prototype.getInt64 || function(byteOffset, littleEndian) {
