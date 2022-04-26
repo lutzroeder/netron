@@ -118,7 +118,7 @@ host.BrowserHost = class {
 
     start() {
         this.window.addEventListener('error', (e) => {
-            this.exception(e.error, true);
+            this.exception(new Error(e ? e.message : JSON.stringify(e)), true);
         });
 
         const params = new URLSearchParams(this.window.location.search);
@@ -336,7 +336,7 @@ host.BrowserHost = class {
     }
 
     exception(error, fatal) {
-        if (this._telemetry && this.window.ga && error.telemetry !== false) {
+        if (this._telemetry && this.window.ga && error && error.telemetry !== false) {
             const description = [];
             description.push((error && error.name ? (error.name + ': ') : '') + (error && error.message ? error.message : '(null)'));
             if (error.stack) {
@@ -448,8 +448,8 @@ host.BrowserHost = class {
     _openModel(url, identifier) {
         url = url + ((/\?/).test(url) ? '&' : '?') + 'cb=' + (new Date()).getTime();
         this._view.show('welcome spinner');
-        this._request(url).then((buffer) => {
-            const context = new host.BrowserHost.BrowserContext(this, url, identifier, buffer);
+        this._request(url).then((stream) => {
+            const context = new host.BrowserHost.BrowserContext(this, url, identifier, stream);
             this._view.open(context).then(() => {
                 this.document.title = identifier || context.identifier;
             }).catch((err) => {
@@ -495,16 +495,17 @@ host.BrowserHost = class {
             const identifier = file.filename;
             const encoder = new TextEncoder();
             const buffer = encoder.encode(file.content);
-            const context = new host.BrowserHost.BrowserContext(this, '', identifier, buffer);
+            const stream = new host.BrowserHost.BinaryStream(buffer);
+            const context = new host.BrowserHost.BrowserContext(this, '', identifier, stream);
             this._view.open(context).then(() => {
                 this.document.title = identifier;
             }).catch((error) => {
                 if (error) {
-                    this._view.show(error.name, error, 'welcome');
+                    this._view.error(error, error.name, 'welcome');
                 }
             });
         }).catch((err) => {
-            this._view.show('Model load request failed.', err, 'welcome');
+            this._view.error(err, 'Model load request failed.', 'welcome');
         });
     }
 
