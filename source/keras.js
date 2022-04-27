@@ -339,7 +339,7 @@ keras.ModelFactory = class {
                                     const buffer = layer_weights[weight_name];
                                     const unpickler = python.Unpickler.open(buffer);
                                     const variable = unpickler.load((name, args) => execution.invoke(name, args));
-                                    const tensor = new keras.Tensor(weight_name, variable.shape, variable.dtype.name, null, true, variable.data);
+                                    const tensor = new keras.Tensor(weight_name, variable.shape, variable.dtype.__name__, null, true, variable.data);
                                     weights.add(layer_name, tensor);
                                 }
                             }

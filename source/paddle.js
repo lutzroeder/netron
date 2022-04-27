@@ -808,7 +808,7 @@ paddle.Utility = class {
             const value = entry[1];
             if (value && !Array.isArray(value) && value.__class__ && value.__class__.__module__ === 'numpy' && value.__class__.__name__ === 'ndarray') {
                 const name = map ? map[key] : key;
-                const type = new paddle.TensorType(value.dtype.name, new paddle.TensorShape(value.shape));
+                const type = new paddle.TensorType(value.dtype.__name__, new paddle.TensorShape(value.shape));
                 const data = value.data;
                 const tensor = new paddle.Tensor(type, data, 'NumPy Array');
                 weights.set(name, tensor);

@@ -320,7 +320,7 @@ lasagne.TensorShape = class {
 lasagne.Tensor = class {
 
     constructor(storage) {
-        this._type = new lasagne.TensorType(storage.dtype.name, new lasagne.TensorShape(storage.shape));
+        this._type = new lasagne.TensorType(storage.dtype.__name__, new lasagne.TensorShape(storage.shape));
     }
 
     get type() {

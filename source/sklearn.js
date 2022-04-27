@@ -336,9 +336,9 @@ sklearn.Tensor = class {
             const type = value.__class__.__module__ + '.' + value.__class__.__name__;
             throw new sklearn.Error("Unsupported tensor type '" + type + "'.");
         }
-        this._type = new sklearn.TensorType(value.dtype.name, new sklearn.TensorShape(value.shape));
+        this._type = new sklearn.TensorType(value.dtype.__name__, new sklearn.TensorShape(value.shape));
         this._data = value.data;
-        if (value.dtype.name === 'string') {
+        if (this._type.dataType === 'string') {
             this._itemsize = value.dtype.itemsize;
         }
     }
@@ -402,8 +402,10 @@ sklearn.Tensor = class {
         switch (context.dataType) {
             case 'float32':
             case 'float64':
-            case 'int32':
             case 'uint32':
+            case 'int8':
+            case 'int16':
+            case 'int32':
             case 'int64':
             case 'uint64':
                 context.view = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
@@ -446,14 +448,20 @@ sklearn.Tensor = class {
                         context.count++;
                         break;
                     }
-                    case 'int32': {
-                        results.push(context.view.getInt32(context.index, true));
-                        context.index += 4;
+                    case 'int8': {
+                        results.push(context.view.getInt8(context.index, true));
+                        context.index += 1;
                         context.count++;
                         break;
                     }
-                    case 'uint32': {
-                        results.push(context.view.getUint32(context.index, true));
+                    case 'int16': {
+                        results.push(context.view.getInt16(context.index, true));
+                        context.index += 2;
+                        context.count++;
+                        break;
+                    }
+                    case 'int32': {
+                        results.push(context.view.getInt32(context.index, true));
                         context.index += 4;
                         context.count++;
                         break;
@@ -461,6 +469,12 @@ sklearn.Tensor = class {
                     case 'int64': {
                         results.push(context.view.getInt64(context.index, true));
                         context.index += 8;
+                        context.count++;
+                        break;
+                    }
+                    case 'uint32': {
+                        results.push(context.view.getUint32(context.index, true));
+                        context.index += 4;
                         context.count++;
                         break;
                     }

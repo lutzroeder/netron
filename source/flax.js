@@ -207,7 +207,7 @@ flax.TensorShape = class {
 flax.Tensor = class {
 
     constructor(array) {
-        this._type = new flax.TensorType(array.dtype.name, new flax.TensorShape(array.shape));
+        this._type = new flax.TensorType(array.dtype.__name__, new flax.TensorShape(array.shape));
         this._data = array.tobytes();
         this._byteorder = array.dtype.byteorder;
         this._itemsize = array.dtype.itemsize;

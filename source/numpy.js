@@ -273,7 +273,7 @@ numpy.Node = class {
 numpy.Tensor = class  {
 
     constructor(array) {
-        this._type = new numpy.TensorType(array.dtype.name, new numpy.TensorShape(array.shape));
+        this._type = new numpy.TensorType(array.dtype.__name__, new numpy.TensorShape(array.shape));
         this._data = array.tobytes();
         this._byteorder = array.dtype.byteorder;
         this._itemsize = array.dtype.itemsize;
