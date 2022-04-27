@@ -2381,6 +2381,13 @@
   },
   {
     "type":     "kmodel",
+    "target":   "test1.kmodel",
+    "source":   "https://github.com/lutzroeder/netron/files/8568261/test1.kmodel.zip[test1.kmodel]",
+    "format":   "kmodel v4",
+    "link":     "https://github.com/lutzroeder/netron/issues/871"
+  },
+  {
+    "type":     "kmodel",
     "target":   "ulffd_landmark.kmodel",
     "source":   "https://github.com/lutzroeder/netron/files/8111629/ulffd_landmark.kmodel.zip[ulffd_landmark.kmodel]",
     "format":   "kmodel v4",

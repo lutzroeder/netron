@@ -732,6 +732,11 @@ kmodel.Reader = class {
                         };
                         if (memory.memory_type === 'const') {
                             value.data = constants.slice(memory.start, memory.start + memory.size);
+                            switch (value.datatype) {
+                                case 'uint8': value.shape = [ value.data.length ]; break;
+                                case 'float32': value.shape = [ value.data.length >> 2 ]; break;
+                                default: break;
+                            }
                         }
                         return value;
                     };
@@ -845,6 +850,7 @@ kmodel.Reader = class {
                         layer.a_rows = reader.int32();
                         layer.a_cols = reader.int32();
                         layer.b_cols = reader.int32();
+                        layer.inputs[1].arguments[0].shape = [ layer.a_cols, layer.b_cols ];
                         layer.fused_activation = [ reader.float32(), reader.float32() ];
                         const bias = reader.read(4 * layer.b_cols);
                         if (!bias.every((value) => value === 0)) {
@@ -931,7 +937,10 @@ kmodel.Reader = class {
                         layer.output_mul = reader.int32();
                         layer.output_shift = reader.int32();
                     });
-                    register(  0x12, 'table_lookup1d', '');
+                    register(  0x12, 'table_lookup1d', '', (layer, reader) => {
+                        layer.inputs = [ reader.parameter('input'), reader.parameter('table') ];
+                        layer.outputs = [ reader.parameter('output') ];
+                    });
                     register(  0x13, 'conv2d_transpose', 'Layer');
                     register(  0x14, 'nnil_unary_method', '');
                     register(0x1001, 'cpu_conv2d', 'Layer');
