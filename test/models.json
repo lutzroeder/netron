@@ -1951,6 +1951,13 @@
     "link":     "https://github.com/lutzroeder/netron/issues/581"
   },
   {
+    "type":     "flax",
+    "target":   "flax_model.msgpack",
+    "source":   "https://github.com/lutzroeder/netron/files/8567810/flax_model.msgpack.zip[flax_model.msgpack]",
+    "format":   "Flax",
+    "link":     "https://github.com/lutzroeder/netron/issues/850"
+  },
+  {
     "type":     "flux",
     "target":   "helloworld.bson",
     "source":   "https://github.com/lutzroeder/netron/files/3638212/helloworld.zip[helloworld.bson]",
