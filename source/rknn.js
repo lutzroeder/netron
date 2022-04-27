@@ -282,8 +282,10 @@ rknn.Tensor = class {
             case 'int8': size = 1; break;
             case 'int16': size = 2; break;
             case 'int32': size = 4; break;
+            case 'int64': size = 8; break;
             case 'float16': size = 2; break;
             case 'float32': size = 4; break;
+            case 'float64': size = 8; break;
             default: throw new rknn.Error("Unsupported tensor data type '" + this._type.dataType + "'.");
         }
         const shape = type.shape.dimensions;
@@ -359,6 +361,11 @@ rknn.Tensor = class {
                         context.index += 4;
                         context.count++;
                         break;
+                    case 'float64':
+                        results.push(context.view.getFloat64(context.index, true));
+                        context.index += 8;
+                        context.count++;
+                        break;
                     case 'uint8':
                         results.push(context.view.getUint8(context.index, true));
                         context.index++;
@@ -377,6 +384,11 @@ rknn.Tensor = class {
                     case 'int32':
                         results.push(context.view.getInt32(context.index, true));
                         context.index += 4;
+                        context.count++;
+                        break;
+                    case 'int64':
+                        results.push(context.view.getInt64(context.index, true));
+                        context.index += 8;
                         context.count++;
                         break;
                     default:
@@ -412,6 +424,7 @@ rknn.TensorType = class {
             case 'int64':
             case 'float16':
             case 'float32':
+            case 'float64':
             case 'vdata':
                 this._dataType = type;
                 break;
