@@ -848,6 +848,8 @@ onnx.Tensor = class {
                         data = tensor.string_data;
                         break;
                     case onnx.DataType.BFLOAT16:
+                    case onnx.DataType.COMPLEX64:
+                    case onnx.DataType.COMPLEX128:
                         break;
                     default:
                         throw new onnx.Error("Unsupported tensor data type '" + tensor.data_type + "'.");
@@ -1013,6 +1015,18 @@ onnx.Tensor = class {
                         data[i] = view.getBfloat16(i << 1, true);
                     }
                     break;
+                case onnx.DataType.COMPLEX64:
+                    data = new Array(buffer.length >> 3);
+                    for (let i = 0; i < data.length; i++) {
+                        data[i] = view.getComplex64(i << 3, true);
+                    }
+                    break;
+                case onnx.DataType.COMPLEX128:
+                    data = new Array(buffer.length >> 4);
+                    for (let i = 0; i < data.length; i++) {
+                        data[i] = view.getComplex64(i << 4, true);
+                    }
+                    break;
                 default:
                     throw new onnx.Error("Unsupported tensor data type '" + type + "'.");
             }
@@ -1110,19 +1124,26 @@ onnx.Tensor = class {
             result.push(indentation + ']');
             return result.join('\n');
         }
-        if (typeof value == 'string') {
-            return indentation + value;
+        switch (typeof value) {
+            case 'string':
+                return indentation + value;
+            case 'number':
+                if (value == Infinity) {
+                    return indentation + 'Infinity';
+                }
+                if (value == -Infinity) {
+                    return indentation + '-Infinity';
+                }
+                if (isNaN(value)) {
+                    return indentation + 'NaN';
+                }
+                return indentation + value.toString();
+            default:
+                if (value.toString) {
+                    return indentation + value.toString();
+                }
+                return indentation + '(undefined)';
         }
-        if (value == Infinity) {
-            return indentation + 'Infinity';
-        }
-        if (value == -Infinity) {
-            return indentation + '-Infinity';
-        }
-        if (isNaN(value)) {
-            return indentation + 'NaN';
-        }
-        return indentation + value.toString();
     }
 };
 

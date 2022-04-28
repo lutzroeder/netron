@@ -438,6 +438,22 @@ base.Uint64.zero = new base.Uint64(0, 0);
 base.Uint64.one = new base.Uint64(1, 0);
 base.Uint64.max = new base.Uint64(-1, -1);
 
+base.Complex = class Complex {
+
+    constructor(real, imaginary) {
+        this.real = real;
+        this.imaginary = imaginary;
+    }
+
+    static create(real, imaginary) {
+        return new base.Complex(real, imaginary);
+    }
+
+    toString(/* radix */) {
+        return this.real + ' + ' + this.imaginary + 'i';
+    }
+};
+
 if (!DataView.prototype.getFloat16) {
     DataView.prototype.getFloat16 = function(byteOffset, littleEndian) {
         const value = this.getUint16(byteOffset, littleEndian);
@@ -547,6 +563,40 @@ DataView.prototype.setUint64 = DataView.prototype.setUint64 || function(byteOffs
     else {
         this.setUInt32(byteOffset + 4, value.low, false);
         this.setUInt32(byteOffset, value.high, false);
+    }
+};
+
+DataView.prototype.getComplex64 = DataView.prototype.getComplex64 || function(byteOffset, littleEndian) {
+    const real = littleEndian ? this.getFloat32(byteOffset, littleEndian) : this.getFloat32(byteOffset + 4, littleEndian);
+    const imaginary = littleEndian ? this.getFloat32(byteOffset + 4, littleEndian) : this.getFloat32(byteOffset, littleEndian);
+    return base.Complex.create(real, imaginary);
+};
+
+DataView.prototype.setComplex64 = DataView.prototype.setComplex64 || function(byteOffset, value, littleEndian) {
+    if (littleEndian) {
+        this.setFloat32(byteOffset, value.real, littleEndian);
+        this.setFloat32(byteOffset + 4, value.imaginary, littleEndian);
+    }
+    else {
+        this.setFloat32(byteOffset + 4, value.real, littleEndian);
+        this.setFloat32(byteOffset, value.imaginary, littleEndian);
+    }
+};
+
+DataView.prototype.getComplex128 = DataView.prototype.getComplex128 || function(byteOffset, littleEndian) {
+    const real = littleEndian ? this.getFloat64(byteOffset, littleEndian) : this.getFloat64(byteOffset + 8, littleEndian);
+    const imaginary = littleEndian ? this.getFloat64(byteOffset + 8, littleEndian) : this.getFloat64(byteOffset, littleEndian);
+    return base.Complex.create(real, imaginary);
+};
+
+DataView.prototype.setComplex128 = DataView.prototype.setComplex128 || function(byteOffset, value, littleEndian) {
+    if (littleEndian) {
+        this.setFloat64(byteOffset, value.real, littleEndian);
+        this.setFloat64(byteOffset + 8, value.imaginary, littleEndian);
+    }
+    else {
+        this.setFloat64(byteOffset + 8, value.real, littleEndian);
+        this.setFloat64(byteOffset, value.imaginary, littleEndian);
     }
 };
 

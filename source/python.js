@@ -2694,7 +2694,7 @@ python.Execution = class {
             if (descr[0] !== '<' && descr[0] !== '>') {
                 throw new numpy.Error("Unsupported byte order '" + descr + "'.");
             }
-            if (descr.length !== 3 || (descr[1] !== 'f' && descr[1] !== 'i' && descr[1] !== 'u' && descr.substring(1) !== 'b1')) {
+            if (descr.length !== 3 || (descr[1] !== 'f' && descr[1] !== 'i' && descr[1] !== 'u' && descr[1] !== 'c' && descr.substring(1) !== 'b1')) {
                 throw new numpy.Error("Unsupported data type '" + descr + "'.");
             }
             let shape = '';
@@ -2755,6 +2755,12 @@ python.Execution = class {
                                 break;
                             case 'u8':
                                 context.view.setUint64(context.position, data[i], littleendian);
+                                break;
+                            case 'c8':
+                                context.view.setComplex64(context.position, data[i], littleendian);
+                                break;
+                            case 'c16':
+                                context.view.setComplex128(context.position, data[i], littleendian);
                                 break;
                             default:
                                 throw new numpy.Error("Unsupported tensor data type '" + context.dtype + "'.");

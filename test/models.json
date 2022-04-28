@@ -3240,6 +3240,13 @@
   },
   {
     "type":     "onnx",
+    "target":   "complex_init.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/8582128/complex_init.onnx.zip[complex_init.onnx]",
+    "format":   "ONNX v4",
+    "link":     "https://github.com/lutzroeder/netron/issues/905"
+  },
+  {
+    "type":     "onnx",
     "target":   "conv_autopad.onnx",
     "source":   "https://raw.githubusercontent.com/microsoft/onnxruntime/master/onnxruntime/test/testdata/conv_autopad.onnx",
     "format":   "ONNX v3",
