@@ -702,7 +702,7 @@
   {
     "name": "StridedSlice",
     "operator": 76,
-    "category": "Layer",
+    "category": "Tensor",
     "attributes": [
       { "name": "start_size", "default": 0 },
       { "name": "start", "type": "int32[]", "size": "0" },
@@ -715,7 +715,7 @@
   {
     "name": "StridedSliceV2",
     "operator": 87,
-    "category": "Layer",
+    "category": "Tensor",
     "attributes": [
       { "name": "start_size", "default": 0 },
       { "name": "start", "type": "int32[]", "size": "0" },
