@@ -303,11 +303,18 @@ tf.ModelFactory = class {
                             const buffer = event.graph_def;
                             const reader = protobuf.BinaryReader.open(buffer);
                             const graph_def = tf.proto.tensorflow.GraphDef.decode(reader);
-                            const meta_graph = new tf.proto.tensorflow.MetaGraphDef();
-                            meta_graph.meta_info_def = new tf.proto.tensorflow.MetaGraphDef.MetaInfoDef();
-                            meta_graph.meta_info_def.any_info = event.wall_time.toString();
-                            meta_graph.graph_def = graph_def;
-                            saved_model.meta_graphs.push(meta_graph);
+                            const meta_graph_def = new tf.proto.tensorflow.MetaGraphDef();
+                            meta_graph_def.meta_info_def = new tf.proto.tensorflow.MetaGraphDef.MetaInfoDef();
+                            meta_graph_def.meta_info_def.any_info = event.wall_time.toString();
+                            meta_graph_def.graph_def = graph_def;
+                            saved_model.meta_graphs.push(meta_graph_def);
+                            break;
+                        }
+                        case 'meta_graph_def': {
+                            const buffer = event.meta_graph_def;
+                            const reader = protobuf.BinaryReader.open(buffer);
+                            const meta_graph_def = tf.proto.tensorflow.MetaGraphDef.decode(reader);
+                            saved_model.meta_graphs.push(meta_graph_def);
                             break;
                         }
                         case 'summary': {
