@@ -2408,12 +2408,19 @@ python.Execution = class {
         this.registerType('xgboost.sklearn.XGBRegressor', class {});
         this.registerFunction('__builtin__.bytearray', function(source, encoding /*, errors */) {
             if (source) {
-                if (encoding === 'latin-1') {
-                    const array = new Uint8Array(source.length);
+                if (Array.isArray(source) || source instanceof Uint8Array) {
+                    const target = new Uint8Array(source.length);
                     for (let i = 0; i < source.length; i++) {
-                        array[i] = source.charCodeAt(i);
+                        target[i] = source[i];
                     }
-                    return array;
+                    return target;
+                }
+                if (encoding === 'latin-1') {
+                    const target = new Uint8Array(source.length);
+                    for (let i = 0; i < source.length; i++) {
+                        target[i] = source.charCodeAt(i);
+                    }
+                    return target;
                 }
                 throw new python.Error("Unsupported bytearray encoding '" + JSON.stringify(encoding) + "'.");
             }
@@ -2421,6 +2428,13 @@ python.Execution = class {
         });
         this.registerFunction('__builtin__.bytes', function(source, encoding /*, errors */) {
             if (source) {
+                if (Array.isArray(source) || source instanceof Uint8Array) {
+                    const target = new Uint8Array(source.length);
+                    for (let i = 0; i < source.length; i++) {
+                        target[i] = source[i];
+                    }
+                    return target;
+                }
                 if (encoding === 'latin-1') {
                     const array = new Uint8Array(source.length);
                     for (let i = 0; i < source.length; i++) {
@@ -2428,7 +2442,7 @@ python.Execution = class {
                     }
                     return array;
                 }
-                throw new python.Error("Unsupported bytearray encoding '" + JSON.stringify(encoding) + "'.");
+                throw new python.Error("Unsupported bytes encoding '" + JSON.stringify(encoding) + "'.");
             }
             return [];
         });
