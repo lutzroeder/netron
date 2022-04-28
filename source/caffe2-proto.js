@@ -854,7 +854,7 @@ $root.caffe2.DeviceTypeProto = {
     "PROTO_FPGA": 7,
     "PROTO_ORT": 8,
     "PROTO_XLA": 9,
-    "PROTO_MLC": 10,
+    "PROTO_MPS": 10,
     "PROTO_COMPILE_TIME_MAX_DEVICE_TYPES": 11
 };
 
