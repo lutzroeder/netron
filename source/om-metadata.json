@@ -2461,6 +2461,16 @@
     ]
   },
   {
+    "name": "Sigmoid",
+    "category": "Activation",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
     "name": "Sin",
     "inputs": [
       { "name": "x" }
@@ -2705,6 +2715,16 @@
       { "name": "ellipsis_mask" },
       { "name": "new_axis_mask" },
       { "name": "shrink_axis_mask" }
+    ]
+  },
+  {
+    "name": "StridedSliceD",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
     ]
   },
   {
