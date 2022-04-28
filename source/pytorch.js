@@ -982,10 +982,12 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.ao.quantization.stubs.QuantStub', class {});
         this.registerType('torch.autograd.variable.Variable', class {});
         this.registerType('torch.backends.cudnn.rnn.Unserializable', class {});
+        this.registerType('torch.distributions.bernoulli.Bernoulli', class {});
         this.registerType('torch.distributions.constraints._LowerCholesky', class {});
         this.registerType('torch.distributions.constraints._Real', class {});
         this.registerType('torch.distributions.multivariate_normal.MultivariateNormal', class {});
         this.registerType('torch.distributions.transforms.LowerCholeskyTransform', class {});
+        this.registerType('torch.distributions.uniform.Uniform', class {});
         this.registerType('torch.nn.backends.thnn._get_thnn_function_backend', class {});
         this.registerType('torch.nn.intrinsic.modules.fused.ConvReLU2d', class {});
         this.registerType('torch.nn.intrinsic.qat.modules.conv_fused.ConvBnReLU2d', class {});
