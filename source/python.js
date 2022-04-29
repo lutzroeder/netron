@@ -2272,6 +2272,7 @@ python.Execution = class {
         this.registerType('sklearn.preprocessing.label.LabelEncoder', class {});
         this.registerType('sklearn.preprocessing.label.MultiLabelBinarizer', class {});
         this.registerType('sklearn.svm._classes.LinearSVC', class {});
+        this.registerType('sklearn.svm._classes.NuSVC', class {});
         this.registerType('sklearn.svm._classes.SVC', class {});
         this.registerType('sklearn.svm._classes.SVR', class {});
         this.registerType('sklearn.svm.classes.LinearSVC', class {});
