@@ -138,6 +138,24 @@ onnx.ModelFactory = class {
         if (tags.has('graph') && extension !== 'model') {
             return 'onnx.pbtxt.ModelProto';
         }
+        if (stream.length > 8) {
+            const buffer = stream.peek(4);
+            const length = buffer[0] | (buffer[1] << 8) | (buffer[2] << 16) | (buffer[3] << 24);
+            if (length === stream.length - 4) {
+                stream.seek(4);
+                try {
+                    const reader = protobuf.BinaryReader.open(stream);
+                    tags = reader.signature();
+                    if (tags.get(7) === 2) {
+                        stream.seek(4);
+                        return 'onnx.pb.ModelProto';
+                    }
+                }
+                catch (error) {
+                    // continue regardless of error
+                }
+            }
+        }
         return undefined;
     }
 
