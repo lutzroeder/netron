@@ -456,13 +456,9 @@ view.View = class {
     }
 
     _updateGraph(model, graphs) {
-        const lastModel = this._model;
-        const lastGraphs = this._graphs;
-        this._model = model;
-        this._graphs = graphs;
-        const graph = this.activeGraph;
         return this._timeout(100).then(() => {
-            if (graph && graph != lastGraphs[0]) {
+            const graph = Array.isArray(graphs) && graphs.length > 0 ? graphs[0] : null;
+            if (graph && graph != this._graphs[0]) {
                 const nodes = graph.nodes;
                 if (nodes.length > 2048) {
                     if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
@@ -486,6 +482,10 @@ view.View = class {
                     nameButton.style.opacity = 0;
                 }
             };
+            const lastModel = this._model;
+            const lastGraphs = this._graphs;
+            this._model = model;
+            this._graphs = graphs;
             return this.renderGraph(this._model, this.activeGraph).then(() => {
                 if (this._page !== 'default') {
                     this.show('default');
@@ -1680,7 +1680,9 @@ view.ModelFactoryService = class {
                     { name: 'Waifu2x data', tags: [ 'name', 'arch_name', 'channels' ] },
                     { name: 'Waifu2x data', tags: [ '[].nInputPlane', '[].nOutputPlane', '[].weight', '[].bias' ] },
                     { name: 'Brain.js data', tags: [ 'type', 'sizes', 'layers' ] },
-                    { name: 'Custom Vision metadata', tags: [ 'CustomVision.Metadata.Version' ] }
+                    { name: 'Custom Vision metadata', tags: [ 'CustomVision.Metadata.Version' ] },
+                    { name: 'W&B metadata', tags: [ 'program', 'host', 'executable' ] }
+
                 ];
                 const match = (obj, tag) => {
                     if (tag.startsWith('[].')) {
@@ -2074,7 +2076,8 @@ view.ModelFactoryService = class {
                 { name: 'TSD header', value: /^%TSD-Header-###%/ },
                 { name: 'AppleDouble data', value: /^\x00\x05\x16\x07/ },
                 { name: 'TensorFlow Hub module', value: /^\x08\x03$/, identifier: 'tfhub_module.pb' },
-                { name: 'OpenVX network binary graph data', value: /^VPMN/ } // network_binary.nb
+                { name: 'OpenVX network binary graph data', value: /^VPMN/ }, // network_binary.nb
+                { name: 'ViSQOL model', value: /^svm_type\snu_svr/ }
             ];
             /* eslint-enable no-control-regex */
             const buffer = stream.peek(Math.min(4096, stream.length));
