@@ -989,7 +989,9 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.distributions.transforms.LowerCholeskyTransform', class {});
         this.registerType('torch.distributions.uniform.Uniform', class {});
         this.registerType('torch.nn.backends.thnn._get_thnn_function_backend', class {});
+        this.registerType('torch.nn.intrinsic.modules.fused.ConvBnReLU2d', class {});
         this.registerType('torch.nn.intrinsic.modules.fused.ConvReLU2d', class {});
+        this.registerType('torch.nn.intrinsic.modules.fused.BNReLU2d', class {});
         this.registerType('torch.nn.intrinsic.qat.modules.conv_fused.ConvBnReLU2d', class {});
         this.registerType('torch.nn.intrinsic.qat.modules.conv_fused.ConvReLU2d', class {});
         this.registerType('torch.nn.intrinsic.quantized.modules.conv_relu.ConvReLU2d', class {});
@@ -1268,6 +1270,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torchvision.ops.misc.ConvNormActivation', class {});
         this.registerType('torchvision.ops.misc.ConvTranspose2d', class {});
         this.registerType('torchvision.ops.misc.FrozenBatchNorm2d', class {});
+        this.registerType('torchvision.ops.misc.SqueezeExcitation', class {});
         this.registerType('torchvision.ops.poolers.LevelMapper', class {});
         this.registerType('torchvision.ops.poolers.MultiScaleRoIAlign', class {});
         this.registerType('torchvision.transforms.functional.InterpolationMode', class {});
