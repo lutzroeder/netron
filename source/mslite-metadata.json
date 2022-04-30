@@ -1271,6 +1271,9 @@
     ]
   },
   {
+    "name": "GatherD"
+  },
+  {
     "name": "GatherNd",
     "attributes": [
       { "name": "batchDims", "type": "int32", "default": 0 }

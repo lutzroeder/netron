@@ -383,6 +383,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 207: return $root.mindspore.schema.NLLLoss.decode(reader, position);
             case 208: return $root.mindspore.schema.NLLLossGrad.decode(reader, position);
             case 209: return $root.mindspore.schema.FormatTranspose.decode(reader, position);
+            case 210: return $root.mindspore.schema.GatherD.decode(reader, position);
             default: return undefined;
         }
     }
@@ -598,6 +599,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'NLLLoss': return $root.mindspore.schema.NLLLoss.decodeText(reader, json);
             case 'NLLLossGrad': return $root.mindspore.schema.NLLLossGrad.decodeText(reader, json);
             case 'FormatTranspose': return $root.mindspore.schema.FormatTranspose.decodeText(reader, json);
+            case 'GatherD': return $root.mindspore.schema.GatherD.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -4150,6 +4152,19 @@ $root.mindspore.schema.FormatTranspose = class FormatTranspose {
         const $ = new $root.mindspore.schema.FormatTranspose();
         $.src_format = $root.mindspore.schema.Format[json.src_format];
         $.dst_format = $root.mindspore.schema.Format[json.dst_format];
+        return $;
+    }
+};
+
+$root.mindspore.schema.GatherD = class GatherD {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.GatherD();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.GatherD();
         return $;
     }
 };
