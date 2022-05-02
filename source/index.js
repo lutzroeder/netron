@@ -940,9 +940,7 @@ if (typeof TextEncoder === 'undefined') {
         if (typeof Uint8Array!=="undefined") {
             return new Uint8Array(resArr.buffer.slice(0, resPos+1));
         }
-        else {
-            return resArr.length === resPos + 1 ? resArr : resArr.slice(0, resPos + 1);
-        }
+        return resArr.length === resPos + 1 ? resArr : resArr.slice(0, resPos + 1);
     };
     TextEncoder.prototype.toString = function() {
         return "[object TextEncoder]";
@@ -953,9 +951,7 @@ if (typeof TextEncoder === 'undefined') {
                 if (Object.prototype.isPrototypeOf.call(TextEncoder.prototype, this)) {
                     return"utf-8";
                 }
-                else {
-                    throw new TypeError("Illegal invocation");
-                }
+                throw new TypeError("Illegal invocation");
             }
         });
     }

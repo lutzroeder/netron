@@ -49,6 +49,7 @@
             "no-console": "error",
             "no-constructor-return": "error",
             "no-duplicate-imports": "error",
+            "no-else-return": "error",
             "no-promise-executor-return": "error",
             "no-self-compare": "error",
             "no-template-curly-in-string": "error",

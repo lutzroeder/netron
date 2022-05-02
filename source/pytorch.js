@@ -4451,15 +4451,13 @@ pytorch.Metadata = class {
         if (pytorch.Metadata._metadata) {
             return Promise.resolve(pytorch.Metadata._metadata);
         }
-        else {
-            return context.request('pytorch-metadata.json', 'utf-8', null).then((data) => {
-                pytorch.Metadata._metadata = new pytorch.Metadata(data);
-                return pytorch.Metadata._metadata;
-            }).catch(() => {
-                pytorch.Metadata._metadata = new pytorch.Metadata(null);
-                return pytorch.Metadata._metadata;
-            });
-        }
+        return context.request('pytorch-metadata.json', 'utf-8', null).then((data) => {
+            pytorch.Metadata._metadata = new pytorch.Metadata(data);
+            return pytorch.Metadata._metadata;
+        }).catch(() => {
+            pytorch.Metadata._metadata = new pytorch.Metadata(null);
+            return pytorch.Metadata._metadata;
+        });
     }
 
     constructor(data) {

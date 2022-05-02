@@ -1011,21 +1011,19 @@ dagre.layout = (graph, options) => {
                         if (!inV.length) {
                             return { v: v };
                         }
-                        else {
-                            const result = inV.reduce((acc, e) => {
-                                const edge = e.label;
-                                const nodeU = e.vNode.label;
-                                return {
-                                    sum: acc.sum + (edge.weight * nodeU.order),
-                                    weight: acc.weight + edge.weight
-                                };
-                            }, { sum: 0, weight: 0 });
+                        const result = inV.reduce((acc, e) => {
+                            const edge = e.label;
+                            const nodeU = e.vNode.label;
                             return {
-                                v: v,
-                                barycenter: result.sum / result.weight,
-                                weight: result.weight
+                                sum: acc.sum + (edge.weight * nodeU.order),
+                                weight: acc.weight + edge.weight
                             };
-                        }
+                        }, { sum: 0, weight: 0 });
+                        return {
+                            v: v,
+                            barycenter: result.sum / result.weight,
+                            weight: result.weight
+                        };
                     });
                 };
                 const sort = (entries, biasRight) => {

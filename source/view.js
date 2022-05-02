@@ -532,106 +532,104 @@ view.View = class {
             if (!graph) {
                 return Promise.resolve();
             }
-            else {
-                this._zoom = 1;
+            this._zoom = 1;
 
-                const groups = graph.groups;
-                const nodes = graph.nodes;
-                this._host.event('Graph', 'Render', 'Size', nodes.length);
+            const groups = graph.groups;
+            const nodes = graph.nodes;
+            this._host.event('Graph', 'Render', 'Size', nodes.length);
 
-                const options = {};
-                options.nodesep = 20;
-                options.ranksep = 20;
-                const rotate = graph.nodes.every((node) => node.inputs.filter((input) => input.arguments.every((argument) => !argument.initializer)).length === 0 && node.outputs.length === 0);
-                const horizontal = rotate ? this._options.direction === 'vertical' : this._options.direction !== 'vertical';
-                if (horizontal) {
-                    options.rankdir = "LR";
-                }
-                if (nodes.length > 3000) {
-                    options.ranker = 'longest-path';
-                }
-
-                const viewGraph = new view.Graph(this, model, groups, options);
-                viewGraph.add(graph);
-
-                // Workaround for Safari background drag/zoom issue:
-                // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
-                const background = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                background.setAttribute('id', 'background');
-                background.setAttribute('fill', 'none');
-                background.setAttribute('pointer-events', 'all');
-                canvas.appendChild(background);
-
-                const origin = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                origin.setAttribute('id', 'origin');
-                canvas.appendChild(origin);
-
-                viewGraph.build(this._host.document, origin);
-
-                this._zoom = 1;
-
-                return this._timeout(20).then(() => {
-
-                    viewGraph.update();
-
-                    const elements = Array.from(canvas.getElementsByClassName('graph-input') || []);
-                    if (elements.length === 0) {
-                        const nodeElements = Array.from(canvas.getElementsByClassName('graph-node') || []);
-                        if (nodeElements.length > 0) {
-                            elements.push(nodeElements[0]);
-                        }
-                    }
-
-                    const size = canvas.getBBox();
-                    const margin = 100;
-                    const width = Math.ceil(margin + size.width + margin);
-                    const height = Math.ceil(margin + size.height + margin);
-                    origin.setAttribute('transform', 'translate(' + margin.toString() + ', ' + margin.toString() + ') scale(1)');
-                    background.setAttribute('width', width);
-                    background.setAttribute('height', height);
-                    this._width = width;
-                    this._height = height;
-                    delete this._scrollLeft;
-                    delete this._scrollRight;
-                    canvas.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
-                    canvas.setAttribute('width', width);
-                    canvas.setAttribute('height', height);
-
-                    this._zoom = 1;
-                    this._updateZoom(this._zoom);
-
-                    const container = this._getElementById('graph');
-                    if (elements && elements.length > 0) {
-                        // Center view based on input elements
-                        const xs = [];
-                        const ys = [];
-                        for (let i = 0; i < elements.length; i++) {
-                            const element = elements[i];
-                            const rect = element.getBoundingClientRect();
-                            xs.push(rect.left + (rect.width / 2));
-                            ys.push(rect.top + (rect.height / 2));
-                        }
-                        let x = xs[0];
-                        const y = ys[0];
-                        if (ys.every(y => y === ys[0])) {
-                            x = xs.reduce((a, b) => a + b, 0) / xs.length;
-                        }
-                        const graphRect = container.getBoundingClientRect();
-                        const left = (container.scrollLeft + x - graphRect.left) - (graphRect.width / 2);
-                        const top = (container.scrollTop + y - graphRect.top) - (graphRect.height / 2);
-                        container.scrollTo({ left: left, top: top, behavior: 'auto' });
-                    }
-                    else {
-                        const canvasRect = canvas.getBoundingClientRect();
-                        const graphRect = container.getBoundingClientRect();
-                        const left = (container.scrollLeft + (canvasRect.width / 2) - graphRect.left) - (graphRect.width / 2);
-                        const top = (container.scrollTop + (canvasRect.height / 2) - graphRect.top) - (graphRect.height / 2);
-                        container.scrollTo({ left: left, top: top, behavior: 'auto' });
-                    }
-                    this._graph = viewGraph;
-                    return;
-                });
+            const options = {};
+            options.nodesep = 20;
+            options.ranksep = 20;
+            const rotate = graph.nodes.every((node) => node.inputs.filter((input) => input.arguments.every((argument) => !argument.initializer)).length === 0 && node.outputs.length === 0);
+            const horizontal = rotate ? this._options.direction === 'vertical' : this._options.direction !== 'vertical';
+            if (horizontal) {
+                options.rankdir = "LR";
             }
+            if (nodes.length > 3000) {
+                options.ranker = 'longest-path';
+            }
+
+            const viewGraph = new view.Graph(this, model, groups, options);
+            viewGraph.add(graph);
+
+            // Workaround for Safari background drag/zoom issue:
+            // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
+            const background = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            background.setAttribute('id', 'background');
+            background.setAttribute('fill', 'none');
+            background.setAttribute('pointer-events', 'all');
+            canvas.appendChild(background);
+
+            const origin = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            origin.setAttribute('id', 'origin');
+            canvas.appendChild(origin);
+
+            viewGraph.build(this._host.document, origin);
+
+            this._zoom = 1;
+
+            return this._timeout(20).then(() => {
+
+                viewGraph.update();
+
+                const elements = Array.from(canvas.getElementsByClassName('graph-input') || []);
+                if (elements.length === 0) {
+                    const nodeElements = Array.from(canvas.getElementsByClassName('graph-node') || []);
+                    if (nodeElements.length > 0) {
+                        elements.push(nodeElements[0]);
+                    }
+                }
+
+                const size = canvas.getBBox();
+                const margin = 100;
+                const width = Math.ceil(margin + size.width + margin);
+                const height = Math.ceil(margin + size.height + margin);
+                origin.setAttribute('transform', 'translate(' + margin.toString() + ', ' + margin.toString() + ') scale(1)');
+                background.setAttribute('width', width);
+                background.setAttribute('height', height);
+                this._width = width;
+                this._height = height;
+                delete this._scrollLeft;
+                delete this._scrollRight;
+                canvas.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+                canvas.setAttribute('width', width);
+                canvas.setAttribute('height', height);
+
+                this._zoom = 1;
+                this._updateZoom(this._zoom);
+
+                const container = this._getElementById('graph');
+                if (elements && elements.length > 0) {
+                    // Center view based on input elements
+                    const xs = [];
+                    const ys = [];
+                    for (let i = 0; i < elements.length; i++) {
+                        const element = elements[i];
+                        const rect = element.getBoundingClientRect();
+                        xs.push(rect.left + (rect.width / 2));
+                        ys.push(rect.top + (rect.height / 2));
+                    }
+                    let x = xs[0];
+                    const y = ys[0];
+                    if (ys.every(y => y === ys[0])) {
+                        x = xs.reduce((a, b) => a + b, 0) / xs.length;
+                    }
+                    const graphRect = container.getBoundingClientRect();
+                    const left = (container.scrollLeft + x - graphRect.left) - (graphRect.width / 2);
+                    const top = (container.scrollTop + y - graphRect.top) - (graphRect.height / 2);
+                    container.scrollTo({ left: left, top: top, behavior: 'auto' });
+                }
+                else {
+                    const canvasRect = canvas.getBoundingClientRect();
+                    const graphRect = container.getBoundingClientRect();
+                    const left = (container.scrollLeft + (canvasRect.width / 2) - graphRect.left) - (graphRect.width / 2);
+                    const top = (container.scrollTop + (canvasRect.height / 2) - graphRect.top) - (graphRect.height / 2);
+                    container.scrollTo({ left: left, top: top, behavior: 'auto' });
+                }
+                this._graph = viewGraph;
+                return;
+            });
         }
         catch (error) {
             return Promise.reject(error);
@@ -1874,16 +1872,14 @@ view.ModelFactoryService = class {
                     });
                 });
             }
-            else {
-                if (success) {
-                    if (errors.length === 1) {
-                        const error = errors[0];
-                        return Promise.reject(error);
-                    }
-                    return Promise.reject(new view.Error(errors.map((err) => err.message).join('\n')));
+            if (success) {
+                if (errors.length === 1) {
+                    const error = errors[0];
+                    return Promise.reject(error);
                 }
-                return Promise.resolve(null);
+                return Promise.reject(new view.Error(errors.map((err) => err.message).join('\n')));
             }
+            return Promise.resolve(null);
         };
         return nextModule();
     }
@@ -1920,70 +1916,66 @@ view.ModelFactoryService = class {
                                     return nextModule();
                                 });
                             }
-                            else {
-                                return nextEntry();
-                            }
+                            return nextEntry();
                         };
                         return nextModule();
                     }
-                    else {
-                        if (matches.length === 0) {
-                            return Promise.resolve(null);
-                        }
-                        // MXNet
-                        if (matches.length === 2 &&
-                            matches.some((e) => e.name.toLowerCase().endsWith('.params')) &&
-                            matches.some((e) => e.name.toLowerCase().endsWith('-symbol.json'))) {
-                            matches = matches.filter((e) => e.name.toLowerCase().endsWith('.params'));
-                        }
-                        // TensorFlow.js
-                        if (matches.length > 0 &&
-                            matches.some((e) => e.name.toLowerCase().endsWith('.bin')) &&
-                            matches.some((e) => e.name.toLowerCase().endsWith('.json'))) {
-                            matches = matches.filter((e) => e.name.toLowerCase().endsWith('.json'));
-                        }
-                        // ncnn
-                        if (matches.length > 0 &&
-                            matches.some((e) => e.name.toLowerCase().endsWith('.bin')) &&
-                            matches.some((e) => e.name.toLowerCase().endsWith('.param'))) {
-                            matches = matches.filter((e) => e.name.toLowerCase().endsWith('.param'));
-                        }
-                        // ncnn
-                        if (matches.length > 0 &&
-                            matches.some((e) => e.name.toLowerCase().endsWith('.bin')) &&
-                            matches.some((e) => e.name.toLowerCase().endsWith('.param.bin'))) {
-                            matches = matches.filter((e) => e.name.toLowerCase().endsWith('.param.bin'));
-                        }
-                        // Paddle
-                        if (matches.length > 0 &&
-                            matches.some((e) => e.name.toLowerCase().endsWith('.pdmodel')) &&
-                            (matches.some((e) => e.name.toLowerCase().endsWith('.pdparams')) ||
-                             matches.some((e) => e.name.toLowerCase().endsWith('.pdopt')) ||
-                             matches.some((e) => e.name.toLowerCase().endsWith('.pdiparams')))) {
-                            matches = matches.filter((e) => e.name.toLowerCase().endsWith('.pdmodel'));
-                        }
-                        // Paddle Lite
-                        if (matches.length > 0 &&
-                            matches.some((e) => e.name.toLowerCase().split('/').pop() === '__model__.nb') &&
-                            matches.some((e) => e.name.toLowerCase().split('/').pop() === 'param.nb')) {
-                            matches = matches.filter((e) => e.name.toLowerCase().split('/').pop() == '__model__.nb');
-                        }
-                        // TensorFlow Bundle
-                        if (matches.length > 1 &&
-                            matches.some((e) => e.name.toLowerCase().endsWith('.data-00000-of-00001'))) {
-                            matches = matches.filter((e) => !e.name.toLowerCase().endsWith('.data-00000-of-00001'));
-                        }
-                        // TensorFlow SavedModel
-                        if (matches.length === 2 &&
-                            matches.some((e) => e.name.toLowerCase().split('/').pop() === 'keras_metadata.pb')) {
-                            matches = matches.filter((e) => e.name.toLowerCase().split('/').pop() !== 'keras_metadata.pb');
-                        }
-                        if (matches.length > 1) {
-                            return Promise.reject(new view.ArchiveError('Archive contains multiple model files.'));
-                        }
-                        const match = matches.shift();
-                        return Promise.resolve(new view.ModelContext(new view.ArchiveContext(this._host, entries, folder, match.name, match.stream)));
+                    if (matches.length === 0) {
+                        return Promise.resolve(null);
                     }
+                    // MXNet
+                    if (matches.length === 2 &&
+                        matches.some((e) => e.name.toLowerCase().endsWith('.params')) &&
+                        matches.some((e) => e.name.toLowerCase().endsWith('-symbol.json'))) {
+                        matches = matches.filter((e) => e.name.toLowerCase().endsWith('.params'));
+                    }
+                    // TensorFlow.js
+                    if (matches.length > 0 &&
+                        matches.some((e) => e.name.toLowerCase().endsWith('.bin')) &&
+                        matches.some((e) => e.name.toLowerCase().endsWith('.json'))) {
+                        matches = matches.filter((e) => e.name.toLowerCase().endsWith('.json'));
+                    }
+                    // ncnn
+                    if (matches.length > 0 &&
+                        matches.some((e) => e.name.toLowerCase().endsWith('.bin')) &&
+                        matches.some((e) => e.name.toLowerCase().endsWith('.param'))) {
+                        matches = matches.filter((e) => e.name.toLowerCase().endsWith('.param'));
+                    }
+                    // ncnn
+                    if (matches.length > 0 &&
+                        matches.some((e) => e.name.toLowerCase().endsWith('.bin')) &&
+                        matches.some((e) => e.name.toLowerCase().endsWith('.param.bin'))) {
+                        matches = matches.filter((e) => e.name.toLowerCase().endsWith('.param.bin'));
+                    }
+                    // Paddle
+                    if (matches.length > 0 &&
+                        matches.some((e) => e.name.toLowerCase().endsWith('.pdmodel')) &&
+                        (matches.some((e) => e.name.toLowerCase().endsWith('.pdparams')) ||
+                            matches.some((e) => e.name.toLowerCase().endsWith('.pdopt')) ||
+                            matches.some((e) => e.name.toLowerCase().endsWith('.pdiparams')))) {
+                        matches = matches.filter((e) => e.name.toLowerCase().endsWith('.pdmodel'));
+                    }
+                    // Paddle Lite
+                    if (matches.length > 0 &&
+                        matches.some((e) => e.name.toLowerCase().split('/').pop() === '__model__.nb') &&
+                        matches.some((e) => e.name.toLowerCase().split('/').pop() === 'param.nb')) {
+                        matches = matches.filter((e) => e.name.toLowerCase().split('/').pop() == '__model__.nb');
+                    }
+                    // TensorFlow Bundle
+                    if (matches.length > 1 &&
+                        matches.some((e) => e.name.toLowerCase().endsWith('.data-00000-of-00001'))) {
+                        matches = matches.filter((e) => !e.name.toLowerCase().endsWith('.data-00000-of-00001'));
+                    }
+                    // TensorFlow SavedModel
+                    if (matches.length === 2 &&
+                        matches.some((e) => e.name.toLowerCase().split('/').pop() === 'keras_metadata.pb')) {
+                        matches = matches.filter((e) => e.name.toLowerCase().split('/').pop() !== 'keras_metadata.pb');
+                    }
+                    if (matches.length > 1) {
+                        return Promise.reject(new view.ArchiveError('Archive contains multiple model files.'));
+                    }
+                    const match = matches.shift();
+                    return Promise.resolve(new view.ModelContext(new view.ArchiveContext(this._host, entries, folder, match.name, match.stream)));
                 };
                 return nextEntry();
             };

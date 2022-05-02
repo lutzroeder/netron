@@ -902,7 +902,7 @@ xml.TextReader = class {
 
     _resolveEntityReference() {
         const position = this._position;
-        const entity = this._entityReference();
+        let entity = this._entityReference();
         const name = entity.substring(1, entity.length - 1);
         if (name.startsWith('#x')) {
             const value = parseInt(name.substring(2), 16);
@@ -915,24 +915,22 @@ xml.TextReader = class {
         else if (this._entities.has(name)) {
             return this._entities.get(name);
         }
-        else {
-            const documentType = this._document().documentType;
-            const entity = documentType ? documentType.entities.getNamedItem(name) : null;
-            if (entity) {
-                if (entity.systemId) {
-                    this._pushResource(entity.systemId, name, true);
-                }
-                else {
-                    this._pushString(entity.value, name, true);
-                }
+        const documentType = this._document().documentType;
+        entity = documentType ? documentType.entities.getNamedItem(name) : null;
+        if (entity) {
+            if (entity.systemId) {
+                this._pushResource(entity.systemId, name, true);
             }
             else {
-                if (this._context.length !== 0 || !documentType || documentType.parameterEntities.length === 0) {
-                    this._error("Undefined ENTITY '" + name + "'", position);
-                }
+                this._pushString(entity.value, name, true);
             }
-            return undefined;
         }
+        else {
+            if (this._context.length !== 0 || !documentType || documentType.parameterEntities.length === 0) {
+                this._error("Undefined ENTITY '" + name + "'", position);
+            }
+        }
+        return undefined;
     }
 
     /* eslint-disable consistent-return */

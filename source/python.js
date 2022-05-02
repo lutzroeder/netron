@@ -1896,10 +1896,8 @@ python.Execution = class {
                 if (this.dtype.__name__ == 'object') {
                     return unpickler.load((name, args) => self.invoke(name, args), null);
                 }
-                else {
-                    const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b, 1);
-                    this.data = unpickler.read(size);
-                }
+                const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b, 1);
+                this.data = unpickler.read(size);
                 return self.invoke(this.subclass, [ this.shape, this.dtype, this.data ]);
             }
         });
@@ -2121,10 +2119,8 @@ python.Execution = class {
                 if (this.dtype.__name__ == 'object') {
                     return unpickler.load((name, args) => self.invoke(name, args), null);
                 }
-                else {
-                    const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b, 1);
-                    this.data = unpickler.read(size);
-                }
+                const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b, 1);
+                this.data = unpickler.read(size);
                 return self.invoke(this.subclass, [ this.shape, this.dtype, this.data ]);
             }
         });
@@ -2914,9 +2910,7 @@ python.Execution = class {
                 if (target.__call__) {
                     return target.__call__(args);
                 }
-                else {
-                    return target.apply(null, args);
-                }
+                return target.apply(null, args);
             }
         }
         this._raiseUnkownName(name);

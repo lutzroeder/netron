@@ -278,9 +278,7 @@ base.Utility = class {
             if (b.isNegative) {
                 return this.negate().multiply(b.negate());
             }
-            else {
-                return this.negate().multiply(b).negate();
-            }
+            return this.negate().multiply(b).negate();
         }
         else if (b.isNegative) {
             return this.multiply(b.negate()).negate();
@@ -341,19 +339,15 @@ base.Utility = class {
                 else if (b.equals(base.Int64.min)) {
                     return base.Int64.one;
                 }
-                else {
-                    const half = base.Utility._shiftRight(a, unsigned, 1);
-                    const halfDivide = half.divide(b);
-                    approx = base.Utility._shiftLeft(halfDivide, halfDivide instanceof base.Uint64, 1);
-                    if (approx.eq(base.Int64.zero)) {
-                        return b.isNegative ? base.Int64.one : base.Int64.negativeOne;
-                    }
-                    else {
-                        remainder = a.subtract(b.multiply(approx));
-                        result = approx.add(remainder.divide(b));
-                        return result;
-                    }
+                const half = base.Utility._shiftRight(a, unsigned, 1);
+                const halfDivide = half.divide(b);
+                approx = base.Utility._shiftLeft(halfDivide, halfDivide instanceof base.Uint64, 1);
+                if (approx.eq(base.Int64.zero)) {
+                    return b.isNegative ? base.Int64.one : base.Int64.negativeOne;
                 }
+                remainder = a.subtract(b.multiply(approx));
+                result = approx.add(remainder.divide(b));
+                return result;
             }
             else if (b.equals(base.Int64.min)) {
                 return unsigned ? base.Uint64.zero : base.Int64.zero;

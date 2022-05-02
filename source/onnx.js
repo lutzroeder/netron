@@ -77,9 +77,7 @@ onnx.ModelFactory = class {
                                 if (value === number) {
                                     return type === 2 ? reader.bytes() : null;
                                 }
-                                else {
-                                    reader.skipType(type);
-                                }
+                                reader.skipType(type);
                             }
                             return null;
                         };
