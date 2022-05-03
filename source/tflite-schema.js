@@ -371,7 +371,8 @@ $root.tflite.BuiltinOperator = {
     RANDOM_UNIFORM: 148,
     MULTINOMIAL: 149,
     GELU: 150,
-    DYNAMIC_UPDATE_SLICE: 151
+    DYNAMIC_UPDATE_SLICE: 151,
+    RELU_0_TO_1: 152
 };
 
 $root.tflite.BuiltinOptions = class {
