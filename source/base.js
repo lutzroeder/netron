@@ -620,7 +620,6 @@ base.BinaryReader = class {
         this._position = 0;
         this._length = this._buffer.length;
         this._view = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
-        this._utf8 = new TextDecoder('utf-8');
     }
 
     get length() {
@@ -720,7 +719,8 @@ base.BinaryReader = class {
         const position = this._position;
         this.skip(length);
         const data = this._buffer.subarray(position, this._position);
-        return this._utf8.decode(data);
+        this._decoder = this._decoder || new TextDecoder('utf-8');
+        return this._decoder.decode(data);
     }
 };
 

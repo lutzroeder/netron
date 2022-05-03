@@ -726,5 +726,6 @@ window.addEventListener('load', () => {
     global.protobuf = require('./protobuf');
     global.flatbuffers = require('./flatbuffers');
     const view = require('./view');
-    window.__view__ = new view.View(new host.ElectronHost());
+    window.__host__ = new host.ElectronHost();
+    window.__view__ = new view.View(window.__host__);
 });

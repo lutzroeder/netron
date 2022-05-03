@@ -1784,7 +1784,7 @@ tf.TensorBundle.Table.Block = class {
         for (let i = 0; i < numRestarts; i++) {
             restartOffsets.push(reader.int32());
         }
-        const textDecoder = new TextDecoder();
+        const decoder = new TextDecoder();
         for (let i = 0; i < numRestarts; i++) {
             reader.seek(restartOffsets[i]);
             let key = '';
@@ -1796,7 +1796,7 @@ tf.TensorBundle.Table.Block = class {
                     break;
                 }
                 key = key.substring(0, sharedSize);
-                key = key + textDecoder.decode(reader.read(nonSharedSize));
+                key = key + decoder.decode(reader.read(nonSharedSize));
                 const value = reader.read(valueSize);
                 this.entries.set(key, value);
             }

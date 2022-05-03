@@ -1539,7 +1539,6 @@ onnx.GraphContext = class {
 
     constructor(context, nodes) {
         this._context = context;
-        this._decoder = new TextDecoder('utf-8');
         this._dataTypes = new Map(Object.entries(onnx.DataType).map((entry) => [ entry[1], entry[0].toLowerCase() ]));
         this._dataTypes.set(onnx.DataType.UNDEFINED, 'UNDEFINED');
         this._dataTypes.set(onnx.DataType.BOOL, 'boolean');
@@ -1707,6 +1706,7 @@ onnx.GraphContext = class {
         if (typeof value === 'string') {
             return value;
         }
+        this._decoder = this._decoder || new TextDecoder('utf-8');
         return this._decoder.decode(value);
     }
 

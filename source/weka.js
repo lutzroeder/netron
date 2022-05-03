@@ -205,7 +205,6 @@ java.io.InputObjectStream.BinaryReader = class {
         this._position = 0;
         this._length = buffer.length;
         this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-        this._decoder = new TextDecoder('utf-8');
     }
 
     skip(offset) {
@@ -243,6 +242,7 @@ java.io.InputObjectStream.BinaryReader = class {
         const size = long ? this.uint64().toNumber() : this.uint16();
         const position = this._position;
         this.skip(size);
+        this._decoder = this._decoder || new TextDecoder('utf-8');
         return this._decoder.decode(this._buffer.subarray(position, this._position));
     }
 };

@@ -14,7 +14,6 @@ msgpack.BinaryReader = class {
         this._callback = callback;
         this._position = 0;
         this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-        this._decoder = new TextDecoder('utf8');
     }
 
     read() {
@@ -178,6 +177,7 @@ msgpack.BinaryReader = class {
 
     string(size) {
         const buffer = this.bytes(size);
+        this._decoder = this._decoder || new TextDecoder('utf8');
         return this._decoder.decode(buffer);
     }
 };

@@ -544,7 +544,7 @@ mlnet.ModelHeader = class {
         if (data) {
             const reader = new mlnet.Reader(data);
 
-            const textDecoder = new TextDecoder('ascii');
+            const decoder = new TextDecoder('ascii');
             reader.assert('ML\0MODEL');
             this.versionWritten = reader.uint32();
             this.versionReadable = reader.uint32();
@@ -555,11 +555,11 @@ mlnet.ModelHeader = class {
             const stringTableSize = reader.uint64();
             const stringCharsOffset = reader.uint64();
             /* v stringCharsSize = */ reader.uint64();
-            this.modelSignature = textDecoder.decode(reader.bytes(8));
+            this.modelSignature = decoder.decode(reader.bytes(8));
             this.modelVersionWritten = reader.uint32();
             this.modelVersionReadable = reader.uint32();
-            this.loaderSignature = textDecoder.decode(reader.bytes(24).filter((c) => c != 0));
-            this.loaderSignatureAlt = textDecoder.decode(reader.bytes(24).filter((c) => c != 0));
+            this.loaderSignature = decoder.decode(reader.bytes(24).filter((c) => c != 0));
+            this.loaderSignatureAlt = decoder.decode(reader.bytes(24).filter((c) => c != 0));
             const tailOffset = reader.uint64();
             /* let tailLimit = */ reader.uint64();
             const assemblyNameOffset = reader.uint64();
@@ -587,7 +587,7 @@ mlnet.ModelHeader = class {
             }
             if (assemblyNameOffset != 0) {
                 reader.seek(assemblyNameOffset);
-                this.assemblyName = textDecoder.decode(reader.bytes(assemblyNameSize));
+                this.assemblyName = decoder.decode(reader.bytes(assemblyNameSize));
             }
             reader.seek(tailOffset);
             reader.assert('LEDOM\0LM');

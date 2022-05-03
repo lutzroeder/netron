@@ -1056,7 +1056,8 @@ kmodel.Reader = class {
                     };
                     reader.module_type_t = function() {
                         const buffer = reader.read(16);
-                        return new TextDecoder('ascii').decode(buffer);
+                        const decoder = new TextDecoder('ascii');
+                        return decoder.decode(buffer);
                     };
                     reader.module_header = function() {
                         return {
@@ -1079,8 +1080,9 @@ kmodel.Reader = class {
                         };
                     };
                     reader.section_header = function() {
+                        const decoder = new TextDecoder('ascii');
                         return {
-                            name: new TextDecoder('ascii').decode(reader.read(16)),
+                            name: decoder.decode(reader.read(16)),
                             flags: reader.uint32(),
                             body_start: reader.uint32(),
                             body_size: reader.uint32(),

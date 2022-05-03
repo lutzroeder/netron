@@ -28,7 +28,6 @@ host.BrowserHost = class {
         this._telemetry = this._version && this._version !== '0.0.0';
         this._environment = new Map();
         this._environment.set('zoom', 'scroll');
-        // this._environment.set('zoom', 'drag');
     }
 
     get window() {
@@ -68,6 +67,9 @@ host.BrowserHost = class {
                             this.window.ga.l = 1 * new Date();
                             this.window.ga('create', 'UA-54146-13', 'auto');
                             this.window.ga('set', 'anonymizeIp', true);
+                        }
+                        if (typeof fetch === 'undefined') {
+                            this.event('Host', 'Browser', 'fetch', 1);
                         }
                         resolve();
                     };
@@ -841,6 +843,10 @@ host.BrowserHost.BrowserContext = class {
 if (typeof TextDecoder === "undefined") {
     TextDecoder = function TextDecoder(encoding) {
         this._encoding = encoding;
+        if (window.__host__ && !TextEncoder.__event__) {
+            TextEncoder.__event__ = true;
+            window.__host__.event('Host', 'Browser', 'TextDecoder', 1);
+        }
     };
     TextDecoder.prototype.decode = function decode(buffer) {
         let result = '';
@@ -893,6 +899,10 @@ if (typeof TextDecoder === "undefined") {
 
 if (typeof TextEncoder === 'undefined') {
     TextEncoder = function TextEncoder() {
+        if (window.__host__ && !TextEncoder.__event__) {
+            TextEncoder.__event__ = true;
+            window.__host__.event('Host', 'Browser', 'TextEncoder', 1);
+        }
     };
     TextEncoder.prototype.encode = function encode(str) {
         "use strict";
@@ -937,7 +947,7 @@ if (typeof TextEncoder === 'undefined') {
                 resArr[resPos += 1] = (0x2<<6) | (point&0x3f);
             }
         }
-        if (typeof Uint8Array!=="undefined") {
+        if (typeof Uint8Array !== "undefined") {
             return new Uint8Array(resArr.buffer.slice(0, resPos+1));
         }
         return resArr.length === resPos + 1 ? resArr : resArr.slice(0, resPos + 1);
@@ -965,6 +975,10 @@ if (typeof TextEncoder === 'undefined') {
 
 if (typeof URLSearchParams === 'undefined') {
     URLSearchParams = function URLSearchParams(search) {
+        if (window.__host__ && !URLSearchParams.__event__) {
+            URLSearchParams.__event__ = true;
+            window.__host__.event('Host', 'Browser', 'URLSearchParams', 1);
+        }
         const decode = (str) => {
             return str.replace(/[ +]/g, '%20').replace(/(%[a-f0-9]{2})+/ig, (match) => { return decodeURIComponent(match); });
         };
@@ -990,6 +1004,10 @@ if (typeof URLSearchParams === 'undefined') {
 
 if (!HTMLCanvasElement.prototype.toBlob) {
     HTMLCanvasElement.prototype.toBlob = function(callback, type, quality) {
+        if (window.__host__ && !HTMLCanvasElement.__event__) {
+            HTMLCanvasElement.__event__ = true;
+            window.__host__.event('Host', 'Browser', 'HTMLCanvasElement.toBlob', 1);
+        }
         const canvas = this;
         setTimeout(function() {
             const data = atob(canvas.toDataURL(type, quality).split(',')[1]);
@@ -1044,5 +1062,6 @@ if (!('scrollBehavior' in window.document.documentElement.style)) {
 }
 
 window.addEventListener('load', () => {
-    window.__view__ = new view.View(new host.BrowserHost());
+    window.__host__ = new host.BrowserHost();
+    window.__view__ = new view.View(window.__host__);
 });

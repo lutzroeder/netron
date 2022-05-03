@@ -550,7 +550,6 @@ dl4j.BinaryReader = class {
         this._buffer = buffer;
         this._position = 0;
         this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-        this._decoder = new TextDecoder('ascii');
     }
 
     bytes(size) {
@@ -562,6 +561,7 @@ dl4j.BinaryReader = class {
     string() {
         const size = this._buffer[this._position++] << 8 | this._buffer[this._position++];
         const buffer = this.bytes(size);
+        this._decoder = this._decoder || new TextDecoder('ascii');
         return this._decoder.decode(buffer);
     }
 
