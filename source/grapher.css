@@ -37,6 +37,7 @@
 .node-item-type-data path { fill: rgb(85, 85, 85); }
 .node-item-type-quantization path { fill: rgb(80, 40, 0); }
 .node-item-type-custom path { fill: rgb(128, 128, 128); }
+.node-item-type-onednngraph-backend0 path { fill: rgb(0, 113, 197); }
 
 .node-item-input path { fill: #fff; }
 .node-item-input:hover { cursor: pointer; }
