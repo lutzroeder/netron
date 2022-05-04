@@ -1254,6 +1254,7 @@ tf.Tensor = class {
                     }
                     case DataType.DT_INT8:
                     case DataType.DT_UINT8:
+                    case DataType.DT_INT16:
                     case DataType.DT_INT32: {
                         this._data = tensor.int_val || null;
                         break;
