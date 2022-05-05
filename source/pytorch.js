@@ -3782,6 +3782,7 @@ pytorch.Utility = class {
             }
             if (obj && Object(obj) === obj) {
                 const target = {};
+                const map_count = Object.entries(obj).filter((entry) => entry[1] instanceof Map).length;
                 for (const entry of Object.entries(obj)) {
                     const key = entry[0];
                     const value = entry[1];
@@ -3789,6 +3790,9 @@ pytorch.Utility = class {
                         if (value === null || (value.state && value.param_groups)) {
                             continue;
                         }
+                    }
+                    if (map_count > 2 && key.endsWith('_avg') && pytorch.Utility.isTensor(value)) {
+                        continue;
                     }
                     if (typeof value === 'number' || typeof value === 'string' || typeof value === 'boolean') {
                         continue;
@@ -3802,7 +3806,8 @@ pytorch.Utility = class {
                     if (value && value.__class__ && value.__class__.__module__ === 'datetime' && value.__class__.__name__ === 'datetime') {
                         continue;
                     }
-                    if ((key.startsWith('dico_') && Object(value) === value) || (key === 'args' && Object(value) === value) ||
+                    if ((key.startsWith('dico_') && Object(value) === value) ||
+                        (key === 'args' && Object(value) === value) ||
                         (key.startsWith('params') && Object(value) === value && (value.id2lang || value.lang2id)) ||
                         (key.startsWith('spk_dict_') && Object(value) === value && Object.keys(value).length === 0)) {
                         continue;
