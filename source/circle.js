@@ -359,8 +359,9 @@ circle.Node = class {
             }
             const options = node.builtin_options;
             if (options) {
-                for (const name of Object.keys(options)) {
-                    const value = options[name];
+                for (const entry of Object.entries(options)) {
+                    const name = entry[0];
+                    const value = entry[1];
                     if (name === 'fused_activation_function' && value !== 0) {
                         const activationFunctionMap = { 1: 'Relu', 2: 'ReluN1To1', 3: 'Relu6', 4: 'Tanh', 5: 'SignBit' };
                         if (!activationFunctionMap[value]) {
