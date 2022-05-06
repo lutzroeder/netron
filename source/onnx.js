@@ -1155,7 +1155,7 @@ onnx.Tensor = class {
                 }
                 return indentation + value.toString();
             default:
-                if (value.toString) {
+                if (value && value.toString) {
                     return indentation + value.toString();
                 }
                 return indentation + '(undefined)';
