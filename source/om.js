@@ -315,7 +315,7 @@ om.Attribute = class {
                 break;
             }
             default: {
-                throw new om.Error("Unsupported attribute type '" + JSON.stringify(value).substring(32) + "'.");
+                throw new om.Error("Unsupported attribute type '" + JSON.stringify(value).substring(0, 32) + "'.");
             }
         }
     }
