@@ -11594,7 +11594,7 @@
   {
     "name": "DataFormatVecPermute",
     "summary": "Permute input tensor from `src_format` to `dst_format`.",
-    "description": "Input tensor must be a vector of size 4, or a 4x2 tensor.\n\nFor example, with `src_format` of `NHWC`, `dst_format` of `NCHW`, and inputs:\n```\n[1, 2, 3, 4]\n```\nand\n```\n[[1, 2, 3, 4],\n [5, 6, 7, 8]]\n```\n, the outputs will be (respectively):\n```\n[1, 4, 2, 3]\n```\nand\n```\n[[1, 4, 2, 3],\n [5, 8, 6, 7]]\n```",
+    "description": "Given source and destination format strings of length n=4 or 5, the input\ntensor must be a vector of size n or n-2, or a 2D tensor of shape\n(n, 2) or (n-2, 2).\n\nIf the first dimension of the input tensor is n-2, it is assumed that\nnon-spatial dimensions are omitted (i.e `N`, `C`).\n\nFor example, with `src_format` of `NHWC`, `dst_format` of `NCHW`, and input:\n```\n[1, 2, 3, 4]\n```\n, the output will be:\n```\n[1, 4, 2, 3]\n```\nWith `src_format` of `NDHWC`, `dst_format` of `NCDHW`, and input:\n```\n[[1, 6], [2, 7], [3, 8], [4, 9], [5, 10]]\n```\n, the output will be:\n```\n[[1, 6], [5, 10], [2, 7], [3, 8], [4, 9]]\n```\nWith `src_format` of `NHWC`, `dst_format` of `NCHW`, and input:\n```\n[1, 2]\n```\n, the output will be:\n```\n[1, 2]\n```",
     "attributes": [
       {
         "name": "T",
@@ -11621,14 +11621,14 @@
     "inputs": [
       {
         "name": "x",
-        "description": "Vector of size 4 or Tensor of shape (4, 2) in source data format.",
+        "description": "Tensor of rank 1 or 2 in source data format.",
         "typeAttr": "T"
       }
     ],
     "outputs": [
       {
         "name": "y",
-        "description": "Vector of size 4 or Tensor of shape (4, 2) in destination data format.",
+        "description": "Tensor of rank 1 or 2 in destination data format.",
         "typeAttr": "T"
       }
     ]
@@ -37429,6 +37429,11 @@
         "name": "metadata",
         "type": "string",
         "default": ""
+      },
+      {
+        "name": "replicate_on_split",
+        "type": "boolean",
+        "default": false
       }
     ],
     "inputs": [
@@ -42798,6 +42803,37 @@
         "name": "output",
         "description": "The same shape as `tensor`.",
         "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "RewriteDataset",
+    "attributes": [
+      {
+        "name": "output_types",
+        "type": "type[]",
+        "minimum": 1
+      },
+      {
+        "name": "output_shapes",
+        "type": "shape[]",
+        "minimum": 1
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input_dataset",
+        "type": 21
+      },
+      {
+        "name": "rewrite_name",
+        "type": 7
+      }
+    ],
+    "outputs": [
+      {
+        "name": "handle",
+        "type": 21
       }
     ]
   },
@@ -53816,6 +53852,46 @@
     ]
   },
   {
+    "name": "StatelessShuffle",
+    "summary": "Randomly and deterministically shuffles a tensor along its first dimension.",
+    "description": "The tensor is shuffled along dimension 0, such that each `value[j]` is mapped\nto one and only one `output[i]`. For example, a mapping that might occur for a\n3x2 tensor is:\n\n```\n[[1, 2],       [[5, 6],\n [3, 4],  ==>   [1, 2],\n [5, 6]]        [3, 4]]\n```\n\nThe outputs are a deterministic function of `value`, `key`, `counter` and `alg`.",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "value",
+        "description": "The tensor to be shuffled.",
+        "typeAttr": "T"
+      },
+      {
+        "name": "key",
+        "description": "Key for the counter-based RNG algorithm (shape uint64[1]).",
+        "type": 23
+      },
+      {
+        "name": "counter",
+        "description": "Initial counter for the counter-based RNG algorithm (shape uint64[2] or uint64[1] depending on the algorithm). If a larger vector is given, only the needed portion on the left (i.e. [:N]) will be used.",
+        "type": 23
+      },
+      {
+        "name": "alg",
+        "description": "The RNG algorithm (shape int32[]).",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "A tensor of same shape and type as `value`, shuffled along its first\ndimension.",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
     "name": "StatelessTruncatedNormal",
     "summary": "Outputs deterministic pseudorandom values from a truncated normal distribution.",
     "description": "The generated values follow a normal distribution with mean 0 and standard\ndeviation 1, except that values whose magnitude is more than 2 standard\ndeviations from the mean are dropped and re-picked.\n\nThe outputs are a deterministic function of `shape` and `seed`.",
@@ -55621,6 +55697,17 @@
       {
         "name": "format_state_var",
         "type": 20
+      }
+    ]
+  },
+  {
+    "name": "TPURoundRobin",
+    "summary": "Round-robin load balancing on TPU cores.",
+    "description": "A load balancing op that round-robins among TPU cores.\n\nThis op round-robins between the integers in [0, NumTPUCoresVisiblePerHost]. It\nis useful for interfacing with TensorFlow ops that take as input a TPU core on\nwhich to execute computations, such as `TPUPartitionedCall`.\n\ndevice_ordinal: An integer in [0, NumTPUCoresVisiblePerHost].",
+    "outputs": [
+      {
+        "name": "device_ordinal",
+        "type": 3
       }
     ]
   },
@@ -57956,6 +58043,11 @@
         "name": "metadata",
         "type": "string",
         "default": ""
+      },
+      {
+        "name": "replicate_on_split",
+        "type": "boolean",
+        "default": false
       }
     ],
     "inputs": [
@@ -58585,6 +58677,23 @@
       {
         "name": "topk_indices",
         "type": 3
+      }
+    ]
+  },
+  {
+    "name": "TpuHandleToProtoKey",
+    "summary": "Converts XRT's uid handles to TensorFlow-friendly input format.",
+    "description": "Converts a uid handle for a compiled program into a vector of proto keys.\n\nXRT compile ops return uids, and the TensorFlow execute op takes a proto\nkey. This op enables a client to compile on TPU using XRT and execute using the\nstandard TensorFlow execute op.\n\n'uid' is the input handle.\n'proto_keys' is a vector of proto keys, one for each core program.",
+    "inputs": [
+      {
+        "name": "uid",
+        "type": 9
+      }
+    ],
+    "outputs": [
+      {
+        "name": "proto_keys",
+        "type": 7
       }
     ]
   },
