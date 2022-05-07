@@ -58,25 +58,21 @@ host.ElectronHost = class {
             this._openPath(data.path);
         });
         return new Promise((resolve /*, reject */) => {
-            const accept = () => {
+            const telemetry = () => {
                 if (this._environment.package) {
                     this._telemetry = new host.Telemetry('UA-54146-13', this._getConfiguration('userId'), navigator.userAgent, this.type, this.version);
                 }
                 resolve();
             };
-            const request = () => {
-                this._view.show('welcome consent');
-                const acceptButton = this.document.getElementById('consent-accept-button');
-                if (acceptButton) {
-                    acceptButton.addEventListener('click', () => {
-                        this._setConfiguration('consent', Date.now());
-                        accept();
-                    });
-                }
+            const consent = () => {
+                this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept', () => {
+                    this._setConfiguration('consent', Date.now());
+                    telemetry();
+                });
             };
             const time = this._getConfiguration('consent');
             if (time && (Date.now() - time) < 30 * 24 * 60 * 60 * 1000) {
-                accept();
+                telemetry();
             }
             else {
                 this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 2000).then((text) => {
@@ -85,17 +81,17 @@ host.ElectronHost = class {
                         const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
                         if (json && json.country && !countries.indexOf(json.country) !== -1) {
                             this._setConfiguration('consent', Date.now());
-                            accept();
+                            telemetry();
                         }
                         else {
-                            request();
+                            consent();
                         }
                     }
                     catch (err) {
-                        request();
+                        consent();
                     }
                 }).catch(() => {
-                    request();
+                    consent();
                 });
             }
         });
@@ -460,6 +456,29 @@ host.ElectronHost = class {
 
     _update(data) {
         electron.ipcRenderer.send('update', data);
+    }
+
+    _message(message, button, callback) {
+        const messageText = this.document.getElementById('message');
+        if (messageText) {
+            messageText.innerText = message;
+        }
+        const messageButton = this.document.getElementById('message-button');
+        if (messageButton) {
+            if (button && callback) {
+                messageButton.style.removeProperty('display');
+                messageButton.innerText = button;
+                messageButton.onclick = () => {
+                    messageButton.onclick = null;
+                    callback();
+                };
+            }
+            else {
+                messageButton.style.display = 'none';
+                messageButton.onclick = null;
+            }
+        }
+        this._view.show('welcome message');
     }
 };
 

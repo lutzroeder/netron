@@ -1,8 +1,6 @@
 
-/* eslint "no-global-assign": ["error", {"exceptions": [ "TextDecoder", "TextEncoder", "URLSearchParams" ] } ] */
-/* global view */
-
 var host = {};
+var view = view || {};
 
 host.BrowserHost = class {
 
@@ -57,7 +55,27 @@ host.BrowserHost = class {
     initialize(view) {
         this._view = view;
         return new Promise((resolve /*, reject */) => {
-            const accept = () => {
+            const features = () => {
+                const features = [ 'TextDecoder', 'TextEncoder', 'fetch', 'URLSearchParams', 'HTMLCanvasElement.prototype.toBlob' ];
+                const supported = features.filter((feature) => {
+                    const path = feature.split('.').reverse();
+                    let item = this.window[path.pop()];
+                    while (item && path.length > 0) {
+                        item = item[path.pop()];
+                    }
+                    return !item;
+                });
+                if (supported.length > 0) {
+                    for (const feature of features) {
+                        this.event('Host', 'Browser', feature, 1);
+                    }
+                    this._message('Your browser is not supported.');
+                }
+                else {
+                    resolve();
+                }
+            };
+            const telemetry = () => {
                 if (this._telemetry) {
                     const script = this.document.createElement('script');
                     script.setAttribute('type', 'text/javascript');
@@ -68,32 +86,25 @@ host.BrowserHost = class {
                             this.window.ga('create', 'UA-54146-13', 'auto');
                             this.window.ga('set', 'anonymizeIp', true);
                         }
-                        if (typeof fetch === 'undefined') {
-                            this.event('Host', 'Browser', 'fetch', 1);
-                        }
-                        resolve();
+                        features();
                     };
                     script.onerror = () => {
-                        resolve();
+                        features();
                     };
                     this.document.body.appendChild(script);
                 }
                 else {
-                    resolve();
+                    features();
                 }
             };
-            const request = () => {
-                this._view.show('welcome consent');
-                const acceptButton = this.document.getElementById('consent-accept-button');
-                if (acceptButton) {
-                    acceptButton.addEventListener('click', () => {
-                        this._setCookie('consent', 'yes', 30);
-                        accept();
-                    });
-                }
+            const consent = () => {
+                this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept', () => {
+                    this._setCookie('consent', 'yes', 30);
+                    telemetry();
+                });
             };
             if (this._getCookie('consent')) {
-                accept();
+                telemetry();
             }
             else {
                 this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', 2000).then((text) => {
@@ -102,17 +113,17 @@ host.BrowserHost = class {
                         const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
                         if (json && json.country && !countries.indexOf(json.country) !== -1) {
                             this._setCookie('consent', Date.now(), 30);
-                            accept();
+                            telemetry();
                         }
                         else {
-                            request();
+                            consent();
                         }
                     }
                     catch (err) {
-                        request();
+                        consent();
                     }
                 }).catch(() => {
-                    request();
+                    consent();
                 });
             }
         });
@@ -523,6 +534,29 @@ host.BrowserHost = class {
         return parts.length < 2 ? undefined : parts.pop().split(';').shift();
     }
 
+    _message(message, button, callback) {
+        const messageText = this.document.getElementById('message');
+        if (messageText) {
+            messageText.innerText = message;
+        }
+        const messageButton = this.document.getElementById('message-button');
+        if (messageButton) {
+            if (button && callback) {
+                messageButton.style.removeProperty('display');
+                messageButton.innerText = button;
+                messageButton.onclick = () => {
+                    messageButton.onclick = null;
+                    callback();
+                };
+            }
+            else {
+                messageButton.style.display = 'none';
+                messageButton.onclick = null;
+            }
+        }
+        this._view.show('welcome message');
+    }
+
     _about() {
         const self = this;
         const eventHandler = () => {
@@ -839,187 +873,6 @@ host.BrowserHost.BrowserContext = class {
         this._host.exception(error, fatal);
     }
 };
-
-if (typeof TextDecoder === "undefined") {
-    TextDecoder = function TextDecoder(encoding) {
-        this._encoding = encoding;
-        if (window.__host__ && !TextEncoder.__event__) {
-            TextEncoder.__event__ = true;
-            window.__host__.event('Host', 'Browser', 'TextDecoder', 1);
-        }
-    };
-    TextDecoder.prototype.decode = function decode(buffer) {
-        let result = '';
-        const length = buffer.length;
-        let i = 0;
-        switch (this._encoding) {
-            case 'utf-8':
-                while (i < length) {
-                    const c = buffer[i++];
-                    switch(c >> 4) {
-                        case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7: {
-                            result += String.fromCharCode(c);
-                            break;
-                        }
-                        case 12: case 13: {
-                            const c2 = buffer[i++];
-                            result += String.fromCharCode(((c & 0x1F) << 6) | (c2 & 0x3F));
-                            break;
-                        }
-                        case 14: {
-                            const c2 = buffer[i++];
-                            const c3 = buffer[i++];
-                            result += String.fromCharCode(((c & 0x0F) << 12) | ((c2 & 0x3F) << 6) | ((c3 & 0x3F) << 0));
-                            break;
-                        }
-                        case 15: {
-                            const c2 = buffer[i++];
-                            const c3 = buffer[i++];
-                            const c4 = buffer[i++];
-                            result += String.fromCodePoint(((c & 0x07) << 18) | ((c2 & 0x3F) << 12) | ((c3 & 0x3F) << 6) | (c4 & 0x3F));
-                            break;
-                        }
-                        default: {
-                            break;
-                        }
-                    }
-                }
-                break;
-            case 'ascii':
-                while (i < length) {
-                    result += String.fromCharCode(buffer[i++]);
-                }
-                break;
-            default:
-                break;
-        }
-        return result;
-    };
-}
-
-if (typeof TextEncoder === 'undefined') {
-    TextEncoder = function TextEncoder() {
-        if (window.__host__ && !TextEncoder.__event__) {
-            TextEncoder.__event__ = true;
-            window.__host__.event('Host', 'Browser', 'TextEncoder', 1);
-        }
-    };
-    TextEncoder.prototype.encode = function encode(str) {
-        "use strict";
-        const length = str.length;
-        let resPos = -1;
-        const resArr = typeof Uint8Array === "undefined" ? new Array(length * 2) : new Uint8Array(length * 3);
-        for (let point = 0, nextcode = 0, i = 0; i !== length; ) {
-            point = str.charCodeAt(i);
-            i += 1;
-            if (point >= 0xD800 && point <= 0xDBFF) {
-                if (i === length) {
-                    resArr[resPos += 1] = 0xef; resArr[resPos += 1] = 0xbf;
-                    resArr[resPos += 1] = 0xbd; break;
-                }
-                nextcode = str.charCodeAt(i);
-                if (nextcode >= 0xDC00 && nextcode <= 0xDFFF) {
-                    point = (point - 0xD800) * 0x400 + nextcode - 0xDC00 + 0x10000;
-                    i += 1;
-                    if (point > 0xffff) {
-                        resArr[resPos += 1] = (0x1e<<3) | (point>>>18);
-                        resArr[resPos += 1] = (0x2<<6) | ((point>>>12)&0x3f);
-                        resArr[resPos += 1] = (0x2<<6) | ((point>>>6)&0x3f);
-                        resArr[resPos += 1] = (0x2<<6) | (point&0x3f);
-                        continue;
-                    }
-                }
-                else {
-                    resArr[resPos += 1] = 0xef; resArr[resPos += 1] = 0xbf;
-                    resArr[resPos += 1] = 0xbd; continue;
-                }
-            }
-            if (point <= 0x007f) {
-                resArr[resPos += 1] = (0x0<<7) | point;
-            }
-            else if (point <= 0x07ff) {
-                resArr[resPos += 1] = (0x6<<5) | (point>>>6);
-                resArr[resPos += 1] = (0x2<<6) | (point&0x3f);
-            }
-            else {
-                resArr[resPos += 1] = (0xe<<4) | (point>>>12);
-                resArr[resPos += 1] = (0x2<<6) | ((point>>>6)&0x3f);
-                resArr[resPos += 1] = (0x2<<6) | (point&0x3f);
-            }
-        }
-        if (typeof Uint8Array !== "undefined") {
-            return new Uint8Array(resArr.buffer.slice(0, resPos+1));
-        }
-        return resArr.length === resPos + 1 ? resArr : resArr.slice(0, resPos + 1);
-    };
-    TextEncoder.prototype.toString = function() {
-        return "[object TextEncoder]";
-    };
-    try {
-        Object.defineProperty(TextEncoder.prototype,"encoding", {
-            get:function() {
-                if (Object.prototype.isPrototypeOf.call(TextEncoder.prototype, this)) {
-                    return"utf-8";
-                }
-                throw new TypeError("Illegal invocation");
-            }
-        });
-    }
-    catch (e) {
-        TextEncoder.prototype.encoding = "utf-8";
-    }
-    if (typeof Symbol !== "undefined") {
-        TextEncoder.prototype[Symbol.toStringTag] = "TextEncoder";
-    }
-}
-
-if (typeof URLSearchParams === 'undefined') {
-    URLSearchParams = function URLSearchParams(search) {
-        if (window.__host__ && !URLSearchParams.__event__) {
-            URLSearchParams.__event__ = true;
-            window.__host__.event('Host', 'Browser', 'URLSearchParams', 1);
-        }
-        const decode = (str) => {
-            return str.replace(/[ +]/g, '%20').replace(/(%[a-f0-9]{2})+/ig, (match) => { return decodeURIComponent(match); });
-        };
-        this._dict = {};
-        if (typeof search === 'string') {
-            search = search.indexOf('?') === 0 ? search.substring(1) : search;
-            const properties = search.split('&');
-            for (const property of properties) {
-                const index = property.indexOf('=');
-                const name = (index > -1) ? decode(property.substring(0, index)) : decode(property);
-                const value = (index > -1) ? decode(property.substring(index + 1)) : '';
-                if (!Object.prototype.hasOwnProperty.call(this._dict, name)) {
-                    this._dict[name] = [];
-                }
-                this._dict[name].push(value);
-            }
-        }
-    };
-    URLSearchParams.prototype.get = function(name) {
-        return Object.prototype.hasOwnProperty.call(this._dict, name) ? this._dict[name][0] : null;
-    };
-}
-
-if (!HTMLCanvasElement.prototype.toBlob) {
-    HTMLCanvasElement.prototype.toBlob = function(callback, type, quality) {
-        if (window.__host__ && !HTMLCanvasElement.__event__) {
-            HTMLCanvasElement.__event__ = true;
-            window.__host__.event('Host', 'Browser', 'HTMLCanvasElement.toBlob', 1);
-        }
-        const canvas = this;
-        setTimeout(function() {
-            const data = atob(canvas.toDataURL(type, quality).split(',')[1]);
-            const length = data.length;
-            const buffer = new Uint8Array(length);
-            for (let i = 0; i < length; i++) {
-                buffer[i] = data.charCodeAt(i);
-            }
-            callback(new Blob([ buffer ], { type: type || 'image/png' }));
-        });
-    };
-}
 
 if (!('scrollBehavior' in window.document.documentElement.style)) {
     const __scrollTo__ = Element.prototype.scrollTo;
