@@ -5891,6 +5891,13 @@
   },
   {
     "type":     "tf",
+    "target":   "output_graph.pbmm",
+    "source":   "https://github.com/lutzroeder/netron/files/8645971/output_graph.pbmm.zip[output_graph.pbmm]",
+    "format":   "TensorFlow GraphDef Memmapped",
+    "link":     "https://github.com/lutzroeder/netron/issues/836"
+  },
+  {
+    "type":     "tf",
     "target":   "pose_estimation_for_mobile.pb",
     "source":   "https://raw.githubusercontent.com/edvardHua/PoseEstimationForMobile/master/release/cpm_model/model.pb",
     "format":   "TensorFlow Graph",
