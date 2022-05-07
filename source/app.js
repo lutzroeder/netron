@@ -39,8 +39,9 @@ class Application {
             }
         });
 
-        electron.ipcMain.on('open-file-dialog', () => {
+        electron.ipcMain.on('open-file-dialog', (event) => {
             this._openFileDialog();
+            event.returnValue = null;
         });
 
         electron.ipcMain.on('get-environment', (event) => {
@@ -54,6 +55,7 @@ class Application {
         });
         electron.ipcMain.on('set-configuration', (event, obj) => {
             this._configuration.set(obj.name, obj.value);
+            event.returnValue = null;
         });
         electron.ipcMain.on('drop-paths', (event, data) => {
             const paths = data.paths.filter((path) => {
@@ -64,6 +66,7 @@ class Application {
                 return false;
             });
             this._dropPaths(event.sender, paths);
+            event.returnValue = null;
         });
         electron.ipcMain.on('show-message-box', (event, options) => {
             const owner = event.sender.getOwnerBrowserWindow();
