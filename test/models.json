@@ -5725,13 +5725,6 @@
   },
   {
     "type":     "tf",
-    "target":   "inception_v3_2016_08_28_frozen.pb",
-    "source":   "https://storage.googleapis.com/download.tensorflow.org/models/inception_v3_2016_08_28_frozen.pb.tar.gz[inception_v3_2016_08_28_frozen.pb]",
-    "format":   "TensorFlow Graph",
-    "link":     "https://github.com/onnx/tensorflow-onnx/blob/master/tests/run_pretrained_models.yaml"
-  },
-  {
-    "type":     "tf",
     "target":   "inception5h.pb",
     "source":   "https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip[tensorflow_inception_graph.pb]"
   },
