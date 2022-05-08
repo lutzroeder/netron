@@ -587,7 +587,7 @@ tf.ModelFactory = class {
                     return openBinarySavedModel({ stream: stream });
                 });
             };
-            const openMemmappedFileSystemDirectory = (context) => {
+            const openMemmapped = (context) => {
                 const stream = context.stream;
                 const readDirectoryOffset = (stream) => {
                     stream.seek(-8);
@@ -671,7 +671,7 @@ tf.ModelFactory = class {
                 case 'tf.pb.keras.SavedMetadata':
                     return openSavedMetadata(context);
                 case 'tf.pb.mmap':
-                    return openMemmappedFileSystemDirectory(context);
+                    return openMemmapped(context);
                 default:
                     throw new tf.Error("Unsupported TensorFlow format '" + match + "'.");
             }
@@ -1267,8 +1267,9 @@ tf.Tensor = class {
                         this._data = tensor.double_val || null;
                         break;
                     }
-                    case DataType.DT_INT8:
                     case DataType.DT_UINT8:
+                    case DataType.DT_UINT16:
+                    case DataType.DT_INT8:
                     case DataType.DT_INT16:
                     case DataType.DT_INT32: {
                         this._data = tensor.int_val || null;
