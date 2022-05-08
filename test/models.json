@@ -5912,13 +5912,6 @@
   },
   {
     "type":     "tf",
-    "target":   "resnet_v1_50.ckpt",
-    "source":   "https://raw.githubusercontent.com/serre-lab/deeplabcut_mgh/master/deeplabcut/pose_estimation_tensorflow/models/pretrained/resnet_v1_50.ckpt",
-    "format":   "TensorFlow Tensor Bundle v1",
-    "link":     "https://github.com/lutzroeder/netron/issues/405"
-  },
-  {
-    "type":     "tf",
     "target":   "resnet_v2_fp16_savedmodel_NHWC_saved_model.pb",
     "source":   "http://download.tensorflow.org/models/official/20181001_resnet/savedmodels/resnet_v2_fp16_savedmodel_NHWC.tar.gz[./resnet_v2_fp16_savedmodel_NHWC/1538686978/saved_model.pb]",
     "format":   "TensorFlow Saved Model v1",
