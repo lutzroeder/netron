@@ -2297,9 +2297,11 @@ python.Execution = class {
         this.registerType('sklearn.tree.tree.ExtraTreeClassifier', class {});
         this.registerType('sklearn.utils.Bunch', class {});
         this.registerType('sklearn.utils.deprecation.DeprecationDict', class {});
-        this.registerType('re.Pattern', function(pattern, flags) {
-            this.pattern = pattern;
-            this.flags = flags;
+        this.registerType('re.Pattern', class {
+            constructor(pattern, flags) {
+                this.pattern = pattern;
+                this.flags = flags;
+            }
         });
         this.registerType('spacy._ml.PrecomputableAffine', class {
             __setstate__(state) {
@@ -2563,7 +2565,7 @@ python.Execution = class {
                     const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
                     switch (dtype.itemsize) {
                         case 1: return view.getInt8(0, true) ? true : false;
-                        default: throw new python.Error("Unsupported scalar dtype boolean itemsize '" + this.itemsize + "'.");
+                        default: throw new python.Error("Unsupported scalar dtype boolean itemsize '" + dtype.itemsize + "'.");
                     }
                 }
                 case 'f': {
@@ -2571,7 +2573,7 @@ python.Execution = class {
                     switch (dtype.itemsize) {
                         case 4: return view.getFloat32(0, true);
                         case 8: return view.getFloat64(0, true);
-                        default: throw new python.Error("Unsupported scalar dtype float itemsize '" + this.itemsize + "'.");
+                        default: throw new python.Error("Unsupported scalar dtype float itemsize '" + dtype.itemsize + "'.");
                     }
                 }
                 case 'i': {
@@ -2581,7 +2583,7 @@ python.Execution = class {
                         case 2: return view.getInt16(0, true);
                         case 4: return view.getInt32(0, true);
                         case 8: return view.getInt64(0, true);
-                        default: throw new python.Error("Unsupported scalar dtype int itemsize '" + this.itemsize + "'.");
+                        default: throw new python.Error("Unsupported scalar dtype int itemsize '" + dtype.itemsize + "'.");
                     }
                 }
                 case 'u': {
@@ -2591,7 +2593,7 @@ python.Execution = class {
                         case 2: return view.getUint16(0, true);
                         case 4: return view.getUint32(0, true);
                         case 8: return view.getUint64(0, true);
-                        default: throw new python.Error("Unsupported scalar dtype uint itemsize '" + this.itemsize + "'.");
+                        default: throw new python.Error("Unsupported scalar dtype uint itemsize '" + dtype.itemsize + "'.");
                     }
                 }
                 case 'U': {
