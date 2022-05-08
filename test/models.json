@@ -5602,6 +5602,13 @@
   },
   {
     "type":     "tf",
+    "target":   "drawmodel_attn.ckpt",
+    "source":   "https://github.com/lutzroeder/netron/files/8647412/drawmodel_attn.ckpt.zip[drawmodel_attn.ckpt]",
+    "format":   "TensorFlow Tensor Bundle v1",
+    "link":     "https://github.com/lutzroeder/netron/issues/405"
+  },
+  {
+    "type":     "tf",
     "target":   "events.out.tfevents.1606692323.b5c8f88cc7ee.58.2",
     "source":   "https://github.com/lutzroeder/netron/files/5613448/events.out.tfevents.1606692323.b5c8f88cc7ee.58.2.zip[events.out.tfevents.1606692323.b5c8f88cc7ee.58.2]",
     "format":   "TensorFlow Event File v2",
