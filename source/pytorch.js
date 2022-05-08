@@ -986,6 +986,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.distributions.constraints._LowerCholesky', class {});
         this.registerType('torch.distributions.constraints._Real', class {});
         this.registerType('torch.distributions.multivariate_normal.MultivariateNormal', class {});
+        this.registerType('torch.distributions.normal.Normal', class {});
         this.registerType('torch.distributions.transforms.LowerCholeskyTransform', class {});
         this.registerType('torch.distributions.uniform.Uniform', class {});
         this.registerType('torch.nn.backends.thnn._get_thnn_function_backend', class {});
