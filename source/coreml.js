@@ -1644,10 +1644,8 @@ coreml.Metadata = class {
                     }
                 }
             }
-            else {
-                if (index == 0) {
-                    name = 'input';
-                }
+            else if (index == 0) {
+                name = 'input';
             }
             result.name = name ? name : '(' + index.toString() + ')';
             const array = inputs.slice(index, index + count);

@@ -2111,51 +2111,49 @@ onnx.Text.Reader = class {
                 this._throw("Unexpected value '" + JSON.stringify(list) + "'.");
             }
         }
-        else {
-            if ((this._char >= 'a' && this._char <= 'z') || (this._char >= 'A' && this._char <= 'Z') || this._char === '_') {
-                const identifier = this._identifier();
-                if (this._dataTypes.has(identifier)) {
-                    attribute.type = onnx.AttributeType.TENSOR;
-                    if (!this._dataTypes.has(identifier)) {
-                        this._throw("Unexpected type '" + identifier + "'.");
-                    }
-                    const type = this._type(this._dataTypes.get(identifier));
-                    if (!type.tensor_type.elem_type) {
-                        this._throw('Expected tensor data type.');
-                    }
-                    if (!type.tensor_type.shape || !type.tensor_type.shape.dim) {
-                        this._throw('Expected tensor shape.');
-                    }
-                    attribute.t = this._tensor(type);
+        else if ((this._char >= 'a' && this._char <= 'z') || (this._char >= 'A' && this._char <= 'Z') || this._char === '_') {
+            const identifier = this._identifier();
+            if (this._dataTypes.has(identifier)) {
+                attribute.type = onnx.AttributeType.TENSOR;
+                if (!this._dataTypes.has(identifier)) {
+                    this._throw("Unexpected type '" + identifier + "'.");
                 }
-                else {
-                    attribute.type = onnx.AttributeType.GRAPH;
-                    attribute.g = this._graph();
+                const type = this._type(this._dataTypes.get(identifier));
+                if (!type.tensor_type.elem_type) {
+                    this._throw('Expected tensor data type.');
                 }
-            }
-            else if (this._match('@')) {
-                attribute.ref_attr_name = this._identifier();
+                if (!type.tensor_type.shape || !type.tensor_type.shape.dim) {
+                    this._throw('Expected tensor shape.');
+                }
+                attribute.t = this._tensor(type);
             }
             else {
-                const value = this._literal();
-                switch (typeof value) {
-                    case 'number':
-                        if (Number.isInteger(value)) {
-                            attribute.type = onnx.AttributeType.INT;
-                            attribute.i = value;
-                        }
-                        else {
-                            attribute.type = onnx.AttributeType.FLOAT;
-                            attribute.f = value;
-                        }
-                        break;
-                    case 'string':
-                        attribute.type = onnx.AttributeType.STRING;
-                        attribute.s = value;
-                        break;
-                    default: {
-                        this._throw("Unexpected value '" + JSON.stringify(value) + "'.");
+                attribute.type = onnx.AttributeType.GRAPH;
+                attribute.g = this._graph();
+            }
+        }
+        else if (this._match('@')) {
+            attribute.ref_attr_name = this._identifier();
+        }
+        else {
+            const value = this._literal();
+            switch (typeof value) {
+                case 'number':
+                    if (Number.isInteger(value)) {
+                        attribute.type = onnx.AttributeType.INT;
+                        attribute.i = value;
                     }
+                    else {
+                        attribute.type = onnx.AttributeType.FLOAT;
+                        attribute.f = value;
+                    }
+                    break;
+                case 'string':
+                    attribute.type = onnx.AttributeType.STRING;
+                    attribute.s = value;
+                    break;
+                default: {
+                    this._throw("Unexpected value '" + JSON.stringify(value) + "'.");
                 }
             }
         }

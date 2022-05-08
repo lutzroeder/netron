@@ -342,14 +342,12 @@ protobuf.BinaryReader = class {
             }
             this._position = end;
         }
+        else if (obj !== undefined && obj.length < 1000000) {
+            obj.push(this.float());
+        }
         else {
-            if (obj !== undefined && obj.length < 1000000) {
-                obj.push(this.float());
-            }
-            else {
-                obj = undefined;
-                this.float();
-            }
+            obj = undefined;
+            this.float();
         }
         return obj;
     }
@@ -373,14 +371,12 @@ protobuf.BinaryReader = class {
             }
             this._position = end;
         }
+        else if (obj !== undefined && obj.length < 1000000) {
+            obj.push(this.double());
+        }
         else {
-            if (obj !== undefined && obj.length < 1000000) {
-                obj.push(this.double());
-            }
-            else {
-                obj = undefined;
-                this.double();
-            }
+            obj = undefined;
+            this.double();
         }
         return obj;
     }

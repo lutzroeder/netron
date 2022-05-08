@@ -1192,10 +1192,8 @@ tf.Attribute = class {
                         this._visible = false;
                     }
                 }
-                else {
-                    if (equals(value, defaultValue)) {
-                        this._visible = false;
-                    }
+                else if (equals(value, defaultValue)) {
+                    this._visible = false;
                 }
             }
         }
@@ -1443,78 +1441,76 @@ tf.Tensor = class {
                     results.push((this._tensor.dtype == tf.proto.tensorflow.DataType.DT_STRING) ? tf.Utility.decodeText(value) : value);
                     context.count++;
                 }
-                else {
-                    if (context.rawData) {
-                        switch (this._tensor.dtype) {
-                            case tf.proto.tensorflow.DataType.DT_HALF:
-                                results.push(context.rawData.getFloat16(context.index, true));
-                                context.index += 2;
-                                context.count++;
-                                break;
-                            case tf.proto.tensorflow.DataType.DT_BFLOAT16:
-                            case tf.proto.tensorflow.DataType.DT_FLOAT:
-                                results.push(context.rawData.getFloat32(context.index, true));
-                                context.index += 4;
-                                context.count++;
-                                break;
-                            case tf.proto.tensorflow.DataType.DT_DOUBLE:
-                                results.push(context.rawData.getFloat64(context.index, true));
-                                context.index += 8;
-                                context.count++;
-                                break;
-                            case tf.proto.tensorflow.DataType.DT_INT8:
-                                results.push(context.rawData.getInt8(context.index));
-                                context.index += 1;
-                                context.count++;
-                                break;
-                            case tf.proto.tensorflow.DataType.DT_UINT8:
-                                results.push(context.rawData.getUint8(context.index));
-                                context.index += 1;
-                                context.count++;
-                                break;
-                            case tf.proto.tensorflow.DataType.DT_INT16:
-                                results.push(context.rawData.getInt16(context.index));
-                                context.index += 2;
-                                context.count++;
-                                break;
-                            case tf.proto.tensorflow.DataType.DT_UINT16:
-                                results.push(context.rawData.getUint16(context.index));
-                                context.index += 2;
-                                context.count++;
-                                break;
-                            case tf.proto.tensorflow.DataType.DT_INT32:
-                                results.push(context.rawData.getInt32(context.index, true));
-                                context.index += 4;
-                                context.count++;
-                                break;
-                            case tf.proto.tensorflow.DataType.DT_UINT32:
-                                results.push(context.rawData.getUint32(context.index, true));
-                                context.index += 4;
-                                context.count++;
-                                break;
-                            case tf.proto.tensorflow.DataType.DT_INT64:
-                                results.push(context.rawData.getInt64(context.index, true));
-                                context.index += 8;
-                                context.count++;
-                                break;
-                            case tf.proto.tensorflow.DataType.DT_UINT64:
-                                results.push(context.rawData.getUint64(context.index, true));
-                                context.index += 8;
-                                context.count++;
-                                break;
-                            case tf.proto.tensorflow.DataType.DT_QINT8:
-                                results.push(context.rawData.getInt8(context.index, true));
-                                context.index += 1;
-                                context.count++;
-                                break;
-                            case tf.proto.tensorflow.DataType.DT_QUINT8:
-                                results.push(context.rawData.getUint8(context.index, true));
-                                context.index += 1;
-                                context.count++;
-                                break;
-                            default:
-                                throw new tf.Error("Unsupported data type '" + this._tensor.dtype + "'.");
-                        }
+                else if (context.rawData) {
+                    switch (this._tensor.dtype) {
+                        case tf.proto.tensorflow.DataType.DT_HALF:
+                            results.push(context.rawData.getFloat16(context.index, true));
+                            context.index += 2;
+                            context.count++;
+                            break;
+                        case tf.proto.tensorflow.DataType.DT_BFLOAT16:
+                        case tf.proto.tensorflow.DataType.DT_FLOAT:
+                            results.push(context.rawData.getFloat32(context.index, true));
+                            context.index += 4;
+                            context.count++;
+                            break;
+                        case tf.proto.tensorflow.DataType.DT_DOUBLE:
+                            results.push(context.rawData.getFloat64(context.index, true));
+                            context.index += 8;
+                            context.count++;
+                            break;
+                        case tf.proto.tensorflow.DataType.DT_INT8:
+                            results.push(context.rawData.getInt8(context.index));
+                            context.index += 1;
+                            context.count++;
+                            break;
+                        case tf.proto.tensorflow.DataType.DT_UINT8:
+                            results.push(context.rawData.getUint8(context.index));
+                            context.index += 1;
+                            context.count++;
+                            break;
+                        case tf.proto.tensorflow.DataType.DT_INT16:
+                            results.push(context.rawData.getInt16(context.index));
+                            context.index += 2;
+                            context.count++;
+                            break;
+                        case tf.proto.tensorflow.DataType.DT_UINT16:
+                            results.push(context.rawData.getUint16(context.index));
+                            context.index += 2;
+                            context.count++;
+                            break;
+                        case tf.proto.tensorflow.DataType.DT_INT32:
+                            results.push(context.rawData.getInt32(context.index, true));
+                            context.index += 4;
+                            context.count++;
+                            break;
+                        case tf.proto.tensorflow.DataType.DT_UINT32:
+                            results.push(context.rawData.getUint32(context.index, true));
+                            context.index += 4;
+                            context.count++;
+                            break;
+                        case tf.proto.tensorflow.DataType.DT_INT64:
+                            results.push(context.rawData.getInt64(context.index, true));
+                            context.index += 8;
+                            context.count++;
+                            break;
+                        case tf.proto.tensorflow.DataType.DT_UINT64:
+                            results.push(context.rawData.getUint64(context.index, true));
+                            context.index += 8;
+                            context.count++;
+                            break;
+                        case tf.proto.tensorflow.DataType.DT_QINT8:
+                            results.push(context.rawData.getInt8(context.index, true));
+                            context.index += 1;
+                            context.count++;
+                            break;
+                        case tf.proto.tensorflow.DataType.DT_QUINT8:
+                            results.push(context.rawData.getUint8(context.index, true));
+                            context.index += 1;
+                            context.count++;
+                            break;
+                        default:
+                            throw new tf.Error("Unsupported data type '" + this._tensor.dtype + "'.");
                     }
                 }
             }

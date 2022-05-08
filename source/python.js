@@ -2061,10 +2061,8 @@ python.Execution = class {
                         throw new python.Error('Invalid string array data size.');
                     }
                 }
-                else {
-                    if (this.data.length != size) {
-                        // throw new pytorch.Error('Invalid array data size.');
-                    }
+                else if (this.data.length != size) {
+                    // throw new pytorch.Error('Invalid array data size.');
                 }
                 return this;
             }

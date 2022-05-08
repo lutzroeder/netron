@@ -204,10 +204,8 @@ xml.TextReader = class {
                                         namespaces.set(entry.localName, value);
                                     }
                                 }
-                                else {
-                                    if (entry.localName === 'xmlns') {
-                                        namespaces.set('', value);
-                                    }
+                                else if (entry.localName === 'xmlns') {
+                                    namespaces.set('', value);
                                 }
                             }
                             const pair = xml.Utility.split(name);
@@ -925,10 +923,8 @@ xml.TextReader = class {
                 this._pushString(entity.value, name, true);
             }
         }
-        else {
-            if (this._context.length !== 0 || !documentType || documentType.parameterEntities.length === 0) {
-                this._error("Undefined ENTITY '" + name + "'", position);
-            }
+        else if (this._context.length !== 0 || !documentType || documentType.parameterEntities.length === 0) {
+            this._error("Undefined ENTITY '" + name + "'", position);
         }
         return undefined;
     }

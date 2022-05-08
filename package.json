@@ -54,6 +54,7 @@
             "no-iterator": "error",
             "no-labels": "error",
             "no-lone-blocks": "error",
+            "no-lonely-if": "error",
             "no-promise-executor-return": "error",
             "no-self-compare": "error",
             "no-template-curly-in-string": "error",

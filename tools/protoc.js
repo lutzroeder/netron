@@ -1300,13 +1300,11 @@ protoc.Generator = class {
                                 else if (field.type instanceof protoc.PrimitiveType) {
                                     this._builder.add(variable + '.push(reader.' + field.type.name + '());');
                                 }
+                                else if (field.type.group) {
+                                    this._builder.add(variable + '.push(' + fieldTypeName(field) + '.decode(reader));');
+                                }
                                 else {
-                                    if (field.type.group) {
-                                        this._builder.add(variable + '.push(' + fieldTypeName(field) + '.decode(reader));');
-                                    }
-                                    else {
-                                        this._builder.add(variable + '.push(' + fieldTypeName(field) + '.decode(reader, reader.uint32()));');
-                                    }
+                                    this._builder.add(variable + '.push(' + fieldTypeName(field) + '.decode(reader, reader.uint32()));');
                                 }
                             }
                             else if (field.type instanceof protoc.Enum) {
@@ -1315,13 +1313,11 @@ protoc.Generator = class {
                             else if (field.type instanceof protoc.PrimitiveType) {
                                 this._builder.add(variable + ' = reader.' + field.type.name + '();');
                             }
+                            else if (field.type.group) {
+                                this._builder.add(variable + ' = ' + fieldTypeName(field) + '.decode(reader);');
+                            }
                             else {
-                                if (field.type.group) {
-                                    this._builder.add(variable + ' = ' + fieldTypeName(field) + '.decode(reader);');
-                                }
-                                else {
-                                    this._builder.add(variable + ' = ' + fieldTypeName(field) + '.decode(reader, reader.uint32());');
-                                }
+                                this._builder.add(variable + ' = ' + fieldTypeName(field) + '.decode(reader, reader.uint32());');
                             }
                             this._builder.add('break;');
                         this._builder.outdent();
