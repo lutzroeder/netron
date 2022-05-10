@@ -574,49 +574,36 @@ grapher.Edge = class {
     }
 
     update() {
-        const edgePath = grapher.Edge._computeCurvePath(this, this.from, this.to);
+        const intersectRect = (node, point) => {
+            const x = node.x;
+            const y = node.y;
+            const dx = point.x - x;
+            const dy = point.y - y;
+            let h = node.height / 2;
+            let w = node.width / 2;
+            if (Math.abs(dy) * w > Math.abs(dx) * h) {
+                if (dy < 0) {
+                    h = -h;
+                }
+                return { x: x + (dy === 0 ? 0 : h * dx / dy), y: y + h };
+            }
+            if (dx < 0) {
+                w = -w;
+            }
+            return { x: x + w, y: y + (dx === 0 ? 0 : w * dy / dx) };
+        };
+        const curvePath = (edge, tail, head) => {
+            const points = edge.points.slice(1, edge.points.length - 1);
+            points.unshift(intersectRect(tail, points[0]));
+            points.push(intersectRect(head, points[points.length - 1]));
+            return new grapher.Edge.Curve(points).path.data;
+        };
+        const edgePath = curvePath(this, this.from, this.to);
         this.element.setAttribute('d', edgePath);
         if (this.labelElement) {
             this.labelElement.setAttribute('transform', 'translate(' + (this.x - (this.width / 2)) + ',' + (this.y - (this.height / 2)) + ')');
             this.labelElement.style.opacity = 1;
         }
-    }
-
-    static _computeCurvePath(edge, tail, head) {
-        const points = edge.points.slice(1, edge.points.length - 1);
-        points.unshift(grapher.Edge._intersectRect(tail, points[0]));
-        points.push(grapher.Edge._intersectRect(head, points[points.length - 1]));
-        const curve = new grapher.Edge.Curve(points);
-        return curve.path.data;
-    }
-
-    static _intersectRect(node, point) {
-        const x = node.x;
-        const y = node.y;
-        const dx = point.x - x;
-        const dy = point.y - y;
-        let w = node.width / 2;
-        let h = node.height / 2;
-        let sx;
-        let sy;
-        if (Math.abs(dy) * w > Math.abs(dx) * h) {
-            if (dy < 0) {
-                h = -h;
-            }
-            sx = dy === 0 ? 0 : h * dx / dy;
-            sy = h;
-        }
-        else {
-            if (dx < 0) {
-                w = -w;
-            }
-            sx = w;
-            sy = dx === 0 ? 0 : w * dy / dx;
-        }
-        return {
-            x: x + sx,
-            y: y + sy
-        };
     }
 };
 
