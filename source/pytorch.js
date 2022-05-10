@@ -3823,10 +3823,15 @@ pytorch.Utility = class {
                 for (const pair of map) {
                     const key = pair[0];
                     const value = pair[1];
-                    if (key.split('.').pop() === '_metadata') {
+                    const separator = key.indexOf('.') === -1 && key.indexOf('|') !== -1 ? '|' : '.';
+                    const keys = key.split(separator);
+                    if (keys[keys.length - 1] === '_metadata') {
                         continue;
                     }
-                    if (pytorch.Utility.isTensor(value)) {
+                    else if (keys.length >= 2 && keys[keys.length - 2] === '_packed_params') {
+                        continue;
+                    }
+                    else if (pytorch.Utility.isTensor(value)) {
                         tensor = true;
                         continue;
                     }
@@ -3904,9 +3909,9 @@ pytorch.Utility = class {
         }
         if (map.size > 0) {
             const graphs = [];
-            for (const pair of map) {
-                const graph_key = pair[0];
-                const layer_map = pair[1];
+            for (const entry of map) {
+                const graph_key = entry[0];
+                const layer_map = entry[1];
                 const layers = new Map();
                 for (const item of layer_map) {
                     const key = item[0];
