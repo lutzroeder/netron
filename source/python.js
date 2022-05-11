@@ -2899,8 +2899,7 @@ python.Execution = class {
                 if (target.prototype && target.prototype.__class__ === target) {
                     return Reflect.construct(target, args);
                 }
-                const obj = {};
-                obj.__proto__ = target;
+                const obj = Object.create(target);
                 if (obj.__init__ && typeof obj.__init__ === 'function') {
                     obj.__init__.apply(obj, args);
                 }
@@ -2939,8 +2938,7 @@ python.Execution = class {
             if (func.prototype && func.prototype.__class__ === func) {
                 return Reflect.construct(func, args);
             }
-            const obj = {};
-            obj.__proto__ = func;
+            const obj = Object.create(func);
             obj.__class__ = func;
             if (obj.__init__ && typeof obj.__init__ === 'function') {
                 obj.__init__.apply(obj, args);
