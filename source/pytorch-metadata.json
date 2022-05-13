@@ -4728,6 +4728,36 @@
     ]
   },
   {
+    "name": "torch.ctc_loss:IntList",
+    "inputs": [
+      { "name": "log_probs", "type": "Tensor" },
+      { "name": "targets", "type": "Tensor" },
+      { "name": "input_lengths", "type": "int64[]" },
+      { "name": "target_lengths", "type": "int64[]" },
+      { "name": "blank", "type": "int64", "default": 0 },
+      { "name": "reduction", "type": "int64" },
+      { "name": "zero_infinity", "type": "boolean", "default": "false" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch._ctc_loss:",
+    "inputs": [
+      { "name": "log_probs", "type": "Tensor" },
+      { "name": "targets", "type": "Tensor" },
+      { "name": "input_lengths", "type": "int64[]" },
+      { "name": "target_lengths", "type": "int64[]" },
+      { "name": "blank", "type": "int64", "default": 0 },
+      { "name": "zero_infinity", "type": "boolean", "default": "false" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" },
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.tan",
     "inputs": [
       { "name": "self", "type": "Tensor" }
