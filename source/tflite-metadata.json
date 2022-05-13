@@ -996,6 +996,12 @@
     ]
   },
   {
+    "name": "UnsortedSegmentProd",
+    "attributes": [
+      { "name": "num_segments", "type": "int32", "default": 0 }
+    ]
+  },
+  {
     "name": "VarHandle",
     "attributes": [
       { "name": "container", "type": "string", "default": null },

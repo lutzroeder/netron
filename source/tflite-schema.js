@@ -372,7 +372,8 @@ $root.tflite.BuiltinOperator = {
     MULTINOMIAL: 149,
     GELU: 150,
     DYNAMIC_UPDATE_SLICE: 151,
-    RELU_0_TO_1: 152
+    RELU_0_TO_1: 152,
+    UNSORTED_SEGMENT_PROD: 153
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -496,6 +497,7 @@ $root.tflite.BuiltinOptions = class {
             case 115: return $root.tflite.BucketizeOptions.decode(reader, position);
             case 116: return $root.tflite.GeluOptions.decode(reader, position);
             case 117: return $root.tflite.DynamicUpdateSliceOptions.decode(reader, position);
+            case 118: return $root.tflite.UnsortedSegmentProdOptions.decode(reader, position);
             default: return undefined;
         }
     }
@@ -619,6 +621,7 @@ $root.tflite.BuiltinOptions = class {
             case 'BucketizeOptions': return $root.tflite.BucketizeOptions.decodeText(reader, json);
             case 'GeluOptions': return $root.tflite.GeluOptions.decodeText(reader, json);
             case 'DynamicUpdateSliceOptions': return $root.tflite.DynamicUpdateSliceOptions.decodeText(reader, json);
+            case 'UnsortedSegmentProdOptions': return $root.tflite.UnsortedSegmentProdOptions.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -2470,6 +2473,21 @@ $root.tflite.DynamicUpdateSliceOptions = class DynamicUpdateSliceOptions {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.tflite.DynamicUpdateSliceOptions();
+        return $;
+    }
+};
+
+$root.tflite.UnsortedSegmentProdOptions = class UnsortedSegmentProdOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.UnsortedSegmentProdOptions();
+        $.num_segments = reader.int32_(position, 4, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.UnsortedSegmentProdOptions();
+        $.num_segments = reader.value(json.num_segments, 0);
         return $;
     }
 };
