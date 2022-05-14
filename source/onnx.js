@@ -628,6 +628,8 @@ onnx.Attribute = class {
         this._type = null;
         this._value = null;
         switch (attribute.type) {
+            case onnx.AttributeType.UNDEFINED:
+                break;
             case onnx.AttributeType.FLOAT:
                 this._value = attribute.f;
                 this._type = 'float32';
@@ -694,7 +696,6 @@ onnx.Attribute = class {
             default:
                 throw new onnx.Error("Unsupported attribute type '" + attribute.type + "'.");
         }
-
         const metadata = context.metadata.attribute(op_type, domain, attribute.name);
         if (metadata) {
             if (Object.prototype.hasOwnProperty.call(metadata, 'default') && this._value == metadata.default) {
@@ -1367,14 +1368,12 @@ onnx.GraphMetadata = class {
     attribute(type, domain, name) {
         const key = domain + ':' + type + ':' + name;
         if (!this._attributes.has(key)) {
-            const schema = this.type(type, domain);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (const attribute of schema.attributes) {
+            this._attributes.set(key, null);
+            const metadata = this.type(type, domain);
+            if (metadata && metadata.attributes && metadata.attributes.length > 0) {
+                for (const attribute of metadata.attributes) {
                     this._attributes.set(key, attribute);
                 }
-            }
-            if (!this._attributes.has(key)) {
-                this._attributes.set(key, null);
             }
         }
         return this._attributes.get(key);
@@ -1635,6 +1634,7 @@ onnx.GraphContext = class {
         }
         let denotation = '';
         switch (type.denotation) {
+            case undefined:
             case null:
             case '':
                 break;
@@ -1653,31 +1653,26 @@ onnx.GraphContext = class {
             default:
                 throw new onnx.Error("Unsuppored tensor type denotation '" + type.denotation + "'.");
         }
-        switch (type.value) {
-            case 'tensor_type': {
-                const tensor_type = type.tensor_type;
-                const shape = tensor_type.shape && tensor_type.shape.dim ? tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value ? dim.dim_value : null) : [];
-                return this.createTensorType(tensor_type.elem_type, shape, denotation);
-            }
-            case 'sparse_tensor_type': {
-                const tensor_type = type.sparse_tensor_type;
-                const shape = tensor_type.shape && tensor_type.shape.dim ? tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value ? dim.dim_value : null) : [];
-                return this.createTensorType(tensor_type.elem_type, shape, denotation);
-            }
-            case 'map_type': {
-                return this.createMapType(type.map_type.key_type, this.createType(type.map_type.value_type), denotation);
-            }
-            case 'sequence_type': {
-                return new onnx.SequenceType(this.createType(type.sequence_type.elem_type), denotation);
-            }
-            case 'opaque_type': {
-                return new onnx.OpaqueType(type.opaque_type.domain, type.opaque_type.name);
-            }
-            default: {
-                // throw new onnx.Error("Unsupported tensor type '" + type.value + "'.");
-                return undefined;
-            }
+        if (type.tensor_type) {
+            const tensor_type = type.tensor_type;
+            const shape = tensor_type.shape && tensor_type.shape.dim ? tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value ? dim.dim_value : null) : [];
+            return this.createTensorType(tensor_type.elem_type, shape, denotation);
         }
+        else if (type.sparse_tensor_type) {
+            const tensor_type = type.sparse_tensor_type;
+            const shape = tensor_type.shape && tensor_type.shape.dim ? tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value ? dim.dim_value : null) : [];
+            return this.createTensorType(tensor_type.elem_type, shape, denotation);
+        }
+        else if (type.map_type) {
+            return this.createMapType(type.map_type.key_type, this.createType(type.map_type.value_type), denotation);
+        }
+        else if (type.sequence_type) {
+            return new onnx.SequenceType(this.createType(type.sequence_type.elem_type), denotation);
+        }
+        else if (type.opaque_type) {
+            return new onnx.OpaqueType(type.opaque_type.domain, type.opaque_type.name);
+        }
+        throw new onnx.Error("Unsupported tensor type '" + JSON.stringify(type) + "'.");
     }
 
     createTensorType(dataType, shape, denotation) {
@@ -1834,16 +1829,23 @@ onnx.Runtime.Reader = class {
             return node;
         });
         delete graph.nodes;
+        graph.value_info = graph.node_args.map((valueInfo) => {
+            return {
+                name: valueInfo.name,
+                doc_string: valueInfo.doc_string,
+                type: this._type(valueInfo.type)
+            };
+        });
+        delete graph.node_args;
+        const value_info = new Map(graph.value_info.map((entry) => [ entry.name, entry ]));
         graph.input = graph.inputs.map((input) => {
-            return { name: input };
+            return value_info.has(input) ? value_info.get(input) : { name: input };
         });
         delete graph.inputs;
         graph.output = graph.outputs.map((output) => {
-            return { name: output };
+            return value_info.has(output) ? value_info.get(output) : { name: output };
         });
         delete graph.outputs;
-        graph.value_info = graph.node_args;
-        delete graph.node_args;
         graph.initializer = graph.initializers.map((tensor) => {
             tensor.data_location = onnx.DataLocation.DEFAULT;
             return tensor;
@@ -1870,11 +1872,59 @@ onnx.Runtime.Reader = class {
                     this._graph(graph);
                 }
             }
+            else if (type === onnx.AttributeType.TYPE_PROTO) {
+                attribute.tp = this._type(attribute.tp);
+            }
+            else if (type === onnx.AttributeType.TYPE_PROTOS) {
+                attribute.type_protos = attribute.type_protos.map((type) => this._type(type));
+            }
             return attribute;
         });
         delete node.inputs;
         delete node.outputs;
         delete node.attributes;
+    }
+
+    _type(type) {
+        const value = type.value;
+        if (value && value instanceof onnx.schema.TensorTypeAndShape) {
+            return {
+                tensor_type: { elem_type: value.elem_type, shape: this._shape(value.shape) },
+                denotation: value.denotation
+            };
+        }
+        if (value && value instanceof onnx.schema.SequenceType) {
+            return {
+                sequence_type: { elem_type: this._type(value.elem_type) },
+                denotation: value.denotation
+            };
+        }
+        if (value && value instanceof onnx.schema.MapType) {
+            return {
+                map_type: { key_type: value.key_type, value_type: this._type(value.value_type) },
+                denotation: value.denotation
+            };
+        }
+        throw new onnx.Error("Unsupported type value '" + JSON.stringify(type.value));
+    }
+
+    _shape(shape) {
+        if (shape && shape.dim && Array.isArray(shape.dim)) {
+            const dimensions = shape.dim.map((dim) => {
+                switch (dim.value.dim_type) {
+                    case 0:
+                        return {};
+                    case 1:
+                        return { dim_value: dim.value.dim_value, denotation: dim.denotation };
+                    case 2:
+                        return { dim_param: dim.value.dim_param, denotation: dim.denotation };
+                    default:
+                        throw new onnx.Error("Unknown shape dimension '" + JSON.stringify(dim.value) + "'.");
+                }
+            });
+            return { dim: dimensions };
+        }
+        return shape;
     }
 };
 
