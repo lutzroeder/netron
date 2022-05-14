@@ -329,8 +329,9 @@ paddle.Graph = class {
                 const name = pair[0];
                 const tensor = pair[1];
                 args.set(name, new paddle.Argument(name, tensor.type, tensor));
-                const separator = [ '.', '_' ].find((separator) => name.split(separator).length > 1);
-                const parts = name.split(separator);
+                const separator = name.indexOf('.') !== -1 ? '.' : '_';
+                const regex = /(.*)_((w_attr|scale|weights|offset|b|w|b_attr)_(moment|beta|velocity|mean_square|mean_grad).*)/;
+                const parts = separator === '.' ? name.split(separator) : (regex.test(name) ? regex.exec(name).slice(1, 3) : [ '', name ]);
                 const parameter_name = parts.pop();
                 const op_name = parts.join(separator);
                 if (!ops.has(op_name)) {
@@ -981,7 +982,7 @@ paddle.NaiveBuffer = class {
                 }
                 case 0:
                 case 1: {
-                    throw new paddle.Error('Paddle Lite meta format ' + this.meta_version.toString() + ' is deprecated.');
+                    throw new paddle.Error("Paddle Lite meta format '" + this.meta_version.toString() + "' is deprecated.");
                 }
                 case 2: {
                     const topo_data = new Uint8Array(topo_size);
@@ -1010,7 +1011,7 @@ paddle.NaiveBuffer = class {
                     break;
                 }
                 default: {
-                    throw new paddle.Error('Paddle Lite naive buffer meta format ' + this.meta_version.toString() + ' not supported.');
+                    throw new paddle.Error("Unsupported Paddle Lite naive buffer meta format '" + this.meta_version.toString() + "'.");
                 }
             }
         }
