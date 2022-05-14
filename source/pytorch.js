@@ -1133,6 +1133,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.quantized.modules.conv.Conv2d', class {});
         this.registerType('torch.nn.quantized.modules.conv.ConvTranspose2d', class {});
         this.registerType('torch.nn.quantized.modules.DeQuantize', class {});
+        this.registerType('torch.nn.quantized.modules.dropout.Dropout', class {});
         this.registerType('torch.nn.quantized.modules.functional_modules.FloatFunctional', class {});
         this.registerType('torch.nn.quantized.modules.functional_modules.QFunctional', class {});
         this.registerType('torch.nn.quantized.modules.linear.Linear', class {});
@@ -1210,7 +1211,10 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torchvision.models.detection.ssdlite.SSDLiteClassificationHead', class {});
         this.registerType('torchvision.models.detection.ssdlite.SSDLiteFeatureExtractorMobileNet', class {});
         this.registerType('torchvision.models.detection.ssdlite.SSDLiteHead', class {});
-        this.registerType('torchvision.models.detection.ssdlite.SSDLiteRegressionHead', class {});        this.registerType('torchvision.models.detection.transform.GeneralizedRCNNTransform', class {});
+        this.registerType('torchvision.models.detection.ssdlite.SSDLiteRegressionHead', class {});
+        this.registerType('torchvision.models.detection.transform.GeneralizedRCNNTransform', class {});
+        this.registerType('torchvision.models.efficientnet.EfficientNet', class {});
+        this.registerType('torchvision.models.efficientnet.MBConv', class {});
         this.registerType('torchvision.models.googlenet.BasicConv2d', class {});
         this.registerType('torchvision.models.googlenet.GoogLeNet', class {});
         this.registerType('torchvision.models.googlenet.Inception', class {});
@@ -1274,6 +1278,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torchvision.ops.misc.SqueezeExcitation', class {});
         this.registerType('torchvision.ops.poolers.LevelMapper', class {});
         this.registerType('torchvision.ops.poolers.MultiScaleRoIAlign', class {});
+        this.registerType('torchvision.ops.stochastic_depth.StochasticDepth', class {});
         this.registerType('torchvision.transforms.functional.InterpolationMode', class {});
         this.registerType('torchvision.transforms.transforms.Compose', class {});
         this.registerType('torchvision.transforms.transforms.CenterCrop', class {});
