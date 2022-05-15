@@ -2361,7 +2361,6 @@
     "target":   "mobilenet_v2.kmodel",
     "source":   "https://github.com/lutzroeder/netron/files/7965168/mobilenet_v2.kmodel.zip[mobilenet_v2.kmodel]",
     "format":   "kmodel v5",
-    "error":    "Unsupported model version '5' in 'mobilenet_v2.kmodel'.",
     "link":     "https://github.com/lutzroeder/netron/issues/871"
   },
   {
@@ -2376,7 +2375,6 @@
     "target":   "mnist.kmodel",
     "source":   "https://github.com/lutzroeder/netron/files/8111312/mnist.kmodel.zip[mnist.kmodel]",
     "format":   "kmodel v5",
-    "error":    "Unsupported model version '5' in 'mnist.kmodel'.",
     "link":     "https://github.com/lutzroeder/netron/issues/871"
   },
   {
@@ -2398,6 +2396,13 @@
     "target":   "ulffd_landmark.kmodel",
     "source":   "https://github.com/lutzroeder/netron/files/8111629/ulffd_landmark.kmodel.zip[ulffd_landmark.kmodel]",
     "format":   "kmodel v4",
+    "link":     "https://github.com/lutzroeder/netron/issues/871"
+  },
+  {
+    "type":     "kmodel",
+    "target":   "yolox_nano_224.kmodel",
+    "source":   "https://github.com/lutzroeder/netron/files/8695383/yolox_nano_224.kmodel.zip[yolox_nano_224.kmodel]",
+    "format":   "kmodel v5",
     "link":     "https://github.com/lutzroeder/netron/issues/871"
   },
   {
