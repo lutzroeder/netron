@@ -556,11 +556,11 @@ zip.InflaterStream = class {
 
     peek(length) {
         const position = this._position;
-        length = length !== undefined ? length : this._length - position;
+        length = length !== undefined ? length : this.length - position;
         this.skip(length);
         const end = this._position;
         this.seek(position);
-        if (position === 0 && length === this._length) {
+        if (position === 0 && length === this.length) {
             return this._buffer;
         }
         return this._buffer.subarray(position, end);
@@ -568,9 +568,9 @@ zip.InflaterStream = class {
 
     read(length) {
         const position = this._position;
-        length = length !== undefined ? length : this._length - position;
+        length = length !== undefined ? length : this.length - position;
         this.skip(length);
-        if (position === 0 && length === this._length) {
+        if (position === 0 && length === this.length) {
             return this._buffer;
         }
         return this._buffer.subarray(position, this._position);
