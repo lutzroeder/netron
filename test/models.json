@@ -2029,6 +2029,13 @@
   },
   {
     "type":     "keras",
+    "target":   "data_prediction.hdf5",
+    "source":   "https://github.com/lutzroeder/netron/files/8694214/data_prediction.hdf5.zip[data_prediction.hdf5]",
+    "format":   "HDF5 Weights",
+    "link":     "https://github.com/lutzroeder/netron/issues/467"
+  },
+  {
+    "type":     "keras",
     "target":   "DenseNet121.h5.zip",
     "source":   "https://github.com/lutzroeder/netron/files/6251712/DenseNet121.h5.zip",
     "format":   "Keras v2.4.0",
