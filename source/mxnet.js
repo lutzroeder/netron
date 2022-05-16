@@ -672,14 +672,21 @@ mxnet.Attribute = class {
         this._value = value;
 
         let number;
-        const schema = metadata.attribute(type, name);
-        if (schema && schema.type) {
-            switch (schema.type) {
+        metadata = metadata.attribute(type, name);
+        if (metadata && metadata.type) {
+            switch (metadata.type) {
                 case 'boolean':
                     switch (value) {
-                        case 'True': this._value = true; break;
-                        case 'False': this._value = false; break;
-                        default: throw new mxnet.Error("Unsupported attribute boolean value '" + value + "'.");
+                        case 0:
+                        case 'False':
+                            this._value = false;
+                            break;
+                        case 1:
+                        case 'True':
+                            this._value = true;
+                            break;
+                        default:
+                            throw new mxnet.Error("Unsupported attribute boolean value '" + value + "'.");
                     }
                     break;
                 case 'int32':
@@ -712,16 +719,15 @@ mxnet.Attribute = class {
                     }
                     break;
                 default:
-                    throw new mxnet.Error("Unsupported attribute type '" + schema.type + "'.");
+                    throw new mxnet.Error("Unsupported attribute type '" + metadata.type + "'.");
             }
         }
-
-        if (schema) {
-            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
+        if (metadata) {
+            if (metadata.visible === false) {
                 this._visible = false;
             }
-            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                let defaultValue = schema.default;
+            else if (metadata.default !== undefined) {
+                let defaultValue = metadata.default;
                 if (this._value == defaultValue) {
                     this._visible = false;
                 }
