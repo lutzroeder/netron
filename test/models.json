@@ -4387,8 +4387,8 @@
   },
   {
     "type":     "pytorch",
-    "target":   "alexnet_traced.pt",
-    "source":   "https://github.com/lutzroeder/netron/files/6096602/alexnet_traced.pt.zip[alexnet_traced.pt]",
+    "target":   "alexnet_traced.pt.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/6096602/alexnet_traced.pt.zip",
     "format":   "TorchScript v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/281"
   },
@@ -4401,8 +4401,8 @@
   },
   {
     "type":     "pytorch",
-    "target":   "alexnet.pt",
-    "source":   "https://github.com/lutzroeder/netron/files/6096605/alexnet.pt.zip[alexnet.pt]",
+    "target":   "alexnet.pt.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/6096605/alexnet.pt.zip",
     "format":   "TorchScript v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/281"
   },

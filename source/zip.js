@@ -576,6 +576,11 @@ zip.InflaterStream = class {
         return this._buffer.subarray(position, this._position);
     }
 
+    stream(length) {
+        const buffer = this.read(length);
+        return new zip.BinaryReader(buffer);
+    }
+
     byte() {
         const position = this._position;
         this.skip(1);
