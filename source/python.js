@@ -3085,6 +3085,20 @@ python.Execution = class {
                 }
                 break;
             }
+            case 'with': {
+                const items = [];
+                for (const item of statement.item) {
+                    items.push(this.expression(item.expression, context));
+                }
+                for (const item of items) {
+                    item.__exit__();
+                }
+                const value = this.block(statement.body.statements, context);
+                if (value !== undefined) {
+                    return value;
+                }
+                break;
+            }
             case 'call': {
                 this.expression(statement, context);
                 break;

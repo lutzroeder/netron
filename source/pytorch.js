@@ -3509,6 +3509,16 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                     }
                 }
             }
+            if (statement.type === '=' && statement.target.type === 'tuple' &&
+                statement.expression.type === 'call' && statement.expression.arguments.length > 0 &&
+                pytorch.Utility.isCall(statement.expression, 'torch.size', 1)) {
+                const tensor = this.expression(statement.expression.arguments[0], context);
+                if (pytorch.Utility.isTensor(tensor) && tensor.__origin__ === 'graph-input') {
+                    if (tensor.shape === undefined) {
+                        tensor.resize_(Array(statement.target.value.length).fill(NaN));
+                    }
+                }
+            }
             const value = this.statement(statement, context);
             if (value !== undefined) {
                 return value;
