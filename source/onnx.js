@@ -1886,26 +1886,29 @@ onnx.Runtime.Reader = class {
     }
 
     _type(type) {
-        const value = type.value;
-        if (value && value instanceof onnx.schema.TensorTypeAndShape) {
-            return {
-                tensor_type: { elem_type: value.elem_type, shape: this._shape(value.shape) },
-                denotation: value.denotation
-            };
+        if (type) {
+            const value = type.value;
+            if (value && value instanceof onnx.schema.TensorTypeAndShape) {
+                return {
+                    tensor_type: { elem_type: value.elem_type, shape: this._shape(value.shape) },
+                    denotation: value.denotation
+                };
+            }
+            if (value && value instanceof onnx.schema.SequenceType) {
+                return {
+                    sequence_type: { elem_type: this._type(value.elem_type) },
+                    denotation: value.denotation
+                };
+            }
+            if (value && value instanceof onnx.schema.MapType) {
+                return {
+                    map_type: { key_type: value.key_type, value_type: this._type(value.value_type) },
+                    denotation: value.denotation
+                };
+            }
+            throw new onnx.Error("Unsupported type value '" + JSON.stringify(type.value));
         }
-        if (value && value instanceof onnx.schema.SequenceType) {
-            return {
-                sequence_type: { elem_type: this._type(value.elem_type) },
-                denotation: value.denotation
-            };
-        }
-        if (value && value instanceof onnx.schema.MapType) {
-            return {
-                map_type: { key_type: value.key_type, value_type: this._type(value.value_type) },
-                denotation: value.denotation
-            };
-        }
-        throw new onnx.Error("Unsupported type value '" + JSON.stringify(type.value));
+        return null;
     }
 
     _shape(shape) {
