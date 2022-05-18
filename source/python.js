@@ -3124,7 +3124,14 @@ python.Execution = class {
                         if (target.target.value === '__annotations__') {
                             context.set(target.target.value, context.get(target.target.value) || {});
                         }
-                        context.get(target.target.value)[index] = this.expression(expression.expression, context);
+                        const obj = context.get(target.target.value);
+                        const value = this.expression(expression.expression, context);
+                        if (obj instanceof Map) {
+                            obj.set(index, value);
+                        }
+                        else {
+                            obj[index] = value;
+                        }
                         return undefined;
                     }
                 }
@@ -3168,6 +3175,9 @@ python.Execution = class {
                     if (context.get(expression.target.value)) {
                         const index = this.expression(expression.arguments.value[0], context);
                         const target = context.get(expression.target.value);
+                        if (target instanceof Map) {
+                            return target.get(index);
+                        }
                         return target[index < 0 ? target.length + index : index];
                     }
                 }
@@ -3182,6 +3192,9 @@ python.Execution = class {
                 }
                 if (expression.arguments.type === 'list' && expression.arguments.value.length === 1) {
                     const index = this.expression(expression.arguments.value[0], context);
+                    if (target instanceof Map) {
+                        return target.get(index);
+                    }
                     return target[index < 0 ? target.length + index : index];
                 }
                 break;

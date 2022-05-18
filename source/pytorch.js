@@ -2774,22 +2774,41 @@ pytorch.Container.Zip = class {
                                     tensor.__origin__ = 'graph-input';
                                     return tensor;
                                 }
-                                case 'Tuple':
+                                case 'Tuple': {
                                     return type.arguments.map((type, index) => defaultValue(type, name + '[' + index.toString() + ']'));
-                                case 'List':
+                                }
+                                case 'List': {
                                     return type.arguments.map((type, index) => defaultValue(type, name + '[' + index.toString() + ']' ));
-                                case 'Dict':
-                                    return {};
-                                case 'int':
+                                }
+                                case 'Dict': {
+                                    if (type.arguments[1].name.value === 'Tensor') {
+                                        const Dict = class extends Map {
+                                            get(key) {
+                                                if (!super.has(key)) {
+                                                    super.set(key, defaultValue(type.arguments[1], name + ':' + key));
+                                                }
+                                                return super.get(key);
+                                            }
+                                        };
+                                        return new Dict();
+                                    }
+                                    return new Map();
+                                }
+                                case 'int': {
                                     return 0;
-                                case 'float':
+                                }
+                                case 'float': {
                                     return 0.0;
-                                case 'bool':
+                                }
+                                case 'bool': {
                                     return false;
-                                case 'Optional':
+                                }
+                                case 'Optional': {
                                     return undefined;
-                                default:
+                                }
+                                default: {
                                     break;
+                                }
                             }
                         }
                         throw new pytorch.Error("Unsupported function parameter type '" + JSON.stringify(type) + "'.");
