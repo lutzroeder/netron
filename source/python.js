@@ -2639,7 +2639,7 @@ python.Execution = class {
             // https://github.com/numpy/numpy/blob/main/numpy/lib/format.py
             const signature = [ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59 ];
             if (!file.read(6).every((v, i) => v == signature[i])) {
-                throw new numpy.Error('Invalid signature.');
+                throw new python.Error('Invalid signature.');
             }
             const major = file.read(1)[0];
             const minor = file.read(1)[0];
@@ -2654,10 +2654,10 @@ python.Execution = class {
             header = decoder.decode(header);
             header = JSON.parse(header.replace(/\(/,'[').replace(/\)/,']').replace('[,','[1,]').replace(',]',',1]').replace(/'/g, '"').replace(/:\s*False\s*,/,':false,').replace(/:\s*True\s*,/,':true,').replace(/,\s*\}/, ' }'));
             if (!header.descr || header.descr.length < 2) {
-                throw new numpy.Error("Missing property 'descr'.");
+                throw new python.Error("Missing property 'descr'.");
             }
             if (!header.shape) {
-                throw new numpy.Error("Missing property 'shape'.");
+                throw new python.Error("Missing property 'shape'.");
             }
             const shape = header.shape;
             const dtype = self.invoke('numpy.dtype', [ header.descr.substring(1) ]);
@@ -2671,14 +2671,14 @@ python.Execution = class {
                 case '>':
                 case '<': {
                     if (header.descr.length !== 3) {
-                        throw new numpy.Error("Unsupported data type '" + header.descr + "'.");
+                        throw new python.Error("Unsupported data type '" + header.descr + "'.");
                     }
                     const count = shape.length === 0 ? 1 : shape.reduce((a, b) => a * b, 1);
                     data = file.read(dtype.itemsize * count);
                     break;
                 }
                 default: {
-                    throw new numpy.Error("Unsupported data type '" + header.descr + "'.");
+                    throw new python.Error("Unsupported data type '" + header.descr + "'.");
                 }
             }
             if (header.fortran_order) {
@@ -2689,10 +2689,10 @@ python.Execution = class {
         this.registerFunction('numpy.save', function(file, arr) {
             const descr = arr.dtype.str;
             if (descr[0] !== '<' && descr[0] !== '>') {
-                throw new numpy.Error("Unsupported byte order '" + descr + "'.");
+                throw new python.Error("Unsupported byte order '" + descr + "'.");
             }
             if (descr.length !== 3 || (descr[1] !== 'f' && descr[1] !== 'i' && descr[1] !== 'u' && descr[1] !== 'c' && descr.substring(1) !== 'b1')) {
-                throw new numpy.Error("Unsupported data type '" + descr + "'.");
+                throw new python.Error("Unsupported data type '" + descr + "'.");
             }
             let shape = '';
             switch (arr.shape.length) {
@@ -2760,7 +2760,7 @@ python.Execution = class {
                                 context.view.setComplex128(context.position, data[i], littleendian);
                                 break;
                             default:
-                                throw new numpy.Error("Unsupported tensor data type '" + context.dtype + "'.");
+                                throw new python.Error("Unsupported tensor data type '" + context.dtype + "'.");
                         }
                         context.position += context.itemsize;
                     }
