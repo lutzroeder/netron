@@ -1625,11 +1625,6 @@
   },
   {
     "type":     "coreml",
-    "target":   "TinyYOLO.mlmodel",
-    "source":   "https://raw.githubusercontent.com/hollance/YOLO-CoreML-MPSNNGraph/master/TinyYOLO-CoreML/TinyYOLO-CoreML/TinyYOLO.mlmodel"
-  },
-  {
-    "type":     "coreml",
     "target":   "UpdatableKNN.mlmodel",
     "source":   "https://github.com/lutzroeder/netron/files/3424578/UpdatableKNN.zip[UpdatableKNN.mlmodel]",
     "format":   "Core ML v4",
