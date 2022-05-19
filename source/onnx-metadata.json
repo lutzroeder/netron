@@ -19299,7 +19299,7 @@
     "module": "ai.onnx",
     "version": 9,
     "support_level": "common",
-    "description": "Returns the indices of the elements that are non-zero\n    (in row-major order - by dimension).\n    NonZero behaves similar to numpy.nonzero:\n    https://docs.scipy.org/doc/numpy/reference/generated/numpy.nonzero.html\n",
+    "description": "Returns the indices of the elements that are non-zero\n    (in row-major order - by dimension).\n    NonZero behaves similar to numpy.nonzero:\n    https://docs.scipy.org/doc/numpy/reference/generated/numpy.nonzero.html,\n    but for scalar input, NonZero produces output shape (0, N) instead of (1, N), which is different from Numpy's behavior.\n",
     "inputs": [
       {
         "name": "X",
@@ -19353,7 +19353,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Returns the indices of the elements that are non-zero\n    (in row-major order - by dimension).\n    NonZero behaves similar to numpy.nonzero:\n    https://docs.scipy.org/doc/numpy/reference/generated/numpy.nonzero.html\n",
+    "description": "Returns the indices of the elements that are non-zero\n    (in row-major order - by dimension).\n    NonZero behaves similar to numpy.nonzero:\n    https://docs.scipy.org/doc/numpy/reference/generated/numpy.nonzero.html,\n    but for scalar input, NonZero produces output shape (0, N) instead of (1, N), which is different from Numpy's behavior.\n",
     "inputs": [
       {
         "name": "X",
