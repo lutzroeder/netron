@@ -1735,8 +1735,8 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64", "default": 0 },
-      { "name": "start", "type": "int64", "optional": true, "default": 0 },
-      { "name": "end", "type": "int64", "optional": true, "default": 9223372036854776000 },
+      { "name": "start", "type": "int64", "optional": true, "default": null },
+      { "name": "end", "type": "int64", "optional": true, "default": null },
       { "name": "step", "type": "int64", "default": 1 }
     ],
     "outputs": [
