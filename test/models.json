@@ -3520,6 +3520,13 @@
   },
   {
     "type":     "onnx",
+    "target":   "optional_type.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/8746170/optional_type.onnx.zip[optional_type.onnx]",
+    "format":   "ONNX v8",
+    "link":     "https://github.com/lutzroeder/netron/issues/914"
+  },
+  {
+    "type":     "onnx",
     "target":   "ort_github_issue_4031.onnx.ort",
     "source":   "https://github.com/lutzroeder/netron/files/8191468/ort_github_issue_4031.onnx.ort.zip[ort_github_issue_4031.onnx.ort]",
     "format":   "ONNX Runtime v7",

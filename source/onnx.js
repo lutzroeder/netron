@@ -1265,6 +1265,21 @@ onnx.OpaqueType = class {
     }
 };
 
+onnx.OptionalType = class {
+
+    constructor(type) {
+        this._type = type;
+    }
+
+    get type() {
+        return this._type;
+    }
+
+    toString() {
+        return 'optional<' + this._type.toString() + '>';
+    }
+};
+
 onnx.Function = class {
 
     constructor(context, func) {
@@ -1671,6 +1686,9 @@ onnx.GraphContext = class {
         }
         else if (type.opaque_type) {
             return new onnx.OpaqueType(type.opaque_type.domain, type.opaque_type.name);
+        }
+        else if (type.optional_type) {
+            return new onnx.OptionalType(this.createType(type.optional_type.elem_type), denotation);
         }
         throw new onnx.Error("Unsupported tensor type '" + JSON.stringify(type) + "'.");
     }

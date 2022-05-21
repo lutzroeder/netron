@@ -1443,8 +1443,12 @@ coreml.OptionalType = class {
         this._type = type;
     }
 
+    get type() {
+        return this._type;
+    }
+
     toString() {
-        return this._type.toString() + '?';
+        return 'optional<' + this._type.toString() + '>';
     }
 };
 

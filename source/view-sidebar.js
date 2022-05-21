@@ -1418,6 +1418,10 @@ sidebar.Formatter = class {
                 return value.type.name;
             case 'function[]':
                 return value ? value.map((item) => item.type.name).join(', ') : '(null)';
+            case 'type':
+                return value ? value.toString() : '(null)';
+            case 'type[]':
+                return value ? value.map((item) => item.toString()).join(', ') : '(null)';
             default:
                 break;
         }
