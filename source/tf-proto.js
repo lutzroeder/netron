@@ -7121,6 +7121,9 @@ $root.tensorflow.RunMetadata = class RunMetadata {
                 case 4:
                     message.function_graphs.push($root.tensorflow.RunMetadata.FunctionGraphs.decode(reader, reader.uint32()));
                     break;
+                case 5:
+                    message.session_metadata = $root.tensorflow.SessionMetadata.decode(reader, reader.uint32());
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -7147,6 +7150,9 @@ $root.tensorflow.RunMetadata = class RunMetadata {
                 case "function_graphs":
                     message.function_graphs.push($root.tensorflow.RunMetadata.FunctionGraphs.decodeText(reader));
                     break;
+                case "session_metadata":
+                    message.session_metadata = $root.tensorflow.SessionMetadata.decodeText(reader);
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -7158,6 +7164,7 @@ $root.tensorflow.RunMetadata = class RunMetadata {
 
 $root.tensorflow.RunMetadata.prototype.step_stats = null;
 $root.tensorflow.RunMetadata.prototype.cost_graph = null;
+$root.tensorflow.RunMetadata.prototype.session_metadata = null;
 
 $root.tensorflow.RunMetadata.FunctionGraphs = class FunctionGraphs {
 
@@ -8928,6 +8935,9 @@ $root.tensorflow.RewriterConfig = class RewriterConfig {
                 case 28:
                     message.use_plugin_optimizers = reader.int32();
                     break;
+                case 30:
+                    message.experimental_conditional_code_motion = reader.int32();
+                    break;
                 case 12:
                     message.meta_optimizer_iterations = reader.int32();
                     break;
@@ -9044,6 +9054,9 @@ $root.tensorflow.RewriterConfig = class RewriterConfig {
                 case "use_plugin_optimizers":
                     message.use_plugin_optimizers = reader.enum($root.tensorflow.RewriterConfig.Toggle);
                     break;
+                case "experimental_conditional_code_motion":
+                    message.experimental_conditional_code_motion = reader.enum($root.tensorflow.RewriterConfig.Toggle);
+                    break;
                 case "meta_optimizer_iterations":
                     message.meta_optimizer_iterations = reader.enum($root.tensorflow.RewriterConfig.NumIterationsType);
                     break;
@@ -9115,6 +9128,7 @@ $root.tensorflow.RewriterConfig.prototype.auto_mixed_precision_mkl = 0;
 $root.tensorflow.RewriterConfig.prototype.auto_mixed_precision_cpu = 0;
 $root.tensorflow.RewriterConfig.prototype.disable_meta_optimizer = false;
 $root.tensorflow.RewriterConfig.prototype.use_plugin_optimizers = 0;
+$root.tensorflow.RewriterConfig.prototype.experimental_conditional_code_motion = 0;
 $root.tensorflow.RewriterConfig.prototype.meta_optimizer_iterations = 0;
 $root.tensorflow.RewriterConfig.prototype.min_graph_nodes = 0;
 $root.tensorflow.RewriterConfig.prototype.experimental_disable_compressed_tensor_optimization = false;
