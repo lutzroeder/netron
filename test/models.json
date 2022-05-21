@@ -4266,9 +4266,23 @@
   },
   {
     "type":     "paddle",
-    "target":   "ch_ppocr_mobile_v2.0_det_infer.tar",
-    "source":   "https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_det_infer.tar",
+    "target":   "ch_ppocr_mobile_v2.0_det_infer.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/8748319/ch_ppocr_mobile_v2.0_det_infer.zip",
     "format":   "PaddlePaddle",
+    "link":     "https://github.com/lutzroeder/netron/issues/552"
+  },
+  {
+    "type":     "paddle",
+    "target":   "ch_ppocr_mobile_v2.0_det_infer.pdiparams",
+    "source":   "https://github.com/lutzroeder/netron/files/8748319/ch_ppocr_mobile_v2.0_det_infer.zip[inference.pdiparams]",
+    "format":   "PaddlePaddle Inference Weights",
+    "link":     "https://github.com/lutzroeder/netron/issues/552"
+  },
+  {
+    "type":     "paddle",
+    "target":   "critic.pdparams",
+    "source":   "https://github.com/lutzroeder/netron/files/8748332/critic.pdparams.zip[critic.pdparams]",
+    "format":   "PaddlePaddle Pickle",
     "link":     "https://github.com/lutzroeder/netron/issues/552"
   },
   {
@@ -4278,13 +4292,6 @@
     "error":    "Paddle Lite naive buffer format is deprecated in '__model__.nb'.",
     "format":   "Paddle Lite",
     "link":     "https://github.com/lutzroeder/netron/issues/797"
-  },
-  {
-    "type":     "paddle",
-    "target":   "PyramidBox_WiderFace.tar.gz",
-    "source":   "http://paddlemodels.bj.bcebos.com/PyramidBox_WiderFace.tar.gz",
-    "format":   "PaddlePaddle",
-    "link":     "https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/face_detection"
   },
   {
     "type":     "paddle",
@@ -4313,20 +4320,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/5160568/tranformer_base.zip",
     "format":   "PaddlePaddle v1.8.3",
     "link":     "https://github.com/lutzroeder/netron/issues/903"
-  },
-  {
-    "type":     "paddle",
-    "target":   "resnet18.pdparams",
-    "source":   "https://paddle-hapi.bj.bcebos.com/models/resnet18.pdparams",
-    "format":   "PaddlePaddle Pickle",
-    "link":     "https://github.com/lutzroeder/netron/issues/552"
-  },
-  {
-    "type":     "paddle",
-    "target":   "resnet50_int8_model.tar.gz",
-    "source":   "http://paddle-inference-dist.bj.bcebos.com/int8/resnet50_int8_model.tar.gz",
-    "format":   "PaddlePaddle",
-    "link":     "https://github.com/lutzroeder/netron/issues/198"
   },
   {
     "type":     "paddle",
