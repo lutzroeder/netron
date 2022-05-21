@@ -488,10 +488,10 @@ protobuf.BinaryReader = class {
                 break;
             }
             case 5: {
-                if (this._position + 4 >= this._length) {
+                this._position += 4;
+                if (this._position > this._length) {
                     return false;
                 }
-                this._position += 4;
                 break;
             }
             default: {
