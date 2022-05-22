@@ -162,22 +162,22 @@ dagre.layout = (graph, options) => {
             const fas = [];
             const stack = new Set();
             const visited = new Set();
-            const dfs = (v) => {
-                if (!visited.has(v)) {
-                    visited.add(v);
-                    stack.add(v);
-                    for (const e of g.node(v).out) {
-                        if (stack.has(e.w)) {
-                            fas.push(e);
-                        }
-                        else {
-                            dfs(e.w);
-                        }
-                    }
-                    stack.delete(v);
-                }
-            };
             for (const v of g.nodes.keys()) {
+                const dfs = (v) => {
+                    if (!visited.has(v)) {
+                        visited.add(v);
+                        stack.add(v);
+                        for (const e of g.node(v).out) {
+                            if (stack.has(e.w)) {
+                                fas.push(e);
+                            }
+                            else {
+                                dfs(e.w);
+                            }
+                        }
+                        stack.delete(v);
+                    }
+                };
                 dfs(v);
             }
             for (const e of fas) {
@@ -503,8 +503,9 @@ dagre.layout = (graph, options) => {
                         const v = stack.pop();
                         if (!visited.has(v)) {
                             visited.add(v);
-                            for (const w of t.neighbors(v).reverse()) {
-                                stack.push(w);
+                            const neighbors = t.neighbors(v);
+                            for (let i = neighbors.length - 1; i >= 0; i--) {
+                                stack.push(neighbors[i]);
                             }
                         }
                     }
@@ -1235,27 +1236,25 @@ dagre.layout = (graph, options) => {
             // the order of its nodes.
             const initOrder = (g) => {
                 const visited = new Set();
-                const nodes = Array.from(g.nodes.keys()).filter((v) => !g.children(v).length);
+                const nodes = Array.from(g.nodes.values()).filter((node) => g.children(node.v).length === 0);
                 let maxRank = undefined;
-                for (const v of nodes) {
-                    if (!g.children(v).length > 0) {
-                        const rank = g.node(v).label.rank;
-                        if (maxRank === undefined || (rank !== undefined && rank > maxRank)) {
-                            maxRank = rank;
-                        }
+                for (const node of nodes) {
+                    const rank = node.label.rank;
+                    if (maxRank === undefined || (rank !== undefined && rank > maxRank)) {
+                        maxRank = rank;
                     }
                 }
                 if (maxRank !== undefined) {
                     const layers = Array.from(new Array(maxRank + 1), () => []);
-                    for (const v of nodes.map((v) => [ g.node(v).label.rank, v ]).sort((a, b) => a[0] - b[0]).map((item) => item[1])) {
-                        const queue = [ v ];
-                        while (queue.length > 0) {
-                            const v = queue.shift();
-                            if (!visited.has(v)) {
-                                visited.add(v);
-                                const rank = g.node(v).label.rank;
-                                layers[rank].push(v);
-                                queue.push(...g.successors(v));
+                    const queue = nodes.sort((a, b) => a.label.rank - b.label.rank).map((node) => node.v).reverse();
+                    while (queue.length > 0) {
+                        const v = queue.shift();
+                        if (!visited.has(v)) {
+                            visited.add(v);
+                            const rank = g.node(v).label.rank;
+                            layers[rank].push(v);
+                            for (const w of g.successors(v)) {
+                                queue.push(w);
                             }
                         }
                     }
@@ -1561,45 +1560,56 @@ dagre.layout = (graph, options) => {
             const horizontalCompaction = (g, layering, root, align, reverseSep) => {
                 // This portion of the algorithm differs from BK due to a number of problems.
                 // Instead of their algorithm we construct a new block graph and do two sweeps.
-                const xs = {};
                 const blockG = buildBlockGraph(g, layering, root, reverseSep);
                 const borderType = reverseSep ? 'borderLeft' : 'borderRight';
-                const iterate = (setXsFunc, nextNodesFunc) => {
-                    let stack = Array.from(blockG.nodes.keys());
+                const xs = {};
+                // First pass, places blocks with the smallest possible coordinates.
+                if (blockG.nodes.size > 0) {
+                    const stack = Array.from(blockG.nodes.keys());
                     const visited = new Set();
                     while (stack.length > 0) {
                         const v = stack.pop();
                         if (visited.has(v)) {
-                            setXsFunc(v);
+                            let max = 0;
+                            for (const e of blockG.node(v).in) {
+                                max = Math.max(max, xs[e.v] + e.label);
+                            }
+                            xs[v] = max;
                         }
                         else {
                             visited.add(v);
                             stack.push(v);
-                            stack = stack.concat(nextNodesFunc(v));
+                            for (const w of blockG.predecessors(v)) {
+                                stack.push(w);
+                            }
                         }
                     }
-                };
-                // First pass, places blocks with the smallest possible coordinates.
-                const pass1 = (v) => {
-                    let max = 0;
-                    for (const e of blockG.node(v).in) {
-                        max = Math.max(max, xs[e.v] + e.label);
-                    }
-                    xs[v] = max;
-                };
+                }
                 // Second pass, removes unused space by moving blocks to the greatest coordinates without violating separation.
-                const pass2 = (v) => {
-                    let min = Number.POSITIVE_INFINITY;
-                    for (const e of blockG.node(v).out) {
-                        min = Math.min(min, xs[e.w] - e.label);
+                if (blockG.nodes.size > 0) {
+                    const stack = Array.from(blockG.nodes.keys());
+                    const visited = new Set();
+                    while (stack.length > 0) {
+                        const v = stack.pop();
+                        if (visited.has(v)) {
+                            let min = Number.POSITIVE_INFINITY;
+                            for (const e of blockG.node(v).out) {
+                                min = Math.min(min, xs[e.w] - e.label);
+                            }
+                            const label = g.node(v).label;
+                            if (min !== Number.POSITIVE_INFINITY && label.borderType !== borderType) {
+                                xs[v] = Math.max(xs[v], min);
+                            }
+                        }
+                        else {
+                            visited.add(v);
+                            stack.push(v);
+                            for (const w of blockG.successors(v)) {
+                                stack.push(w);
+                            }
+                        }
                     }
-                    const label = g.node(v).label;
-                    if (min !== Number.POSITIVE_INFINITY && label.borderType !== borderType) {
-                        xs[v] = Math.max(xs[v], min);
-                    }
-                };
-                iterate(pass1, blockG.predecessors.bind(blockG));
-                iterate(pass2, blockG.successors.bind(blockG));
+                }
                 // Assign x coordinates to all nodes
                 for (const v of Object.values(align)) {
                     xs[v] = xs[root[v]];
