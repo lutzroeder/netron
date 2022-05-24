@@ -1126,6 +1126,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.quantized.modules.activation.LeakyReLU', class {});
         this.registerType('torch.nn.quantized.dynamic.modules.linear.Linear', class {});
         this.registerType('torch.nn.quantized.dynamic.modules.rnn.GRU', class {});
+        this.registerType('torch.nn.quantized.dynamic.modules.rnn.LSTM', class {});
         this.registerType('torch.nn.quantized.dynamic.modules.rnn.PackedParameter', class {});
         this.registerType('torch.nn.quantized.modules.activation.ReLU6', class {});
         this.registerType('torch.nn.quantized.modules.batchnorm.BatchNorm2d', class {});
