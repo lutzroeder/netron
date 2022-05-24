@@ -3300,6 +3300,81 @@
     ]
   },
   {
+    "name": "BlackmanWindow",
+    "module": "ai.onnx",
+    "version": 17,
+    "support_level": "common",
+    "description": "Generates a Blackman window as described in the paper https://ieeexplore.ieee.org/document/1455106.\n",
+    "attributes": [
+      {
+        "name": "output_datatype",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "The data type of the output tensor. Strictly must be one of the values from DataType enum in TensorProto whose values correspond to T2. The default value is 1 = FLOAT. "
+      },
+      {
+        "name": "periodic",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "If 1, returns a window to be used as periodic function. If 0, return a symmetric window. When 'periodic' is specified, hann computes a window of length size + 1 and returns the first size points. The default value is 1. "
+      }
+    ],
+    "inputs": [
+      {
+        "name": "size",
+        "type": "T1",
+        "description": "A scalar value indicating the length of the window."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T2",
+        "description": "A Hann window with length: size. The output has the shape: [size]."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain the input size to int64_t.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(int32)",
+          "tensor(int64)"
+        ]
+      },
+      {
+        "description": "Constrain output types to numeric tensors.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(bfloat16)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "blackmanwindow",
+        "code": "node = onnx.helper.make_node(\n    'BlackmanWindow',\n    inputs=['x'],\n    outputs=['y'],\n)\nsize = np.int32(10)\na0 = 7938 / 18608\na1 = 9240 / 18608\na2 = 1430 / 18608\ny = a0\ny += a1 * np.cos(2 * 3.1415 * np.arange(0, size, 1, dtype=np.float32) / size)\ny += a2 * np.cos(4 * 3.1415 * np.arange(0, size, 1, dtype=np.float32) / size)\nexpect(node, inputs=[size], outputs=[y],\n       name='test_blackmanwindow')"
+      }
+    ]
+  },
+  {
     "name": "Cast",
     "module": "ai.onnx",
     "version": 1,
@@ -6156,6 +6231,85 @@
       {
         "summary": "cumsum_2d_negative_axis",
         "code": "node = onnx.helper.make_node(\n    'CumSum',\n    inputs=['x', 'axis'],\n    outputs=['y'],\n)\nx = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float64).reshape((2, 3))\naxis = np.int32(-1)\ny = np.array([1., 3., 6., 4., 9., 15.]).astype(np.float64).reshape((2, 3))\nexpect(node, inputs=[x, axis], outputs=[y],\n       name='test_cumsum_2d_negative_axis')"
+      }
+    ]
+  },
+  {
+    "name": "DFT",
+    "module": "ai.onnx",
+    "version": 17,
+    "support_level": "common",
+    "description": "Computes the discrete Fourier transform of input.",
+    "attributes": [
+      {
+        "name": "axis",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "The axis on which to perform the DFT. By default this value is set to 1, which corresponds to the first dimension after the batch index."
+      },
+      {
+        "name": "inverse",
+        "type": "int64",
+        "required": false,
+        "description": "Whether to perform the inverse discrete fourier transform. By default this value is set to 0, which corresponds to false."
+      },
+      {
+        "name": "onesided",
+        "type": "int64",
+        "required": false,
+        "description": "If onesided is 1, only values for w in [0, 1, 2, ..., floor(n_fft/2) + 1] are returned because the real-to-complex Fourier transform satisfies the conjugate symmetry, i.e., X[m, w] = X[m,w]=X[m,n_fft-w]*. Note if the input or window tensors are complex, then onesided output is not possible. Enabling onesided with real inputs performs a Real-valued fast Fourier transform (RFFT). When invoked with real or complex valued input, the default value is 0. Values can be 0 or 1."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "type": "T1",
+        "description": "For real input, the following shape is expected: [batch_idx][signal_dim1][signal_dim2]...[signal_dimN][1]. For complex input, the following shape is expected: [batch_idx][signal_dim1][signal_dim2]...[signal_dimN][2]. The first dimension is the batch dimension. The following N dimentions correspond to the signal's dimensions. The final dimension represents the real and imaginary parts of the value in that order."
+      },
+      {
+        "name": "dft_length",
+        "type": "T2",
+        "option": "optional",
+        "description": "The length of the signal.If greater than the axis dimension, the signal will be zero-padded up to dft_length. If less than the axis dimension, only the first dft_length values will be used as the signal. It's an optional value. "
+      }
+    ],
+    "min_input": 1,
+    "max_input": 2,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T1",
+        "description": "The Fourier Transform of the input vector.If onesided is 0, the following shape is expected: [batch_idx][signal_dim1][signal_dim2]...[signal_dimN][2]. If axis=0 and onesided is 1, the following shape is expected: [batch_idx][floor(signal_dim1/2)+1][signal_dim2]...[signal_dimN][2]. If axis=1 and onesided is 1, the following shape is expected: [batch_idx][signal_dim1][floor(signal_dim2/2)+1]...[signal_dimN][2]. If axis=N-1 and onesided is 1, the following shape is expected: [batch_idx][signal_dim1][signal_dim2]...[floor(signal_dimN/2)+1][2]. The signal_dim at the specified axis is equal to the dft_length."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "inputs_range": "1 - 2",
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Constrain scalar length types to int64_t.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(int32)",
+          "tensor(int64)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "dft",
+        "code": "node = onnx.helper.make_node(\n    'DFT',\n    inputs=['x'],\n    outputs=['y'],\n    axis=1\n)\nx = np.arange(0, 100).reshape(10, 10).astype(np.float32)\ny = np.fft.fft(x, axis=0)\n\nx = x.reshape(1, 10, 10, 1)\ny = np.stack((y.real, y.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_dft')\n\nnode = onnx.helper.make_node(\n    'DFT',\n    inputs=['x'],\n    outputs=['y'],\n    axis=2\n)\nx = np.arange(0, 100).reshape(10, 10).astype(np.float32)\ny = np.fft.fft(x, axis=1)\n\nx = x.reshape(1, 10, 10, 1)\ny = np.stack((y.real, y.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_dft_axis')\n\nnode = onnx.helper.make_node(\n    'DFT',\n    inputs=['x'],\n    outputs=['y'],\n    inverse=1,\n    axis=1\n)\nx = np.arange(0, 100, dtype=np.complex64).reshape(10, 10,)\ny = np.fft.ifft(x, axis=0)\n\nx = np.stack((x.real, x.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\ny = np.stack((y.real, y.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_dft_inverse')"
       }
     ]
   },
@@ -11825,6 +11979,156 @@
       {
         "summary": "gridsample_paddingmode",
         "code": "# X shape, [N, C, H, W] - [1, 1, 3, 2]\nX = np.array(\n    [\n        [\n            [\n                [0., 1.],\n                [2., 3.],\n                [4., 5.]\n            ]\n        ]\n    ],\n    dtype=np.float32,\n)\n# Grid shape, [N, H_out, W_out, 2] - [1, 2, 4, 2]\nGrid = np.array(\n    [\n        [\n            [\n                [-10.0000, -10.0000],\n                [-5.0000, -5.0000],\n                [-0.2000, -0.2000],\n                [10.0000, 10.0000]\n            ],\n\n            [\n                [10.0000, 10.0000],\n                [-0.2000, -0.2000],\n                [5.0000, 5.0000],\n                [10.0000, 10.0000]\n            ]\n        ]\n    ],\n    dtype=np.float32,\n)\n\n# setting padding_mode = 'zeros'\nnode = onnx.helper.make_node(\n    'GridSample',\n    inputs=['X', 'Grid'],\n    outputs=['Y'],\n    padding_mode='zeros',\n)\n# Y shape, [N, C, H_out, W_out] - [1, 1, 2, 4]\nY_zeros = np.array(\n    [\n        [\n            [\n                [0.0000, 0.0000, 1.7000, 0.0000],\n                [0.0000, 1.7000, 0.0000, 0.0000]\n            ]\n        ]\n    ],\n    dtype=np.float32,\n)\n\nexpect(node, inputs=[X, Grid], outputs=[Y_zeros],\n       name='test_gridsample_zeros_padding')\n\n# setting padding_mode = 'border'\nnode = onnx.helper.make_node(\n    'GridSample',\n    inputs=['X', 'Grid'],\n    outputs=['Y'],\n    padding_mode='border',\n)\n# Y shape, [N, C, H_out, W_out] - [1, 1, 2, 4]\nY_border = np.array(\n    [\n        [\n            [\n                [0.0000, 0.0000, 1.7000, 5.0000],\n                [5.0000, 1.7000, 5.0000, 5.0000]\n            ]\n        ]\n    ],\n    dtype=np.float32,\n)\n\nexpect(node, inputs=[X, Grid], outputs=[Y_border],\n       name='test_gridsample_border_padding')\n\n# setting padding_mode = 'reflection'\nnode = onnx.helper.make_node(\n    'GridSample',\n    inputs=['X', 'Grid'],\n    outputs=['Y'],\n    padding_mode='reflection',\n)\n# Y shape, [N, C, H_out, W_out] - [1, 1, 2, 4]\nY_reflection = np.array(\n    [\n        [\n            [\n                [2.5000, 0.0000, 1.7000, 2.5000],\n                [2.5000, 1.7000, 5.0000, 2.5000]\n            ]\n        ]\n    ],\n    dtype=np.float32,\n)\n\nexpect(node, inputs=[X, Grid], outputs=[Y_reflection],\n       name='test_gridsample_reflection_padding')"
+      }
+    ]
+  },
+  {
+    "name": "HammingWindow",
+    "module": "ai.onnx",
+    "version": 17,
+    "support_level": "common",
+    "description": "Generates a Hamming window as described in the paper https://ieeexplore.ieee.org/document/1455106.\n",
+    "attributes": [
+      {
+        "name": "output_datatype",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "The data type of the output tensor. Strictly must be one of the values from DataType enum in TensorProto whose values correspond to T2. The default value is 1 = FLOAT. "
+      },
+      {
+        "name": "periodic",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "If 1, returns a window to be used as periodic function. If 0, return a symmetric window. When 'periodic' is specified, hann computes a window of length size + 1 and returns the first size points. The default value is 1. "
+      }
+    ],
+    "inputs": [
+      {
+        "name": "size",
+        "type": "T1",
+        "description": "A scalar value indicating the length of the window."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T2",
+        "description": "A Hann window with length: size. The output has the shape: [size]."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain the input size to int64_t.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(int32)",
+          "tensor(int64)"
+        ]
+      },
+      {
+        "description": "Constrain output types to numeric tensors.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(bfloat16)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "hammingwindow",
+        "code": "node = onnx.helper.make_node(\n    'HammingWindow',\n    inputs=['x'],\n    outputs=['y'],\n)\nsize = np.int32(10)\na0 = .5\na1 = .5\ny = a0 + a1 * np.cos(2 * 3.1415 * np.arange(0, size, 1, dtype=np.float32) / size)\nexpect(node, inputs=[size], outputs=[y],\n       name='test_hammingwindow')"
+      }
+    ]
+  },
+  {
+    "name": "HannWindow",
+    "module": "ai.onnx",
+    "version": 17,
+    "support_level": "common",
+    "description": "Generates a Hann window as described in the paper https://ieeexplore.ieee.org/document/1455106.\n",
+    "attributes": [
+      {
+        "name": "output_datatype",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "The data type of the output tensor. Strictly must be one of the values from DataType enum in TensorProto whose values correspond to T2. The default value is 1 = FLOAT. "
+      },
+      {
+        "name": "periodic",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "If 1, returns a window to be used as periodic function. If 0, return a symmetric window. When 'periodic' is specified, hann computes a window of length size + 1 and returns the first size points. The default value is 1. "
+      }
+    ],
+    "inputs": [
+      {
+        "name": "size",
+        "type": "T1",
+        "description": "A scalar value indicating the length of the window."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T2",
+        "description": "A Hann window with length: size. The output has the shape: [size]."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain the input size to int64_t.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(int32)",
+          "tensor(int64)"
+        ]
+      },
+      {
+        "description": "Constrain output types to numeric tensors.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(bfloat16)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "hannwindow",
+        "code": "node = onnx.helper.make_node(\n    'HannWindow',\n    inputs=['x'],\n    outputs=['y'],\n)\nsize = np.int32(10)\na0 = .5\na1 = .5\ny = a0 + a1 * np.cos(2 * 3.1415 * np.arange(0, size, 1, dtype=np.float32) / size)\nexpect(node, inputs=[size], outputs=[y],\n       name='test_hannwindow')"
       }
     ]
   },
@@ -17699,6 +18003,104 @@
       {
         "summary": "meanvariancenormalization",
         "code": "node = onnx.helper.make_node(\n    'MeanVarianceNormalization',\n    inputs=['X'],\n    outputs=['Y']\n)\n\ninput_data = np.array([[[[0.8439683], [0.5665144], [0.05836735]],\n    [[0.02916367], [0.12964272], [0.5060197]],\n    [[0.79538304], [0.9411346], [0.9546573]]],\n    [[[0.17730942], [0.46192095], [0.26480448]],\n    [[0.6746842], [0.01665257], [0.62473077]],\n    [[0.9240844], [0.9722341], [0.11965699]]],\n    [[[0.41356155], [0.9129373], [0.59330076]],\n    [[0.81929934], [0.7862604], [0.11799799]],\n    [[0.69248444], [0.54119414], [0.07513223]]]], dtype=np.float32)\n\n# Calculate expected output data\ndata_mean = np.mean(input_data, axis=(0, 2, 3), keepdims=1)\ndata_mean_squared = np.power(data_mean, 2)\ndata_squared = np.power(input_data, 2)\ndata_squared_mean = np.mean(data_squared, axis=(0, 2, 3), keepdims=1)\nstd = np.sqrt(data_squared_mean - data_mean_squared)\nexpected_output = (input_data - data_mean) / (std + 1e-9)\n\nexpect(node, inputs=[input_data], outputs=[expected_output],\n       name='test_mvn')"
+      }
+    ]
+  },
+  {
+    "name": "MelWeightMatrix",
+    "module": "ai.onnx",
+    "version": 17,
+    "support_level": "common",
+    "description": "Generate a MelWeightMatrix that can be used to re-weight a Tensor containing a linearly sampled frequency spectra (from DFT or STFT) into num_mel_bins frequency information based on the [lower_edge_hertz, upper_edge_hertz] range on the mel scale.\nThis function defines the mel scale in terms of a frequency in hertz according to the following formula:\n    \n    mel(f) = 2595 * log10(1 + f/700)\n\nIn the returned matrix, all the triangles (filterbanks) have a peak value of 1.0.\n\nThe returned MelWeightMatrix can be used to right-multiply a spectrogram S of shape [frames, num_spectrogram_bins] of linear scale spectrum values (e.g. STFT magnitudes) to generate a \"mel spectrogram\" M of shape [frames, num_mel_bins].\n",
+    "attributes": [
+      {
+        "name": "output_datatype",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "The data type of the output tensor. Strictly must be one of the values from DataType enum in TensorProto whose values correspond to T3. The default value is 1 = FLOAT. "
+      }
+    ],
+    "inputs": [
+      {
+        "name": "num_mel_bins",
+        "type": "T1",
+        "description": "The number of bands in the mel spectrum."
+      },
+      {
+        "name": "dft_length",
+        "type": "T1",
+        "description": "The size of the original DFT. The size of the original DFT is used to infer the size of the onesided DFT, which is understood to be floor(dft_length/2) + 1, i.e. the spectrogram only contains the nonredundant DFT bins."
+      },
+      {
+        "name": "sample_rate",
+        "type": "T1",
+        "description": "Samples per second of the input signal used to create the spectrogram. Used to figure out the frequencies corresponding to each spectrogram bin, which dictates how they are mapped into the mel scale."
+      },
+      {
+        "name": "lower_edge_hertz",
+        "type": "T2",
+        "description": "Lower bound on the frequencies to be included in the mel spectrum. This corresponds to the lower edge of the lowest triangular band."
+      },
+      {
+        "name": "upper_edge_hertz",
+        "type": "T2",
+        "description": "The desired top edge of the highest frequency band."
+      }
+    ],
+    "min_input": 5,
+    "max_input": 5,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T3",
+        "description": "The Mel Weight Matrix. The output has the shape: [floor(dft_length/2) + 1][num_mel_bins]."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain to integer tensors.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(int32)",
+          "tensor(int64)"
+        ]
+      },
+      {
+        "description": "Constrain to float tensors",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(double)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Constrain to any numerical types.",
+        "type_param_str": "T3",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(bfloat16)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "melweightmatrix",
+        "code": "node = onnx.helper.make_node(\n    \"MelWeightMatrix\",\n    inputs=['num_mel_bins', 'dft_length', 'sample_rate', 'lower_edge_hertz', 'upper_edge_hertz'],\n    outputs=['output'],\n)\n\nnum_mel_bins = np.int32(8)\ndft_length = np.int32(16)\nsample_rate = np.int32(8192)\nlower_edge_hertz = np.float32(0)\nupper_edge_hertz = np.float32(8192 / 2)\n\nnum_spectrogram_bins = dft_length // 2 + 1\nfrequency_bins = np.arange(0, num_mel_bins + 2)\n\nlow_frequency_mel = 2595 * np.log10(1 + lower_edge_hertz / 700)\nhigh_frequency_mel = 2595 * np.log10(1 + upper_edge_hertz / 700)\nmel_step = (high_frequency_mel - low_frequency_mel) / frequency_bins.shape[0]\n\nfrequency_bins = frequency_bins * mel_step + low_frequency_mel\nfrequency_bins = 700 * (np.power(10, (frequency_bins / 2595)) - 1)\nfrequency_bins = ((dft_length + 1) * frequency_bins) // sample_rate\nfrequency_bins = frequency_bins.astype(int)\n\noutput = np.zeros((num_spectrogram_bins, num_mel_bins))\noutput.flags.writeable = True\n\nfor i in range(num_mel_bins):\n    lower_frequency_value = frequency_bins[i]     # left\n    center_frequency_point = frequency_bins[i + 1]  # center\n    higher_frequency_point = frequency_bins[i + 2]  # right\n    low_to_center = center_frequency_point - lower_frequency_value\n    if low_to_center == 0:\n        output[center_frequency_point, i] = 1\n    else:\n        for j in range(lower_frequency_value, center_frequency_point + 1):\n            output[j, i] = float(j - lower_frequency_value) / float(low_to_center)\n    center_to_high = higher_frequency_point - center_frequency_point\n    if center_to_high > 0:\n        for j in range(center_frequency_point, higher_frequency_point):\n            output[j, i] = float(higher_frequency_point - j) / float(center_to_high)\n\n# Expected output\n# 1.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,\n# 0.000000, 0.000000, 1.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,\n# 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000,\noutput = output.astype(np.float32)\nexpect(node, inputs=[num_mel_bins, dft_length, sample_rate, lower_edge_hertz, upper_edge_hertz], outputs=[output],\n        name='test_melweightmatrix')"
       }
     ]
   },
@@ -26130,6 +26532,84 @@
       {
         "summary": "round",
         "code": "node = onnx.helper.make_node(\n    'Round',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([0.1, 0.5, 0.9, 1.2, 1.5,\n            1.8, 2.3, 2.5, 2.7, -1.1,\n            -1.5, -1.9, -2.2, -2.5, -2.8]).astype(np.float32)\ny = np.array([0., 0., 1., 1., 2.,\n            2., 2., 2., 3., -1.,\n            -2., -2., -2., -2., -3.]).astype(np.float32)  # expected output\nexpect(node, inputs=[x], outputs=[y],\n       name='test_round')"
+      }
+    ]
+  },
+  {
+    "name": "STFT",
+    "module": "ai.onnx",
+    "version": 17,
+    "support_level": "common",
+    "description": "Computes the Short-time Fourier Transform of the signal.",
+    "attributes": [
+      {
+        "name": "onesided",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "If onesided is 1, only values for w in [0, 1, 2, ..., floor(n_fft/2) + 1] are returned because the real-to-complex Fourier transform satisfies the conjugate symmetry, i.e., X[m, w] = X[m,w]=X[m,n_fft-w]*. Note if the input or window tensors are complex, then onesided output is not possible. Enabling onesided with real inputs performs a Real-valued fast Fourier transform (RFFT).When invoked with real or complex valued input, the default value is 1. Values can be 0 or 1."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "signal",
+        "type": "T1",
+        "description": "Input tensor representing a real or complex valued signal. For real input, the following shape is expected: [batch_size][signal_length][1]. For complex input, the following shape is expected: [batch_size][signal_length][2], where [batch_size][signal_length][0] represents the real component and [batch_size][signal_length][1] represents the imaginary component of the signal."
+      },
+      {
+        "name": "frame_step",
+        "type": "T2",
+        "description": "The number of samples to step between successive DFTs."
+      },
+      {
+        "name": "window",
+        "type": "T1",
+        "option": "optional",
+        "description": "A tensor representing the window that will be slid over the signal.The window must have rank 1 with shape: [window_shape]. It's an optional value. "
+      },
+      {
+        "name": "frame_length",
+        "type": "T2",
+        "option": "optional",
+        "description": "A scalar representing the size of the DFT. It's an optional value."
+      }
+    ],
+    "min_input": 2,
+    "max_input": 4,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T1",
+        "description": "The Short-time Fourier Transform of the signals.If onesided is 1, the output has the shape: [batch_size][frames][dft_unique_bins][2], where dft_unique_bins is frame_length // 2 + 1 (the unique components of the DFT) If onesided is 0, the output has the shape: [batch_size][frames][frame_length][2], where frame_length is the length of the DFT."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "inputs_range": "2 - 4",
+    "type_constraints": [
+      {
+        "description": "Constrain signal and output to float tensors.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(double)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Constrain scalar length types to int64_t.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(int32)",
+          "tensor(int64)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "stft",
+        "code": "signal = np.arange(0, 128, dtype=np.float32).reshape(1, 128, 1)\nlength = np.array((16)).astype(np.int64)\nstep = np.array((8)).astype(np.int64)\n\nno_window = \"\"  # optional input, not supplied\nnode = onnx.helper.make_node(\n    'STFT',\n    inputs=['signal', 'frame_step', no_window, 'frame_length'],\n    outputs=['output'],\n)\n\nnstfts = ((signal.shape[1] - length) // step) + 1\n# [batch_size][frames][frame_length][2]\noutput = np.empty([1, nstfts, length, 2], dtype=np.float32)\nfor i in range(nstfts):\n    start = i * step\n    stop = i * step + length\n    complex_out = np.fft.fft(signal[0, start:stop, 0])\n    output[0, i] = np.stack((complex_out.real, complex_out.imag), axis=1)\n\nexpect(node, inputs=[signal, step, length], outputs=[output],\n       name='test_stft')\n\nnode = onnx.helper.make_node(\n    'STFT',\n    inputs=['signal', 'frame_step', 'window'],\n    outputs=['output'],\n)\n\n# Test with window\na0 = .5\na1 = .5\nwindow = a0 + a1 * np.cos(2 * 3.1415 * np.arange(0, length, 1, dtype=np.float32) / length)\nnstfts = 1 + (signal.shape[1] - window.shape[0]) // step\n\n# [batch_size][frames][frame_length][2]\noutput = np.empty([1, nstfts, length, 2], dtype=np.float32)\nfor i in range(nstfts):\n    start = i * step\n    stop = i * step + length\n    complex_out = np.fft.fft(signal[0, start:stop, 0] * window)\n    output[0, i] = np.stack((complex_out.real, complex_out.imag), axis=1)\nexpect(node, inputs=[signal, step, window], outputs=[output],\n       name='test_stft_with_window')"
       }
     ]
   },
