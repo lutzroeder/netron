@@ -1262,6 +1262,8 @@ kmodel.Reader = class {
                                     break;
                                 case 'k210':
                                     break;
+                                case 'k510':
+                                    break;
                                 default:
                                     throw new kmodel.Error("Unsupported module type '" + module_header.type + "'.");
                             }

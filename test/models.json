@@ -2395,6 +2395,13 @@
   },
   {
     "type":     "kmodel",
+    "target":   "yolofast.kmodel",
+    "source":   "https://github.com/lutzroeder/netron/files/8758983/yolofast.kmodel.zip[yolofast.kmodel]",
+    "format":   "kmodel v5",
+    "link":     "https://github.com/lutzroeder/netron/issues/871"
+  },
+  {
+    "type":     "kmodel",
     "target":   "yolox_nano_224.kmodel",
     "source":   "https://github.com/lutzroeder/netron/files/8695383/yolox_nano_224.kmodel.zip[yolox_nano_224.kmodel]",
     "format":   "kmodel v5",
