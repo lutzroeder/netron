@@ -2003,12 +2003,10 @@
   },
   {
     "name": "torch.add:Tensor",
-    "attributes": [
-      { "name": "alpha", "type": "Scalar", "default": 1 }
-    ],
     "inputs": [
       { "name": "input", "type": "Tensor" },
-      { "name": "other", "type": "Tensor" }
+      { "name": "other", "type": "Tensor" },
+      { "name": "alpha", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -2016,12 +2014,10 @@
   },
   {
     "name": "torch.add:Scalar",
-    "attributes": [
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Scalar" },
       { "name": "alpha", "type": "Scalar", "default": 1 }
-    ],
-    "inputs": [
-      { "name": "input", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -3332,6 +3328,16 @@
     "name": "torch.neg",
     "inputs": [
       { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.ne:Scalar",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -4829,13 +4835,11 @@
   },
   {
     "name": "torch.narrow_copy",
-    "attributes": [
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
       { "name": "start", "type": "int64" },
       { "name": "length", "type": "int64" }
-    ],
-    "inputs": [
-      { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -4854,13 +4858,11 @@
   },
   {
     "name": "torch.index_put",
-    "attributes": [
-      { "name": "accumulate", "type": "boolean", "default": false }
-    ],
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "indices", "type": "Tensor[]", "optional": true },
-      { "name": "values", "type": "Tensor" }
+      { "name": "values", "type": "Tensor" },
+      { "name": "accumulate", "type": "boolean", "default": false }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -4868,13 +4870,11 @@
   },
   {
     "name": "torch.index_put_",
-    "attributes": [
-      { "name": "accumulate", "type": "boolean", "default": false }
-    ],
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "indices", "type": "Tensor[]", "optional": true },
-      { "name": "values", "type": "Tensor" }
+      { "name": "values", "type": "Tensor" },
+      { "name": "accumulate", "type": "boolean", "default": false }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -4882,15 +4882,13 @@
   },
   {
     "name": "torch.new_zeros",
-    "attributes": [
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "size", "type": "int64[]" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
       { "name": "device", "type": "Device", "optional": true, "default": null },
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
-    ],
-    "inputs": [
-      { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -4898,16 +4896,14 @@
   },
   {
     "name": "torch.new_full",
-    "attributes": [
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "size", "type": "int64[]" },
       { "name": "fill_value", "type": "Scalar" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
       { "name": "device", "type": "Device", "optional": true, "default": null },
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
-    ],
-    "inputs": [
-      { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }

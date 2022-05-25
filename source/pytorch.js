@@ -3166,8 +3166,8 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                             let dim1 = evalArgs[2];
                                             if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
                                                 const size = input.size().slice();
-                                                dim0 = dim0 > 0 ? dim0 : size.length + dim0;
-                                                dim1 = dim1 > 0 ? dim1 : size.length + dim1;
+                                                dim0 = dim0 >= 0 ? dim0 : size.length + dim0;
+                                                dim1 = dim1 >= 0 ? dim1 : size.length + dim1;
                                                 const value = size[dim0];
                                                 size[dim0] = size[1];
                                                 size[dim1] = value;
