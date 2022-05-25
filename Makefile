@@ -24,6 +24,7 @@ update: install
 	@./tools/circle sync schema metadata
 	@./tools/cntk sync schema
 	@./tools/coreml sync schema
+	@./tools/dlc schema
 	@./tools/dnn schema
 	@./tools/mnn sync schema
 	@./tools/mslite sync schema metadata

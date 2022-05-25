@@ -1,0 +1,7 @@
+namespace dlc;
+
+table NetDefinition {
+}
+
+table NetParameter {
+}
