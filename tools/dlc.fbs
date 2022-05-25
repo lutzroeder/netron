@@ -1,0 +1,12 @@
+namespace dlc;
+
+table NetDefinition {
+}
+
+table NetParameter {
+    params:[Parameter];
+}
+
+table Parameter {
+    name:string;
+}

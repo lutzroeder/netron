@@ -1583,7 +1583,7 @@ view.ModelFactoryService = class {
         this.register('./darknet', [ '.cfg', '.model', '.txt', '.weights' ]);
         this.register('./weka', [ '.model' ]);
         this.register('./rknn', [ '.rknn', '.onnx' ]);
-        this.register('./dlc', [ '.dlc' ]);
+        this.register('./dlc', [ '.dlc', 'model', '.params' ]);
         this.register('./armnn', [ '.armnn', '.json' ]);
         this.register('./mnn', ['.mnn']);
         this.register('./ncnn', [ '.param', '.bin', '.cfg.ncnn', '.weights.ncnn', '.ncnnmodel' ]);
