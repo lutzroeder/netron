@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -e
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
+
+clean() {
+    echo "wnnx clean"
+    rm -rf "./third_party/source/wnnx"
+}
+
+sync() {
+    echo "wnnx sync"
+    mkdir -p "./third_party/source/wnnx/schema/fbs"
+}
+
+schema() {
+    echo "wnnx schema"
+    [[ $(grep -U $'\x0D' ./source/wnnx-schema.js) ]] && crlf=1
+    node ./tools/flatc.js --root wnnx --out ./source/wnnx-schema.js ./third_party/source/wnnx/schema/fbs/wnnx.fbs
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/wnnx-schema.js ./source/wnnx-schema.js
+    fi
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+        "schema") schema;;
+    esac
+done

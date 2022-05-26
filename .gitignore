@@ -7,3 +7,4 @@ node_modules/*
 third_party/*
 package-lock.json
 *.pyc
+.vscode/

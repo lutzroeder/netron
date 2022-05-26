@@ -172,7 +172,7 @@ class Application {
                     'pt', 'pth', 'ptl', 't7',
                     'pkl', 'joblib',
                     'pbtxt', 'prototxt',
-                    'cfg', 'xml',
+                    'cfg', 'xml', 'wnnx',
                     'zip', 'tar' ] }
             ]
         };

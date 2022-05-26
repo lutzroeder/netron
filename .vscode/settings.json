@@ -3,5 +3,10 @@
         "dist": true,
         "node_modules": true,
         "third_party": true
+    },
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#5F042A",
+        "titleBar.activeBackground": "#85053A",
+        "titleBar.activeForeground": "#FFFBFD"
     }
 }

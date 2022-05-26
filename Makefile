@@ -37,6 +37,7 @@ update: install
 	@./tools/tf sync install schema metadata
 	@./tools/uff schema
 	@./tools/xmodel sync schema
+	@./tools/wnnx sync schema
 
 build_python: install
 	python -m pip install --user wheel
