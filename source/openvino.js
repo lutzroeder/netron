@@ -826,6 +826,7 @@ openvino.Tensor = class {
         switch(this._type.dataType) {
             case 'float16':
             case 'float32':
+            case 'float64':
             case 'int8':
             case 'int16':
             case 'int32':
@@ -860,14 +861,19 @@ openvino.Tensor = class {
                     return results;
                 }
                 switch (this._type.dataType) {
+                    case 'float16':
+                        results.push(context.data.getFloat16(context.index, true));
+                        context.index += 2;
+                        context.count++;
+                        break;
                     case 'float32':
                         results.push(context.data.getFloat32(context.index, true));
                         context.index += 4;
                         context.count++;
                         break;
-                    case 'float16':
-                        results.push(context.data.getFloat16(context.index, true));
-                        context.index += 2;
+                    case 'float64':
+                        results.push(context.data.getFloat64(context.index, true));
+                        context.index += 4;
                         context.count++;
                         break;
                     case 'int8':
@@ -966,6 +972,7 @@ openvino.TensorType = class {
             case 'fp16':    this._dataType = 'float16'; break;
             case 'f32':     this._dataType = 'float32'; break;
             case 'fp32':    this._dataType = 'float32'; break;
+            case 'fp64':    this._dataType = 'float64'; break;
             case 'bf16':    this._dataType = 'bfloat16'; break;
             case 'i4':      this._dataType = 'int4'; break;
             case 'i8':      this._dataType = 'int8'; break;
