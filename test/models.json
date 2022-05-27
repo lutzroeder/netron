@@ -894,6 +894,22 @@
     "link":     "https://github.com/caffe2/models"
   },
   {
+    "type":     "cambricon",
+    "target":   "deepsort_4c4b_bgr_270_v140.cambricon",
+    "source":   "https://github.com/lutzroeder/netron/files/8783170/deepsort_4c4b_bgr_270_v140.cambricon.zip[deepsort_4c4b_bgr_270_v140.cambricon]",
+    "format":   "Cambricon",
+    "error":    "File contains undocumented Cambricon data in 'deepsort_4c4b_bgr_270_v140.cambricon'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/917"
+  },
+  {
+    "type":     "cambricon",
+    "target":   "SR_face_x3_530x530.cambricon",
+    "source":   "https://github.com/lutzroeder/netron/files/8783172/SR_face_x3_530x530.cambricon.zip[SR_face_x3_530x530.cambricon]",
+    "format":   "Cambricon",
+    "error":    "File contains undocumented Cambricon data in 'SR_face_x3_530x530.cambricon'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/917"
+  },
+  {
     "type":     "circle",
     "target":   "ArgMax_001.circle",
     "source":   "https://github.com/lutzroeder/netron/files/7489768/circle_model_samples.zip[ArgMax_001.circle]",

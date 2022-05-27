@@ -1603,6 +1603,7 @@ view.ModelFactoryService = class {
         this.register('./flax', [ '.msgpack' ]);
         this.register('./om', [ '.om', '.onnx', '.pb', '.engine' ]);
         this.register('./nnabla', [ '.nntxt' ], [ '.nnp' ]);
+        this.register('./cambricon', [ '.cambricon' ]);
     }
 
     register(id, factories, containers) {

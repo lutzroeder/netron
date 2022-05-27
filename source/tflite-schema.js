@@ -202,6 +202,7 @@ $root.tflite.Tensor = class Tensor {
         $.is_variable = reader.bool_(position, 14, false);
         $.sparsity = reader.table(position, 16, $root.tflite.SparsityParameters.decode);
         $.shape_signature = reader.typedArray(position, 18, Int32Array);
+        $.has_rank = reader.bool_(position, 20, false);
         return $;
     }
 
@@ -215,6 +216,7 @@ $root.tflite.Tensor = class Tensor {
         $.is_variable = reader.value(json.is_variable, false);
         $.sparsity = reader.object(json.sparsity, $root.tflite.SparsityParameters.decodeText);
         $.shape_signature = reader.typedArray(json.shape_signature, Int32Array);
+        $.has_rank = reader.value(json.has_rank, false);
         return $;
     }
 };
