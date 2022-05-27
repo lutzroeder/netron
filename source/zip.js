@@ -156,6 +156,7 @@ zip.Archive = class {
 zip.Entry = class {
 
     constructor(stream, header) {
+        this._name = header.name;
         stream.seek(header.localHeaderOffset);
         const signature = [ 0x50, 0x4B, 0x03, 0x04 ];
         if (stream.position + 4 > stream.length || !stream.read(4).every((value, index) => value === signature[index])) {
