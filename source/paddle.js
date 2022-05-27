@@ -806,9 +806,11 @@ paddle.Utility = class {
             case paddle.DataType.FP16: itemsize = 2; break;
             case paddle.DataType.FP32: itemsize = 4; break;
             case paddle.DataType.FP64: itemsize = 8; break;
+            case paddle.DataType.INT8: itemsize = 1; break;
             case paddle.DataType.INT16: itemsize = 2; break;
             case paddle.DataType.INT32: itemsize = 4; break;
             case paddle.DataType.INT64: itemsize = 8; break;
+            case paddle.DataType.UINT8: itemsize = 1; break;
             default: throw new paddle.Error("Invalid inference params data type '" + tensorDesc.data_type + "'.");
         }
         const type = paddle.Utility.createTensorType(tensorDesc.data_type, tensorDesc.dims);
