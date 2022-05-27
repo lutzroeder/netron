@@ -1,0 +1,49 @@
+[
+  {
+    "name": "Convolutional",
+    "category": "Layer"
+  },
+  {
+    "name": "Deconvolution",
+    "category": "Layer"
+  },
+  {
+    "name": "BatchNorm",
+    "category": "Normalization"
+  },
+  {
+    "name": "Concat",
+    "category": "Tensor"
+  },
+  {
+    "name": "FullyConnected",
+    "category": "Layer"
+  },
+  {
+    "name": "Neuron",
+    "category": "Activation",
+    "attributes": [
+      { "name": "type", "type": "Activation" }
+    ]
+  },
+  {
+    "name": "Reshape",
+    "category": "Shape"
+  },
+  {
+    "name": "Permute",
+    "category": "Shape"
+  },
+  {
+    "name": "Pooling",
+    "category": "Pool"
+  },
+  {
+    "name": "SoftMax",
+    "category": "Activation"
+  },
+  {
+    "name": "StridedSlice",
+    "category": "Tensor"
+  }
+]

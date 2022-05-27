@@ -1,12 +1,61 @@
 namespace dlc;
 
 table NetDefinition {
+    unk1: int;
+    nodes: [Node];
+    unk2: [int];
+    unk3: [int];
+    attributes: [Attribute];
 }
 
-table NetParameter {
-    params:[Parameter];
+table NetParameters {
+    weights:[Weights];
 }
 
-table Parameter {
-    name:string;
+table Node {
+    index: int;
+    name: string;
+    type: string;
+    inputs: [string];
+    outputs: [string];
+    attributes: [Attribute];
+}
+
+table Weights {
+    name: string;
+    tensors: [Tensor];
+}
+
+table Tensor {
+    name: string;
+    shape: [int];
+    data: TensorData;
+    attributes: [Attribute];
+}
+
+table TensorData {
+    data_type: ubyte;
+    bytes: [ubyte];
+    floats: [float];
+}
+
+table Attribute {
+    name: string;
+    type: ubyte;
+    bool_value: bool;
+    int32_value: int;
+    uint32_value: uint;
+    float32_value: float;
+    string_value: string;
+    unk6: [byte];
+    byte_list: [byte];
+    int32_list: [int];
+    float32_list: [float];
+    unk10: [byte];
+    attributes: [Attribute];
+}
+
+enum Activation : uint {
+    ReLU = 1,
+    Sigmoid = 3
 }

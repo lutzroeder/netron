@@ -163,7 +163,7 @@ class Application {
                     'h5', 'hd5', 'hdf5', 'json', 'keras',
                     'mlmodel', 'mlpackage',
                     'caffemodel',
-                    'model', 'dnn', 'cmf', 'mar', 'params',
+                    'model', 'dnn', 'dlc', 'cmf', 'mar', 'params',
                     'pdmodel', 'pdiparams', 'pdparams', 'pdopt', 'nb',
                     'meta',
                     'tflite', 'lite', 'tfl',

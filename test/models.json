@@ -1935,35 +1935,36 @@
     "type":     "dlc",
     "target":   "dmonitoring_model_q/model,dmonitoring_model_q/model.params",
     "source":   "https://github.com/lutzroeder/netron/files/8767267/dmonitoring_model_q.zip[model,model.params]",
-    "error":    "File contains undocumented 'NETD' data in 'model'.",
+    "format":   "DLC",
     "link":     "https://github.com/lutzroeder/netron/issues/640"
   },
   {
     "type":     "dlc",
     "target":   "dmonitoring_model_q.dlc",
     "source":   "https://github.com/lutzroeder/netron/files/8767255/dmonitoring_model_q.dlc.zip[dmonitoring_model_q.dlc]",
-    "error":    "File contains undocumented 'NETD' data in 'dmonitoring_model_q.dlc'.",
+    "format":   "DLC",
     "link":     "https://github.com/lutzroeder/netron/issues/640"
   },
   {
     "type":     "dlc",
     "target":   "inception_v3_quantized.dlc",
     "source":   "https://github.com/lutzroeder/netron/files/5615377/inception_v3_quantized.dlc.zip[inception_v3_quantized.dlc]",
-    "error":    "File contains undocumented 'NETD' data in 'inception_v3_quantized.dlc'.",
+    "format":   "DLC",
     "link":     "https://github.com/lutzroeder/netron/issues/640"
   },
   {
     "type":     "dlc",
     "target":   "model_front_mibokeh_video.dlc",
     "source":   "https://github.com/lutzroeder/netron/files/8767521/model_front_mibokeh_video.dlc.zip[model_front_mibokeh_video.dlc]",
-    "error":    "File contains undocumented 'NETD' data in 'model_front_mibokeh_video.dlc'.",
+    "format":   "DLC",
+    "error":    "Offset is outside the bounds of the DataView in 'model_front_mibokeh_video.dlc'.",
     "link":     "https://github.com/lutzroeder/netron/issues/640"
   },
   {
     "type":     "dlc",
     "target":   "mobile_mosaic_hta/model.params",
     "source":   "https://github.com/lutzroeder/netron/files/8767531/mobile_mosaic_hta.zip[model.params]",
-    "error":    "File contains undocumented 'NETP' data in 'model.params'.",
+    "format":   "DLC Weights",
     "link":     "https://github.com/lutzroeder/netron/issues/640"
   },
   {
