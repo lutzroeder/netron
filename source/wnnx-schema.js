@@ -36,7 +36,8 @@ $root.wnn.DeviceType = {
     kATLAS: 6,
     kHUAWEI_NPU: 7,
     kRK_NPU: 8,
-    kAPPLE_NPU: 9
+    kAPPLE_NPU: 9,
+    kCPU: 10
 };
 
 $root.wnn.WNN_DATA_FORMAT = {
@@ -47,10 +48,10 @@ $root.wnn.WNN_DATA_FORMAT = {
     UNKNOWN: 4
 };
 
-$root.wnn.Tensor = class Tensor {
+$root.wnn.Blob = class Blob {
 
     static decode(reader, position) {
-        const $ = new $root.wnn.Tensor();
+        const $ = new $root.wnn.Blob();
         $.dims = reader.typedArray(position, 4, Int32Array);
         $.dataformat = reader.int8_(position, 6, 0);
         $.dtype = reader.int32_(position, 8, 1);
@@ -88,7 +89,7 @@ $root.wnn.Attribute = class Attribute {
         $.key = reader.string_(position, 10, null);
         $.type = reader.int32_(position, 12, 0);
         $.f = reader.float32_(position, 14, 0);
-        $.tensor = reader.table(position, 16, $root.wnn.Tensor.decode);
+        $.blob = reader.table(position, 16, $root.wnn.Blob.decode);
         $.list = reader.table(position, 18, $root.wnn.ListValue.decode);
         $.func = reader.table(position, 20, $root.wnn.NamedAttrList.decode);
         $.shape = reader.typedArray(position, 22, Int32Array);
@@ -442,6 +443,31 @@ $root.wnn.SubGraph = class SubGraph {
     }
 };
 
+$root.wnn.TensorQuantInfo = class TensorQuantInfo {
+
+    static decode(reader, position) {
+        const $ = new $root.wnn.TensorQuantInfo();
+        $.scale = reader.float32_(position, 4, 0);
+        $.zero = reader.float32_(position, 6, 0);
+        $.min = reader.float32_(position, 8, -128);
+        $.max = reader.float32_(position, 10, 127);
+        $.type = reader.int32_(position, 12, 0);
+        return $;
+    }
+};
+
+$root.wnn.TensorDescribe = class TensorDescribe {
+
+    static decode(reader, position) {
+        const $ = new $root.wnn.TensorDescribe();
+        $.blob = reader.table(position, 4, $root.wnn.Blob.decode);
+        $.index = reader.int32_(position, 6, 0);
+        $.name = reader.string_(position, 8, null);
+        $.quant_info = reader.table(position, 10, $root.wnn.TensorQuantInfo.decode);
+        return $;
+    }
+};
+
 $root.wnn.Graph = class Graph {
 
     static create(reader) {
@@ -454,15 +480,16 @@ $root.wnn.Graph = class Graph {
         $.usage = reader.string_(position, 6, null);
         $.vendor = reader.string_(position, 8, null);
         $.version = reader.string_(position, 10, null);
-        $.oplists = reader.tableArray(position, 12, $root.wnn.Op.decode);
-        $.output_names = reader.strings_(position, 14);
-        $.input_names = reader.strings_(position, 16);
-        $.model_source = reader.int8_(position, 18, 0);
-        $.tensor_names = reader.strings_(position, 20);
-        $.tensor_number = reader.int32_(position, 22, 0);
-        $.subgraph = reader.table(position, 24, $root.wnn.SubGraph.decode);
-        $.uuid = reader.string_(position, 26, null);
-        $.password = reader.string_(position, 28, null);
+        $.extra_tensor_describe = reader.tableArray(position, 12, $root.wnn.TensorDescribe.decode);
+        $.oplists = reader.tableArray(position, 14, $root.wnn.Op.decode);
+        $.output_names = reader.strings_(position, 16);
+        $.input_names = reader.strings_(position, 18);
+        $.model_source = reader.int8_(position, 20, 0);
+        $.tensor_names = reader.strings_(position, 22);
+        $.tensor_number = reader.int32_(position, 24, 0);
+        $.subgraph = reader.table(position, 26, $root.wnn.SubGraph.decode);
+        $.uuid = reader.string_(position, 28, null);
+        $.password = reader.string_(position, 30, null);
         return $;
     }
 };

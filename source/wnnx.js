@@ -89,7 +89,7 @@ wnn.Graph = class {
             if (op.type === wnn.schema.OpType.Const &&
                 op.input_indexes.length === 0 &&
                 op.output_indexes.length === 1 &&
-                op.main instanceof wnn.schema.Blob &&
+                op.param instanceof wnn.schema.Blob &&
                 inputs.get(op.output_indexes[0]) === 1) {
                 consts.set(op.output_indexes[0], op);
                 return false;
@@ -102,14 +102,14 @@ wnn.Graph = class {
                 const name = net.tensor_names[index];
                 const op = consts.get(index);
                 if (op) {
-                    const tensor = op ? wnn.Utility.createTensor(op.main, 'Const') : null;
+                    const tensor = op ? wnn.Utility.createTensor(op.param, 'Const') : null;
                     const argument = new wnn.Argument(name, null, tensor);
                     args.set(index, argument);
                 }
                 else {
-                    const extraTensorDescribe = net.extraTensorDescribe[index];
+                    const extraTensorDescribe = net.extra_tensor_describe[index];
                     const blob = extraTensorDescribe ? extraTensorDescribe.blob : null;
-                    const type = blob && blob.dims && blob.dims.length > 0 ? new wnn.TensorType(blob.dataType, new wnn.TensorShape(blob.dims), blob.dataFormat) : null;
+                    const type = blob && blob.dims && blob.dims.length > 0 ? new wnn.TensorType(blob.dtype, new wnn.TensorShape(blob.dims), blob.data_format) : null;
                     const argument = new wnn.Argument(name, type, null);
                     args.set(index, argument);
                 }
@@ -118,8 +118,8 @@ wnn.Graph = class {
         };
 
         for (const op of oplists) {
-            if (op.type === wnn.schema.OpType.Input) {
-                const args = Array.from(op.outputIndexes).map((index) => arg(index));
+            if (op.type === wnn.schema.OpType.input) {
+                const args = Array.from(op.output_indexes).map((index) => arg(index));
                 this._inputs.push(new wnn.Parameter(op.name, true, args));
             }
             else {
@@ -163,13 +163,13 @@ wnn.Node = class {
         this._inputs = [];
         this._outputs = [];
         this._chains = [];
-        if (op.inputIndexes && op.inputIndexes.length > 0) {
-            this._inputs.push(new wnn.Parameter('input', true, Array.from(op.inputIndexes).map((index) => arg(index))));
+        if (op.input_indexes && op.input_indexes.length > 0) {
+            this._inputs.push(new wnn.Parameter('input', true, Array.from(op.input_indexes).map((index) => arg(index))));
         }
-        if (op.outputIndexes && op.outputIndexes.length > 0) {
-            this._outputs.push(new wnn.Parameter('output', true, Array.from(op.outputIndexes).map((index) => arg(index))));
+        if (op.output_indexes && op.output_indexes.length > 0) {
+            this._outputs.push(new wnn.Parameter('output', true, Array.from(op.output_indexes).map((index) => arg(index))));
         }
-        const param = op.main;
+        const param = op.param;
         if (param) {
             const parameters = [ param ];
             if (param instanceof wnn.schema.Blob) {
@@ -192,22 +192,22 @@ wnn.Node = class {
                 // delete param.quanParameter;
                 // delete param.symmetricQuan;
             }
-            else if (param instanceof wnn.schema.InnerProduct) {
-                const outputCount = param.outputCount;
-                const inputCount = param.weightSize / outputCount;
-                this._buildTensor('weight', wnn.schema.DataType.DT_FLOAT, [ outputCount, inputCount ], param.weight);
-                this._buildTensor('bias', wnn.schema.DataType.DT_FLOAT, [ outputCount ], param.bias);
-                delete param.weight;
-                delete param.bias;
-                delete param.quanParameter;
-            }
-            else if (param instanceof wnn.schema.Scale) {
-                const scaleDataCount = param.channels;
-                this._buildTensor('scale', wnn.schema.DataType.DT_FLOAT, [ scaleDataCount ], param.scaleData);
-                this._buildTensor('bias', wnn.schema.DataType.DT_FLOAT, [ scaleDataCount ], param.biasData);
-                delete param.scaleData;
-                delete param.biasData;
-            }
+            // else if (param instanceof wnn.schema.InnerProduct) {
+            //     const outputCount = param.outputCount;
+            //     const inputCount = param.weightSize / outputCount;
+            //     this._buildTensor('weight', wnn.schema.DataType.DT_FLOAT, [ outputCount, inputCount ], param.weight);
+            //     this._buildTensor('bias', wnn.schema.DataType.DT_FLOAT, [ outputCount ], param.bias);
+            //     delete param.weight;
+            //     delete param.bias;
+            //     delete param.quanParameter;
+            // }
+            // else if (param instanceof wnn.schema.Scale) {
+            //     const scaleDataCount = param.channels;
+            //     this._buildTensor('scale', wnn.schema.DataType.DT_FLOAT, [ scaleDataCount ], param.scaleData);
+            //     this._buildTensor('bias', wnn.schema.DataType.DT_FLOAT, [ scaleDataCount ], param.biasData);
+            //     delete param.scaleData;
+            //     delete param.biasData;
+            // }
             else if (param instanceof wnn.schema.BatchNorm) {
                 const channels = param.channels;
                 this._buildTensor('mean', wnn.schema.DataType.DT_FLOAT, [ channels ], param.meanData);
@@ -223,10 +223,10 @@ wnn.Node = class {
                 this._buildTensor('slope', wnn.schema.DataType.DT_FLOAT, [ param.slopeCount ], param.slope);
                 delete param.slopeCount;
             }
-            else if (param instanceof wnn.schema.Normalize) {
-                this._buildTensor('scale', wnn.schema.DataType.DT_FLOAT, [ param.scale.length ], param.scale);
-                delete param.scale;
-            }
+            // else if (param instanceof wnn.schema.Normalize) {
+            //     this._buildTensor('scale', wnn.schema.DataType.DT_FLOAT, [ param.scale.length ], param.scale);
+            //     delete param.scale;
+            // }
             while (parameters.length > 0) {
                 const parameter = parameters.shift();
                 for (const key of Object.keys(parameter)) {
@@ -634,7 +634,7 @@ wnn.Error = class extends Error {
 
     constructor(message) {
         super(message);
-        this.name = 'Error loading MNN model.';
+        this.name = 'Error loading WNNX model.';
     }
 };
 
