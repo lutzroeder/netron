@@ -31,8 +31,9 @@ flax.ModelFactory = class {
                         dtype.byteorder = '<';
                         return execution.invoke('numpy.ndarray', [ tuple[0], dtype, tuple[2] ]);
                     }
-                    default:
+                    default: {
                         throw new flax.Error("Unsupported MessagePack extension '" + code + "'.");
+                    }
                 }
             });
             const obj = reader.read();
