@@ -121,19 +121,23 @@ wnn.Graph = class {
             if (op.type === wnn.schema.OpType.input) {
                 const args = Array.from(op.output_indexes).map((index) => arg(index));
                 this._inputs.push(new wnn.Parameter(op.name, true, args));
+            } else if (op.type === wnn.schema.OpType.output) {
+                const args = Array.from(op.input_indexes).map((index) => arg(index));
+                this._outputs.push(new wnn.Parameter(op.name, true, args));
             }
             else {
                 this._nodes.push(new wnn.Node(metadata, op, net, arg));
             }
         }
 
-        for (let i = 0; i < net.tensor_names.length; i++) {
-            if (!inputs.has(i)) {
-                const argument = arg(i);
-                const parameter = new wnn.Parameter(argument.name, true, [ argument ]);
-                this._outputs.push(parameter);
-            }
-        }
+        // for (let i = 0; i < net.tensor_names.length; i++) {
+        //     if (!inputs.has(i)) {
+        //         // 
+        //         const argument = arg(i);
+        //         const parameter = new wnn.Parameter(argument.name, true, [ argument ]);
+        //         this._outputs.push(parameter);
+        //     }
+        // }
     }
 
     get name() {
@@ -167,7 +171,7 @@ wnn.Node = class {
             this._inputs.push(new wnn.Parameter('input', true, Array.from(op.input_indexes).map((index) => arg(index))));
         }
         if (op.output_indexes && op.output_indexes.length > 0) {
-            this._outputs.push(new wnn.Parameter('output', true, Array.from(op.output_indexes).map((index) => arg(index))));
+            this._outputs.push(new wnn.Parameter('output9999', true, Array.from(op.output_indexes).map((index) => arg(index))));
         }
         const param = op.param;
         if (param) {
