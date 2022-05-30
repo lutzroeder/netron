@@ -7,14 +7,8 @@ import os
 import re
 import sys
 
-import onnx
-from onnx.backend.test.case import collect_snippets
-
-snippets = collect_snippets()
-
 categories = {
     'Constant': 'Constant',
-
     'Conv': 'Layer',
     'ConvInteger': 'Layer',
     'ConvTranspose': 'Layer',
@@ -24,9 +18,7 @@ categories = {
     'GRU': 'Layer',
     'Gemm': 'Layer',
     'FusedConv': 'Layer',
-
     'Dropout': 'Dropout',
-
     'Elu': 'Activation',
     'HardSigmoid': 'Activation',
     'LeakyRelu': 'Activation',
@@ -41,16 +33,13 @@ categories = {
     'Softplus': 'Activation',
     'Softsign': 'Activation',
     'Clip': 'Activation',
-
     'BatchNormalization': 'Normalization',
     'InstanceNormalization': 'Normalization',
     'LpNormalization': 'Normalization',
     'LRN': 'Normalization',
-
     'Flatten': 'Shape',
     'Reshape': 'Shape',
     'Tile': 'Shape',
-
     'Xor': 'Logic',
     'Not': 'Logic',
     'Or': 'Logic',
@@ -58,7 +47,6 @@ categories = {
     'And': 'Logic',
     'Greater': 'Logic',
     'Equal': 'Logic',
-
     'AveragePool': 'Pool',
     'GlobalAveragePool': 'Pool',
     'GlobalLpPool': 'Pool',
@@ -66,16 +54,13 @@ categories = {
     'LpPool': 'Pool',
     'MaxPool': 'Pool',
     'MaxRoiPool': 'Pool',
-
     'Concat': 'Tensor',
     'Slice': 'Tensor',
     'Split': 'Tensor',
     'Pad': 'Tensor',
-
     'ImageScaler': 'Data',
     'Crop': 'Data',
     'Upsample': 'Data',
-
     'Transpose': 'Transform',
     'Gather': 'Transform',
     'Unsqueeze': 'Transform',
@@ -89,7 +74,6 @@ attribute_type_table = {
 }
 
 def generate_json_attr_type(attribute_type, attribute_name, op_type, op_domain):
-    assert isinstance(attribute_type, onnx.defs.OpSchema.AttrType)
     key = op_domain + ':' + op_type + ':' + attribute_name
     if key == ':Cast:to' or key == ':EyeLike:dtype' or key == ':RandomNormal:dtype':
         return 'DataType'
@@ -111,7 +95,6 @@ def generate_json_attr_default_value(attr_value):
     return None
 
 def generate_json_support_level_name(support_level):
-    assert isinstance(support_level, onnx.defs.OpSchema.SupportType)
     s = str(support_level)
     return s[s.rfind('.')+1:].lower()
 
@@ -121,11 +104,6 @@ def generate_json_types(types):
         r.append(type)
     r = sorted(r)
     return r
-
-def format_range(value):
-    if value == 2147483647:
-        return '&#8734;'
-    return str(value)
 
 def format_description(description):
     def replace_line(match):
@@ -138,8 +116,10 @@ def format_description(description):
     return description
 
 def metadata():
-    json_file = os.path.join(os.path.dirname(__file__), '../source/onnx-metadata.json')
     json_root = []
+    import onnx.backend.test.case
+    snippets = onnx.backend.test.case.collect_snippets()
+    import onnx.defs
     all_schemas_with_history = onnx.defs.get_all_schemas_with_history()
     for schema in all_schemas_with_history:
         json_schema = {}
@@ -196,6 +176,8 @@ def metadata():
                 json_schema['outputs'].append(json_output)
         json_schema['min_output'] = schema.min_output
         json_schema['max_output'] = schema.max_output
+        def format_range(value):
+            return '&#8734;' if value == 2147483647 else str(value)
         if schema.min_input != schema.max_input:
             json_schema['inputs_range'] = format_range(schema.min_input) + ' - ' + format_range(schema.max_input)
         if schema.min_output != schema.max_output:
@@ -226,18 +208,16 @@ def metadata():
             json_schema['category'] = categories[schema.name]
         json_root.append(json_schema);
     json_root = sorted(json_root, key=lambda item: item['name'] + ':' + str(item['version'] if 'version' in item else 0).zfill(4))
+    json_file = os.path.join(os.path.dirname(__file__), '../source/onnx-metadata.json')
     with io.open(json_file, 'r') as file:
         content = file.read();
         items = json.loads(content)
-        json_root = json_root + list(filter(lambda item: item['module'] == "com.microsoft", items))
-    with io.open(json_file, 'w', newline='') as fout:
-        json_root = json.dumps(json_root, indent=2)
+        items = list(filter(lambda item: item['module'] == "com.microsoft", items))
+        json_root = json_root + items
+    json_root = json.dumps(json_root, indent=2)
+    with io.open(json_file, 'w', newline='') as f:
         for line in json_root.splitlines():
-            line = line.rstrip()
-            if sys.version_info[0] < 3:
-                line = str(line)
-            fout.write(line)
-            fout.write('\n')
+            f.write(line.rstrip() + '\n')
 
 def optimize():
     import onnx
