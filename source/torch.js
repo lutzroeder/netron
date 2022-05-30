@@ -8,7 +8,7 @@ torch.ModelFactory = class {
     }
 
     open(context, match) {
-        return torch.Metadata.open(context).then((metadata) => {
+        return context.metadata('torch-metadata.json').then((metadata) => {
             const identifier = context.identifier;
             const reader = match;
             reader.callback = (name) => {
@@ -612,55 +612,6 @@ torch.TensorShape = class {
             return '[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']';
         }
         return '';
-    }
-};
-
-
-torch.Metadata = class {
-
-    static open(context) {
-        if (torch.Metadata._metadata) {
-            return Promise.resolve(torch.Metadata._metadata);
-        }
-        return context.request('torch-metadata.json', 'utf-8', null).then((data) => {
-            torch.Metadata._metadata = new torch.Metadata(data);
-            return torch.Metadata._metadata;
-        }).catch(() => {
-            torch.Metadata._metadata = new torch.Metadata(null);
-            return torch.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._types = new Map();
-        this._attributes = new Map();
-        if (data) {
-            const items = JSON.parse(data);
-            for (const item of items) {
-                this._types.set(item.name, item);
-            }
-        }
-    }
-
-    type(name) {
-        if (!this._types.has(name)) {
-            this._types.set(name, { name: name });
-        }
-        return this._types.get(name);
-    }
-
-    attribute(type, name) {
-        const key = type + ':' + name;
-        if (!this._attributes.has(key)) {
-            this._attributes.set(key, null);
-            const metadata = this.type(type);
-            if (metadata && Array.isArray(metadata.attributes)) {
-                for (const attribute of metadata.attributes) {
-                    this._attributes.set(type + ':' + attribute.name, attribute);
-                }
-            }
-        }
-        return this._attributes.get(key);
     }
 };
 

@@ -27,7 +27,7 @@ flux.ModelFactory = class {
                 const message = error && error.message ? error.message : error.toString();
                 throw new flux.Error('File format is not Flux BSON (' + message.replace(/\.$/, '') + ').');
             }
-            return flux.Metadata.open(context).then((metadata) => {
+            return context.metadata('flux-metadata.json').then((metadata) => {
                 const obj = flux.ModelFactory._backref(root, root);
                 const model = obj.model;
                 if (!model) {
@@ -74,56 +74,6 @@ flux.Model = class {
 
     get graphs() {
         return this._graphs;
-    }
-};
-
-flux.Metadata = class {
-
-    static open(context) {
-        if (flux.Metadata._metadata) {
-            return Promise.resolve(flux.Metadata._metadata);
-        }
-        return context.request('flux-metadata.json', 'utf-8', null).then((data) => {
-            flux.Metadata._metadata = new flux.Metadata(data);
-            return flux.Metadata._metadata;
-        }).catch(() => {
-            flux.Metadata._metadata = new flux.Metadata(null);
-            return flux.Metadata._metadatas;
-        });
-    }
-
-    constructor(data) {
-        this._map = {};
-        this._attributeCache = {};
-        if (data) {
-            const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    if (item.name && item.schema) {
-                        this._map[item.name] = item.schema;
-                    }
-                }
-            }
-        }
-    }
-
-    type(name) {
-        return this._map[name] || null;
-    }
-
-    attribute(type, name) {
-        let map = this._attributeCache[type];
-        if (!map) {
-            map = {};
-            const schema = this.type(type);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (const attribute of schema.attributes) {
-                    map[attribute.name] = attribute;
-                }
-            }
-            this._attributeCache[type] = map;
-        }
-        return map[name] || null;
     }
 };
 

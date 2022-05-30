@@ -44,7 +44,7 @@ openvino.ModelFactory = class {
 
     open(context, match) {
         const open = (stream, bin) => {
-            return openvino.Metadata.open(context).then((metadata) => {
+            return context.metadata('openvino-metadata.json').then((metadata) => {
                 let document = null;
                 try {
                     const reader = xml.TextReader.open(stream);
@@ -1026,49 +1026,6 @@ openvino.TensorShape = class {
             return '';
         }
         return '[' + this._dimensions.join(',') + ']';
-    }
-};
-
-openvino.Metadata = class {
-
-    static open(context) {
-        if (openvino.Metadata._metadata) {
-            return Promise.resolve(openvino.Metadata._metadata);
-        }
-        return context.request('openvino-metadata.json', 'utf-8', null).then((data) => {
-            openvino.Metadata._metadata = new openvino.Metadata(data);
-            return openvino.Metadata._metadata;
-        }).catch(() => {
-            openvino.Metadata._metadata = new openvino.Metadata(null);
-            return openvino.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._map = new Map();
-        this._attributeMap = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._map = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        return this._map.get(name);
-    }
-
-    attribute(type, name) {
-        const key = type + ':' + name;
-        if (!this._attributeMap.has(key)) {
-            this._attributeMap.set(key, null);
-            const schema = this.type(type);
-            if (schema && schema.attributes) {
-                for (const attribute of schema.attributes) {
-                    this._attributeMap.set(type + ':' + attribute.name, attribute);
-                }
-            }
-        }
-        return this._attributeMap.get(key);
     }
 };
 

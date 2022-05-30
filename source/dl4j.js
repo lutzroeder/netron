@@ -25,7 +25,7 @@ dl4j.ModelFactory = class {
     }
 
     open(context, match) {
-        return dl4j.Metadata.open(context).then((metadata) => {
+        return context.metadata('dl4j-metadata.json').then((metadata) => {
             switch (match) {
                 case 'dl4j.configuration': {
                     const obj = context.open('json');
@@ -448,51 +448,6 @@ dl4j.TensorShape = class {
             return '[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']';
         }
         return '';
-    }
-};
-
-dl4j.Metadata = class {
-
-    static open(context) {
-        if (dl4j.Metadata._metadata) {
-            return Promise.resolve(dl4j.Metadata._metadata);
-        }
-        return context.request('dl4j-metadata.json', 'utf-8', null).then((data) => {
-            dl4j.Metadata._metadata = new dl4j.Metadata(data);
-            return dl4j.Metadata._metadata;
-        }).catch(() => {
-            dl4j.Metadata._metadata = new dl4j.Metadata(null);
-            return dl4j.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._map = new Map();
-        this._attributes = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._map = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        return this._map.get(name);
-    }
-
-    attribute(type, name) {
-        const key = type + ':' + name;
-        if (!this._attributes.has(key)) {
-            const metadata = this.type(type);
-            if (metadata && metadata.attributes && metadata.attributes.length > 0) {
-                for (const attribute of metadata.attributes) {
-                    this._attributes.set(type + ':' + attribute.name, attribute);
-                }
-            }
-            if (!this._attributes.has(key)) {
-                this._attributes.set(key, null);
-            }
-        }
-        return this._attributes.get(key);
     }
 };
 

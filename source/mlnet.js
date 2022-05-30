@@ -18,7 +18,7 @@ mlnet.ModelFactory = class {
     }
 
     open(context) {
-        return mlnet.Metadata.open(context).then((metadata) => {
+        return context.metadata('mlnet-metadata.json').then((metadata) => {
             const entries = context.entries('zip');
             const reader = new mlnet.ModelReader(entries);
             return new mlnet.Model(metadata, reader);
@@ -353,50 +353,6 @@ mlnet.TensorShape = class {
             return '';
         }
         return '[' + this._dimensions.join(',') + ']';
-    }
-};
-
-mlnet.Metadata = class {
-
-    static open(context) {
-        if (mlnet.Metadata._metadata) {
-            return Promise.resolve(mlnet.Metadata._metadata);
-        }
-        return context.request('mlnet-metadata.json', 'utf-8', null).then((data) => {
-            mlnet.Metadata._metadata = new mlnet.Metadata(data);
-            return mlnet.Metadata._metadata;
-        }).catch(() => {
-            mlnet.Metadata._metadata = new mlnet.Metadata(null);
-            return mlnet.Metadata._metadatas;
-        });
-    }
-
-    constructor(data) {
-        this._map = {};
-        this._attributeCache = {};
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._map = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        return this._map.get(name);
-    }
-
-    attribute(type, name) {
-        let map = this._attributeCache[type];
-        if (!map) {
-            map = {};
-            const schema = this.type(type);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (const attribute of schema.attributes) {
-                    map[attribute.name] = attribute;
-                }
-            }
-            this._attributeCache[type] = map;
-        }
-        return map[name] || null;
     }
 };
 

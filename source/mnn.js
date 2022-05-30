@@ -32,7 +32,7 @@ mnn.ModelFactory = class {
                 const message = error && error.message ? error.message : error.toString();
                 throw new mnn.Error('File format is not mnn.Net (' + message.replace(/\.$/, '') + ').');
             }
-            return mnn.Metadata.open(context).then((metadata) => {
+            return context.metadata('mnn-metadata.json').then((metadata) => {
                 return new mnn.Model(metadata, net);
             });
         });
@@ -513,55 +513,6 @@ mnn.TensorShape = class {
             return '[' + this._dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',') + ']';
         }
         return '';
-    }
-};
-
-mnn.Metadata = class {
-
-    static open(context) {
-        if (mnn.Metadata._metadata) {
-            return Promise.resolve(mnn.Metadata._metadata);
-        }
-        return context.request('mnn-metadata.json', 'utf-8', null).then((data) => {
-            mnn.Metadata._metadata = new mnn.Metadata(data);
-            return mnn.Metadata._metadata;
-        }).catch(() => {
-            mnn.Metadata._metadata = new mnn.Metadata(null);
-            return mnn.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._map = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._map = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        return this._map.get(name);
-    }
-
-    attribute(type, name) {
-        const schema = this.type(type);
-        if (schema) {
-            let attributeMap = schema.attributeMap;
-            if (!attributeMap) {
-                attributeMap = {};
-                if (schema.attributes) {
-                    for (const attribute of schema.attributes) {
-                        attributeMap[attribute.name] = attribute;
-                    }
-                }
-                schema.attributeMap = attributeMap;
-            }
-            const attributeSchema = attributeMap[name];
-            if (attributeSchema) {
-                return attributeSchema;
-            }
-        }
-        return null;
     }
 };
 

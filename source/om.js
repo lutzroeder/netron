@@ -27,7 +27,7 @@ om.ModelFactory = class {
                 const message = error && error.message ? error.message : error.toString();
                 throw new om.Error('File format is not ge.proto.ModelDef (' + message.replace(/\.$/, '') + ').');
             }
-            return om.Metadata.open(context).then((metadata) => {
+            return context.metadata('om-metadata.json').then((metadata) => {
                 return new om.Model(metadata, model, file.weights);
             });
         });
@@ -587,51 +587,6 @@ om.Utility = class {
     static decodeText(value) {
         om.Utility._textDecoder = om.Utility._textDecoder || new TextDecoder('utf-8');
         return om.Utility._textDecoder.decode(value);
-    }
-};
-
-om.Metadata = class {
-
-    static open(context) {
-        if (om.Metadata._metadata) {
-            return Promise.resolve(om.Metadata._metadata);
-        }
-        return context.request('om-metadata.json', 'utf-8', null).then((data) => {
-            om.Metadata._metadata = new om.Metadata(data);
-            return om.Metadata._metadata;
-        }).catch(() => {
-            om.Metadata._metadata = new om.Metadata(null);
-            return om.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._map = new Map();
-        this._attributes = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._map = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        return this._map.get(name);
-    }
-
-    attribute(type, name) {
-        const key = type + ':' + name;
-        if (!this._attributes.has(key)) {
-            const schema = this.type(type);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (const attribute of schema.attributes) {
-                    this._attributes.set(type + ':' + attribute.name, attribute);
-                }
-            }
-            if (!this._attributes.has(key)) {
-                this._attributes.set(key, null);
-            }
-        }
-        return this._attributes.get(key);
     }
 };
 

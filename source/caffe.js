@@ -29,7 +29,7 @@ caffe.ModelFactory = class {
         return context.require('./caffe-proto').then(() => {
             caffe.proto = protobuf.get('caffe').caffe;
             const openModel = (context, netParameter) => {
-                return caffe.Metadata.open(context).then((metadata) => {
+                return context.metadata('caffe-metadata.json').then((metadata) => {
                     return new caffe.Model(metadata, netParameter);
                 });
             };
@@ -777,49 +777,6 @@ caffe.Utility = class {
             }
         }
         return value;
-    }
-};
-
-caffe.Metadata = class {
-
-    static open(context) {
-        if (caffe.Metadata._metadata) {
-            return Promise.resolve(caffe.Metadata._metadata);
-        }
-        return context.request('caffe-metadata.json', 'utf-8', null).then((data) => {
-            caffe.Metadata._metadata = new caffe.Metadata(data);
-            return caffe.Metadata._metadata;
-        }).catch(() => {
-            caffe.Metadata._metadata = new caffe.Metadata(null);
-            return caffe.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._map = new Map();
-        this._attributeCache = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._map = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        return this._map.get(name);
-    }
-
-    attribute(type, name) {
-        const key = type + ':' + name;
-        if (!this._attributeCache.has(key)) {
-            this._attributeCache.set(key, null);
-            const metadata = this.type(type);
-            if (metadata && Array.isArray(metadata.attributes) && metadata.attributes.length > 0) {
-                for (const attribute of metadata.attributes) {
-                    this._attributeCache.set(type + ':' + attribute.name, attribute);
-                }
-            }
-        }
-        return this._attributeCache.get(key);
     }
 };
 

@@ -28,7 +28,7 @@ bigdl.ModelFactory = class {
                 const message = error && error.message ? error.message : error.toString();
                 throw new bigdl.Error('File format is not bigdl.BigDLModule (' + message.replace(/\.$/, '') + ').');
             }
-            return bigdl.Metadata.open(context).then((metadata) => {
+            return context.metadata('bigdl-metadata.json').then((metadata) => {
                 return new bigdl.Model(metadata, module);
             });
         });
@@ -390,34 +390,6 @@ bigdl.TensorShape = class {
 
     toString() {
         return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
-    }
-};
-
-bigdl.Metadata = class {
-
-    static open(context) {
-        if (bigdl.Metadata._metadata) {
-            return Promise.resolve(bigdl.Metadata._metadata);
-        }
-        return context.request('bigdl-metadata.json', 'utf-8', null).then((data) => {
-            bigdl.Metadata._metadata = new bigdl.Metadata(data);
-            return bigdl.Metadata._metadata;
-        }).catch(() => {
-            bigdl.Metadata._metadata = new bigdl.Metadata(null);
-            return bigdl.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._types = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._types = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        return this._types.get(name);
     }
 };
 

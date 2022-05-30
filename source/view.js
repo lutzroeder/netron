@@ -1491,6 +1491,10 @@ view.ModelContext = class {
         }
         return this._tags.get(type);
     }
+
+    metadata(name) {
+        return base.Metadata.open(this, name);
+    }
 };
 
 view.EntryContext = class {

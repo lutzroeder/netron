@@ -39,7 +39,7 @@ paddle.ModelFactory = class {
     }
 
     open(context, match) {
-        return paddle.Metadata.open(context).then((metadata) => {
+        return context.metadata('paddle-metadata.json').then((metadata) => {
             switch (match) {
                 case 'paddle.naive': {
                     return context.require('./paddle-schema').then(() => {
@@ -1070,50 +1070,6 @@ paddle.AttributeType = {
     BLOCKS: 10,
     LONGS: 11,
     FLOAT64S: 12
-};
-
-paddle.Metadata = class {
-
-    static open(context) {
-        if (paddle.Metadata._metadata) {
-            return Promise.resolve(paddle.Metadata._metadata);
-        }
-        return context.request('paddle-metadata.json', 'utf-8', null).then((data) => {
-            paddle.Metadata._metadata = new paddle.Metadata(data);
-            return paddle.Metadata._metadata;
-        }).catch(() => {
-            paddle.Metadata._metadata = new paddle.Metadata(null);
-            return paddle.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._map = new Map();
-        this._attributeCache = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._map = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        return this._map.get(name) || null;
-    }
-
-    attribute(type, name) {
-        let map = this._attributeCache.get(type);
-        if (!map) {
-            map = new Map();
-            const metadata = this.type(type);
-            if (metadata && metadata.attributes && metadata.attributes.length > 0) {
-                for (const attribute of metadata.attributes) {
-                    map.set(attribute.name, attribute);
-                }
-            }
-            this._attributeCache.set(type, map);
-        }
-        return map.get(name) || null;
-    }
 };
 
 paddle.Error = class extends Error {

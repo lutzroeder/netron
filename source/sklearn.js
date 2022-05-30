@@ -35,7 +35,7 @@ sklearn.ModelFactory = class {
     }
 
     open(context, match) {
-        return sklearn.Metadata.open(context).then((metadata) => {
+        return context.metadata('sklearn-metadata.json').then((metadata) => {
             const obj = context.open('pkl');
             return new sklearn.Model(metadata, match, obj);
         });
@@ -563,51 +563,6 @@ sklearn.TensorShape = class {
 
     toString() {
         return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
-    }
-};
-
-sklearn.Metadata = class {
-
-    static open(context) {
-        if (sklearn.Metadata._metadata) {
-            return Promise.resolve(sklearn.Metadata._metadata);
-        }
-        return context.request('sklearn-metadata.json', 'utf-8', null).then((data) => {
-            sklearn.Metadata._metadata = new sklearn.Metadata(data);
-            return sklearn.Metadata._metadata;
-        }).catch(() => {
-            sklearn.Metadata._metadata = new sklearn.Metadata(null);
-            return sklearn.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._types = new Map();
-        this._attributes = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._types = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        return this._types.get(name);
-    }
-
-    attribute(type, name) {
-        const key = type + ':' + name;
-        if (!this._attributes.has(key)) {
-            const schema = this.type(type);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (const attribute of schema.attributes) {
-                    this._attributes.set(type + ':' + attribute.name, attribute);
-                }
-            }
-            if (!this._attributes.has(key)) {
-                this._attributes.set(key, null);
-            }
-        }
-        return this._attributes.get(key);
     }
 };
 

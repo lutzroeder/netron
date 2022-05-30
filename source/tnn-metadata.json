@@ -1,27 +1,27 @@
 [
   {
     "name": "AbsVal",
-    "operator": 0
+    "identifier": 0
   },
   {
     "name": "Add",
-    "operator": 79,
+    "identifier": 79,
     "attributes": [
       { "name": "weight_input_index", "default": 0 }
     ]
   },
   {
     "name": "ArgMax",
-    "operator": 1
+    "identifier": 1
   },
   {
     "name": "BatchNormCxx",
-    "operator": 2,
+    "identifier": 2,
     "category": "Normalization"
   },
   {
     "name": "Bias",
-    "operator": 3,
+    "identifier": 3,
     "category": "Layer",
     "attributes": [
       { "name": "bias_data_size", "default": 0, "visible": false }
@@ -29,7 +29,7 @@
   },
   {
     "name": "BinaryOp",
-    "operator": 40,
+    "identifier": 40,
     "attributes": [
       { "name": "op_type", "type": "int32", "default": 0 },
       { "name": "b", "type": "float32", "default": 0 }
@@ -37,23 +37,23 @@
   },
   {
     "name": "BlobScale",
-    "operator": 78,
+    "identifier": 78,
     "category": "Layer"
   },
   {
     "name": "BNLL",
-    "operator": 4
+    "identifier": 4
   },
   {
     "name": "Cast",
-    "operator": 64,
+    "identifier": 64,
     "attributes": [
       { "name": "to", "default": 0 }
     ]
   },
   {
     "name": "Clip",
-    "operator": 54,
+    "identifier": 54,
     "attributes": [
       { "name": "min", "default": 0 },
       { "name": "max", "default": 0 }
@@ -61,7 +61,7 @@
   },
   {
     "name": "Concat",
-    "operator": 5,
+    "identifier": 5,
     "category": "Tensor",
     "attributes": [
       { "name": "axis", "type": "int32", "default": 0 }
@@ -75,7 +75,7 @@
   },
   {
     "name": "Conv3D",
-    "operator": 68,
+    "identifier": 68,
     "category": "Layer",
     "attributes": [
       { "name": "group", "type": "int32", "default": 0 },
@@ -100,7 +100,7 @@
   },
   {
     "name": "Convolution",
-    "operator": 6,
+    "identifier": 6,
     "category": "Layer",
     "attributes": [
       { "name": "group", "type": "int32", "default": 0 },
@@ -121,7 +121,7 @@
   },
   {
     "name": "ConvolutionDepthWise",
-    "operator": 42,
+    "identifier": 42,
     "category": "Layer",
     "attributes": [
       { "name": "group", "type": "int32", "default": 0 },
@@ -142,26 +142,26 @@
   },
   {
     "name": "Crop",
-    "operator": 7,
+    "identifier": 7,
     "category": "Data"
   },
   {
     "name": "Deconvolution",
-    "operator": 8,
+    "identifier": 8,
     "category": "Layer"
   },
   {
     "name": "DeconvolutionDepthWise",
-    "operator": 51,
+    "identifier": 51,
     "category": "Layer"
   },
   {
     "name": "Dequantize",
-    "operator": 58
+    "identifier": 58
   },
   {
     "name": "DetectionOutput",
-    "operator": 49,
+    "identifier": 49,
     "attributes": [
       { "name": "num_class", "default": 0 },
       { "name": "share_location", "default": 0 },
@@ -177,14 +177,14 @@
   },
   {
     "name": "Div",
-    "operator": 80,
+    "identifier": 80,
     "attributes": [
       { "name": "weight_input_index", "default": 0 }
     ]
   },
   {
     "name": "Dropout",
-    "operator": 9,
+    "identifier": 9,
     "category": "Dropout",
     "attributes": [
       { "name": "scale", "type": "float32", "default": 1 }
@@ -192,15 +192,15 @@
   },
   {
     "name": "Eltwise",
-    "operator": 10
+    "identifier": 10
   },
   {
     "name": "ELU",
-    "operator": 11
+    "identifier": 11
   },
   {
     "name": "Embed",
-    "operator": 12,
+    "identifier": 12,
     "category": "Transform",
     "attributes": [
       { "name": "num_output", "default": 0 },
@@ -211,19 +211,19 @@
   },
   {
     "name": "Exp",
-    "operator": 13
+    "identifier": 13
   },
   {
     "name": "Exp",
-    "operator": 17
+    "identifier": 17
   },
   {
     "name": "Exp",
-    "operator": 19
+    "identifier": 19
   },
   {
     "name": "Expand",
-    "operator": 83,
+    "identifier": 83,
     "category": "Shape",
     "attributes": [
       { "name": "shape_size", "default": 0 },
@@ -232,11 +232,11 @@
   },
   {
     "name": "ExpandDims",
-    "operator": 45
+    "identifier": 45
   },
   {
     "name": "Flatten",
-    "operator": 14,
+    "identifier": 14,
     "category": "Shape",
     "attributes": [
       { "name": "axis", "default": 1 },
@@ -245,7 +245,7 @@
   },
   {
     "name": "Gather",
-    "operator": 84,
+    "identifier": 84,
     "category": "Transform",
     "attributes": [
       { "name": "axis", "default": 0 },
@@ -255,7 +255,7 @@
   },
   {
     "name": "HardSigmoid",
-    "operator": 65,
+    "identifier": 65,
     "category": "Activation",
     "attributes": [
       { "name": "alpha", "type": "float32", "default": 0 },
@@ -264,7 +264,7 @@
   },
   {
     "name": "HardSwish",
-    "operator": 69,
+    "identifier": 69,
     "category": "Layer",
     "attributes": [
       { "name": "alpha", "type": "float32", "default": 1 },
@@ -273,12 +273,12 @@
   },
   {
     "name": "HdrGuide",
-    "operator": 70,
+    "identifier": 70,
     "category": "Layer"
   },
   {
     "name": "InnerProduct",
-    "operator": 15,
+    "identifier": 15,
     "category": "Layer",
     "attributes": [
       { "name": "num_output", "type": "int32", "default": 0 },
@@ -289,24 +289,24 @@
   },
   {
     "name": "Input",
-    "operator": 16
+    "identifier": 16
   },
   {
     "name": "InstanceNorm",
-    "operator": 53
+    "identifier": 53
   },
   {
     "name": "InstBatchNormCxx",
-    "operator": 81,
+    "identifier": 81,
     "category": "Normalization"
   },
   {
     "name": "Interp",
-    "operator": 50
+    "identifier": 50
   },
   {
     "name": "LRN",
-    "operator": 18,
+    "identifier": 18,
     "category": "Normalization",
     "attributes": [
       { "name": "alpha", "default": 0 },
@@ -317,19 +317,19 @@
   },
   {
     "name": "LSTM",
-    "operator": 39,
+    "identifier": 39,
     "category": "Layer"
   },
   {
     "name": "MatMul",
-    "operator": 86,
+    "identifier": 86,
     "attributes": [
       { "name": "weight_input_index", "default": 0 }
     ]
   },
   {
     "name": "Max",
-    "operator": 71,
+    "identifier": 71,
     "category": "Layer",
     "attributes": [
       { "name": "weight_input_index", "default": 0 }
@@ -337,7 +337,7 @@
   },
   {
     "name": "Min",
-    "operator": 72,
+    "identifier": 72,
     "category": "Layer",
     "attributes": [
       { "name": "weight_input_index", "default": 0 }
@@ -345,18 +345,18 @@
   },
   {
     "name": "Mul",
-    "operator": 73,
+    "identifier": 73,
     "attributes": [
       { "name": "weight_input_index", "default": 0 }
     ]
   },
   {
     "name": "MVN",
-    "operator": 20
+    "identifier": 20
   },
   {
     "name": "Normalize",
-    "operator": 46,
+    "identifier": 46,
     "attributes": [
       { "name": "across_spatial", "default": 0 },
       { "name": "epsilon", "type": "float32", "default": 0 },
@@ -367,11 +367,11 @@
   },
   {
     "name": "Packing",
-    "operator": 62
+    "identifier": 62
   },
   {
     "name": "Pad",
-    "operator": 43,
+    "identifier": 43,
     "attributes": [
       { "name": " n1", "default": 0 },
       { "name": " n2", "default": 0 },
@@ -386,7 +386,7 @@
   },
   {
     "name": "Permute",
-    "operator": 47,
+    "identifier": 47,
     "category": "Shape",
     "attributes": [
       { "name": "order_size", "default": 0 },
@@ -395,7 +395,7 @@
   },
   {
     "name": "Pooling",
-    "operator": 21,
+    "identifier": 21,
     "category": "Pool",
     "attributes": [
       { "name": "pool_type", "default": 0 },
@@ -413,7 +413,7 @@
   },
   {
     "name": "Pooling3D",
-    "operator": 74,
+    "identifier": 74,
     "category": "Pool",
     "attributes": [
       { "name": "pool_type", "default": 0 },
@@ -435,7 +435,7 @@
   },
   {
     "name": "Pow",
-    "operator": 75,
+    "identifier": 75,
     "category": "Layer",
     "attributes": [
       { "name": "exponent", "type": "float32", "default": 0 },
@@ -445,11 +445,11 @@
   },
   {
     "name": "Power",
-    "operator": 22
+    "identifier": 22
   },
   {
     "name": "PReLU",
-    "operator": 23,
+    "identifier": 23,
     "category": "Activation",
     "attributes": [
       { "name": "channel_shared", "default": 0 },
@@ -458,7 +458,7 @@
   },
   {
     "name": "PriorBox",
-    "operator": 48,
+    "identifier": 48,
     "attributes": [
       { "name": "min_size", "default": [] },
       { "name": "max_size", "default": [] },
@@ -478,15 +478,15 @@
   },
   {
     "name": "Proposal",
-    "operator": 24
+    "identifier": 24
   },
   {
     "name": "Quantize",
-    "operator": 57
+    "identifier": 57
   },
   {
     "name": "QuantizedConcat",
-    "operator": 5,
+    "identifier": 5,
     "category": "Tensor",
     "attributes": [
       { "name": "axis", "type": "int32", "default": 0 }
@@ -500,7 +500,7 @@
   },
   {
     "name": "QuantizedConvolution",
-    "operator": 6,
+    "identifier": 6,
     "category": "Layer",
     "attributes": [
       { "name": "group", "type": "int32", "default": 0 },
@@ -521,7 +521,7 @@
   },
   {
     "name": "QuantizedPooling",
-    "operator": 21,
+    "identifier": 21,
     "category": "Pool",
     "attributes": [
       { "name": "pool_type", "default": 0 },
@@ -539,7 +539,7 @@
   },
   {
     "name": "Reduce",
-    "operator": 25,
+    "identifier": 25,
     "attributes": [
       { "name": "keep_dims", "default": 0 },
       { "name": "axis", "default": 0 }
@@ -547,7 +547,7 @@
   },
   {
     "name": "ReLU",
-    "operator": 26,
+    "identifier": 26,
     "category": "Activation"
   },
   {
@@ -556,7 +556,7 @@
   },
   {
     "name": "Reorg",
-    "operator": 55,
+    "identifier": 55,
     "attributes": [
       { "name": "stride", "default": 0 },
       { "name": "reverse", "default": 0 }
@@ -564,11 +564,11 @@
   },
   {
     "name": "Requantize",
-    "operator": 63
+    "identifier": 63
   },
   {
     "name": "Reshape",
-    "operator": 28,
+    "identifier": 28,
     "category": "Shape",
     "attributes": [
       { "name": "axis", "default": 0 },
@@ -580,16 +580,16 @@
   },
   {
     "name": "RNN",
-    "operator": 38,
+    "identifier": 38,
     "category": "Layer"
   },
   {
     "name": "ROIAlign",
-    "operator": 61
+    "identifier": 61
   },
   {
     "name": "ROIPooling",
-    "operator": 27,
+    "identifier": 27,
     "attributes": [
       { "name": "pool_type", "default": 0 },
       { "name": "spatial_scale", "default": 0 },
@@ -600,7 +600,7 @@
   },
   {
     "name": "ROIPooling",
-    "operator": 60,
+    "identifier": 60,
     "attributes": [
       { "name": "pool_type", "default": 0 },
       { "name": "pool_type", "type": "float32", "default": 0 },
@@ -611,7 +611,7 @@
   },
   {
     "name": "Scale",
-    "operator": 29,
+    "identifier": 29,
     "category": "Layer",
     "attributes": [
       { "name": "axis", "default": 0, "visible": false },
@@ -621,7 +621,7 @@
   },
   {
     "name": "SELU",
-    "operator": 66,
+    "identifier": 66,
     "category": "Activation",
     "attributes": [
       { "name": "alpha", "default": 0 },
@@ -630,19 +630,19 @@
   },
   {
     "name": "Shuffle",
-    "operator": 52,
+    "identifier": 52,
     "attributes": [
       { "name": "group", "default": 1 }
     ]
   },
   {
     "name": "Sigmoid",
-    "operator": 30,
+    "identifier": 30,
     "category": "Activation"
   },
   {
     "name": "Slice",
-    "operator": 31,
+    "identifier": 31,
     "category": "Tensor",
     "attributes": [
       { "name": "slices", "default": [] },
@@ -651,7 +651,7 @@
   },
   {
     "name": "Softmax",
-    "operator": 32,
+    "identifier": 32,
     "category": "Activation",
     "attributes": [
       { "name": "axis", "type": "int32", "default": 0 }
@@ -659,7 +659,7 @@
   },
   {
     "name": "SoftmaxCaffe",
-    "operator": 82,
+    "identifier": 82,
     "category": "Activation",
     "attributes": [
       { "name": "axis", "type": "int32", "default": 0 }
@@ -667,7 +667,7 @@
   },
   {
     "name": "Splitv",
-    "operator": 33,
+    "identifier": 33,
     "category": "Tensor",
     "inputs": [
       { "name": "input" }
@@ -678,7 +678,7 @@
   },
   {
     "name": "SplitV",
-    "operator": 81,
+    "identifier": 81,
     "category": "Layer",
     "attributes": [
       { "name": "axis", "default": 1 },
@@ -687,12 +687,12 @@
   },
   {
     "name": "SPP",
-    "operator": 34,
+    "identifier": 34,
     "category": "Activation"
   },
   {
     "name": "Squeeze",
-    "operator": 44,
+    "identifier": 44,
     "category": "Transform",
     "attributes": [
       { "name": "axes_size", "default": 0 },
@@ -701,7 +701,7 @@
   },
   {
     "name": "StridedSlice",
-    "operator": 76,
+    "identifier": 76,
     "category": "Tensor",
     "attributes": [
       { "name": "start_size", "default": 0 },
@@ -714,7 +714,7 @@
   },
   {
     "name": "StridedSliceV2",
-    "operator": 87,
+    "identifier": 87,
     "category": "Tensor",
     "attributes": [
       { "name": "start_size", "default": 0 },
@@ -729,7 +729,7 @@
   },
   {
     "name": "Sub",
-    "operator": 77,
+    "identifier": 77,
     "category": "Layer",
     "attributes": [
       { "name": "weight_input_index", "default": 0 }
@@ -737,31 +737,31 @@
   },
   {
     "name": "Sub",
-    "operator": 80,
+    "identifier": 80,
     "attributes": [
       { "name": "weight_input_index", "default": 0 }
     ]
   },
   {
     "name": "Tanh",
-    "operator": 35,
+    "identifier": 35,
     "category": "Activation"
   },
   {
     "name": "Threshold",
-    "operator": 36
+    "identifier": 36
   },
   {
     "name": "Tile",
-    "operator": 37
+    "identifier": 37
   },
   {
     "name": "UnaryOp",
-    "operator": 41
+    "identifier": 41
   },
   {
     "name": "Unsqueeze",
-    "operator": 85,
+    "identifier": 85,
     "category": "Shape",
     "attributes": [
       { "name": "axes_size", "default": 0 },
@@ -770,7 +770,7 @@
   },
   {
     "name": "Upsample",
-    "operator": 78,
+    "identifier": 78,
     "category": "Data",
     "attributes": [
       { "name": "type", "default": 0 },
@@ -783,10 +783,10 @@
   },
   {
     "name": "YoloDetectionOutput",
-    "operator": 56
+    "identifier": 56
   },
   {
     "name": "Yolov3DetectionOutput",
-    "operator": 59
+    "identifier": 59
   }
 ]

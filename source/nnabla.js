@@ -29,7 +29,7 @@ nnabla.ModelFactory = class {
                         context.request('parameter.protobuf', null)
                     ];
                     const open = (model, version) => {
-                        return nnabla.Metadata.open(context).then((metadata) => {
+                        return context.metadata('nnabla-metadata.json').then((metadata) => {
                             return new nnabla.Model(metadata, model, 'nnabla' + (version ? ' v' + version : ''));
                         });
                     };
@@ -459,49 +459,6 @@ nnabla.TensorShape = class {
 
     toString() {
         return (this._dimensions && this._dimensions.length) ? ('[' + this._dimensions.join(',') + ']') : '';
-    }
-};
-
-nnabla.Metadata = class {
-
-    static open(context) {
-        if (nnabla.Metadata._metadata) {
-            return Promise.resolve(nnabla.Metadata._metadata);
-        }
-        return context.request('nnabla-metadata.json', 'utf-8', null).then((data) => {
-            nnabla.Metadata._metadata = new nnabla.Metadata(data);
-            return nnabla.Metadata._metadata;
-        }).catch(() => {
-            nnabla.Metadata._metadata = new nnabla.Metadata(null);
-            return nnabla.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._types = new Map();
-        this._attributes = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._types = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        return this._types.get(name);
-    }
-
-    attribute(type, name) {
-        const key = type + ':' + name;
-        if (!this._attributes.has(key)) {
-            this._attributes.set(key, null);
-            const metadata = this.type(type);
-            if (metadata && Array.isArray(metadata.attributes)) {
-                for (const attribute of metadata.attributes) {
-                    this._attributes.set(type + ':' + attribute.name, attribute);
-                }
-            }
-        }
-        return this._attributes.get(key);
     }
 };
 

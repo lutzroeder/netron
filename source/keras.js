@@ -40,7 +40,7 @@ keras.ModelFactory = class {
 
     open(context, match) {
         const openModel = (format, producer, backend, config, weights) => {
-            return keras.Metadata.open(context).then((metadata) => {
+            return context.metadata('keras-metadata.json').then((metadata) => {
                 return new keras.Model(metadata, format, producer, backend, config, weights);
             });
         };
@@ -1270,51 +1270,6 @@ keras.GraphMetadata = class {
 
     add(type, metadata) {
         this._types.set(type, metadata);
-    }
-};
-
-keras.Metadata = class {
-
-    static open(context) {
-        if (keras.Metadata._metadata) {
-            return Promise.resolve(keras.Metadata._metadata);
-        }
-        return context.request('keras-metadata.json', 'utf-8', null).then((data) => {
-            keras.Metadata._metadata = new keras.Metadata(data);
-            return keras.Metadata._metadata;
-        }).catch(() => {
-            keras.Metadata._metadata = new keras.Metadata(null);
-            return keras.Metadata._metadatas;
-        });
-    }
-
-    constructor(data) {
-        this._map = new Map();
-        this._attributeCache = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._map = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        return this._map.get(name);
-    }
-
-    attribute(type, name) {
-        const key = type + ':' + name;
-        if (!this._attributeCache.has(key)) {
-            const schema = this.type(type);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (const attribute of schema.attributes) {
-                    this._attributeCache.set(type + ':' + attribute.name, attribute);
-                }
-            }
-            if (!this._attributeCache.has(key)) {
-                this._attributeCache.set(key, null);
-            }
-        }
-        return this._attributeCache.get(key);
     }
 };
 

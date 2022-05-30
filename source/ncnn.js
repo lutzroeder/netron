@@ -57,7 +57,7 @@ ncnn.ModelFactory = class {
     }
 
     open(context, match) {
-        return ncnn.Metadata.open(context).then((metadata) => {
+        return context.metadata('ncnn-metadata.json').then((metadata) => {
             const identifier = context.identifier.toLowerCase();
             const openBinary = (param, bin) => {
                 const reader = new ncnn.BinaryParamReader(metadata, param);
@@ -256,7 +256,7 @@ ncnn.Node = class {
         this._chain = [];
         this._name = layer.name || '';
         const type = layer.type;
-        this._type = metadata.type(type) || metadata.operator(type) || { name: type };
+        this._type = metadata.type(type);
         const attributeMetadata = this._type && this._type.attributes ? this._type.attributes : [];
         const attributes = layer.attributes;
         const inputs = layer.inputs || [];
@@ -799,63 +799,6 @@ ncnn.TensorShape = class {
     }
 };
 
-ncnn.Metadata = class {
-
-    static open(context) {
-        if (ncnn.Metadata._metadata) {
-            return Promise.resolve(ncnn.Metadata._metadata);
-        }
-        return context.request('ncnn-metadata.json', 'utf-8', null).then((data) => {
-            ncnn.Metadata._metadata = new ncnn.Metadata(data);
-            return ncnn.Metadata._metadata;
-        }).catch(() => {
-            ncnn.Metadata._metadata = new ncnn.Metadata(null);
-            return ncnn.Metadata._metadatas;
-        });
-    }
-
-    constructor(data) {
-        this._operatorMap = new Map();
-        this._map = new Map();
-        this._attributes = new Map();
-        if (data) {
-            const items = JSON.parse(data);
-            for (const item of items) {
-                if (item.name) {
-                    this._map.set(item.name, item);
-                    if (Object.prototype.hasOwnProperty.call(item, 'operator')) {
-                        this._operatorMap.set(item.operator, item.name);
-                    }
-                }
-            }
-        }
-    }
-
-    operator(code) {
-        return this._operatorMap.get(code);
-    }
-
-    type(name) {
-        return this._map.get(name);
-    }
-
-    attribute(type, name) {
-        const key = type + ':' + name;
-        if (!this._attributes.has(key)) {
-            const schema = this.type(type);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (const attribute of schema.attributes) {
-                    this._attributes.set(type + ':' + attribute.name, attribute);
-                }
-            }
-            if (!this._attributes.has(key)) {
-                this._attributes.set(key, null);
-            }
-        }
-        return this._attributes.get(key);
-    }
-};
-
 ncnn.Utility = class {
 
     static value(value, type) {
@@ -952,7 +895,7 @@ ncnn.BinaryParamReader = class {
         this._layers = [];
         for (let i = 0; i < layerCount; i++) {
             const typeIndex = reader.int32();
-            const operator = metadata.operator(typeIndex);
+            const operator = metadata.type(typeIndex);
             const layer = {
                 type: operator || typeIndex.toString(),
                 name: i.toString(),

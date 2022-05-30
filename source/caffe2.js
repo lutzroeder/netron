@@ -47,7 +47,7 @@ caffe2.ModelFactory = class {
 
     open(context, match) {
         return context.require('./caffe2-proto').then(() => {
-            return caffe2.Metadata.open(context).then((metadata) => {
+            return context.metadata('caffe2-metadata.json').then((metadata) => {
                 const identifier = context.identifier;
                 const parts = identifier.split('.');
                 const extension = parts.pop().toLowerCase();
@@ -759,52 +759,6 @@ caffe2.TensorShape = class {
 
     toString() {
         return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
-    }
-};
-
-caffe2.Metadata = class {
-
-    static open(context) {
-        if (caffe2.Metadata._metadata) {
-            return Promise.resolve(caffe2.Metadata._metadata);
-        }
-        return context.request('caffe2-metadata.json', 'utf-8', null).then((data) => {
-            caffe2.Metadata._metadata = new caffe2.Metadata(data);
-            return caffe2.Metadata._metadata;
-        }).catch(() => {
-            caffe2.Metadata._metadata = new caffe2.Metadata(null);
-            return caffe2.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._types = new Map();
-        this._attributes = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._types = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        if (!this._types.has(name)) {
-            this._types.set(name, { name: name });
-        }
-        return this._types.get(name);
-    }
-
-    attribute(type, name) {
-        const key = type + ':' + name;
-        if (!this._attributes.has(key)) {
-            this._attributes.set(key, null);
-            const metadata = this.type(type);
-            if (metadata && Array.isArray(metadata.attributes)) {
-                for (const attribute of metadata.attributes) {
-                    this._attributes.set(type + ':' + attribute.name, attribute);
-                }
-            }
-        }
-        return this._attributes.get(key);
     }
 };
 

@@ -17,9 +17,7 @@ tensorrt.ModelFactory = class {
     }
 
     open(context, match) {
-        return tensorrt.Metadata.open(context).then((metadata) => {
-            return new tensorrt.Model(metadata, match);
-        });
+        return Promise.resolve().then(() => new tensorrt.Model(null, match));
     }
 };
 
@@ -103,35 +101,6 @@ tensorrt.Plan = class {
 
     _read() {
         throw new tensorrt.Error('Invalid file content. File contains undocumented TensorRT plan data.');
-    }
-};
-
-
-tensorrt.Metadata = class {
-
-    static open(context) {
-        if (tensorrt.Metadata._metadata) {
-            return Promise.resolve(tensorrt.Metadata._metadata);
-        }
-        return context.request('tensorrt-metadata.json', 'utf-8', null).then((data) => {
-            tensorrt.Metadata._metadata = new tensorrt.Metadata(data);
-            return tensorrt.Metadata._metadata;
-        }).catch(() => {
-            tensorrt.Metadata._metadata = new tensorrt.Metadata(null);
-            return tensorrt.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._map = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._map = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        return this._map.get(name);
     }
 };
 

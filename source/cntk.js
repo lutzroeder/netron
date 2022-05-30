@@ -23,7 +23,7 @@ cntk.ModelFactory = class {
     }
 
     open(context, match) {
-        return cntk.Metadata.open(context).then((metadata) => {
+        return context.metadata('cntk-metadata.json').then((metadata) => {
             switch (match) {
                 case 'cntk.v1': {
                     let obj = null;
@@ -373,7 +373,8 @@ cntk.Node = class {
                     this._type = metadata.type(obj.uid) || { name: obj.uid };
                 }
                 else if (Object.prototype.hasOwnProperty.call(obj, 'op')) {
-                    this._type = metadata.name(obj.op.toNumber()) || { name: obj.op ? obj.op.toString() : '?' };
+                    // cntk/Source/CNTKv2LibraryDll/API/Internals/PrimitiveOpType.h
+                    this._type = metadata.type(obj.op.toNumber());
                 }
                 else {
                     const type = obj.type;
@@ -819,41 +820,6 @@ cntk.GraphMetadata = class {
             }
         }
         return this._attributes.get(key);
-    }
-};
-
-cntk.Metadata = class {
-
-    static open(context) {
-        if (cntk.Metadata._metadata) {
-            return Promise.resolve(cntk.Metadata._metadata);
-        }
-        return context.request('cntk-metadata.json', 'utf-8', null).then((data) => {
-            cntk.Metadata._metadata = new cntk.Metadata(data);
-            return cntk.Metadata._metadata;
-        }).catch(() => {
-            cntk.Metadata._metadata = new cntk.Metadata(null);
-            return cntk.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._map = new Map();
-        this._typeMap = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._types = new Map(metadata.map((item) => [ item.name, item ]));
-            this._codes = new Map(metadata.map((item) => [ item.operator, item ]));
-        }
-    }
-
-    name(code) {
-        // cntk/Source/CNTKv2LibraryDll/API/Internals/PrimitiveOpType.h
-        return this._codes.get(code);
-    }
-
-    type(name) {
-        return this._types.get(name);
     }
 };
 

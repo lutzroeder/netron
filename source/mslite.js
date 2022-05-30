@@ -39,7 +39,7 @@ mslite.ModelFactory = class {
                 const message = error && error.message ? error.message : error.toString();
                 throw new mslite.Error('File format is not mslite.MetaGraph (' + message.replace(/\.$/, '') + ').');
             }
-            return mslite.Metadata.open(context).then((metadata) => {
+            return context.metadata('mslite-metadata.json').then((metadata) => {
                 return new mslite.Model(metadata, model);
             });
         });
@@ -536,55 +536,6 @@ mslite.TensorShape = class {
             return '[' + this._dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',') + ']';
         }
         return '';
-    }
-};
-
-mslite.Metadata = class {
-
-    static open(context) {
-        if (mslite.Metadata._metadata) {
-            return Promise.resolve(mslite.Metadata._metadata);
-        }
-        return context.request('mslite-metadata.json', 'utf-8', null).then((data) => {
-            mslite.Metadata._metadata = new mslite.Metadata(data);
-            return mslite.Metadata._metadata;
-        }).catch(() => {
-            mslite.Metadata._metadata = new mslite.Metadata(null);
-            return mslite.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._map = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._map = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        return this._map.has(name) ? this._map.get(name) : null;
-    }
-
-    attribute(type, name) {
-        const schema = this.type(type);
-        if (schema) {
-            let attributeMap = schema.attributeMap;
-            if (!attributeMap) {
-                attributeMap = {};
-                if (schema.attributes) {
-                    for (const attribute of schema.attributes) {
-                        attributeMap[attribute.name] = attribute;
-                    }
-                }
-                schema.attributeMap = attributeMap;
-            }
-            const attributeSchema = attributeMap[name];
-            if (attributeSchema) {
-                return attributeSchema;
-            }
-        }
-        return null;
     }
 };
 

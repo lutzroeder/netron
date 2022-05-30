@@ -16,7 +16,7 @@ acuity.ModelFactory = class {
     }
 
     open(context) {
-        return acuity.Metadata.open(context).then((metadata) => {
+        return context.metadata('acuity-metadata.json').then((metadata) => {
             const obj = context.open('json');
             return new acuity.Model(metadata, obj);
         });
@@ -145,8 +145,8 @@ acuity.Node = class {
         if (this._type) {
             if (layer.parameters) {
                 for (const key of Object.keys(layer.parameters)) {
-                    const attributeMetadata = metadata.attribute(this._type, key);
-                    this._attributes.push(new acuity.Attribute(attributeMetadata, key, layer.parameters[key]));
+                    const attribute = new acuity.Attribute(metadata.attribute(this._type.name, key), key, layer.parameters[key]);
+                    this._attributes.push(attribute);
                 }
             }
         }
@@ -358,55 +358,6 @@ acuity.Tensor = class {
 
     toString() {
         return '';
-    }
-};
-
-acuity.Metadata = class {
-
-    static open(context) {
-        if (acuity.Metadata._metadata) {
-            return Promise.resolve(acuity.Metadata._metadata);
-        }
-        return context.request('acuity-metadata.json', 'utf-8', null).then((data) => {
-            acuity.Metadata._metadata = new acuity.Metadata(data);
-            return acuity.Metadata._metadata;
-        }).catch(() => {
-            acuity.Metadata._metadata = new acuity.Metadata(null);
-            return acuity.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._map = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._map = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        return this._map.get(name);
-    }
-
-    attribute(type, name) {
-        const schema = this.type(type);
-        if (schema) {
-            let attributeMap = schema.attributeMap;
-            if (!attributeMap) {
-                attributeMap = {};
-                if (schema.attributes) {
-                    for (const attribute of schema.attributes) {
-                        attributeMap[attribute.name] = attribute;
-                    }
-                }
-                schema.attributeMap = attributeMap;
-            }
-            const attributeSchema = attributeMap[name];
-            if (attributeSchema) {
-                return attributeSchema;
-            }
-        }
-        return null;
     }
 };
 

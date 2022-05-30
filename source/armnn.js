@@ -52,7 +52,7 @@ armnn.ModelFactory = class {
                     throw new armnn.Error("Unsupported Arm NN '" + match + "'.");
                 }
             }
-            return armnn.Metadata.open(context).then((metadata) => {
+            return context.metadata('armnn-metadata.json').then((metadata) => {
                 return new armnn.Model(metadata, model);
             });
         });
@@ -503,49 +503,6 @@ armnn.TensorShape = class {
             return '';
         }
         return '[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']';
-    }
-};
-
-armnn.Metadata = class {
-
-    static open(context) {
-        if (armnn.Metadata._metadata) {
-            return Promise.resolve(armnn.Metadata._metadata);
-        }
-        return context.request('armnn-metadata.json', 'utf-8', null).then((data) => {
-            armnn.Metadata._metadata = new armnn.Metadata(data);
-            return armnn.Metadata._metadata;
-        }).catch(() => {
-            armnn.Metadata._metadata = new armnn.Metadata(null);
-            return armnn.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._types = new Map();
-        this._attributes = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._types = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        return this._types.get(name);
-    }
-
-    attribute(type, name) {
-        const key = type + ':' + name;
-        if (!this._attributes.has(key)) {
-            this._attributes.set(key, null);
-            const metadata = this.type(type);
-            if (metadata && Array.isArray(metadata.attributes)) {
-                for (const attribute of metadata.attributes) {
-                    this._attributes.set(type + ':' + attribute.name, attribute);
-                }
-            }
-        }
-        return this._attributes.get(key);
     }
 };
 

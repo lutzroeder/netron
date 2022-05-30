@@ -157,56 +157,6 @@ message.Attribute = class {
     }
 };
 
-message.Metadata = class {
-
-    static open(context) {
-        if (message.Metadata._metadata) {
-            return Promise.resolve(message.Metadata._metadata);
-        }
-        return context.request('lasagne-metadata.json', 'utf-8', null).then((data) => {
-            message.Metadata._metadata = new message.Metadata(data);
-            return message.Metadata._metadata;
-        }).catch(() => {
-            message.Metadata._metadata = new message.Metadata(null);
-            return message.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._map = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._map = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        return this._map.get(name);
-    }
-
-    attribute(type, name) {
-        const schema = this.type(type);
-        if (schema) {
-            let attributeMap = schema.attributeMap;
-            if (!attributeMap) {
-                attributeMap = {};
-                if (schema.attributes) {
-                    for (const attribute of schema.attributes) {
-                        attributeMap[attribute.name] = attribute;
-                    }
-                }
-                schema.attributeMap = attributeMap;
-            }
-            const attributeSchema = attributeMap[name];
-            if (attributeSchema) {
-                return attributeSchema;
-            }
-        }
-        return null;
-    }
-};
-
-
 message.Error = class extends Error {
     constructor(message) {
         super(message);

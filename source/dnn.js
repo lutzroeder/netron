@@ -26,7 +26,7 @@ dnn.ModelFactory = class {
                 const message = error && error.message ? error.message : error.toString();
                 throw new dnn.Error('File format is not dnn.Graph (' + message.replace(/\.$/, '') + ').');
             }
-            return dnn.Metadata.open(context).then((metadata) => {
+            return context.metadata('dnn-metadata.json').then((metadata) => {
                 return new dnn.Model(metadata, model);
             });
         });
@@ -446,51 +446,6 @@ dnn.TensorShape = class {
             return '';
         }
         return '[' + this._dimensions.join(',') + ']';
-    }
-};
-
-dnn.Metadata = class {
-
-    static open(context) {
-        if (dnn.Metadata._metadata) {
-            return Promise.resolve(dnn.Metadata._metadata);
-        }
-        return context.request('dnn-metadata.json', 'utf-8', null).then((data) => {
-            dnn.Metadata._metadata = new dnn.Metadata(data);
-            return dnn.Metadata._metadata;
-        }).catch(() => {
-            dnn.Metadata._metadata = new dnn.Metadata(null);
-            return dnn.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._map = new Map();
-        this._attributeCache = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._map = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        return this._map.get(name);
-    }
-
-    attribute(type, name) {
-        const key = type + ':' + name;
-        if (!this._attributeCache.has(key)) {
-            const schema = this.type(type);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (const attribute of schema.attributes) {
-                    this._attributeCache.set(type + ':' + attribute.name, attribute);
-                }
-            }
-            if (!this._attributeCache.has(key)) {
-                this._attributeCache.set(key, null);
-            }
-        }
-        return this._attributeCache.get(key);
     }
 };
 

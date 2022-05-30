@@ -27,7 +27,7 @@ mxnet.ModelFactory = class {
     }
 
     open(context, match) {
-        return mxnet.Metadata.open(context).then((metadata) => {
+        return context.metadata('mxnet-metadata.json').then((metadata) => {
             const basename = (base, identifier, extension, suffix, append) => {
                 if (!base) {
                     if (identifier.toLowerCase().endsWith(extension)) {
@@ -1085,50 +1085,6 @@ mxnet.context.Context = class {
     constructor(reader) {
         this._deviceType = reader.uint32();
         this._deviceId = reader.uint32();
-    }
-};
-
-mxnet.Metadata = class {
-
-    static open(context) {
-        if (mxnet.Metadata._metadata) {
-            return Promise.resolve(mxnet.Metadata._metadata);
-        }
-        return context.request('mxnet-metadata.json', 'utf-8', null).then((data) => {
-            mxnet.Metadata._metadata = new mxnet.Metadata(data);
-            return mxnet.Metadata._metadata;
-        }).catch(() => {
-            mxnet.Metadata._metadata = new mxnet.Metadata(null);
-            return mxnet.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._map = new Map();
-        this._attributeCache = {};
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._map = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        return this._map.get(name);
-    }
-
-    attribute(type, name) {
-        let map = this._attributeCache[type];
-        if (!map) {
-            map = {};
-            const schema = this.type(type);
-            if (schema && schema.attributes) {
-                for (const attribute of schema.attributes) {
-                    map[attribute.name] = attribute;
-                }
-            }
-            this._attributeCache[type] = map;
-        }
-        return map[name] || null;
     }
 };
 

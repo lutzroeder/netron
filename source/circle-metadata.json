@@ -74,6 +74,7 @@
   },
   {
     "name": "Concatenation",
+    "category": "Tensor",
     "attributes": [
       { "name": "axis", "type": "int32", "default": 0 },
       { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
@@ -87,6 +88,7 @@
   },
   {
     "name": "Conv2D",
+    "category": "Layer",
     "attributes": [
       { "name": "padding", "type": "Padding", "default": "SAME" },
       { "name": "stride_w", "type": "int32", "default": 0 },
@@ -112,6 +114,7 @@
   },
   {
     "name": "DepthwiseConv2D",
+    "category": "Layer",
     "attributes": [
       { "name": "padding", "type": "Padding", "default": "SAME" },
       { "name": "stride_w", "type": "int32", "default": 0 },
@@ -145,6 +148,7 @@
   },
   {
     "name": "FullyConnected",
+    "category": "Layer",
     "attributes": [
       { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
       { "name": "weights_format", "type": "FullyConnectedOptionsWeightsFormat", "default": "DEFAULT" },
@@ -162,6 +166,7 @@
   },
   {
     "name": "Gather",
+    "category": "Transform",
     "attributes": [
       { "name": "axis", "type": "int32", "default": 0 }
     ]
@@ -323,6 +328,7 @@
   },
   {
     "name": "StridedSlice",
+    "category": "Tensor",
     "attributes": [
       { "name": "begin_mask", "type": "int32", "default": 0 },
       { "name": "end_mask", "type": "int32", "default": 0 },

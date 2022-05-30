@@ -61,7 +61,7 @@ uff.ModelFactory = class {
                     throw new uff.Error("Unsupported UFF format '" + match + "'.");
                 }
             }
-            return uff.Metadata.open(context).then((metadata) => {
+            return context.metadata('uff-metadata.json').then((metadata) => {
                 return new uff.Model(metadata, meta_graph);
             });
         });
@@ -491,49 +491,6 @@ uff.TensorShape = class {
             return '';
         }
         return '[' + this._dimensions.join(',') + ']';
-    }
-};
-
-uff.Metadata = class {
-
-    static open(context) {
-        if (uff.Metadata._metadata) {
-            return Promise.resolve(uff.Metadata._metadata);
-        }
-        return context.request('uff-metadata.json', 'utf-8', null).then((data) => {
-            uff.Metadata._metadata = new uff.Metadata(data);
-            return uff.Metadata._metadata;
-        }).catch(() => {
-            uff.Metadata._metadata = new uff.Metadata(null);
-            return uff.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._types = new Map();
-        this._attributes = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._types = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        return this._types.get(name);
-    }
-
-    attribute(type, name) {
-        const key = type + ':' + name;
-        if (!this._attributes.has(key)) {
-            this._attributes.set(key, null);
-            const metadata = this.type(type);
-            if (metadata && Array.isArray(metadata.attributes)) {
-                for (const attribute of metadata.attributes) {
-                    this._attributes.set(type + ':' + attribute.name, attribute);
-                }
-            }
-        }
-        return this._attributes.get(key);
     }
 };
 
