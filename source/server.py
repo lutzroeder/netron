@@ -259,6 +259,18 @@ def serve(file, data, address=None, browse=False, log=False):
     if not data and file and not os.path.exists(file):
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file)
 
+    if data and not isinstance(data, bytearray):
+        if data.__class__.__module__ == 'onnx.onnx_ml_pb2' and data.__class__.__name__ == 'ModelProto':
+            from .onnx import serialize
+            data = serialize(data)
+            file = 'test.json'
+        elif data.__class__.__module__ == 'torch._C' and data.__class__.__name__ == 'Graph':
+            from .pytorch import serialize
+            data = serialize(data)
+            file = 'test.json'
+        else:
+            raise Exception('Unsupported data.')
+
     _update_thread_list()
     address = _make_address(address)
     if isinstance(address[1], int) and address[1] != 0:

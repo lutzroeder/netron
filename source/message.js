@@ -25,11 +25,26 @@ message.Model = class {
 
     constructor(data) {
         this._format = data.format || '';
+        this._producer = data.producer || '';
+        this._version = data.version || '';
+        this._description = data.description || '';
         this._graphs = (data.graphs || []).map((graph) => new message.Graph(graph));
     }
 
     get format() {
         return this._format;
+    }
+
+    get producer() {
+        return this._producer;
+    }
+
+    get version() {
+        return this._version;
+    }
+
+    get description() {
+        return this._description;
     }
 
     get graphs() {
@@ -109,7 +124,7 @@ message.Argument = class {
 message.Node = class {
 
     constructor(data) {
-        this._type = { name: data.type.name };
+        this._type = { name: data.type.name, category: data.type.category };
         this._name = data.name;
         this._inputs = (data.inputs || []).map((input) => new message.Parameter(input));
         this._outputs = (data.outputs || []).map((output) => new message.Parameter(output));
