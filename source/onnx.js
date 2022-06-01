@@ -287,7 +287,7 @@ onnx.Model = class {
         this._format = format;
         this._producer = model.producer_name && model.producer_name.length > 0 ? model.producer_name + (model.producer_version && model.producer_version.length > 0 ? ' ' + model.producer_version : '') : null;
         this._domain = model.domain;
-        this._modelVersion = model.model_version;
+        this._version = model.model_version.toNumber() ? model.model_version.toString() : '';
         this._description = model.doc_string;
         this._metadata = [];
         this._imports = null;
@@ -367,6 +367,10 @@ onnx.Model = class {
 
     get format() {
         return this._format;
+    }
+
+    get version() {
+        return this._version;
     }
 
     get imports() {
