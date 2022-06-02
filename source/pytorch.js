@@ -3170,7 +3170,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                                     }
                                                     case 2: {
                                                         const dim = evalArgs[1];
-                                                        parameter.resize_(size.filter((value, index) => value !== 1 || index !== dim));
+                                                        parameter.resize_(size.filter((value, index) => (value !== 1 && !isNaN(value)) || index !== dim));
                                                         break;
                                                     }
                                                     default: {

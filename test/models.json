@@ -5320,6 +5320,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "WAV2VEC2_BASE_quant-none-cpu.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/8820082/WAV2VEC2_BASE_quant-none-cpu.pt.zip[WAV2VEC2_BASE_quant-none-cpu.pt]",
+    "format":   "TorchScript v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/918"
+  },
+  {
+    "type":     "pytorch",
     "target":   "yolov5n.torchscript",
     "source":   "https://github.com/lutzroeder/netron/files/8457287/yolov5n.torchscript.zip[yolov5n.torchscript]",
     "format":   "TorchScript v1.6",
