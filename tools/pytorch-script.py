@@ -1,16 +1,7 @@
-
-from __future__ import unicode_literals
-from __future__ import print_function
-
-import io
 import json
 import pydoc
 import os
-import re
-import shutil
 import sys
-import tempfile
-import zipfile
 
 def metadata():
     json_file = os.path.join(os.path.dirname(__file__), '../source/pytorch-metadata.json')
