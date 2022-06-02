@@ -1091,6 +1091,10 @@ tf.Attribute = class {
             this._type = schema.type;
         }
         switch (value.value) {
+            case undefined:
+                this._type = '';
+                this._value = null;
+                break;
             case 'type':
                 this._type = 'type';
                 this._value = tf.Utility.dataType(value.type);
