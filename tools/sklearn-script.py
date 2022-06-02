@@ -1,7 +1,3 @@
-
-from __future__ import unicode_literals
-from __future__ import print_function
-
 import io
 import json
 import os
@@ -153,7 +149,8 @@ def update_attributes(schema, lines):
             "int, float, str, np.nan, None or pandas.NA, default=np.nan",
             "{'first', 'if_binary'} or an array-like of shape (n_features,), default=None",
             "{'first', 'if_binary'} or a array-like of shape (n_features,), default=None",
-            "{'linear', 'poly', 'rbf', 'sigmoid', 'precomputed'} or callable, default='rbf'"
+            "{'linear', 'poly', 'rbf', 'sigmoid', 'precomputed'} or callable, default='rbf'",
+            "estimator instance"
         }
         if line == 'str':
             line = 'string'
