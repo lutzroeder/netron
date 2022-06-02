@@ -59,7 +59,7 @@ install() {
         darwin*)
             [ -x "$(command -v cmake)" ] || brew install cmake > /dev/null
             [ -x "$(command -v protoc)" ] || brew install protobuf > /dev/null
-            protobuf=protobuf
+            protobuf="protobuf==3.20.1"
             ;;
         msys*)
             protoc_version=3.16.0
