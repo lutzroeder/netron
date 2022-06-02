@@ -287,7 +287,8 @@ onnx.Model = class {
         this._format = format;
         this._producer = model.producer_name && model.producer_name.length > 0 ? model.producer_name + (model.producer_version && model.producer_version.length > 0 ? ' ' + model.producer_version : '') : null;
         this._domain = model.domain;
-        this._version = model.model_version.toNumber() ? model.model_version.toString() : '';
+        const model_version = typeof model.model_version === 'number' ? model.model_version : model.model_version.toNumber();
+        this._version = model_version ? model_version.toString() : '';
         this._description = model.doc_string;
         this._metadata = [];
         this._imports = null;
