@@ -588,6 +588,24 @@ kmodel.Reader = class {
                         layer.inputs[0].arguments[0].shape = shape;
                         layer.outputs[0].arguments[0].shape = shape;
                     });
+                    register(   22, 'RESIZE_NEAREST_NEIGHBOR', '', (layer, reader) => {
+                        layer.flags = reader.uint32();
+                        layer.inputs = [ reader.parameter('input') ];
+                        layer.outputs = [ reader.parameter('output') ];
+                        layer.inputs[0].arguments[0].shape = [ reader.uint32(), reader.uint32(), reader.uint32() ];
+                        layer.out_width = reader.uint32();
+                        layer.out_height = reader.uint32();
+                        layer.align_corners = reader.uint32();
+                    });
+                    register(   23, 'QUANTIZED_RESIZE_NEAREST_NEIGHBOR', '', (layer, reader) => {
+                        layer.flags = reader.uint32();
+                        layer.inputs = [ reader.parameter('input') ];
+                        layer.outputs = [ reader.parameter('output') ];
+                        layer.inputs[0].arguments[0].shape = [ reader.uint32(), reader.uint32(), reader.uint32() ];
+                        layer.out_width = reader.uint32();
+                        layer.out_height = reader.uint32();
+                        layer.align_corners = reader.uint32();
+                    });
                     register( 1000, 'CONV', 'Layer');
                     register( 1001, 'DWCONV', 'Layer');
                     register( 1002, 'QUANTIZED_RESHAPE', 'Shape');
