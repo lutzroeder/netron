@@ -3362,6 +3362,40 @@
     ]
   },
   {
+    "name": "torch.bucketize:Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "boundaries", "type": "Tensor" },
+      { "name": "out_int32", "type": "boolean", "default": false },
+      { "name": "right", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.bucketize:Scalar",
+    "inputs": [
+      { "name": "self", "type": "Scalar" },
+      { "name": "boundaries", "type": "Tensor" },
+      { "name": "out_int32", "type": "boolean", "default": false },
+      { "name": "right", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.pinverse",
+    "inputs": [
+      { "name": "self", "type": "Scalar" },
+      { "name": "rcond", "type": "float32", "default": 1e-15 }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.real",
     "inputs": [
       { "name": "self", "type": "Tensor" }
