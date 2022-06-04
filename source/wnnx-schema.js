@@ -108,6 +108,86 @@ $root.wnn.NamedAttrList = class NamedAttrList {
     }
 };
 
+$root.wnn.OpType = {
+    argmax: 0,
+    argmin: 1,
+    const: 2,
+    conv1d: 3,
+    conv2d: 4,
+    conv3d: 5,
+    pool2d: 6,
+    pool3d: 7,
+    adaptive_avg_pool2d: 8,
+    batchnorm: 9,
+    layernorm: 10,
+    relu: 11,
+    relu6: 12,
+    elu: 13,
+    prelu: 14,
+    leakyrelu: 15,
+    fc: 16,
+    matmul: 17,
+    fc_share: 18,
+    lstm: 19,
+    onehot: 20,
+    transpose: 21,
+    gather: 22,
+    split: 23,
+    concat: 24,
+    activation: 25,
+    binary_op: 26,
+    reduce: 27,
+    fill: 28,
+    pad: 29,
+    reshape: 30,
+    instancenorm: 31,
+    conv_depthwise: 32,
+    quantized_avgpool: 33,
+    quantized_concat: 34,
+    quantized_matmul: 35,
+    quantized_relu: 36,
+    quantized_relu6: 37,
+    quantized_softmax: 38,
+    roipooling: 39,
+    roialign: 40,
+    scatternd: 41,
+    gathernd: 42,
+    nms: 43,
+    input: 44,
+    output: 45,
+    extra: 46,
+    unsupported: 47
+};
+
+$root.wnn.QuantType = {
+    no_quant: 0,
+    int8: 1,
+    sparse_quant: 2,
+    fp16: 3,
+    bfp16: 4,
+    weight_int8: 5,
+    int4: 6
+};
+
+$root.wnn.Quant = class Quant {
+
+    static decode(reader, position) {
+        const $ = new $root.wnn.Quant();
+        $.buffer = reader.typedArray(position, 4, Int8Array);
+        $.alpha = reader.typedArray(position, 6, Float32Array);
+        $.quant_type = reader.int8_(position, 8, 0);
+        $.use_int32 = reader.bool_(position, 10, false);
+        $.quant_scale = reader.float32_(position, 12, 0);
+        $.scale_in = reader.float32_(position, 14, 0);
+        $.scale_out = reader.float32_(position, 16, 0);
+        $.a_max = reader.int32_(position, 18, 0);
+        $.a_min = reader.int32_(position, 20, 0);
+        $.read_type = reader.int32_(position, 22, 0);
+        $.has_scale_int = reader.bool_(position, 24, false);
+        return $;
+    }
+};
+
 $root.wnn.PadMode = {
     CAFFE: 0,
     VALID: 1,
@@ -130,13 +210,27 @@ $root.wnn.Conv2DCommon = class Conv2DCommon {
         $.group = reader.int32_(position, 22, 1);
         $.output_count = reader.int32_(position, 24, 0);
         $.input_count = reader.int32_(position, 26, 0);
-        $.relu = reader.bool_(position, 28, false);
-        $.relu6 = reader.bool_(position, 30, false);
-        $.pads = reader.typedArray(position, 32, Int32Array);
-        $.out_pads = reader.typedArray(position, 34, Int32Array);
-        $.has_outputshape = reader.bool_(position, 36, false);
+        $.sparse_output_count = reader.int32_(position, 28, 0);
+        $.in_channels = reader.int32_(position, 30, 0);
+        $.out_channels = reader.int32_(position, 32, 0);
+        $.relu = reader.bool_(position, 34, false);
+        $.relu6 = reader.bool_(position, 36, false);
+        $.pads = reader.typedArray(position, 38, Int32Array);
+        $.out_pads = reader.typedArray(position, 40, Int32Array);
+        $.has_outputshape = reader.bool_(position, 42, false);
         return $;
     }
+};
+
+$root.wnn.ActivationType = {
+    RELU: 0,
+    RELU6: 1,
+    LEAKY_RELU: 2,
+    ELU: 3,
+    TANH: 4,
+    PRELU: 5,
+    MISH: 6,
+    SWISH: 7
 };
 
 $root.wnn.Conv2D = class Conv2D {
@@ -146,6 +240,9 @@ $root.wnn.Conv2D = class Conv2D {
         $.common = reader.table(position, 4, $root.wnn.Conv2DCommon.decode);
         $.weight = reader.typedArray(position, 6, Float32Array);
         $.bias = reader.typedArray(position, 8, Float32Array);
+        $.has_act = reader.bool_(position, 10, false);
+        $.act_type = reader.int32_(position, 12, 0);
+        $.input_shape = reader.typedArray(position, 14, Int32Array);
         return $;
     }
 };
@@ -279,6 +376,35 @@ $root.wnn.LRN = class LRN {
     }
 };
 
+$root.wnn.Flatten = class Flatten {
+
+    static decode(reader, position) {
+        const $ = new $root.wnn.Flatten();
+        $.axis = reader.int32_(position, 4, 0);
+        $.end_axis = reader.int32_(position, 6, 0);
+        return $;
+    }
+};
+
+$root.wnn.FC = class FC {
+
+    static decode(reader, position) {
+        const $ = new $root.wnn.FC();
+        $.in_features = reader.int32_(position, 4, 0);
+        $.out_features = reader.int32_(position, 6, 0);
+        $.weight_size = reader.int32_(position, 8, 0);
+        $.weights = reader.typedArray(position, 10, Float32Array);
+        $.bias = reader.typedArray(position, 12, Float32Array);
+        $.axis = reader.int32_(position, 14, 0);
+        $.transpose = reader.bool_(position, 16, false);
+        $.has_act = reader.bool_(position, 18, false);
+        $.act_type = reader.int32_(position, 20, 0);
+        $.act_params = reader.typedArray(position, 22, Float32Array);
+        $.quant_param = reader.table(position, 24, $root.wnn.Quant.decode);
+        return $;
+    }
+};
+
 $root.wnn.Input = class Input {
 
     static decode(reader, position) {
@@ -309,57 +435,6 @@ $root.wnn.ModelSource = {
     TFLITE: 3
 };
 
-$root.wnn.OpType = {
-    argmax: 0,
-    argmin: 1,
-    const: 2,
-    conv1d: 3,
-    conv2d: 4,
-    conv3d: 5,
-    pool2d: 6,
-    pool3d: 7,
-    adaptive_avg_pool2d: 8,
-    batchnorm: 9,
-    layernorm: 10,
-    relu: 11,
-    relu6: 12,
-    elu: 13,
-    prelu: 14,
-    leakyrelu: 15,
-    fc: 16,
-    matmul: 17,
-    fc_share: 18,
-    lstm: 19,
-    onehot: 20,
-    transpose: 21,
-    gather: 22,
-    split: 23,
-    concat: 24,
-    activation: 25,
-    binary_op: 26,
-    reduce: 27,
-    fill: 28,
-    pad: 29,
-    reshape: 30,
-    instancenorm: 31,
-    conv_depthwise: 32,
-    quantized_avgpool: 33,
-    quantized_concat: 34,
-    quantized_matmul: 35,
-    quantized_relu: 36,
-    quantized_relu6: 37,
-    quantized_softmax: 38,
-    roipooling: 39,
-    roialign: 40,
-    scatternd: 41,
-    gathernd: 42,
-    nms: 43,
-    input: 44,
-    output: 45,
-    extra: 46,
-    unsupported: 47
-};
-
 $root.wnn.OpParameter = class {
 
     static decode(reader, position, type) {
@@ -377,7 +452,8 @@ $root.wnn.OpParameter = class {
             case 11: return $root.wnn.LRN.decode(reader, position);
             case 12: return $root.wnn.Input.decode(reader, position);
             case 13: return $root.wnn.Extra.decode(reader, position);
-            case 14: return $root.wnn.ArgMax.decode(reader, position);
+            case 14: return $root.wnn.FC.decode(reader, position);
+            case 15: return $root.wnn.ArgMax.decode(reader, position);
             default: return undefined;
         }
     }
@@ -397,9 +473,20 @@ $root.wnn.OpParameter = class {
             case 'LRN': return $root.wnn.LRN.decodeText(reader, json);
             case 'Input': return $root.wnn.Input.decodeText(reader, json);
             case 'Extra': return $root.wnn.Extra.decodeText(reader, json);
+            case 'FC': return $root.wnn.FC.decodeText(reader, json);
             case 'ArgMax': return $root.wnn.ArgMax.decodeText(reader, json);
             default: return undefined;
         }
+    }
+};
+
+$root.wnn.Dims = class Dims {
+
+    static decode(reader, position) {
+        const $ = new $root.wnn.Dims();
+        $.shape = reader.typedArray(position, 4, Int32Array);
+        $.total_size = reader.int32_(position, 6, 0);
+        return $;
     }
 };
 
@@ -411,9 +498,12 @@ $root.wnn.Op = class Op {
         $.output_indexes = reader.typedArray(position, 6, Int32Array);
         $.input_names = reader.strings_(position, 8);
         $.output_names = reader.strings_(position, 10);
-        $.param = reader.union(position, 12, $root.wnn.OpParameter.decode);
-        $.name = reader.string_(position, 16, null);
-        $.type = reader.int32_(position, 18, 0);
+        $.input_shapes = reader.tableArray(position, 12, $root.wnn.Dims.decode);
+        $.output_shapes = reader.tableArray(position, 14, $root.wnn.Dims.decode);
+        $.is_static_shape = reader.bool_(position, 16, false);
+        $.param = reader.union(position, 18, $root.wnn.OpParameter.decode);
+        $.name = reader.string_(position, 22, null);
+        $.type = reader.int32_(position, 24, 0);
         return $;
     }
 };
