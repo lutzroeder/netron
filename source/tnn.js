@@ -493,6 +493,7 @@ tnn.Tensor = class {
         }
 
         switch (this._type.dataType) {
+            case 'int32':
             case 'float16':
             case 'float32':
                 context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
@@ -518,6 +519,11 @@ tnn.Tensor = class {
                     return results;
                 }
                 switch (this._type.dataType) {
+                    case 'int32':
+                        results.push(context.data.getInt32(context.index, true));
+                        context.index += 4;
+                        context.count++;
+                        break;
                     case 'float32':
                         results.push(context.data.getFloat32(context.index, true));
                         context.index += 4;
@@ -691,7 +697,7 @@ tnn.LayerResourceReader = class {
             if (magic_number !== 0xFABC0002 && magic_number !== 0xFABC0004) {
                 throw new tnn.Error("Invalid blob header signature '" + magic_number.toString() + "'.");
             }
-            const layerCount = reader.int32() & 0x1FFFFFFF;
+            this._layerResources = new Array(reader.int32() & 0x1FFFFFFF);
             const raw = (reader) => {
                 const magic_number = reader.uint32();
                 if (magic_number !== 0xFABC0002 && magic_number !== 0xFABC0004) {
@@ -723,7 +729,7 @@ tnn.LayerResourceReader = class {
                     throw new tnn.Error("Invalid string '" + content + "' instead of '" + name + "'.");
                 }
             };
-            for (let i = 0; i < layerCount; i++) {
+            for (let i = 0; i < this._layerResources.length; i++) {
                 const resource = {};
                 resource.operator = reader.int32();
                 resource.type = reader.string();
@@ -804,10 +810,11 @@ tnn.LayerResourceReader = class {
                         }
                         break;
                     }
-                    default:
+                    default: {
                         throw new tnn.Error("Unsupported layer resource type '" + resource.type + "'.");
+                    }
                 }
-                this._layerResources.push(resource);
+                this._layerResources[i] = resource;
             }
             if (reader.position !== reader.length) {
                 throw new tnn.Error("Invalid blob size.");
