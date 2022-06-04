@@ -669,6 +669,8 @@ view.View = class {
             clone.removeAttribute('height');
             clone.style.removeProperty('opacity');
             clone.style.removeProperty('display');
+            clone.style.removeProperty('width');
+            clone.style.removeProperty('height');
             const background = clone.querySelector('#background');
             const origin = clone.querySelector('#origin');
             origin.setAttribute('transform', 'translate(0,0) scale(1)');
