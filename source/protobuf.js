@@ -13,8 +13,8 @@ protobuf.get = (name) => {
 
 protobuf.BinaryReader = class {
 
-    static open(buffer) {
-        return new protobuf.BinaryReader(buffer);
+    static open(data) {
+        return new protobuf.BinaryReader(data);
     }
 
     constructor(data) {
