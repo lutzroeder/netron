@@ -968,28 +968,7 @@ mxnet.ndarray = class {
     static load(buffer) {
         // NDArray::Load(dmlc::Stream* fi, std::vector<NDArray>* data, std::vector<std::string>* keys)
         const map = new Map();
-        const reader = new base.BinaryReader(buffer);
-        reader.uint64 = function() {
-            const value = this.uint32();
-            if (this.uint32() != 0) {
-                throw new mxnet.Error('Large uint64 value.');
-            }
-            return value;
-        };
-        reader.uint32s = function() {
-            const array = new Array(this.uint32());
-            for (let i = 0; i < array.length; i++) {
-                array[i] = this.uint32();
-            }
-            return array;
-        };
-        reader.uint64s = function() {
-            const array = new Array(this.uint32());
-            for (let i = 0; i < array.length; i++) {
-                array[i] = this.uint64();
-            }
-            return array;
-        };
+        const reader = new mxnet.BinaryReader(buffer);
         if (reader.uint64() !== 0x112) { // kMXAPINDArrayListMagic
             throw new mxnet.Error('Invalid signature.');
         }
@@ -1075,6 +1054,27 @@ mxnet.ndarray.NDArray = class {
 
     get size() {
         return this.shape.reduce((a, b) => a * b, 1);
+    }
+};
+
+mxnet.BinaryReader = class extends base.BinaryReader {
+
+    uint32s() {
+        const count = this.uint32();
+        const array = new Array(count);
+        for (let i = 0; i < array.length; i++) {
+            array[i] = this.uint32();
+        }
+        return array;
+    }
+
+    uint64s() {
+        const count = this.uint32();
+        const array = new Array(count);
+        for (let i = 0; i < array.length; i++) {
+            array[i] = this.uint64();
+        }
+        return array;
     }
 };
 

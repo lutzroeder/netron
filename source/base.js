@@ -644,6 +644,12 @@ base.BinaryReader = class {
         }
     }
 
+    align(mod) {
+        if (this._position % mod != 0) {
+            this.skip(mod - (this._position % mod));
+        }
+    }
+
     read(length) {
         if (this._position === 0 && length === undefined) {
             this._position = this._length;
@@ -721,6 +727,10 @@ base.BinaryReader = class {
         const data = this._buffer.subarray(position, this._position);
         this._decoder = this._decoder || new TextDecoder('utf-8');
         return this._decoder.decode(data);
+    }
+
+    boolean() {
+        return this.byte() !== 0 ? true : false;
     }
 };
 

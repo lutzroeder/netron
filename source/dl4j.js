@@ -494,7 +494,7 @@ dl4j.NDArrayReader = class {
             default:
                 throw new dl4j.Error("Unsupported header type '" + header.type + "'.");
         }
-        header.data = reader.bytes(header.itemsize * header.length);
+        header.data = reader.read(header.itemsize * header.length);
         return header;
     }
 };
@@ -507,7 +507,7 @@ dl4j.BinaryReader = class {
         this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
     }
 
-    bytes(size) {
+    read(size) {
         const data = this._buffer.subarray(this._position, this._position + size);
         this._position += size;
         return data;
@@ -515,7 +515,7 @@ dl4j.BinaryReader = class {
 
     string() {
         const size = this._buffer[this._position++] << 8 | this._buffer[this._position++];
-        const buffer = this.bytes(size);
+        const buffer = this.read(size);
         this._decoder = this._decoder || new TextDecoder('ascii');
         return this._decoder.decode(buffer);
     }

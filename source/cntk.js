@@ -1,5 +1,6 @@
 
 var cntk = cntk || {};
+var base = base || require('./base');
 var protobuf = protobuf || require('./protobuf');
 
 var cntk_v1 = {};
@@ -826,7 +827,7 @@ cntk.GraphMetadata = class {
 cntk_v1.ComputationNetwork = class {
 
     constructor(buffer) {
-        const reader = new cntk_v1.Reader(buffer);
+        const reader = new cntk_v1.BinaryReader(buffer);
         reader.assert('BCN');
         reader.assert('BVersion');
         this.version = reader.uint64();
@@ -894,12 +895,12 @@ cntk_v1.ComputationNetwork = class {
                 this.kernelShape = new cntk_v1.TensorShape(reader);
                 this.mapCount = new cntk_v1.TensorShape(reader);
                 this.strides = new cntk_v1.TensorShape(reader);
-                this.sharing = reader.booleans(reader.uint64());
-                this.autoPadding = reader.booleans(reader.uint64());
+                this.sharing = reader.booleans();
+                this.autoPadding = reader.booleans();
                 this.lowerPad = new cntk_v1.TensorShape(reader);
                 this.upperPad = new cntk_v1.TensorShape(reader);
-                this.poolKind = reader.enum();
-                this.imageLayoutKind = reader.enum();
+                this.poolKind = reader.int32();
+                this.imageLayoutKind = reader.int32();
                 this.maxTempMemSizeInSamples = reader.uint64();
             }
             if (version >= 9) {
@@ -921,7 +922,7 @@ cntk_v1.ComputationNetwork = class {
                 this.kernelShape = new cntk_v1.TensorShape([ reader.uint64(), reader.uint64(), 1 ]);
                 this.strides = new cntk_v1.TensorShape([ reader.uint64(), reader.uint64(), 1 ]);
                 this.mapCount = new cntk_v1.TensorShape([ reader.uint32() ]);
-                this.imageLayoutKind = reader.enum();
+                this.imageLayoutKind = reader.int32();
                 this.autoPadding = [ reader.boolean() ];
                 this.maxTempMemSizeInSamples = reader.uint64();
                 this.poolKind = 'None';
@@ -944,7 +945,7 @@ cntk_v1.ComputationNetwork = class {
             op.ConvolutionBase.apply(this, [ reader, version ]);
         };
         op.PoolingBase = function(reader) {
-            this.imageLayoutKind = reader.enum();
+            this.imageLayoutKind = reader.int32();
             this.windowWidth = reader.uint32();
             this.windowHeight = reader.uint64();
             this.horizontalSubsample = reader.uint64();
@@ -955,7 +956,7 @@ cntk_v1.ComputationNetwork = class {
         };
         op.ROIPooling = function(reader, version) {
             this.roiOutputShape = new cntk_v1.TensorShape(reader);
-            this.poolKind = (version < 26) ? 'Max' : reader.enum();
+            this.poolKind = (version < 26) ? 'Max' : reader.int32();
             this.spatialScale = (version < 26) ? 0.0625 : reader.float64();
         };
         op.Reshape = function(reader) {
@@ -983,7 +984,7 @@ cntk_v1.ComputationNetwork = class {
                 this.spatial = reader.boolean();
                 this.normalizationTimeConstant = reader.float64();
                 this.blendTimeConstant = reader.float64();
-                this.imageLayoutKind = reader.enum();
+                this.imageLayoutKind = reader.int32();
                 if (version >= 13) {
                     if (version != 19) {
                         this.runCountUntied = reader.uint64();
@@ -1013,7 +1014,7 @@ cntk_v1.ComputationNetwork = class {
                     reader.float64(); // expAvgFactor
                 }
                 if (verWritten >= 0x00010002) {
-                    this.imageLayoutKind = reader.enum();
+                    this.imageLayoutKind = reader.int32();
                     mbCount = reader.uint64();
                 }
                 if (verWritten >= 0x00010003) {
@@ -1160,37 +1161,37 @@ cntk_v1.ComputationNetwork = class {
         reader.assert('ERelation');
         reader.assert('BRootNodes');
         if (reader.match('BFeatureNodes')) {
-            this.feature = reader.strings(reader.uint64());
+            this.feature = reader.strings();
             reader.assert('EFeatureNodes');
         }
         if (reader.match('BLabelNodes')) {
-            this.label = reader.strings(reader.uint64());
+            this.label = reader.strings();
             reader.assert('ELabelNodes');
         }
         if (reader.match('BCriterionNodes')) {
-            this.criterion = reader.strings(reader.uint64());
+            this.criterion = reader.strings();
             reader.assert('ECriterionNodes');
         }
         if (this.criterion.length == 0) {
             if (reader.match('BCriteriaNodes')) {
-                this.criterion = reader.strings(reader.uint64());
+                this.criterion = reader.strings();
                 reader.assert('ECriteriaNodes');
             }
         }
         if (reader.match('BNodesReqMultiSeqHandling')) {
-            reader.strings(reader.uint64());
+            reader.strings();
             reader.assert('ENodesReqMultiSeqHandling');
         }
         if (reader.match('BEvalNodes')) {
-            this.eval = reader.strings(reader.uint64());
+            this.eval = reader.strings();
             reader.assert('EEvalNodes');
         }
         if (reader.match('BOutputNodes')) {
-            this.output = reader.strings(reader.uint64());
+            this.output = reader.strings();
             reader.assert('EOutputNodes');
         }
         if (reader.match('BPairNodes')) {
-            this.pair = reader.strings(reader.uint64());
+            this.pair = reader.strings();
             reader.assert('EPairNodes');
         }
         reader.assert('ERootNodes');
@@ -1198,24 +1199,18 @@ cntk_v1.ComputationNetwork = class {
     }
 };
 
-cntk_v1.Reader = class {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-        this._position = 0;
-    }
+cntk_v1.BinaryReader = class extends base.BinaryReader {
 
     match(text) {
-        const position = this._position;
+        const position = this.position;
         for (let i = 0; i < text.length; i++) {
             if (this.uint16() != text.charCodeAt(i)) {
-                this._position = position;
+                this.seek(position);
                 return false;
             }
         }
         if (this.uint16() != 0) {
-            this._position = position;
+            this.seek(position);
             return false;
         }
         return true;
@@ -1227,96 +1222,32 @@ cntk_v1.Reader = class {
         }
     }
 
-    skip(offset) {
-        this._position += offset;
-        if (this._position > this._buffer.length) {
-            throw new cntk.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
-        }
-    }
-
-    boolean() {
-        return this.byte() != 0 ? true : false;
-    }
-
-    booleans(count) {
-        const array = [];
-        for (let i = 0; i < count; i++) {
-            array.push(this.boolean());
-        }
-        return array;
-    }
-
-    byte() {
-        const position = this._position;
-        this.skip(1);
-        return this._dataView.getUint8(position);
-    }
-
-    bytes(length) {
-        const position = this._position;
-        this.skip(length);
-        return this._buffer.subarray(position, this._position);
-    }
-
-    uint16() {
-        const position = this._position;
-        this.skip(2);
-        return this._dataView.getUint16(position, true);
-    }
-
-    int32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getInt32(position, true);
-    }
-
-    uint32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getUint32(position, true);
-    }
-
-    uint64() {
-        const low = this.uint32();
-        const hi = this.uint32();
-        if (hi > 65536) {
-            throw new cntk_v1.Error('Value not in 48-bit range.');
-        }
-        return (hi << 32) | low;
-    }
-
-    float32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getFloat32(position, true);
-    }
-
-    float64() {
-        const position = this._position;
-        this.skip(8);
-        return this._dataView.getFloat64(position, true);
-    }
-
     string() {
-        let content = '';
+        const content = [];
         let c = this.uint16();
         while (c != 0) {
-            content += String.fromCharCode(c);
+            content.push(String.fromCharCode(c));
             c = this.uint16();
         }
-        return content;
+        return content.join('');
     }
 
-    strings(count) {
-        const array = [];
+    strings() {
+        const count = this.uint64();
+        const array = new Array(count);
         for (let i = 0; i < count; i++) {
-            array.push(this.string());
+            array[i] = this.string();
         }
         return array;
     }
 
-    enum() {
-        return this.int32();
+    booleans() {
+        const count = this.uint64();
+        const array = new Array(count);
+        for (let i = 0; i < count; i++) {
+            array[i] = this.boolean();
+        }
+        return array;
     }
 };
 
@@ -1363,7 +1294,7 @@ cntk_v1.Matrix = class {
                 this.format = reader.uint32();
                 this.rows = reader.uint64();
                 this.columns = reader.uint64();
-                reader.bytes(elsize * this.rows * this.columns);
+                reader.read(elsize * this.rows * this.columns);
                 reader.assert('EMAT');
                 break;
             }

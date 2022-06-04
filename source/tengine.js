@@ -2,6 +2,7 @@
 // Experimental
 
 var tengine = tengine || {};
+var base = base || require('./base');
 
 tengine.ModelFactory = class {
 
@@ -672,7 +673,7 @@ tengine.ModelFileReader = class {
                 const typeOffset = reader.int32();
                 node.name = reader.string();
                 const attributeOffsets = reader.uint32s();
-                node.dynamicShape = reader.boolean() ? true : false;
+                node.dynamicShape = reader.boolean();
 
                 reader.seek(typeOffset);
                 node.version = reader.int32();
@@ -740,7 +741,7 @@ tengine.ModelFileReader = class {
                 const offset = reader.int32();
                 if (offset !== 0) {
                     reader.seek(offset);
-                    return reader.bytes(size);
+                    return reader.read(size);
                 }
                 return null;
             });
@@ -815,67 +816,29 @@ tengine.ModelFileReader = class {
     }
 };
 
-tengine.BinaryReader = class {
+tengine.BinaryReader = class extends base.BinaryReader {
 
-    constructor(buffer) {
-        this._buffer = buffer;
-        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-        this._position = 0;
-    }
-
-    seek(position) {
-        this._position = position;
-        if (this._position > this._buffer.length) {
-            throw new tengine.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+    string() {
+        const position = this.uint32();
+        let content = '';
+        if (position) {
+            const next = this._position;
+            this.seek(position);
+            const size = this.uint32();
+            this.seek(this.uint32());
+            for(let i = 0; i < size - 1; i++) {
+                content += String.fromCharCode(this._buffer[this._position++]);
+            }
+            this.seek(next);
         }
-    }
-
-    skip(offset) {
-        this._position += offset;
-        if (this._position > this._buffer.length) {
-            throw new tengine.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
-        }
-    }
-
-    align(mod) {
-        if (this._position % mod != 0) {
-            this.skip(mod - (this._position % mod));
-        }
-    }
-
-    bytes(length) {
-        const position = this._position;
-        this.skip(length);
-        return this._buffer.slice(position, this._position);
-    }
-
-    byte() {
-        this.skip(1);
-        return this._dataView.getUint8(this._position);
-    }
-
-
-    boolean() {
-        return this.byte() == 0x00 ? true : false;
-    }
-
-    uint16() {
-        const position = this._position;
-        this.skip(2);
-        return this._dataView.getUint16(position, true);
-    }
-
-    uint32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getUint32(position, true);
+        return content;
     }
 
     uint32s() {
         const values = [];
         const offset = this.uint32();
         if (offset) {
-            const next = this._position;
+            const next = this.position;
             this.seek(offset);
             const count = this.uint32();
             for (let i = 0; i < count; i++) {
@@ -886,17 +849,11 @@ tengine.BinaryReader = class {
         return values;
     }
 
-    int32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getInt32(position, true);
-    }
-
     int32s() {
         const values = [];
         const offset = this.uint32();
         if (offset) {
-            const next = this._position;
+            const next = this.position;
             this.seek(offset);
             const count = this.uint32();
             for (let i = 0; i < count; i++) {
@@ -907,17 +864,11 @@ tengine.BinaryReader = class {
         return values;
     }
 
-    float32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getFloat32(position, true);
-    }
-
     float32s() {
         const values = [];
         const offset = this.uint32();
         if (offset) {
-            const next = this._position;
+            const next = this.position;
             this.seek(offset);
             const count = this.uint32();
             for (let i = 0; i < count; i++) {
@@ -945,22 +896,6 @@ tengine.BinaryReader = class {
             this.seek(next);
         }
         return arrays;
-    }
-
-    string() {
-        const position = this.uint32();
-        let content = '';
-        if (position) {
-            const next = this._position;
-            this.seek(position);
-            const size = this.uint32();
-            this.seek(this.uint32());
-            for(let i = 0; i < size - 1; i++) {
-                content += String.fromCharCode(this._buffer[this._position++]);
-            }
-            this.seek(next);
-        }
-        return content;
     }
 };
 

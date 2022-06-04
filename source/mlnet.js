@@ -2,6 +2,7 @@
 // Experimental
 
 var mlnet = mlnet || {};
+var base = base || require('./base');
 var zip = zip || require('./zip');
 
 mlnet.ModelFactory = class {
@@ -498,7 +499,7 @@ mlnet.ModelHeader = class {
         this._directory = directory;
 
         if (data) {
-            const reader = new mlnet.Reader(data);
+            const reader = new mlnet.BinaryReader(data);
 
             const decoder = new TextDecoder('ascii');
             reader.assert('ML\0MODEL');
@@ -511,11 +512,11 @@ mlnet.ModelHeader = class {
             const stringTableSize = reader.uint64();
             const stringCharsOffset = reader.uint64();
             /* v stringCharsSize = */ reader.uint64();
-            this.modelSignature = decoder.decode(reader.bytes(8));
+            this.modelSignature = decoder.decode(reader.read(8));
             this.modelVersionWritten = reader.uint32();
             this.modelVersionReadable = reader.uint32();
-            this.loaderSignature = decoder.decode(reader.bytes(24).filter((c) => c != 0));
-            this.loaderSignatureAlt = decoder.decode(reader.bytes(24).filter((c) => c != 0));
+            this.loaderSignature = decoder.decode(reader.read(24).filter((c) => c != 0));
+            this.loaderSignatureAlt = decoder.decode(reader.read(24).filter((c) => c != 0));
             const tailOffset = reader.uint64();
             /* let tailLimit = */ reader.uint64();
             const assemblyNameOffset = reader.uint64();
@@ -543,7 +544,7 @@ mlnet.ModelHeader = class {
             }
             if (assemblyNameOffset != 0) {
                 reader.seek(assemblyNameOffset);
-                this.assemblyName = decoder.decode(reader.bytes(assemblyNameSize));
+                this.assemblyName = decoder.decode(reader.read(assemblyNameSize));
             }
             reader.seek(tailOffset);
             reader.assert('LEDOM\0LM');
@@ -586,8 +587,7 @@ mlnet.ModelHeader = class {
         name = dir + name;
         const stream = this._entries.get(name) || this._entries.get(name.replace(/\//g, '\\'));
         if (stream) {
-            const buffer = stream.peek();
-            return new mlnet.Reader(buffer);
+            return new mlnet.BinaryReader(stream);
         }
         return null;
     }
@@ -609,34 +609,13 @@ mlnet.ModelHeader = class {
     }
 };
 
-mlnet.Reader = class {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-        this._position = 0;
-    }
-
-    get position() {
-        return this._position;
-    }
-
-    seek(position) {
-        this._position = position;
-    }
-
-    skip(offset) {
-        this._position += offset;
-        if (this._position > this._buffer.length) {
-            throw new mlnet.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
-        }
-    }
+mlnet.BinaryReader = class extends base.BinaryReader {
 
     match(text) {
-        const position = this._position;
+        const position = this.position;
         for (let i = 0; i < text.length; i++) {
             if (this.byte() != text.charCodeAt(i)) {
-                this._position = position;
+                this.seek(position);
                 return false;
             }
         }
@@ -649,10 +628,6 @@ mlnet.Reader = class {
         }
     }
 
-    boolean() {
-        return this.byte() != 0 ? true : false;
-    }
-
     booleans(count) {
         const values = [];
         for (let i = 0; i < count; i++) {
@@ -661,48 +636,12 @@ mlnet.Reader = class {
         return values;
     }
 
-    byte() {
-        const position = this._position;
-        this.skip(1);
-        return this._dataView.getUint8(position);
-    }
-
-    bytes(length) {
-        const position = this._position;
-        this.skip(length);
-        return this._buffer.subarray(position, this._position);
-    }
-
-    int16() {
-        const position = this._position;
-        this.skip(2);
-        return this._dataView.getInt16(position, true);
-    }
-
-    uint16() {
-        const position = this._position;
-        this.skip(2);
-        return this._dataView.getUint16(position, true);
-    }
-
-    int32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getInt32(position, true);
-    }
-
     int32s(count) {
         const values = [];
         for (let i = 0; i < count; i++) {
             values.push(this.int32());
         }
         return values;
-    }
-
-    uint32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getUint32(position, true);
     }
 
     uint32s(count) {
@@ -740,24 +679,12 @@ mlnet.Reader = class {
         return (hi * 4294967296) + low;
     }
 
-    float32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getFloat32(position, true);
-    }
-
     float32s(count) {
         const values = [];
         for (let i = 0; i < count; i++) {
             values.push(this.float32());
         }
         return values;
-    }
-
-    float64() {
-        const position = this._position;
-        this.skip(8);
-        return this._dataView.getFloat64(position, true);
     }
 
     float64s(count) {
@@ -770,7 +697,7 @@ mlnet.Reader = class {
 
     string() {
         const size = this.leb128();
-        const buffer = this.bytes(size);
+        const buffer = this.read(size);
         return new TextDecoder('utf-8').decode(buffer);
     }
 
@@ -800,8 +727,8 @@ mlnet.BinaryLoader = class { // 'BINLOADR'
         }
         // https://github.com/dotnet/machinelearning/blob/master/docs/code/IdvFileFormat.md
         reader.assert('CML\0DVB\0');
-        reader.bytes(8); // version
-        reader.bytes(8); // compatibleVersion
+        reader.skip(8); // version
+        reader.skip(8); // compatibleVersion
         const tableOfContentsOffset = reader.uint64();
         const tailOffset = reader.int64();
         reader.int64(); // rowCount
@@ -1330,7 +1257,7 @@ mlnet.SequencePool = class {
     constructor(reader) {
         this.idLim = reader.int32();
         this.start = reader.int32s(this.idLim + 1);
-        this.bytes = reader.bytes(this.start[this.idLim]);
+        this.bytes = reader.read(this.start[this.idLim]);
     }
 };
 
@@ -2224,8 +2151,8 @@ mlnet.Codec = class {
     constructor(reader) {
         this.name = reader.string();
         const size = reader.leb128();
-        const data = reader.bytes(size);
-        reader = new mlnet.Reader(data);
+        const data = reader.read(size);
+        reader = new mlnet.BinaryReader(data);
         switch (this.name) {
             case 'Boolean': break;
             case 'Single': break;
