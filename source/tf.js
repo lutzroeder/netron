@@ -208,7 +208,8 @@ tf.ModelFactory = class {
                 stream.seek(-8);
                 const buffer = stream.read(8);
                 stream.seek(0);
-                const offset = new base.BinaryReader(buffer).uint64();
+                const reader = new base.BinaryReader(buffer);
+                const offset = reader.uint64();
                 if (offset < stream.length) {
                     return 'tf.pb.mmap';
                 }
