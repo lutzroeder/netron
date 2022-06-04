@@ -12,8 +12,10 @@ if (fs.existsSync(target)) {
 
 fs.mkdirSync(target, { recursive: true });
 
-for (const file of fs.readdirSync(source)) {
-    fs.copyFileSync(path.join(source, file), path.join(target, file));
+for (const entry of fs.readdirSync(source, { withFileTypes: true })) {
+    if (entry.isFile()) {
+        fs.copyFileSync(path.join(source, entry.name), path.join(target, entry.name));
+    }
 }
 
 const options = { stdio: 'inherit' };

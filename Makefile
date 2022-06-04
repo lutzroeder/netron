@@ -40,6 +40,7 @@ update: install
 
 build_python: install
 	python -m pip install --user build wheel --quiet
+	rm -rf ./source/__pycache__
 	rm -rf ./dist/pypi
 	mkdir -p ./dist/pypi/netron
 	cp -R ./source/* ./dist/pypi/netron
