@@ -1650,7 +1650,16 @@ python.Execution = class {
         this.registerType('builtins.float', class {});
         this.registerType('builtins.object', class {});
         this.registerType('builtins.str', class {});
-        this.registerType('builtins.tuple', class {});
+        this.registerType('builtins.tuple', class extends Array {
+            constructor(items) {
+                super(items ? items.length : 0);
+                if (items) {
+                    for (let i = 0; i < items.length; i++) {
+                        this[i] = items[i];
+                    }
+                }
+            }
+        });
         this.registerType('typing._Final', class {});
         this.registerType('typing._SpecialForm', class extends typing._Final {});
         this.registerType('typing._BaseGenericAlias', class extends typing._Final {});
