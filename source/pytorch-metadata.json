@@ -5551,6 +5551,37 @@
     ]
   },
   {
+    "name": "torch.linalg_solve:",
+    "attributes": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.linalg_tensorinv:",
+    "attributes": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "ind", "type": "int64", "default": 2 }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.linalg_tensorsolve:",
+    "attributes": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" },
+      { "name": "dims", "type": "int64[]", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.linspace",
     "attributes": [
       { "name": "start", "type": "Scalar" },
