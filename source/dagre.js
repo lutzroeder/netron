@@ -159,28 +159,32 @@ dagre.layout = (graph, options) => {
         };
 
         const acyclic_run = (g) => {
-            const fas = [];
-            const stack = new Set();
+            const edges = [];
             const visited = new Set();
-            for (const v of g.nodes.keys()) {
-                const dfs = (v) => {
+            const path = new Set();
+            const stack = Array.from(g.nodes.keys()).reverse();
+            while (stack.length > 0) {
+                const v = stack.pop();
+                if (!Array.isArray(v)) {
                     if (!visited.has(v)) {
                         visited.add(v);
-                        stack.add(v);
-                        for (const e of g.node(v).out) {
-                            if (stack.has(e.w)) {
-                                fas.push(e);
+                        path.add(v);
+                        stack.push([ v ]);
+                        const out = g.node(v).out;
+                        for (let i = out.length - 1; i >= 0; i--) {
+                            const e = out[i];
+                            if (path.has(e.w)) {
+                                edges.push(e);
                             }
-                            else {
-                                dfs(e.w);
-                            }
+                            stack.push(e.w);
                         }
-                        stack.delete(v);
                     }
-                };
-                dfs(v);
+                }
+                else {
+                    path.delete(v[0]);
+                }
             }
-            for (const e of fas) {
+            for (const e of edges) {
                 const label = e.label;
                 g.removeEdge(e);
                 label.forwardName = e.name;
@@ -812,12 +816,11 @@ dagre.layout = (graph, options) => {
         const parentDummyChains = (g) => {
             // Find a path from v to w through the lowest common ancestor (LCA). Return the full path and the LCA.
             const findPath = (g, postorderNums, v, w) => {
-                const vPath = [];
-                const wPath = [];
                 const low = Math.min(postorderNums[v].low, postorderNums[w].low);
                 const lim = Math.max(postorderNums[v].lim, postorderNums[w].lim);
                 // Traverse up from v to find the LCA
                 let parent = v;
+                const vPath = [];
                 do {
                     parent = g.parent(parent);
                     vPath.push(parent);
@@ -826,6 +829,7 @@ dagre.layout = (graph, options) => {
                 const lca = parent;
                 // Traverse from w to LCA
                 parent = w;
+                const wPath = [];
                 while ((parent = g.parent(parent)) !== lca) {
                     wPath.push(parent);
                 }
@@ -1930,30 +1934,19 @@ dagre.layout = (graph, options) => {
                 // Rectangle intersection algorithm from: http://math.stackexchange.com/questions/108113/find-edge-between-two-boxes
                 const dx = point.x - x;
                 const dy = point.y - y;
-                let w = rect.width / 2;
-                let h = rect.height / 2;
-                if (!dx && !dy) {
+                if (dx === 0 && dy === 0) {
                     throw new Error('Not possible to find intersection inside of the rectangle');
                 }
-                let sx;
-                let sy;
+                let w = rect.width / 2;
+                let h = rect.height / 2;
                 if (Math.abs(dy) * w > Math.abs(dx) * h) {
                     // Intersection is top or bottom of rect.
-                    if (dy < 0) {
-                        h = -h;
-                    }
-                    sx = h * dx / dy;
-                    sy = h;
+                    h = dy < 0 ? -h : h;
+                    return { x: x + (h * dx / dy), y: y + h };
                 }
-                else {
-                    // Intersection is left or right of rect.
-                    if (dx < 0) {
-                        w = -w;
-                    }
-                    sx = w;
-                    sy = w * dy / dx;
-                }
-                return { x: x + sx, y: y + sy };
+                // Intersection is left or right of rect.
+                w = dx < 0 ? -w : w;
+                return { x: x + w, y: y + (w * dy / dx) };
             };
             for (const e of g.edges.values()) {
                 const edge = e.label;
