@@ -1973,7 +1973,7 @@
     "target":   "model_front_mibokeh_video.dlc",
     "source":   "https://github.com/lutzroeder/netron/files/8767521/model_front_mibokeh_video.dlc.zip[model_front_mibokeh_video.dlc]",
     "format":   "DLC",
-    "error":    "Offset is outside the bounds of the DataView in 'model_front_mibokeh_video.dlc'.",
+    "error":    "File format is not dlc.NetParam (Offset is outside the bounds of the DataView) in 'model_front_mibokeh_video.dlc'.",
     "link":     "https://github.com/lutzroeder/netron/issues/640"
   },
   {

@@ -2,10 +2,10 @@ var $root = flatbuffers.get('dlc');
 
 $root.dlc = $root.dlc || {};
 
-$root.dlc.NetDefinition = class NetDefinition {
+$root.dlc.NetDef = class NetDef {
 
     static decode(reader, position) {
-        const $ = new $root.dlc.NetDefinition();
+        const $ = new $root.dlc.NetDef();
         $.unk1 = reader.int32_(position, 4, 0);
         $.nodes = reader.tableArray(position, 6, $root.dlc.Node.decode);
         $.unk2 = reader.typedArray(position, 8, Int32Array);
@@ -15,10 +15,10 @@ $root.dlc.NetDefinition = class NetDefinition {
     }
 };
 
-$root.dlc.NetParameters = class NetParameters {
+$root.dlc.NetParam = class NetParam {
 
     static decode(reader, position) {
-        const $ = new $root.dlc.NetParameters();
+        const $ = new $root.dlc.NetParam();
         $.weights = reader.tableArray(position, 4, $root.dlc.Weights.decode);
         return $;
     }

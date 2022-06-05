@@ -13,7 +13,25 @@ dlc.ModelFactory = class {
             dlc.schema = flatbuffers.get('dlc').dlc;
             const container = match;
             return context.metadata('dlc-metadata.json').then((metadata) => {
-                return new dlc.Model(metadata, container);
+                let model = null;
+                let params = null;
+                const metadata_props = container.metadata;
+                try {
+                    model = container.model;
+                }
+                catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new dlc.Error('File format is not dlc.NetDef (' + message.replace(/\.$/, '') + ').');
+                }
+                try {
+                    params = container.params;
+                }
+                catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new dlc.Error('File format is not dlc.NetParam (' + message.replace(/\.$/, '') + ').');
+                }
+                return new dlc.Model(metadata, model, params, metadata_props);
+
             });
         });
     }
@@ -21,26 +39,26 @@ dlc.ModelFactory = class {
 
 dlc.Model = class {
 
-    constructor(metadata, container) {
-        if (container.metadata.size > 0) {
-            const converter = container.metadata.get('converter-command');
+    constructor(metadata, model, params, metadata_props) {
+        if (metadata_props.size > 0) {
+            const converter = metadata_props.get('converter-command');
             if (converter) {
                 const source = converter.split(' ').shift().trim();
                 if (source.length > 0) {
                     this._source = source;
-                    const version = container.metadata.get('converter-version');
+                    const version = metadata_props.get('converter-version');
                     if (version) {
                         this._source = this._source + ' v' + version;
                     }
                 }
             }
-            const version = container.metadata.get('model-version');
+            const version = metadata_props.get('model-version');
             if (version) {
                 this._version = version;
             }
         }
-        this._format = container.model ? 'DLC' : 'DLC Weights';
-        this._graphs = [ new dlc.Graph(metadata, container.model, container.params) ];
+        this._format = model ? 'DLC' : 'DLC Weights';
+        this._graphs = [ new dlc.Graph(metadata, model, params) ];
     }
 
     get format() {
@@ -441,7 +459,7 @@ dlc.Container = class {
             const stream = this._model;
             const reader = this._open(stream, 'NETD');
             stream.seek(0);
-            this._model = dlc.schema.NetDefinition.decode(reader, reader.root);
+            this._model = dlc.schema.NetDef.decode(reader, reader.root);
         }
         return this._model;
     }
@@ -451,7 +469,7 @@ dlc.Container = class {
             const stream = this._params;
             const reader = this._open(stream, 'NETP');
             stream.seek(0);
-            this._params = dlc.schema.NetParameters.decode(reader, reader.root);
+            this._params = dlc.schema.NetParam.decode(reader, reader.root);
         }
         return this._params;
     }

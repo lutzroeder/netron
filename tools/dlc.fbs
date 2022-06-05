@@ -1,6 +1,6 @@
 namespace dlc;
 
-table NetDefinition {
+table NetDef {
     unk1: int;
     nodes: [Node];
     unk2: [int];
@@ -8,8 +8,8 @@ table NetDefinition {
     attributes: [Attribute];
 }
 
-table NetParameters {
-    weights:[Weights];
+table NetParam {
+    weights: [Weights];
 }
 
 table Node {
