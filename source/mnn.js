@@ -42,15 +42,19 @@ mnn.ModelFactory = class {
 mnn.Model = class {
 
     constructor(metadata, net) {
-        const NetSource = mnn.schema.NetSource;
-        switch (net.sourceType) {
-            case NetSource.CAFFE: this._source = 'Caffe'; break;
-            case NetSource.TENSORFLOW: this._source = 'TensorFlow'; break;
-            case NetSource.TFLITE: this._source = 'TensorFlow Lite'; break;
-            case NetSource.ONNX: this._source = 'ONNX'; break;
-            case NetSource.TORCH: this._source = 'Torch'; break;
-            default: throw new mnn.Error("Unsupported model source '" + net.sourceType + "'.");
+        const sources = new Map([
+            [ mnn.schema.NetSource.CAFFE, 'Caffe' ],
+            [ mnn.schema.NetSource.TENSORFLOW, 'TensorFlow' ],
+            [ mnn.schema.NetSource.TFLITE, 'TensorFlow Lite' ],
+            [ mnn.schema.NetSource.ONNX, 'ONNX' ],
+            [ mnn.schema.NetSource.TORCH, 'Torch' ]
+        ]);
+        if (!sources.has(net.sourceType)) {
+            throw new mnn.Error("Unsupported model source '" + net.sourceType + "'.");
         }
+        this._metadata = [
+            { name: 'source', value: sources.get(net.sourceType) }
+        ];
         this._graphs = [ new mnn.Graph(metadata, net) ];
     }
 
@@ -58,8 +62,8 @@ mnn.Model = class {
         return 'MNN v2';
     }
 
-    get source() {
-        return this._source || '';
+    get metadata() {
+        return this._metadata;
     }
 
     get graphs() {

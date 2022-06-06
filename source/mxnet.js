@@ -258,8 +258,13 @@ mxnet.Model = class {
         this._version = manifest.version;
         this._description = manifest.description || '';
         this._runtime = manifest.runtime || '';
-        this._author = manifest.author || '';
-        this._license = manifest.license || '';
+        this._metadata = [];
+        if (manifest.author) {
+            this._metadata.push({ name: 'author', value: manifest.author });
+        }
+        if (manifest.license) {
+            this._metadata.push({ name: 'license', value: manifest.license });
+        }
         this._graphs = [ new mxnet.Graph(metadata, manifest, symbol, params) ];
     }
 
@@ -269,6 +274,10 @@ mxnet.Model = class {
 
     get producer() {
         return this._producer;
+    }
+
+    get runtime() {
+        return this._runtime;
     }
 
     get name() {
@@ -283,16 +292,8 @@ mxnet.Model = class {
         return this._description;
     }
 
-    get author() {
-        return this._author;
-    }
-
-    get license() {
-        return this._license;
-    }
-
-    get runtime() {
-        return this._runtime;
+    get metadata() {
+        return this._metadata;
     }
 
     get graphs() {

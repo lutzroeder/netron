@@ -90,6 +90,7 @@ tflite.Model = class {
         this._format = 'TensorFlow Lite';
         this._format = this._format + ' v' + model.version.toString();
         this._description = model.description || '';
+        this._metadata = [];
         const builtinOperators = new Map();
         const upperCase = new Set([ '2D', 'LSH', 'SVDF', 'RNN', 'L2', 'LSTM' ]);
         for (const key of Object.keys(tflite.schema.BuiltinOperator)) {
@@ -120,11 +121,21 @@ tflite.Model = class {
                         const reader = flatbuffers.BinaryReader.open(data);
                         if (tflite.schema.ModelMetadata.identifier(reader)) {
                             modelMetadata = tflite.schema.ModelMetadata.create(reader);
-                            this._name = modelMetadata.name || '';
-                            this._version = modelMetadata.version || '';
-                            this._description = modelMetadata.description ? [ this.description, modelMetadata.description].join(' ') : this._description;
-                            this._author = modelMetadata.author || '';
-                            this._license = modelMetadata.license || '';
+                            if (modelMetadata.name) {
+                                this._name = modelMetadata.name;
+                            }
+                            if (modelMetadata.version) {
+                                this._version = modelMetadata.version;
+                            }
+                            if (modelMetadata.description) {
+                                this._description = this._description ? [ this._description, modelMetadata.description].join(' ') : modelMetadata.description;
+                            }
+                            if (modelMetadata.author) {
+                                this._metadata.push({ name: 'author', value: modelMetadata.author });
+                            }
+                            if (modelMetadata.license) {
+                                this._metadata.push({ name: 'license', value: modelMetadata.license });
+                            }
                         }
                         break;
                     }
@@ -164,12 +175,8 @@ tflite.Model = class {
         return this._description;
     }
 
-    get author() {
-        return this._author;
-    }
-
-    get license() {
-        return this._license;
+    get metadata() {
+        return this._metadata;
     }
 
     get graphs() {

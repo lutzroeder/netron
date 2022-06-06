@@ -184,20 +184,21 @@ coreml.Model = class {
 
     constructor(metadata, format, model, weights) {
         this._format = (format || 'Core ML') + ' v' + model.specificationVersion.toString();
+        this._metadata = [];
         this._graphs = [ new coreml.Graph(metadata, model, weights) ];
         if (model.description && model.description.metadata) {
             const properties = model.description.metadata;
             if (properties.versionString) {
                 this._version = properties.versionString;
             }
-            if (properties.author) {
-                this._author = properties.author;
-            }
             if (properties.shortDescription) {
                 this._description = properties.shortDescription;
             }
+            if (properties.author) {
+                this._metadata.push({ name: 'author', value: properties.author });
+            }
             if (properties.license) {
-                this._license = properties.license;
+                this._metadata.push({ name: 'license', value: properties.license });
             }
             if (metadata.userDefined && Object.keys(properties.userDefined).length > 0) {
                 /* empty */
@@ -217,12 +218,8 @@ coreml.Model = class {
         return this._description || null;
     }
 
-    get author() {
-        return this._author || null;
-    }
-
-    get license() {
-        return this._license || null;
+    get metadata() {
+        return this._metadata;
     }
 
     get graphs() {

@@ -737,9 +737,6 @@ sidebar.ModelSidebar = class {
         if (model.producer) {
             this._addProperty('producer', new sidebar.ValueTextView(this._host, model.producer));
         }
-        if (model.source) {
-            this._addProperty('source', new sidebar.ValueTextView(this._host, model.source));
-        }
         if (model.name) {
             this._addProperty('name', new sidebar.ValueTextView(this._host, model.name));
         }
@@ -748,15 +745,6 @@ sidebar.ModelSidebar = class {
         }
         if (model.description) {
             this._addProperty('description', new sidebar.ValueTextView(this._host, model.description));
-        }
-        if (model.author) {
-            this._addProperty('author', new sidebar.ValueTextView(this._host, model.author));
-        }
-        if (model.company) {
-            this._addProperty('company', new sidebar.ValueTextView(this._host, model.company));
-        }
-        if (model.license) {
-            this._addProperty('license', new sidebar.ValueTextView(this._host, model.license));
         }
         if (model.domain) {
             this._addProperty('domain', new sidebar.ValueTextView(this._host, model.domain));
@@ -767,14 +755,11 @@ sidebar.ModelSidebar = class {
         if (model.runtime) {
             this._addProperty('runtime', new sidebar.ValueTextView(this._host, model.runtime));
         }
-
-        const metadata = model.metadata;
-        if (metadata) {
-            for (const property of model.metadata) {
-                this._addProperty(property.name, new sidebar.ValueTextView(this._host, property.value));
+        if (model.metadata) {
+            for (const entry of model.metadata) {
+                this._addProperty(entry.name, new sidebar.ValueTextView(this._host, entry.value));
             }
         }
-
         const graphs = Array.isArray(model.graphs) ? model.graphs : [];
         if (graphs.length > 1) {
             const graphSelector = new sidebar.SelectView(this._host, model.graphs, graph);

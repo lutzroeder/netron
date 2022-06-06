@@ -28,6 +28,7 @@ message.Model = class {
         this._producer = data.producer || '';
         this._version = data.version || '';
         this._description = data.description || '';
+        this._metadata = (data.metadata || []).map((entry) => { return { name: entry.name, value: entry.value }; });
         this._graphs = (data.graphs || []).map((graph) => new message.Graph(graph));
     }
 
@@ -45,6 +46,10 @@ message.Model = class {
 
     get description() {
         return this._description;
+    }
+
+    get metadata() {
+        return this._metadata;
     }
 
     get graphs() {

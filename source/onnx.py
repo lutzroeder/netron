@@ -1,8 +1,12 @@
 
+from curses import meta
+
+
 def serialize(model):
     print('Experimental')
-    import onnx.shape_inference
-    model = onnx.shape_inference.infer_shapes(model)
+    # import onnx.shape_inference
+    # model = onnx.shape_inference.infer_shapes(model)
+    import collections
     import onnx.onnx_pb
     json_model = {}
     json_model['signature'] = 'netron:onnx'
@@ -13,6 +17,37 @@ def serialize(model):
         json_model['version'] = str(model.model_version)
     if model.doc_string and len(model.doc_string):
         json_model['description'] = str(model.doc_string)
+    json_metadata = []
+    metadata = collections.OrderedDict([ [entry.key, entry.value] for entry in model.metadata_props ])
+    converted_from = metadata.get('converted_from')
+    if converted_from:
+        json_metadata.append({ 'name': 'source', 'value': converted_from })
+    author = metadata.get('author')
+    if author:
+        json_metadata.append({ 'name': 'author', 'value': author })
+    company = metadata.get('company')
+    if company:
+        json_metadata.append({ 'name': 'company', 'value': company })
+    license = metadata.get('license')
+    license_url = metadata.get('license_url')
+    if license_url:
+        license = '<a href=\'' + license_url + '\'>' + (license if license else license_url) + '</a>'
+    if license:
+        json_metadata.append({ 'name': 'license', 'value': license })
+    if 'author' in metadata:
+        metadata.pop('author')
+    if 'company' in metadata:
+        metadata.pop('company')
+    if 'converted_from' in metadata:
+        metadata.pop('converted_from')
+    if 'license' in metadata:
+        metadata.pop('license')
+    if 'license_url' in metadata:
+        metadata.pop('license_url')
+    for name, value in metadata.items():
+        json_metadata.append({ 'name': name, 'value': value })
+    if len(json_metadata) > 0:
+        json_model['metadata'] = json_metadata
     json_model['graphs'] = []
     graph = model.graph
     json_graph = {}
@@ -53,8 +88,10 @@ def serialize(model):
                 json_attribute['type'] = 'string'
                 json_attribute['value'] = attribute.s.decode('utf-8')
             elif attribute.type == onnx.onnx_pb.AttributeProto.TENSOR:
+                json_attribute['type'] = 'tensor'
                 raise Exception('Unsupported tensor attribute type')
             elif attribute.type == onnx.onnx_pb.AttributeProto.GRAPH:
+                json_attribute['graph'] = 'tensor'
                 raise Exception('Unsupported graph attribute type')
             elif attribute.type == onnx.onnx_pb.AttributeProto.FLOATS:
                 json_attribute['type'] = 'float32[]'
@@ -66,8 +103,10 @@ def serialize(model):
                 json_attribute['type'] = 'string[]'
                 json_attribute['value'] = [ item for item in attribute.strings ]
             elif attribute.type == onnx.onnx_pb.AttributeProto.TENSORS:
+                json_attribute['type'] = 'tensor[]'
                 raise Exception('Unsupported tensors attribute type')
             elif attribute.type == onnx.onnx_pb.AttributeProto.GRAPHS:
+                json_attribute['type'] = 'graph[]'
                 raise Exception('Unsupported graphs attribute type')
             else:
                 raise Exception('Unsupported attribute type')

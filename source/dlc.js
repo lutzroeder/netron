@@ -40,24 +40,22 @@ dlc.ModelFactory = class {
 dlc.Model = class {
 
     constructor(metadata, model, params, metadata_props) {
+        this._format = model ? 'DLC' : 'DLC Weights';
+        this._metadata = [];
         if (metadata_props.size > 0) {
-            const converter = metadata_props.get('converter-command');
-            if (converter) {
-                const source = converter.split(' ').shift().trim();
-                if (source.length > 0) {
-                    this._source = source;
-                    const version = metadata_props.get('converter-version');
-                    if (version) {
-                        this._source = this._source + ' v' + version;
-                    }
-                }
-            }
             const version = metadata_props.get('model-version');
             if (version) {
                 this._version = version;
             }
+            const converter = metadata_props.get('converter-command');
+            if (converter) {
+                const source = converter.split(' ').shift().trim();
+                if (source.length > 0) {
+                    const version = metadata_props.get('converter-version');
+                    this._metadata.push({ name: 'source', value: version ? source + ' v' + version : source });
+                }
+            }
         }
-        this._format = model ? 'DLC' : 'DLC Weights';
         this._graphs = [ new dlc.Graph(metadata, model, params) ];
     }
 
@@ -65,12 +63,12 @@ dlc.Model = class {
         return this._format;
     }
 
-    get source() {
-        return this._source;
-    }
-
     get version() {
         return this._version;
+    }
+
+    get metadata() {
+        return this._metadata;
     }
 
     get graphs() {
