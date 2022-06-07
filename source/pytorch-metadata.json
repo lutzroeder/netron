@@ -2757,6 +2757,16 @@
     ]
   },
   {
+    "name": "torch.broadcast_to:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "size", "type": "int64[]" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.meshgrid",
     "category": "Tensor",
     "inputs": [
