@@ -125,38 +125,52 @@ $root.wnn.OpType = {
     elu: 13,
     prelu: 14,
     leakyrelu: 15,
-    fc: 16,
-    matmul: 17,
-    fc_share: 18,
-    lstm: 19,
-    onehot: 20,
-    transpose: 21,
-    gather: 22,
-    split: 23,
-    concat: 24,
-    activation: 25,
-    binary_op: 26,
-    reduce: 27,
-    fill: 28,
-    pad: 29,
-    reshape: 30,
-    instancenorm: 31,
-    conv_depthwise: 32,
-    quantized_avgpool: 33,
-    quantized_concat: 34,
-    quantized_matmul: 35,
-    quantized_relu: 36,
-    quantized_relu6: 37,
-    quantized_softmax: 38,
-    roipooling: 39,
-    roialign: 40,
-    scatternd: 41,
-    gathernd: 42,
-    nms: 43,
-    input: 44,
-    output: 45,
-    extra: 46,
-    unsupported: 47
+    tanh: 16,
+    silu: 17,
+    mish: 18,
+    fc: 19,
+    matmul: 20,
+    fc_share: 21,
+    lstm: 22,
+    onehot: 23,
+    transpose: 24,
+    gather: 25,
+    split: 26,
+    concat: 27,
+    activation: 28,
+    binary_op: 29,
+    fill: 30,
+    pad: 31,
+    reshape: 32,
+    instancenorm: 33,
+    conv_depthwise: 34,
+    quantized_avgpool: 35,
+    quantized_concat: 36,
+    quantized_matmul: 37,
+    quantized_relu: 38,
+    quantized_relu6: 39,
+    quantized_softmax: 40,
+    roipooling: 41,
+    roialign: 42,
+    unary: 43,
+    unary_square: 44,
+    unary_sqrt: 45,
+    binary: 46,
+    binary_add: 47,
+    binary_mul: 48,
+    binary_div: 49,
+    binary_sub: 50,
+    softmax: 51,
+    scatternd: 52,
+    gathernd: 53,
+    nms: 54,
+    input: 55,
+    output: 56,
+    extra: 57,
+    eltwise: 58,
+    reduction: 59,
+    expand_dims: 60,
+    unsupported: 61
 };
 
 $root.wnn.QuantType = {
@@ -281,6 +295,9 @@ $root.wnn.Pool = class Pool {
         $.ceil_model = reader.bool_(position, 24, true);
         $.pads = reader.typedArray(position, 26, Int32Array);
         $.count_type = reader.int8_(position, 28, 0);
+        $.in_channels = reader.int32_(position, 30, 0);
+        $.in_width = reader.int32_(position, 32, 0);
+        $.in_height = reader.int32_(position, 34, 0);
         return $;
     }
 };
@@ -305,6 +322,7 @@ $root.wnn.LayerNorm = class LayerNorm {
         $.gamma = reader.typedArray(position, 8, Float32Array);
         $.beta = reader.typedArray(position, 10, Float32Array);
         $.group = reader.int32_(position, 12, 1);
+        $.elmentwise_affine = reader.bool_(position, 14, true);
         return $;
     }
 };
@@ -340,6 +358,15 @@ $root.wnn.Relu6 = class Relu6 {
         const $ = new $root.wnn.Relu6();
         $.min_value = reader.float32_(position, 4, 0);
         $.max_value = reader.float32_(position, 6, 6);
+        return $;
+    }
+};
+
+$root.wnn.Softmax = class Softmax {
+
+    static decode(reader, position) {
+        const $ = new $root.wnn.Softmax();
+        $.dim = reader.int32_(position, 4, 1);
         return $;
     }
 };
@@ -428,6 +455,172 @@ $root.wnn.ArgMax = class ArgMax {
     }
 };
 
+$root.wnn.BinaryOperation = {
+    ADD: 0,
+    SUB: 1,
+    MUL: 2,
+    DIV: 3,
+    MAX_TEMP: 4,
+    MIN_TEMP: 5,
+    POW: 6,
+    REALDIV: 7,
+    MINIMUM: 8,
+    MAXIMUM: 9,
+    GREATER: 10,
+    GREATER_EQUAL: 11,
+    LESS: 12,
+    FLOORDIV: 13,
+    SquaredDifference: 14,
+    EQUAL: 15,
+    LESS_EQUAL: 16,
+    FLOORMOD: 17,
+    MOD: 19,
+    ATAN2: 20,
+    LOGICALOR: 21,
+    NOTEQUAL: 22,
+    BITWISE_AND: 23,
+    BITWISE_OR: 24,
+    BITWISE_XOR: 25,
+    LOGICALXOR: 26,
+    LEFTSHIFT: 27,
+    RIGHTSHIFT: 28,
+    RSUB: 29
+};
+
+$root.wnn.Binary = class Binary {
+
+    static decode(reader, position) {
+        const $ = new $root.wnn.Binary();
+        $.operation_type = reader.int8_(position, 4, 0);
+        $.dtype = reader.int32_(position, 6, 1);
+        return $;
+    }
+};
+
+$root.wnn.UnaryOperation = {
+    ABS: 0,
+    NEG: 1,
+    FLOOR: 2,
+    CEIL: 3,
+    SQUARE: 4,
+    SQRT: 5,
+    RSQRT: 6,
+    EXP: 7,
+    LOG: 8,
+    SIN: 9,
+    COS: 10,
+    TAN: 11,
+    ASIN: 12,
+    ACOS: 13,
+    ATAN: 14,
+    RECIPROCAL: 15,
+    LOG1P: 16,
+    BNLL: 17,
+    ACOSH: 18,
+    SINH: 19,
+    ASINH: 20,
+    ATANH: 21,
+    SIGN: 22,
+    ROUND: 23,
+    COSH: 24,
+    ERF: 25,
+    ERFC: 26,
+    ERFINV: 27,
+    EXPM1: 28,
+    SIGMOID: 29,
+    TANH: 30,
+    HARDSWISH: 31,
+    GELU: 32,
+    GELU_STANDARD: 33,
+    NOT: 34,
+    BOOL: 35
+};
+
+$root.wnn.Unary = class Unary {
+
+    static decode(reader, position) {
+        const $ = new $root.wnn.Unary();
+        $.operation_type = reader.int32_(position, 4, 0);
+        $.dtype = reader.int32_(position, 6, 0);
+        return $;
+    }
+};
+
+$root.wnn.EltwiseType = {
+    PROD: 0,
+    SUM: 1,
+    MAXIUM: 2,
+    SUB: 3,
+    SOFTMAX: 4
+};
+
+$root.wnn.Eltwise = class Eltwise {
+
+    static decode(reader, position) {
+        const $ = new $root.wnn.Eltwise();
+        $.type = reader.int8_(position, 4, 0);
+        $.coeff = reader.typedArray(position, 6, Float32Array);
+        return $;
+    }
+};
+
+$root.wnn.ReductionType = {
+    SUM: 0,
+    ASUM: 1,
+    SUMSQ: 2,
+    MEAN: 3,
+    MAXIMUM: 4,
+    MINIMUM: 5,
+    PROD: 6,
+    ANY: 7,
+    ALL: 8
+};
+
+$root.wnn.Reduction = class Reduction {
+
+    static decode(reader, position) {
+        const $ = new $root.wnn.Reduction();
+        $.operation = reader.int8_(position, 4, 0);
+        $.dim = reader.typedArray(position, 6, Int32Array);
+        $.coeff = reader.float32_(position, 8, 0);
+        $.keep_dims = reader.bool_(position, 10, false);
+        $.dtype = reader.int32_(position, 12, 1);
+        return $;
+    }
+};
+
+$root.wnn.Squeeze = class Squeeze {
+
+    static decode(reader, position) {
+        const $ = new $root.wnn.Squeeze();
+        $.squeeze_dims = reader.typedArray(position, 4, Int32Array);
+        return $;
+    }
+};
+
+$root.wnn.Gather = class Gather {
+
+    static decode(reader, position) {
+        const $ = new $root.wnn.Gather();
+        $.indices_dtype = reader.int32_(position, 4, 0);
+        $.dtype = reader.int32_(position, 6, 0);
+        $.validateindices = reader.bool_(position, 8, false);
+        $.axis = reader.int32_(position, 10, 0);
+        return $;
+    }
+};
+
+$root.wnn.ExpandDims = class ExpandDims {
+
+    static decode(reader, position) {
+        const $ = new $root.wnn.ExpandDims();
+        $.dtype = reader.int32_(position, 4, 0);
+        $.dim_dtype = reader.int32_(position, 6, 0);
+        $.axis = reader.int32_(position, 8, 0);
+        return $;
+    }
+};
+
 $root.wnn.ModelSource = {
     TORCH: 0,
     TENSORFLOW: 1,
@@ -450,10 +643,18 @@ $root.wnn.OpParameter = class {
             case 9: return $root.wnn.PRelu.decode(reader, position);
             case 10: return $root.wnn.ELU.decode(reader, position);
             case 11: return $root.wnn.LRN.decode(reader, position);
-            case 12: return $root.wnn.Input.decode(reader, position);
-            case 13: return $root.wnn.Extra.decode(reader, position);
-            case 14: return $root.wnn.FC.decode(reader, position);
-            case 15: return $root.wnn.ArgMax.decode(reader, position);
+            case 12: return $root.wnn.Softmax.decode(reader, position);
+            case 13: return $root.wnn.Input.decode(reader, position);
+            case 14: return $root.wnn.Extra.decode(reader, position);
+            case 15: return $root.wnn.FC.decode(reader, position);
+            case 16: return $root.wnn.ArgMax.decode(reader, position);
+            case 17: return $root.wnn.Binary.decode(reader, position);
+            case 18: return $root.wnn.Unary.decode(reader, position);
+            case 19: return $root.wnn.Eltwise.decode(reader, position);
+            case 20: return $root.wnn.Reduction.decode(reader, position);
+            case 21: return $root.wnn.Squeeze.decode(reader, position);
+            case 22: return $root.wnn.Gather.decode(reader, position);
+            case 23: return $root.wnn.ExpandDims.decode(reader, position);
             default: return undefined;
         }
     }
@@ -471,10 +672,18 @@ $root.wnn.OpParameter = class {
             case 'PRelu': return $root.wnn.PRelu.decodeText(reader, json);
             case 'ELU': return $root.wnn.ELU.decodeText(reader, json);
             case 'LRN': return $root.wnn.LRN.decodeText(reader, json);
+            case 'Softmax': return $root.wnn.Softmax.decodeText(reader, json);
             case 'Input': return $root.wnn.Input.decodeText(reader, json);
             case 'Extra': return $root.wnn.Extra.decodeText(reader, json);
             case 'FC': return $root.wnn.FC.decodeText(reader, json);
             case 'ArgMax': return $root.wnn.ArgMax.decodeText(reader, json);
+            case 'Binary': return $root.wnn.Binary.decodeText(reader, json);
+            case 'Unary': return $root.wnn.Unary.decodeText(reader, json);
+            case 'Eltwise': return $root.wnn.Eltwise.decodeText(reader, json);
+            case 'Reduction': return $root.wnn.Reduction.decodeText(reader, json);
+            case 'Squeeze': return $root.wnn.Squeeze.decodeText(reader, json);
+            case 'Gather': return $root.wnn.Gather.decodeText(reader, json);
+            case 'ExpandDims': return $root.wnn.ExpandDims.decodeText(reader, json);
             default: return undefined;
         }
     }
