@@ -38,6 +38,10 @@
     "category": "Activation"
   },
   {
+    "name": "Relu",
+    "category": "Activation"
+  },
+  {
     "name": "Add",
     "inputs": [
       { "name": "x1" },
@@ -722,6 +726,10 @@
       { "name": "mode", "type": "Enum", "enum": [ "Product", "Sum", "Max" ] },
       { "name": "coeff" }
     ]
+  },
+  {
+    "name": "Elu",
+    "category": "Activation"
   },
   {
     "name": "Equal",
