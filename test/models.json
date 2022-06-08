@@ -4890,6 +4890,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "netron_issue_920.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/8857486/netron_issue_920.pt.zip[netron_issue_920.pt]",
+    "format":   "TorchScript v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/637"
+  },
+  {
+    "type":     "pytorch",
     "target":   "opt_xx.pt",
     "source":   "https://github.com/lutzroeder/netron/files/8747908/opt_xx.pt.zip[opt_xx.pt]",
     "format":   "TorchScript v1.6",
