@@ -578,10 +578,10 @@ om.Utility = class {
             'complex64', 'complex128', 'qint8', 'qint16', 'qint32', 'quint8', 'quint16', 'resource',
             'stringref', 'dual', 'variant', 'bfloat16', 'int4', 'uint1', 'int2', 'uint2'
         ];
-        if (value < om.Utility._types.length) {
-            return om.Utility._types[value];
+        if (value >= om.Utility._types.length) {
+            throw new om.Error("Unsupported dtype '" + value + "'.");
         }
-        throw new om.Error("Unsupported dtype '" + value + "'.");
+        return om.Utility._types[value];
     }
 
     static decodeText(value) {
