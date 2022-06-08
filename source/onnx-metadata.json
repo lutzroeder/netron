@@ -3334,7 +3334,7 @@
       {
         "name": "output",
         "type": "T2",
-        "description": "A Hann window with length: size. The output has the shape: [size]."
+        "description": "A Blackman window with length: size. The output has the shape: [size]."
       }
     ],
     "min_output": 1,
@@ -12017,7 +12017,7 @@
       {
         "name": "output",
         "type": "T2",
-        "description": "A Hann window with length: size. The output has the shape: [size]."
+        "description": "A Hamming window with length: size. The output has the shape: [size]."
       }
     ],
     "min_output": 1,
@@ -18011,7 +18011,7 @@
     "module": "ai.onnx",
     "version": 17,
     "support_level": "common",
-    "description": "Generate a MelWeightMatrix that can be used to re-weight a Tensor containing a linearly sampled frequency spectra (from DFT or STFT) into num_mel_bins frequency information based on the [lower_edge_hertz, upper_edge_hertz] range on the mel scale.\nThis function defines the mel scale in terms of a frequency in hertz according to the following formula:\n    \n    mel(f) = 2595 * log10(1 + f/700)\n\nIn the returned matrix, all the triangles (filterbanks) have a peak value of 1.0.\n\nThe returned MelWeightMatrix can be used to right-multiply a spectrogram S of shape [frames, num_spectrogram_bins] of linear scale spectrum values (e.g. STFT magnitudes) to generate a \"mel spectrogram\" M of shape [frames, num_mel_bins].\n",
+    "description": "Generate a MelWeightMatrix that can be used to re-weight a Tensor containing a linearly sampled frequency spectra (from DFT or STFT) into num_mel_bins frequency information based on the [lower_edge_hertz, upper_edge_hertz] range on the mel scale.\nThis function defines the mel scale in terms of a frequency in hertz according to the following formula:\n\n    mel(f) = 2595 * log10(1 + f/700)\n\nIn the returned matrix, all the triangles (filterbanks) have a peak value of 1.0.\n\nThe returned MelWeightMatrix can be used to right-multiply a spectrogram S of shape [frames, num_spectrogram_bins] of linear scale spectrum values (e.g. STFT magnitudes) to generate a \"mel spectrogram\" M of shape [frames, num_mel_bins].\n",
     "attributes": [
       {
         "name": "output_datatype",
@@ -21682,7 +21682,7 @@
     "module": "ai.onnx",
     "version": 10,
     "support_level": "common",
-    "description": "Matrix product that behaves like numpy.matmul: https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.matmul.html.\nIt consumes two quantized input tensors, their scales and zero points, scale and zero point of output, \nand computes the quantized output. The quantization formula is y = saturate((x / y_scale) + y_zero_point). \nFor (x / y_scale), it is rounding to nearest ties to even. Refer to https://en.wikipedia.org/wiki/Rounding for details. \nScale and zero point must have same shape. They must be either scalar (per tensor) or N-D tensor \n(per row for 'a' and per column for 'b'). Scalar refers to per tensor quantization whereas N-D refers to per row \nor per column quantization. If the input is 2D of shape [M, K] then zero point and scale tensor may be \nan M element vector [v_1, v_2, ..., v_M] for per row quantization and K element vector of shape [v_1, v_2, ..., v_K] \nfor per column quantization. If the input is N-D tensor with shape [D1, D2, M, K] then zero point and scale tensor may \nhave shape [D1, D2, M, 1] for per row quantization and shape [D1, D2, 1, K] for per column quantization.\nProduction must never overflow, and accumulation may overflow if and only if in 32 bits.\n",
+    "description": "Matrix product that behaves like numpy.matmul: https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.matmul.html.\nIt consumes two quantized input tensors, their scales and zero points, scale and zero point of output,\nand computes the quantized output. The quantization formula is y = saturate((x / y_scale) + y_zero_point).\nFor (x / y_scale), it is rounding to nearest ties to even. Refer to https://en.wikipedia.org/wiki/Rounding for details.\nScale and zero point must have same shape. They must be either scalar (per tensor) or N-D tensor\n(per row for 'a' and per column for 'b'). Scalar refers to per tensor quantization whereas N-D refers to per row\nor per column quantization. If the input is 2D of shape [M, K] then zero point and scale tensor may be\nan M element vector [v_1, v_2, ..., v_M] for per row quantization and K element vector of shape [v_1, v_2, ..., v_K]\nfor per column quantization. If the input is N-D tensor with shape [D1, D2, M, K] then zero point and scale tensor may\nhave shape [D1, D2, M, 1] for per row quantization and shape [D1, D2, 1, K] for per column quantization.\nProduction must never overflow, and accumulation may overflow if and only if in 32 bits.\n",
     "inputs": [
       {
         "name": "a",
