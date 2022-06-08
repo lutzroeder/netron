@@ -1162,7 +1162,8 @@ $root.CoreML.Specification.ImageFeatureType.ColorSpace = {
     "INVALID_COLOR_SPACE": 0,
     "GRAYSCALE": 10,
     "RGB": 20,
-    "BGR": 30
+    "BGR": 30,
+    "GRAYSCALE_FLOAT16": 40
 };
 
 $root.CoreML.Specification.ImageFeatureType.ImageSize = class ImageSize {
@@ -1305,7 +1306,8 @@ $root.CoreML.Specification.ArrayFeatureType.ArrayDataType = {
     "INVALID_ARRAY_DATA_TYPE": 0,
     "FLOAT32": 65568,
     "DOUBLE": 65600,
-    "INT32": 131104
+    "INT32": 131104,
+    "FLOAT16": 65552
 };
 
 $root.CoreML.Specification.ArrayFeatureType.Shape = class Shape {

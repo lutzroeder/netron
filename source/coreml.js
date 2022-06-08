@@ -1416,13 +1416,16 @@ coreml.ImageType = class {
         this._height = height;
         switch (colorSpace) {
             case coreml.proto.ImageFeatureType.ColorSpace.GRAYSCALE:
-                this._colorSpace = 'Grayscale';
+                this._colorSpace = 'grayscale';
                 break;
             case coreml.proto.ImageFeatureType.ColorSpace.RGB:
                 this._colorSpace = 'RGB';
                 break;
             case coreml.proto.ImageFeatureType.ColorSpace.BGR:
                 this._colorSpace = 'BGR';
+                break;
+            case coreml.proto.ImageFeatureType.ColorSpace.GRAYSCALE_FLOAT16:
+                this._colorSpace = 'grayscale:float16';
                 break;
             default:
                 throw new coreml.Error("Unsupported image color space '" + colorSpace + "'.");
@@ -1481,18 +1484,22 @@ coreml.Utility = class {
                         shape = new coreml.TensorShape(type.multiArrayType.shape);
                     }
                     let dataType = '?';
+                    const ArrayDataType = coreml.proto.ArrayFeatureType.ArrayDataType;
                     switch (type.multiArrayType.dataType) {
-                        case coreml.proto.ArrayFeatureType.ArrayDataType.INVALID_ARRAY_DATA_TYPE:
+                        case ArrayDataType.INVALID_ARRAY_DATA_TYPE:
                             dataType = '?';
                             break;
-                        case coreml.proto.ArrayFeatureType.ArrayDataType.FLOAT32:
+                        case ArrayDataType.FLOAT16:
+                            dataType = 'float16';
+                            break;
+                        case ArrayDataType.FLOAT32:
                             dataType = 'float32';
                             break;
-                        case coreml.proto.ArrayFeatureType.ArrayDataType.INT32:
-                            dataType = 'int32';
-                            break;
-                        case coreml.proto.ArrayFeatureType.ArrayDataType.DOUBLE:
+                        case ArrayDataType.DOUBLE:
                             dataType = 'float64';
+                            break;
+                        case ArrayDataType.INT32:
+                            dataType = 'int32';
                             break;
                         default:
                             throw new coreml.Error("Unsupported array data type '" + type.multiArrayType.dataType + "'.");
