@@ -2825,6 +2825,19 @@
     ]
   },
   {
+    "name": "torch.pairwise_distance:",
+    "inputs": [
+      { "name": "x1", "type": "Tensor" },
+      { "name": "x2", "type": "Tensor" },
+      { "name": "p", "type": "float32", "default": 2 },
+      { "name": "eps", "type": "float32", "default": 1e-06 },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.permute",
     "category": "Shape",
     "inputs": [
