@@ -1379,6 +1379,14 @@
     ]
   },
   {
+    "name": "GroupNormFusion",
+    "attributes": [
+      { "name": "num_groups", "type": "int64", "default": 0 },
+      { "name": "epsilon", "type": "float32", "default": 0.00001 },
+      { "name": "affine", "type": "boolean", "default": true }
+    ]
+  },
+  {
     "name": "GRU",
     "attributes": [
       { "name": "bidirectional", "type": "boolean", "default": false }

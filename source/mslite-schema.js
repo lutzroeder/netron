@@ -384,6 +384,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 208: return $root.mindspore.schema.NLLLossGrad.decode(reader, position);
             case 209: return $root.mindspore.schema.FormatTranspose.decode(reader, position);
             case 210: return $root.mindspore.schema.GatherD.decode(reader, position);
+            case 211: return $root.mindspore.schema.GroupNormFusion.decode(reader, position);
             default: return undefined;
         }
     }
@@ -600,6 +601,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'NLLLossGrad': return $root.mindspore.schema.NLLLossGrad.decodeText(reader, json);
             case 'FormatTranspose': return $root.mindspore.schema.FormatTranspose.decodeText(reader, json);
             case 'GatherD': return $root.mindspore.schema.GatherD.decodeText(reader, json);
+            case 'GroupNormFusion': return $root.mindspore.schema.GroupNormFusion.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -4165,6 +4167,25 @@ $root.mindspore.schema.GatherD = class GatherD {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.GatherD();
+        return $;
+    }
+};
+
+$root.mindspore.schema.GroupNormFusion = class GroupNormFusion {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.GroupNormFusion();
+        $.num_groups = reader.int64_(position, 4, 0);
+        $.epsilon = reader.float32_(position, 6, 0.00001);
+        $.affine = reader.bool_(position, 8, true);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.GroupNormFusion();
+        $.num_groups = reader.value(json.num_groups, 0);
+        $.epsilon = reader.value(json.epsilon, 0.00001);
+        $.affine = reader.value(json.affine, true);
         return $;
     }
 };
