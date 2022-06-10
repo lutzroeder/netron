@@ -179,9 +179,8 @@ xmodel.Node = class {
         if (op_node.op_attr) {
             for (const entry of Object.entries(op_node.op_attr)) {
                 const name = entry[0];
-                const value = entry[1];
                 if (name === 'device') {
-                    this._device = value.string_value;
+                    this._device = entry[1].string_value;
                     continue;
                 }
                 if (name === 'workload') {
@@ -190,12 +189,22 @@ xmodel.Node = class {
                 if (name.startsWith('quant_in_') || name.startsWith('quant_out_')) {
                     continue;
                 }
-                const attribute = xmodel.Utility.attribute(value);
-                if (name === 'nonlinear' && attribute.value && attribute.value !== 'NONE') {
-                    this._chain.push(new xmodel.Node(metadata, { op_type: attribute.value.toLowerCase() }, arg));
+                const value = xmodel.Utility.attribute(entry[1]);
+                if (name === 'nonlinear' && value.value && value.value !== 'NONE' && value.value !== 0) {
+                    let activation = value.value;
+                    if (typeof value === 'string') {
+                        activation = activation.toLowerCase();
+                    }
+                    else if (Number.isInteger(activation) && activation < 5) {
+                        activation = [ 'none', 'relu', 'prelu', 'leakyrelu', 'relu6' ][activation];
+                    }
+                    else {
+                        activation = JSON.stringify(activation);
+                    }
+                    this._chain.push(new xmodel.Node(metadata, { op_type: activation }, arg));
                     continue;
                 }
-                this._attributes.push(new xmodel.Attribute(metadata.attribute(this._type, name), name, attribute));
+                this._attributes.push(new xmodel.Attribute(metadata.attribute(this._type, name), name, value));
             }
         }
         if (op_node.args) {
@@ -446,6 +455,7 @@ xmodel.Metadata = class {
             [ 'inner-product', 'Layer' ],
             [ 'l2_normalize', 'Normalization' ],
             [ 'leaky-relu', 'Activation' ],
+            [ 'leakyrelu', 'Activation' ],
             [ 'maxpool2d', 'Pool' ],
             [ 'pool-fix', 'Pool' ],
             [ 'relu', 'Activation' ],
@@ -498,6 +508,13 @@ xmodel.Metadata = class {
                 metadata.category = categories.get(name);
             }
             this._types.set(name, metadata);
+        }
+        for (const entry of categories) {
+            const name = entry[0];
+            const category = entry[1];
+            if (!this._types.has(name)) {
+                this._types.set(name, { name: name, category: category });
+            }
         }
     }
 
