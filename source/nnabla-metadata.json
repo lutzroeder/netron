@@ -4962,6 +4962,41 @@
     "category": "Shape"
   },
   {
+    "name": "Shape",
+    "description": "Get the shape of a tensor. Optional attributes start and end can be used to compute\na slice of the input tensor's shape. If start axis is omitted, the slice starts from\naxis 0.",
+    "inputs": [
+      {
+        "name": "x",
+        "type": "nnabla.Variable",
+        "description": "N-D array."
+      }
+    ],
+    "attributes": [
+      {
+        "name": "start",
+        "type": "int64",
+        "required": false,
+        "default": 0,
+        "description": "If start axis is omitted, the slice starts from axis 0."
+      },
+      {
+        "name": "end",
+        "type": "int64",
+        "required": false,
+        "default": 0,
+        "description": "The end axis, if specified, is exclusive (and the returned value will not include."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "shape",
+        "type": "nnabla.Variable",
+        "description": "1-D array"
+      }
+    ],
+    "category": "Shape"
+  },
+  {
     "name": "MatrixDiag",
     "description": "Returns an array where the last two dimensions consist of the diagonal matrix.",
     "inputs": [
