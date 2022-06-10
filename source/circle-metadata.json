@@ -2,7 +2,8 @@
   {
     "name": "Add",
     "attributes": [
-      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
+      { "name": "pot_scale_int16", "type": "boolean", "default": true }
     ]
   },
   {
@@ -28,7 +29,8 @@
     "name": "BatchMatMul",
     "attributes": [
       { "name": "adjoint_lhs", "type": "boolean", "default": false },
-      { "name": "adjoint_rhs", "type": "boolean", "default": false }
+      { "name": "adjoint_rhs", "type": "boolean", "default": false },
+      { "name": "asymmetric_quantize_inputs", "type": "boolean", "default": false }
     ]
   },
   {
@@ -55,6 +57,12 @@
     "name": "Call",
     "attributes": [
       { "name": "subgraph", "type": "uint32", "default": 0 }
+    ]
+  },
+  {
+    "name": "CallOnce",
+    "attributes": [
+      { "name": "init_subgraph_index", "type": "int32", "default": 0 }
     ]
   },
   {
@@ -104,6 +112,13 @@
     ],
     "outputs": [
       { "name": "output", "description": "result of 2D convolution of the input tensor" }
+    ]
+  },
+  {
+    "name": "Cumsum",
+    "attributes": [
+      { "name": "exclusive", "type": "boolean", "default": false },
+      { "name": "reverse", "type": "boolean", "default": false }
     ]
   },
   {
@@ -168,7 +183,16 @@
     "name": "Gather",
     "category": "Transform",
     "attributes": [
-      { "name": "axis", "type": "int32", "default": 0 }
+      { "name": "axis", "type": "int32", "default": 0 },
+      { "name": "batch_dims", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "Hashtable",
+    "attributes": [
+      { "name": "table_id", "type": "int32", "default": 0 },
+      { "name": "key_dtype", "type": "TensorType", "default": "FLOAT32" },
+      { "name": "value_dtype", "type": "TensorType", "default": "FLOAT32" }
     ]
   },
   {
@@ -259,7 +283,8 @@
   {
     "name": "ResizeNearestNeighbor",
     "attributes": [
-      { "name": "align_corners", "type": "boolean", "default": false }
+      { "name": "align_corners", "type": "boolean", "default": false },
+      { "name": "half_pixel_centers", "type": "boolean", "default": false }
     ]
   },
   {
@@ -340,7 +365,8 @@
   {
     "name": "Sub",
     "attributes": [
-      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
+      { "name": "pot_scale_int16", "type": "boolean", "default": true }
     ]
   },
   {
@@ -380,6 +406,13 @@
     "attributes": [
       { "name": "num", "type": "int32", "default": 0 },
       { "name": "axis", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "VarHandle",
+    "attributes": [
+      { "name": "container", "type": "string", "default": null },
+      { "name": "shared_name", "type": "string", "default": null }
     ]
   },
   {
