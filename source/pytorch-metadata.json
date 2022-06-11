@@ -6910,6 +6910,20 @@
     ]
   },
   {
+    "name": "torch.cross_entropy_loss",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "target", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor", "optional": true, "default": null },
+      { "name": "reduction", "type": "int64" },
+      { "name": "ignore_index", "type": "int64", "default": -100 },
+      { "name": "label_smoothing", "type": "float32", "default": 0 }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.binary_cross_entropy_with_logits",
     "inputs": [
       { "name": "self", "type": "Tensor" },
