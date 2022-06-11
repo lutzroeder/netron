@@ -308,14 +308,14 @@
         "description": " *axis* is a number of a dimension to be used for cropping. For example, *axis* equal to 1 means that cropping is performed over the first dimension.",
         "name": "axis",
         "required": true,
-        "type": " a list of unique integers, where each element is greater than or equal to 0 and less than input shape length."
+        "type": "int32[]"
       },
       {
         "default": 1,
         "description": " *offset* denotes the starting point for crop in the input blob. For example, *offset* equal to 2 means that crop is starting from the second value in the given axis.",
         "name": "offset",
         "required": true,
-        "type": " a list of integers of the length equal to the length of *axis* attribute. In the list, `offset[i]` is greater than or equal to 0 and less than or equal to `input_shape[axis[i]] - crop_size[axis[i]]`, where `crop_size` is the shape of the second input."
+        "type": "int32[]"
       }
     ],
     "support_level": "default"
@@ -373,7 +373,7 @@
         "description": " *pad-x* is a number of pixels to add to the left of the input. For example, *pad-x* equal 1 means adding 1 pixel to the left of the input. Right and bottom padding should be calculated from the expected output width (height).",
         "name": "pad-x",
         "required": true,
-        "type": " int32"
+        "type": "int32"
       },
       {
         "default": 1,
@@ -678,14 +678,14 @@
         "description": " *alpha* represents the scaling parameter for the normalizing sum. For example, *alpha* equal 0.0001 means that the normalizing sum is multiplied by 0.0001.",
         "name": "alpha",
         "required": true,
-        "type": " floating point positive number"
+        "type": "float32"
       },
       {
         "default": 1,
         "description": " *beta* represents the exponent for the normalizing sum. For example, *beta* equal 0.75 means that the normalizing sum is raised to the power of 0.75.",
         "name": "beta",
         "required": true,
-        "type": " floating point positive number"
+        "type": "float32"
       },
       {
         "default": 1,
@@ -699,7 +699,7 @@
         "description": " *local-size* represents the side length of the region to be used for the normalization sum or number of channels depending on the strategy specified in the *region* parameter. For example, *local-size* equal 5 for the across strategy means application of sum across 5 adjacent channels.",
         "name": "local-size",
         "required": true,
-        "type": " positive integer bigger than zero"
+        "type": "int32"
       }
     ],
     "support_level": "default"
@@ -1267,21 +1267,19 @@
   {
     "name": "Resample",
     "category": "Layer",
-    "description": "**Short description**: *Resample* layer scales the input blob by the specified parameters.\n**Parameters**: Resample layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Example**\n\n```html\n<layer type=\"Resample\">\n  <data antialias=\"0\" factor=\"1.0\" height=\"227\" type=\"caffe.ResampleParameter.LINEAR\" width=\"227\"/>\n      <input>\n      ...\n      </input>\n      <output>\n      ...\n      </output>\n​</layer>\n```",
+    "description": "Layer scales the input blob by the specified parameters.\n**Parameters**: Resample layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Example**\n\n```html\n<layer type=\"Resample\">\n  <data antialias=\"0\" factor=\"1.0\" height=\"227\" type=\"caffe.ResampleParameter.LINEAR\" width=\"227\"/>\n      <input>\n      ...\n      </input>\n      <output>\n      ...\n      </output>\n​</layer>\n```",
     "attributes": [
       {
         "default": 1,
-        "description": " *type* parameter specifies type of blob interpolation.",
+        "description": "Parameter specifies type of blob interpolation.",
         "name": "type",
-        "required": true,
-        "type": "\n    * *LINEAR* - linear blob interpolation\n    * *CUBIC* - cubic blob interpolation\n    * *NEAREST* - nearest-neighbor blob interpolation"
+        "required": true
       },
       {
         "default": 1,
         "description": " *antialias* is a flag that denotes whether to perform anti-aliasing.",
         "name": "antialias",
-        "required": true,
-        "type": "\n    * 0 - anti-aliasing is not performed\n    * 1 - anti-aliasing is performed"
+        "required": true
       }
     ],
     "support_level": "default"
@@ -1342,7 +1340,7 @@
         "description": " *spatial_scale* is a ratio of the input feature map over the input image size.",
         "name": "spatial_scale",
         "required": true,
-        "type": " positive floating point value"
+        "type": "float32"
       }
     ],
     "support_level": "default"
