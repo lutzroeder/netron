@@ -4311,6 +4311,13 @@
   },
   {
     "type":     "paddle",
+    "target":   "adam.pdopt",
+    "source":   "https://github.com/lutzroeder/netron/files/8882900/adam.pdopt.zip[adam.pdopt]",
+    "format":   "PaddlePaddle Pickle",
+    "link":     "https://github.com/lutzroeder/netron/issues/552"
+  },
+  {
+    "type":     "paddle",
     "target":   "assign.pbtxt",
     "source":   "https://github.com/lutzroeder/netron/files/5485296/assign.pbtxt.zip[assign.pbtxt]",
     "format":   "PaddlePaddle",
@@ -4334,6 +4341,20 @@
     "type":     "paddle",
     "target":   "critic.pdparams",
     "source":   "https://github.com/lutzroeder/netron/files/8748332/critic.pdparams.zip[critic.pdparams]",
+    "format":   "PaddlePaddle Pickle",
+    "link":     "https://github.com/lutzroeder/netron/issues/552"
+  },
+  {
+    "type":     "paddle",
+    "target":   "EDVR_M_wo_tsa_SRx4.pdparams",
+    "source":   "https://github.com/lutzroeder/netron/files/8882904/EDVR_M_wo_tsa_SRx4.pdparams.zip[EDVR_M_wo_tsa_SRx4.pdparams]",
+    "format":   "PaddlePaddle Pickle",
+    "link":     "https://github.com/lutzroeder/netron/issues/552"
+  },
+  {
+    "type":     "paddle",
+    "target":   "emb.pdparams",
+    "source":   "https://github.com/lutzroeder/netron/files/8882903/emb.pdparams.zip[emb.pdparams]",
     "format":   "PaddlePaddle Pickle",
     "link":     "https://github.com/lutzroeder/netron/issues/552"
   },
