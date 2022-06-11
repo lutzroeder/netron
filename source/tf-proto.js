@@ -6158,6 +6158,7 @@ $root.tensorflow.GPUOptions.Experimental.VirtualDevices = class VirtualDevices {
     constructor() {
         this.memory_limit_mb = [];
         this.priority = [];
+        this.device_ordinal = [];
     }
 
     static decode(reader, length) {
@@ -6171,6 +6172,9 @@ $root.tensorflow.GPUOptions.Experimental.VirtualDevices = class VirtualDevices {
                     break;
                 case 2:
                     message.priority = reader.array(message.priority, () => reader.int32(), tag);
+                    break;
+                case 3:
+                    message.device_ordinal = reader.array(message.device_ordinal, () => reader.int32(), tag);
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -6191,6 +6195,9 @@ $root.tensorflow.GPUOptions.Experimental.VirtualDevices = class VirtualDevices {
                     break;
                 case "priority":
                     reader.array(message.priority, () => reader.int32());
+                    break;
+                case "device_ordinal":
+                    reader.array(message.device_ordinal, () => reader.int32());
                     break;
                 default:
                     reader.field(tag, message);
