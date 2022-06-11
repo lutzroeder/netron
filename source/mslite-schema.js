@@ -78,7 +78,8 @@ $root.mindspore.schema.ReduceMode = {
     ReduceSum: 4,
     ReduceSumSquare: 5,
     ReduceASum: 6,
-    ReduceAll: 7
+    ReduceAll: 7,
+    ReduceL2: 8
 };
 
 $root.mindspore.schema.PoolMode = {
