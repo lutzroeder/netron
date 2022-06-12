@@ -5377,6 +5377,13 @@
   },
   {
     "type":     "rknn",
+    "target":   "det_monitor.nb",
+    "source":   "https://github.com/lutzroeder/netron/files/8886768/det_monitor.nb.zip[det_monitor.nb]",
+    "format":   "RKNN OpenVX",
+    "link":     "https://github.com/lutzroeder/netron/issues/639"
+  },
+  {
+    "type":     "rknn",
     "target":   "deepfusion.rknn",
     "source":   "https://github.com/lutzroeder/netron/files/5621075/deepfusion.rknn.zip[deepfusion.rknn]",
     "format":   "RKNN v1.2.1",
@@ -5391,9 +5398,37 @@
   },
   {
     "type":     "rknn",
+    "target":   "mobilenet_v1.rknn",
+    "source":   "https://github.com/lutzroeder/netron/files/8886811/mobilenet_v1.rknn.zip[mobilenet_v1.rknn]",
+    "format":   "RKNN Lite v1.2.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/639"
+  },
+  {
+    "type":     "rknn",
+    "target":   "mobilenetv2.rknn",
+    "source":   "https://github.com/lutzroeder/netron/files/8886972/mobilenetv2.rknn.zip[mobilenetv2.rknn]",
+    "format":   "RKNN v1.2.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/639"
+  },
+  {
+    "type":     "rknn",
+    "target":   "resize_area.rknn",
+    "source":   "https://github.com/lutzroeder/netron/files/8886403/resize_area.rknn.zip[resize_area.rknn]",
+    "format":   "RKNN v1.3.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/639"
+  },
+  {
+    "type":     "rknn",
     "target":   "resnet_18.rknn",
     "source":   "https://github.com/lutzroeder/netron/files/5621078/resnet_18.rknn.zip[resnet_18.rknn]",
     "format":   "RKNN v1.3.2",
+    "link":     "https://github.com/lutzroeder/netron/issues/639"
+  },
+  {
+    "type":     "rknn",
+    "target":   "yolov5s-640-640.rknn",
+    "source":   "https://github.com/lutzroeder/netron/files/8886404/yolov5s-640-640.rknn.zip[yolov5s-640-640.rknn]",
+    "format":   "RKNN v1.2.5",
     "link":     "https://github.com/lutzroeder/netron/issues/639"
   },
   {

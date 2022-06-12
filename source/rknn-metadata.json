@@ -113,11 +113,11 @@
   },
   {
     "name": "VSI_NN_OP_LRN",
-    "category": "NORMALIZATION"
+    "category": "Normalization"
   },
   {
     "name": "VSI_NN_OP_BATCH_NORM",
-    "category": "NORMALIZATION",
+    "category": "Normalization",
     "inputs": [
       { "name": "input" },
       { "name": "gamma" },
@@ -125,5 +125,66 @@
       { "name": "mean" },
       { "name": "variance" }
     ]
+  },
+  {
+    "name": "VSI_NN_OP_LSTM",
+    "category": "Layer"
+  },
+  {
+    "name": "VSI_NN_OP_STRIDED_SLICE",
+    "category": "Tensor"
+  },
+  {
+    "name": "VSI_NN_OP_SWISH",
+    "category": "Activation"
+  },
+  {
+    "name": "VSI_NN_OP_RELUN",
+    "category": "Activation"
+  },
+  {
+    "name": "VSI_NN_OP_INSTANCE_NORM",
+    "category": "Normalization",
+    "inputs": [
+      { "name": "input" },
+      { "name": "scale" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "Conv",
+    "category": "Layer"
+  },
+  {
+    "name": "Concat",
+    "category": "Layer"
+  },
+  {
+    "name": "BatchNormalization",
+    "category": "Normalization"
+  },
+  {
+    "name": "Relu",
+    "category": "Activation"
+  },
+  {
+    "name": "Softmax",
+    "category": "Activation"
+  },
+  {
+    "name": "MaxPool",
+    "category": "Pool"
+  },
+  {
+    "name": "AveragePool",
+    "category": "Pool"
+  },
+  {
+    "name": "Reshape",
+    "category": "Shape"
+  },
+  {
+    "name": "Transpose",
+    "category": "Transform"
   }
 ]

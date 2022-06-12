@@ -1588,7 +1588,7 @@ view.ModelFactoryService = class {
         this.register('./bigdl', [ '.model', '.bigdl' ]);
         this.register('./darknet', [ '.cfg', '.model', '.txt', '.weights' ]);
         this.register('./weka', [ '.model' ]);
-        this.register('./rknn', [ '.rknn', '.onnx' ]);
+        this.register('./rknn', [ '.rknn', '.nb', '.onnx' ]);
         this.register('./dlc', [ '.dlc', 'model', '.params' ]);
         this.register('./armnn', [ '.armnn', '.json' ]);
         this.register('./mnn', ['.mnn']);
@@ -2084,7 +2084,6 @@ view.ModelFactoryService = class {
                 { name: 'TSD header', value: /^%TSD-Header-###%/ },
                 { name: 'AppleDouble data', value: /^\x00\x05\x16\x07/ },
                 { name: 'TensorFlow Hub module', value: /^\x08\x03$/, identifier: 'tfhub_module.pb' },
-                { name: 'OpenVX network binary graph data', value: /^VPMN/ }, // network_binary.nb
                 { name: 'ViSQOL model', value: /^svm_type\snu_svr/ }
             ];
             /* eslint-enable no-control-regex */
