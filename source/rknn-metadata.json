@@ -186,5 +186,45 @@
   {
     "name": "Transpose",
     "category": "Transform"
+  },
+  {
+    "name": "Split",
+    "category": "Tensor"
+  },
+  {
+    "name": "PoolingLayer2",
+    "category": "Pool"
+  },
+  {
+    "name": "Softmax2Layer",
+    "category": "Activation"
+  },
+  {
+    "name": "SoftMax2",
+    "category": "Activation"
+  },
+  {
+    "name": "TensorTranspose",
+    "category": "Transform"
+  },
+  {
+    "name": "ActivationLayer",
+    "category": "Activation"
+  },
+  {
+    "name": "LeakyReluLayer",
+    "category": "Activation"
+  },
+  {
+    "name": "ConvolutionLayer",
+    "category": "Layer"
+  },
+  {
+    "name": "TensorScale",
+    "category": "Layer"
+  },
+  {
+    "name": "BatchNormalizationLayer",
+    "category": "Normalization"
   }
 ]
