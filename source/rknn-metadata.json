@@ -153,15 +153,48 @@
   },
   {
     "name": "Conv",
-    "category": "Layer"
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "ConvRelu",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "ConvClip",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ]
   },
   {
     "name": "Concat",
-    "category": "Layer"
+    "category": "Tensor",
+    "inputs": [
+      { "name": "inputs", "list": true }
+    ]
   },
   {
     "name": "BatchNormalization",
-    "category": "Normalization"
+    "category": "Normalization",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weight" },
+      { "name": "bias" },
+      { "name": "running_mean" },
+      { "name": "running_var" }
+    ]
   },
   {
     "name": "Relu",
@@ -181,15 +214,32 @@
   },
   {
     "name": "Reshape",
-    "category": "Shape"
+    "category": "Shape",
+    "inputs": [
+      { "name": "input" },
+      { "name": "shape" }
+    ]
   },
   {
     "name": "Transpose",
     "category": "Transform"
   },
   {
+    "name": "Add",
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ],
+    "outputs": [
+      { "name": "C" }
+    ]
+  },
+  {
     "name": "Split",
-    "category": "Tensor"
+    "category": "Tensor",
+    "outputs": [
+      { "name": "output", "list": true }
+    ]
   },
   {
     "name": "PoolingLayer2",

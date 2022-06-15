@@ -1,7 +1,7 @@
 namespace rknn;
 
-file_identifier 'RKNN'
-root_type Model
+file_identifier 'RKNN';
+root_type Model;
 
 table Model {
     var1: int;
@@ -42,24 +42,25 @@ table Node {
 }
 
 table Tensor {
-    var01: int;
-    var02: int;
-    var03: int;
-    var04: int;
-    var05: int;
+    data_type: byte;
+    var02: byte;
+    kind: byte;
+    var04: [int];
+    shape: [int];
     name: string;
-    var06: int;
-    var07: int;
-    var08: int;
-    var09: int;
-    var10: int;
-    var11: int;
-    var12: int;
+    var06: [byte];
+    var07: string;
+    var08: [byte];
+    var09: [byte];
+    var10: [byte];
+    var11: [byte];
+    size: int;
     var13: int;
     var14: int;
     var15: int;
     var16: int;
     var17: int;
+    index: int;
 }
 
 table Type1 {

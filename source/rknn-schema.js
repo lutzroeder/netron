@@ -67,24 +67,25 @@ $root.rknn.Tensor = class Tensor {
 
     static decode(reader, position) {
         const $ = new $root.rknn.Tensor();
-        $.var01 = reader.int32_(position, 4, 0);
-        $.var02 = reader.int32_(position, 6, 0);
-        $.var03 = reader.int32_(position, 8, 0);
-        $.var04 = reader.int32_(position, 10, 0);
-        $.var05 = reader.int32_(position, 12, 0);
+        $.data_type = reader.int8_(position, 4, 0);
+        $.var02 = reader.int8_(position, 6, 0);
+        $.kind = reader.int8_(position, 8, 0);
+        $.var04 = reader.typedArray(position, 10, Int32Array);
+        $.shape = reader.typedArray(position, 12, Int32Array);
         $.name = reader.string_(position, 14, null);
-        $.var06 = reader.int32_(position, 16, 0);
-        $.var07 = reader.int32_(position, 18, 0);
-        $.var08 = reader.int32_(position, 20, 0);
-        $.var09 = reader.int32_(position, 22, 0);
-        $.var10 = reader.int32_(position, 24, 0);
-        $.var11 = reader.int32_(position, 26, 0);
-        $.var12 = reader.int32_(position, 28, 0);
+        $.var06 = reader.typedArray(position, 16, Int8Array);
+        $.var07 = reader.string_(position, 18, null);
+        $.var08 = reader.typedArray(position, 20, Int8Array);
+        $.var09 = reader.typedArray(position, 22, Int8Array);
+        $.var10 = reader.typedArray(position, 24, Int8Array);
+        $.var11 = reader.typedArray(position, 26, Int8Array);
+        $.size = reader.int32_(position, 28, 0);
         $.var13 = reader.int32_(position, 30, 0);
         $.var14 = reader.int32_(position, 32, 0);
         $.var15 = reader.int32_(position, 34, 0);
         $.var16 = reader.int32_(position, 36, 0);
         $.var17 = reader.int32_(position, 38, 0);
+        $.index = reader.int32_(position, 40, 0);
         return $;
     }
 };
