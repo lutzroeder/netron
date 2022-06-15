@@ -52,6 +52,7 @@ wnn.Model = class {
             default: throw new wnn.Error("Unsupported model source '" + net.sourceType + "'.");
         }
         this._graphs = [ new wnn.Graph(metadata, net) ];
+        console.log("graph loaded.")
     }
 
     get format() {
@@ -99,6 +100,10 @@ wnn.Graph = class {
         const args = new Map();
         const arg = (index) => {
             if (!args.has(index)) {
+                if (index > net.tensor_names.length) {
+                    index = 0
+                    console.log('WARN! index out of net.tensor_names!!', index, net.tensor_names.length)
+                }
                 const name = net.tensor_names[index];
                 const op = consts.get(index);
                 if (op) {
@@ -129,6 +134,7 @@ wnn.Graph = class {
                 this._nodes.push(new wnn.Node(metadata, op, net, arg));
             }
         }
+        console.log("oplists len: ", oplists.length)
 
         // for (let i = 0; i < net.tensor_names.length; i++) {
         //     if (!inputs.has(i)) {
@@ -171,7 +177,7 @@ wnn.Node = class {
             this._inputs.push(new wnn.Parameter('input', true, Array.from(op.input_indexes).map((index) => arg(index))));
         }
         if (op.output_indexes && op.output_indexes.length > 0) {
-            this._outputs.push(new wnn.Parameter('output9999', true, Array.from(op.output_indexes).map((index) => arg(index))));
+            this._outputs.push(new wnn.Parameter('output', true, Array.from(op.output_indexes).map((index) => arg(index))));
         }
         const param = op.param;
         if (param) {
@@ -185,8 +191,8 @@ wnn.Node = class {
             }
             else if (param instanceof wnn.schema.Conv2D) {
                 const common = param.common;
-                const outputCount = common.output_count;
-                const inputCount = common.input_count;
+                const outputCount = common.out_channels;
+                const inputCount = common.in_channels;
                 const kernelX = common.kernel_x;
                 const kernelY = common.kernel_y;
                 this._buildTensor('weight', wnn.schema.DataType.DT_FLOAT, [ outputCount, inputCount, kernelX, kernelY ], param.weight);
