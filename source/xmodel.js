@@ -192,7 +192,7 @@ xmodel.Node = class {
                 const value = xmodel.Utility.attribute(entry[1]);
                 if (name === 'nonlinear' && value.value && value.value !== 'NONE' && value.value !== 0) {
                     let activation = value.value;
-                    if (typeof value === 'string') {
+                    if (typeof activation === 'string') {
                         activation = activation.toLowerCase();
                     }
                     else if (Number.isInteger(activation) && activation < 5) {
@@ -449,6 +449,7 @@ xmodel.Metadata = class {
             [ 'float2fix', 'Quantization' ],
             [ 'gelu', 'Activation' ],
             [ 'hard-sigmoid', 'Activation' ],
+            [ 'hard-sigmoid-fix', 'Activation' ],
             [ 'hard-swish', 'Activation' ],
             [ 'hard-tanh', 'Activation' ],
             [ 'identity', 'Control' ],
@@ -475,7 +476,9 @@ xmodel.Metadata = class {
             [ 'threshold', 'Quantization' ],
             [ 'transpose', 'Tensor' ],
             [ 'transposed-conv2d', 'Layer' ],
+            [ 'transposed-conv2d-fix', 'Layer' ],
             [ 'transposed-depthwise-conv2d', 'Layer' ],
+            [ 'transposed-depthwise-conv2d-fix', 'Layer' ],
             [ 'upsample-fix', 'Data' ],
         ]);
         for (const op_def of op_defs) {
