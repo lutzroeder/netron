@@ -520,7 +520,13 @@ kmodel.Reader = class {
                         layer.scale = reader.float32();
                         layer.bias = reader.float32();
                     });
-                    register(   13, 'REQUANTIZE');
+                    register(   13, 'REQUANTIZE', '', (layer, reader) => {
+                        layer.flags = reader.uint32();
+                        layer.inputs = [ reader.parameter('input') ];
+                        layer.outputs = [ reader.parameter('output') ];
+                        layer.count = reader.uint32();
+                        layer.table = reader.read(256);
+                    });
                     register(   14, 'L2_NORMALIZATION', 'Normalization');
                     register(   15, 'SOFTMAX', 'Activation', (layer, reader) => {
                         layer.flags = reader.uint32();
