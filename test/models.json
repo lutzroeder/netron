@@ -5377,6 +5377,20 @@
   },
   {
     "type":     "rknn",
+    "target":   "blazeface.rknn",
+    "source":   "https://github.com/lutzroeder/netron/files/8932892/blazeface.rknn.zip[blazeface.rknn]",
+    "format":   "RKNN v1.7.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/639"
+  },
+  {
+    "type":     "rknn",
+    "target":   "ckpt_precompile_20.nb",
+    "source":   "https://github.com/lutzroeder/netron/files/8932893/ckpt_precompile_20.nb.zip[ckpt_precompile_20.nb]",
+    "format":   "RKNN OpenVX",
+    "link":     "https://github.com/lutzroeder/netron/issues/639"
+  },
+  {
+    "type":     "rknn",
     "target":   "det_monitor.nb",
     "source":   "https://github.com/lutzroeder/netron/files/8886768/det_monitor.nb.zip[det_monitor.nb]",
     "format":   "RKNN OpenVX",
