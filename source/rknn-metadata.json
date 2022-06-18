@@ -276,5 +276,13 @@
   {
     "name": "BatchNormalizationLayer",
     "category": "Normalization"
+  },
+  {
+    "name": "Sigmoid",
+    "category": "Activation"
+  },
+  {
+    "name": "Slice",
+    "category": "Tensor"
   }
 ]
