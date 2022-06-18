@@ -2379,7 +2379,7 @@
     ],
     "examples": [
       {
-        "code": "# With explicit InputLayer.\nmodel = tf.keras.Sequential([\n  tf.keras.layers.InputLayer(input_shape=(4,)),\n  tf.keras.layers.Dense(8)])\nmodel.compile(tf.optimizers.RMSprop(0.001), loss='mse')\nmodel.fit(np.zeros((10, 4)),\n          np.ones((10, 8)))\n\n# Without InputLayer and let the first layer to have the input_shape.\n# Keras will add a input for the model behind the scene.\nmodel = tf.keras.Sequential([\n  tf.keras.layers.Dense(8, input_shape=(4,))])\nmodel.compile(tf.optimizers.RMSprop(0.001), loss='mse')\nmodel.fit(np.zeros((10, 4)),\n          np.ones((10, 8)))"
+        "code": "# With explicit InputLayer.\nmodel = tf.keras.Sequential([\n  tf.keras.layers.InputLayer(input_shape=(4,)),\n  tf.keras.layers.Dense(8)])\nmodel.compile(tf.keras.optimizers.RMSprop(0.001), loss='mse')\nmodel.fit(np.zeros((10, 4)),\n          np.ones((10, 8)))\n\n# Without InputLayer and let the first layer to have the input_shape.\n# Keras will add a input for the model behind the scene.\nmodel = tf.keras.Sequential([\n  tf.keras.layers.Dense(8, input_shape=(4,))])\nmodel.compile(tf.keras.optimizers.RMSprop(0.001), loss='mse')\nmodel.fit(np.zeros((10, 4)),\n          np.ones((10, 8)))"
       }
     ]
   },
