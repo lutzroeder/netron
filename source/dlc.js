@@ -515,7 +515,7 @@ dlc.Container = class {
             const reader = flatbuffers.BinaryReader.open(buffer);
             return reader.identifier;
         }
-        else if (stream.length > 8) {
+        else if (stream && stream.length > 8) {
             const buffer = stream.peek(8);
             const reader = flatbuffers.BinaryReader.open(buffer);
             return reader.identifier;
@@ -524,7 +524,7 @@ dlc.Container = class {
     }
 
     static _signature(stream, signature) {
-        return stream.length > 16 && stream.peek(signature.length).every((value, index) => value === signature[index]);
+        return stream && stream.length > 16 && stream.peek(signature.length).every((value, index) => value === signature[index]);
     }
 };
 
