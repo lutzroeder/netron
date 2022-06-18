@@ -23,7 +23,7 @@
         "electron": "19.0.4",
         "electron-builder": "23.0.4",
         "electron-notarize": "1.2.1",
-        "eslint": "8.17.0"
+        "eslint": "8.18.0"
     },
     "eslintConfig": {
         "env": {
