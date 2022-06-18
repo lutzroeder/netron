@@ -200,7 +200,7 @@ rknn.Graph = class {
             }
             case 'flatbuffers': {
                 const graph = obj;
-                const dataTypes = [ 'unk0', '?', '?', 'int8', '?', 'int16', 'float32', 'int64', '?', '?', 'float16', '?', '?', 'unk13' ];
+                const dataTypes = [ 'unk0', 'int32', '?', 'int8', '?', 'int16', 'float32', 'int64', '?', '?', 'float16', '?', '?', 'unk13' ];
                 const args = graph.tensors.map((tensor) => {
                     const shape = new rknn.TensorShape(Array.from(tensor.shape));
                     const dataType = tensor.data_type < dataTypes.length ? dataTypes[tensor.data_type] : '?';
