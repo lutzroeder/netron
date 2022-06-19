@@ -1380,12 +1380,6 @@
   },
   {
     "type":     "coreml",
-    "target":   "HED_fuse.mlmodel",
-    "source":   "https://raw.githubusercontent.com/s1ddok/HED-CoreML/master/HED-CoreML/Models/HED_fuse.mlmodel",
-    "link":     "https://github.com/s1ddok/HED-CoreML"
-  },
-  {
-    "type":     "coreml",
     "target":   "imdb_lstm.mlmodel",
     "source":   "https://github.com/lutzroeder/netron/files/2591614/imdb_lstm.mlmodel.zip[imdb_lstm.mlmodel]",
     "format":   "Core ML v1",
@@ -1508,11 +1502,6 @@
     "source":   "https://raw.githubusercontent.com/CapTechMobile/blogfest-coreml/d8e8c15d33e9591c9e81cb18e5ea4b2fb6972503/ReadTheRoom/ReadTheRoom.mlmodel",
     "format":   "Core ML v4",
     "link":     "https://github.com/CapTechMobile/blogfest-coreml"
-  },
-  {
-    "type":     "coreml",
-    "target":   "Resnet50.mlmodel",
-    "source":   "https://docs-assets.developer.apple.com/coreml/models/Resnet50.mlmodel"
   },
   {
     "type":     "coreml",
