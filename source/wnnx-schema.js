@@ -40,6 +40,35 @@ $root.wnn.DeviceType = {
     kCPU: 10
 };
 
+$root.wnn.QuantType = {
+    no_quant: 0,
+    int8: 1,
+    sparse_quant: 2,
+    fp16: 3,
+    bfp16: 4,
+    weight_int8: 5,
+    int4: 6
+};
+
+$root.wnn.Quant = class Quant {
+
+    static decode(reader, position) {
+        const $ = new $root.wnn.Quant();
+        $.buffer = reader.typedArray(position, 4, Int8Array);
+        $.alpha = reader.typedArray(position, 6, Float32Array);
+        $.quant_type = reader.int8_(position, 8, 0);
+        $.use_int32 = reader.bool_(position, 10, false);
+        $.quant_scale = reader.float32_(position, 12, 0);
+        $.scale_in = reader.float32_(position, 14, 0);
+        $.scale_out = reader.float32_(position, 16, 0);
+        $.a_max = reader.int32_(position, 18, 0);
+        $.a_min = reader.int32_(position, 20, 0);
+        $.read_type = reader.int32_(position, 22, 0);
+        $.has_scale_int = reader.bool_(position, 24, false);
+        return $;
+    }
+};
+
 $root.wnn.WNN_DATA_FORMAT = {
     NCHW: 0,
     NHWC: 1,
@@ -128,78 +157,56 @@ $root.wnn.OpType = {
     tanh: 16,
     silu: 17,
     mish: 18,
-    fc: 19,
-    matmul: 20,
-    fc_share: 21,
-    lstm: 22,
-    onehot: 23,
-    transpose: 24,
-    gather: 25,
-    split: 26,
-    concat: 27,
-    activation: 28,
-    binary_op: 29,
-    fill: 30,
-    pad: 31,
-    reshape: 32,
-    instancenorm: 33,
-    conv_depthwise: 34,
-    quantized_avgpool: 35,
-    quantized_concat: 36,
-    quantized_matmul: 37,
-    quantized_relu: 38,
-    quantized_relu6: 39,
-    quantized_softmax: 40,
-    roipooling: 41,
-    roialign: 42,
-    unary: 43,
-    unary_square: 44,
-    unary_sqrt: 45,
-    binary: 46,
-    binary_add: 47,
-    binary_mul: 48,
-    binary_div: 49,
-    binary_sub: 50,
-    softmax: 51,
-    scatternd: 52,
-    gathernd: 53,
-    nms: 54,
-    input: 55,
-    output: 56,
-    extra: 57,
-    eltwise: 58,
-    reduction: 59,
-    expand_dims: 60,
-    unsupported: 61
-};
-
-$root.wnn.QuantType = {
-    no_quant: 0,
-    int8: 1,
-    sparse_quant: 2,
-    fp16: 3,
-    bfp16: 4,
-    weight_int8: 5,
-    int4: 6
-};
-
-$root.wnn.Quant = class Quant {
-
-    static decode(reader, position) {
-        const $ = new $root.wnn.Quant();
-        $.buffer = reader.typedArray(position, 4, Int8Array);
-        $.alpha = reader.typedArray(position, 6, Float32Array);
-        $.quant_type = reader.int8_(position, 8, 0);
-        $.use_int32 = reader.bool_(position, 10, false);
-        $.quant_scale = reader.float32_(position, 12, 0);
-        $.scale_in = reader.float32_(position, 14, 0);
-        $.scale_out = reader.float32_(position, 16, 0);
-        $.a_max = reader.int32_(position, 18, 0);
-        $.a_min = reader.int32_(position, 20, 0);
-        $.read_type = reader.int32_(position, 22, 0);
-        $.has_scale_int = reader.bool_(position, 24, false);
-        return $;
-    }
+    hardswish: 19,
+    hardsigmoid: 20,
+    sigmoid: 21,
+    fc: 22,
+    flatten: 23,
+    matmul: 24,
+    fc_share: 25,
+    lstm: 26,
+    onehot: 27,
+    transpose: 28,
+    gather: 29,
+    split: 30,
+    concat: 31,
+    activation: 32,
+    binary_op: 33,
+    fill: 34,
+    pad: 35,
+    reshape: 36,
+    instancenorm: 37,
+    conv_depthwise: 38,
+    quantized_avgpool: 39,
+    quantized_concat: 40,
+    quantized_matmul: 41,
+    quantized_relu: 42,
+    quantized_relu6: 43,
+    quantized_softmax: 44,
+    roipooling: 45,
+    roialign: 46,
+    unary: 47,
+    unary_square: 48,
+    unary_sqrt: 49,
+    binary: 50,
+    binary_add: 51,
+    binary_mul: 52,
+    binary_div: 53,
+    binary_sub: 54,
+    softmax: 55,
+    scatternd: 56,
+    gathernd: 57,
+    nms: 58,
+    input: 59,
+    output: 60,
+    extra: 61,
+    eltwise: 62,
+    reduction: 63,
+    expand_dims: 64,
+    normalize: 65,
+    unsupported: 66,
+    film_lpn: 67,
+    cubic: 68
 };
 
 $root.wnn.PadMode = {
@@ -298,6 +305,9 @@ $root.wnn.Pool = class Pool {
         $.in_channels = reader.int32_(position, 30, 0);
         $.in_width = reader.int32_(position, 32, 0);
         $.in_height = reader.int32_(position, 34, 0);
+        $.is_adaptive = reader.bool_(position, 36, false);
+        $.out_height = reader.int32_(position, 38, 0);
+        $.out_width = reader.int32_(position, 40, 0);
         return $;
     }
 };
@@ -399,16 +409,6 @@ $root.wnn.LRN = class LRN {
         $.alpha = reader.float32_(position, 8, 0);
         $.beta = reader.float32_(position, 10, 0);
         $.bias = reader.float32_(position, 12, 1);
-        return $;
-    }
-};
-
-$root.wnn.Flatten = class Flatten {
-
-    static decode(reader, position) {
-        const $ = new $root.wnn.Flatten();
-        $.axis = reader.int32_(position, 4, 0);
-        $.end_axis = reader.int32_(position, 6, 0);
         return $;
     }
 };
@@ -621,6 +621,76 @@ $root.wnn.ExpandDims = class ExpandDims {
     }
 };
 
+$root.wnn.Flatten = class Flatten {
+
+    static decode(reader, position) {
+        const $ = new $root.wnn.Flatten();
+        $.start_dim = reader.int32_(position, 4, 0);
+        $.end_dim = reader.int32_(position, 6, 0);
+        return $;
+    }
+};
+
+$root.wnn.ImageFormatType = {
+    RGBA: 0,
+    RGB: 1,
+    BGR: 2,
+    GRAY: 3,
+    YUV: 4,
+    HSV: 5
+};
+
+$root.wnn.FilterType = {
+    NEAREST: 0,
+    BILINEAR: 1,
+    BICUBIC: 2
+};
+
+$root.wnn.Normalize = class Normalize {
+
+    static decode(reader, position) {
+        const $ = new $root.wnn.Normalize();
+        $.means = reader.typedArray(position, 4, Float32Array);
+        $.stds = reader.typedArray(position, 6, Float32Array);
+        $.denormalize = reader.bool_(position, 8, false);
+        $.epsilon = reader.float32_(position, 10, 0.00001);
+        return $;
+    }
+};
+
+$root.wnn.FilmLPN = class FilmLPN {
+
+    static decode(reader, position) {
+        const $ = new $root.wnn.FilmLPN();
+        $.in_features = reader.int32_(position, 4, 0);
+        $.out_features = reader.int32_(position, 6, 0);
+        $.input_n = reader.int32_(position, 8, 1);
+        $.weight_size = reader.int32_(position, 10, 0);
+        $.weights = reader.typedArray(position, 12, Float32Array);
+        $.bias = reader.typedArray(position, 14, Float32Array);
+        $.bias_size = reader.int32_(position, 16, 0);
+        $.quant_param = reader.table(position, 18, $root.wnn.Quant.decode);
+        return $;
+    }
+};
+
+$root.wnn.Cubic = class Cubic {
+
+    static decode(reader, position) {
+        const $ = new $root.wnn.Cubic();
+        $.in_features = reader.int32_(position, 4, 0);
+        $.out_features = reader.int32_(position, 6, 0);
+        $.input_n = reader.int32_(position, 8, 1);
+        $.merge_matmul = reader.bool_(position, 10, true);
+        $.weight_size = reader.int32_(position, 12, 0);
+        $.weight = reader.typedArray(position, 14, Float32Array);
+        $.bias = reader.typedArray(position, 16, Float32Array);
+        $.bias_size = reader.int32_(position, 18, 0);
+        $.quant_param = reader.table(position, 20, $root.wnn.Quant.decode);
+        return $;
+    }
+};
+
 $root.wnn.ModelSource = {
     TORCH: 0,
     TENSORFLOW: 1,
@@ -655,6 +725,10 @@ $root.wnn.OpParameter = class {
             case 21: return $root.wnn.Squeeze.decode(reader, position);
             case 22: return $root.wnn.Gather.decode(reader, position);
             case 23: return $root.wnn.ExpandDims.decode(reader, position);
+            case 24: return $root.wnn.Normalize.decode(reader, position);
+            case 25: return $root.wnn.Flatten.decode(reader, position);
+            case 26: return $root.wnn.FilmLPN.decode(reader, position);
+            case 27: return $root.wnn.Cubic.decode(reader, position);
             default: return undefined;
         }
     }
@@ -684,6 +758,10 @@ $root.wnn.OpParameter = class {
             case 'Squeeze': return $root.wnn.Squeeze.decodeText(reader, json);
             case 'Gather': return $root.wnn.Gather.decodeText(reader, json);
             case 'ExpandDims': return $root.wnn.ExpandDims.decodeText(reader, json);
+            case 'Normalize': return $root.wnn.Normalize.decodeText(reader, json);
+            case 'Flatten': return $root.wnn.Flatten.decodeText(reader, json);
+            case 'FilmLPN': return $root.wnn.FilmLPN.decodeText(reader, json);
+            case 'Cubic': return $root.wnn.Cubic.decodeText(reader, json);
             default: return undefined;
         }
     }
