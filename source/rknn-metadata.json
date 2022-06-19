@@ -76,6 +76,10 @@
     "category": "Activation"
   },
   {
+    "name": "VSI_NN_OP_MISH",
+    "category": "Activation"
+  },
+  {
     "name": "VSI_NN_OP_PERMUTE",
     "category": "Shape"
   },
@@ -279,6 +283,10 @@
   },
   {
     "name": "Sigmoid",
+    "category": "Activation"
+  },
+  {
+    "name": "exSwish",
     "category": "Activation"
   },
   {
