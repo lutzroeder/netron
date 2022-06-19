@@ -405,6 +405,10 @@
     "description": "A layer that scales up spatial dimensions. It supports two modes: nearest neighbour (default) and bilinear."
   },
   {
+    "name": "transpose",
+    "category": "Transform"
+  },
+  {
     "name": "wordTagger",
     "attributes": [
       { "name": "revision", "visible": false }
