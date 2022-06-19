@@ -5440,6 +5440,13 @@
   },
   {
     "type":     "rknn",
+    "target":   "ssd_inception_v2.rknn",
+    "source":   "https://raw.githubusercontent.com/radxa/rknpu2/00f555433f07936dde0e4442f65bc46354934130/examples/rknn_ssd_demo/model/RK356X/ssd_inception_v2.rknn",
+    "format":   "RKNN v1.0.0",
+    "link":     "https://github.com/radxa/rknpu2/tree/00f555433f07936dde0e4442f65bc46354934130/examples/rknn_ssd_demo/model/RK356X"
+  },
+  {
+    "type":     "rknn",
     "target":   "yolov5s-640-640.rknn",
     "source":   "https://github.com/lutzroeder/netron/files/8886404/yolov5s-640-640.rknn.zip[yolov5s-640-640.rknn]",
     "format":   "RKNN v1.2.5",
