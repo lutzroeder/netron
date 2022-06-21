@@ -50,6 +50,13 @@
   },
   {
     "type":     "_",
+    "target":   "keras2onnx.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/5738366/keras2onnx.onnx.zip[keras2onnx.onnx]",
+    "error":    "File format is not onnx.ModelProto (Unexpected end of file) in 'keras2onnx.onnx'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "_",
     "target":   "knift_index.pb",
     "error":    "Invalid file content. File contains mediapipe.BoxDetectorIndex data.",
     "source":   "https://github.com/lutzroeder/netron/files/6308301/knift_index.pb.zip[knift_index.pb]"
@@ -3446,13 +3453,6 @@
   },
   {
     "type":     "onnx",
-    "target":   "keras2onnx.onnx",
-    "source":   "https://github.com/lutzroeder/netron/files/5738366/keras2onnx.onnx.zip[keras2onnx.onnx]",
-    "error":    "File format is not onnx.ModelProto (Unexpected end of file) in 'keras2onnx.onnx'.",
-    "link":     "https://github.com/lutzroeder/netron/issues/6"
-  },
-  {
-    "type":     "onnx",
     "target":   "Kmeans.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/2592495/Kmeans.onnx.zip[Kmeans.onnx]",
     "format":   "ONNX v3",
@@ -3746,8 +3746,8 @@
 
   {
     "type":     "onnx",
-    "target":   "yolov3.onnx",
-    "source":   "https://github.com/lutzroeder/netron/files/5581031/yolov3.onnx.zip[yolov3.onnx]",
+    "target":   "yolov3.onnx.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/8942116/yolov3.onnx.zip",
     "format":   "ONNX v5",
     "producer": "keras2onnx 1.5.1",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
