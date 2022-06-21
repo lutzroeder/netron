@@ -1,24 +1,24 @@
-
-from curses import meta
-
+import collections
+import json
 
 def serialize(model):
     print('Experimental')
     # import onnx.shape_inference
     # model = onnx.shape_inference.infer_shapes(model)
-    import collections
-    import onnx.onnx_pb
+    import onnx.onnx_pb # pylint: disable=import-outside-toplevel
     json_model = {}
     json_model['signature'] = 'netron:onnx'
     json_model['format'] = 'ONNX' + (' v' + str(model.ir_version) if model.ir_version else '')
     if model.producer_name and len(model.producer_name) > 0:
-        json_model['producer'] = model.producer_name + (' v' + model.producer_version if model.producer_version else '')
+        producer_version = ' v' + model.producer_version if model.producer_version else ''
+        json_model['producer'] = model.producer_name + producer_version
     if model.model_version and model.model_version != 0:
         json_model['version'] = str(model.model_version)
     if model.doc_string and len(model.doc_string):
         json_model['description'] = str(model.doc_string)
     json_metadata = []
-    metadata = collections.OrderedDict([ [entry.key, entry.value] for entry in model.metadata_props ])
+    metadata_props = [ [ entry.key, entry.value ] for entry in model.metadata_props ]
+    metadata = collections.OrderedDict(metadata_props)
     converted_from = metadata.get('converted_from')
     if converted_from:
         json_metadata.append({ 'name': 'source', 'value': converted_from })
@@ -50,71 +50,103 @@ def serialize(model):
         json_model['metadata'] = json_metadata
     json_model['graphs'] = []
     graph = model.graph
-    json_graph = {}
-    json_graph['nodes'] = []
+    json_graph = {
+        'nodes': [],
+        'inputs': [],
+        'outputs': [],
+        'arguments': []
+    }
     json_model['graphs'].append(json_graph)
+    arguments = dict()
+    def tensor(tensor):
+        return {}
+    def argument(name, type=None, initializer=None):
+        if not name in arguments:
+            json_argument = {}
+            json_argument['name'] = name
+            arguments[name] = len(json_graph['arguments'])
+            json_graph['arguments'].append(json_argument)
+        index = arguments[name]
+        if type or initializer:
+            json_argument = json_graph['arguments'][index]
+            if initializer:
+                json_argument['initializer'] = tensor(initializer)
+        return index
+
+    for value_info in graph.value_info:
+        argument(value_info.name)
+    for initializer in graph.initializer:
+        argument(initializer.name, None, initializer)
     for node in graph.node:
+        op_type = node.op_type
         json_node = {}
         json_node_type = {}
-        json_node_type['name'] = node.op_type
-        if category(node.op_type):
-            json_node_type['category'] = category(node.op_type)
+        json_node_type['name'] = op_type
+        if category(op_type):
+            json_node_type['category'] = category(op_type)
         json_node['type'] = json_node_type
         if node.name:
             json_node['name'] = node.name
         json_node['inputs'] = []
         for input in node.input:
             json_node['inputs'].append({
-                    'name': '',
-                    'arguments': [ { 'name': input } ]
+                    'name': 'X',
+                    'arguments': [ argument(input) ]
                 })
         json_node['outputs'] = []
         for output in node.output:
             json_node['outputs'].append({
-                    'name': '',
-                    'arguments': [ { 'name': output } ]
+                    'name': 'X',
+                    'arguments': [ argument(output) ]
                 })
         json_node['attributes'] = []
         for attribute in node.attribute:
-            json_attribute = {}
-            json_attribute['name'] = attribute.name
-            if attribute.type == onnx.onnx_pb.AttributeProto.FLOAT:
-                json_attribute['type'] = 'float32'
-                json_attribute['value'] = attribute.f
+            if attribute.type == onnx.onnx_pb.AttributeProto.UNDEFINED:
+                type = None
+                value = None
+            elif attribute.type == onnx.onnx_pb.AttributeProto.FLOAT:
+                type = 'float32'
+                value = attribute.f
             elif attribute.type == onnx.onnx_pb.AttributeProto.INT:
-                json_attribute['type'] = 'int64'
-                json_attribute['value'] = attribute.i
+                type = 'int64'
+                value = attribute.i
             elif attribute.type == onnx.onnx_pb.AttributeProto.STRING:
-                json_attribute['type'] = 'string'
-                json_attribute['value'] = attribute.s.decode('utf-8')
+                type = 'string'
+                value = attribute.s.decode('latin1') if op_type == 'Int8GivenTensorFill' else attribute.s.decode('utf-8')
             elif attribute.type == onnx.onnx_pb.AttributeProto.TENSOR:
-                json_attribute['type'] = 'tensor'
-                raise Exception('Unsupported tensor attribute type')
+                type = 'tensor'
+                value = tensor(attribute.t)
             elif attribute.type == onnx.onnx_pb.AttributeProto.GRAPH:
-                json_attribute['graph'] = 'tensor'
+                graph = 'tensor'
                 raise Exception('Unsupported graph attribute type')
             elif attribute.type == onnx.onnx_pb.AttributeProto.FLOATS:
-                json_attribute['type'] = 'float32[]'
-                json_attribute['value'] = [ item for item in attribute.floats ]
+                type = 'float32[]'
+                value = [ item for item in attribute.floats ]
             elif attribute.type == onnx.onnx_pb.AttributeProto.INTS:
-                json_attribute['type'] = 'int64[]'
-                json_attribute['value'] = [ item for item in attribute.ints ]
+                type = 'int64[]'
+                value = [ item for item in attribute.ints ]
             elif attribute.type == onnx.onnx_pb.AttributeProto.STRINGS:
-                json_attribute['type'] = 'string[]'
-                json_attribute['value'] = [ item for item in attribute.strings ]
+                type = 'string[]'
+                value = [ item.decode('utf-8') for item in attribute.strings ]
             elif attribute.type == onnx.onnx_pb.AttributeProto.TENSORS:
-                json_attribute['type'] = 'tensor[]'
+                type = 'tensor[]'
                 raise Exception('Unsupported tensors attribute type')
             elif attribute.type == onnx.onnx_pb.AttributeProto.GRAPHS:
-                json_attribute['type'] = 'graph[]'
+                type = 'graph[]'
                 raise Exception('Unsupported graphs attribute type')
+            elif attribute.type == onnx.onnx_pb.AttributeProto.SPARSE_TENSOR:
+                type = 'tensor'
+                value = tensor(attribute.sparse_tensor)
             else:
-                raise Exception('Unsupported attribute type')
+                raise Exception("Unsupported attribute type '" + str(attribute.type) + "'.")
+            json_attribute = {}
+            json_attribute['name'] = attribute.name
+            if type:
+                json_attribute['type'] = type
+            json_attribute['value'] = value
             json_node['attributes'].append(json_attribute)
         json_graph['nodes'].append(json_node)
-
-    import json
-    text = json.dumps(json_model, ensure_ascii=False, indent=2)
+    text = json.dumps(json_model, ensure_ascii=False)
     return text.encode('utf-8')
 
 categories = {
@@ -177,5 +209,5 @@ categories = {
     'Squeeze': 'Transform',
 }
 
-def category(type):
-    return categories[type] if type in categories else ''
+def category(name):
+    return categories[name] if name in categories else ''

@@ -1,51 +1,47 @@
+"""Netron Python Server implementation.
+"""
 
 import codecs
 import errno
+import http.server
 import os
 import random
 import re
 import socket
+import socketserver
 import sys
 import threading
-import webbrowser
 import time
+import webbrowser
+import urllib.parse
 
 from .__version__ import __version__
 
-if sys.version_info[0] > 2:
-    from urllib.parse import urlparse
-    from urllib.parse import unquote
-    from http.server import HTTPServer
-    from http.server import BaseHTTPRequestHandler
-    from socketserver import ThreadingMixIn
-else:
-    from urlparse import urlparse
-    from urlparse import unquote
-    from BaseHTTPServer import HTTPServer
-    from BaseHTTPServer import BaseHTTPRequestHandler
-    from SocketServer import ThreadingMixIn
-
-class HTTPRequestHandler(BaseHTTPRequestHandler):
-    def handler(self):
-        if not hasattr(self, 'mime_types_map'):
-            self.mime_types_map = {
-                '.html': 'text/html',
-                '.js':   'text/javascript',
-                '.css':  'text/css',
-                '.png':  'image/png',
-                '.gif':  'image/gif',
-                '.jpg':  'image/jpeg',
-                '.ico':  'image/x-icon',
-                '.json': 'application/json',
-                '.pb': 'application/octet-stream',
-                '.ttf': 'font/truetype',
-                '.otf': 'font/opentype',
-                '.eot': 'application/vnd.ms-fontobject',
-                '.woff': 'font/woff',
-                '.woff2': 'application/font-woff2',
-                '.svg': 'image/svg+xml'
-            }
-        pathname = urlparse(self.path).path
+class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
+    file = ""
+    data = bytearray()
+    folder = ""
+    log = False
+    mime_types_map = {
+        '.html': 'text/html',
+        '.js':   'text/javascript',
+        '.css':  'text/css',
+        '.png':  'image/png',
+        '.gif':  'image/gif',
+        '.jpg':  'image/jpeg',
+        '.ico':  'image/x-icon',
+        '.json': 'application/json',
+        '.pb': 'application/octet-stream',
+        '.ttf': 'font/truetype',
+        '.otf': 'font/opentype',
+        '.eot': 'application/vnd.ms-fontobject',
+        '.woff': 'font/woff',
+        '.woff2': 'application/font-woff2',
+        '.svg': 'image/svg+xml'
+    }
+    def do_GET(self): # pylint: disable=invalid-name
+        """ Serve a GET request """
+        pathname = urllib.parse.urlparse(self.path).path
         folder = os.path.dirname(os.path.realpath(__file__))
         location = folder + pathname
         status_code = 0
@@ -71,7 +67,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 if file == self.file and self.data:
                     buffer = self.data
                 else:
-                    file = self.folder + '/' + unquote(file)
+                    file = self.folder + '/' + urllib.parse.unquote(file)
                     status_code = 404
                     if os.path.exists(file):
                         with open(file, 'rb') as binary:
@@ -96,22 +92,21 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             sys.stdout.write(str(status_code) + ' ' + self.command + ' ' + self.path + '\n')
         sys.stdout.flush()
         self.send_response(status_code)
-        for key in headers:
-            self.send_header(key, headers[key])
+        for key, value in headers.items():
+            self.send_header(key, value)
         self.end_headers()
         if self.command != 'HEAD':
             if status_code == 404 and buffer is None:
                 self.wfile.write(bytes(status_code))
             elif (status_code in (200, 404)) and buffer is not None:
                 self.wfile.write(buffer)
-    def do_GET(self):
-        self.handler()
-    def do_HEAD(self):
-        self.handler()
+    def do_HEAD(self): # pylint: disable=invalid-name
+        """ Serve a HEAD request """
+        self.do_GET()
     def log_message(self, format, *args):
         return
 
-class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
     pass
 
 class HTTPServerThread(threading.Thread):
@@ -123,7 +118,8 @@ class HTTPServerThread(threading.Thread):
         self.server = ThreadedHTTPServer(address, HTTPRequestHandler)
         self.server.timeout = 0.25
         if file:
-            self.server.RequestHandlerClass.folder = os.path.dirname(file) if os.path.dirname(file) else '.'
+            folder = os.path.dirname(file) if os.path.dirname(file) else '.'
+            self.server.RequestHandlerClass.folder = folder
             self.server.RequestHandlerClass.file = os.path.basename(file)
         else:
             self.server.RequestHandlerClass.folder = ''
@@ -140,7 +136,7 @@ class HTTPServerThread(threading.Thread):
         try:
             while not self.stop_event.is_set():
                 self.server.handle_request()
-        except Exception:
+        except: # pylint: disable=bare-except
             pass
         self.terminate_event.set()
         self.stop_event.clear()
@@ -205,7 +201,7 @@ def _make_port(address):
                 sockname = temp_socket.getsockname()
                 address = (address[0], sockname[1])
                 return address
-            except:
+            except: # pylint: disable=bare-except
                 pass
             finally:
                 temp_socket.close()
@@ -261,11 +257,11 @@ def serve(file, data, address=None, browse=False, log=False):
 
     if data and not isinstance(data, bytearray):
         if data.__class__.__module__ == 'onnx.onnx_ml_pb2' and data.__class__.__name__ == 'ModelProto':
-            from .onnx import serialize
+            from .onnx import serialize # pylint: disable=import-outside-toplevel
             data = serialize(data)
             file = 'test.json'
         elif data.__class__.__module__ == 'torch._C' and data.__class__.__name__ == 'Graph':
-            from .pytorch import serialize
+            from .pytorch import serialize # pylint: disable=import-outside-toplevel
             data = serialize(data)
             file = 'test.json'
         else:
