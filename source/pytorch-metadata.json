@@ -2767,10 +2767,21 @@
     ]
   },
   {
-    "name": "torch.meshgrid",
+    "name": "torch.meshgrid:",
     "category": "Tensor",
     "inputs": [
       { "name": "tensors", "type": "Tensor[]" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor[]" }
+    ]
+  },
+  {
+    "name": "torch.meshgrid:indexing",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "tensors", "type": "Tensor[]" },
+      { "name": "indexing", "type": "string" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor[]" }
