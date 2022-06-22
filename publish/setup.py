@@ -59,7 +59,7 @@ def package_version():
         return manifest['version']
 
 setuptools.setup(
-    name="netron",
+    name="wnetron",
     version=package_version(),
     description="Viewer for neural network, deep learning, and machine learning models",
     long_description='Netron is a viewer for neural network, deep learning, and machine learning models.\n\n' +

@@ -71,7 +71,7 @@ coverage:
 
 publish_python: build_python
 	python -m pip install --user twine
-	python -m twine upload --non-interactive --skip-existing --verbose dist/dist/*
+	python -m twine upload --skip-existing --verbose dist/dist/*
 
 publish_electron: install
 	npx electron-builder --mac --universal --publish always
