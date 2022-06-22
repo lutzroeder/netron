@@ -264,6 +264,7 @@ $root.wnn.Conv2D = class Conv2D {
         $.has_act = reader.bool_(position, 10, false);
         $.act_type = reader.int32_(position, 12, 0);
         $.input_shape = reader.typedArray(position, 14, Int32Array);
+        $.quant_param = reader.table(position, 16, $root.wnn.Quant.decode);
         return $;
     }
 };
@@ -727,8 +728,9 @@ $root.wnn.OpParameter = class {
             case 23: return $root.wnn.ExpandDims.decode(reader, position);
             case 24: return $root.wnn.Normalize.decode(reader, position);
             case 25: return $root.wnn.Flatten.decode(reader, position);
-            case 26: return $root.wnn.FilmLPN.decode(reader, position);
-            case 27: return $root.wnn.Cubic.decode(reader, position);
+            case 26: return $root.wnn.Blob.decode(reader, position);
+            case 27: return $root.wnn.FilmLPN.decode(reader, position);
+            case 28: return $root.wnn.Cubic.decode(reader, position);
             default: return undefined;
         }
     }
@@ -760,6 +762,7 @@ $root.wnn.OpParameter = class {
             case 'ExpandDims': return $root.wnn.ExpandDims.decodeText(reader, json);
             case 'Normalize': return $root.wnn.Normalize.decodeText(reader, json);
             case 'Flatten': return $root.wnn.Flatten.decodeText(reader, json);
+            case 'Blob': return $root.wnn.Blob.decodeText(reader, json);
             case 'FilmLPN': return $root.wnn.FilmLPN.decodeText(reader, json);
             case 'Cubic': return $root.wnn.Cubic.decodeText(reader, json);
             default: return undefined;
