@@ -5247,6 +5247,16 @@
     ]
   },
   {
+    "name": "torch.to_mkldnn:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.topk:",
     "inputs": [
       { "name": "self", "type": "Tensor" },
