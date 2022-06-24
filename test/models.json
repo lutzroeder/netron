@@ -6564,13 +6564,6 @@
   },
   {
     "type":     "torch",
-    "target":   "composition_vii.t7",
-    "source":   "https://cs.stanford.edu/people/jcjohns/fast-neural-style/models/eccv16/composition_vii.t7",
-    "format":   "Torch v7",
-    "link":     "https://github.com/jcjohnson/fast-neural-style"
-  },
-  {
-    "type":     "torch",
     "target":   "cunet_art_14l_scale2.0x_model.t7",
     "source":   "https://raw.githubusercontent.com/nagadomi/waifu2x/master/models/cunet/art/noise0_model.t7",
     "format":   "Torch v7",
