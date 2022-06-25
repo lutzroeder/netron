@@ -2181,10 +2181,14 @@ python.Execution = class {
         this.registerType('sklearn.feature_selection._variance_threshold.VarianceThreshold', class {});
         this.registerType('sklearn.feature_selection.univariate_selection.SelectKBest', class {});
         this.registerType('sklearn.feature_selection.variance_threshold.VarianceThreshold', class {});
+        this.registerType('sklearn.gaussian_process._gpr.GaussianProcessRegressor', class {});
         this.registerType('sklearn.gaussian_process.gpc.GaussianProcessClassifier', class {});
         this.registerType('sklearn.gaussian_process.kernels.ConstantKernel', class {});
+        this.registerType('sklearn.gaussian_process.kernels.DotProduct', class {});
         this.registerType('sklearn.gaussian_process.kernels.Product', class {});
         this.registerType('sklearn.gaussian_process.kernels.RBF', class {});
+        this.registerType('sklearn.gaussian_process.kernels.Sum', class {});
+        this.registerType('sklearn.gaussian_process.kernels.WhiteKernel', class {});
         this.registerType('sklearn.grid_search._CVScoreTuple', class {});
         this.registerType('sklearn.grid_search.GridSearchCV', class {});
         this.registerType('sklearn.impute._base.SimpleImputer', class {});
