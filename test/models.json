@@ -4734,13 +4734,6 @@
   },
   {
     "type":     "pytorch",
-    "target":   "Mobilenet_se_focal_121000.pb",
-    "source":   "https://download.01.org/openvinotoolkit/open_model_zoo/training_toolbox_pytorch/models/fr/Mobilenet_se_focal_121000.pt",
-    "format":   "PyTorch v0.1.10",
-    "link":     "https://github.com/grib0ed0v/face_recognition.pytorch"
-  },
-  {
-    "type":     "pytorch",
     "target":   "mobilenet_quantization_scripted_quantized_1.pth",
     "source":   "https://github.com/lutzroeder/netron/files/5394885/mobilenet_quantization_scripted_quantized.zip[mobilenet_quantization_scripted_quantized_1.pth]",
     "format":   "TorchScript v1.3",
