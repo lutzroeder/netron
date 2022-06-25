@@ -1379,6 +1379,7 @@ $root.MNN.ExtraInfo = class ExtraInfo {
         const $ = new $root.MNN.ExtraInfo();
         $.buffer = reader.typedArray(position, 4, Int8Array);
         $.name = reader.string_(position, 6, null);
+        $.version = reader.string_(position, 8, null);
         return $;
     }
 };
@@ -1609,6 +1610,7 @@ $root.MNN.OpType = {
     EyeLike: 147,
     CumSum: 148,
     Det: 149,
+    CumProd: 150,
     Plugin: 256,
     Select: 257,
     ZerosLike: 258,
