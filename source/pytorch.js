@@ -1590,7 +1590,7 @@ pytorch.Execution = class extends python.Execution {
                     return size.length;
                 }
             }
-            return undefined; // TODO
+            return NaN; // TODO
         });
         this.registerFunction('torch.numel', function(tensor) {
             if (tensor && tensor.size) {
