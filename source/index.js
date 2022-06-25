@@ -351,7 +351,7 @@ host.BrowserHost = class {
     exception(error, fatal) {
         if (this._telemetry && this.window.ga && error && error.telemetry !== false) {
             const description = [];
-            description.push((error && error.name ? (error.name + ': ') : '') + (error && error.message ? error.message : '(null)'));
+            description.push((error && error.name ? (error.name + ': ') : '') + (error && error.message ? error.message : JSON.stringify(error)));
             if (error.stack) {
                 const match = error.stack.match(/\n {4}at (.*)\((.*)\)/);
                 if (match) {
