@@ -1404,6 +1404,17 @@
     ]
   },
   {
+    "name": "AvgPool",
+    "category": "Pool",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
     "name": "Minimum",
     "inputs": [
       { "name": "x1" },
