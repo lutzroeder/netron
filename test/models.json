@@ -1,6 +1,13 @@
 [
   {
     "type":     "_",
+    "target":   "boolean.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/8985631/boolean.onnx.zip[boolean.onnx]",
+    "error":    "Unsupported Pickle content in 'boolean.onnx'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
+    "type":     "_",
     "target":   "config.json",
     "source":   "https://github.com/lutzroeder/netron/files/5398758/config.json.zip[config.json]",
     "error":    "Invalid file content. File contains keras-yolo2 configuration.",

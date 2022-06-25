@@ -154,6 +154,12 @@ onnx.ModelFactory = class {
                 }
             }
         }
+        if (extension === 'onnx' && stream.length > 3) {
+            const signature = stream.peek(2);
+            if (signature[0] === 0x80 && signature[1] < 7) {
+                return 'onnx.pickle';
+            }
+        }
         return undefined;
     }
 
@@ -273,8 +279,11 @@ onnx.ModelFactory = class {
                     }
                 });
             }
+            case 'onnx.pickle': {
+                return Promise.reject(new onnx.Error('Unsupported Pickle content.'));
+            }
             default: {
-                throw new onnx.Error("Unsupported ONNX format '" + match + "'.");
+                return Promise.reject(new onnx.Error("Unsupported ONNX format '" + match + "'."));
             }
         }
     }
