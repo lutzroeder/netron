@@ -1433,6 +1433,10 @@
     "category": "Transform"
   },
   {
+    "name": "StridedSlice",
+    "category": "Tensor"
+  },
+  {
     "name": "Tile",
     "description": "**Short description**: *Tile* layer extends input blob with copies of data along specific axis.\n**Detailed description**: [Reference](http://caffe.help/manual/layers/tile.html)\n**Parameters**: *Tile* layer parameters should be specified as the `tile_data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*Tile* extends input blobs and filling in output blobs following rules:\n\\f[\nout_i=input_i[inner\\_dim*t]\n\\f]\n\\f[\nt \\in \\left ( 0, \\quad tiles \\right )\n\\f]\n**Example**\n\n```html\n<layer ... type=\"Tile\" ... >\n    <tile_data axis=\"3\" tiles=\"88\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
     "attributes": [
