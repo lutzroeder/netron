@@ -239,7 +239,7 @@ numpy.Node = class {
 
     constructor(layer) {
         this._name = layer.name || '';
-        this._type = { name: layer.type || 'Module' };
+        this._type = { name: layer.type || '{}' };
         this._inputs = [];
         for (const parameter of layer.parameters) {
             const initializer = new numpy.Tensor(parameter.tensor.array);
@@ -523,6 +523,16 @@ numpy.Utility = class {
         };
         const list = (obj, key) => {
             const list = key === '' ? obj : obj[key];
+            if (list && Array.isArray(list) && list.every((obj) => Object.entries(obj).every((entry) => numpy.Utility.isTensor(entry[1])))) {
+                const weights = new Map();
+                for (let i = 0; i < list.length; i++) {
+                    const obj = list[i];
+                    for (const entry of Object.entries(obj)) {
+                        weights.set(i.toString() + '.' + entry[0], entry[1]);
+                    }
+                }
+                return weights;
+            }
             if (list && Array.isArray(list)) {
                 const weights = new Map();
                 for (let i = 0; i < list.length; i++) {
