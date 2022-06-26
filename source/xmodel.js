@@ -421,7 +421,9 @@ xmodel.Utility = class {
             case 'float_vec': return { type: 'float32[]', value: value.value };
             case 'double': return { type: 'float64', value: value };
             case 'string': return { type: 'string', value: value };
+            case 'string_vec':  return { type: 'string[]', value: value.value };
             case 'bytes': return { type: 'byte[]', value: value.value };
+            case 'map_string_2_int32': return { type: 'map<string,int32>', value: value.value };
             default: throw new xmodel.Error("Unsupported attribute type '" + type + "'.");
         }
     }
