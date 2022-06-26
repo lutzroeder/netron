@@ -2427,7 +2427,8 @@ python.Execution = class {
                 }
                 if (encoding === 'latin-1') {
                     const target = new Uint8Array(source.length);
-                    for (let i = 0; i < source.length; i++) {
+                    const length = source.length;
+                    for (let i = 0; i < length; i++) {
                         target[i] = source.charCodeAt(i);
                     }
                     return target;
