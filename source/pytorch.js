@@ -1751,6 +1751,9 @@ pytorch.Execution = class extends python.Execution {
             throw new pytorch.Error("Unsupported 'torch.remainder' expression type.");
         });
         this.registerFunction('torch.ne', function(left, right) {
+            if (typeof left === 'boolean' && typeof right === 'boolean') {
+                return left !== right;
+            }
             if (typeof left === 'number' && typeof right === 'number') {
                 if (isNaN(left) || isNaN(right)) {
                     return false;

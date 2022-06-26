@@ -4625,6 +4625,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "resnext50_32x4d_fpn.pth",
+    "source":   "https://github.com/lutzroeder/netron/files/8985800/resnext50_32x4d_fpn.pth.zip[resnext50_32x4d_fpn.pth]",
+    "format":   "TorchScript v1.7",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
+  },
+  {
+    "type":     "pytorch",
     "target":   "resnet101.pkl.pth.zip",
     "source":   "https://github.com/lutzroeder/netron/files/5213455/resnet101.pkl.pth.zip",
     "format":   "PyTorch v0.1.10",
