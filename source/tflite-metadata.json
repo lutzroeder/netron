@@ -935,7 +935,8 @@
     "inputs": [
       { "name": "output_shape" },
       { "name": "weights" },
-      { "name": "input" }
+      { "name": "input" },
+      { "name": "bias", "description": "(optional)" }
     ],
     "outputs": [
       { "name": "output" }
