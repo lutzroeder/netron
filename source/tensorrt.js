@@ -1,5 +1,6 @@
 
 var tensorrt = tensorrt || {};
+var base = base || require('./base');
 
 tensorrt.ModelFactory = class {
 
@@ -9,10 +10,12 @@ tensorrt.ModelFactory = class {
         if (engine) {
             return engine;
         }
+        /*
         const extension = context.identifier.split('.').pop().toLowerCase();
         if (extension === 'plan') {
             return tensorrt.Plan.open(stream);
         }
+        */
         return undefined;
     }
 
@@ -64,7 +67,7 @@ tensorrt.Engine = class {
 
     static open(stream) {
         const signature = [ 0x70, 0x74, 0x72, 0x74 ]; // ptrt
-        if (stream.length >= 4 && stream.peek(4).every((value, index) => value === signature[index])) {
+        if (stream.length >= 24 && stream.peek(4).every((value, index) => value === signature[index])) {
             return new tensorrt.Engine(stream);
         }
         return null;
@@ -76,14 +79,29 @@ tensorrt.Engine = class {
 
     get format() {
         this._read();
-        return 'Tensor RT Engine';
+        return 'TensorRT Engine';
     }
 
     _read() {
-        throw new tensorrt.Error('Invalid file content. File contains undocumented TensorRT engine data.');
+        if (this._stream) {
+            const buffer = this._stream.peek(24);
+            const reader = new base.BinaryReader(buffer);
+            reader.skip(4); // signature
+            const version = reader.uint32();
+            reader.uint32();
+            if (version <= 0x2B) {
+                reader.uint32();
+            }
+            /* const size = */ reader.uint64();
+            if (version > 0x2B) {
+                reader.uint32();
+            }
+            throw new tensorrt.Error('Invalid file content. File contains undocumented TensorRT engine data.');
+        }
     }
 };
 
+/*
 tensorrt.Plan = class {
 
     static open(stream) {
@@ -96,13 +114,14 @@ tensorrt.Plan = class {
 
     get format() {
         this._read();
-        return 'Tensor RT Plan';
+        return 'TensorRT Plan';
     }
 
     _read() {
         throw new tensorrt.Error('Invalid file content. File contains undocumented TensorRT plan data.');
     }
 };
+*/
 
 tensorrt.Error = class extends Error {
 
