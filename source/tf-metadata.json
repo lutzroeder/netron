@@ -2171,7 +2171,7 @@
   {
     "name": "ApproxTopK",
     "summary": "Returns min/max k values and their indices of the input operand in an approximate manner.",
-    "description": "Returns min/max k values and their indices of the input operand in an approximate manner.",
+    "description": "See https://arxiv.org/abs/2206.14286 for the algorithm details.\nThis op is only optimized on TPU currently.",
     "attributes": [
       {
         "name": "k",
