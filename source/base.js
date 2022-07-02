@@ -705,7 +705,16 @@ base.BinaryReader = class {
     uint64() {
         const position = this._position;
         this.skip(8);
-        return this._view.getUint64(position, true).toNumber();
+        const low = this._view.getUint32(position, true);
+        const high = this._view.getUint32(position + 4, true);
+        if (high === 0) {
+            return low;
+        }
+        const value = (high * 4294967296) + low;
+        if (Number.isSafeInteger(value)) {
+            return value;
+        }
+        throw new Error("Unsigned 64-bit value exceeds safe integer.");
     }
 
     float32() {
