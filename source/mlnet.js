@@ -666,19 +666,6 @@ mlnet.BinaryReader = class extends base.BinaryReader {
         }
         return (hi << 32) | low;
     }
-
-    uint64() {
-        const low = this.uint32();
-        const hi = this.uint32();
-        if (hi == 0) {
-            return low;
-        }
-        if (hi > 1048576) {
-            throw new mlnet.Error('Value not in 48-bit range.');
-        }
-        return (hi * 4294967296) + low;
-    }
-
     float32s(count) {
         const values = [];
         for (let i = 0; i < count; i++) {
