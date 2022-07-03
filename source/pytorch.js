@@ -978,6 +978,8 @@ pytorch.Execution = class extends python.Execution {
                 this.output_max = state[3];
             }
         });
+        this.registerType('torch.ao.quantization.observer._PartialWrapper', class {});
+        this.registerType('torch.ao.quantization.qconfig.QConfig', class {});
         this.registerType('torch.ao.quantization.stubs.DeQuantStub', class {});
         this.registerType('torch.ao.quantization.stubs.QuantStub', class {});
         this.registerType('torch.autograd.variable.Variable', class {});
