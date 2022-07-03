@@ -114,13 +114,13 @@ om.Node = class {
                 const inputNode = graph.op.find(node => node.name === name);
                 const desc = op.input_desc[i];
                 const format = desc.layout;
-                if (inputNode.type === 'Const' && inputNode.attr && inputNode.attr.value && inputNode.attr) {
+                if (inputNode && inputNode.type === 'Const' && inputNode.attr && inputNode.attr.value && inputNode.attr) {
                     let shape = null;
                     const value = inputNode.attr.value.t;
                     if (value.desc.shape != null) {
                         shape = value.desc.shape.dim;
                     }
-                    if (value.desc.attr.origin_shape) {
+                    else if (value.desc.attr.origin_shape) {
                         shape = value.desc.attr.origin_shape.list.i;
                     }
                     let data = null;
@@ -147,7 +147,7 @@ om.Node = class {
                     this._inputs.push(new om.Parameter(parameterName, true, [ argument ]));
                 }
                 else {
-                    const dataType = desc ? om.Utility.dtype(desc.dtype) : 'undefined';
+                    const dataType = desc ? om.Utility.dtype(desc.dtype) : '?';
                     const shape = desc.shape ? desc.shape.dim : undefined;
                     const tensorType = new om.TensorType(dataType, shape, format, null);
                     const identifier = src_index === '0' ? name : name + ':' + src_index;
