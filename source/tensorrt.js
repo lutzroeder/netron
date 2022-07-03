@@ -6,17 +6,7 @@ tensorrt.ModelFactory = class {
 
     match(context) {
         const stream = context.stream;
-        const engine = tensorrt.Engine.open(stream);
-        if (engine) {
-            return engine;
-        }
-        /*
-        const extension = context.identifier.split('.').pop().toLowerCase();
-        if (extension === 'plan') {
-            return tensorrt.Plan.open(stream);
-        }
-        */
-        return undefined;
+        return tensorrt.Engine.open(stream) || tensorrt.Container.open(stream);
     }
 
     open(context, match) {
@@ -61,13 +51,11 @@ tensorrt.Graph = class {
     }
 };
 
-// TODO
-
 tensorrt.Engine = class {
 
     static open(stream) {
         const signature = [ 0x70, 0x74, 0x72, 0x74 ]; // ptrt
-        if (stream.length >= 24 && stream.peek(4).every((value, index) => value === signature[index])) {
+        if (stream && stream.length >= 24 && stream.peek(4).every((value, index) => value === signature[index])) {
             return new tensorrt.Engine(stream);
         }
         return null;
@@ -96,16 +84,36 @@ tensorrt.Engine = class {
             if (version > 0x2B) {
                 reader.uint32();
             }
-            throw new tensorrt.Error('Invalid file content. File contains undocumented TensorRT engine data.');
+            const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+            throw new tensorrt.Error("Invalid file content. File contains undocumented TensorRT engine data (" + content.substring(8) + ").");
         }
     }
 };
 
-/*
-tensorrt.Plan = class {
+tensorrt.Container = class {
 
     static open(stream) {
-        return new tensorrt.Plan(stream);
+        const buffer = stream.peek(Math.min(512, stream.length));
+        if (buffer.length > 12 && buffer[6] === 0x00 && buffer[7] === 0x00) {
+            const reader = new base.BinaryReader(buffer);
+            const length = reader.uint64();
+            if (length === stream.length) {
+                let position = reader.position + reader.uint32();
+                if (position < reader.length) {
+                    reader.seek(position);
+                    const offset = reader.uint32();
+                    position = reader.position - offset - 4;
+                    if (position > 0 && position < reader.length) {
+                        reader.seek(position);
+                        const length = reader.uint16();
+                        if (offset === length) {
+                            return new tensorrt.Container(stream);
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     constructor(stream) {
@@ -114,14 +122,15 @@ tensorrt.Plan = class {
 
     get format() {
         this._read();
-        return 'TensorRT Plan';
+        return 'TensorRT FlatBuffers';
     }
 
     _read() {
-        throw new tensorrt.Error('Invalid file content. File contains undocumented TensorRT plan data.');
+        const buffer = this._stream.peek(Math.min(24, this._stream.length));
+        const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+        throw new tensorrt.Error('Invalid file content. File contains undocumented TensorRT data (' + content.substring(16) + ').');
     }
 };
-*/
 
 tensorrt.Error = class extends Error {
 
