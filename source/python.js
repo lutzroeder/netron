@@ -1675,14 +1675,13 @@ python.Execution = class {
                 this.args = args;
             }
         });
-        this.registerType('collections.deque', class {
+        this.registerType('collections.deque', class extends Array {
             constructor(iterable) {
-                if (iterable) {
-                    let i = 0;
+                super();
+                if (Array.isArray(iterable)) {
                     for (const value of iterable) {
-                        this[i++] = value;
+                        this.push(value);
                     }
-                    this.length = i;
                 }
             }
         });
@@ -1708,9 +1707,17 @@ python.Execution = class {
         });
         this.registerType('haiku._src.data_structures.FlatMapping', class {
             constructor(dict) {
-                for (const key of Object.keys(dict)) {
-                    this[key] = dict[key];
-                }
+                Object.assign(this, dict);
+            }
+        });
+        this.registerType('hmmlearn.hmm.MultinomialHMM', class {
+            __setstate__(state) {
+                Object.assign(this, state);
+            }
+        });
+        this.registerType('hmmlearn.base.ConvergenceMonitor', class {
+            __setstate__(state) {
+                Object.assign(this, state);
             }
         });
         this.registerType('io.BytesIO', class {
@@ -3498,6 +3505,7 @@ python.Unpickler = class {
         const OpCode = python.Unpickler.OpCode;
         while (reader.position < reader.length) {
             const opcode = reader.byte();
+            // console.log((reader.position - 1).toString() + ' ' + Object.entries(OpCode).find((entry) => entry[1] === opcode)[0]);
             switch (opcode) {
                 case OpCode.PROTO: {
                     const version = reader.byte();

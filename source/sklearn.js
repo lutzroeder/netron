@@ -18,7 +18,8 @@ sklearn.ModelFactory = class {
             { name: 'sklearn.', format: 'sklearn' },
             { name: 'xgboost.sklearn.', format: 'sklearn' },
             { name: 'lightgbm.sklearn.', format: 'sklearn' },
-            { name: 'scipy.', format: 'scipy' }
+            { name: 'scipy.', format: 'scipy' },
+            { name: 'hmmlearn.', format: 'hmmlearn' }
         ];
         for (const format of formats) {
             if (validate(obj, format.name)) {
@@ -45,13 +46,14 @@ sklearn.ModelFactory = class {
 sklearn.Model = class {
 
     constructor(metadata, match, obj) {
-        const formats = new Map([ [ 'sklearn', 'scikit-learn' ], [ 'scipy', 'SciPy' ] ]);
+        const formats = new Map([ [ 'sklearn', 'scikit-learn' ], [ 'scipy', 'SciPy' ], [ 'hmmlearn', 'hmmlearn' ] ]);
         this._format = formats.get(match.split('.').shift());
         this._graphs = [];
         const version = [];
         switch (match) {
             case 'sklearn':
-            case 'scipy': {
+            case 'scipy':
+            case 'hmmlearn': {
                 version.push(obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
                 this._graphs.push(new sklearn.Graph(metadata, '', obj));
                 break;

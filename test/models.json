@@ -5114,6 +5114,13 @@
   },
   {
     "type":     "sklearn",
+    "target":   "hmm.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/9035366/hmm.pkl.zip[hmm.pkl]",
+    "format":   "hmmlearn",
+    "link":     "https://github.com/lutzroeder/netron/issues/182"
+  },
+  {
+    "type":     "sklearn",
     "target":   "iris_svc.joblib.z",
     "source":   "https://github.com/lutzroeder/netron/files/5728549/iris_svc.joblib.z.zip[iris_svc.joblib.z]",
     "format":   "scikit-learn v0.24.0rc1",
