@@ -2,6 +2,7 @@
 // Experimental
 
 var barracuda = barracuda || {};
+var base = base || require('./base');
 
 barracuda.ModelFactory = class {
 
@@ -494,43 +495,7 @@ barracuda.Activation = {
     200: "Acos", 201: "Acosh", 202: "Asin", 203: "Asinh", 204: "Atan", 205: "Atanh", 206: "Cos", 207: "Cosh", 208: "Sin", 209: "Sinh", 210: "Tan"
 };
 
-barracuda.BinaryReader = class {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-        this._position = 0;
-    }
-
-    get position() {
-        return this._position;
-    }
-
-    seek(position) {
-        this._position = position >= 0 ? position : this._length + position;
-    }
-
-    skip(offset) {
-        this._position += offset;
-        if (this._position > this._buffer.length) {
-            throw new barracuda.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
-        }
-    }
-
-    read(length) {
-        const position = this._position;
-        this._position += length;
-        if (this._position > this._buffer.length) {
-            throw new barracuda.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
-        }
-        return this._buffer.slice(position, this._position);
-    }
-
-    int32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getInt32(position, true);
-    }
+barracuda.BinaryReader = class extends base.BinaryReader {
 
     int32s() {
         const values = new Array(this.int32());
@@ -538,20 +503,6 @@ barracuda.BinaryReader = class {
             values[i] = this.int32();
         }
         return values;
-    }
-
-    int64() {
-        const value = this.int32();
-        if (this.int32() !== 0) {
-            throw new barracuda.Error('Invalid int64 value.');
-        }
-        return value;
-    }
-
-    float32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getFloat32(position, true);
     }
 
     string() {
@@ -596,8 +547,8 @@ barracuda.Metadata = class {
         register(2, 'MatMul', '', [ 'input', 'kernel', 'bias' ]);
         register(20, 'Conv2D', 'Layer', [ 'input', 'kernel', 'bias' ]);
         register(21, 'DepthwiseConv2D', 'Layer', [ 'input', 'kernel', 'bias' ]);
-        register(22, 'Conv2DTrans', '');
-        register(23, 'Upsample2D', '');
+        register(22, 'Conv2DTrans', 'Layer', [ 'input', 'kernel', 'bias' ]);
+        register(23, 'Upsample2D', 'Data');
         register(25, 'MaxPool2D', 'Pool');
         register(26, 'AvgPool2D', 'Pool');
         register(27, 'GlobalMaxPool2D', 'Pool');
@@ -605,7 +556,7 @@ barracuda.Metadata = class {
         register(29, 'Border2D', '');
         register(30, 'Conv3D', 'Layer');
         register(32, 'Conv3DTrans', 'Layer');
-        register(33, 'Upsample3D', '');
+        register(33, 'Upsample3D', 'Data');
         register(35, 'MaxPool3D', 'Pool');
         register(36, 'AvgPool3D', 'Pool');
         register(37, 'GlobalMaxPool3D', 'Pool');
