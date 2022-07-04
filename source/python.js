@@ -1759,7 +1759,7 @@ python.Execution = class {
                     case 'f8': case 'float64': case 'float': this.itemsize = 8; this.kind = 'f'; break;
                     case 'c8': case 'complex64': this.itemsize = 8; this.kind = 'c'; break;
                     case 'c16': case 'complex128': case 'complex': this.itemsize = 16; this.kind = 'c'; break;
-                    case 'M': this.itemsize = 8; this.kind = 'M'; break;
+                    case 'M8': case 'M': this.itemsize = 8; this.kind = 'M'; break;
                     default:
                         if (obj.startsWith('V')) {
                             this.itemsize = parseInt(obj.substring(1), 10);
@@ -1799,7 +1799,8 @@ python.Execution = class {
                     case 'S': return 'bytes' + (this.itemsize === 0 ? '' : (this.itemsize * 8).toString());
                     case 'U': return 'str' + (this.itemsize === 0 ? '' : (this.itemsize * 8).toString());
                     case 'M': return 'datetime64';
-                    default: return this.name;
+                    case 'b': return 'bool';
+                    default: return this.__name__;
                 }
             }
             __setstate__(state) {
