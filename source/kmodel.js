@@ -232,7 +232,7 @@ kmodel.Tensor = class {
         }
         const dataType = this.type.dataType;
         const shape = this.type.shape.dimensions;
-        if (dataType !== 'uint8' && dataType !== 'float32') {
+        if (dataType !== 'uint8' && dataType !== 'int32' && dataType !== 'float32') {
             context.state = "Tensor data type '" + dataType + "' is not implemented.";
             return context;
         }
@@ -256,6 +256,11 @@ kmodel.Tensor = class {
                     case 'uint8':
                         results.push(context.data.getUint8(context.index));
                         context.index += 1;
+                        context.count++;
+                        break;
+                    case 'int32':
+                        results.push(context.data.getInt32(context.index));
+                        context.index += 4;
                         context.count++;
                         break;
                     case 'float32':
@@ -747,7 +752,44 @@ kmodel.Reader = class {
                             layer.dims[i] = reader.int32();
                         }
                     });
-                    register(  0x02, 'conv2d', 'Layer');
+                    register(  0x02, 'conv2d', 'Layer', (layer, reader) => {
+                        layer.inputs = [ reader.parameter('input') ];
+                        layer.outputs = [ reader.parameter('output') ];
+                        layer.inputs[0].arguments[0].shape = reader.runtime_shape_t();
+                        layer.groups = reader.int32();
+                        layer.out_channels = reader.int32();
+                        layer.padding_h = reader.padding();
+                        layer.padding_w = reader.padding();
+                        layer.filter_h = reader.int32();
+                        layer.filter_w = reader.int32();
+                        layer.stride_h = reader.int32();
+                        layer.stride_w = reader.int32();
+                        layer.dilation_h = reader.int32();
+                        layer.dilation_w = reader.int32();
+                        layer.fused_activation = [ reader.float32(), reader.float32() ];
+                        const weights_shape = [ layer.out_channels, layer.inputs[0].arguments[0].shape[1] / layer.groups, layer.filter_h, layer.filter_w ];
+                        const weights_size = 4 * weights_shape.reduce((a, b) => a * b);
+                        layer.inputs.push({
+                            name: 'weights',
+                            arguments: [ {
+                                name: 'const',
+                                datatype: 'float32',
+                                shape: weights_shape,
+                                data: reader.read(weights_size)
+                            } ]
+                        });
+                        const bias_shape = [ layer.out_channels ];
+                        const bias_size = 4 * layer.out_channels;
+                        layer.inputs.push({
+                            name: 'bias',
+                            arguments: [ {
+                                name: 'const',
+                                datatype: 'float32',
+                                shape: bias_shape,
+                                data: reader.read(bias_size)
+                            } ]
+                        });
+                    });
                     register(  0x03, 'dequantize', '', (layer, reader) => {
                         layer.inputs = [ reader.parameter('input') ];
                         layer.outputs = [ reader.parameter('output') ];
@@ -838,7 +880,29 @@ kmodel.Reader = class {
                         layer.unary_op = reader.unary_op_t();
                     });
                     register(  0x0F, 'quantized_conv2d', 'Layer');
-                    register(  0x10, 'quantized_matmul', '');
+                    register(  0x10, 'quantized_matmul', '', (layer, reader) => {
+                        layer.inputs = [
+                            reader.parameter('a'),
+                            reader.parameter('b'),
+                        ];
+                        layer.outputs = [ reader.parameter('output') ];
+                        layer.a_rows = reader.int32();
+                        layer.a_cols = reader.int32();
+                        layer.b_cols = reader.int32();
+                        layer.inputs[1].arguments[0].shape = [ layer.a_cols, layer.b_cols ];
+                        layer.input_a_offset = reader.int32();
+                        layer.input_b_offset = reader.int32();
+                        layer.output_mul = reader.int32();
+                        layer.output_shift = reader.int32();
+                        layer.output_offset = reader.int32();
+                        const bias = reader.read(4 * layer.b_cols);
+                        if (!bias.every((value) => value === 0)) {
+                            layer.inputs.push({
+                                name: 'bias',
+                                arguments: [ { name: 'const', datatype: 'int32', shape: [ layer.b_cols ], data: bias } ]
+                            });
+                        }
+                    });
                     register(  0x11, 'quantized_binary', '', (layer, reader) => {
                         layer.inputs = [
                             reader.parameter('a'),

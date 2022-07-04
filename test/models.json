@@ -2380,6 +2380,13 @@
   },
   {
     "type":     "kmodel",
+    "target":   "deskv2beta4.kmodel",
+    "source":   "https://github.com/lutzroeder/netron/files/9040640/deskv2beta4.kmodel.zip[deskv2beta4.kmodel]",
+    "format":   "kmodel v4",
+    "link":     "https://github.com/lutzroeder/netron/issues/871"
+  },
+  {
+    "type":     "kmodel",
     "target":   "iris.kmodel",
     "source":   "https://github.com/lutzroeder/netron/files/8111178/iris.kmodel.zip[iris.kmodel]",
     "format":   "kmodel v4",
@@ -2397,6 +2404,13 @@
     "target":   "mbnetv1.kmodel",
     "source":   "https://github.com/lutzroeder/netron/files/8111310/mbnetv1.kmodel.zip[mbnetv1.kmodel]",
     "format":   "kmodel v3",
+    "link":     "https://github.com/lutzroeder/netron/issues/871"
+  },
+  {
+    "type":     "kmodel",
+    "target":   "mbnet75.kmodel",
+    "source":   "https://github.com/lutzroeder/netron/files/9040676/mbnet75.kmodel.zip[mbnet75.kmodel]",
+    "format":   "kmodel v4",
     "link":     "https://github.com/lutzroeder/netron/issues/871"
   },
   {
