@@ -4565,7 +4565,15 @@
     "type":     "pytorch",
     "target":   "r3d_18.zip.pth",
     "source":   "https://github.com/lutzroeder/netron/files/6096655/r3d_18.zip.pth.zip[r3d_18.zip.pth]",
+    "format":   "PyTorch v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/133"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "rcnn.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/9035740/rcnn.pt.zip[rcnn.pt]",
+    "error":    "AssertionError: expecting the last two dimensions of the Tensor to be H and W instead got [] in 'rcnn.pt'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
     "type":     "pytorch",
