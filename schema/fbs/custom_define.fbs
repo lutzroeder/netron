@@ -1,0 +1,51 @@
+include "tensor.fbs";
+include "type.fbs";
+
+namespace wnn;
+
+enum ImageFormatType: int {
+    RGBA=0,
+    RGB,
+    BGR,
+    GRAY,
+    YUV,
+    HSV,
+}
+
+enum FilterType: byte {
+    NEAREST=0,
+    BILINEAR=1,
+    BICUBIC=2
+}
+
+
+// custom defined ops
+table Normalize {
+    means:[float];
+    stds:[float];
+    denormalize:bool=false;
+    epsilon:float=0.00001;
+}
+
+table FilmLPN {
+    in_features:int;
+    out_features:int;
+    input_n:int=1; // 1 default
+    weight_size:int;
+    weights:[float];
+    bias:[float];
+    bias_size:int;
+    quant_param:Quant;
+}
+
+table Cubic {
+    in_features:int;
+    out_features:int;
+    input_n:int=1; // 1 default
+    merge_matmul:bool=true;
+    weight_size:int;
+    weight:[float];
+    bias:[float];
+    bias_size:int;
+    quant_param:Quant;
+}

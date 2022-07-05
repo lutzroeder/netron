@@ -1,0 +1,397 @@
+// created for wnn
+// copyright 2022, lucasjin
+
+include "type.fbs";
+include "tensor.fbs";
+
+namespace wnn;
+
+enum OpType: int {
+    argmax,
+    argmin,
+    const,
+    conv1d,
+    conv2d,
+    conv3d,
+    pool2d,
+    pool3d,
+    adaptive_avg_pool2d,
+    batchnorm,
+    layernorm,
+    relu,
+    relu6,
+    elu,
+    prelu,
+    leakyrelu,
+    tanh,
+    silu,
+    mish,
+    hardswish,
+    hardsigmoid,
+    sigmoid,
+    fc,
+    flatten,
+    matmul,
+    fc_share,
+    lstm,
+    onehot,
+    transpose,
+    gather,
+    split,
+    concat,
+    activation,
+    binary_op,
+    fill,
+    pad,
+    reshape,
+    instancenorm,
+    conv_depthwise,
+    quantized_avgpool,
+    quantized_concat,
+    quantized_matmul,
+    quantized_relu,
+    quantized_relu6,
+    quantized_softmax,
+    roipooling,
+    roialign,
+    unary,
+    unary_square,
+    unary_sqrt,
+    binary,
+    binary_add,
+    binary_mul,
+    binary_div,
+    binary_sub,
+    softmax,
+
+    scatternd,
+    gathernd,
+    nms,
+    input,
+    output,
+    extra,
+
+    eltwise,
+    reduction,
+    expand_dims,
+    normalize,
+
+    unsupported,
+    film_lpn,
+    cubic,
+}
+
+
+enum PadMode : byte{
+    CAFFE=0,
+    VALID=1,
+    SAME=2
+}
+
+table Conv2DCommon {
+    pad_x:int = 0;
+    pad_y:int = 0;
+    kernel_x:int = 1;
+    kernel_y:int = 1;
+    stride_x:int = 1;
+    stride_y:int = 1;
+    dilate_x:int = 1;
+    dilate_y:int = 1;
+    padmode:PadMode = SAME;
+    group:int = 1;
+    output_count:int = 0;
+    input_count:int = 0;
+    sparse_output_count:int = 0;
+    in_channels:int=0;
+    out_channels:int=0;
+    relu:bool=false;
+    relu6:bool=false;
+    pads:[int];
+    out_pads:[int];
+    has_outputshape:bool = false;
+}
+
+
+enum ActivationType: byte {
+    RELU=0,
+    RELU6,
+    LEAKY_RELU,
+    ELU,
+    TANH,
+    PRELU,
+    MISH,
+    SWISH
+}
+
+table Conv2D {
+    common: Conv2DCommon;
+    weight:[float];
+    bias:[float];
+    has_act: bool;
+    act_type: OpType;
+    input_shape:[int];
+    // quant stores quanted weight && quant params
+    quant_param:Quant;
+}
+
+enum PoolType : byte {
+    MAXPOOL=0,
+    AVEPOOL=1,
+}
+enum PoolPadType : byte {
+    CAFFE=0,
+    VALID=1,
+    SAME=2,
+}
+
+enum AvgPoolCountType : byte {
+    DEFAULT=0,
+    INCLUDE_PADDING=1,
+    EXCLUDE_PADDING=2,
+}
+
+table Pool {
+    pad_x:int;
+    pad_y:int;
+    is_global:bool=false;
+    kernel_x:int;
+    kernel_y:int;
+    stride_x:int;
+    stride_y:int;
+    type:PoolType;
+    pad_type:PoolPadType;
+    data_type:DataType=DT_FLOAT;
+    ceil_model:bool=true;
+    pads:[int];
+    count_type:AvgPoolCountType;
+    in_channels:int;
+    in_width:int;
+    in_height:int;
+    is_adaptive:bool=false;
+    out_height:int;
+    out_width:int;
+}
+
+table AdaptiveAvgPool2D {
+    out_h:int;
+    out_w:int;
+    data_type:DataType=DT_FLOAT;
+}
+
+table LayerNorm {
+    axis: [int];
+    epsilon: float;
+    gamma: [float];
+    beta: [float];
+    group: int=1;
+    elmentwise_affine: bool=true;
+}
+
+table BatchNorm {
+    channels:int;
+    slope_data:[float];
+    mean_data:[float];
+    var_data:[float];
+    bias_data:[float];
+    a_data:[float];
+    b_data:[float];
+    epsilon:float=0.001;
+}
+
+table Relu {
+    slope:float;
+}
+
+table Relu6 {
+    min_value:float = 0.0;
+    max_value:float = 6.0;
+}
+
+table Softmax {
+    dim:int=1;
+}
+
+table PRelu {
+    slope_count:int;
+    slope:[float];
+}
+
+table ELU {
+    alpha:float;
+}
+
+table LRN {
+    region_type:int;
+    local_size:int;
+    alpha:float;
+    beta:float;
+    bias:float=1.0;
+}
+
+
+table FC {
+    in_features:int;
+    out_features:int;
+    weight_size:int;
+    weights:[float];
+    bias:[float];
+    axis:int;
+    transpose:bool;
+    has_act: bool;
+    act_type: OpType;
+    act_params: [float];
+    quant_param:Quant;
+}
+
+table Input {
+    dims: [int];
+    dtype: DataType = DT_FLOAT;
+    dformat: WNN_DATA_FORMAT = NCHW;
+}
+
+table ArgMax {
+    out_max_val: int;
+    top_k: int;
+    axis: int;
+    softmax_thresh: int;
+}
+
+enum BinaryOperation : byte {
+    ADD = 0,
+    SUB = 1,
+    MUL = 2,
+    DIV = 3,
+    MAX_TEMP = 4,
+    MIN_TEMP = 5,
+    POW = 6,
+    REALDIV = 7,
+    MINIMUM = 8,
+    MAXIMUM = 9,
+    GREATER = 10,
+    GREATER_EQUAL = 11,
+    LESS = 12,
+    FLOORDIV = 13,
+    SquaredDifference = 14,
+    EQUAL = 15,
+    LESS_EQUAL = 16,
+    FLOORMOD = 17,
+    MOD = 19,
+    ATAN2 = 20,
+    LOGICALOR = 21,
+    NOTEQUAL = 22,
+    BITWISE_AND = 23,
+    BITWISE_OR = 24,
+    BITWISE_XOR = 25,
+    LOGICALXOR = 26,
+    LEFTSHIFT = 27,
+    RIGHTSHIFT = 28,
+    RSUB=29,
+}
+
+table Binary {
+    operation_type:BinaryOperation;
+    dtype:DataType=DT_FLOAT;
+}
+
+
+enum UnaryOperation : int {
+    ABS = 0,
+    NEG = 1,
+    FLOOR = 2,
+    CEIL = 3,
+    SQUARE = 4,
+    SQRT = 5,
+    RSQRT = 6,
+    EXP = 7,
+    LOG = 8,
+    SIN = 9,
+    COS = 10,
+    TAN = 11,
+    ASIN = 12,
+    ACOS = 13,
+    ATAN = 14,
+    RECIPROCAL = 15,
+    LOG1P = 16,
+    BNLL = 17,
+    ACOSH = 18,
+    SINH = 19,
+    ASINH = 20,
+    ATANH = 21,
+    SIGN = 22,
+    ROUND = 23,
+    COSH = 24,
+    ERF = 25,
+    ERFC = 26,
+    ERFINV = 27,
+    EXPM1 = 28,
+    SIGMOID = 29,
+    TANH = 30,
+    HARDSWISH = 31,
+    GELU = 32,
+    GELU_STANDARD = 33,
+    NOT = 34,
+    BOOL = 35,
+}
+
+table Unary {
+    operation_type:UnaryOperation;
+    dtype:DataType;
+}
+
+enum EltwiseType : byte {
+    PROD = 0,
+    SUM = 1,
+    MAXIUM = 2, // avoid flatbuffer default max value
+    SUB = 3,
+    SOFTMAX = 4,
+}
+
+table Eltwise {
+    type:EltwiseType;
+    coeff:[float];
+}
+
+enum ReductionType : byte{
+    SUM = 0,
+    ASUM = 1,
+    SUMSQ = 2,
+    MEAN = 3,
+    MAXIMUM = 4,
+    MINIMUM = 5,
+    PROD = 6,
+    ANY = 7,
+    ALL = 8,
+}
+
+table Reduction {
+    operation:ReductionType;
+    dim:[int];
+    coeff:float;
+    keep_dims:bool;
+    dtype:DataType=DT_FLOAT;
+}
+
+table Squeeze {
+    squeeze_dims:[int];
+}
+
+table Gather {
+    indices_dtype:DataType;
+    dtype:DataType;
+    validateindices:bool;
+    axis:int;
+}
+
+table ExpandDims {
+    dtype:DataType;
+    dim_dtype:DataType;
+    axis:int;
+}
+
+table Flatten {
+    start_dim:int;
+    end_dim:int;
+}
+
+
+// table 

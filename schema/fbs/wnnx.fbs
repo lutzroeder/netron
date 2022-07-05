@@ -1,0 +1,118 @@
+// created for wnn
+// copyright 2022, lucasjin
+include "wnn_ops.fbs";
+include "custom_define.fbs";
+
+namespace wnn;
+attribute "priority";
+
+enum ModelSource: byte {
+    TORCH=0,
+    TENSORFLOW,
+    ONNX,
+    TFLITE
+}
+
+union OpParameter {
+    Conv2DCommon,
+    Conv2D,
+    Pool,
+    AdaptiveAvgPool2D,
+    LayerNorm,
+    BatchNorm,
+    Relu,
+    Relu6,
+    PRelu,
+    ELU,
+    LRN,
+    Softmax,
+    Input,
+    Extra,
+    FC,
+    ArgMax,
+    Binary,
+    Unary,
+    Eltwise,
+    Reduction,
+    Squeeze,
+    Gather,
+    ExpandDims,
+    Normalize,
+    Flatten,
+    Blob,
+
+    // customized ops
+    FilmLPN,
+    Cubic
+}
+
+table Dims {
+    shape: [int];
+    total_size: int;
+}
+
+table Op {
+    input_indexes: [int];
+    output_indexes: [int];
+    input_names: [string];
+    output_names: [string];
+    input_shapes: [Dims];
+    output_shapes: [Dims];
+    is_static_shape: bool;
+    param: OpParameter;
+    name: string;
+    type: OpType;
+}
+
+// for default op
+table Extra {
+    type: string;
+    engine: string;
+    info: [byte];
+    attr: [Attribute];
+}
+
+table SubGraph {
+    name: string;
+    inputs: [int];
+    outputs: [int];
+
+    tensors: [string];
+    nodes: [Op];
+}
+
+table TensorQuantInfo {
+    scale:float;
+    zero:float = 0;
+    min:float = -128;
+    max:float = 127;
+    type:DataType;
+}
+
+table TensorDescribe {
+    blob: Blob;
+    index: int;
+    name: string;
+    quant_info:TensorQuantInfo;
+}
+
+table Graph {
+    desc: string;
+    usage: string;
+    vendor: string;
+    version: string;
+    extra_tensor_describe: [TensorDescribe];
+
+    oplists: [Op];
+    output_names: [string];
+    input_names: [string];
+    model_source: ModelSource = TORCH;
+    tensor_names: [string];
+    tensor_number: int=0;
+
+    subgraph: SubGraph;
+    uuid: string;
+    password: string;
+}
+
+root_type Graph;

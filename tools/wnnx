@@ -16,7 +16,7 @@ sync() {
 schema() {
     echo "wnnx schema"
     [[ $(grep -U $'\x0D' ./source/wnnx-schema.js) ]] && crlf=1
-    node ./tools/flatc.js --root wnnx --out ./source/wnnx-schema.js ./third_party/source/wnnx/schema/fbs/wnnx.fbs
+    node ./tools/flatc.js --root wnnx --out ./source/wnnx-schema.js ./schema/fbs/wnnx.fbs
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/wnnx-schema.js ./source/wnnx-schema.js
     fi

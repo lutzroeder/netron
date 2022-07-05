@@ -1,0 +1,20 @@
+// created for wnn
+// copyright 2022, lucasjin
+
+namespace wnn;
+
+
+enum FusedActivation : byte {
+	kTfLiteActNone = 0,
+	kTfLiteActRelu,
+	kTfLiteActRelu1,
+	kTfLiteActRelu6,
+	kTfLiteActTanh,
+	kTfLiteActSignBit,
+	kTfLiteActSigmoid,
+}
+
+
+table QuantizedAdd {
+    activation_type: FusedActivation;
+}

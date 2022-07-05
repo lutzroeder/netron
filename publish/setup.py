@@ -87,7 +87,7 @@ setuptools.setup(
     author_email='lutzroeder@users.noreply.github.com',
     url='https://github.com/lutzroeder/netron',
     entry_points={
-        'console_scripts': [ 'netron = netron:main' ]
+        'console_scripts': [ 'wnetron = netron:main' ]
     },
     classifiers=[
         'Intended Audience :: Developers',

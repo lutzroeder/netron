@@ -1,0 +1,60 @@
+// created for wnn
+// copyright 2022, lucasjin
+
+include "type.fbs";
+
+namespace wnn;
+
+
+enum WNN_DATA_FORMAT: byte {
+    NCHW=0,
+    NHWC,
+    NC4HW4,
+    NHWC4,
+    UNKNOWN
+}
+
+table Blob {
+    dims: [int];
+    dataformat: WNN_DATA_FORMAT;
+    // maybe shape?
+    
+    dtype: DataType = DT_FLOAT;
+    device: DeviceType = kX86;
+
+    // data union
+    uint8s: [ubyte];
+    int8s: [ubyte];
+    int32s: [int];
+    int64s: [long];
+    float32s: [float];
+    strings: [string];
+}
+
+table ListValue {
+    s:[string];
+    i:[int];
+    f:[float];
+    b:[bool];
+    type:[DataType];
+}
+
+table Attribute {
+    s:string;
+    i:int = 0;
+    b:bool = false;
+    key:string(key);
+    type:DataType;
+    f:float = 0.0;
+    blob:Blob;
+    list:ListValue;
+    func:NamedAttrList;
+    shape:[int];
+    // stores char binary data
+    data:[byte];
+}
+
+table NamedAttrList {
+    name: string;
+    attr: [Attribute];
+}
