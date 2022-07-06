@@ -2331,13 +2331,14 @@ pytorch.Container.Pickle = class {
                     return data[0];
                 }
                 case 'storage': {
-                    const data_type = execution.type(data.shift());
+                    const name = data.shift();
+                    const storage_type = execution.type(name);
                     const root_key = data.shift();
                     data.shift(); // location
                     const size = data.shift();
                     const view_metadata = data.shift();
                     if (!deserialized_objects.has(root_key)) {
-                        const obj = new data_type(size);
+                        const obj = new storage_type(size);
                         deserialized_objects.set(root_key, obj);
                     }
                     if (view_metadata) {
@@ -2697,36 +2698,43 @@ pytorch.Container.Zip = class {
         const loaded_storages = new Map();
         const persistent_load = (saved_id) => {
             const typename = saved_id.shift();
-            if (typename !== 'storage') {
-                throw new pytorch.Error("Unsupported persistent load type '" + typename + "'.");
-            }
-            const name = saved_id.shift();
-            const data_type = this.execution.type(name);
-            const root_key = saved_id.shift();
-            /* const location = */ saved_id.shift();
-            const size = saved_id.shift();
-            if (!loaded_storages.has(root_key)) {
-                const storage = new data_type(size);
-                storage._set_cdata(storage_map.get(root_key));
-                loaded_storages.set(root_key, storage);
-            }
-            const storage = loaded_storages.get(root_key);
-            const view_metadata = saved_id.shift();
-            if (view_metadata) {
-                const view_key = view_metadata.shift();
-                view_metadata.shift(); // view_offset
-                view_metadata.shift(); // view_size
-                let view = null;
-                if (loaded_storages.has(view_key)) {
-                    view = loaded_storages.get(root_key);
+            switch (typename) {
+                case 'storage': {
+                    const name = saved_id.shift();
+                    const storage_type = this.execution.type(name);
+                    if (!storage_type) {
+                        throw new pytorch.Error("Unsupported persistent load data type '" + name + "'.");
+                    }
+                    const root_key = saved_id.shift();
+                    /* const location = */ saved_id.shift();
+                    const size = saved_id.shift();
+                    if (!loaded_storages.has(root_key)) {
+                        const storage = new storage_type(size);
+                        storage._set_cdata(storage_map.get(root_key));
+                        loaded_storages.set(root_key, storage);
+                    }
+                    const storage = loaded_storages.get(root_key);
+                    const view_metadata = saved_id.shift();
+                    if (view_metadata) {
+                        const view_key = view_metadata.shift();
+                        view_metadata.shift(); // view_offset
+                        view_metadata.shift(); // view_size
+                        let view = null;
+                        if (loaded_storages.has(view_key)) {
+                            view = loaded_storages.get(root_key);
+                        }
+                        else {
+                            view = null; // storage.slice(view_offset, view_offset + view_size);
+                            loaded_storages.set(view_key, view);
+                        }
+                        return view;
+                    }
+                    return storage;
                 }
-                else {
-                    view = null; // storage.slice(view_offset, view_offset + view_size);
-                    loaded_storages.set(view_key, view);
+                default: {
+                    throw new pytorch.Error("Unsupported persistent load type '" + typename + "'.");
                 }
-                return view;
             }
-            return storage;
         };
         const unpickler = python.Unpickler.open(data);
         return unpickler.load((name, args) => this.execution.invoke(name, args), persistent_load);
