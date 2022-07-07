@@ -1,9 +1,7 @@
-"""Netron Python Server implementation.
-"""
-
 import codecs
 import errno
 import http.server
+import importlib.util
 import os
 import random
 import re
@@ -40,7 +38,6 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         '.svg': 'image/svg+xml'
     }
     def do_GET(self): # pylint: disable=invalid-name
-        """ Serve a GET request """
         pathname = urllib.parse.urlparse(self.path).path
         folder = os.path.dirname(os.path.realpath(__file__))
         location = folder + pathname
@@ -57,7 +54,8 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                     meta.append('<meta name="file" content="/data/' + self.file + '">')
                 with codecs.open(location + 'index.html', mode="r", encoding="utf-8") as open_file:
                     buffer = open_file.read()
-                buffer = re.sub(r'<meta name="version" content="\d+.\d+.\d+">', '\n'.join(meta), buffer)
+                meta = '\n'.join(meta)
+                buffer = re.sub(r'<meta name="version" content="\d+.\d+.\d+">', meta, buffer)
                 buffer = buffer.encode('utf-8')
                 headers['Content-Type'] = 'text/html'
                 headers['Content-Length'] = len(buffer)
@@ -103,15 +101,15 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
     def do_HEAD(self): # pylint: disable=invalid-name
         """ Serve a HEAD request """
         self.do_GET()
-    def log_message(self, format, *args):
+    def log_message(self, format, *args): # pylint: disable=redefined-builtin
         return
 
-class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
-    pass
-
 class HTTPServerThread(threading.Thread):
+    ''' HTTP Server Thread '''
     def __init__(self, data, file, address, log):
         threading.Thread.__init__(self)
+        class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
+            ''' Threaded HTTP Server '''
         self.address = address
         self.url = 'http://' + address[0] + ':' + str(address[1])
         self.file = file
@@ -245,9 +243,9 @@ def serve(file, data, address=None, browse=False, log=False):
     Args:
         file (string): Model file to serve. Required to detect format.
         data (bytes): Model data to serve. None will load data from file.
-        log (bool, optional): Log details to console. Default: False
-        browse (bool, optional): Launch web browser. Default: True
         address (tuple, optional): A (host, port) tuple, or a port number.
+        browse (bool, optional): Launch web browser. Default: True
+        log (bool, optional): Log details to console. Default: False
 
     Returns:
         A (host, port) address tuple.
@@ -255,18 +253,34 @@ def serve(file, data, address=None, browse=False, log=False):
     if not data and file and not os.path.exists(file):
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file)
 
-    if data and not isinstance(data, bytearray):
-        if data.__class__.__module__ == 'onnx.onnx_ml_pb2' and data.__class__.__name__ == 'ModelProto':
-            from .onnx import serialize # pylint: disable=import-outside-toplevel
-            data = serialize(data)
-            file = 'test.json'
-        elif data.__class__.__module__ == 'torch._C' and data.__class__.__name__ == 'Graph':
-            from .pytorch import serialize # pylint: disable=import-outside-toplevel
-            data = serialize(data)
-            file = 'test.json'
-        else:
-            raise Exception('Unsupported data.')
-
+    if data and not isinstance(data, bytearray) and isinstance(data.__class__, type):
+        registry = dict([
+            ('onnx.onnx_ml_pb2.ModelProto', '.onnx'),
+            ('torch.Graph', '.pytorch'),
+            ('torch._C.Graph', '.pytorch'),
+            ('torch.nn.modules.module.Module', '.pytorch')
+        ])
+        queue = [ data.__class__ ]
+        while len(queue) > 0:
+            current = queue.pop(0)
+            if current.__module__ and current.__name__:
+                name = current.__module__ + '.' + current.__name__
+                if name in registry:
+                    module_name = registry[name]
+                    if module_name.startswith('.'):
+                        file = os.path.join(os.path.dirname(__file__), module_name[1:] + '.py')
+                        spec = importlib.util.spec_from_file_location(module_name, file)
+                        module = importlib.util.module_from_spec(spec)
+                        spec.loader.exec_module(module)
+                    else:
+                        module = __import__(module_name)
+                    model_factory = module.ModelFactory()
+                    data = model_factory.serialize(data)
+                    file = 'test.json'
+                    break
+            for base in current.__bases__:
+                if isinstance(base, type):
+                    queue.append(base)
     _update_thread_list()
     address = _make_address(address)
     if isinstance(address[1], int) and address[1] != 0:
