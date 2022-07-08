@@ -20,7 +20,7 @@
         "electron-updater": "5.0.5"
     },
     "devDependencies": {
-        "electron": "19.0.7",
+        "electron": "19.0.8",
         "electron-builder": "23.1.0",
         "electron-notarize": "1.2.1",
         "eslint": "8.19.0"
