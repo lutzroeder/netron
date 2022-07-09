@@ -4417,6 +4417,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "module_000007.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/9075631/module_000007.pt.zip[module_000007.pt]",
+    "error":    "ValueError: not enough values to unpack (expected 4, actual 0) in 'module_000007.pt'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
+  },
+  {
+    "type":     "pytorch",
     "target":   "mtcnn.pt",
     "source":   "https://raw.githubusercontent.com/deepware/dFace/master/models/mtcnn.pt",
     "format":   "PyTorch v0.1.10",
