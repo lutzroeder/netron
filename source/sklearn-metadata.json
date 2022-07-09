@@ -1389,7 +1389,7 @@
       },
       {
         "default": true,
-        "description": "Refit an estimator using the best found parameters on the whole\ndataset.\n\nFor multiple metric evaluation, this needs to be a `str` denoting the\nscorer that would be used to find the best parameters for refitting\nthe estimator at the end.\n\nWhere there are considerations other than maximum score in\nchoosing a best estimator, ``refit`` can be set to a function which\nreturns the selected ``best_index_`` given ``cv_results_``. In that\ncase, the ``best_estimator_`` and ``best_params_`` will be set\naccording to the returned ``best_index_`` while the ``best_score_``\nattribute will not be available.\n\nThe refitted estimator is made available at the ``best_estimator_``\nattribute and permits using ``predict`` directly on this\n``GridSearchCV`` instance.\n\nAlso for multiple metric evaluation, the attributes ``best_index_``,\n``best_score_`` and ``best_params_`` will only be available if\n``refit`` is set and all of them will be determined w.r.t this specific\nscorer.\n\nSee ``scoring`` parameter to know more about multiple metric\nevaluation.\n\n.. versionchanged:: 0.20\nSupport for callable added.\n",
+        "description": "Refit an estimator using the best found parameters on the whole\ndataset.\n\nFor multiple metric evaluation, this needs to be a `str` denoting the\nscorer that would be used to find the best parameters for refitting\nthe estimator at the end.\n\nWhere there are considerations other than maximum score in\nchoosing a best estimator, ``refit`` can be set to a function which\nreturns the selected ``best_index_`` given ``cv_results_``. In that\ncase, the ``best_estimator_`` and ``best_params_`` will be set\naccording to the returned ``best_index_`` while the ``best_score_``\nattribute will not be available.\n\nThe refitted estimator is made available at the ``best_estimator_``\nattribute and permits using ``predict`` directly on this\n``GridSearchCV`` instance.\n\nAlso for multiple metric evaluation, the attributes ``best_index_``,\n``best_score_`` and ``best_params_`` will only be available if\n``refit`` is set and all of them will be determined w.r.t this specific\nscorer.\n\nSee ``scoring`` parameter to know more about multiple metric\nevaluation.\n\nSee :ref:`sphx_glr_auto_examples_model_selection_plot_grid_search_digits.py`\nto see how to design a custom selection strategy using a callable\nvia `refit`.\n\n.. versionchanged:: 0.20\nSupport for callable added.\n",
         "name": "refit",
         "type": "boolean"
       },
@@ -1415,7 +1415,7 @@
     "description": "Naive Bayes classifier for multivariate Bernoulli models.\n\nLike MultinomialNB, this classifier is suitable for discrete data. The\ndifference is that while MultinomialNB works with occurrence counts,\nBernoulliNB is designed for binary/boolean features.\n\nRead more in the :ref:`User Guide <bernoulli_naive_bayes>`.\n",
     "attributes": [
       {
-        "default": 1.0,
+        "default": "1.0",
         "description": "Additive (Laplace/Lidstone) smoothing parameter\n(0 for no smoothing).\n",
         "name": "alpha",
         "optional": true,
@@ -1447,7 +1447,7 @@
     "description": "The Complement Naive Bayes classifier described in Rennie et al. (2003).\n\nThe Complement Naive Bayes classifier was designed to correct the \"severe\nassumptions\" made by the standard Multinomial Naive Bayes classifier. It is\nparticularly suited for imbalanced data sets.\n\nRead more in the :ref:`User Guide <complement_naive_bayes>`.\n\n.. versionadded:: 0.20\n",
     "attributes": [
       {
-        "default": 1.0,
+        "default": "1.0",
         "description": "Additive (Laplace/Lidstone) smoothing parameter (0 for no smoothing).\n",
         "name": "alpha",
         "optional": true,
@@ -1480,7 +1480,7 @@
     "description": "\nNaive Bayes classifier for multinomial models.\n\nThe multinomial Naive Bayes classifier is suitable for classification with\ndiscrete features (e.g., word counts for text classification). The\nmultinomial distribution normally requires integer feature counts. However,\nin practice, fractional counts such as tf-idf may also work.\n\nRead more in the :ref:`User Guide <multinomial_naive_bayes>`.\n",
     "attributes": [
       {
-        "default": 1.0,
+        "default": "1.0",
         "description": "Additive (Laplace/Lidstone) smoothing parameter\n(0 for no smoothing).\n",
         "name": "alpha",
         "optional": true,
