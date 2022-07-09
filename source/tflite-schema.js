@@ -2479,15 +2479,13 @@ $root.tflite.DynamicUpdateSliceOptions = class DynamicUpdateSliceOptions {
 
 $root.tflite.UnsortedSegmentProdOptions = class UnsortedSegmentProdOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.UnsortedSegmentProdOptions();
-        $.num_segments = reader.int32_(position, 4, 0);
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.UnsortedSegmentProdOptions();
-        $.num_segments = reader.value(json.num_segments, 0);
         return $;
     }
 };
