@@ -614,7 +614,7 @@ coreml.Graph = class {
         // TODO: need to handle functions other than main?
         const main = program.functions.main;
         // TODO: need to handle more than one block specialization?
-        const block = main.block_specializations.CoreML5;
+        const block = main.block_specializations.CoreML5 || main.block_specializations.CoreML6;
 
         const convertValue = (value) => {
             switch (value.value) {
@@ -666,6 +666,10 @@ coreml.Graph = class {
                                     break;
                                 }
                                 case 'float16': {
+                                    data = stream.read(size);
+                                    break;
+                                }
+                                case 'uint8': {
                                     data = stream.read(size);
                                     break;
                                 }
@@ -1269,6 +1273,9 @@ coreml.Tensor = class {
             case 'float16':
                 context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
                 break;
+            case 'uint8':
+                context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+                break;
             default:
                 if (this._quantization) {
                     context.dataType = 'quantization';
@@ -1301,6 +1308,10 @@ coreml.Tensor = class {
                     case 'float16':
                         results.push(context.data.getFloat16(context.index, true));
                         context.index += 2;
+                        break;
+                    case 'uint8':
+                        results.push(context.data.getUint8(context.index, true));
+                        context.index += 1;
                         break;
                     case 'quantization':
                         results.push(context.data.getBits(context.index, context.bits));
