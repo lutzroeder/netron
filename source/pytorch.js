@@ -156,12 +156,12 @@ pytorch.Graph = class {
                 break;
             }
             case 'module': {
-                this._type = (graph.obj.__module__ && graph.obj.__name__) ? (graph.obj.__module__ + '.' + graph.obj.__name__) : '';
-                this._loadModule(metadata, graph.obj, [], []);
+                this._type = (graph.data.__module__ && graph.data.__name__) ? (graph.data.__module__ + '.' + graph.data.__name__) : '';
+                this._loadModule(metadata, graph.data, [], []);
                 break;
             }
             case 'weights': {
-                for (const state_group of graph.layers) {
+                for (const state_group of graph.data) {
                     const attributes = state_group.attributes || [];
                     const inputs = state_group.states.map((parameter) => {
                         return new pytorch.Parameter(parameter.name, true,
@@ -2985,13 +2985,12 @@ pytorch.Container.Zip.Package = class extends pytorch.Container.Zip {
                     }
                 }
                 execution.registerFunction('torch.jit._script.unpackage_script_module', function(script_module_id) {
-                    // torch.jit._script.RecursiveScriptModule
-                    return script_module_id;
+                    return "torch.jit._script.RecursiveScriptModule('" + script_module_id + "')";
                 });
                 const unpickler = python.Unpickler.open(stream);
                 const root = unpickler.load((name, args) => execution.invoke(name, args), persistent_load);
-                if (root.model) {
-                    const location = {
+                /* if (root.model) {
+                    const location = {6
                         model: '.data/ts_code/' + root.model + '/data.pkl',
                         code: '.data/ts_code/code/',
                         data: '.data/',
@@ -2999,17 +2998,12 @@ pytorch.Container.Zip.Package = class extends pytorch.Container.Zip {
                     const graph = new pytorch.Container.Zip.Pickle.Script(this._entries, execution, location, name);
                     this._graphs.push(graph);
                 }
-                else {
-                    const obj = pytorch.Utility.findModule(root);
-                    if (Array.isArray(obj) && obj.length === 1) {
-                        obj[0].type = 'module';
-                        obj[0].name = obj[0].name || name;
-                        this._graphs.push(obj[0]);
-                    }
-                    else {
-                        throw new pytorch.Error('Unsupported packaged model.');
-                    }
-                }
+                else { */
+                this._graphs.push({
+                    name: name,
+                    type: 'module',
+                    data: root
+                });
             }
         }
         return this._graphs;
@@ -3915,11 +3909,11 @@ pytorch.Utility = class {
                 }
                 if (obj) {
                     if (obj._modules) {
-                        return [ { name: '', obj: obj } ];
+                        return [ { name: '', data: obj } ];
                     }
                     const objKeys = Object.keys(obj).filter((key) => obj[key] && obj[key]._modules);
                     if (objKeys.length > 1) {
-                        return objKeys.map((key) => { return { name: key, obj: obj[key] }; });
+                        return objKeys.map((key) => { return { name: key, data: obj[key] }; });
                     }
                 }
             }
@@ -3967,7 +3961,7 @@ pytorch.Utility = class {
             const argument = { id: '', value: obj };
             const parameter = { name: 'value', arguments: [ argument ] };
             layers.push({ states: [ parameter ] });
-            return [ { layers: layers } ];
+            return [ { data: layers } ];
         }
         return null;
     }
@@ -3989,7 +3983,7 @@ pytorch.Utility = class {
                     }
                 }
                 layers.push(layer);
-                return [ { layers: layers } ];
+                return [ { data: layers } ];
             }
             if (obj.every((item) => item && Object.values(item).filter((value) => pytorch.Utility.isTensor(value)).length > 0)) {
                 const layers = [];
@@ -4011,7 +4005,7 @@ pytorch.Utility = class {
                     }
                     layers.push(layer);
                 }
-                return [ { layers: layers } ];
+                return [ { data: layers } ];
             }
         }
         return null;
@@ -4200,7 +4194,7 @@ pytorch.Utility = class {
                 }
                 graphs.push({
                     name: graph_key,
-                    layers: layers.values()
+                    data: layers.values()
                 });
             }
             return graphs;
