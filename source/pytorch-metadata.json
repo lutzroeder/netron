@@ -2339,7 +2339,7 @@
     ]
   },
   {
-    "name": "torch.round",
+    "name": "torch.round:",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -2348,9 +2348,29 @@
     ]
   },
   {
-    "name": "torch.round_",
+    "name": "torch.round_:",
     "inputs": [
       { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.round:decimals",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "decimals", "type": "int64" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.round_:decimals",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "decimals", "type": "int64" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
