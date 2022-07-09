@@ -4171,6 +4171,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "DCGAN2.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/9075628/DCGAN2.pt.zip[DCGAN2.pt]",
+    "error":    "Cannot read properties of undefined (reading 'base_loss_criterions') in 'DCGAN2.pt'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/928"
+  },
+  {
+    "type":     "pytorch",
     "target":   "densenet161_traced.pt",
     "source":   "https://github.com/lutzroeder/netron/files/6096613/densenet161_traced.pt.zip[densenet161_traced.pt]",
     "action":   "skip-render",
@@ -4633,6 +4640,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "resnet34.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/9075629/resnet34.pt.zip",
+    "format":   "PyTorch Package v1.9",
+    "link":     "https://github.com/lutzroeder/netron/issues/928"
+  },
+  {
+    "type":     "pytorch",
     "target":   "resnet34-333f7ec4.pth",
     "source":   "https://download.pytorch.org/models/resnet34-333f7ec4.pth",
     "format":   "PyTorch v0.1.1",
@@ -4908,6 +4922,13 @@
     "source":   "https://github.com/lutzroeder/netron/files/2587823/tutorial_models.zip[tutorial_variational_autoencoder.pth]",
     "format":   "PyTorch v0.1.10",
     "link":     "https://github.com/lutzroeder/netron/issues/133"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "v3_1_ru.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/9075630/v3_1_ru.pt.zip[v3_1_ru.pt]",
+    "error":    "Found non-callable @@iterator in 'v3_1_ru.pt'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/928"
   },
   {
     "type":     "pytorch",
