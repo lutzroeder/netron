@@ -117,10 +117,9 @@ python.Parser = class {
         }
         node = this._eat('id', 'assert');
         if (node) {
-            node.condition = this._parseExpression();
-            while (this._tokenizer.eat(',')) {
-                node.condition = { type: 'list', value: [ node.condition ] };
-                node.condition.value.push(this._parseExpression());
+            node.condition = this._parseExpression(-1, [ ',' ]);
+            if (this._tokenizer.eat(',')) {
+                node.message = this._parseExpression();
             }
             return node;
         }
@@ -171,24 +170,27 @@ python.Parser = class {
         }
         node = this._eat('id', 'from');
         if (node) {
+            node.type = 'import_from';
             const dots = this._tokenizer.peek();
             if (dots && Array.from(dots.type).every((c) => c == '.')) {
-                node.from = this._eat(dots.type);
-                node.from.expression = this._parseExpression();
+                this._eat(dots.type);
+                node.level = Array.from(dots.type).length;
+                node.module = this._parseExpression();
             }
             else {
-                node.from = this._parseExpression();
+                node.level = 0;
+                node.module = this._parseExpression();
             }
             this._tokenizer.expect('id', 'import');
-            node.import = [];
+            node.names = [];
             const close = this._tokenizer.eat('(');
             do {
-                const symbol = this._node();
-                symbol.symbol = this._parseExpression(-1, [], false);
+                const alias = this._node('alias');
+                alias.name = this._parseName();
                 if (this._tokenizer.eat('id', 'as')) {
-                    symbol.as = this._parseExpression(-1, [], false);
+                    alias.asname = this._parseName();
                 }
-                node.import.push(symbol);
+                node.names.push(alias);
             }
             while (this._tokenizer.eat(','));
             if (close) {
@@ -196,9 +198,16 @@ python.Parser = class {
             }
             return node;
         }
+
+        let decorator_list = this._parseDecorator();
+
         node = this._eat('id', 'class');
         if (node) {
             node.name = this._parseName().value;
+            if (decorator_list) {
+                node.decorator_list = Array.from(decorator_list);
+                decorator_list = null;
+            }
             if (this._tokenizer.peek().value === '(') {
                 node.base = this._parseArguments();
             }
@@ -221,6 +230,10 @@ python.Parser = class {
                 node.async = async;
             }
             node.name = this._parseName().value;
+            if (decorator_list) {
+                node.decorator_list = Array.from(decorator_list);
+                decorator_list = null;
+            }
             this._tokenizer.expect('(');
             node.parameters = this._parseParameters(')');
             if (this._tokenizer.eat('->')) {
@@ -230,6 +243,11 @@ python.Parser = class {
             node.body = this._parseSuite();
             return node;
         }
+
+        if (decorator_list && decorator_list.length > 0) {
+            throw new python.Error('Unexpected decorator.');
+        }
+
         node = this._eat('id', 'del');
         if (node) {
             node.expression = this._parseExpression(-1, [], true);
@@ -360,16 +378,6 @@ python.Parser = class {
                 this._tokenizer.expect('id', 'finally');
                 this._tokenizer.expect(':');
                 node.finally.body = this._parseSuite();
-            }
-            return node;
-        }
-
-        if (this._tokenizer.match('@')) {
-            node = this._node('decorator');
-            this._tokenizer.expect('@');
-            node.value = this._parseExpression();
-            if (!node.value || (node.value.type !== 'call' && node.value.type !== 'id' && node.value.type !== '.')) {
-                throw new python.Error('Invalid decorator' + this._tokenizer.location());
             }
             return node;
         }
@@ -710,6 +718,21 @@ python.Parser = class {
             throw new python.Error('Unexpected expression' + this._tokenizer.location());
         }
         return null;
+    }
+
+    _parseDecorator() {
+        let list = null;
+        while (this._tokenizer.eat('@')) {
+            const node = this._node('decorator');
+            node.value = this._parseExpression();
+            if (!node.value || (node.value.type !== 'call' && node.value.type !== 'id' && node.value.type !== '.')) {
+                throw new python.Error('Invalid decorator' + this._tokenizer.location());
+            }
+            this._tokenizer.eat('\n');
+            list = list !== null ? list : [];
+            list.push(node);
+        }
+        return list;
     }
 
     _parseDictOrSetMaker() {
@@ -2524,6 +2547,9 @@ python.Execution = class {
             }
             throw new python.Error("Unsupported copy_reg._reconstructor base type '" + base + "'.");
         });
+        this.registerFunction('copy.deepcopy', function(/* x */) {
+            throw new python.Error('Unsupported copy.deepcopy().');
+        });
         this.registerFunction('dill._dill._create_cell', function(/* args */) {
             return function() {
                 // TODO
@@ -2880,7 +2906,7 @@ python.Execution = class {
             this.package(name.substring(0, index));
         }
         if (!this._packages.has(name)) {
-            const file = 'code/' + name.split('.').join('/') + '.py';
+            const file = name.split('.').join('/') + '.py';
             const program = this.parse(file);
             if (program) {
                 let globals = this._context.getx(name);
@@ -3113,9 +3139,16 @@ python.Execution = class {
                     items.push(this.expression(item.expression, context));
                 }
                 for (const item of items) {
-                    item.__exit__();
+                    if (item.__enter__ && item.__enter__.__call__) {
+                        item.__enter__.__call__([ item ]);
+                    }
                 }
                 const value = this.block(statement.body.statements, context);
+                for (const item of items) {
+                    if (item.__exit__ && item.__exit__.__call__) {
+                        item.__exit__.__call__([ item ]);
+                    }
+                }
                 if (value !== undefined) {
                     return value;
                 }
@@ -3133,6 +3166,29 @@ python.Execution = class {
                         context.set(module.as, globals);
                     }
                 }
+                break;
+            }
+            case 'import_from': {
+                let module = null;
+                let moduleName = python.Utility.target(statement.module);
+                if (statement.level > 0) {
+                    let paths = context.getx('__file__').split('/');
+                    paths = paths.slice(0, paths.length - statement.level);
+                    paths.push(moduleName.replace('.', '/'));
+                    moduleName = paths.join('/');
+                    module = this.package(moduleName);
+                }
+                else {
+                    module = this._package(moduleName, context);
+                }
+                for (const entry of statement.names) {
+                    const name = entry.name.value;
+                    const asname = entry.asname ? entry.asname.value : null;
+                    context.set(asname ? asname : name, module[name]);
+                }
+                break;
+            }
+            case 'string': {
                 break;
             }
             default: {
@@ -3324,19 +3380,27 @@ python.Execution = class {
             }
         }
         if (packageName) {
-            let target = context.getx(packageName);
-            if (!target) {
-                target = this.package(packageName);
-                if (!target) {
-                    target = context.getx(packageName);
-                    if (!target) {
-                        throw new python.Error("Failed to resolve module '" + packageName + "'.");
-                    }
-                }
-            }
-            return target;
+            return this._package(packageName, context);
         }
         return this.expression(expression, context);
+    }
+
+    _package(packageName, context) {
+        let target = context.getx(packageName);
+        if (!target) {
+            target = this.package(packageName);
+            if (!target) {
+                target = context.getx(packageName);
+                if (!target) {
+                    throw new python.Error("Failed to resolve module '" + packageName + "'.");
+                }
+            }
+        }
+        return target;
+    }
+
+    register(name, source) {
+        this._sources.set(name, source);
     }
 
     registerFunction(name, callback) {
