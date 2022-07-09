@@ -45,7 +45,7 @@ schema() {
     venv
     ${python} -m pip --quiet install pyyaml mako
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-    ${python} ./tools/nnabla-script.py proto
+    ${python} ./tools/nnabla_script.py schema
     deactivate
     [[ $(grep -U $'\x0D' ./source/nnabla-proto.js) ]] && crlf=1
     node ./tools/protoc.js --text --root nnabla --out ./source/nnabla-proto.js ./third_party/source/nnabla/src/nbla/proto/nnabla.proto
@@ -60,7 +60,7 @@ metadata() {
     ${python} -m pip --quiet install pyyaml mako
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     if [[ $(grep -U $'\x0D' ./source/nnabla-metadata.json) ]]; then crlf=1; else crlf=; fi
-    ${python} ./tools/nnabla-script.py metadata
+    ${python} ./tools/nnabla_script.py metadata
     deactivate
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/nnabla-metadata.json ./source/nnabla-metadata.json

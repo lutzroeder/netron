@@ -3,5 +3,7 @@
         "dist": true,
         "node_modules": true,
         "third_party": true
-    }
+    },
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true
 }

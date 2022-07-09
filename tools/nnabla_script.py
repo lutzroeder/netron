@@ -1,45 +1,33 @@
+''' NNabla metadata script '''
+
 import json
 import sys
-import yaml
 import os
+import yaml
 import mako
 import mako.template
 
-def render_with_template(text=None, filename=None, preprocessor=None, template_kwargs={}):
-
+def _render_with_template(text=None, filename=None, preprocessor=None, template_kwargs={}):
     tmpl = mako.template.Template(text=text, filename=filename, preprocessor=preprocessor)
-    try:
-        return tmpl.render(**template_kwargs)
-    except Exception as e:
-        import sys
-        print('-' * 78, file=sys.stderr)
-        print('Template exceptions', file=sys.stderr)
-        print('-' * 78, file=sys.stderr)
-        print(mako.exceptions.text_error_template().render(), file=sys.stderr)
-        print('-' * 78, file=sys.stderr)
-        raise e
+    return tmpl.render(**template_kwargs)
 
-
-def generate_from_template(path_template, **kwargs):
+def _generate_from_template(path_template, **kwargs):
     path_out = path_template.replace('.tmpl', '')
-    generated = render_with_template(filename=path_template, template_kwargs=kwargs)
+    generated = _render_with_template(filename=path_template, template_kwargs=kwargs)
     with open(path_out, 'wb') as file:
         write_content = generated.encode('utf_8')
         write_content = write_content.replace(b'\r\n', b'\n')
         write_content = write_content.replace(b'\r', b'\n')
         file.write(write_content)
 
-
-def metadata():
+def _metadata():
     json_file = os.path.join(os.path.dirname(__file__), '../source/nnabla-metadata.json')
-    yaml_functions = os.path.join(os.path.dirname(__file__), '../third_party/source/nnabla/build-tools/code_generator/functions.yaml')
-
-    with open(yaml_functions, 'r') as file:
+    base = os.path.abspath(os.path.join(os.path.dirname(__file__), '../third_party/source/nnabla'))
+    yaml_functions = os.path.join(base, 'build-tools/code_generator/functions.yaml')
+    with open(yaml_functions, 'r', encoding='utf-8') as file:
         function_info = yaml.safe_load(file)
-
     functions = []
-
-    # Parse functions
+    # parse functions
     for category_name, category in function_info.items():
         for function_name, function_value in category.items():
             function = {
@@ -59,7 +47,7 @@ def metadata():
                     'name': arg_name,
                     'type': arg_value['type'],
                     'required': 'default' not in arg_value,
-                    'default': try_eval_default(arg_value.get('default', None)),
+                    'default': _try_eval_default(arg_value.get('default', None)),
                     'description': arg_value['doc'].strip()
                 })
             for output_name, output_value in function_value.get('outputs', {}).items():
@@ -82,8 +70,7 @@ def metadata():
             elif category_name == 'Array Manipulation':
                 function['category'] = 'Shape'
             functions.append(function)
-
-    # Clean-up redundant fields
+    # clean-up redundant fields
     for function in functions:
         for inp in function.get('inputs', []):
             if inp['option'] is None:
@@ -96,38 +83,34 @@ def metadata():
         for output in function.get('outputs', []):
             if not output['list']:
                 output.pop('list', None)
-
-    with open(json_file, 'w') as file:
+    with open(json_file, 'w', encoding='utf-8') as file:
         file.write(json.dumps(functions, indent=2))
 
-
-def proto():
+def _schema():
     base = os.path.abspath(os.path.join(os.path.dirname(__file__), '../third_party/source/nnabla'))
     tmpl_file = os.path.join(base, 'src/nbla/proto/nnabla.proto.tmpl')
     yaml_functions = os.path.join(base, 'build-tools/code_generator/functions.yaml')
     yaml_solvers = os.path.join(base, 'build-tools/code_generator/solvers.yaml')
-
-    with open(yaml_functions, 'r') as file:
+    with open(yaml_functions, 'r', encoding='utf-8') as file:
         functions = yaml.safe_load(file)
         function_info = {k: v for _, category in functions.items() for k, v in category.items()}
-
-    with open(yaml_solvers, 'r') as file:
+    with open(yaml_solvers, 'r', encoding='utf-8') as file:
         solver_info = yaml.safe_load(file)
+    _generate_from_template(tmpl_file, function_info=function_info, solver_info=solver_info)
 
-    generate_from_template(tmpl_file, function_info=function_info, solver_info=solver_info)
-
-
-def try_eval_default(default):
+def _try_eval_default(default):
     if default and isinstance(default, str):
         if not default.startswith(('(', '[')):
             try:
-                return eval(default, {'__builtin__': None})
+                default = eval(default, {'__builtin__': None})
             except NameError:
                 pass
     return default
 
-
-if __name__ == '__main__':
-    command_table = {'metadata': metadata, 'proto': proto}
+def main(): # pylint: disable=missing-function-docstring
+    command_table = {'metadata': _metadata, 'schema': _schema}
     command = sys.argv[1]
     command_table[command]()
+
+if __name__ == '__main__':
+    main()

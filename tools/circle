@@ -26,7 +26,7 @@ schema() {
 metadata() {
     echo "circle metadata"
     if [[ $(grep -U $'\x0D' ./source/circle-metadata.json) ]]; then crlf=1; else crlf=; fi
-    node ./tools/circle-script.js
+    node ./tools/circle_script.js
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/circle-metadata.json ./source/circle-metadata.json
     fi

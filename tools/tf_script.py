@@ -1,17 +1,15 @@
+''' TensorFlow Metadata Script '''
 
 import io
 import json
 import os
 import sys
-
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-
+import google.protobuf.text_format
 from tensorflow.core.framework import api_def_pb2
 from tensorflow.core.framework import op_def_pb2
 from tensorflow.core.framework import types_pb2
-from google.protobuf import text_format
 
-def metadata():
+def _metadata():
     categories = {
         'Assign': 'Control',
         'AvgPool': 'Pool',
@@ -63,21 +61,21 @@ def metadata():
 
     def str_escape(text):
         result = ''
-        for c in text:
-            if (c == '\n'):
+        for value in text:
+            if value == '\n':
                 result += '\\n'
-            elif (c == '\r'):
+            elif value == '\r':
                 result += "\\r"
-            elif (c == '\t'):
+            elif value == '\t':
                 result += "\\t"
-            elif (c == '\"'):
+            elif value == '\"':
                 result += "\\\""
-            elif (c == '\''):
+            elif value == '\'':
                 result += "\\'"
-            elif (c == '\\'):
+            elif value == '\\':
                 result += "\\\\"
             else:
-                result += c
+                result += value
         return result
 
     def pbtxt_from_multiline(multiline_pbtxt):
@@ -92,7 +90,7 @@ def metadata():
             multiline_pbtxt = multiline_pbtxt[index+1:]
             colon = line.find(':')
             end = find_multiline(line, colon)
-            if end == None:
+            if end is None:
                 pbtxt = pbtxt + line + '\n'
                 continue
             pbtxt = pbtxt + line[0:colon+1]
@@ -122,16 +120,16 @@ def metadata():
             if filename.endswith('.pbtxt'):
                 api_defs = api_def_pb2.ApiDefs()
                 filename = folder + '/' + filename
-                with open(filename) as handle:
-                    multiline_pbtxt = handle.read()
+                with open(filename, 'r', encoding='utf-8') as file:
+                    multiline_pbtxt = file.read()
                     pbtxt = pbtxt_from_multiline(multiline_pbtxt)
-                    text_format.Merge(pbtxt, api_defs)
+                    google.protobuf.text_format.Merge(pbtxt, api_defs)
                 for api_def in api_defs.op:
                     api_def_map[api_def.graph_op_name] = api_def
         return api_def_map
 
-    def convert_type(type):
-        return { 'type': 'type', 'value': type }
+    def convert_type(value):
+        return { 'type': 'type', 'value': value }
 
     def convert_tensor(tensor):
         return { 'type': 'tensor', 'value': '?' }
@@ -157,50 +155,52 @@ def metadata():
         'func': 'function', 'list(func)': 'function[]'
     }
 
-    def convert_attr_type(type):
-        if type in attr_type_table:
-            return attr_type_table[type]
-        print(type)
-        return type
+    def convert_attr_type(attr_type):
+        if attr_type in attr_type_table:
+            return attr_type_table[attr_type]
+        print(attr_type)
+        return attr_type
 
     def convert_attr_value(attr_value):
         if attr_value.HasField('list'):
-            list = []
+            result = []
             attr_value_list = attr_value.list
             if len(attr_value_list.s) > 0:
-                for s in attr_value_list.s:
-                    list.append(s.decode('utf8'))
+                for value in attr_value_list.s:
+                    result.append(value.decode('utf8'))
             if len(attr_value_list.i) > 0:
                 for i in attr_value_list.i:
-                    list.append(i)
+                    result.append(i)
             if len(attr_value_list.f) > 0:
-                for f in attr_value_list.f:
-                    list.append(convert_number(f))
+                for value in attr_value_list.f:
+                    result.append(convert_number(value))
             if len(attr_value_list.type) > 0:
-                for type in attr_value_list.type:
-                    list.append(convert_type(type))
-            if len(list) == 0:
+                for value in attr_value_list.type:
+                    result.append(convert_type(value))
+            if len(result) == 0:
                 for _, value in attr_value_list.ListFields():
                     if len(value) > 0:
                         raise Exception()
-            return list
+            return result
         if attr_value.HasField('s'):
-            return attr_value.s.decode('utf8')
-        if attr_value.HasField('i'):
-            return attr_value.i
-        if attr_value.HasField('f'):
-            return convert_number(attr_value.f)
-        if attr_value.HasField('b'):
-            return attr_value.b
-        if attr_value.HasField('type'):
-            return convert_type(attr_value.type)
-        if attr_value.HasField('tensor'):
-            return convert_tensor(attr_value.tensor)
-        if attr_value.HasField('shape'):
-            return convert_shape(attr_value.shape)
-        raise Exception()
+            value = attr_value.s.decode('utf8')
+        elif attr_value.HasField('i'):
+            value = attr_value.i
+        elif attr_value.HasField('f'):
+            value = convert_number(attr_value.f)
+        elif attr_value.HasField('b'):
+            value = attr_value.b
+        elif attr_value.HasField('type'):
+            value = convert_type(attr_value.type)
+        elif attr_value.HasField('tensor'):
+            value = convert_tensor(attr_value.tensor)
+        elif attr_value.HasField('shape'):
+            value = convert_shape(attr_value.shape)
+        else:
+            raise Exception()
+        return value
 
-    _TYPE_TO_STRING = {
+    type_to_string_map = {
         types_pb2.DataType.DT_HALF: "float16",
         types_pb2.DataType.DT_FLOAT: "float32",
         types_pb2.DataType.DT_DOUBLE: "float64",
@@ -250,39 +250,39 @@ def metadata():
     }
 
     def format_data_type(data_type):
-        if data_type in _TYPE_TO_STRING:
-            return _TYPE_TO_STRING[data_type]
+        if data_type in type_to_string_map:
+            return type_to_string_map[data_type]
         raise Exception()
 
     def format_attribute_value(value):
-        if type(value) is dict and 'type' in value and 'value' in value and value['type'] == 'type':
+        if isinstance(value, dict) and 'type' in value and 'value' in value and value['type'] == 'type':
             return format_data_type(value['value'])
-        if type(value) is str:
+        if isinstance(value, str):
             return value
-        if value == True:
+        if value is True:
             return 'true'
-        if value == False:
+        if value is False:
             return 'false'
         raise Exception()
 
-    tensorflow_repo_dir = os.path.join(os.path.dirname(__file__), '../third_party/source/tensorflow')
-    api_def_map = read_api_def_map(os.path.join(tensorflow_repo_dir, 'tensorflow/core/api_def/base_api'))
-    input_file = os.path.join(tensorflow_repo_dir, 'tensorflow/core/ops/ops.pbtxt')
+    repo_dir = os.path.join(os.path.dirname(__file__), '../third_party/source/tensorflow')
+    api_def_map = read_api_def_map(os.path.join(repo_dir, 'tensorflow/core/api_def/base_api'))
+    input_file = os.path.join(repo_dir, 'tensorflow/core/ops/ops.pbtxt')
     ops_list = op_def_pb2.OpList()
-    with open(input_file) as input_handle:
-        text_format.Merge(input_handle.read(), ops_list)
+    with open(input_file, 'r', encoding='utf-8') as file:
+        google.protobuf.text_format.Merge(file.read(), ops_list)
 
     json_root = []
 
-    for op in ops_list.op:
+    for operator in ops_list.op:
         # print(op.name)
         json_schema = {}
-        json_schema['name'] = op.name
-        if op.name in categories:
-            json_schema['category'] = categories[op.name]
+        json_schema['name'] = operator.name
+        if operator.name in categories:
+            json_schema['category'] = categories[operator.name]
         api_def = api_def_pb2.ApiDef()
-        if op.name in api_def_map:
-            api_def = api_def_map[op.name]
+        if operator.name in api_def_map:
+            api_def = api_def_map[operator.name]
         # if op.deprecation.version != 0:
         #    print('[' + op.name + ']')
         #    print(op.deprecation.version)
@@ -300,8 +300,8 @@ def metadata():
             json_schema['summary'] = api_def.summary
         if api_def.description:
             json_schema['description'] = api_def.description
-        for attr in op.attr:
-            if not 'attributes' in json_schema:
+        for attr in operator.attr:
+            if 'attributes' not in json_schema:
                 json_schema['attributes'] = []
             json_attribute = {}
             json_attribute['name'] = attr.name
@@ -325,8 +325,8 @@ def metadata():
                 default_value = convert_attr_value(attr.default_value)
                 json_attribute['default'] = default_value
             json_schema['attributes'].append(json_attribute)
-        for input_arg in op.input_arg:
-            if not 'inputs' in json_schema:
+        for input_arg in operator.input_arg:
+            if 'inputs' not in json_schema:
                 json_schema['inputs'] = []
             json_input = {}
             json_input['name'] = input_arg.name
@@ -345,8 +345,8 @@ def metadata():
             if input_arg.is_ref:
                 json_input['isRef'] = True
             json_schema['inputs'].append(json_input)
-        for output_arg in op.output_arg:
-            if not 'outputs' in json_schema:
+        for output_arg in operator.output_arg:
+            if 'outputs' not in json_schema:
                 json_schema['outputs'] = []
             json_output = {}
             json_output['name'] = output_arg.name
@@ -368,14 +368,17 @@ def metadata():
         json_root.append(json_schema)
 
     json_file = os.path.join(os.path.dirname(__file__), '../source/tf-metadata.json')
-    with io.open(json_file, 'w', newline='') as fout:
+    with io.open(json_file, 'w', encoding='utf-8', newline='') as fout:
         json_data = json.dumps(json_root, sort_keys=False, indent=2)
         for line in json_data.splitlines():
             line = line.rstrip()
             fout.write(line)
             fout.write('\n')
 
-if __name__ == '__main__':
-    command_table = { 'metadata': metadata }
+def main():
+    command_table = { 'metadata': _metadata }
     command = sys.argv[1] if len(sys.argv) > 1 else 'metadata'
     command_table[command]()
+
+if __name__ == '__main__':
+    main()

@@ -1,10 +1,10 @@
-''' ONNX Backend '''
+''' ONNX backend '''
 
 import collections
 import json
 
 class ModelFactory:
-    ''' ONNX Backend Model Factory '''
+    ''' ONNX backend model factory '''
     def serialize(self, model):
         ''' Serialize ONNX model to JSON message '''
         print('Experimental')
@@ -62,7 +62,7 @@ class ModelFactory:
             'arguments': []
         }
         json_model['graphs'].append(json_graph)
-        arguments = dict()
+        arguments = {}
         def tensor(tensor):
             return {}
         def argument(name, tensor_type=None, initializer=None):
@@ -93,62 +93,62 @@ class ModelFactory:
             if node.name:
                 json_node['name'] = node.name
             json_node['inputs'] = []
-            for input in node.input:
+            for value in node.input:
                 json_node['inputs'].append({
                         'name': 'X',
-                        'arguments': [ argument(input) ]
+                        'arguments': [ argument(value) ]
                     })
             json_node['outputs'] = []
-            for output in node.output:
+            for value in node.output:
                 json_node['outputs'].append({
                         'name': 'X',
-                        'arguments': [ argument(output) ]
+                        'arguments': [ argument(value) ]
                     })
             json_node['attributes'] = []
-            for attribute in node.attribute:
-                if attribute.type == onnx.onnx_pb.AttributeProto.UNDEFINED:
+            for _ in node.attribute:
+                if _.type == onnx.onnx_pb.AttributeProto.UNDEFINED:
                     attribute_type = None
-                    attribute_value = None
-                elif attribute.type == onnx.onnx_pb.AttributeProto.FLOAT:
+                    value = None
+                elif _.type == onnx.onnx_pb.AttributeProto.FLOAT:
                     attribute_type = 'float32'
-                    attribute_value = attribute.f
-                elif attribute.type == onnx.onnx_pb.AttributeProto.INT:
+                    value = _.f
+                elif _.type == onnx.onnx_pb.AttributeProto.INT:
                     attribute_type = 'int64'
-                    attribute_value = attribute.i
-                elif attribute.type == onnx.onnx_pb.AttributeProto.STRING:
+                    value = _.i
+                elif _.type == onnx.onnx_pb.AttributeProto.STRING:
                     attribute_type = 'string'
-                    attribute_value = attribute.s.decode('latin1') if op_type == 'Int8GivenTensorFill' else attribute.s.decode('utf-8')
-                elif attribute.type == onnx.onnx_pb.AttributeProto.TENSOR:
+                    value = _.s.decode('latin1' if op_type == 'Int8GivenTensorFill' else 'utf-8')
+                elif _.type == onnx.onnx_pb.AttributeProto.TENSOR:
                     attribute_type = 'tensor'
-                    attribute_value = tensor(attribute.t)
-                elif attribute.type == onnx.onnx_pb.AttributeProto.GRAPH:
+                    value = tensor(_.t)
+                elif _.type == onnx.onnx_pb.AttributeProto.GRAPH:
                     attribute_type = 'tensor'
                     raise Exception('Unsupported graph attribute type')
-                elif attribute.type == onnx.onnx_pb.AttributeProto.FLOATS:
+                elif _.type == onnx.onnx_pb.AttributeProto.FLOATS:
                     attribute_type = 'float32[]'
-                    attribute_value = [ item for item in attribute.floats ]
-                elif attribute.type == onnx.onnx_pb.AttributeProto.INTS:
+                    value = [ item for item in _.floats ]
+                elif _.type == onnx.onnx_pb.AttributeProto.INTS:
                     attribute_type = 'int64[]'
-                    attribute_value = [ item for item in attribute.ints ]
-                elif attribute.type == onnx.onnx_pb.AttributeProto.STRINGS:
+                    value = [ item for item in _.ints ]
+                elif _.type == onnx.onnx_pb.AttributeProto.STRINGS:
                     attribute_type = 'string[]'
-                    attribute_value = [ item.decode('utf-8') for item in attribute.strings ]
-                elif attribute.type == onnx.onnx_pb.AttributeProto.TENSORS:
+                    value = [ item.decode('utf-8') for item in _.strings ]
+                elif _.type == onnx.onnx_pb.AttributeProto.TENSORS:
                     attribute_type = 'tensor[]'
                     raise Exception('Unsupported tensors attribute type')
-                elif attribute.type == onnx.onnx_pb.AttributeProto.GRAPHS:
+                elif _.type == onnx.onnx_pb.AttributeProto.GRAPHS:
                     attribute_type = 'graph[]'
                     raise Exception('Unsupported graphs attribute type')
-                elif attribute.type == onnx.onnx_pb.AttributeProto.SPARSE_TENSOR:
+                elif _.type == onnx.onnx_pb.AttributeProto.SPARSE_TENSOR:
                     attribute_type = 'tensor'
-                    attribute_value = tensor(attribute.sparse_tensor)
+                    value = tensor(_.sparse_tensor)
                 else:
-                    raise Exception("Unsupported attribute type '" + str(attribute.type) + "'.")
+                    raise Exception("Unsupported attribute type '" + str(_.type) + "'.")
                 json_attribute = {}
-                json_attribute['name'] = attribute.name
+                json_attribute['name'] = _.name
                 if attribute_type:
                     json_attribute['type'] = attribute_type
-                json_attribute['value'] = attribute_value
+                json_attribute['value'] = value
                 json_node['attributes'].append(json_attribute)
             json_graph['nodes'].append(json_node)
         text = json.dumps(json_model, ensure_ascii=False)

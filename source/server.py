@@ -1,3 +1,5 @@
+''' Python Server '''
+
 import codecs
 import errno
 import http.server
@@ -16,6 +18,7 @@ import urllib.parse
 from .__version__ import __version__
 
 class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
+    ''' HTTP Request Handler '''
     file = ""
     data = bytearray()
     folder = ""
@@ -38,6 +41,7 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         '.svg': 'image/svg+xml'
     }
     def do_GET(self): # pylint: disable=invalid-name
+        ''' Serve a GET request '''
         pathname = urllib.parse.urlparse(self.path).path
         folder = os.path.dirname(os.path.realpath(__file__))
         location = folder + pathname
@@ -99,7 +103,7 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
             elif (status_code in (200, 404)) and buffer is not None:
                 self.wfile.write(buffer)
     def do_HEAD(self): # pylint: disable=invalid-name
-        """ Serve a HEAD request """
+        ''' Serve a HEAD request '''
         self.do_GET()
     def log_message(self, format, *args): # pylint: disable=redefined-builtin
         return
@@ -162,9 +166,9 @@ def _update_thread_list(address=None):
     if address is not None:
         address = _make_address(address)
         if address[1] is None:
-            threads = [ thread for thread in threads if address[0] == thread.address[0] ]
+            threads = [ _ for _ in threads if address[0] == _.address[0] ]
         else:
-            threads = [ thread for thread in threads if address[0] == thread.address[0] and address[1] == thread.address[1] ]
+            threads = [ _ for _ in threads if address[0] == _.address[0] and address[1] == _.address[1] ]
     return threads
 
 def _make_address(address):

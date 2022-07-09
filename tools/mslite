@@ -28,7 +28,7 @@ schema() {
 metadata() {
     echo "mslite metadata"
     [[ $(grep -U $'\x0D' ./source/mslite-metadata.json) ]] && crlf=1
-    node ./tools/mslite-script.js
+    node ./tools/mslite_script.js
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/mslite-metadata.json ./source/mslite-metadata.json
     fi

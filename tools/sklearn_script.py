@@ -1,3 +1,5 @@
+''' scikit-learn metadata script '''
+
 import io
 import json
 import os
@@ -5,15 +7,11 @@ import pydoc
 import re
 import sys
 
-json_file = os.path.join(os.path.dirname(__file__), '../source/sklearn-metadata.json')
-json_data = open(json_file).read()
-json_root = json.loads(json_data)
-
-def split_docstring(docstring):
+def _split_docstring(value):
     headers = {}
     current_header = ''
     current_lines = []
-    lines = docstring.split('\n')
+    lines = value.split('\n')
     index = 0
     while index < len(lines):
         if index + 1 < len(lines) and len(lines[index + 1].strip(' ')) > 0 and len(lines[index + 1].strip(' ').strip('-')) == 0:
@@ -27,13 +25,13 @@ def split_docstring(docstring):
     headers[current_header] = current_lines
     return headers
 
-def update_description(schema, lines):
+def _update_description(schema, lines):
     if len(''.join(lines).strip(' ')) > 0:
-        for i in range(0, len(lines)):
-            lines[i] = lines[i].lstrip(' ')
+        for i, value in enumerate(lines):
+            lines[i] = value.lstrip(' ')
         schema['description'] = '\n'.join(lines)
 
-def update_attribute(schema, name, description, attribute_type, optional, default_value):
+def _update_attribute(schema, name, description, attribute_type, optional, default_value):
     attribute = None
     if not 'attributes' in schema:
         schema['attributes'] = []
@@ -61,7 +59,7 @@ def update_attribute(schema, name, description, attribute_type, optional, defaul
         elif attribute_type == 'int32':
             if default_value == 'None':
                 attribute['default'] = None
-            elif default_value == "'auto'" or default_value == '"auto"':
+            elif default_value in ("'auto'", '"auto"'):
                 attribute['default'] = default_value.strip("'").strip('"')
             else:
                 attribute['default'] = int(default_value)
@@ -79,16 +77,15 @@ def update_attribute(schema, name, description, attribute_type, optional, defaul
         else:
             if attribute_type:
                 raise Exception("Unknown default type '" + attribute_type + "'.")
+            if default_value == 'None':
+                attribute['default'] = None
             else:
-                if default_value == 'None':
-                    attribute['default'] = None
-                else:
-                    attribute['default'] = default_value.strip("'")
+                attribute['default'] = default_value.strip("'")
 
-def update_attributes(schema, lines):
-    index = 0
-    while index < len(lines):
-        line = lines[index]
+def _update_attributes(schema, lines):
+    i = 0
+    while i < len(lines):
+        line = lines[i]
         line = re.sub(r',\s+', ', ', line)
         if line.endswith('.'):
             line = line[0:-1]
@@ -98,7 +95,14 @@ def update_attributes(schema, lines):
         name = line[0:colon].strip(' ')
         line = line[colon + 1:].strip(' ')
         attribute_type = None
-        type_map = { 'float': 'float32', 'boolean': 'boolean', 'bool': 'boolean', 'string': 'string', 'int': 'int32', 'integer': 'int32' }
+        type_map = {
+            'float': 'float32',
+            'boolean': 'boolean',
+            'bool': 'boolean',
+            'string': 'string',
+            'int': 'int32',
+            'integer': 'int32'
+        }
         skip_map = {
             "'sigmoid' or 'isotonic'",
             'instance BaseEstimator',
@@ -120,7 +124,6 @@ def update_attributes(schema, lines):
             "float in range [0.0, 1.0] or int (default=1.0)",
             "float in range [0.0, 1.0] or int (default=1)",
             "'l1', 'l2' or None, optional (default='l2')",
-            "{'scale', 'auto'} or float, optional (default='scale')",
             "str {'auto', 'full', 'arpack', 'randomized'}",
             "str {'filename', 'file', 'content'}",
             "str, {'word', 'char', 'char_wb'} or callable",
@@ -134,7 +137,6 @@ def update_attributes(schema, lines):
             "list of tuples",
             "{'drop', 'passthrough'} or estimator, default='drop'",
             "'auto' or a list of array-like, default='auto'",
-            "{'first', 'if_binary'} or a array-like of shape (n_features,),             default=None",
             "callable",
             "int or \"all\", optional, default=10",
             "number, string, np.nan (default) or None",
@@ -194,10 +196,7 @@ def update_attributes(schema, lines):
                         raise Exception("Expected ',' in parameter.")
                 attribute_type = line[0:comma]
                 line = line[comma + 1:].strip(' ')
-        if attribute_type in type_map:
-            attribute_type = type_map[attribute_type]
-        else:
-            attribute_type = None
+        attribute_type = type_map.get(attribute_type, None)
         # elif type == "{dict, 'balanced'}":
         #    v = 'map'
         # else:
@@ -214,7 +213,7 @@ def update_attributes(schema, lines):
                 line = ''
             elif line.startswith('('):
                 close = line.index(')')
-                if (close == -1):
+                if close == -1:
                     raise Exception("Expected ')' in parameter.")
                 line = line[1:close]
             elif line.endswith(' by default'):
@@ -231,39 +230,52 @@ def update_attributes(schema, lines):
                 if comma == -1:
                     raise Exception("Expected ',' in parameter.")
                 line = line[comma+1:]
-        index = index + 1
+        i = i + 1
         attribute_lines = []
-        while index < len(lines) and (len(lines[index].strip(' ')) == 0 or lines[index].startswith('        ')):
-            attribute_lines.append(lines[index].lstrip(' '))
-            index = index + 1
+        while i < len(lines) and (len(lines[i].strip(' ')) == 0 or lines[i].startswith('        ')):
+            attribute_lines.append(lines[i].lstrip(' '))
+            i = i + 1
         description = '\n'.join(attribute_lines)
-        update_attribute(schema, name, description, attribute_type, optional, default)
+        _update_attribute(schema, name, description, attribute_type, optional, default)
 
-for schema in json_root:
-    name = schema['name']
-    skip_modules = [
-        'lightgbm.',
-        'sklearn.svm.classes',
-        'sklearn.ensemble.forest.',
-        'sklearn.ensemble.weight_boosting.',
-        'sklearn.neural_network.multilayer_perceptron.',
-        'sklearn.tree.tree.'
-    ]
-    if not any(name.startswith(module) for module in skip_modules):
-        class_definition = pydoc.locate(name)
-        if not class_definition:
-            raise Exception('\'' + name + '\' not found.')
-        docstring = class_definition.__doc__
-        if not docstring:
-            raise Exception('\'' + name + '\' missing __doc__.')
-        headers = split_docstring(docstring)
-        if '' in headers:
-            update_description(schema, headers[''])
-        if 'Parameters' in headers:
-            update_attributes(schema, headers['Parameters'])
+def _metadata():
+    json_file = os.path.join(os.path.dirname(__file__), '../source/sklearn-metadata.json')
+    with open(json_file, 'r', encoding='utf-8') as file:
+        json_root = json.loads(file.read())
 
-with io.open(json_file, 'w', newline='') as fout:
-    json_data = json.dumps(json_root, sort_keys=False, indent=2)
-    for line in json_data.splitlines():
-        fout.write(line.rstrip())
-        fout.write('\n')
+    for schema in json_root:
+        name = schema['name']
+        skip_modules = [
+            'lightgbm.',
+            'sklearn.svm.classes',
+            'sklearn.ensemble.forest.',
+            'sklearn.ensemble.weight_boosting.',
+            'sklearn.neural_network.multilayer_perceptron.',
+            'sklearn.tree.tree.'
+        ]
+        if not any(name.startswith(module) for module in skip_modules):
+            class_definition = pydoc.locate(name)
+            if not class_definition:
+                raise Exception('\'' + name + '\' not found.')
+            docstring = class_definition.__doc__
+            if not docstring:
+                raise Exception('\'' + name + '\' missing __doc__.')
+            headers = _split_docstring(docstring)
+            if '' in headers:
+                _update_description(schema, headers[''])
+            if 'Parameters' in headers:
+                _update_attributes(schema, headers['Parameters'])
+
+    with io.open(json_file, 'w', encoding='utf-8', newline='') as fout:
+        json_data = json.dumps(json_root, sort_keys=False, indent=2)
+        for line in json_data.splitlines():
+            fout.write(line.rstrip())
+            fout.write('\n')
+
+def main(): # pylint: disable=missing-function-docstring
+    command_table = { 'metadata': _metadata }
+    command = sys.argv[1]
+    command_table[command]()
+
+if __name__ == '__main__':
+    main()

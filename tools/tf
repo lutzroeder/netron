@@ -68,8 +68,9 @@ schema() {
 
 metadata() {
     echo "tflite metadata"
+    export TF_CPP_MIN_LOG_LEVEL=2
     if [[ $(grep -U $'\x0D' ./source/tflite-metadata.json) ]]; then crlf=1; else crlf=; fi
-    node ./tools/tflite-script.js
+    node ./tools/tflite_script.js
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/tflite-metadata.json ./source/tflite-metadata.json
     fi
@@ -81,7 +82,7 @@ metadata() {
     venv
     if [[ $(grep -U $'\x0D' ./source/tf-metadata.json) ]]; then crlf=1; else crlf=; fi
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-    ${python} ./tools/tf-script.py metadata
+    ${python} ./tools/tf_script.py metadata
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/tf-metadata.json ./source/tf-metadata.json
     fi
@@ -89,7 +90,7 @@ metadata() {
     echo "keras metadata"
     venv
     if [[ $(grep -U $'\x0D' ./source/keras-metadata.json) ]]; then crlf=1; else crlf=; fi
-    ${python} ./tools/keras-script.py metadata
+    ${python} ./tools/keras_script.py metadata
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/keras-metadata.json ./source/keras-metadata.json
     fi

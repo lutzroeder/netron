@@ -53,7 +53,7 @@ metadata() {
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     if [[ $(grep -U $'\x0D' ./source/pytorch-metadata.json) ]]; then crlf=1; else crlf=; fi
-    ${python} ./tools/pytorch-script.py metadata
+    ${python} ./tools/pytorch_script.py metadata
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/pytorch-metadata.json ./source/pytorch-metadata.json
     fi

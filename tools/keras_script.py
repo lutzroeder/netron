@@ -1,5 +1,5 @@
+''' Keras metadata script '''
 
-import io
 import json
 import os
 import pydoc
@@ -8,7 +8,7 @@ import sys
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-def metadata():
+def _metadata():
 
     def parse_docstring(docstring):
         headers = []
@@ -57,7 +57,7 @@ def metadata():
     def update_argument(schema, name, description):
         if not 'attributes' in schema:
             schema['attributes'] = []
-        attribute = next((attribute for attribute in schema['attributes'] if attribute['name'] == name), None)
+        attribute = next((_ for _ in schema['attributes'] if _['name'] == name), None)
         if not attribute:
             attribute = {}
             attribute['name'] = name
@@ -66,9 +66,8 @@ def metadata():
 
     def update_input(schema, description):
         if not 'inputs' in schema:
-            schema['inputs'] = []
-            schema['inputs'].append({ 'name': 'input' })
-        parameter = next((parameter for parameter in schema['inputs'] if (parameter['name'] == 'input' or parameter['name'] == 'inputs')), None)
+            schema['inputs'] = [ { 'name': 'input' } ]
+        parameter = next((_ for _ in schema['inputs'] if (_['name'] == 'input' or _['name'] == 'inputs')), None)
         if parameter:
             parameter['description'] = remove_indentation(description)
         else:
@@ -76,8 +75,7 @@ def metadata():
 
     def update_output(schema, description):
         if not 'outputs' in schema:
-            schema['outputs'] = []
-            schema['outputs'].append({ 'name': 'output' })
+            schema['outputs'] = [ { 'name': 'output' } ]
         parameter = next((parameter for parameter in schema['outputs'] if parameter['name'] == 'output'), None)
         if parameter:
             parameter['description'] = remove_indentation(description)
@@ -104,7 +102,7 @@ def metadata():
                     summary.append(line)
             if len(code) > 0:
                 example = {}
-                if len(summary):
+                if len(summary) > 0:
                     example['summary'] = '\n'.join(summary)
                 example['code'] = '\n'.join(code)
                 if not 'examples' in schema:
@@ -136,9 +134,8 @@ def metadata():
             schema['references'].append({ 'description': reference })
 
     json_path = os.path.join(os.path.dirname(__file__), '../source/keras-metadata.json')
-    json_file = open(json_path)
-    json_root = json.loads(json_file.read())
-    json_file.close()
+    with open(json_path, 'r', encoding='utf-8') as file:
+        json_root = json.loads(file.read())
 
     for schema in json_root:
         name = schema['name']
@@ -147,17 +144,16 @@ def metadata():
             class_definition = pydoc.locate(class_name)
             if not class_definition:
                 raise Exception('\'' + class_name + '\' not found.')
-            docstring = class_definition.__doc__
-            if not docstring:
+            if not class_definition.__doc__:
                 raise Exception('\'' + class_name + '\' missing __doc__.')
-            headers = parse_docstring(docstring)
+            headers = parse_docstring(class_definition.__doc__)
             for header in headers:
                 key = header[0]
                 value = header[1]
                 if key == '':
                     description = convert_code_blocks(value)
                     schema['description'] = remove_indentation(description)
-                elif key == 'Args' or key == 'Arguments':
+                elif key in ('Args', 'Arguments'):
                     arguments = parse_arguments(value)
                     for argument in arguments:
                         update_argument(schema, argument[0], argument[1])
@@ -169,7 +165,7 @@ def metadata():
                     update_input(schema, value)
                 elif key == 'Output shape':
                     update_output(schema, value)
-                elif key == 'Example' or key == 'Examples' or key == 'Usage':
+                elif key in ('Example', 'Examples', 'Usage'):
                     update_examples(schema, value)
                 elif key == 'References':
                     update_references(schema, value)
@@ -180,13 +176,15 @@ def metadata():
                 else:
                     raise Exception('')
 
-    json_file = open(json_path, 'w')
-    json_data = json.dumps(json_root, sort_keys=False, indent=2)
-    for line in json_data.splitlines():
-        json_file.write(line.rstrip() + '\n')
-    json_file.close()
+    with open(json_path, 'w', encoding='utf-8') as file:
+        json_data = json.dumps(json_root, sort_keys=False, indent=2)
+        for line in json_data.splitlines():
+            file.write(line.rstrip() + '\n')
 
-if __name__ == '__main__':
-    command_table = { 'metadata': metadata }
+def main(): # pylint: disable=missing-function-docstring
+    command_table = { 'metadata': _metadata }
     command = sys.argv[1]
     command_table[command]()
+
+if __name__ == '__main__':
+    main()

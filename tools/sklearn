@@ -47,7 +47,7 @@ metadata() {
     [[ $(grep -U $'\x0D' ./source/sklearn-metadata.json) ]] && crlf=1
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-    ${python} ./tools/sklearn-script.py
+    ${python} ./tools/sklearn_script.py metadata
     deactivate
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/sklearn-metadata.json ./source/sklearn-metadata.json

@@ -1,12 +1,15 @@
+''' PyTorch backend '''
+
 import json
 import os
 
 class ModelFactory:
-
+    ''' PyTorch backend model factory '''
     def serialize(self, model):
+        ''' Serialize PyTorch model to JSON message '''
         print('Experimental')
         import torch # pylint: disable=import-outside-toplevel
-        metadata = dict()
+        metadata = {}
         metadata_file = os.path.join(os.path.dirname(__file__), 'onnx-metadata.json')
         with open(metadata_file, 'r', encoding='utf-8') as file:
             for item in json.load(file):
@@ -30,7 +33,7 @@ class ModelFactory:
             [ torch.int32, 'int32'],
             [ torch.int64, 'int64'],
         ])
-        arguments_map = dict()
+        arguments_map = {}
         def argument(value):
             if not value in arguments_map:
                 json_argument = {}
