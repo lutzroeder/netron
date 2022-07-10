@@ -30,7 +30,7 @@ nnabla.ModelFactory = class {
                     ];
                     const open = (model, version) => {
                         return context.metadata('nnabla-metadata.json').then((metadata) => {
-                            return new nnabla.Model(metadata, model, 'nnabla' + (version ? ' v' + version : ''));
+                            return new nnabla.Model(metadata, model, 'NNabla' + (version ? ' v' + version : ''));
                         });
                     };
                     return Promise.all(promises).then((streams) => {
