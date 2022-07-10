@@ -1646,42 +1646,82 @@ python.Execution = class {
         this._sources = sources || new Map();
         this._exceptionCallback = exceptionCallback;
         this._utf8Decoder = new TextDecoder('utf-8');
-        this._packages = new Map();
         this._unknownNameMap = new Set();
+        const dict = class extends Map {};
+        this._modules = new dict();
         this._context = new python.Execution.Context();
         this._context.scope.builtins = {};
         this._context.scope.builtins.type = { __module__: 'builtins', __name__: 'type' };
         this._context.scope.builtins.type.__class__ = this._context.scope.builtins.type;
         this._context.scope.builtins.module = { __module__: 'builtins', __name__: 'module', __class__: this._context.scope.builtins.type };
         this._context.scope.builtins.module.__type__ = this._context.scope.builtins.module;
-        this.registerModule('__builtin__');
-        this.registerModule('_codecs');
-        this.registerModule('argparse');
-        this.registerModule('collections');
-        this.registerModule('copy_reg');
-        this.registerModule('cuml');
-        this.registerModule('gensim');
-        this.registerModule('io');
-        this.registerModule('joblib');
-        this.registerModule('keras');
-        this.registerModule('lightgbm');
-        this.registerModule('numpy');
-        this.registerModule('nolearn');
-        this.registerModule('sklearn');
-        this.registerModule('typing');
-        this.registerModule('xgboost');
+        this.register('__builtin__');
+        this.register('_codecs');
+        this.register('argparse');
+        this.register('collections');
+        this.register('copy_reg');
+        this.register('cuml');
+        this.register('gensim');
+        this.register('io');
+        this.register('joblib');
+        this.register('keras');
+        this.register('lightgbm');
+        this.register('numpy');
+        this.register('nolearn');
+        this.register('pickle');
+        this.register('sklearn');
+        this.register('sys');
+        this.register('typing');
+        this.register('xgboost');
         const builtins = this._context.scope.builtins;
         const numpy = this._context.scope.numpy;
         const typing = this._context.scope.typing;
         this.registerType('builtins.function', class {});
         this.registerType('builtins.method', class {});
-        this.registerType('builtins.dict', class {});
+        this.registerType('builtins.dict', dict);
         this.registerType('builtins.list', class {});
-        this.registerType('builtins.bool', class {});
-        this.registerType('builtins.int', class {});
-        this.registerType('builtins.float', class {});
+        this.registerFunction('builtins.bool', function(value) {
+            if (value) {
+                if (value.__bool__) {
+                    return value.__bool__();
+                }
+                if (value.__len__) {
+                    return value.__len__() > 0;
+                }
+            }
+            return false;
+        });
+        this.registerFunction('builtins.int', function(value) {
+            if (value) {
+                if (value.__int__) {
+                    return value.__int__();
+                }
+                if (Number.isInteger(value)) {
+                    return value;
+                }
+            }
+            return NaN;
+        });
+        this.registerFunction('builtins.float', function(value) {
+            if (value) {
+                if (value.__float__) {
+                    return value.__float__();
+                }
+                if (Number(value) === value) {
+                    return value;
+                }
+            }
+            return NaN;
+        });
+        this.registerType('builtins.str', function(value) {
+            if (value) {
+                if (value.__str__) {
+                    return value.__str__();
+                }
+            }
+            return JSON.stringify(value);
+        });
         this.registerType('builtins.object', class {});
-        this.registerType('builtins.str', class {});
         this.registerType('builtins.tuple', class extends Array {
             constructor(items) {
                 super(items ? items.length : 0);
@@ -1943,7 +1983,7 @@ python.Execution = class {
             }
             __read__(unpickler) {
                 if (this.dtype.__name__ == 'object') {
-                    return unpickler.load((name, args) => self.invoke(name, args), null);
+                    return unpickler.load();
                 }
                 const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b, 1);
                 this.data = unpickler.read(size);
@@ -2097,6 +2137,7 @@ python.Execution = class {
                 this.strides = strides !== undefined ? strides : null;
                 this.order = offset !== undefined ? order : null;
                 this.flags = {};
+                this._read();
             }
             __setstate__(state) {
                 this.version = state[0];
@@ -2104,23 +2145,108 @@ python.Execution = class {
                 this.dtype = state[2];
                 this.flags.fnc = state[3];
                 this.data = state[4];
-            }
-            __read__(unpickler) {
-                const dims = (this.shape || []).reduce((a, b) => a * b, 1);
-                const size = this.dtype.itemsize * dims;
-                if (typeof this.data == 'string') {
-                    this.data = unpickler.unescape(this.data, size);
-                    if (this.data.length != size) {
-                        throw new python.Error('Invalid string array data size.');
-                    }
-                }
-                else if (this.data.length != size) {
-                    // throw new pytorch.Error('Invalid array data size.');
-                }
-                return this;
+                this._read();
             }
             tobytes() {
                 return this.data;
+            }
+            _read() {
+                if (this.data) {
+                    const dims = (this.shape || []).reduce((a, b) => a * b, 1);
+                    const size = this.dtype.itemsize * dims;
+                    if (typeof this.data == 'string') {
+                        this.data = this._unescape(this.data, size);
+                        if (this.data.length != size) {
+                            throw new python.Error('Invalid string array data size.');
+                        }
+                    }
+                    else if (this.data.length != size) {
+                        // throw new pytorch.Error('Invalid array data size.');
+                    }
+                }
+            }
+            _unescape(token, size) {
+                const length = token.length;
+                const a = new Uint8Array(length);
+                if (size && size == length) {
+                    for (let p = 0; p < size; p++) {
+                        a[p] = token.charCodeAt(p);
+                    }
+                    return a;
+                }
+                let i = 0;
+                let o = 0;
+                while (i < length) {
+                    let c = token.charCodeAt(i++);
+                    if (c !== 0x5C || i >= length) {
+                        a[o++] = c;
+                    }
+                    else {
+                        c = token.charCodeAt(i++);
+                        switch (c) {
+                            case 0x27: a[o++] = 0x27; break; // '
+                            case 0x5C: a[o++] = 0x5C; break; // \\
+                            case 0x22: a[o++] = 0x22; break; // "
+                            case 0x72: a[o++] = 0x0D; break; // \r
+                            case 0x6E: a[o++] = 0x0A; break; // \n
+                            case 0x74: a[o++] = 0x09; break; // \t
+                            case 0x62: a[o++] = 0x08; break; // \b
+                            case 0x58: // x
+                            case 0x78: { // X
+                                const xsi = i - 1;
+                                const xso = o;
+                                for (let xi = 0; xi < 2; xi++) {
+                                    if (i >= length) {
+                                        i = xsi;
+                                        o = xso;
+                                        a[o] = 0x5c;
+                                        break;
+                                    }
+                                    let xd = token.charCodeAt(i++);
+                                    xd = xd >= 65 && xd <= 70 ? xd - 55 : xd >= 97 && xd <= 102 ? xd - 87 : xd >= 48 && xd <= 57 ? xd - 48 : -1;
+                                    if (xd === -1) {
+                                        i = xsi;
+                                        o = xso;
+                                        a[o] = 0x5c;
+                                        break;
+                                    }
+                                    a[o] = a[o] << 4 | xd;
+                                }
+                                o++;
+                                break;
+                            }
+                            default:
+                                if (c < 48 || c > 57) { // 0-9
+                                    a[o++] = 0x5c;
+                                    a[o++] = c;
+                                }
+                                else {
+                                    i--;
+                                    const osi = i;
+                                    const oso = o;
+                                    for (let oi = 0; oi < 3; oi++) {
+                                        if (i >= length) {
+                                            i = osi;
+                                            o = oso;
+                                            a[o] = 0x5c;
+                                            break;
+                                        }
+                                        const od = token.charCodeAt(i++);
+                                        if (od < 48 || od > 57) {
+                                            i = osi;
+                                            o = oso;
+                                            a[o] = 0x5c;
+                                            break;
+                                        }
+                                        a[o] = a[o] << 3 | od - 48;
+                                    }
+                                    o++;
+                                }
+                                break;
+                        }
+                    }
+                }
+                return a.slice(0, o);
             }
         });
         this.registerType('numpy.ma.core.MaskedArray', class extends numpy.ndarray {
@@ -2168,7 +2294,7 @@ python.Execution = class {
             }
             __read__(unpickler) {
                 if (this.dtype.__name__ == 'object') {
-                    return unpickler.load((name, args) => self.invoke(name, args), null);
+                    return unpickler.load();
                 }
                 const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b, 1);
                 this.data = unpickler.read(size);
@@ -2352,6 +2478,348 @@ python.Execution = class {
         this.registerType('sklearn.tree.tree.ExtraTreeClassifier', class {});
         this.registerType('sklearn.utils.Bunch', class {});
         this.registerType('sklearn.utils.deprecation.DeprecationDict', class {});
+        this.registerType('pickle.Unpickler', class {
+            constructor(data) {
+                this._reader = data instanceof Uint8Array ? new python.Unpickler.BinaryReader(data) : new python.Unpickler.StreamReader(data);
+                this.persistent_load = () => {
+                    throw new python.Error('Unsupported persistent id.');
+                };
+            }
+            load() {
+                const reader = this._reader;
+                const marker = [];
+                let stack = [];
+                const memo = new Map();
+                const OpCode = python.Unpickler.OpCode;
+                while (reader.position < reader.length) {
+                    const opcode = reader.byte();
+                    // console.log((reader.position - 1).toString() + ' ' + Object.entries(OpCode).find((entry) => entry[1] === opcode)[0]);
+                    switch (opcode) {
+                        case OpCode.PROTO: {
+                            const version = reader.byte();
+                            if (version > 5) {
+                                throw new python.Error("Unsupported protocol version '" + version + "'.");
+                            }
+                            break;
+                        }
+                        case OpCode.GLOBAL:
+                            stack.push([ reader.line(), reader.line() ].join('.'));
+                            break;
+                        case OpCode.STACK_GLOBAL:
+                            stack.push([ stack.pop(), stack.pop() ].reverse().join('.'));
+                            break;
+                        case OpCode.PUT: {
+                            const index = parseInt(reader.line(), 10);
+                            memo.set(index, stack[stack.length - 1]);
+                            break;
+                        }
+                        case OpCode.OBJ: {
+                            const items = stack;
+                            stack = marker.pop();
+                            stack.push(self.invoke(items.pop(), items));
+                            break;
+                        }
+                        case OpCode.GET: {
+                            const index = parseInt(reader.line(), 10);
+                            stack.push(memo.get(index));
+                            break;
+                        }
+                        case OpCode.POP:
+                            stack.pop();
+                            break;
+                        case OpCode.POP_MARK:
+                            stack = marker.pop();
+                            break;
+                        case OpCode.DUP:
+                            stack.push(stack[stack.length-1]);
+                            break;
+                        case OpCode.PERSID:
+                            stack.push(this.persistent_load(reader.line()));
+                            break;
+                        case OpCode.BINPERSID:
+                            stack.push(this.persistent_load(stack.pop()));
+                            break;
+                        case OpCode.REDUCE: {
+                            const items = stack.pop();
+                            const type = stack.pop();
+                            stack.push(self.invoke(type, items));
+                            break;
+                        }
+                        case OpCode.NEWOBJ: {
+                            const items = stack.pop();
+                            const type = stack.pop();
+                            stack.push(self.invoke(type, items));
+                            break;
+                        }
+                        case OpCode.BINGET:
+                            stack.push(memo.get(reader.byte()));
+                            break;
+                        case OpCode.INST: {
+                            const module = reader.line();
+                            const name = reader.line();
+                            const type = module + '.' + name;
+                            const items = stack;
+                            stack = marker.pop();
+                            stack.push(self.invoke(type, items));
+                            break;
+                        }
+                        case OpCode.LONG_BINGET:
+                            stack.push(memo.get(reader.uint32()));
+                            break;
+                        case OpCode.BINPUT:
+                            memo.set(reader.byte(), stack[stack.length - 1]);
+                            break;
+                        case OpCode.LONG_BINPUT:
+                            memo.set(reader.uint32(), stack[stack.length - 1]);
+                            break;
+                        case OpCode.BININT:
+                            stack.push(reader.int32());
+                            break;
+                        case OpCode.BININT1:
+                            stack.push(reader.byte());
+                            break;
+                        case OpCode.LONG:
+                            stack.push(parseInt(reader.line(), 10));
+                            break;
+                        case OpCode.BININT2:
+                            stack.push(reader.uint16());
+                            break;
+                        case OpCode.BINBYTES:
+                            stack.push(reader.read(reader.int32()));
+                            break;
+                        case OpCode.BINBYTES8:
+                            stack.push(reader.read(reader.int64()));
+                            break;
+                        case OpCode.SHORT_BINBYTES:
+                            stack.push(reader.read(reader.byte()));
+                            break;
+                        case OpCode.FLOAT:
+                            stack.push(parseFloat(reader.line()));
+                            break;
+                        case OpCode.BINFLOAT:
+                            stack.push(reader.float64());
+                            break;
+                        case OpCode.INT: {
+                            const value = reader.line();
+                            if (value == '01') {
+                                stack.push(true);
+                            }
+                            else if (value == '00') {
+                                stack.push(false);
+                            }
+                            else {
+                                stack.push(parseInt(value, 10));
+                            }
+                            break;
+                        }
+                        case OpCode.EMPTY_LIST:
+                            stack.push([]);
+                            break;
+                        case OpCode.EMPTY_TUPLE:
+                            stack.push([]);
+                            break;
+                        case OpCode.EMPTY_SET:
+                            stack.push([]);
+                            break;
+                        case OpCode.ADDITEMS: {
+                            const items = stack;
+                            stack = marker.pop();
+                            const obj = stack[stack.length - 1];
+                            for (let i = 0; i < items.length; i++) {
+                                obj.push(items[i]);
+                            }
+                            break;
+                        }
+                        case OpCode.FROZENSET: {
+                            const items = stack;
+                            stack = marker.pop();
+                            stack.push(items);
+                            break;
+                        }
+                        case OpCode.DICT: {
+                            const items = stack;
+                            stack = marker.pop();
+                            const dict = {};
+                            for (let i = 0; i < items.length; i += 2) {
+                                dict[items[i]] = items[i + 1];
+                            }
+                            stack.push(dict);
+                            break;
+                        }
+                        case OpCode.LIST: {
+                            const items = stack;
+                            stack = marker.pop();
+                            stack.push(items);
+                            break;
+                        }
+                        case OpCode.TUPLE: {
+                            const items = stack;
+                            stack = marker.pop();
+                            stack.push(items);
+                            break;
+                        }
+                        case OpCode.SETITEM: {
+                            const value = stack.pop();
+                            const key = stack.pop();
+                            const obj = stack[stack.length - 1];
+                            if (obj.__setitem__) {
+                                obj.__setitem__(key, value);
+                            }
+                            else {
+                                obj[key] = value;
+                            }
+                            break;
+                        }
+                        case OpCode.SETITEMS: {
+                            const items = stack;
+                            stack = marker.pop();
+                            const obj = stack[stack.length - 1];
+                            for (let i = 0; i < items.length; i += 2) {
+                                if (obj.__setitem__) {
+                                    obj.__setitem__(items[i], items[i + 1]);
+                                }
+                                else {
+                                    obj[items[i]] = items[i + 1];
+                                }
+                            }
+                            break;
+                        }
+                        case OpCode.EMPTY_DICT:
+                            stack.push({});
+                            break;
+                        case OpCode.APPEND: {
+                            const append = stack.pop();
+                            stack[stack.length-1].push(append);
+                            break;
+                        }
+                        case OpCode.APPENDS: {
+                            const appends = stack;
+                            stack = marker.pop();
+                            const list = stack[stack.length - 1];
+                            list.push.apply(list, appends);
+                            break;
+                        }
+                        case OpCode.STRING: {
+                            const str = reader.line();
+                            stack.push(str.substr(1, str.length - 2));
+                            break;
+                        }
+                        case OpCode.BINSTRING:
+                            stack.push(reader.string(reader.uint32()));
+                            break;
+                        case OpCode.SHORT_BINSTRING:
+                            stack.push(reader.string(reader.byte()));
+                            break;
+                        case OpCode.UNICODE:
+                            stack.push(reader.line());
+                            break;
+                        case OpCode.BINUNICODE:
+                            stack.push(reader.string(reader.uint32(), 'utf-8'));
+                            break;
+                        case OpCode.SHORT_BINUNICODE:
+                            stack.push(reader.string(reader.byte(), 'utf-8'));
+                            break;
+                        case OpCode.BUILD: {
+                            const state = stack.pop();
+                            let obj = stack.pop();
+                            if (obj.__setstate__) {
+                                if (obj.__setstate__.__call__) {
+                                    obj.__setstate__.__call__([ obj, state ]);
+                                }
+                                else {
+                                    obj.__setstate__(state);
+                                }
+                            }
+                            else if (ArrayBuffer.isView(state) || Object(state) !== state) {
+                                obj.__state__ = state;
+                            }
+                            else if (obj instanceof Map) {
+                                for (const key in state) {
+                                    obj.set(key, state[key]);
+                                }
+                            }
+                            else {
+                                Object.assign(obj, state);
+                            }
+                            if (obj.__read__) {
+                                obj = obj.__read__(this);
+                            }
+                            stack.push(obj);
+                            break;
+                        }
+                        case OpCode.MARK:
+                            marker.push(stack);
+                            stack = [];
+                            break;
+                        case OpCode.NEWTRUE:
+                            stack.push(true);
+                            break;
+                        case OpCode.NEWFALSE:
+                            stack.push(false);
+                            break;
+                        case OpCode.LONG1: {
+                            const data = reader.read(reader.byte());
+                            let number = 0;
+                            switch (data.length) {
+                                case 0: number = 0; break;
+                                case 1: number = data[0]; break;
+                                case 2: number = data[1] << 8 | data[0]; break;
+                                case 3: number = data[2] << 16 | data[1] << 8 | data[0]; break;
+                                case 4: number = data[3] << 24 | data[2] << 16 | data[1] << 8 | data[0]; break;
+                                case 5: number = data[4] * 0x100000000 + ((data[3] << 24 | data[2] << 16 | data[1] << 8 | data[0]) >>> 0); break;
+                                default: number = Array.prototype.slice.call(data, 0); break;
+                            }
+                            stack.push(number);
+                            break;
+                        }
+                        case OpCode.LONG4:
+                            // TODO decode LONG4
+                            stack.push(reader.read(reader.uint32()));
+                            break;
+                        case OpCode.TUPLE1:
+                            stack.push([ stack.pop() ]);
+                            break;
+                        case OpCode.TUPLE2: {
+                            const b = stack.pop();
+                            const a = stack.pop();
+                            stack.push([ a, b ]);
+                            break;
+                        }
+                        case OpCode.TUPLE3: {
+                            const c = stack.pop();
+                            const b = stack.pop();
+                            const a = stack.pop();
+                            stack.push([ a, b, c ]);
+                            break;
+                        }
+                        case OpCode.MEMOIZE:
+                            memo.set(memo.size, stack[stack.length - 1]);
+                            break;
+                        case OpCode.FRAME:
+                            reader.read(8);
+                            break;
+                        case OpCode.BYTEARRAY8: {
+                            stack.push(reader.read(reader.int64()));
+                            break;
+                        }
+                        case OpCode.NONE:
+                            stack.push(null);
+                            break;
+                        case OpCode.STOP:
+                            return stack.pop();
+                        default:
+                            throw new python.Error('Unknown opcode ' + opcode + ' at position ' + (reader.position - 1).toString() + '.');
+                    }
+                }
+                throw new python.Error('Unexpected end of file.');
+            }
+            read(size) {
+                return this._reader.read(size);
+            }
+            stream(size) {
+                return this._reader.stream(size);
+            }
+        });
         this.registerType('re.Pattern', class {
             constructor(pattern, flags) {
                 this.pattern = pattern;
@@ -2683,12 +3151,6 @@ python.Execution = class {
         this.registerFunction('dill._dill._load_type', function(name) {
             return self.context.getx('types.' + name);
         });
-        this.registerFunction('getattr', function(obj, name, defaultValue) {
-            if (Object.prototype.hasOwnProperty.call(obj, name)) {
-                return obj[name];
-            }
-            return defaultValue;
-        });
         this.registerFunction('numpy.core._multiarray_umath._reconstruct', function(subtype, shape, dtype) {
             return self.invoke(subtype, [ shape, dtype ]);
         });
@@ -2997,29 +3459,29 @@ python.Execution = class {
         return null;
     }
 
-    package(name) {
+    import(name) {
         const index = name.lastIndexOf('.');
         if (index > 0) {
-            this.package(name.substring(0, index));
+            this.import(name.substring(0, index));
         }
-        if (!this._packages.has(name)) {
+        if (!this._modules.has(name)) {
             const file = name.split('.').join('/') + '.py';
             const program = this.parse(file);
             if (program) {
-                let globals = this._context.getx(name);
+                let globals = this._context.getx(name); // TODO
                 if (globals === undefined) {
                     globals = {};
-                    this._context.setx(name, globals);
+                    this._context.setx(name, globals); // TODO
                 }
                 globals.__class__ = this._context.scope.builtins.module;
                 globals.__name__ = name;
                 globals.__file__ = file;
-                this._packages.set(name, globals);
+                this._modules.set(name, globals);
                 const context = this._context.push(globals);
                 this.block(program.body, context);
             }
         }
-        return this._packages.get(name);
+        return this._modules.get(name);
     }
 
     type(name) {
@@ -3030,7 +3492,7 @@ python.Execution = class {
         const parts = name.split('.');
         const className = parts.pop();
         const moduleName = parts.join('.');
-        const module = this.package(moduleName);
+        const module = this.import(moduleName);
         if (module) {
             return module[className];
         }
@@ -3257,7 +3719,7 @@ python.Execution = class {
             }
             case 'import': {
                 for (const alias of statement.names) {
-                    const module = this.package(alias.name);
+                    const module = this.import(alias.name);
                     if (alias.asname) {
                         context.set(alias.asname, module);
                     }
@@ -3274,7 +3736,7 @@ python.Execution = class {
                     paths = paths.slice(0, paths.length - statement.level);
                     paths.push(statement.module.replace('.', '/'));
                     const name = paths.join('/');
-                    module = this.package(name);
+                    module = this.import(name);
                 }
                 else {
                     module = this._package(statement.module, context);
@@ -3486,7 +3948,7 @@ python.Execution = class {
     _package(packageName, context) {
         let target = context.getx(packageName);
         if (!target) {
-            target = this.package(packageName);
+            target = this.import(packageName);
             if (!target) {
                 target = context.getx(packageName);
                 if (!target) {
@@ -3497,34 +3959,40 @@ python.Execution = class {
         return target;
     }
 
-    register(name, source) {
+    add(name, source) {
         this._sources.set(name, source);
     }
 
-    registerFunction(name, callback) {
+    registerFunction(name, value) {
         if (this._context.getx(name)) {
             throw new python.Error("Function '" + name + "' is already registered.");
         }
         const parts = name.split('.');
-        callback.__class__ = this._context.scope.builtins.function;
-        callback.__name__ = parts.pop();
-        callback.__module__ = parts.join('.');
-        this._context.setx(name, callback);
+        value.__class__ = this._context.scope.builtins.function;
+        value.__name__ = parts.pop();
+        value.__module__ = parts.join('.');
+        this._context.setx(name, value);
+        if (value.__module__ === 'builtins') {
+            this._context.setx(value.__name__, value);
+        }
     }
 
-    registerType(name, type) {
+    registerType(name, value) {
         if (this._context.getx(name)) {
             throw new python.Error("Class '" + name + "' is already registered.");
         }
         const parts = name.split('.');
-        type.__class__ = this._context.scope.builtins.type;
-        type.__name__ = parts.pop();
-        type.__module__ = parts.join('.');
-        type.prototype.__class__ = type;
-        this._context.setx(name, type);
+        value.__class__ = this._context.scope.builtins.type;
+        value.__name__ = parts.pop();
+        value.__module__ = parts.join('.');
+        value.prototype.__class__ = value;
+        this._context.setx(name, value);
+        if (value.__module__ === 'builtins') {
+            this._context.setx(value.__name__, value);
+        }
     }
 
-    registerModule(name) {
+    register(name) {
         let scope = this._context.scope;
         const items = name.split('.');
         while (items.length > 0) {
@@ -3639,454 +4107,23 @@ python.Utility = class {
 
 python.Unpickler = class {
 
-    static open(data) {
+    static open(data, execution) {
         const reader = data instanceof Uint8Array ? new python.Unpickler.BinaryReader(data) : new python.Unpickler.StreamReader(data);
         if (reader.length > 2) {
             const head = reader.peek(2);
             if (head[0] === 0x80 && head[1] < 7) {
-                return new python.Unpickler(reader);
+                execution = typeof execution === 'function' ? execution() : execution;
+                return execution.invoke('pickle.Unpickler', [ data ]);
             }
             reader.seek(-1);
             const tail = reader.peek(1);
             reader.seek(0);
             if (tail[0] === 0x2e) {
-                return new python.Unpickler(reader);
+                execution = typeof execution === 'function' ? execution() : execution;
+                return execution.invoke('pickle.Unpickler', [ data ]);
             }
         }
         return null;
-    }
-
-    constructor(reader) {
-        this._reader = reader;
-    }
-
-    load(function_call, persistent_load) {
-        const reader = this._reader;
-        const marker = [];
-        let stack = [];
-        const memo = new Map();
-        const OpCode = python.Unpickler.OpCode;
-        while (reader.position < reader.length) {
-            const opcode = reader.byte();
-            // console.log((reader.position - 1).toString() + ' ' + Object.entries(OpCode).find((entry) => entry[1] === opcode)[0]);
-            switch (opcode) {
-                case OpCode.PROTO: {
-                    const version = reader.byte();
-                    if (version > 5) {
-                        throw new python.Error("Unsupported protocol version '" + version + "'.");
-                    }
-                    break;
-                }
-                case OpCode.GLOBAL:
-                    stack.push([ reader.line(), reader.line() ].join('.'));
-                    break;
-                case OpCode.STACK_GLOBAL:
-                    stack.push([ stack.pop(), stack.pop() ].reverse().join('.'));
-                    break;
-                case OpCode.PUT: {
-                    const index = parseInt(reader.line(), 10);
-                    memo.set(index, stack[stack.length - 1]);
-                    break;
-                }
-                case OpCode.OBJ: {
-                    const items = stack;
-                    stack = marker.pop();
-                    stack.push(function_call(items.pop(), items));
-                    break;
-                }
-                case OpCode.GET: {
-                    const index = parseInt(reader.line(), 10);
-                    stack.push(memo.get(index));
-                    break;
-                }
-                case OpCode.POP:
-                    stack.pop();
-                    break;
-                case OpCode.POP_MARK:
-                    stack = marker.pop();
-                    break;
-                case OpCode.DUP:
-                    stack.push(stack[stack.length-1]);
-                    break;
-                case OpCode.PERSID:
-                    stack.push(persistent_load(reader.line()));
-                    break;
-                case OpCode.BINPERSID:
-                    stack.push(persistent_load(stack.pop()));
-                    break;
-                case OpCode.REDUCE: {
-                    const items = stack.pop();
-                    const type = stack.pop();
-                    stack.push(function_call(type, items));
-                    break;
-                }
-                case OpCode.NEWOBJ: {
-                    const items = stack.pop();
-                    const type = stack.pop();
-                    stack.push(function_call(type, items));
-                    break;
-                }
-                case OpCode.BINGET:
-                    stack.push(memo.get(reader.byte()));
-                    break;
-                case OpCode.INST: {
-                    const module = reader.line();
-                    const name = reader.line();
-                    const type = module + '.' + name;
-                    const items = stack;
-                    stack = marker.pop();
-                    stack.push(function_call(type, items));
-                    break;
-                }
-                case OpCode.LONG_BINGET:
-                    stack.push(memo.get(reader.uint32()));
-                    break;
-                case OpCode.BINPUT:
-                    memo.set(reader.byte(), stack[stack.length - 1]);
-                    break;
-                case OpCode.LONG_BINPUT:
-                    memo.set(reader.uint32(), stack[stack.length - 1]);
-                    break;
-                case OpCode.BININT:
-                    stack.push(reader.int32());
-                    break;
-                case OpCode.BININT1:
-                    stack.push(reader.byte());
-                    break;
-                case OpCode.LONG:
-                    stack.push(parseInt(reader.line(), 10));
-                    break;
-                case OpCode.BININT2:
-                    stack.push(reader.uint16());
-                    break;
-                case OpCode.BINBYTES:
-                    stack.push(reader.read(reader.int32()));
-                    break;
-                case OpCode.BINBYTES8:
-                    stack.push(reader.read(reader.int64()));
-                    break;
-                case OpCode.SHORT_BINBYTES:
-                    stack.push(reader.read(reader.byte()));
-                    break;
-                case OpCode.FLOAT:
-                    stack.push(parseFloat(reader.line()));
-                    break;
-                case OpCode.BINFLOAT:
-                    stack.push(reader.float64());
-                    break;
-                case OpCode.INT: {
-                    const value = reader.line();
-                    if (value == '01') {
-                        stack.push(true);
-                    }
-                    else if (value == '00') {
-                        stack.push(false);
-                    }
-                    else {
-                        stack.push(parseInt(value, 10));
-                    }
-                    break;
-                }
-                case OpCode.EMPTY_LIST:
-                    stack.push([]);
-                    break;
-                case OpCode.EMPTY_TUPLE:
-                    stack.push([]);
-                    break;
-                case OpCode.EMPTY_SET:
-                    stack.push([]);
-                    break;
-                case OpCode.ADDITEMS: {
-                    const items = stack;
-                    stack = marker.pop();
-                    const obj = stack[stack.length - 1];
-                    for (let i = 0; i < items.length; i++) {
-                        obj.push(items[i]);
-                    }
-                    break;
-                }
-                case OpCode.FROZENSET: {
-                    const items = stack;
-                    stack = marker.pop();
-                    stack.push(items);
-                    break;
-                }
-                case OpCode.DICT: {
-                    const items = stack;
-                    stack = marker.pop();
-                    const dict = {};
-                    for (let i = 0; i < items.length; i += 2) {
-                        dict[items[i]] = items[i + 1];
-                    }
-                    stack.push(dict);
-                    break;
-                }
-                case OpCode.LIST: {
-                    const items = stack;
-                    stack = marker.pop();
-                    stack.push(items);
-                    break;
-                }
-                case OpCode.TUPLE: {
-                    const items = stack;
-                    stack = marker.pop();
-                    stack.push(items);
-                    break;
-                }
-                case OpCode.SETITEM: {
-                    const value = stack.pop();
-                    const key = stack.pop();
-                    const obj = stack[stack.length - 1];
-                    if (obj.__setitem__) {
-                        obj.__setitem__(key, value);
-                    }
-                    else {
-                        obj[key] = value;
-                    }
-                    break;
-                }
-                case OpCode.SETITEMS: {
-                    const items = stack;
-                    stack = marker.pop();
-                    const obj = stack[stack.length - 1];
-                    for (let i = 0; i < items.length; i += 2) {
-                        if (obj.__setitem__) {
-                            obj.__setitem__(items[i], items[i + 1]);
-                        }
-                        else {
-                            obj[items[i]] = items[i + 1];
-                        }
-                    }
-                    break;
-                }
-                case OpCode.EMPTY_DICT:
-                    stack.push({});
-                    break;
-                case OpCode.APPEND: {
-                    const append = stack.pop();
-                    stack[stack.length-1].push(append);
-                    break;
-                }
-                case OpCode.APPENDS: {
-                    const appends = stack;
-                    stack = marker.pop();
-                    const list = stack[stack.length - 1];
-                    list.push.apply(list, appends);
-                    break;
-                }
-                case OpCode.STRING: {
-                    const str = reader.line();
-                    stack.push(str.substr(1, str.length - 2));
-                    break;
-                }
-                case OpCode.BINSTRING:
-                    stack.push(reader.string(reader.uint32()));
-                    break;
-                case OpCode.SHORT_BINSTRING:
-                    stack.push(reader.string(reader.byte()));
-                    break;
-                case OpCode.UNICODE:
-                    stack.push(reader.line());
-                    break;
-                case OpCode.BINUNICODE:
-                    stack.push(reader.string(reader.uint32(), 'utf-8'));
-                    break;
-                case OpCode.SHORT_BINUNICODE:
-                    stack.push(reader.string(reader.byte(), 'utf-8'));
-                    break;
-                case OpCode.BUILD: {
-                    const state = stack.pop();
-                    let obj = stack.pop();
-                    if (obj.__setstate__) {
-                        if (obj.__setstate__.__call__) {
-                            obj.__setstate__.__call__([ obj, state ]);
-                        }
-                        else {
-                            obj.__setstate__(state);
-                        }
-                    }
-                    else if (ArrayBuffer.isView(state) || Object(state) !== state) {
-                        obj.__state__ = state;
-                    }
-                    else if (obj instanceof Map) {
-                        for (const key in state) {
-                            obj.set(key, state[key]);
-                        }
-                    }
-                    else {
-                        Object.assign(obj, state);
-                    }
-                    if (obj.__read__) {
-                        obj = obj.__read__(this);
-                    }
-                    stack.push(obj);
-                    break;
-                }
-                case OpCode.MARK:
-                    marker.push(stack);
-                    stack = [];
-                    break;
-                case OpCode.NEWTRUE:
-                    stack.push(true);
-                    break;
-                case OpCode.NEWFALSE:
-                    stack.push(false);
-                    break;
-                case OpCode.LONG1: {
-                    const data = reader.read(reader.byte());
-                    let number = 0;
-                    switch (data.length) {
-                        case 0: number = 0; break;
-                        case 1: number = data[0]; break;
-                        case 2: number = data[1] << 8 | data[0]; break;
-                        case 3: number = data[2] << 16 | data[1] << 8 | data[0]; break;
-                        case 4: number = data[3] << 24 | data[2] << 16 | data[1] << 8 | data[0]; break;
-                        case 5: number = data[4] * 0x100000000 + ((data[3] << 24 | data[2] << 16 | data[1] << 8 | data[0]) >>> 0); break;
-                        default: number = Array.prototype.slice.call(data, 0); break;
-                    }
-                    stack.push(number);
-                    break;
-                }
-                case OpCode.LONG4:
-                    // TODO decode LONG4
-                    stack.push(reader.read(reader.uint32()));
-                    break;
-                case OpCode.TUPLE1:
-                    stack.push([ stack.pop() ]);
-                    break;
-                case OpCode.TUPLE2: {
-                    const b = stack.pop();
-                    const a = stack.pop();
-                    stack.push([ a, b ]);
-                    break;
-                }
-                case OpCode.TUPLE3: {
-                    const c = stack.pop();
-                    const b = stack.pop();
-                    const a = stack.pop();
-                    stack.push([ a, b, c ]);
-                    break;
-                }
-                case OpCode.MEMOIZE:
-                    memo.set(memo.size, stack[stack.length - 1]);
-                    break;
-                case OpCode.FRAME:
-                    reader.read(8);
-                    break;
-                case OpCode.BYTEARRAY8: {
-                    stack.push(reader.read(reader.int64()));
-                    break;
-                }
-                case OpCode.NONE:
-                    stack.push(null);
-                    break;
-                case OpCode.STOP:
-                    return stack.pop();
-                default:
-                    throw new python.Error('Unknown opcode ' + opcode + ' at position ' + (reader.position - 1).toString() + '.');
-            }
-        }
-        throw new python.Error('Unexpected end of file.');
-    }
-
-    read(size) {
-        return this._reader.read(size);
-    }
-
-    stream(size) {
-        return this._reader.stream(size);
-    }
-
-    int32() {
-        return this._reader.int32();
-    }
-
-    int64() {
-        return this._reader.int64();
-    }
-
-    unescape(token, size) {
-        const length = token.length;
-        const a = new Uint8Array(length);
-        if (size && size == length) {
-            for (let p = 0; p < size; p++) {
-                a[p] = token.charCodeAt(p);
-            }
-            return a;
-        }
-        let i = 0;
-        let o = 0;
-        while (i < length) {
-            let c = token.charCodeAt(i++);
-            if (c !== 0x5C || i >= length) {
-                a[o++] = c;
-            }
-            else {
-                c = token.charCodeAt(i++);
-                switch (c) {
-                    case 0x27: a[o++] = 0x27; break; // '
-                    case 0x5C: a[o++] = 0x5C; break; // \\
-                    case 0x22: a[o++] = 0x22; break; // "
-                    case 0x72: a[o++] = 0x0D; break; // \r
-                    case 0x6E: a[o++] = 0x0A; break; // \n
-                    case 0x74: a[o++] = 0x09; break; // \t
-                    case 0x62: a[o++] = 0x08; break; // \b
-                    case 0x58: // x
-                    case 0x78: { // X
-                        const xsi = i - 1;
-                        const xso = o;
-                        for (let xi = 0; xi < 2; xi++) {
-                            if (i >= length) {
-                                i = xsi;
-                                o = xso;
-                                a[o] = 0x5c;
-                                break;
-                            }
-                            let xd = token.charCodeAt(i++);
-                            xd = xd >= 65 && xd <= 70 ? xd - 55 : xd >= 97 && xd <= 102 ? xd - 87 : xd >= 48 && xd <= 57 ? xd - 48 : -1;
-                            if (xd === -1) {
-                                i = xsi;
-                                o = xso;
-                                a[o] = 0x5c;
-                                break;
-                            }
-                            a[o] = a[o] << 4 | xd;
-                        }
-                        o++;
-                        break;
-                    }
-                    default:
-                        if (c < 48 || c > 57) { // 0-9
-                            a[o++] = 0x5c;
-                            a[o++] = c;
-                        }
-                        else {
-                            i--;
-                            const osi = i;
-                            const oso = o;
-                            for (let oi = 0; oi < 3; oi++) {
-                                if (i >= length) {
-                                    i = osi;
-                                    o = oso;
-                                    a[o] = 0x5c;
-                                    break;
-                                }
-                                const od = token.charCodeAt(i++);
-                                if (od < 48 || od > 57) {
-                                    i = osi;
-                                    o = oso;
-                                    a[o] = 0x5c;
-                                    break;
-                                }
-                                a[o] = a[o] << 3 | od - 48;
-                            }
-                            o++;
-                        }
-                        break;
-                }
-            }
-        }
-        return a.slice(0, o);
     }
 };
 

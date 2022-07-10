@@ -1389,21 +1389,23 @@ view.ModelContext = class {
                                     }
                                     return stream;
                                 };
-                                unpickler = python.Unpickler.open(zlib(stream));
+                                const data = zlib(stream);
+                                unpickler = python.Unpickler.open(data, () => {
+                                    return new python.Execution(null, (error, fatal) => {
+                                        const message = error && error.message ? error.message : error.toString();
+                                        this.exception(new view.Error(message.replace(/\.$/, '') + " in '" + this.identifier + "'."), fatal);
+                                    });
+                                });
                             }
                         }
                         catch (err) {
                             // continue regardless of error
                         }
                         if (unpickler) {
-                            const execution = new python.Execution(null, (error, fatal) => {
-                                const message = error && error.message ? error.message : error.toString();
-                                this.exception(new view.Error(message.replace(/\.$/, '') + " in '" + this.identifier + "'."), fatal);
-                            });
-                            const persistent_load = (saved_id) => {
+                            unpickler.persistent_load = (saved_id) => {
                                 return saved_id;
                             };
-                            const obj = unpickler.load((name, args) => execution.invoke(name, args), persistent_load);
+                            const obj = unpickler.load();
                             this._content.set(type, obj);
                         }
                         break;

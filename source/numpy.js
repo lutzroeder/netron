@@ -71,8 +71,8 @@ numpy.ModelFactory = class {
                         if (array.dtype.kind !== 'O') {
                             throw new numpy.Error("Invalid data type '" + array.dataType + "'.");
                         }
-                        const unpickler = python.Unpickler.open(array.data);
-                        array = unpickler.load((name, args) => execution.invoke(name, args));
+                        const unpickler = python.Unpickler.open(array.data, execution);
+                        array = unpickler.load();
                     }
                     layer.parameters.push({
                         name: parameterName,
