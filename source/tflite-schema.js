@@ -373,7 +373,8 @@ $root.tflite.BuiltinOperator = {
     GELU: 150,
     DYNAMIC_UPDATE_SLICE: 151,
     RELU_0_TO_1: 152,
-    UNSORTED_SEGMENT_PROD: 153
+    UNSORTED_SEGMENT_PROD: 153,
+    UNSORTED_SEGMENT_MAX: 154
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -498,6 +499,7 @@ $root.tflite.BuiltinOptions = class {
             case 116: return $root.tflite.GeluOptions.decode(reader, position);
             case 117: return $root.tflite.DynamicUpdateSliceOptions.decode(reader, position);
             case 118: return $root.tflite.UnsortedSegmentProdOptions.decode(reader, position);
+            case 119: return $root.tflite.UnsortedSegmentMaxOptions.decode(reader, position);
             default: return undefined;
         }
     }
@@ -622,6 +624,7 @@ $root.tflite.BuiltinOptions = class {
             case 'GeluOptions': return $root.tflite.GeluOptions.decodeText(reader, json);
             case 'DynamicUpdateSliceOptions': return $root.tflite.DynamicUpdateSliceOptions.decodeText(reader, json);
             case 'UnsortedSegmentProdOptions': return $root.tflite.UnsortedSegmentProdOptions.decodeText(reader, json);
+            case 'UnsortedSegmentMaxOptions': return $root.tflite.UnsortedSegmentMaxOptions.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -2486,6 +2489,19 @@ $root.tflite.UnsortedSegmentProdOptions = class UnsortedSegmentProdOptions {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.tflite.UnsortedSegmentProdOptions();
+        return $;
+    }
+};
+
+$root.tflite.UnsortedSegmentMaxOptions = class UnsortedSegmentMaxOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.tflite.UnsortedSegmentMaxOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.tflite.UnsortedSegmentMaxOptions();
         return $;
     }
 };
