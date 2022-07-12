@@ -4173,7 +4173,7 @@
     "type":     "pytorch",
     "target":   "DCGAN2.pt",
     "source":   "https://github.com/lutzroeder/netron/files/9075628/DCGAN2.pt.zip[DCGAN2.pt]",
-    "error":    "Cannot read properties of undefined (reading 'base_loss_criterions') in 'DCGAN2.pt'.",
+    "format":   "PyTorch Package v1.9",
     "link":     "https://github.com/lutzroeder/netron/issues/928"
   },
   {

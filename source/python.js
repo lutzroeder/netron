@@ -1435,10 +1435,6 @@ python.Tokenizer = class {
                 }
             }
         }
-        i = this._position + sign;
-        if (this._get(i) === 'i' && this._get(i + 1) === 'n' && this._get(i + 2) === 'f' && !python.Tokenizer._isIdentifierChar(this._get(i + 3))) {
-            return { type: 'number', value: this._text.substring(this._position, i + 3) };
-        }
         return null;
     }
 
@@ -1646,15 +1642,18 @@ python.Execution = class {
         this._sources = sources || new Map();
         this._exceptionCallback = exceptionCallback;
         this._utf8Decoder = new TextDecoder('utf-8');
-        this._unknownNameMap = new Set();
+        this._unresolved = new Map();
         const dict = class extends Map {};
+        this._registry = new Map();
         this._modules = new dict();
         this._context = new python.Execution.Context();
-        this._context.scope.builtins = {};
-        this._context.scope.builtins.type = { __module__: 'builtins', __name__: 'type' };
-        this._context.scope.builtins.type.__class__ = this._context.scope.builtins.type;
-        this._context.scope.builtins.module = { __module__: 'builtins', __name__: 'module', __class__: this._context.scope.builtins.type };
-        this._context.scope.builtins.module.__type__ = this._context.scope.builtins.module;
+        this._builtins = this.register('builtins');
+        this._builtins.type = { __module__: 'builtins', __name__: 'type' };
+        this._builtins.type.__class__ = this._builtins.type;
+        this._builtins.module = { __module__: 'builtins', __name__: 'module', __class__: this._builtins.type };
+        this._builtins.module.__type__ = this._builtins.module;
+        const typing = this.register('typing');
+        this._typing = typing;
         this.register('__builtin__');
         this.register('_codecs');
         this.register('argparse');
@@ -1666,16 +1665,14 @@ python.Execution = class {
         this.register('joblib');
         this.register('keras');
         this.register('lightgbm');
-        this.register('numpy');
         this.register('nolearn');
+        const math = this.register('math');
+        math.inf = Infinity;
+        const numpy = this.register('numpy');
         this.register('pickle');
         this.register('sklearn');
         this.register('sys');
-        this.register('typing');
         this.register('xgboost');
-        const builtins = this._context.scope.builtins;
-        const numpy = this._context.scope.numpy;
-        const typing = this._context.scope.typing;
         this.registerType('builtins.function', class {});
         this.registerType('builtins.method', class {});
         this.registerType('builtins.dict', dict);
@@ -1713,7 +1710,7 @@ python.Execution = class {
             }
             return NaN;
         });
-        this.registerType('builtins.str', function(value) {
+        this.registerFunction('builtins.str', function(value) {
             if (value) {
                 if (value.__str__) {
                     return value.__str__();
@@ -1734,14 +1731,14 @@ python.Execution = class {
         });
         this.registerType('typing._Final', class {});
         this.registerType('typing._SpecialForm', class extends typing._Final {});
-        this.registerType('typing._BaseGenericAlias', class extends typing._Final {});
-        this.registerType('typing._GenericAlias', class extends typing._BaseGenericAlias {});
-        this.registerType('typing._SpecialGenericAlias', class extends typing._BaseGenericAlias {});
-        this.registerType('typing._TupleType', class extends typing._SpecialGenericAlias {});
-        typing.Optional = self.invoke('typing._SpecialForm', []);
-        typing.List = self.invoke('typing._SpecialGenericAlias', []);
-        typing.Dict = self.invoke('typing._SpecialGenericAlias', []);
-        typing.Tuple = self.invoke('typing._TupleType', []);
+        this.registerType('typing._BaseGenericAlias', class extends this._typing._Final {});
+        this.registerType('typing._GenericAlias', class extends this._typing._BaseGenericAlias {});
+        this.registerType('typing._SpecialGenericAlias', class extends this._typing._BaseGenericAlias {});
+        this.registerType('typing._TupleType', class extends this._typing._SpecialGenericAlias {});
+        typing.Optional = Reflect.construct(typing._SpecialForm, []);
+        typing.List = Reflect.construct(typing._SpecialGenericAlias, []);
+        typing.Dict = Reflect.construct(typing._SpecialGenericAlias, []);
+        typing.Tuple = Reflect.construct(typing._TupleType, []);
         this.registerType('argparse.Namespace', class {
             constructor(args) {
                 this.args = args;
@@ -2502,21 +2499,29 @@ python.Execution = class {
                             }
                             break;
                         }
-                        case OpCode.GLOBAL:
-                            stack.push([ reader.line(), reader.line() ].join('.'));
+                        case OpCode.GLOBAL: {
+                            const module = reader.line();
+                            const name = reader.line();
+                            stack.push([ module, name ].join('.')); // TODO this.find_class(module, name);
                             break;
-                        case OpCode.STACK_GLOBAL:
-                            stack.push([ stack.pop(), stack.pop() ].reverse().join('.'));
+                        }
+                        case OpCode.STACK_GLOBAL: {
+                            const name = stack.pop();
+                            const module = stack.pop();
+                            stack.push([ module, name ].join('.')); // TODO this.find_class(module, name);
                             break;
+                        }
                         case OpCode.PUT: {
                             const index = parseInt(reader.line(), 10);
                             memo.set(index, stack[stack.length - 1]);
                             break;
                         }
                         case OpCode.OBJ: {
-                            const items = stack;
+                            const args = stack;
+                            const cls = args.pop();
                             stack = marker.pop();
-                            stack.push(self.invoke(items.pop(), items));
+                            const obj = this._instantiate(cls, args);
+                            stack.push(obj);
                             break;
                         }
                         case OpCode.GET: {
@@ -2546,9 +2551,11 @@ python.Execution = class {
                             break;
                         }
                         case OpCode.NEWOBJ: {
-                            const items = stack.pop();
-                            const type = stack.pop();
-                            stack.push(self.invoke(type, items));
+                            const args = stack.pop();
+                            const cls = stack.pop();
+                            // TODO resolved
+                            // cls.__new__(cls, args)
+                            stack.push(self.invoke(cls, args));
                             break;
                         }
                         case OpCode.BINGET:
@@ -2557,10 +2564,13 @@ python.Execution = class {
                         case OpCode.INST: {
                             const module = reader.line();
                             const name = reader.line();
-                            const type = module + '.' + name;
-                            const items = stack;
+                            const args = stack;
+                            const cls = module + '.' + name;
                             stack = marker.pop();
-                            stack.push(self.invoke(type, items));
+                            // TODO
+                            // cls = this.find_class(module, name)
+                            const obj = this._instantiate(cls, args);
+                            stack.push(obj);
                             break;
                         }
                         case OpCode.LONG_BINGET:
@@ -2813,6 +2823,14 @@ python.Execution = class {
                 }
                 throw new python.Error('Unexpected end of file.');
             }
+            find_class(module, name) {
+                self.import(module, null, 0);
+                module = self._modules.get(module);
+                return module[name];
+            }
+            _instantiate(cls, args) {
+                return self.invoke(cls, args);
+            }
             read(size) {
                 return this._reader.read(size);
             }
@@ -3007,7 +3025,7 @@ python.Execution = class {
             constructor(/* args */) {
             }
         });
-        this.registerType('types.ObjectType', builtins.object);
+        this.registerType('types.ObjectType', this._builtins.object);
         this.registerType('xgboost.compat.XGBoostLabelEncoder', class {});
         this.registerType('xgboost.core.Booster', class {});
         this.registerType('xgboost.sklearn.XGBClassifier', class {});
@@ -3100,10 +3118,10 @@ python.Execution = class {
         });
         this.registerFunction('copy_reg._reconstructor', function(cls, base, state) {
             // copyreg._reconstructor in Python 3
-            if (base === '__builtin__.object' || base === builtins.object) {
+            if (base === '__builtin__.object' || base === self._builtins.object) {
                 return self.invoke(cls, []);
             }
-            else if (base === '__builtin__.tuple' || base === builtins.tuple) {
+            else if (base === '__builtin__.tuple' || base === self._builtins.tuple) {
                 const obj = self.invoke(cls, []);
                 for (let i = 0; i < state.length; i++) {
                     obj[i] = state[i];
@@ -3465,19 +3483,23 @@ python.Execution = class {
             this.import(name.substring(0, index));
         }
         if (!this._modules.has(name)) {
+            const module = {};
+            module.__class__ = this._builtins.module;
+            module.__name__ = name;
+            this._modules.set(name, module);
+            if (this._registry.has(name)) {
+                const entries = this._registry.get(name);
+                for (const entry of Object.entries(entries)) {
+                    const name = entry[0];
+                    const value = entry[1];
+                    module[name] = value;
+                }
+            }
             const file = name.split('.').join('/') + '.py';
             const program = this.parse(file);
             if (program) {
-                let globals = this._context.getx(name); // TODO
-                if (globals === undefined) {
-                    globals = {};
-                    this._context.setx(name, globals); // TODO
-                }
-                globals.__class__ = this._context.scope.builtins.module;
-                globals.__name__ = name;
-                globals.__file__ = file;
-                this._modules.set(name, globals);
-                const context = this._context.push(globals);
+                module.__file__ = file;
+                const context = this._context.push(module);
                 this.block(program.body, context);
             }
         }
@@ -3494,7 +3516,10 @@ python.Execution = class {
         const moduleName = parts.join('.');
         const module = this.import(moduleName);
         if (module) {
-            return module[className];
+            const type = module[className];
+            if (type) {
+                return type;
+            }
         }
         return null;
     }
@@ -3502,7 +3527,7 @@ python.Execution = class {
     invoke(name, args) {
         const target = name.__class__ ? name : this.type(name);
         if (target) {
-            if (target.__class__ === this._context.scope.builtins.type) {
+            if (target.__class__ === this._builtins.type) {
                 if (target.prototype && target.prototype.__class__ === target) {
                     return Reflect.construct(target, args);
                 }
@@ -3512,16 +3537,27 @@ python.Execution = class {
                 }
                 return obj;
             }
-            else if (target.__class__ === this._context.scope.builtins.function) {
+            else if (target.__class__ === this._builtins.function) {
                 if (target.__call__) {
                     return target.__call__(args);
                 }
                 return target.apply(null, args);
             }
         }
-        this._raiseUnkownName(name);
-        this.registerType(name, class {});
-        return this.invoke(name, []);
+        if (!name) {
+            throw new python.Error('Unsupported invoke target');
+        }
+        if (!this._unresolved.has(name)) {
+            const moduleName = name.split('.').shift();
+            if (this._registry.has(moduleName)) {
+                this._exceptionCallback(new python.Error("Unsupported function '" + name + "'."), false);
+            }
+            const type = this._createType(name, class {});
+            this._unresolved.set(name, type);
+            this._context.setx(name, type);
+        }
+        const type = this._unresolved.get(name);
+        return Reflect.construct(type, []);
     }
 
     call(target, name, args, context) {
@@ -3541,7 +3577,7 @@ python.Execution = class {
             }
         }
         const func = name ? callTarget[name] : callTarget;
-        if (func.__class__ === this._context.scope.builtins.type) {
+        if (func.__class__ === this._builtins.type) {
             if (func.prototype && func.prototype.__class__ === func) {
                 return Reflect.construct(func, args);
             }
@@ -3552,12 +3588,12 @@ python.Execution = class {
             }
             return obj;
         }
-        if (func.__class__ === this._context.scope.builtins.function) {
+        if (func.__class__ === this._builtins.function) {
             if (func.__call__) {
                 return func.__call__(callArguments);
             }
         }
-        if (func.__class__ === this._context.scope.builtins.method) {
+        if (func.__class__ === this._builtins.method) {
             if (func.__call__) {
                 return func.__call__([ callTarget ].concat(callArguments));
             }
@@ -3606,14 +3642,15 @@ python.Execution = class {
                 const self = this;
                 const parent = context.get('__class__');
                 let type = null;
-                if (parent === this._context.scope.builtins.type) {
-                    type = this._context.scope.builtins.method;
+                if (parent === this._builtins.type) {
+                    type = this._builtins.method;
                 }
-                else if (parent === this._context.scope.builtins.module) {
-                    type = this._context.scope.builtins.function;
+                else if (parent === this._builtins.module) {
+                    type = this._builtins.function;
                 }
                 else {
-                    throw new python.Error('Invalid function scope.');
+                    type = this._builtins.method;
+                    // throw new python.Error('Invalid function scope.'); // TODO
                 }
                 const func = {
                     __class__: type,
@@ -3629,13 +3666,9 @@ python.Execution = class {
                 break;
             }
             case 'class': {
-                const scope = {
-                    __class__:this._context.scope.builtins.type,
-                    __module__: context.get('__name__'),
-                    __name__: statement.name,
-                };
-                context.set(statement.name, scope);
-                context = context.push(scope);
+                const value = this._createType(context.get('__name__') + '.' + statement.name, class {});
+                context.set(statement.name, value);
+                context = context.push(value.prototype);
                 this.block(statement.body.statements, context);
                 context = context.pop();
                 break;
@@ -3835,9 +3868,9 @@ python.Execution = class {
                 }
                 const target = this.expression(expression.target, context);
                 if (target && expression.arguments.type === 'list' &&
-                    (target.__class__ === this.context.scope.typing._TupleType ||
-                     target.__class__ === this.context.scope.typing._SpecialGenericAlias ||
-                     target.__class__ === this.context.scope.typing._SpecialForm)) {
+                    (target.__class__ === this._typing._TupleType ||
+                     target.__class__ === this._typing._SpecialGenericAlias ||
+                     target.__class__ === this._typing._SpecialForm)) {
                     const type = Object.assign({}, target);
                     type.__args__ = expression.arguments.value.map((arg) => this.expression(arg, context));
                     return type;
@@ -3876,24 +3909,27 @@ python.Execution = class {
                     default: {
                         const type = (value) => {
                             return value &&
-                                (value.__class__ === this._context.scope.builtins.type ||
-                                 value.__class__ === this._context.scope.typing._TupleType ||
-                                 value.__class__ === this._context.scope.typing._SpecialGenericAlias ||
-                                 value.__class__ === this._context.scope.typing._SpecialForm);
+                                (value.__class__ === this._builtins.type ||
+                                 value.__class__ === this._typing._TupleType ||
+                                 value.__class__ === this._typing._SpecialGenericAlias ||
+                                 value.__class__ === this._typing._SpecialForm);
                         };
-                        const builtin = this._context.scope.builtins[expression.value];
+                        const builtin = this._builtins[expression.value];
                         if (type(builtin)) {
                             return builtin;
                         }
                         const value = context.get(expression.value);
                         if (value === undefined) {
-                            const typing = this._context.scope.typing[expression.value];
+                            const typing = this._typing[expression.value];
                             if (type(typing)) {
                                 return typing;
                             }
-                            const torch = this._context.scope.torch[expression.value];
-                            if (type(torch)) {
-                                return torch;
+                            const torch = this._registry.get('torch');
+                            if (torch) {
+                                const value = torch[expression.value]; // TODO
+                                if (type(value)) {
+                                    return value;
+                                }
                             }
                         }
                         return value;
@@ -3964,52 +4000,50 @@ python.Execution = class {
     }
 
     registerFunction(name, value) {
-        if (this._context.getx(name)) {
-            throw new python.Error("Function '" + name + "' is already registered.");
-        }
         const parts = name.split('.');
-        value.__class__ = this._context.scope.builtins.function;
+        value.__class__ = this._builtins.function;
         value.__name__ = parts.pop();
         value.__module__ = parts.join('.');
-        this._context.setx(name, value);
+        this.register(value.__module__);
+        const module = this._registry.get(value.__module__);
+        if (module[name]) {
+            throw new python.Error("Function '" + name + "' is already registered.");
+        }
+        module[value.__name__] = value;
         if (value.__module__ === 'builtins') {
             this._context.setx(value.__name__, value);
         }
+        return value;
     }
 
-    registerType(name, value) {
-        if (this._context.getx(name)) {
-            throw new python.Error("Class '" + name + "' is already registered.");
-        }
+    _createType(name, value) {
         const parts = name.split('.');
-        value.__class__ = this._context.scope.builtins.type;
+        value.__class__ = this._builtins.type;
         value.__name__ = parts.pop();
         value.__module__ = parts.join('.');
         value.prototype.__class__ = value;
-        this._context.setx(name, value);
+        return value;
+    }
+
+    registerType(name, value) {
+        value = this._createType(name, value);
+        this.register(value.__module__);
+        const module = this._registry.get(value.__module__);
+        if (module[name]) {
+            throw new python.Error("Class '" + name + "' is already registered.");
+        }
+        module[value.__name__] = value;
         if (value.__module__ === 'builtins') {
             this._context.setx(value.__name__, value);
         }
+        return value;
     }
 
     register(name) {
-        let scope = this._context.scope;
-        const items = name.split('.');
-        while (items.length > 0) {
-            const item = items.shift();
-            scope[item] = { __name__: name, __class__: this._context.scope.builtins.module };
-            scope = scope[item];
+        if (!this._registry.has(name)) {
+            this._registry.set(name, {});
         }
-    }
-
-    _raiseUnkownName(name) {
-        if (name && !this._unknownNameMap.has(name)) {
-            this._unknownNameMap.add(name);
-            const module = name.split('.').shift();
-            if (this._context.scope[module] && this._context.scope[module].__class__ == this._context.scope.builtins.module) {
-                this._exceptionCallback(new python.Error("Unsupported function '" + name + "'."), false);
-            }
-        }
+        return this._registry.get(name);
     }
 };
 

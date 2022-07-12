@@ -863,12 +863,13 @@ pytorch.Execution = class extends python.Execution {
         this.register('ops');
         this.register('ops.torchvision');
         this.register('ops.torchaudio');
-        this.register('torch');
+        const torch = this.register('torch');
+        const torch_storage = this.register('torch.storage');
+        const torch_nn_parameter = this.register('torch.nn.parameter');
         this.register('torchvision');
         this.register('__torch__');
-        this.context.scope.ops._caffe2 = { __name__: 'torch', __class__: this.context.scope.builtins.module };
+        this.context.setx('ops._caffe2',{ __name__: 'torch', __class__: this._builtins.module });
         const self = this;
-        const torch = this.context.scope.torch;
         this.registerType('builtins.number', class {});
         this.registerType('__torch__.torch.classes._nnapi.Compilation', class {
             constructor() {
@@ -1278,21 +1279,21 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torchvision.transforms.transforms.Scale', class {});
         this.registerType('torchvision.transforms.transforms.ToPILImage', class {});
         this.registerType('torchvision.transforms.transforms.ToTensor', class {});
-        this.registerFunction('annotate', function(type, value) {
-            if (type === self.context.scope.builtins.int) {
+        this.registerFunction('builtins.annotate', function(type, value) {
+            if (type === self._builtins.int) {
                 return Number.isInteger(value) ? value : NaN;
             }
-            if (type === self.context.scope.builtins.float) {
+            if (type === self._builtins.float) {
                 return typeof value === 'number' ? value : NaN;
             }
-            if (type === self.context.scope.builtins.number) {
+            if (type === self._builtins.number) {
                 if (pytorch.Utility.isTensor(value)) {
                     value.resize_([]);
                 }
             }
             return value;
         });
-        this.registerFunction('unchecked_cast', function(type, value) {
+        this.registerFunction('builtins.unchecked_cast', function(type, value) {
             return value;
         });
         this.registerFunction('ops.prim.data', function(tensor) {
@@ -1390,7 +1391,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerFunction('ops.prim.RaiseException', function(message) {
             throw new pytorch.Error(message);
         });
-        this.registerFunction('range', function(start, stop, step) {
+        this.registerFunction('builtins.range', function(start, stop, step) {
             if (stop === undefined && step === undefined) {
                 if (Number.isInteger(start)) {
                     return Array(start).keys();
@@ -1789,7 +1790,7 @@ pytorch.Execution = class extends python.Execution {
         });
         this.registerFunction('torch.warn', function() {
         });
-        this.registerFunction('uninitialized', function(/* type */) {
+        this.registerFunction('builtins.uninitialized', function(/* type */) {
             return undefined;
         });
         this.registerType('torch.device', class {
@@ -1874,67 +1875,67 @@ pytorch.Execution = class extends python.Execution {
                 return storage;
             }
         });
-        this.registerType('torch.BoolStorage', class extends torch.storage._StorageBase {
+        this.registerType('torch.BoolStorage', class extends torch_storage._StorageBase {
             constructor(size) {
                 super(size, torch.bool);
             }
         });
-        this.registerType('torch.ByteStorage', class extends torch.storage._StorageBase {
+        this.registerType('torch.ByteStorage', class extends torch_storage._StorageBase {
             constructor(size) {
                 super(size, torch.uint8);
             }
         });
-        this.registerType('torch.CharStorage', class extends torch.storage._StorageBase {
+        this.registerType('torch.CharStorage', class extends torch_storage._StorageBase {
             constructor(size) {
                 super(size, torch.int8);
             }
         });
-        this.registerType('torch.ShortStorage', class extends torch.storage._StorageBase {
+        this.registerType('torch.ShortStorage', class extends torch_storage._StorageBase {
             constructor(size) {
                 super(size, torch.int16);
             }
         });
-        this.registerType('torch.IntStorage', class extends torch.storage._StorageBase {
+        this.registerType('torch.IntStorage', class extends torch_storage._StorageBase {
             constructor(size) {
                 super(size, torch.int32);
             }
         });
-        this.registerType('torch.LongStorage', class extends torch.storage._StorageBase {
+        this.registerType('torch.LongStorage', class extends torch_storage._StorageBase {
             constructor(size) {
                 super(size, torch.int64);
             }
         });
-        this.registerType('torch.HalfStorage', class extends torch.storage._StorageBase {
+        this.registerType('torch.HalfStorage', class extends torch_storage._StorageBase {
             constructor(size) {
                 super(size, torch.float16);
             }
         });
-        this.registerType('torch.FloatStorage', class extends torch.storage._StorageBase {
+        this.registerType('torch.FloatStorage', class extends torch_storage._StorageBase {
             constructor(size) {
                 super(size, torch.float32);
             }
         });
-        this.registerType('torch.DoubleStorage', class extends torch.storage._StorageBase {
+        this.registerType('torch.DoubleStorage', class extends torch_storage._StorageBase {
             constructor(size) {
                 super(size, torch.float64);
             }
         });
-        this.registerType('torch.QInt8Storage', class extends torch.storage._StorageBase {
+        this.registerType('torch.QInt8Storage', class extends torch_storage._StorageBase {
             constructor(size) {
                 super(size, torch.qint8);
             }
         });
-        this.registerType('torch.QUInt8Storage', class extends torch.storage._StorageBase {
+        this.registerType('torch.QUInt8Storage', class extends torch_storage._StorageBase {
             constructor(size) {
                 super(size, torch.quint8);
             }
         });
-        this.registerType('torch.QInt32Storage', class extends torch.storage._StorageBase {
+        this.registerType('torch.QInt32Storage', class extends torch_storage._StorageBase {
             constructor(size) {
                 super(size, torch.qint32);
             }
         });
-        this.registerType('torch.BFloat16Storage', class extends torch.storage._StorageBase {
+        this.registerType('torch.BFloat16Storage', class extends torch_storage._StorageBase {
             constructor(size) {
                 super(size, torch.bfloat16);
             }
@@ -2042,7 +2043,7 @@ pytorch.Execution = class extends python.Execution {
                 }
             }
         });
-        this.registerType('torch.nn.parameter.UninitializedParameter', class extends torch.nn.parameter.Parameter {
+        this.registerType('torch.nn.parameter.UninitializedParameter', class extends torch_nn_parameter.Parameter {
             constructor(requires_grad /*, device, dtype */) {
                 super(undefined, requires_grad);
             }
@@ -2583,7 +2584,7 @@ pytorch.Container.Zip.Script = class {
         const sources = new Map();
         for (const entry of this._entries) {
             const name = entry[0];
-            if (name.startsWith(directory)) {
+            if (name.startsWith(directory) && name.endsWith('.py')) {
                 const file = name.substring(directory.length);
                 if (sources.has(file)) {
                     throw new pytorch.Error("Duplicate source file '" + file + "'.");
@@ -2594,13 +2595,13 @@ pytorch.Container.Zip.Script = class {
                 sources.set(file, buffer);
             }
         }
-        /*
         for (const entry of sources) {
-            const name = entry[0].split('/').join('.');
+            const name = entry[0].replace(/\.py$/, '').split('/').join('.');
             const module = this._execution.import(name);
-            this._execution.context.sex(name, module);
+            this._execution.context.setx(name, module);
         }
-        */
+        const torch = this._execution.import('torch');
+        this._execution.context.setx('Tensor', torch.Tensor);
         const constants = {};
         for (let i = 0; i < this.constants.length; i++) {
             constants['c' + i.toString()] = this.constants[i];
@@ -2860,7 +2861,7 @@ pytorch.Container.Zip.Json.Script = class extends pytorch.Container.Zip.Script {
                         const self = this;
                         const globals = this.execution.context;
                         const func = {
-                            __class__: this.execution.context.scope.builtins.function,
+                            __class__: this.execution._builtins.function,
                             __name__: statement.name,
                             __code__: statement,
                             __call__: function(args) {
@@ -2961,24 +2962,6 @@ pytorch.Container.Zip.Package = class extends pytorch.Container.Zip {
                                 loaded_storages.set(key, storage);
                             }
                             return loaded_storages.get(key);
-                            /*
-                            dtype = storage_type.dtype
-                            if key not in loaded_storages:
-                                load_tensor(
-                                    dtype,
-                                    size,
-                                    key,
-                                    _maybe_decode_ascii(location),
-                                    restore_location,
-                                )
-                            storage = loaded_storages[key]
-                            # TODO: Once we decide to break serialization FC, we can
-                            # stop wrapping with _TypedStorage
-                            return torch.storage._TypedStorage(
-                                wrap_storage=storage._untyped(), dtype=dtype
-                            )
-                            throw new pytorch.Error('');
-                            */
                         }
                         case 'reduce_package': {
                             if (saved_id.left === 2) {
@@ -3001,16 +2984,6 @@ pytorch.Container.Zip.Package = class extends pytorch.Container.Zip {
                     }
                 };
                 const root = unpickler.load();
-                /* if (root.model) {
-                    const location = {6
-                        model: '.data/ts_code/' + root.model + '/data.pkl',
-                        code: '.data/ts_code/code/',
-                        data: '.data/',
-                    };
-                    const graph = new pytorch.Container.Zip.Pickle.Script(this._entries, execution, location, name);
-                    this._graphs.push(graph);
-                }
-                else { */
                 this._graphs.push({
                     name: name,
                     type: 'module',
