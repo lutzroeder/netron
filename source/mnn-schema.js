@@ -1611,6 +1611,8 @@ $root.MNN.OpType = {
     CumSum: 148,
     Det: 149,
     CumProd: 150,
+    ScatterElements: 151,
+    GatherElements: 152,
     Plugin: 256,
     Select: 257,
     ZerosLike: 258,
@@ -1719,6 +1721,7 @@ $root.MNN.LoopParam = class LoopParam {
         $.parallel = reader.bool_(position, 12, true);
         $.loopNumber = reader.int32_(position, 14, 0);
         $.commands = reader.tableArray(position, 16, $root.MNN.RegionCommand.decode);
+        $.initCommand = reader.table(position, 18, $root.MNN.RegionCommand.decode);
         return $;
     }
 };
