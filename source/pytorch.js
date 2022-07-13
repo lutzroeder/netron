@@ -1134,6 +1134,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.utils.spectral_norm.SpectralNormLoadStateDictPreHook', class {});
         this.registerType('torch.nn.utils.weight_norm.WeightNorm', class {});
         this.registerType('torch.optim.adam.Adam', class {});
+        this.register('torch.optim').Adam = this._registry.get('torch.optim.adam').Adam;
         this.registerType('torch.optim.adamw.AdamW', class {});
         this.registerType('torch.optim.adagrad.Adagrad', class {});
         this.registerType('torch.optim.adadelta.Adadelta', class {});
