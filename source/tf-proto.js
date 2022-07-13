@@ -1845,6 +1845,48 @@ $root.tensorflow.DataType = {
     "DT_UINT64_REF": 123
 };
 
+$root.tensorflow.SerializedDType = class SerializedDType {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.SerializedDType();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.datatype = reader.int32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.SerializedDType();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "datatype":
+                    message.datatype = reader.enum($root.tensorflow.DataType);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.SerializedDType.prototype.datatype = 0;
+
 $root.tensorflow.NodeDef = class NodeDef {
 
     constructor() {
