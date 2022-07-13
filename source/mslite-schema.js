@@ -4228,11 +4228,12 @@ $root.mindspore.schema.QuantParam = class QuantParam {
     }
 };
 
-$root.mindspore.schema.WeightQunatCompressType = {
+$root.mindspore.schema.WeightQuantCompressType = {
     NONE: 0,
     INDEXING: 1,
     SPARSE: 2,
-    FSE: 3
+    FSE: 3,
+    BITPACKING: 4
 };
 
 $root.mindspore.schema.ExternalData = class ExternalData {
@@ -4271,7 +4272,7 @@ $root.mindspore.schema.Tensor = class Tensor {
         $.quantClusters = reader.typedArray(position, 20, Float32Array);
         $.name = reader.string_(position, 22, null);
         $.enableHuffmanCode = reader.bool_(position, 24, false);
-        $.weightQunatCompressType = reader.int32_(position, 26, 0);
+        $.weightQuantCompressType = reader.int32_(position, 26, 0);
         $.externalData = reader.tableArray(position, 28, $root.mindspore.schema.ExternalData.decode);
         return $;
     }
@@ -4289,7 +4290,7 @@ $root.mindspore.schema.Tensor = class Tensor {
         $.quantClusters = reader.typedArray(json.quantClusters, Float32Array);
         $.name = reader.value(json.name, null);
         $.enableHuffmanCode = reader.value(json.enableHuffmanCode, false);
-        $.weightQunatCompressType = $root.mindspore.schema.WeightQunatCompressType[json.weightQunatCompressType];
+        $.weightQuantCompressType = $root.mindspore.schema.WeightQuantCompressType[json.weightQuantCompressType];
         $.externalData = reader.objectArray(json.externalData, $root.mindspore.schema.ExternalData.decodeText);
         return $;
     }
