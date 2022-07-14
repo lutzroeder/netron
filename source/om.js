@@ -536,7 +536,7 @@ om.File = class {
                         this._model = buffer;
                         break;
                     }
-                    case 1: { // MODEL_WEIGHT
+                    case 1: { // WEIGHTS_DATA
                         this._weights = buffer;
                         break;
                     }
