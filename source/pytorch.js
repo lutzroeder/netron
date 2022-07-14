@@ -876,15 +876,15 @@ pytorch.Execution = class extends python.Execution {
 
     constructor(sources, exceptionCallback) {
         super(sources, exceptionCallback);
-        this.register('ops');
-        this.register('ops.torchvision');
-        this.register('ops.torchaudio');
         const torch = this.register('torch');
         const torch_storage = this.register('torch.storage');
         const torch_nn_parameter = this.register('torch.nn.parameter');
+        this.register('torch.ops');
+        this.register('torch.ops.torchvision');
+        this.register('torch.ops.torchaudio');
+        this.register('torch.ops._caffe2');
         this.register('torchvision');
         this.register('__torch__');
-        this.context.setx('ops._caffe2',{ __name__: 'torch', __class__: this._builtins.module });
         const self = this;
         this.registerType('builtins.number', class {});
         this.registerType('__torch__.torch.classes._nnapi.Compilation', class {
@@ -2648,6 +2648,7 @@ pytorch.Container.Zip.Script = class {
         }
         const torch = this._execution.import('torch');
         this._execution.context.setx('Tensor', torch.Tensor);
+        this._execution.context.setx('ops', torch.ops);
         const constants = {};
         for (let i = 0; i < this.constants.length; i++) {
             constants['c' + i.toString()] = this.constants[i];

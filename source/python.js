@@ -1673,7 +1673,7 @@ python.Execution = class {
         const numpy = this.register('numpy');
         this.register('pickle');
         this.register('sklearn');
-        this.register('sys');
+        this.register('sys').modules = this._modules;
         this.register('xgboost');
         this.registerType('builtins.function', class {});
         this.registerType('builtins.method', class {});
@@ -2452,6 +2452,7 @@ python.Execution = class {
         this.registerType('sklearn.preprocessing.label.MultiLabelBinarizer', class {});
         this.registerType('sklearn.svm._classes.LinearSVC', class {});
         this.registerType('sklearn.svm._classes.NuSVC', class {});
+        this.registerType('sklearn.svm._classes.OneClassSVM', class {});
         this.registerType('sklearn.svm._classes.SVC', class {});
         this.registerType('sklearn.svm._classes.SVR', class {});
         this.registerType('sklearn.svm.classes.LinearSVC', class {});
@@ -2507,13 +2508,18 @@ python.Execution = class {
                         case OpCode.GLOBAL: {
                             const module = reader.line();
                             const name = reader.line();
-                            stack.push([ module, name ].join('.')); // TODO this.find_class(module, name);
+                            // const klass = this.find_class(module, name);
+                            // TODO const klass = this.find_class(module, name);
+                            // TODO stack.push(klass);
+                            stack.push([ module, name ].join('.'));
                             break;
                         }
                         case OpCode.STACK_GLOBAL: {
                             const name = stack.pop();
                             const module = stack.pop();
-                            stack.push([ module, name ].join('.')); // TODO this.find_class(module, name);
+                            // TODO const klass = this.find_class(module, name);
+                            // TODO stack.push(klass);
+                            stack.push([ module, name ].join('.'));
                             break;
                         }
                         case OpCode.PUT: {
@@ -2550,9 +2556,9 @@ python.Execution = class {
                             stack.push(this.persistent_load(stack.pop()));
                             break;
                         case OpCode.REDUCE: {
-                            const items = stack.pop();
-                            const type = stack.pop();
-                            stack.push(execution.invoke(type, items));
+                            const args = stack.pop();
+                            const func = stack.pop();
+                            stack.push(execution.invoke(func, args));
                             break;
                         }
                         case OpCode.NEWOBJ: {
@@ -2829,8 +2835,8 @@ python.Execution = class {
                 throw new python.Error('Unexpected end of file.');
             }
             find_class(module, name) {
-                execution.import(module, null, 0);
-                module = execution._modules.get(module);
+                execution.__import__(module);
+                module = execution.module(module);
                 return module[name];
             }
             _instantiate(cls, args) {
@@ -2851,12 +2857,12 @@ python.Execution = class {
         });
         this.registerType('spacy._ml.PrecomputableAffine', class {
             __setstate__(state) {
-                Object.assign(this, python.Unpickler.open(state).load((name, args) => execution.invoke(name, args), null));
+                Object.assign(this, python.Unpickler.open(state, execution).load());
             }
         });
         this.registerType('spacy.syntax._parser_model.ParserModel', class {
             __setstate__(state) {
-                Object.assign(this, python.Unpickler.open(state).load((name, args) => execution.invoke(name, args), null));
+                Object.assign(this, python.Unpickler.open(state, execution).load());
             }
         });
         this.registerType('theano.compile.function_module._constructor_Function', class {});
@@ -2990,32 +2996,32 @@ python.Execution = class {
         });
         this.registerType('thinc.neural._classes.function_layer.FunctionLayer', class {
             __setstate__(state) {
-                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
+                Object.assign(this, python.Unpickler.open(state, execution).load());
             }
         });
         this.registerType('thinc.neural._classes.hash_embed.HashEmbed', class {
             __setstate__(state) {
-                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
+                Object.assign(this, python.Unpickler.open(state, execution).load());
             }
         });
         this.registerType('thinc.neural._classes.layernorm.LayerNorm', class {
             __setstate__(state) {
-                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
+                Object.assign(this, python.Unpickler.open(state, execution).load());
             }
         });
         this.registerType('thinc.neural._classes.maxout.Maxout', class {
             __setstate__(state) {
-                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
+                Object.assign(this, python.Unpickler.open(state, execution).load());
             }
         });
         this.registerType('thinc.neural._classes.resnet.Residual', class {
             __setstate__(state) {
-                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
+                Object.assign(this, python.Unpickler.open(state, execution).load());
             }
         });
         this.registerType('thinc.neural._classes.softmax.Softmax', class {
             __setstate__(state) {
-                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
+                Object.assign(this, python.Unpickler.open(state, execution).load());
             }
         });
         this.registerType('thinc.neural.mem.Memory', class {
@@ -3555,6 +3561,10 @@ python.Execution = class {
         return module;
     }
 
+    module(name) {
+        return this._modules.get(name);
+    }
+
     type(name) {
         const type = this._context.getx(name);
         if (type !== undefined) {
@@ -3573,8 +3583,23 @@ python.Execution = class {
         return null;
     }
 
-    invoke(name, args) {
-        const target = name.__class__ ? name : this.type(name);
+    invoke(target, args) {
+        if (typeof target === 'string') {
+            const name = target;
+            target = this.type(name);
+            if (!target) {
+                if (!this._unresolved.has(name)) {
+                    const moduleName = name.split('.').shift();
+                    if (this._registry.has(moduleName)) {
+                        this._exceptionCallback(new python.Error("Unsupported function '" + name + "'."), false);
+                    }
+                    const type = this._createType(name, class {});
+                    this._unresolved.set(name, type);
+                    this._context.setx(name, type);
+                }
+                target = this._unresolved.get(name);
+            }
+        }
         if (target) {
             if (target.__class__ === this._builtins.type) {
                 if (target.prototype && target.prototype.__class__ === target) {
@@ -3593,20 +3618,7 @@ python.Execution = class {
                 return target.apply(null, args);
             }
         }
-        if (!name) {
-            throw new python.Error('Unsupported invoke target');
-        }
-        if (!this._unresolved.has(name)) {
-            const moduleName = name.split('.').shift();
-            if (this._registry.has(moduleName)) {
-                this._exceptionCallback(new python.Error("Unsupported function '" + name + "'."), false);
-            }
-            const type = this._createType(name, class {});
-            this._unresolved.set(name, type);
-            this._context.setx(name, type);
-        }
-        const type = this._unresolved.get(name);
-        return Reflect.construct(type, []);
+        throw new python.Error('Unsupported invoke target.');
     }
 
     call(target, name, args, context) {
@@ -4045,6 +4057,25 @@ python.Execution = class {
         this._sources.set(name, source);
     }
 
+    register(name) {
+        if (!this._registry.has(name)) {
+            const module = {};
+            this._registry.set(name, module);
+            let current = name;
+            for (;;) {
+                const index = current.lastIndexOf('.');
+                if (index === -1) {
+                    break;
+                }
+                const child = current.substring(index + 1);
+                current = current.substring(0, index);
+                const parent = this.register(current);
+                parent[child] = module;
+            }
+        }
+        return this._registry.get(name);
+    }
+
     registerFunction(name, value) {
         const parts = name.split('.');
         value.__class__ = this._builtins.function;
@@ -4083,13 +4114,6 @@ python.Execution = class {
             this._context.setx(value.__name__, value);
         }
         return value;
-    }
-
-    register(name) {
-        if (!this._registry.has(name)) {
-            this._registry.set(name, {});
-        }
-        return this._registry.get(name);
     }
 };
 
