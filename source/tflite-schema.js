@@ -2717,6 +2717,7 @@ $root.tflite.AssociatedFile = class AssociatedFile {
         $.description = reader.string_(position, 6, null);
         $.type = reader.int8_(position, 8, 0);
         $.locale = reader.string_(position, 10, null);
+        $.version = reader.string_(position, 12, null);
         return $;
     }
 };
