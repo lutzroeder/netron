@@ -4157,6 +4157,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "complex_tensor.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/9108149/complex_tensor.pt.zip[complex_tensor.pt]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "d2go.pt",
     "source":   "https://github.com/lutzroeder/netron/files/6370675/d2go.pt.zip[d2go.pt]",
     "format":   "TorchScript v1.7",
