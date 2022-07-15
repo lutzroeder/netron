@@ -202,6 +202,7 @@ $root.tflite.Tensor = class Tensor {
         $.is_variable = reader.bool_(position, 14, false);
         $.sparsity = reader.table(position, 16, $root.tflite.SparsityParameters.decode);
         $.shape_signature = reader.typedArray(position, 18, Int32Array);
+        $.has_rank = reader.bool_(position, 20, false);
         return $;
     }
 
@@ -215,6 +216,7 @@ $root.tflite.Tensor = class Tensor {
         $.is_variable = reader.value(json.is_variable, false);
         $.sparsity = reader.object(json.sparsity, $root.tflite.SparsityParameters.decodeText);
         $.shape_signature = reader.typedArray(json.shape_signature, Int32Array);
+        $.has_rank = reader.value(json.has_rank, false);
         return $;
     }
 };
@@ -374,7 +376,8 @@ $root.tflite.BuiltinOperator = {
     DYNAMIC_UPDATE_SLICE: 151,
     RELU_0_TO_1: 152,
     UNSORTED_SEGMENT_PROD: 153,
-    UNSORTED_SEGMENT_MAX: 154
+    UNSORTED_SEGMENT_MAX: 154,
+    UNSORTED_SEGMENT_SUM: 155
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -500,6 +503,7 @@ $root.tflite.BuiltinOptions = class {
             case 117: return $root.tflite.DynamicUpdateSliceOptions.decode(reader, position);
             case 118: return $root.tflite.UnsortedSegmentProdOptions.decode(reader, position);
             case 119: return $root.tflite.UnsortedSegmentMaxOptions.decode(reader, position);
+            case 120: return $root.tflite.UnsortedSegmentSumOptions.decode(reader, position);
             default: return undefined;
         }
     }
@@ -625,6 +629,7 @@ $root.tflite.BuiltinOptions = class {
             case 'DynamicUpdateSliceOptions': return $root.tflite.DynamicUpdateSliceOptions.decodeText(reader, json);
             case 'UnsortedSegmentProdOptions': return $root.tflite.UnsortedSegmentProdOptions.decodeText(reader, json);
             case 'UnsortedSegmentMaxOptions': return $root.tflite.UnsortedSegmentMaxOptions.decodeText(reader, json);
+            case 'UnsortedSegmentSumOptions': return $root.tflite.UnsortedSegmentSumOptions.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -2502,6 +2507,19 @@ $root.tflite.UnsortedSegmentMaxOptions = class UnsortedSegmentMaxOptions {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.tflite.UnsortedSegmentMaxOptions();
+        return $;
+    }
+};
+
+$root.tflite.UnsortedSegmentSumOptions = class UnsortedSegmentSumOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.tflite.UnsortedSegmentSumOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.tflite.UnsortedSegmentSumOptions();
         return $;
     }
 };
