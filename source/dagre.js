@@ -15,7 +15,7 @@ dagre.layout = (graph, options) => {
         if (options.time) {
             /* eslint-disable */
             console.log(name + ': ' + duration + 'ms');
-            /* eslint-enable */
+        /* eslint-enable */
         }
         return result;
     };
@@ -284,16 +284,13 @@ dagre.layout = (graph, options) => {
                 }
                 return t;
             };
-            // Initializes ranks for the input graph using the longest path algorithm. This
-            // algorithm scales well and is fast in practice, it yields rather poor
-            // solutions. Nodes are pushed to the lowest layer possible, leaving the bottom
-            // ranks wide and leaving edges longer than necessary. However, due to its
-            // speed, this algorithm is good for getting an initial ranking that can be fed
-            // into other algorithms.
+            // Initializes ranks for the input graph using the longest path algorithm.
+            // This algorithm scales well and is fast in practice, it yields rather poor solutions.
+            // Nodes are pushed to the lowest layer possible, leaving the bottom ranks wide and leaving edges longer than necessary.
+            // However, due to its speed, this algorithm is good for getting an initial ranking that can be fed into other algorithms.
             //
-            // This algorithm does not normalize layers because it will be used by other
-            // algorithms in most cases. If using this algorithm directly, be sure to
-            // run normalize at the end.
+            // This algorithm does not normalize layers because it will be used by other algorithms in most cases.
+            // If using this algorithm directly, be sure to run normalize at the end.
             //
             // Pre-conditions:
             //    1. Input graph is a DAG.
@@ -303,25 +300,33 @@ dagre.layout = (graph, options) => {
             //    1. Each node will be assign an (unnormalized) 'rank' property.
             const longestPath = (g) => {
                 const visited = new Set();
-                const dfs = (v) => {
-                    const node = g.node(v);
-                    if (visited.has(v)) {
-                        return node.label.rank;
+                const stack = [ Array.from(g.nodes.values()).filter((node) => node.in.length === 0).reverse() ];
+                while (stack.length > 0) {
+                    const current = stack[stack.length - 1];
+                    if (Array.isArray(current)) {
+                        const node = current.pop();
+                        if (current.length === 0) {
+                            stack.pop();
+                        }
+                        if (!visited.has(node)) {
+                            visited.add(node);
+                            const children = node.out.map((e) => e.wNode);
+                            if (children.length > 0) {
+                                stack.push(node);
+                                stack.push(children.reverse());
+                            }
+                            else {
+                                node.label.rank = 0;
+                            }
+                        }
                     }
-                    visited.add(v);
-                    let rank = Number.MAX_SAFE_INTEGER;
-                    for (const e of node.out) {
-                        rank = Math.min(rank, dfs(e.w) - e.label.minlen);
-                    }
-                    if (rank === Number.MAX_SAFE_INTEGER) {
-                        rank = 0;
-                    }
-                    node.label.rank = rank;
-                    return rank;
-                };
-                for (const node of g.nodes.values()) {
-                    if (node.in.length === 0) {
-                        dfs(node.v);
+                    else {
+                        stack.pop();
+                        let rank = Number.MAX_SAFE_INTEGER;
+                        for (const e of current.out) {
+                            rank = Math.min(rank, e.wNode.label.rank - e.label.minlen);
+                        }
+                        current.label.rank = rank;
                     }
                 }
             };
