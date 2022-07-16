@@ -353,12 +353,34 @@ host.BrowserHost = class {
             const description = [];
             description.push((error && error.name ? (error.name + ': ') : '') + (error && error.message ? error.message : JSON.stringify(error)));
             if (error.stack) {
-                const match = error.stack.match(/\n {4}at (.*)\((.*)\)/);
+                const format = (file, line, column) => {
+                    return file.split('\\').join('/').split('/').pop() + ':' + line + ':' + column;
+                };
+                const match = error.stack.match(/\n {4}at (.*) \((.*):(\d*):(\d*)\)/);
                 if (match) {
-                    description.push(match[1] + '(' + match[2].split('/').pop() + ')');
+                    description.push(match[1] + ' (' + format(match[2], match[3], match[4]) + ')');
                 }
                 else {
-                    description.push(error.stack.split('\n').shift());
+                    const match = error.stack.match(/\n {4}at (.*):(\d*):(\d*)/);
+                    if (match) {
+                        description.push('(' + format(match[1], match[2], match[3]) + ')');
+                    }
+                    else {
+                        const match = error.stack.match(/\n {4}at (.*)\((.*)\)/);
+                        if (match) {
+                            description.push('(' + format(match[1], match[2], match[3]) + ')');
+                        }
+                        else {
+                            const match = error.stack.match(/\s*@\s*(.*):(.*):(.*)/);
+                            if (match) {
+                                description.push('(' + format(match[1], match[2], match[3]) + ')');
+                            }
+                            else {
+                                const match = error.stack.match(/.*\n\s*(.*)\s*/);
+                                description.push(match ? match[1] : error.stack.split('\n').shift());
+                            }
+                        }
+                    }
                 }
             }
             this.window.ga('send', 'exception', {

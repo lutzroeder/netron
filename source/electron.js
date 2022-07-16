@@ -309,6 +309,10 @@ host.ElectronHost = class {
                         if (match) {
                             description.push('(' + format(match[1], match[2], match[3]) + ')');
                         }
+                        else {
+                            const match = error.stack.match(/.*\n\s*(.*)\s*/);
+                            description.push(match ? match[1] : error.stack.split('\n').shift());
+                        }
                     }
                 }
                 this._telemetry.exception(description.join(' @ '), fatal);
