@@ -11508,6 +11508,17 @@
     ]
   },
   {
+    "name": "DTensorSetGlobalTPUArray",
+    "summary": "An op that informs a host of the global ids of all the of TPUs in the system.",
+    "inputs": [
+      {
+        "name": "topology",
+        "description": "A serialized tensorflow.tpu.TopologyProto that describes the TPU topology.",
+        "type": 7
+      }
+    ]
+  },
+  {
     "name": "DTensorShardedPrefix",
     "attributes": [
       {
@@ -23165,6 +23176,44 @@
     ]
   },
   {
+    "name": "ListDataset",
+    "summary": "Creates a dataset that emits each of `tensors` once.",
+    "attributes": [
+      {
+        "name": "Tinput_types",
+        "type": "type[]",
+        "minimum": 1
+      },
+      {
+        "name": "output_types",
+        "type": "type[]",
+        "minimum": 1
+      },
+      {
+        "name": "output_shapes",
+        "type": "shape[]",
+        "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
+      }
+    ],
+    "inputs": [
+      {
+        "name": "tensors",
+        "typeListAttr": "Tinput_types"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "handle",
+        "type": 21
+      }
+    ]
+  },
+  {
     "name": "ListDiff",
     "summary": "Computes the difference between two lists of numbers or strings.",
     "description": "Given a list `x` and a list `y`, this operation returns a list `out` that\nrepresents all values that are in `x` but not in `y`. The returned list `out`\nis sorted in the same order that the numbers appear in `x` (duplicates are\npreserved). This operation also returns a list `idx` that represents the\nposition of each `out` element in `x`. In other words:\n\n`out[i] = x[idx[i]] for i in [0, 1, ..., len(out) - 1]`\n\nFor example, given this input:\n\n```\nx = [1, 2, 3, 4, 5, 6]\ny = [1, 3, 5]\n```\n\nThis operation would return:\n\n```\nout ==> [2, 4, 6]\nidx ==> [1, 3, 5]\n```",
@@ -26804,13 +26853,19 @@
   {
     "name": "MergeV2Checkpoints",
     "summary": "V2 format specific: merges the metadata files of sharded checkpoints.  The",
-    "description": "result is one logical checkpoint, with one physical metadata file and renamed\ndata files.\n\nIntended for \"grouping\" multiple checkpoints in a sharded checkpoint setup.\n\nIf delete_old_dirs is true, attempts to delete recursively the dirname of each\npath in the input checkpoint_prefixes.  This is useful when those paths are non\nuser-facing temporary locations.",
+    "description": "result is one logical checkpoint, with one physical metadata file and renamed\ndata files.\n\nIntended for \"grouping\" multiple checkpoints in a sharded checkpoint setup.\n\nIf delete_old_dirs is true, attempts to delete recursively the dirname of each\npath in the input checkpoint_prefixes.  This is useful when those paths are non\nuser-facing temporary locations.\n\nIf allow_missing_files is true, merges the checkpoint prefixes as long as\nat least one file exists. Otherwise, if no files exist, an error will be thrown.\nThe default value for allow_missing_files is false.",
     "attributes": [
       {
         "name": "delete_old_dirs",
         "type": "boolean",
         "description": "see above.",
         "default": true
+      },
+      {
+        "name": "allow_missing_files",
+        "type": "boolean",
+        "description": "see above.",
+        "default": false
       }
     ],
     "inputs": [
@@ -59390,6 +59445,73 @@
         "name": "sampled_expected_count",
         "description": "A vector of length num_sampled, for each sampled\ncandidate representing the number of times the candidate is expected\nto occur in a batch of sampled candidates.  If unique=true, then this is a\nprobability.",
         "type": 1
+      }
+    ]
+  },
+  {
+    "name": "UniformQuantizedDotHybrid",
+    "summary": "Perform hybrid quantized dot of float Tensor `lhs` and quantized Tensor `rhs`.",
+    "description": "Given float `lhs` and quantized `rhs`, internally performs quantization on `lhs`, and then performs quantized dot on quantized lhs and `rhs`.\nThe internal quantization on `lhs` is a quantization to qint8, dynamic range, per-batch (per-axis along axis 0), asymmetric, and not narrow range (the range is [-128, 127]).\n`lhs` and `rhs` must be 2D Tensors and the lhs.dim_size(1) must match rhs.dim_size(0).\n`rhs` must be quantized Tensor, where its data value is quantized using the formula:\nquantized_data = clip(original_data / scale + zero_point, quantization_min_val, quantization_max_val).",
+    "attributes": [
+      {
+        "name": "Tlhs",
+        "type": "type",
+        "description": "The type of lhs input Tensor. Must be one of the following: `float32`."
+      },
+      {
+        "name": "Trhs",
+        "type": "type",
+        "description": "The type of rhs (quantized) input Tensor. Must be one of the following: `qint8`."
+      },
+      {
+        "name": "Tout",
+        "type": "type",
+        "description": "The type of output Tensor. Must be one of the following: `float32`."
+      },
+      {
+        "name": "rhs_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor dot op rhs, only per-tensor quantization or per-channel quantization along dimension 1 is supported.\nThus, this attribute must be set to -1 or 1. Other values are rejected.",
+        "default": -1
+      },
+      {
+        "name": "rhs_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in rhs.\nFor example, if Trhs is qint8, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "rhs_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in rhs.\nFor example, if Trhs is qint8, this must be set to 127."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "lhs",
+        "description": "Must be a 2D Tensor of Tlhs.",
+        "typeAttr": "Tlhs"
+      },
+      {
+        "name": "rhs",
+        "description": "Must be a 2D Tensor of Trhs.",
+        "typeAttr": "Trhs"
+      },
+      {
+        "name": "rhs_scales",
+        "description": "The float value(s) used as scale when quantizing original data that rhs represents.\nMust be a scalar Tensor (per-tensor quantization) or 1D Tensor of size (rhs.dim_size(1),) (per-channel quantization).",
+        "type": 1
+      },
+      {
+        "name": "rhs_zero_points",
+        "description": "The int32 value(s) used as zero_point when quantizing original data that rhs represents.\nSame shape condition as rhs_scales.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "The output 2D Tensor of Tout, whose shape is (lhs.dim_size(0), rhs.dim_size(1)).\nThe output data is the original output data itself (Not quantized).",
+        "typeAttr": "Tout"
       }
     ]
   },
