@@ -72,20 +72,69 @@ tensorrt.Engine = class {
 
     _read() {
         if (this._stream) {
-            const buffer = this._stream.peek(24);
-            const reader = new base.BinaryReader(buffer);
-            reader.skip(4); // signature
+            let buffer = this._stream.peek(24);
+            let reader = new base.BinaryReader(buffer);
+            reader.skip(4);
             const version = reader.uint32();
             reader.uint32();
-            if (version <= 0x2B) {
-                reader.uint32();
-            }
-            /* const size = */ reader.uint64();
-            if (version > 0x2B) {
-                reader.uint32();
+            let size = 0;
+            switch (version) {
+                case 0x0000:
+                case 0x002B: {
+                    reader.uint32();
+                    size = reader.uint64();
+                    break;
+                }
+                case 0x0057:
+                case 0x0059:
+                case 0x0060:
+                case 0x0061: {
+                    size = reader.uint64();
+                    reader.uint32();
+                    break;
+                }
+                default: {
+                    const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+                    throw new tensorrt.Error("Unsupported TensorRT engine signature (" + content.substring(8) + ").");
+                }
             }
             const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+            buffer = this._stream.read(24 + size);
+            reader = new tensorrt.BinaryReader(buffer);
             throw new tensorrt.Error("Invalid file content. File contains undocumented TensorRT engine data (" + content.substring(8) + ").");
+            /*
+            reader.skip(24);
+            const data = [];
+            while (reader.position < reader.length) {
+                const code = reader.uint16();
+                if (code != 1) {
+                    const count = reader.uint16();
+                    if (count != 1) {
+                        debugger;
+                    }
+                }
+                const value = [];
+                switch (code) {
+                    case 0x0001: value.push('-'); break;
+                    case 0x0002: value.push(reader.byte()); break;
+                    case 0x0003: value.push(reader.byte()); break;
+                    case 0x0005: value.push(reader.byte()); break;
+                    case 0x0007: value.push(reader.uint32()); break;
+                    case 0x0008: value.push(reader.uint64()); break;
+                    case 0x0009: value.push(reader.uint64()); break;
+                    case 0x000A: value.push(reader.byte()); break;
+                    case 0x000C: value.push(reader.string()); break;
+                    case 0x000D: value.push(reader.string()); break;
+                    case 0x000E: value.push(reader.uint64()); break;
+                    case 0x0010: value.push(reader.byte()); break;
+                    case 0x0021: break;
+                    case 0x8048: break;
+                    case 0x80A5: break;
+                    default: throw new tensorrt.Error('');
+                }
+                data.push(value);
+            }
+            */
         }
     }
 };
@@ -129,6 +178,18 @@ tensorrt.Container = class {
         const buffer = this._stream.peek(Math.min(24, this._stream.length));
         const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
         throw new tensorrt.Error('Invalid file content. File contains undocumented TensorRT data (' + content.substring(16) + ').');
+    }
+};
+
+tensorrt.BinaryReader = class extends base.BinaryReader {
+
+    string() {
+        const length = this.uint64();
+        const position = this._position;
+        this.skip(length);
+        const data = this._buffer.subarray(position, this._position);
+        this._decoder = this._decoder || new TextDecoder('utf-8');
+        return this._decoder.decode(data);
     }
 };
 
