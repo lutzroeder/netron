@@ -3568,6 +3568,14 @@
   },
   {
     "type":     "onnx",
+    "target":   "netron_issue_589_5.onnx.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/9124841/netron_issue_589_5.onnx.zip",
+    "format":   "ONNX v6",
+    "error":    "Maximum call stack size exceeded",
+    "link":     "https://github.com/lutzroeder/netron/issues/589"
+  },
+  {
+    "type":     "onnx",
     "target":   "netron_issue_845.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/7604948/netron_issue_845.onnx.zip[netron_issue_845.onnx]",
     "format":   "ONNX v4",
