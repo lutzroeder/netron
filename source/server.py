@@ -42,54 +42,55 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
     }
     def do_GET(self): # pylint: disable=invalid-name
         ''' Serve a GET request '''
-        pathname = urllib.parse.urlparse(self.path).path
-        folder = os.path.dirname(os.path.realpath(__file__))
-        location = folder + pathname
+        path = urllib.parse.urlparse(self.path).path
         status_code = 0
         headers = {}
         buffer = None
-        data = '/data/'
-        if status_code == 0:
-            if pathname == '/':
-                meta = []
-                meta.append('<meta name="type" content="Python">')
-                meta.append('<meta name="version" content="' + __version__ + '">')
-                if self.file:
-                    meta.append('<meta name="file" content="/data/' + self.file + '">')
-                with codecs.open(location + 'index.html', mode="r", encoding="utf-8") as open_file:
-                    buffer = open_file.read()
-                meta = '\n'.join(meta)
-                buffer = re.sub(r'<meta name="version" content="\d+.\d+.\d+">', meta, buffer)
-                buffer = buffer.encode('utf-8')
-                headers['Content-Type'] = 'text/html'
+        if path == '/' or path == '/index.html':
+            meta = []
+            meta.append('<meta name="type" content="Python">')
+            meta.append('<meta name="version" content="' + __version__ + '">')
+            if self.file:
+                meta.append('<meta name="file" content="/data/' + self.file + '">')
+            basedir = os.path.dirname(os.path.realpath(__file__))
+            with codecs.open(basedir + '/index.html', mode="r", encoding="utf-8") as open_file:
+                buffer = open_file.read()
+            meta = '\n'.join(meta)
+            buffer = re.sub(r'<meta name="version" content="\d+.\d+.\d+">', meta, buffer)
+            buffer = buffer.encode('utf-8')
+            headers['Content-Type'] = 'text/html'
+            headers['Content-Length'] = len(buffer)
+            status_code = 200
+        elif path.startswith('/data/'):
+            status_code = 404
+            path = urllib.parse.unquote(path[len('/data/'):])
+            if path == self.file and self.data:
+                buffer = self.data
+            else:
+                basedir = os.path.realpath(self.folder)
+                path = os.path.normpath(os.path.realpath(basedir + '/' + path))
+                if os.path.commonprefix([basedir, path]) == basedir:
+                    if os.path.exists(path) and not os.path.isdir(path):
+                        with open(path, 'rb') as file:
+                            buffer = file.read()
+            if buffer:
+                headers['Content-Type'] = 'application/octet-stream'
                 headers['Content-Length'] = len(buffer)
                 status_code = 200
-            elif pathname.startswith(data):
-                file = pathname[len(data):]
-                if file == self.file and self.data:
-                    buffer = self.data
-                else:
-                    file = self.folder + '/' + urllib.parse.unquote(file)
-                    status_code = 404
-                    if os.path.exists(file):
-                        with open(file, 'rb') as binary:
-                            buffer = binary.read()
-                if buffer:
-                    headers['Content-Type'] = 'application/octet-stream'
-                    headers['Content-Length'] = len(buffer)
-                    status_code = 200
-            else:
-                if os.path.exists(location) and not os.path.isdir(location):
-                    extension = os.path.splitext(location)[1]
+        else:
+            status_code = 404
+            basedir = os.path.dirname(os.path.realpath(__file__))
+            path = os.path.normpath(os.path.realpath(basedir + path))
+            if os.path.commonprefix([basedir, path]) == basedir:
+                if os.path.exists(path) and not os.path.isdir(path):
+                    extension = os.path.splitext(path)[1]
                     content_type = self.mime_types_map[extension]
                     if content_type:
-                        with open(location, 'rb') as binary:
-                            buffer = binary.read()
+                        with open(path, 'rb') as file:
+                            buffer = file.read()
                         headers['Content-Type'] = content_type
                         headers['Content-Length'] = len(buffer)
                         status_code = 200
-                else:
-                    status_code = 404
         if self.log:
             sys.stdout.write(str(status_code) + ' ' + self.command + ' ' + self.path + '\n')
         sys.stdout.flush()
