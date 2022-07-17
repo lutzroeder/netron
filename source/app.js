@@ -354,7 +354,7 @@ class Application {
             content = content.replace('{version}', this.package.version);
             content = content.replace('<title>Netron</title>', '');
             content = content.replace('<body class="welcome spinner">', '<body class="about desktop">');
-            content = content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+            content = content.replace(/<script\b[^<]*(?:(?!<\/script\s*>)<[^<]*)*<\/script\s*>/gi, '');
             content = content.replace(/<link.*>/gi, '');
             dialog.once('ready-to-show', () => {
                 dialog.resizable = false;
