@@ -928,7 +928,12 @@ kmodel.Reader = class {
                         layer.outputs = [ reader.parameter('output') ];
                     });
                     register(  0x13, 'conv2d_transpose', 'Layer');
-                    register(  0x14, 'nnil_unary_method', '');
+                    register(  0x14, 'nnil_unary_method', '', (layer, reader, size) => {
+                        const position = reader.position;
+                        layer.inputs = [ reader.parameter('input') ];
+                        layer.outputs = [ reader.parameter('output') ];
+                        layer.body = reader(size - (reader.position - position));
+                    });
                     register(0x1001, 'cpu_conv2d', 'Layer');
                     register(0x1002, 'cpu_depthwise_conv2d', 'Layer');
                     register(0x1003, 'cpu_reduce_window2d');
@@ -1006,14 +1011,11 @@ kmodel.Reader = class {
                         layer.type = type.type;
                         reader.seek(layer.offset);
                         if (type.callback) {
-                            type.callback(layer, reader);
+                            type.callback(layer, reader, layer.body_size);
                         }
                         delete layer.offset;
                         delete layer.body_size;
                         delete layer.opcode;
-                        if (reader.position != (layer.offset + layer.body_size)) {
-                            // debugger;
-                        }
                     }
                     for (const input of inputs) {
                         layers.unshift({
