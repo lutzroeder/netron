@@ -27,11 +27,11 @@ class ModelFactory:
         json_graph['outputs'] = []
         json_model['graphs'].append(json_graph)
         data_type_map = dict([
-            [ torch.float16, 'float16'],
-            [ torch.float32, 'float32'],
-            [ torch.float64, 'float64'],
-            [ torch.int32, 'int32'],
-            [ torch.int64, 'int64'],
+            [ torch.float16, 'float16'], # pylint: disable=no-member
+            [ torch.float32, 'float32'], # pylint: disable=no-member
+            [ torch.float64, 'float64'], # pylint: disable=no-member
+            [ torch.int32, 'int32'], # pylint: disable=no-member
+            [ torch.int64, 'int64'], # pylint: disable=no-member
         ])
         arguments_map = {}
         def argument(value):

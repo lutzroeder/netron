@@ -1,3 +1,5 @@
+''' Python Server entry point '''
+
 import argparse
 import sys
 import os
@@ -10,8 +12,11 @@ from .server import serve
 from .__version__ import __version__
 
 def main():
-    parser = argparse.ArgumentParser(description='Viewer for neural network, deep learning and machine learning models.')
-    parser.add_argument('file', metavar='MODEL_FILE', help='model file to serve', nargs='?', default=None)
+    ''' main entry point '''
+    parser = argparse.ArgumentParser(
+        description='Viewer for neural network, deep learning and machine learning models.')
+    parser.add_argument('file',
+        metavar='MODEL_FILE', help='model file to serve', nargs='?', default=None)
     parser.add_argument('-v', '--version', help="print version", action='store_true')
     parser.add_argument('-b', '--browse', help='launch web browser', action='store_true')
     parser.add_argument('-p', '--port', help='port to serve', type=int)

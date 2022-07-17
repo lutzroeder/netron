@@ -1,4 +1,4 @@
-''' Python Server '''
+''' Python Server implementation '''
 
 import codecs
 import errno
@@ -166,10 +166,9 @@ def _update_thread_list(address=None):
     threads = _thread_list
     if address is not None:
         address = _make_address(address)
-        if address[1] is None:
-            threads = [ _ for _ in threads if address[0] == _.address[0] ]
-        else:
-            threads = [ _ for _ in threads if address[0] == _.address[0] and address[1] == _.address[1] ]
+        threads = [ _ for _ in threads if address[0] == _.address[0] ]
+        if address[1]:
+            threads = [ _ for _ in threads if address[1] == _.address[1] ]
     return threads
 
 def _make_address(address):
