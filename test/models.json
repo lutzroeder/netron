@@ -946,6 +946,13 @@
   },
   {
     "type":     "cntk",
+    "target":   "Bean.cntk",
+    "source":   "https://media.githubusercontent.com/media/Microsoft/ELL-models/master/models/ILSVRC2012/Bean/Bean.cntk.zip[Bean.cntk]",
+    "format":   "CNTK v2",
+    "link":     "https://github.com/Microsoft/ELL-models"
+  },
+  {
+    "type":     "cntk",
     "target":   "cifar10.pretrained.cmf",
     "source":   "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tutorials/ImageHandsOn/cifar10.pretrained.cmf",
     "format":   "CNTK v1.14",
@@ -967,9 +974,24 @@
   },
   {
     "type":     "cntk",
-    "target":   "ResNet_18.model",
-    "source":   "https://www.cntk.ai/Models/ResNet/ResNet_18.model",
-    "format":   "CNTK v1.17"
+    "target":   "d_I160x160x3CMCMCMCMCMCMC1AS.model",
+    "source":   "https://media.githubusercontent.com/media/Microsoft/ELL-models/master/models/ILSVRC2012/d_I160x160x3CMCMCMCMCMCMC1AS/d_I160x160x3CMCMCMCMCMCMC1AS.cntk.zip[d_I160x160x3CMCMCMCMCMCMC1AS.cntk]",
+    "format":   "CNTK v2",
+    "link":     "https://github.com/Microsoft/ELL-models/tree/master/models/ILSVRC2012/d_I160x160x3CMCMCMCMCMCMC1AS"
+  },
+  {
+    "type":     "cntk",
+    "target":   "DRNN.model",
+    "source":   "https://github.com/lutzroeder/netron/files/9128732/DRNN.model.zip[DRNN.model]",
+    "format":   "CNTK v2",
+    "link":     "https://github.com/lutzroeder/netron/issues/153"
+  },
+  {
+    "type":     "cntk",
+    "target":   "initial_policy_network.dnn",
+    "source":   "https://raw.githubusercontent.com/Microsoft/CNTK/master/bindings/python/cntk/contrib/deeprl/tests/data/initial_policy_network.dnn",
+    "format":   "CNTK v2",
+    "link":     "https://github.com/Microsoft/CNTK"
   },
   {
     "type":     "cntk",
@@ -977,6 +999,20 @@
     "source":   "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tests/UnitTests/NetworkTests/Models/ResNet20_CIFAR10_DataAug.dnn",
     "format":   "CNTK v1.18",
     "link":     "https://github.com/Microsoft/CNTK"
+  },
+  {
+    "type":     "cntk",
+    "target":   "ResNet20_CIFAR10_CNTK.model",
+    "source":   "https://github.com/lutzroeder/netron/files/9128733/ResNet20_CIFAR10_CNTK.model.zip[ResNet20_CIFAR10_CNTK.model]",
+    "format":   "CNTK v2",
+    "link":     "https://github.com/lutzroeder/netron/issues/153"
+  },
+  {
+    "type":     "cntk",
+    "target":   "ResNet110_CIFAR10_CNTK.model",
+    "source":   "https://github.com/lutzroeder/netron/files/9128736/ResNet110_CIFAR10_CNTK.model.zip[ResNet110_CIFAR10_CNTK.model]",
+    "format":   "CNTK v2",
+    "link":     "https://github.com/lutzroeder/netron/issues/153"
   },
   {
     "type":     "cntk",
@@ -1005,76 +1041,6 @@
     "source":   "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tutorials/SLUHandsOn/slu.forward.lookahead.cmf",
     "format":   "CNTK v1.14",
     "link":     "https://github.com/Microsoft/CNTK"
-  },
-  {
-    "type":     "cntk",
-    "target":   "Bean.cntk",
-    "source":   "https://media.githubusercontent.com/media/Microsoft/ELL-models/master/models/ILSVRC2012/Bean/Bean.cntk.zip[Bean.cntk]",
-    "format":   "CNTK v2",
-    "link":     "https://github.com/Microsoft/ELL-models"
-  },
-  {
-    "type":     "cntk",
-    "target":   "BNInception_ImageNet_Caffe.model",
-    "source":   "https://www.cntk.ai/Models/Caffe_Converted/BNInception_ImageNet_Caffe.model",
-    "format":   "CNTK v2",
-    "link":     "https://github.com/Microsoft/CNTK/blob/master/PretrainedModels/download_model.py"
-  },
-  {
-    "type":     "cntk",
-    "target":   "d_I160x160x3CMCMCMCMCMCMC1AS.model",
-    "source":   "https://media.githubusercontent.com/media/Microsoft/ELL-models/master/models/ILSVRC2012/d_I160x160x3CMCMCMCMCMCMC1AS/d_I160x160x3CMCMCMCMCMCMC1AS.cntk.zip[d_I160x160x3CMCMCMCMCMCMC1AS.cntk]",
-    "format":   "CNTK v2",
-    "link":     "https://github.com/Microsoft/ELL-models/tree/master/models/ILSVRC2012/d_I160x160x3CMCMCMCMCMCMC1AS"
-  },
-  {
-    "type":     "cntk",
-    "target":   "DRNN.model",
-    "source":   "https://www.cntk.ai/Models/SuperResolution/DRNN.model",
-    "format":   "CNTK v2",
-    "link":     "https://cntk.ai/pythondocs/CNTK_302A_Evaluation_of_Pretrained_Super-resolution_Models.html"
-  },
-  {
-    "type":     "cntk",
-    "target":   "initial_policy_network.dnn",
-    "source":   "https://raw.githubusercontent.com/Microsoft/CNTK/master/bindings/python/cntk/contrib/deeprl/tests/data/initial_policy_network.dnn",
-    "format":   "CNTK v2",
-    "link":     "https://github.com/Microsoft/CNTK"
-  },
-  {
-    "type":     "cntk",
-    "target":   "InceptionV3_ImageNet_CNTK.model",
-    "source":   "https://www.cntk.ai/Models/CNTK_Pretrained/InceptionV3_ImageNet_CNTK.model",
-    "format":   "CNTK v2",
-    "link":     "https://github.com/Microsoft/MMdnn/blob/master/mmdnn/conversion/examples/cntk/extract_model.py"
-  },
-  {
-    "type":     "cntk",
-    "target":   "ResNet18_ImageNet_CNTK.model",
-    "source":   "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet18_ImageNet_CNTK.model",
-    "format":   "CNTK v2",
-    "link":     "https://github.com/Microsoft/CNTK/blob/master/PretrainedModels/Image.md"
-  },
-  {
-    "type":     "cntk",
-    "target":   "ResNet20_CIFAR10_CNTK.model",
-    "source":   "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet20_CIFAR10_CNTK.model",
-    "format":   "CNTK v2",
-    "link":     "https://github.com/Microsoft/CNTK/blob/master/PretrainedModels/Image.md"
-  },
-  {
-    "type":     "cntk",
-    "target":   "ResNet110_CIFAR10_CNTK.model",
-    "source":   "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet110_CIFAR10_CNTK.model",
-    "format":   "CNTK v2",
-    "link":     "https://github.com/Microsoft/CNTK/blob/master/PretrainedModels/Image.md"
-  },
-  {
-    "type":     "cntk",
-    "target":   "SRGAN.model",
-    "source":   "https://www.cntk.ai/Models/SuperResolution/SRGAN.model",
-    "format":   "CNTK v2",
-    "link":     "https://cntk.ai/pythondocs/CNTK_302A_Evaluation_of_Pretrained_Super-resolution_Models.html"
   },
   {
     "type":     "cntk",
@@ -1107,9 +1073,9 @@
   {
     "type":     "cntk",
     "target":   "VDSR.model",
-    "source":   "https://www.cntk.ai/Models/SuperResolution/VDSR.model",
+    "source":   "https://github.com/lutzroeder/netron/files/9128737/VDSR.model.zip[VDSR.model]",
     "format":   "CNTK v2",
-    "link":     "https://cntk.ai/pythondocs/CNTK_302A_Evaluation_of_Pretrained_Super-resolution_Models.html"
+    "link":     "https://github.com/lutzroeder/netron/issues/153"
   },
   {
     "type":     "coreml",
