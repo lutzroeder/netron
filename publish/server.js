@@ -7,7 +7,7 @@ const source = path.join('source');
 const target = path.join('dist', 'pypi', 'netron');
 
 if (fs.existsSync(target)) {
-    fs.rmdirSync(target, { recursive: true });
+    fs.rmSync(target, { recursive: true });
 }
 
 fs.mkdirSync(target, { recursive: true });
