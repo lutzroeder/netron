@@ -4008,13 +4008,6 @@
   },
   {
     "type":     "paddle",
-    "target":   "vgg_ilsvrc_16_fc_reduced.tar.gz",
-    "source":   "http://paddlemodels.bj.bcebos.com/vgg_ilsvrc_16_fc_reduced.tar.gz",
-    "format":   "PaddlePaddle",
-    "link":     "https://github.com/PaddlePaddle/models/tree/develop/PaddleCV/face_detection"
-  },
-  {
-    "type":     "paddle",
     "target":   "with_dummy_tensor_type.zip",
     "source":   "https://github.com/lutzroeder/netron/files/3021210/with_dummy_tensor_type.zip",
     "format":   "PaddlePaddle",
