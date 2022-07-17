@@ -650,6 +650,17 @@ base.BinaryReader = class {
         }
     }
 
+    peek(length) {
+        if (this._position === 0 && length === undefined) {
+            return this._buffer;
+        }
+        const position = this._position;
+        this.skip(length !== undefined ? length : this._length - this._position);
+        const end = this._position;
+        this._position = position;
+        return this._buffer.slice(position, end);
+    }
+
     read(length) {
         if (this._position === 0 && length === undefined) {
             this._position = this._length;
