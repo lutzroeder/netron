@@ -56,7 +56,7 @@ global.TextDecoder = class {
     }
 };
 
-const filter = process.argv.length > 2 ? new RegExp('^' + process.argv[2].replace(/\./, '\\.').replace(/\*/, '.*')) : null;
+const filter = process.argv.length > 2 ? process.argv[2].split('*') : ['', ''];
 const dataFolder = path.normalize(__dirname + '/../third_party/test');
 const items = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8'));
 
@@ -384,10 +384,9 @@ const decompress = (buffer) => {
 };
 
 const request = (location, cookie) => {
-    const options = { rejectUnauthorized: false };
     const url = new URL(location);
     const protocol = url.protocol === 'https:' ? require('https') : require('http');
-    const request = protocol.request(location, options);
+    const request = protocol.request(location, {});
     return new Promise((resolve, reject) => {
         if (cookie && cookie.length > 0) {
             request.setHeader('Cookie', cookie);
@@ -742,7 +741,7 @@ const next = () => {
     const target = targets[0];
     const folder = dataFolder + '/' + item.type;
     const name = item.type + '/' + target;
-    if (filter && !filter.test(name)) {
+    if ((filter[0] && !name.startsWith(filter[0])) || (filter[1] && !name.endsWith(filter[1]))) {
         next();
         return;
     }
