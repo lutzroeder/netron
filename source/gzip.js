@@ -7,7 +7,7 @@ gzip.Archive = class {
     static open(data) {
         const stream = data instanceof Uint8Array ? new gzip.BinaryReader(data) : data;
         const signature = [ 0x1f, 0x8b ];
-        if (stream.length > 18 && stream.peek(2).every((value, index) => value === signature[index])) {
+        if (stream && stream.length > 18 && stream.peek(2).every((value, index) => value === signature[index])) {
             return new gzip.Archive(stream);
         }
         return null;

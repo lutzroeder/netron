@@ -7,9 +7,11 @@ tnn.ModelFactory = class {
 
     match(context) {
         const identifier = context.identifier.toLowerCase();
-        if (identifier.endsWith('.tnnproto')) {
+        const stream = context.stream;
+        if (stream && identifier.endsWith('.tnnproto')) {
             try {
-                const reader = text.Reader.open(context.stream.peek(), 2048);
+                const buffer = stream.peek();
+                const reader = text.Reader.open(buffer, 2048);
                 const content = reader.read();
                 if (content !== undefined) {
                     const line = content.trim();
@@ -25,8 +27,7 @@ tnn.ModelFactory = class {
                 // continue regardless of error
             }
         }
-        if (identifier.endsWith('.tnnmodel')) {
-            const stream = context.stream;
+        if (stream && identifier.endsWith('.tnnmodel')) {
             for (const signature of [ [ 0x02, 0x00, 0xbc, 0xfa ], [ 0x04, 0x00, 0xbc, 0xfa ] ]) {
                 if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
                     return 'tnn.params';

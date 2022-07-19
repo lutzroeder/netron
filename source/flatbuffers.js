@@ -14,7 +14,7 @@ flatbuffers.get = (name) => {
 flatbuffers.BinaryReader = class {
 
     static open(data) {
-        return new flatbuffers.BinaryReader(data);
+        return data ? new flatbuffers.BinaryReader(data) : null;
     }
 
     constructor(data) {

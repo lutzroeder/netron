@@ -8,7 +8,7 @@ keras.ModelFactory = class {
     match(context) {
         const stream = context.stream;
         const signature = [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ];
-        if (stream.length > signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
+        if (stream && stream.length > signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
             return 'keras.h5';
         }
         if (context.open('json')) {

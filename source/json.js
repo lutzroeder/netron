@@ -410,12 +410,11 @@ json.TextReader = class {
 json.BinaryReader = class {
 
     static open(data) {
-        const buffer = data instanceof Uint8Array ? data : data.peek();
-        return new json.BinaryReader(buffer);
+        return data ? new json.BinaryReader(data) : null;
     }
 
-    constructor(buffer) {
-        this._buffer = buffer;
+    constructor(data) {
+        this._buffer = data instanceof Uint8Array ? data : data.peek();
     }
 
     read() {

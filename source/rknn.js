@@ -625,8 +625,13 @@ rknn.Container = class {
 
     static open(context) {
         const stream = context.stream;
-        const container = new rknn.Container(stream, stream.length);
-        return container.type ? container : null;
+        if (stream) {
+            const container = new rknn.Container(stream, stream.length);
+            if (container.type) {
+                return container;
+            }
+        }
+        return null;
     }
 
     constructor(stream, length) {

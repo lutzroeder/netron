@@ -14,7 +14,7 @@ protobuf.get = (name) => {
 protobuf.BinaryReader = class {
 
     static open(data) {
-        return new protobuf.BinaryReader(data);
+        return data ? new protobuf.BinaryReader(data) : null;
     }
 
     constructor(data) {
@@ -599,47 +599,50 @@ protobuf.BinaryReader = class {
 protobuf.TextReader = class {
 
     static open(data) {
-        const buffer = data instanceof Uint8Array ? data : data.peek();
-        const decoder = text.Decoder.open(buffer);
-        let first = true;
-        for (let i = 0; i < 0x100; i++) {
-            const c = decoder.decode();
-            if (c === undefined) {
-                if (i === 0) {
+        if (data) {
+            const buffer = data instanceof Uint8Array ? data : data.peek();
+            const decoder = text.Decoder.open(buffer);
+            let first = true;
+            for (let i = 0; i < 0x100; i++) {
+                const c = decoder.decode();
+                if (c === undefined) {
+                    if (i === 0) {
+                        return null;
+                    }
+                    break;
+                }
+                if (c === '\0') {
                     return null;
                 }
-                break;
-            }
-            if (c === '\0') {
-                return null;
-            }
-            const whitespace = c === ' ' || c === '\n' || c === '\r' || c === '\t';
-            if (c < ' ' && !whitespace) {
-                return null;
-            }
-            if (first && !whitespace) {
-                first = false;
-                if (c === '#') {
-                    let c;
-                    do {
-                        c = decoder.decode();
+                const whitespace = c === ' ' || c === '\n' || c === '\r' || c === '\t';
+                if (c < ' ' && !whitespace) {
+                    return null;
+                }
+                if (first && !whitespace) {
+                    first = false;
+                    if (c === '#') {
+                        let c;
+                        do {
+                            c = decoder.decode();
+                        }
+                        while (c !== undefined && c !== '\n');
+                        if (c === undefined) {
+                            break;
+                        }
+                        continue;
                     }
-                    while (c !== undefined && c !== '\n');
-                    if (c === undefined) {
-                        break;
+                    if (c === '[') {
+                        continue;
                     }
-                    continue;
+                    if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z') {
+                        continue;
+                    }
+                    return null;
                 }
-                if (c === '[') {
-                    continue;
-                }
-                if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z') {
-                    continue;
-                }
-                return null;
             }
+            return new protobuf.TextReader(buffer);
         }
-        return new protobuf.TextReader(buffer);
+        return null;
     }
 
     constructor(buffer) {

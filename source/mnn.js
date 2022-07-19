@@ -6,7 +6,7 @@ mnn.ModelFactory = class {
 
     match(context) {
         const stream = context.stream;
-        if (stream.length >= 4) {
+        if (stream && stream.length >= 4) {
             const extension = context.identifier.split('.').pop().toLowerCase();
             if (extension == 'mnn') {
                 const buffer = stream.peek(4);

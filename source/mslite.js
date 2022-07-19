@@ -6,7 +6,7 @@ mslite.ModelFactory = class {
 
     match(context) {
         const stream = context.stream;
-        if (stream.length >= 8) {
+        if (stream && stream.length >= 8) {
             const buffer = stream.peek(8);
             const reader = flatbuffers.BinaryReader.open(buffer);
             if (reader.identifier === '' || reader.identifier === 'MSL1' || reader.identifier === 'MSL2') {

@@ -109,21 +109,23 @@ tensorrt.Engine = class {
 tensorrt.Container = class {
 
     static open(stream) {
-        const buffer = stream.peek(Math.min(512, stream.length));
-        if (buffer.length > 12 && buffer[6] === 0x00 && buffer[7] === 0x00) {
-            const reader = new base.BinaryReader(buffer);
-            const length = reader.uint64();
-            if (length === stream.length) {
-                let position = reader.position + reader.uint32();
-                if (position < reader.length) {
-                    reader.seek(position);
-                    const offset = reader.uint32();
-                    position = reader.position - offset - 4;
-                    if (position > 0 && position < reader.length) {
+        if (stream) {
+            const buffer = stream.peek(Math.min(512, stream.length));
+            if (buffer.length > 12 && buffer[6] === 0x00 && buffer[7] === 0x00) {
+                const reader = new base.BinaryReader(buffer);
+                const length = reader.uint64();
+                if (length === stream.length) {
+                    let position = reader.position + reader.uint32();
+                    if (position < reader.length) {
                         reader.seek(position);
-                        const length = reader.uint16();
-                        if (offset === length) {
-                            return new tensorrt.Container(stream);
+                        const offset = reader.uint32();
+                        position = reader.position - offset - 4;
+                        if (position > 0 && position < reader.length) {
+                            reader.seek(position);
+                            const length = reader.uint16();
+                            if (offset === length) {
+                                return new tensorrt.Container(stream);
+                            }
                         }
                     }
                 }

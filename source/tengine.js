@@ -485,7 +485,7 @@ tengine.Metadata = class {
 tengine.Reader = class {
 
     static open(stream) {
-        if (stream.length > 4) {
+        if (stream && stream.length > 4) {
             const buffer = stream.peek(2);
             if (buffer[0] < 4 && buffer[1] === 0) {
                 return new tengine.Reader(stream);

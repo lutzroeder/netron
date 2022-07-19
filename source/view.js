@@ -1330,93 +1330,95 @@ view.ModelContext = class {
         if (!this._content.has(type)) {
             this._content.set(type, undefined);
             const stream = this.stream;
-            const position = stream.position;
-            const signatures = [
-                [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ], // HDF5
-                [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ] // PyTorch
-            ];
-            const skip =
-                signatures.some((signature) => signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) ||
-                Array.from(this._tags).some((pair) => pair[0] !== 'flatbuffers' && pair[1].size > 0) ||
-                Array.from(this._content.values()).some((obj) => obj !== undefined);
-            if (!skip) {
-                switch (type) {
-                    case 'json': {
-                        try {
-                            const reader = json.TextReader.open(this.stream);
-                            if (reader) {
-                                const obj = reader.read();
-                                this._content.set(type, obj);
+            if (stream) {
+                const position = stream.position;
+                const signatures = [
+                    [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ], // HDF5
+                    [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ] // PyTorch
+                ];
+                const skip =
+                    signatures.some((signature) => signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) ||
+                    Array.from(this._tags).some((pair) => pair[0] !== 'flatbuffers' && pair[1].size > 0) ||
+                    Array.from(this._content.values()).some((obj) => obj !== undefined);
+                if (!skip) {
+                    switch (type) {
+                        case 'json': {
+                            try {
+                                const reader = json.TextReader.open(this.stream);
+                                if (reader) {
+                                    const obj = reader.read();
+                                    this._content.set(type, obj);
+                                }
                             }
+                            catch (err) {
+                                // continue regardless of error
+                            }
+                            break;
                         }
-                        catch (err) {
-                            // continue regardless of error
-                        }
-                        break;
-                    }
-                    case 'json.gz': {
-                        try {
-                            const archive = gzip.Archive.open(this.stream);
-                            if (archive) {
-                                const entries = archive.entries;
-                                if (entries.size === 1) {
-                                    const stream = entries.values().next().value;
-                                    const reader = json.TextReader.open(stream);
-                                    if (reader) {
-                                        const obj = reader.read();
-                                        this._content.set(type, obj);
+                        case 'json.gz': {
+                            try {
+                                const archive = gzip.Archive.open(this.stream);
+                                if (archive) {
+                                    const entries = archive.entries;
+                                    if (entries.size === 1) {
+                                        const stream = entries.values().next().value;
+                                        const reader = json.TextReader.open(stream);
+                                        if (reader) {
+                                            const obj = reader.read();
+                                            this._content.set(type, obj);
+                                        }
                                     }
                                 }
                             }
-                        }
-                        catch (err) {
-                            // continue regardless of error
-                        }
-                        break;
-                    }
-                    case 'pkl': {
-                        let unpickler = null;
-                        try {
-                            if (stream.length > 2) {
-                                const zlib = (stream) => {
-                                    const buffer = stream.peek(2);
-                                    if (buffer[0] === 0x78) {
-                                        const check = (buffer[0] << 8) + buffer[1];
-                                        if (check % 31 === 0) {
-                                            const archive = zip.Archive.open(stream);
-                                            return archive.entries.get('');
-                                        }
-                                    }
-                                    return stream;
-                                };
-                                const data = zlib(stream);
-                                unpickler = python.Unpickler.open(data, () => {
-                                    return new python.Execution(null, (error, fatal) => {
-                                        const message = error && error.message ? error.message : error.toString();
-                                        this.exception(new view.Error(message.replace(/\.$/, '') + " in '" + this.identifier + "'."), fatal);
-                                    });
-                                });
+                            catch (err) {
+                                // continue regardless of error
                             }
+                            break;
                         }
-                        catch (err) {
-                            // continue regardless of error
+                        case 'pkl': {
+                            let unpickler = null;
+                            try {
+                                if (stream.length > 2) {
+                                    const zlib = (stream) => {
+                                        const buffer = stream.peek(2);
+                                        if (buffer[0] === 0x78) {
+                                            const check = (buffer[0] << 8) + buffer[1];
+                                            if (check % 31 === 0) {
+                                                const archive = zip.Archive.open(stream);
+                                                return archive.entries.get('');
+                                            }
+                                        }
+                                        return stream;
+                                    };
+                                    const data = zlib(stream);
+                                    unpickler = python.Unpickler.open(data, () => {
+                                        return new python.Execution(null, (error, fatal) => {
+                                            const message = error && error.message ? error.message : error.toString();
+                                            this.exception(new view.Error(message.replace(/\.$/, '') + " in '" + this.identifier + "'."), fatal);
+                                        });
+                                    });
+                                }
+                            }
+                            catch (err) {
+                                // continue regardless of error
+                            }
+                            if (unpickler) {
+                                unpickler.persistent_load = (saved_id) => {
+                                    return saved_id;
+                                };
+                                const obj = unpickler.load();
+                                this._content.set(type, obj);
+                            }
+                            break;
                         }
-                        if (unpickler) {
-                            unpickler.persistent_load = (saved_id) => {
-                                return saved_id;
-                            };
-                            const obj = unpickler.load();
-                            this._content.set(type, obj);
+                        default: {
+                            throw new view.Error("Unsupported open format type '" + type + "'.");
                         }
-                        break;
-                    }
-                    default: {
-                        throw new view.Error("Unsupported open format type '" + type + "'.");
                     }
                 }
-            }
-            if (stream.position !== position) {
-                stream.seek(0);
+                if (stream.position !== position) {
+                    stream.seek(0);
+                }
             }
         }
         return this._content.get(type);
@@ -1426,8 +1428,8 @@ view.ModelContext = class {
         if (!this._tags.has(type)) {
             let tags = new Map();
             const stream = this.stream;
-            const position = stream.position;
             if (stream) {
+                const position = stream.position;
                 const signatures = [
                     [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ], // HDF5
                     [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ], // PyTorch
@@ -1488,9 +1490,9 @@ view.ModelContext = class {
                         tags.clear();
                     }
                 }
-            }
-            if (stream.position !== position) {
-                stream.seek(position);
+                if (stream.position !== position) {
+                    stream.seek(position);
+                }
             }
             this._tags.set(type, tags);
         }
@@ -1836,11 +1838,14 @@ view.ModelFactoryService = class {
             }
         };
         const unknown = () => {
-            stream.seek(0);
-            const buffer = stream.peek(Math.min(16, stream.length));
-            const bytes = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-            const content = stream.length > 268435456 ? '(' + bytes + ') [' + stream.length.toString() + ']': '(' + bytes + ')';
-            throw new view.Error("Unsupported file content " + content + " for extension '." + extension + "' in '" + identifier + "'.", !skip());
+            if (stream) {
+                stream.seek(0);
+                const buffer = stream.peek(Math.min(16, stream.length));
+                const bytes = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+                const content = stream.length > 268435456 ? '(' + bytes + ') [' + stream.length.toString() + ']': '(' + bytes + ')';
+                throw new view.Error("Unsupported file content " + content + " for extension '." + extension + "' in '" + identifier + "'.", !skip());
+            }
+            throw new view.Error("Unsupported file directory in '" + identifier + "'.", !skip());
         };
         json();
         pbtxt();

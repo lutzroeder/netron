@@ -7,7 +7,8 @@ armnn.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'armnn') {
+        const stream = context.stream;
+        if (stream && extension === 'armnn') {
             return 'armnn.flatbuffers';
         }
         if (extension === 'json') {

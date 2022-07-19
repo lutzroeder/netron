@@ -7,10 +7,12 @@ var zip = zip || require('./zip');
 hdf5.File = class {
 
     static open(data) {
-        const buffer = data instanceof Uint8Array ? data : data.peek();
-        const reader = new hdf5.BinaryReader(buffer, 0);
-        if (reader.match('\x89HDF\r\n\x1A\n')) {
-            return new hdf5.File(reader);
+        if (data) {
+            const buffer = data instanceof Uint8Array ? data : data.peek();
+            const reader = new hdf5.BinaryReader(buffer, 0);
+            if (reader.match('\x89HDF\r\n\x1A\n')) {
+                return new hdf5.File(reader);
+            }
         }
         return null;
     }

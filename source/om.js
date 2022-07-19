@@ -475,7 +475,7 @@ om.File = class {
     static open(context) {
         const stream = context.stream;
         const signature = [ 0x49, 0x4D, 0x4F, 0x44 ]; // IMOD
-        if (stream.length >= 256 && stream.peek(4).every((value, index) => value === signature[index])) {
+        if (stream && stream.length >= 256 && stream.peek(4).every((value, index) => value === signature[index])) {
             const reader = new base.BinaryReader(stream);
             return new om.File(reader);
         }

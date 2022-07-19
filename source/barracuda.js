@@ -8,7 +8,7 @@ barracuda.ModelFactory = class {
 
     match(context) {
         const stream = context.stream;
-        if (stream.length > 12) {
+        if (stream && stream.length > 12) {
             const buffer = stream.peek(12);
             if (buffer[0] <= 0x20 && buffer.subarray(1, 8).every((value) => value == 0x00)) {
                 return true;

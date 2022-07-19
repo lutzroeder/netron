@@ -5,10 +5,12 @@ cambricon.ModelFactory = class {
 
     match(context) {
         const stream = context.stream;
-        const buffer = stream.peek(Math.min(20, stream.length));
-        const text = Array.from(buffer).map((c) => String.fromCharCode(c)).join('');
-        if (text.startsWith('\x7fMEF') || text.startsWith('cambricon_offline')) {
-            return 'cambricon';
+        if (stream) {
+            const buffer = stream.peek(Math.min(20, stream.length));
+            const text = Array.from(buffer).map((c) => String.fromCharCode(c)).join('');
+            if (text.startsWith('\x7fMEF') || text.startsWith('cambricon_offline')) {
+                return 'cambricon';
+            }
         }
         return '';
     }

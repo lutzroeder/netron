@@ -102,7 +102,7 @@ onnx.ModelFactory = class {
             }
         }
         const stream = context.stream;
-        if (stream.length > 5) {
+        if (stream && stream.length > 5) {
             const buffer = stream.peek(Math.min(stream.length, 32));
             if (buffer[0] === 0x08 && buffer[1] < 0x0A && buffer[2] === 0x12) {
                 const producers = [
@@ -136,7 +136,7 @@ onnx.ModelFactory = class {
         if (tags.has('graph') && extension !== 'model') {
             return 'onnx.pbtxt.ModelProto';
         }
-        if (stream.length > 8) {
+        if (stream && stream.length > 8) {
             const buffer = stream.peek(4);
             const length = buffer[0] | (buffer[1] << 8) | (buffer[2] << 16) | (buffer[3] << 24);
             if (length === stream.length - 4) {
@@ -154,7 +154,7 @@ onnx.ModelFactory = class {
                 }
             }
         }
-        if (extension === 'onnx' && stream.length > 3) {
+        if (extension === 'onnx' && stream && stream.length > 3) {
             const signature = stream.peek(2);
             if (signature[0] === 0x80 && signature[1] < 7) {
                 return 'onnx.pickle';
@@ -1803,7 +1803,7 @@ onnx.Runtime = {};
 onnx.Runtime.Reader = class {
 
     static open(stream, extension) {
-        if (stream.length >= 8) {
+        if (stream && stream.length >= 8) {
             const buffer = stream.peek(Math.min(32, stream.length));
             const reader = flatbuffers.BinaryReader.open(buffer);
             const identifier = reader.identifier;
@@ -1955,7 +1955,7 @@ onnx.Text.Reader = class {
 
     static open(stream) {
         try {
-            if (stream.length > 0 && stream.peek(1)[0] < 0x80 || stream.peek(1)[0] >= 0xFE) {
+            if (stream && stream.length > 0 && (stream.peek(1)[0] < 0x80 || stream.peek(1)[0] >= 0xFE)) {
                 const reader = text.Reader.open(stream);
                 const lines = [];
                 for (let i = 0; i < 32; i++) {

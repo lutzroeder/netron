@@ -23,7 +23,7 @@ paddle.ModelFactory = class {
             }
         }
         const stream = context.stream;
-        if (stream.length > 16 && stream.peek(16).every((value) => value === 0x00)) {
+        if (stream && stream.length > 16 && stream.peek(16).every((value) => value === 0x00)) {
             return 'paddle.params';
         }
         if (paddle.Pickle.open(context)) {
@@ -902,7 +902,7 @@ paddle.NaiveBuffer = class {
 
     static open(context) {
         const stream = context.stream;
-        if (stream.length > 4) {
+        if (stream && stream.length > 4) {
             const buffer = stream.peek();
             const reader = new base.BinaryReader(buffer);
             if (context.identifier === '__model__.nb' || context.identifier === 'param.nb') {

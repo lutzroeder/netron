@@ -12,7 +12,7 @@ cntk.ModelFactory = class {
         const stream = context.stream;
         // CNTK v1
         const signature = [ 0x42, 0x00, 0x43, 0x00, 0x4e, 0x00, 0x00, 0x00 ];
-        if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
+        if (stream && signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
             return 'cntk.v1';
         }
         // CNTK v2

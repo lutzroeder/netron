@@ -627,11 +627,11 @@ torch.T7Reader = class {
 
     static open(context) {
         const stream = context.stream;
-        if (stream.length >= 4 && stream.peek(4).every((value, index) => value === 0x00 || (index == 0 && value <= 0x08))) {
+        if (stream && stream.length >= 4 && stream.peek(4).every((value, index) => value === 0x00 || (index == 0 && value <= 0x08))) {
             const reader = new torch.BinaryReader(stream);
             return new torch.T7Reader(reader);
         }
-        if (stream.length >= 2) {
+        if (stream && stream.length >= 2) {
             const buffer = stream.peek(2);
             const value = String.fromCharCode(stream.peek(1)[0]);
             if (buffer[1] === 0x0a && (value >= '0' && value <= '8')) {

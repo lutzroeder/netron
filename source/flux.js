@@ -9,7 +9,8 @@ flux.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'bson') {
+        const stream = context.stream;
+        if (stream && extension === 'bson') {
             return 'flux.bson';
         }
         return undefined;
