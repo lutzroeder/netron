@@ -6224,6 +6224,16 @@
     ]
   },
   {
+    "name": "ops.neuron.forward_v2_1",
+    "inputs": [
+      { "name": "input", "type": "Tensor[]" },
+      { "name": "model" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.repeat_interleave:Tensor",
     "inputs": [
       { "name": "repeats", "type": "Tensor" }
