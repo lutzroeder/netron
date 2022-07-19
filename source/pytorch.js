@@ -1810,6 +1810,10 @@ pytorch.Execution = class extends python.Execution {
         this.registerFunction('builtins.uninitialized', function(/* type */) {
             return undefined;
         });
+        this.registerFunction('torch.fx.graph_module.reduce_graph_module', function(body /*, import_block */) {
+            // https://github.com/pytorch/pytorch/blob/master/torch/fx/graph_module.py
+            return body;
+        });
         this.registerType('torch.device', class {
             constructor(type, index) {
                 this.type = type;
@@ -3070,7 +3074,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
             args = innerCall.arguments;
             outputTypes = [ 'int64' ];
         }
-        if (resolvedTarget) {
+        if (resolvedTarget && name !== null) {
             const type = resolvedTarget + '.' + name;
             // https://github.com/pytorch/pytorch/blob/master/aten/src/ATen/native/native_functions.yaml
             let schemas = this._metadata.type(type);
