@@ -3256,7 +3256,19 @@
     "name": "torch.gelu",
     "category": "Activation",
     "inputs": [
-      { "name": "self", "type": "Tensor" }
+      { "name": "self", "type": "Tensor" },
+      { "name": "approximate", "type": "string", "default": "none" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.gelu_",
+    "category": "Activation",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "approximate", "type": "string", "default": "none" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -6626,6 +6638,18 @@
       { "name": "data" },
       { "name": "dtype" },
       { "name": "device" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.as_strided",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "size", "type": "int64[]" },
+      { "name": "stride", "type": "int64[]" },
+      { "name": "storage_offset", "type": "int64", "optional": true, "default": null }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }

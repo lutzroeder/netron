@@ -4186,6 +4186,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "fairseq.lightweightconv.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/9145928/fairseq.lightweightconv.pt.zip[fairseq.lightweightconv.pt]",
+    "format":   "TorchScript v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/931"
+  },
+  {
+    "type":     "pytorch",
     "target":   "fasterrcnn_resnet50_fpn.pt",
     "source":   "https://github.com/lutzroeder/netron/files/7677467/fasterrcnn_resnet50_fpn.pt.zip[fasterrcnn_resnet50_fpn.pt]",
     "error":    "Unsupported torch.add expression type in 'fasterrcnn_resnet50_fpn.pt'.",
