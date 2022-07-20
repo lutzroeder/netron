@@ -3602,6 +3602,18 @@
     ]
   },
   {
+    "name": "torch.multinomial",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "num_samples", "type": "int64" },
+      { "name": "replacement", "type": "boolean", "default": false },
+      { "name": "generator", "type": "Generator", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.div_:Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -4371,6 +4383,15 @@
   },
   {
     "name": "torch.exp",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.exp_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
