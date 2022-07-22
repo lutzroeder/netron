@@ -1619,7 +1619,7 @@ python.Execution = class {
         this._builtins.module.__type__ = this._builtins.module;
         this._registry.set('__builtin__', this._builtins);
         this._context = new python.Execution.Context();
-        this._context.setx('__builtins__', this.import('builtins'));
+        this._context.set('__builtins__', this.import('builtins'));
         const typing = this.register('typing');
         this._typing = typing;
         this.register('_codecs');
@@ -3482,14 +3482,14 @@ python.Execution = class {
         }
         else {
             globals = globals || {};
-            let current = globals.getx('__package__');
+            let current = globals.get('__package__');
             if (!current) {
-                const spec = globals.getx('__spec__');
+                const spec = globals.get('__spec__');
                 if (spec) {
                     current = spec.parent;
                 }
                 else {
-                    const name = globals.getx('__name__');
+                    const name = globals.get('__name__');
                     const bits = name.split('.');
                     bits.pop();
                     current = bits.join('.');
@@ -3778,7 +3778,7 @@ python.Execution = class {
                         context.set(alias.asname, module);
                     }
                     else {
-                        context.setx(alias.name, module);
+                        context.set(alias.name, module);
                     }
                 }
                 break;
@@ -3819,7 +3819,7 @@ python.Execution = class {
 
 
     expression(expression, context) {
-        const self = context.getx('self');
+        const self = context.get('self');
         switch (expression.type) {
             case '=': {
                 const target = expression.target;
@@ -4002,23 +4002,19 @@ python.Execution = class {
             }
         }
         if (packageName) {
-            return this._package(packageName, context);
-        }
-        return this.expression(expression, context);
-    }
-
-    _package(packageName, context) {
-        let target = context.getx(packageName);
-        if (!target) {
-            target = this.import(packageName);
+            let target = context.getx(packageName);
             if (!target) {
-                target = context.getx(packageName);
+                target = this.import(packageName);
                 if (!target) {
-                    throw new python.Error("Failed to resolve module '" + packageName + "'.");
+                    target = context.getx(packageName);
+                    if (!target) {
+                        throw new python.Error("Failed to resolve module '" + packageName + "'.");
+                    }
                 }
             }
+            return target;
         }
-        return target;
+        return this.expression(expression, context);
     }
 
     add(name, source) {
@@ -4055,7 +4051,7 @@ python.Execution = class {
         }
         module[value.__name__] = value;
         if (value.__module__ === 'builtins') {
-            this._context.setx(value.__name__, value);
+            this._context.set(value.__name__, value);
         }
         return value;
     }
@@ -4077,7 +4073,7 @@ python.Execution = class {
         }
         module[value.__name__] = value;
         if (value.__module__ === 'builtins') {
-            this._context.setx(value.__name__, value);
+            this._context.set(value.__name__, value);
         }
         return value;
     }

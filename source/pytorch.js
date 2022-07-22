@@ -1647,7 +1647,7 @@ pytorch.Execution = class extends python.Execution {
             return data;
         });
         this.registerFunction('torch.jit._pickle.build_tensor_from_id', function(data) {
-            const constants = self.context.getx('CONSTANTS');
+            const constants = self.context.get('CONSTANTS');
             return constants['c' + data.toString()];
         });
         this.registerFunction('torch.jit._pickle.restore_type_tag', function(value /*, type_str */) {
@@ -2651,8 +2651,9 @@ pytorch.Container.Zip.Script = class {
             this._execution.context.setx(name, module);
         }
         const torch = this._execution.import('torch');
-        this._execution.context.setx('Tensor', torch.Tensor);
-        this._execution.context.setx('ops', torch.ops);
+        this._execution.context.set('torch', torch);
+        this._execution.context.set('Tensor', torch.Tensor);
+        this._execution.context.set('ops', torch.ops);
         const constants = {};
         for (let i = 0; i < this.constants.length; i++) {
             constants['c' + i.toString()] = this.constants[i];
