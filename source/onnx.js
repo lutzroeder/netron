@@ -1223,7 +1223,8 @@ onnx.SequenceType = class {
     }
 
     toString() {
-        return 'sequence<' + this._elementType.toString() + '>';
+        const elementType = this._elementType ? this._elementType.toString() : '';
+        return 'sequence<' + elementType + '>';
     }
 };
 
@@ -1689,6 +1690,9 @@ onnx.GraphContext = class {
         }
         else if (type.optional_type) {
             return new onnx.OptionalType(this.createType(type.optional_type.elem_type), denotation);
+        }
+        else if (Object.keys(type).length == 0) {
+            return null;
         }
         throw new onnx.Error("Unsupported tensor type '" + JSON.stringify(type) + "'.");
     }
