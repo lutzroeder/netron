@@ -1540,7 +1540,7 @@
       },
       {
         "default": "minkowski",
-        "description": "The distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. For a list of available metrics, see the documentation of\n:class:`~sklearn.metrics.DistanceMetric` and the metrics listed in\n`sklearn.metrics.pairwise.PAIRWISE_DISTANCE_FUNCTIONS`. Note that the\n\"cosine\" metric uses :func:`~sklearn.metrics.pairwise.cosine_distances`.\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`,\nin which case only \"nonzero\" elements may be considered neighbors.\n",
+        "description": "Metric to use for distance computation. Default is \"minkowski\", which\nresults in the standard Euclidean distance when p = 2. See the\ndocumentation of `scipy.spatial.distance\n<https://docs.scipy.org/doc/scipy/reference/spatial.distance.html>`_ and\nthe metrics listed in\n:class:`~sklearn.metrics.pairwise.distance_metrics` for valid metric\nvalues.\n\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`, in which\ncase only \"nonzero\" elements may be considered neighbors.\n\nIf metric is a callable function, it takes two arrays representing 1D\nvectors as inputs and must return one value indicating the distance\nbetween those vectors. This works for Scipy's metrics, but is less\nefficient than passing the metric name as a string.\n",
         "name": "metric"
       },
       {
@@ -1596,7 +1596,7 @@
       },
       {
         "default": "minkowski",
-        "description": "The distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. For a list of available metrics, see the documentation of\n:class:`~sklearn.metrics.DistanceMetric` and the metrics listed in\n`sklearn.metrics.pairwise.PAIRWISE_DISTANCE_FUNCTIONS`. Note that the\n\"cosine\" metric uses :func:`~sklearn.metrics.pairwise.cosine_distances`.\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`,\nin which case only \"nonzero\" elements may be considered neighbors.\n",
+        "description": "Metric to use for distance computation. Default is \"minkowski\", which\nresults in the standard Euclidean distance when p = 2. See the\ndocumentation of `scipy.spatial.distance\n<https://docs.scipy.org/doc/scipy/reference/spatial.distance.html>`_ and\nthe metrics listed in\n:class:`~sklearn.metrics.pairwise.distance_metrics` for valid metric\nvalues.\n\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`, in which\ncase only \"nonzero\" elements may be considered neighbors.\n\nIf metric is a callable function, it takes two arrays representing 1D\nvectors as inputs and must return one value indicating the distance\nbetween those vectors. This works for Scipy's metrics, but is less\nefficient than passing the metric name as a string.\n",
         "name": "metric"
       },
       {
