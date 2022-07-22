@@ -1613,6 +1613,7 @@ $root.MNN.OpType = {
     CumProd: 150,
     ScatterElements: 151,
     GatherElements: 152,
+    Svd: 153,
     Plugin: 256,
     Select: 257,
     ZerosLike: 258,
