@@ -1110,6 +1110,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.modules.rnn.LSTM', class {});
         this.registerType('torch.nn.modules.rnn.LSTMCell', class {});
         this.registerType('torch.nn.modules.rnn.RNN', class {});
+        this.registerType('torch.nn.modules.rnn.RNNCell', class {});
         this.registerType('torch.nn.modules.sparse.Embedding', class {});
         this.registerType('torch.nn.modules.sparse.EmbeddingBag', class {});
         this.registerType('torch.nn.modules.transformer.Transformer', class {});
