@@ -645,7 +645,7 @@ rknn.Container = class {
             }
         }
         if ((stream.position + 16) <= this._length) {
-            const signature = [ 0x43, 0x59, 0x50, 0x54, 0x52, 0x4B, 0x4E, 0x4E ]; // RKNN
+            const signature = [ 0x43, 0x59, 0x50, 0x54, 0x52, 0x4B, 0x4E, 0x4E ]; // CYPTRKNN
             if (stream.peek(signature.length).every((value, index) => value === signature[index])) {
                 this._type = 'crypt';
             }
