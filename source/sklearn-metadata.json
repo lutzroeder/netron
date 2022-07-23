@@ -334,7 +334,7 @@
       {
         "name": "power_iteration_normalizer",
         "description": "Power iteration normalizer for randomized SVD solver.\nNot used by ARPACK. See :func:`~sklearn.utils.extmath.randomized_svd`\nfor more details.\n\n.. versionadded:: 1.1\n",
-        "default": "\u2019auto\u2019"
+        "default": "auto"
       }
     ]
   },
@@ -383,7 +383,7 @@
       {
         "name": "power_iteration_normalizer",
         "description": "Power iteration normalizer for randomized SVD solver.\nNot used by ARPACK. See :func:`~sklearn.utils.extmath.randomized_svd`\nfor more details.\n\n.. versionadded:: 1.1\n",
-        "default": "\u2019auto\u2019"
+        "default": "auto"
       }
     ]
   },
@@ -444,7 +444,7 @@
       {
         "name": "power_iteration_normalizer",
         "description": "Power iteration normalizer for randomized SVD solver.\nNot used by ARPACK. See :func:`~sklearn.utils.extmath.randomized_svd`\nfor more details.\n\n.. versionadded:: 1.1\n",
-        "default": "\u2019auto\u2019"
+        "default": "auto"
       }
     ]
   },
@@ -948,7 +948,7 @@
       },
       {
         "default": "l2",
-        "description": "Each output row will have unit norm, either:\n\n- 'l2': Sum of squares of vector elements is 1. The cosine\nsimilarity between two vectors is their dot product when l2 norm has\nbeen applied.\n- 'l1': Sum of absolute values of vector elements is 1.\nSee :func:`preprocessing.normalize`.\n",
+        "description": "Each output row will have unit norm, either:\n\n- 'l2': Sum of squares of vector elements is 1. The cosine\nsimilarity between two vectors is their dot product when l2 norm has\nbeen applied.\n- 'l1': Sum of absolute values of vector elements is 1.\nSee :func:`preprocessing.normalize`.\n- None: No normalization.\n",
         "name": "norm"
       },
       {
