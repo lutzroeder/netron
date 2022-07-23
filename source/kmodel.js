@@ -932,7 +932,7 @@ kmodel.Reader = class {
                         const position = reader.position;
                         layer.inputs = [ reader.parameter('input') ];
                         layer.outputs = [ reader.parameter('output') ];
-                        layer.body = reader(size - (reader.position - position));
+                        layer.body = reader.read(size - (reader.position - position));
                     });
                     register(0x1001, 'cpu_conv2d', 'Layer');
                     register(0x1002, 'cpu_depthwise_conv2d', 'Layer');
