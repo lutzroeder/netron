@@ -152,7 +152,9 @@ def _update_attributes(schema, lines):
             "{'first', 'if_binary'} or an array-like of shape (n_features,), default=None",
             "{'first', 'if_binary'} or a array-like of shape (n_features,), default=None",
             "{'linear', 'poly', 'rbf', 'sigmoid', 'precomputed'} or callable, default='rbf'",
-            "estimator instance"
+            "estimator instance",
+            "{'ascii', 'unicode'} or callable, default=None",
+            "{'l1', 'l2'} or None, default='l2'"
         }
         if line == 'str':
             line = 'string'
