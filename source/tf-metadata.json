@@ -8039,6 +8039,31 @@
     ]
   },
   {
+    "name": "CollateTPUEmbeddingMemory",
+    "summary": "An op that merges the string-encoded memory config protos from all hosts.",
+    "attributes": [
+      {
+        "name": "N",
+        "type": "int64",
+        "minimum": 1
+      }
+    ],
+    "inputs": [
+      {
+        "name": "memory_configs",
+        "description": "String-encoded memory config protos containing metadata about\nthe memory allocations reserved for TPUEmbedding across all hosts.",
+        "numberAttr": "N",
+        "type": 7
+      }
+    ],
+    "outputs": [
+      {
+        "name": "merged_memory_config",
+        "type": 7
+      }
+    ]
+  },
+  {
     "name": "CollectiveAllToAllV3",
     "summary": "Mutually exchanges multiple tensors of identical type and shape.",
     "attributes": [
@@ -9210,6 +9235,54 @@
     ]
   },
   {
+    "name": "ConfigureTPUEmbeddingHost",
+    "summary": "An op that configures the TPUEmbedding software on a host.",
+    "attributes": [
+      {
+        "name": "config",
+        "type": "string",
+        "description": "An TPUEmbeddingConfiguration proto serialized to a string,\ndescribing the desired TPUEmbedding configuration."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "common_config",
+        "description": "A string-encoded common configuration proto containing metadata\nabout the TPUEmbedding partitioner output.",
+        "type": 7
+      },
+      {
+        "name": "memory_config",
+        "description": "A string-encoded memory config proto containing metadata about\nthe memory allocations reserved for TPUEmbedding.",
+        "type": 7
+      }
+    ],
+    "outputs": [
+      {
+        "name": "network_config",
+        "description": "A string containing metadata about the hostname and RPC port\nused for communication with this host.",
+        "type": 7
+      }
+    ]
+  },
+  {
+    "name": "ConfigureTPUEmbeddingMemory",
+    "summary": "An op that configures the TPUEmbedding software on a host.",
+    "inputs": [
+      {
+        "name": "common_config",
+        "description": "A string-encoded CommonConfiguration proto containing metadata\nabout the TPUEmbedding partitioner output and the HBM size (in bytes) required\nfor operation.",
+        "type": 7
+      }
+    ],
+    "outputs": [
+      {
+        "name": "memory_config",
+        "description": "A string-encoded HbmBuffersConfig proto containing metadata about\nthe memory allocations reserved for TPUEmbedding.",
+        "type": 7
+      }
+    ]
+  },
+  {
     "name": "Conj",
     "summary": "Returns the complex conjugate of a complex number.",
     "description": "Given a tensor `input` of complex numbers, this operation returns a tensor of\ncomplex numbers that are the complex conjugate of each element in `input`. The\ncomplex numbers in `input` must be of the form \\\\(a + bj\\\\), where *a* is the\nreal part and *b* is the imaginary part.\n\nThe complex conjugate returned by this operation is of the form \\\\(a - bj\\\\).\n\nFor example:\n\n```\n# tensor 'input' is [-2.25 + 4.75j, 3.25 + 5.75j]\ntf.conj(input) ==> [-2.25 - 4.75j, 3.25 - 5.75j]\n```",
@@ -9270,6 +9343,26 @@
       {
         "name": "y",
         "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "ConnectTPUEmbeddingHosts",
+    "summary": "An op that sets up communication between TPUEmbedding host software instances",
+    "description": "after ConfigureTPUEmbeddingHost has been called on each host.",
+    "attributes": [
+      {
+        "name": "N",
+        "type": "int64",
+        "minimum": 1
+      }
+    ],
+    "inputs": [
+      {
+        "name": "network_configs",
+        "description": "Strings containing metadata about the hostname and RPC port\nused for communication with all hosts.",
+        "numberAttr": "N",
+        "type": 7
       }
     ]
   },
@@ -11844,6 +11937,95 @@
       {
         "name": "dataset_id",
         "type": 9
+      },
+      {
+        "name": "processing_mode",
+        "type": 7
+      },
+      {
+        "name": "address",
+        "type": 7
+      },
+      {
+        "name": "protocol",
+        "type": 7
+      },
+      {
+        "name": "job_name",
+        "type": 7
+      },
+      {
+        "name": "consumer_index",
+        "type": 9
+      },
+      {
+        "name": "num_consumers",
+        "type": 9
+      },
+      {
+        "name": "max_outstanding_requests",
+        "type": 9
+      },
+      {
+        "name": "iteration_counter",
+        "type": 20
+      }
+    ],
+    "outputs": [
+      {
+        "name": "handle",
+        "type": 21
+      }
+    ]
+  },
+  {
+    "name": "DataServiceDatasetV4",
+    "summary": "Creates a dataset that reads data from the tf.data service.",
+    "attributes": [
+      {
+        "name": "task_refresh_interval_hint_ms",
+        "type": "int64",
+        "default": -1
+      },
+      {
+        "name": "output_types",
+        "type": "type[]",
+        "minimum": 1
+      },
+      {
+        "name": "output_shapes",
+        "type": "shape[]",
+        "minimum": 1
+      },
+      {
+        "name": "data_transfer_protocol",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "target_workers",
+        "type": "string",
+        "default": "AUTO"
+      },
+      {
+        "name": "uncompress",
+        "type": "boolean",
+        "default": false
+      },
+      {
+        "name": "uncompress_fn",
+        "type": "function"
+      },
+      {
+        "name": "cross_trainer_cache_options",
+        "type": "string",
+        "default": ""
+      }
+    ],
+    "inputs": [
+      {
+        "name": "dataset_id",
+        "type": 7
       },
       {
         "name": "processing_mode",
@@ -15510,6 +15692,25 @@
     ]
   },
   {
+    "name": "ExecuteTPUEmbeddingPartitioner",
+    "summary": "An op that executes the TPUEmbedding partitioner on the central configuration",
+    "description": "device and computes the HBM size (in bytes) required for TPUEmbedding operation.",
+    "attributes": [
+      {
+        "name": "config",
+        "type": "string",
+        "description": "An TPUEmbeddingConfiguration proto serialized to a string,\ndescribing the desired TPUEmbedding configuration."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "common_config",
+        "description": "A string-encoded common configuration proto\ncontaining metadata about the TPUEmbedding partitioner output and\nthe HBM size (in bytes) required for operation.",
+        "type": 7
+      }
+    ]
+  },
+  {
     "name": "Exit",
     "summary": "Exits the current frame to its parent frame.",
     "description": "Exit makes its input `data` available to the parent frame.",
@@ -17979,6 +18180,22 @@
       {
         "name": "handle",
         "type": 21
+      }
+    ]
+  },
+  {
+    "name": "FinalizeTPUEmbedding",
+    "summary": "An op that finalizes the TPUEmbedding configuration.",
+    "inputs": [
+      {
+        "name": "common_config",
+        "description": "A string-encoded common configuration proto containing metadata\nabout the TPUEmbedding partitioner output and the HBM size (in bytes) required\nfor operation.",
+        "type": 7
+      },
+      {
+        "name": "memory_config",
+        "description": "A string-encoded memory config proto containing metadata about\nthe memory allocations reserved for TPUEmbedding.",
+        "type": 7
       }
     ]
   },
@@ -38684,6 +38901,51 @@
       {
         "name": "dataset_id",
         "type": 9
+      }
+    ]
+  },
+  {
+    "name": "RegisterDatasetV2",
+    "summary": "Registers a dataset with the tf.data service.",
+    "attributes": [
+      {
+        "name": "external_state_policy",
+        "type": "int64"
+      },
+      {
+        "name": "element_spec",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "requested_dataset_id",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
+      }
+    ],
+    "inputs": [
+      {
+        "name": "dataset",
+        "type": 21
+      },
+      {
+        "name": "address",
+        "type": 7
+      },
+      {
+        "name": "protocol",
+        "type": 7
+      }
+    ],
+    "outputs": [
+      {
+        "name": "dataset_id",
+        "type": 7
       }
     ]
   },
