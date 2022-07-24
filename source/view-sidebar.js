@@ -1373,6 +1373,12 @@ sidebar.Formatter = class {
 
     _format(value, type, quote) {
 
+        if (value && value.__class__ && value.__class__.__module__ === 'builtins' && value.__class__.__name__ === 'type') {
+            return value.__module__ + '.' + value.__name__;
+        }
+        if (value && value.__class__ && value.__class__.__module__ === 'builtins' && value.__class__.__name__ === 'function') {
+            return value.__module__ + '.' + value.__name__;
+        }
         if (typeof value === 'function') {
             return value();
         }

@@ -1612,14 +1612,14 @@ python.Execution = class {
         const dict = class extends Map {};
         this._modules = new dict();
         this._registry = new Map();
-        this._builtins = this.register('builtins');
+        const builtins = this.register('builtins');
+        this._builtins = builtins;
         this._builtins.type = { __module__: 'builtins', __name__: 'type' };
         this._builtins.type.__class__ = this._builtins.type;
         this._builtins.module = { __module__: 'builtins', __name__: 'module', __class__: this._builtins.type };
         this._builtins.module.__type__ = this._builtins.module;
         this._registry.set('__builtin__', this._builtins);
-        this._context = new python.Execution.Context();
-        this._context.set('__builtins__', this.import('builtins'));
+        this.import('builtins');
         const typing = this.register('typing');
         this._typing = typing;
         this.register('_codecs');
@@ -1699,6 +1699,8 @@ python.Execution = class {
                 }
             }
         });
+        this.registerType('builtins.Warning', class {});
+        this.registerType('builtins.FutureWarning', class extends builtins.Warning {});
         this.registerType('typing._Final', class {});
         this.registerType('typing._SpecialForm', class extends typing._Final {});
         this.registerType('typing._BaseGenericAlias', class extends this._typing._Final {});
@@ -1919,6 +1921,14 @@ python.Execution = class {
                 }
             }
         });
+        this.registerType('numpy.generic', class {});
+        this.registerType('numpy.inexact', class {});
+        this.registerType('numpy.number', class extends numpy.generic {});
+        this.registerType('numpy.integer', class extends numpy.number {});
+        this.registerType('numpy.signedinteger', class extends numpy.integer {});
+        this.registerType('numpy.floating', class extends numpy.inexact {});
+        this.registerType('numpy.float64', class extends numpy.floating {});
+        this.registerType('numpy.int64', class extends numpy.signedinteger {});
         this.registerType('gensim.models.doc2vec.Doctag', class {});
         this.registerType('gensim.models.doc2vec.Doc2Vec', class {});
         this.registerType('gensim.models.doc2vec.Doc2VecTrainables', class {});
@@ -2471,18 +2481,13 @@ python.Execution = class {
                         case OpCode.GLOBAL: {
                             const module = reader.line();
                             const name = reader.line();
-                            // const klass = this.find_class(module, name);
-                            // TODO const klass = this.find_class(module, name);
-                            // TODO stack.push(klass);
-                            stack.push([ module, name ].join('.'));
+                            stack.push(this.find_class(module, name));
                             break;
                         }
                         case OpCode.STACK_GLOBAL: {
                             const name = stack.pop();
                             const module = stack.pop();
-                            // TODO const klass = this.find_class(module, name);
-                            // TODO stack.push(klass);
-                            stack.push([ module, name ].join('.'));
+                            stack.push(this.find_class(module, name));
                             break;
                         }
                         case OpCode.PUT: {
@@ -2799,8 +2804,7 @@ python.Execution = class {
             }
             find_class(module, name) {
                 execution.__import__(module);
-                module = execution.module(module);
-                return module[name];
+                return execution.resolve(module + '.' + name);
             }
             _instantiate(cls, args) {
                 return execution.invoke(cls, args);
@@ -2830,6 +2834,7 @@ python.Execution = class {
         });
         this.registerType('theano.compile.function_module._constructor_Function', class {});
         this.registerType('theano.compile.function_module._constructor_FunctionMaker', class {});
+        this.registerType('theano.compile.function_module.Function', class {});
         this.registerType('theano.compile.function_module.Supervisor', class {});
         this.registerType('theano.compile.io.In', class {});
         this.registerType('theano.compile.io.SymbolicOutput', class {});
@@ -3110,7 +3115,7 @@ python.Execution = class {
         });
         this.registerFunction('dill._dill._import_module', function(import_name, safe) {
             try {
-                return self.context.getx(import_name);
+                return self.__import__(import_name);
             }
             catch (err) {
                 if (safe) {
@@ -3119,11 +3124,23 @@ python.Execution = class {
                 throw err;
             }
         });
-        this.registerFunction('dill.dill._load_type', function(name) {
-            return self.context.getx('types.' + name);
-        });
         this.registerFunction('dill._dill._load_type', function(name) {
-            return self.context.getx('types.' + name);
+            return self.resolve('types.' + name);
+        });
+        this.registerFunction('lasagne.nonlinearities.rectify', function() {
+            throw new python.Error('Function not implemented.');
+        });
+        this.registerFunction('lasagne.nonlinearities.softmax', function() {
+            throw new python.Error('Function not implemented.');
+        });
+        this.registerFunction('lasagne.objectives.categorical_crossentropy', function() {
+            throw new python.Error('Function not implemented.');
+        });
+        this.registerFunction('lasagne.updates.nesterov_momentum', function() {
+            throw new python.Error('Function not implemented.');
+        });
+        this.registerFunction('nolearn.lasagne.base.objective', function() {
+            throw new python.Error('Function not implemented.');
         });
         this.registerFunction('numpy.core._multiarray_umath._reconstruct', function(subtype, shape, dtype) {
             return self.invoke(subtype, [ shape, dtype ]);
@@ -3397,6 +3414,12 @@ python.Execution = class {
         this.registerFunction('numpy.core.numeric._frombuffer', function(/* buf, dtype, shape, order */) {
             return {};
         });
+        this.registerFunction('sklearn.metrics.scorer._passthrough_scorer', function() {
+            throw new python.Error("Function not implemented.");
+        });
+        this.registerFunction('sklearn.feature_selection._univariate_selection.f_classif', function() {
+            throw new python.Error("Function not implemented.");
+        });
         this.registerFunction('re._compile', function(pattern, flags) {
             return self.invoke('re.Pattern', [ pattern, flags ]);
         });
@@ -3405,10 +3428,36 @@ python.Execution = class {
                 return self.invoke('types.' + name, arguments);
             };
         });
+        this.registerFunction('theano.scalar.basic.same_out', function() {
+            throw new python.Error('Function not implemented.');
+        });
+
+        this.registerFunction('theano.scalar.basic.same_out_nocomplex', function() {
+            throw new python.Error('Function not implemented.');
+        });
+        this.registerFunction('theano.scalar.basic.upcast_out', function() {
+            throw new python.Error('Function not implemented.');
+        });
+        this.registerFunction('theano.scalar.basic.upgrade_to_float', function() {
+            throw new python.Error('Function not implemented.');
+        });
+        this.registerFunction('theano.tensor.nnet.conv2d', function() {
+            throw new python.Error('Function not implemented.');
+        });
+        this.registerFunction('theano.tensor.type.values_eq_approx_remove_inf_nan', function() {
+            throw new python.Error('Function not implemented.');
+        });
+        this.registerFunction('theano.tensor.type.values_eq_approx_remove_nan', function() {
+            throw new python.Error('Function not implemented.');
+        });
+    }
+
+    get builtins() {
+        return this._builtins;
     }
 
     get context() {
-        return this._context;
+        throw new Error();
     }
 
     source(file) {
@@ -3463,7 +3512,24 @@ python.Execution = class {
             const program = this.parse(file);
             if (program) {
                 module.__file__ = file;
-                const context = this._context.push(module);
+                const context = new python.Execution.Context(null, module);
+                for (const entry of Object.entries(this.builtins)) {
+                    switch (entry[0]) {
+                        case '__class__':
+                        case '__package__':
+                        case '__module__':
+                        case '__name__':
+                        case '__path__':
+                        case '__file__':
+                            break;
+                        default:
+                            module[entry[0]] = entry[1];
+                            break;
+                    }
+                }
+                if (name !== 'builtins') {
+                    context.set('__builtins__', this._modules.get('builtins'));
+                }
                 this.block(program.body, context);
             }
             if (parent) {
@@ -3530,40 +3596,29 @@ python.Execution = class {
         return this._modules.get(name);
     }
 
-    type(name) {
-        const type = this._context.getx(name);
-        if (type !== undefined) {
-            return type;
-        }
+    resolve(name) {
         const parts = name.split('.');
         const className = parts.pop();
         const moduleName = parts.join('.');
         const module = this.import(moduleName);
-        if (module) {
-            const type = module[className];
-            if (type) {
-                return type;
+        let type = module ? module[className] : null;
+        if (!type) {
+            if (!this._unresolved.has(name)) {
+                const moduleName = name.split('.').shift();
+                if (this._registry.has(moduleName)) {
+                    this._exceptionCallback(new python.Error("Unsupported function '" + name + "'."), false);
+                }
+                const type = this._createType(name, class {});
+                this._unresolved.set(name, type);
             }
+            type = this._unresolved.get(name);
         }
-        return null;
+        return type;
     }
 
     invoke(target, args) {
         if (typeof target === 'string') {
-            const name = target;
-            target = this.type(name);
-            if (!target) {
-                if (!this._unresolved.has(name)) {
-                    const moduleName = name.split('.').shift();
-                    if (this._registry.has(moduleName)) {
-                        this._exceptionCallback(new python.Error("Unsupported function '" + name + "'."), false);
-                    }
-                    const type = this._createType(name, class {});
-                    this._unresolved.set(name, type);
-                    this._context.setx(name, type);
-                }
-                target = this._unresolved.get(name);
-            }
+            target = this.resolve(target);
         }
         if (target) {
             if (target.__class__ === this._builtins.type) {
@@ -3587,7 +3642,7 @@ python.Execution = class {
     }
 
     call(target, name, args, context) {
-        const callTarget = this._target(target, context);
+        const callTarget = this._target(target, name, context);
         const callArguments = args.map((argument) => this.expression(argument, context));
         if (!callTarget || (name !== null && !callTarget[name])) {
             if (name === '__new__' && callArguments.length === 1 && callArguments[0] == callTarget) {
@@ -3596,7 +3651,9 @@ python.Execution = class {
             }
             else {
                 const targetName = python.Utility.target(target) + '.' + name;
-                if (this.type(targetName)) {
+                // console.log('  ' + targetName);
+                // console.log('      -> ' + (callTarget ? callTarget.__package__ : '?'));
+                if (this.resolve(targetName)) {
                     return this.invoke(targetName, callArguments);
                 }
                 throw new python.Error("Unsupported function '" +  targetName + "'.");
@@ -3684,9 +3741,7 @@ python.Execution = class {
             case 'class': {
                 const value = this._createType(context.get('__name__') + '.' + statement.name, class {});
                 context.set(statement.name, value);
-                context = context.push(value.prototype);
-                this.block(statement.body.statements, context);
-                context = context.pop();
+                this.block(statement.body.statements, context.push(value.prototype));
                 break;
             }
             case 'var': {
@@ -3778,7 +3833,7 @@ python.Execution = class {
                         context.set(alias.asname, module);
                     }
                     else {
-                        context.set(alias.name, module);
+                        context.set(alias.name.split('.')[0], module);
                     }
                 }
                 break;
@@ -3912,7 +3967,7 @@ python.Execution = class {
             }
             case '.': {
                 if (expression.member.type == 'id') {
-                    const target = this._target(expression.target, context);
+                    const target = this._target(expression.target, expression.member.value, context);
                     return target[expression.member.value];
                 }
                 throw new python.Error("Unsupported field expression.");
@@ -3984,7 +4039,7 @@ python.Execution = class {
         return undefined;
     }
 
-    _target(expression, context) {
+    _target(expression, name, context) {
         let current = expression;
         let packageName = '';
         for (;;) {
@@ -4004,12 +4059,12 @@ python.Execution = class {
         if (packageName) {
             let target = context.getx(packageName);
             if (!target) {
-                target = this.import(packageName);
-                if (!target) {
-                    target = context.getx(packageName);
-                    if (!target) {
-                        throw new python.Error("Failed to resolve module '" + packageName + "'.");
-                    }
+                const file = packageName.split('.').join('/') + '.py';
+                if (this._sources.has(file)) {
+                    target = this.import(packageName);
+                }
+                else {
+                    target = this.resolve(packageName);
                 }
             }
             return target;
@@ -4050,9 +4105,6 @@ python.Execution = class {
             throw new python.Error("Function '" + name + "' is already registered.");
         }
         module[value.__name__] = value;
-        if (value.__module__ === 'builtins') {
-            this._context.set(value.__name__, value);
-        }
         return value;
     }
 
@@ -4072,9 +4124,6 @@ python.Execution = class {
             throw new python.Error("Class '" + name + "' is already registered.");
         }
         module[value.__name__] = value;
-        if (value.__module__ === 'builtins') {
-            this._context.set(value.__name__, value);
-        }
         return value;
     }
 };
@@ -4090,14 +4139,6 @@ python.Execution.Context = class {
         return new python.Execution.Context(this, scope);
     }
 
-    pop() {
-        return this._parent;
-    }
-
-    get scope() {
-        return this._scope;
-    }
-
     set(name, value) {
         this._scope[name] = value;
     }
@@ -4110,30 +4151,6 @@ python.Execution.Context = class {
             return this._parent.get(name);
         }
         return undefined;
-    }
-
-    setx(name, value) {
-        if (typeof name !== 'string' || !name.split) {
-            throw new python.Error("Invalid name '" + JSON.stringify(name) + "'.");
-        }
-        const parts = name.split('.');
-        if (parts.length == 1) {
-            this.set(parts[0], value);
-        }
-        else {
-            let parent = this.get(parts[0]);
-            if (!parent) {
-                parent = {};
-                this.set(parts[0], parent);
-            }
-            parts.shift();
-            while (parts.length > 1) {
-                const part = parts.shift();
-                parent[part] = parent[part] || {};
-                parent = parent[part];
-            }
-            parent[parts[0]] = value;
-        }
     }
 
     getx(name) {

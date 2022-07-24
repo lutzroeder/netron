@@ -1648,8 +1648,7 @@ pytorch.Execution = class extends python.Execution {
             return data;
         });
         this.registerFunction('torch.jit._pickle.build_tensor_from_id', function(data) {
-            const constants = self.context.get('CONSTANTS');
-            return constants['c' + data.toString()];
+            return self.builtins.CONSTANTS['c' + data.toString()];
         });
         this.registerFunction('torch.jit._pickle.restore_type_tag', function(value /*, type_str */) {
             return value;
@@ -1803,6 +1802,9 @@ pytorch.Execution = class extends python.Execution {
             }
             throw new pytorch.Error("Unsupported 'torch.sub' expression type.");
         });
+        this.registerFunction('torch.nn.functional.tanh', function(/* input */) {
+            throw new pytorch.Error("Function not implemented.");
+        });
         this.registerFunction('torch.values', function(dict) {
             return Object.keys(dict).map((key) => dict[key]);
         });
@@ -1841,6 +1843,7 @@ pytorch.Execution = class extends python.Execution {
                 return 'torch.' + this._data.name;
             }
         });
+        this.registerType('torch.qscheme', class {});
         this.registerType('torch.utils.hooks.RemovableHandle', class {
             __setstate__(state) {
                 this.hooks_dict_ref = state[0] || new Map();
@@ -1914,16 +1917,6 @@ pytorch.Execution = class extends python.Execution {
                 throw new python.Error('_LegacyStorage not implemented.');
             }
         });
-        this.registerType('torch.ComplexFloatStorage', class extends torch_storage._StorageBase {
-            constructor(size) {
-                super(size, torch.complex64);
-            }
-        });
-        this.registerType('torch.ComplexDoubleStorage', class extends torch_storage._StorageBase {
-            constructor(size) {
-                super(size, torch.complex128);
-            }
-        });
         this.registerType('torch.BoolStorage', class extends torch_storage._StorageBase {
             constructor(size) {
                 super(size, torch.bool);
@@ -1967,6 +1960,21 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.DoubleStorage', class extends torch_storage._StorageBase {
             constructor(size) {
                 super(size, torch.float64);
+            }
+        });
+        this.registerType('torch.ComplexHalfStorage', class extends torch_storage._StorageBase {
+            constructor(size) {
+                super(size, torch.complex32);
+            }
+        });
+        this.registerType('torch.ComplexFloatStorage', class extends torch_storage._StorageBase {
+            constructor(size) {
+                super(size, torch.complex64);
+            }
+        });
+        this.registerType('torch.ComplexDoubleStorage', class extends torch_storage._StorageBase {
+            constructor(size) {
+                super(size, torch.complex128);
             }
         });
         this.registerType('torch.QInt8Storage', class extends torch_storage._StorageBase {
@@ -2114,22 +2122,27 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.BFloat16Tensor', class extends torch.Tensor {});
         this.registerType('torch.cuda.FloatTensor', class extends torch.Tensor {});
         this.registerType('torch.cuda.DoubleTensor', class extends torch.Tensor {});
-        torch.uint8 = new torch.dtype(pytorch.ScalarType.uint8);
-        torch.int8 = new torch.dtype(pytorch.ScalarType.int8);
-        torch.int16 = new torch.dtype(pytorch.ScalarType.int16);
-        torch.int32 = new torch.dtype(pytorch.ScalarType.int32);
-        torch.int64 = new torch.dtype(pytorch.ScalarType.int64);
-        torch.float16 = new torch.dtype(pytorch.ScalarType.float16);
-        torch.float32 = new torch.dtype(pytorch.ScalarType.float32);
-        torch.float64 = new torch.dtype(pytorch.ScalarType.float64);
-        torch.complex32 = new torch.dtype(pytorch.ScalarType.complex32);
-        torch.complex64 = new torch.dtype(pytorch.ScalarType.complex64);
-        torch.complex128 = new torch.dtype(pytorch.ScalarType.complex128);
-        torch.bool = new torch.dtype(pytorch.ScalarType.boolean);
-        torch.qint8 = new torch.dtype(pytorch.ScalarType.qint8);
-        torch.quint8 = new torch.dtype(pytorch.ScalarType.quint8);
-        torch.qint32 = new torch.dtype(pytorch.ScalarType.qint32);
-        torch.bfloat16 = new torch.dtype(pytorch.ScalarType.bfloat16);
+        torch.uint8 = torch.ByteStorage.dtype = new torch.dtype(pytorch.ScalarType.uint8);
+        torch.int8 = torch.CharStorage.dtype = new torch.dtype(pytorch.ScalarType.int8);
+        torch.int16 = torch.ShortStorage.dtype = new torch.dtype(pytorch.ScalarType.int16);
+        torch.int32 = torch.IntStorage.dtype = new torch.dtype(pytorch.ScalarType.int32);
+        torch.int64 = torch.LongStorage.dtype = new torch.dtype(pytorch.ScalarType.int64);
+        torch.float16 = torch.HalfStorage.dtype = new torch.dtype(pytorch.ScalarType.float16);
+        torch.float32 = torch.FloatStorage.dtype = new torch.dtype(pytorch.ScalarType.float32);
+        torch.float64 = torch.DoubleStorage.dtype = new torch.dtype(pytorch.ScalarType.float64);
+        torch.complex32 = torch.ComplexHalfStorage.dtype = new torch.dtype(pytorch.ScalarType.complex32);
+        torch.complex64 = torch.ComplexFloatStorage.dtype = new torch.dtype(pytorch.ScalarType.complex64);
+        torch.complex128 = torch.ComplexDoubleStorage.dtype = new torch.dtype(pytorch.ScalarType.complex128);
+        torch.bool = torch.BoolStorage.dtype = new torch.dtype(pytorch.ScalarType.boolean);
+        torch.qint8 = torch.QInt8Storage.dtype = new torch.dtype(pytorch.ScalarType.qint8);
+        torch.quint8 = torch.QUInt8Storage.dtype = new torch.dtype(pytorch.ScalarType.quint8);
+        torch.qint32 = torch.QInt32Storage.dtype = new torch.dtype(pytorch.ScalarType.qint32);
+        torch.bfloat16 = torch.BFloat16Storage.dtype = new torch.dtype(pytorch.ScalarType.bfloat16);
+        torch.per_tensor_affine = new torch.qscheme();
+        torch.per_channel_affine = new torch.qscheme();
+        torch.per_tensor_symmetric = new torch.qscheme();
+        torch.per_channel_symmetric = new torch.qscheme();
+        torch.per_channel_affine_float_qparams = new torch.qscheme();
     }
 
     debug(file) {
@@ -2238,7 +2251,7 @@ pytorch.Container.Tar = class {
             for (let i = 0; i < num_storages; i++) {
                 const args = unpickler.load();
                 const key = args[0];
-                const storage_type = execution.type(args[2]);
+                const storage_type = args[2];
                 const obj = storage_type._new_with_file(unpickler);
                 deserialized_objects[key] = obj;
             }
@@ -2376,8 +2389,7 @@ pytorch.Container.Pickle = class {
                     return data[0];
                 }
                 case 'storage': {
-                    const name = data.shift();
-                    const storage_type = execution.type(name);
+                    const storage_type = data.shift();
                     const root_key = data.shift();
                     data.shift(); // location
                     const size = data.shift();
@@ -2646,20 +2658,15 @@ pytorch.Container.Zip.Script = class {
                 sources.set(file, buffer);
             }
         }
-        for (const entry of sources) {
-            const name = entry[0].replace(/\.py$/, '').split('/').join('.');
-            const module = this._execution.import(name);
-            this._execution.context.setx(name, module);
-        }
         const torch = this._execution.import('torch');
-        this._execution.context.set('torch', torch);
-        this._execution.context.set('Tensor', torch.Tensor);
-        this._execution.context.set('ops', torch.ops);
+        this._execution.builtins.torch = torch;
+        this._execution.builtins.Tensor = torch.Tensor;
+        this._execution.builtins.ops = torch.ops;
         const constants = {};
         for (let i = 0; i < this.constants.length; i++) {
             constants['c' + i.toString()] = this.constants[i];
         }
-        this._execution.context.set('CONSTANTS', constants);
+        this._execution.builtins.CONSTANTS = constants;
         return this._execution;
     }
 
@@ -2671,11 +2678,7 @@ pytorch.Container.Zip.Script = class {
             const typename = saved_id.shift();
             switch (typename) {
                 case 'storage': {
-                    const name = saved_id.shift();
-                    const storage_type = execution.type(name);
-                    if (!storage_type) {
-                        throw new pytorch.Error("Unsupported persistent load data type '" + name + "'.");
-                    }
+                    const storage_type = saved_id.shift();
                     const root_key = saved_id.shift();
                     /* const location = */ saved_id.shift();
                     const size = saved_id.shift();
@@ -2838,7 +2841,7 @@ pytorch.Container.Zip.Json.Script = class extends pytorch.Container.Zip.Script {
                 }
                 const type = tensorTypeMap.get(constant.dataType);
                 const shape = constant.dims ? constant.dims.map((dim) => parseInt(dim, 10)) : null;
-                const storage_type = this.execution.type('torch.' + type + 'Storage');
+                const storage_type = this.execution.resolve('torch.' + type + 'Storage');
                 const size = (shape || []).reduce((a, b) => a * b, 1);
                 const offset = parseInt(constant.offset, 10) || 0;
                 const storage = new storage_type([ size ]);
@@ -2908,21 +2911,10 @@ pytorch.Container.Zip.Json.Script = class extends pytorch.Container.Zip.Script {
             const code = this._data.torchscriptArena;
             if (code && code.key && code.key.startsWith('code/')) {
                 const file = code.key.substring('code/'.length);
-                const program = this.execution.parse(file);
-                for (const statement of program.body) {
-                    if (statement.type == 'def') {
-                        const self = this;
-                        const globals = this.execution.context;
-                        const func = {
-                            __class__: this.execution._builtins.function,
-                            __name__: statement.name,
-                            __code__: statement,
-                            __call__: function(args) {
-                                return self.execution.apply(this.__code__, args, globals);
-                            }
-                        };
-                        this._data[statement.name] = func;
-                    }
+                const name = file.replace(/\.py$/, '').split('/').join('.');
+                const module = this.execution.import(name);
+                if (module.forward.__class__ === this.execution.builtins.function) {
+                    this._data.forward = module.forward;
                 }
             }
             delete this._model;
@@ -3003,7 +2995,7 @@ pytorch.Container.Zip.Package = class extends pytorch.Container.Zip {
                     const typename = saved_id.shift();
                     switch (typename) {
                         case 'storage': {
-                            const storage_type = execution.type(saved_id[0]);
+                            const storage_type = saved_id[0];
                             const key = saved_id[1];
                             /* const location = saved_id[2]; */
                             const size = saved_id[3];
