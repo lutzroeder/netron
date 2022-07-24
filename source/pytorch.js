@@ -812,6 +812,8 @@ pytorch.Tensor = class {
             return result.join('\n');
         }
         switch (typeof value) {
+            case 'boolean':
+                return indentation + value.toString();
             case 'string':
                 return indentation + value;
             case 'number':
@@ -1131,6 +1133,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.quantized.dynamic.modules.linear.Linear', class {});
         this.registerType('torch.nn.quantized.dynamic.modules.rnn.GRU', class {});
         this.registerType('torch.nn.quantized.dynamic.modules.rnn.LSTM', class {});
+        this.registerType('torch.nn.quantized.dynamic.modules.rnn.LSTMCell', class {});
         this.registerType('torch.nn.quantized.dynamic.modules.rnn.PackedParameter', class {});
         this.registerType('torch.nn.quantized.modules.activation.ReLU6', class {});
         this.registerType('torch.nn.quantized.modules.batchnorm.BatchNorm2d', class {});
