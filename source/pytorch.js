@@ -3057,6 +3057,55 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
         return this._nodes;
     }
 
+    target(expression, context) {
+        if (expression.type === 'id') {
+            switch (expression.value) {
+                case 'torch':
+                case 'ops':
+                case 'CONSTANTS':
+                case 'uninitialized':
+                    return this.builtins[expression.value];
+                default:
+                    break;
+            }
+        }
+        let current = expression;
+        let path = [];
+        for (;;) {
+            if (current.type === '.' && current.member && current.member.type === 'id') {
+                path.push(current.member.value);
+                current = current.target;
+            }
+            else if (current.type === 'id' && current.value !== 'self' && current.value !== 'CONSTANTS') {
+                path.push(current.value);
+                break;
+            }
+            else {
+                path = null;
+                break;
+            }
+        }
+        if (path) {
+            let target = null;
+            for (let i = path.length - 1; i >= 0; i--) {
+                target = target ? target[path[i]] : context.get(path[i]);
+                if (!target) {
+                    break;
+                }
+            }
+            if (!target) {
+                path.reverse();
+                const name = path.join('.');
+                const file = path.join('/') + '.py';
+                if (this.source(file)) {
+                    return this.import(name);
+                }
+                return this.resolve(name);
+            }
+        }
+        return super.target(expression, context);
+    }
+
     call(target, name, args, context) {
         let resolvedTarget = pytorch.Utility.target(target);
         let outputTypes = null;

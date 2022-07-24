@@ -3512,7 +3512,7 @@ python.Execution = class {
             const program = this.parse(file);
             if (program) {
                 module.__file__ = file;
-                const context = new python.Execution.Context(null, module);
+                const context = new python.Execution.Context(module, null);
                 for (const entry of Object.entries(this.builtins)) {
                     switch (entry[0]) {
                         case '__class__':
@@ -3548,14 +3548,14 @@ python.Execution = class {
         }
         else {
             globals = globals || {};
-            let current = globals.get('__package__');
+            let current = globals.__package__;
             if (!current) {
-                const spec = globals.get('__spec__');
+                const spec = globals.__spec__;
                 if (spec) {
                     current = spec.parent;
                 }
                 else {
-                    const name = globals.get('__name__');
+                    const name = globals.__name__;
                     const bits = name.split('.');
                     bits.pop();
                     current = bits.join('.');
@@ -3598,10 +3598,10 @@ python.Execution = class {
 
     resolve(name) {
         const parts = name.split('.');
-        const className = parts.pop();
+        const memberName = parts.pop();
         const moduleName = parts.join('.');
         const module = this.import(moduleName);
-        let type = module ? module[className] : null;
+        let type = module ? module[memberName] : null;
         if (!type) {
             if (!this._unresolved.has(name)) {
                 const moduleName = name.split('.').shift();
@@ -3642,7 +3642,7 @@ python.Execution = class {
     }
 
     call(target, name, args, context) {
-        const callTarget = this._target(target, name, context);
+        const callTarget = this.target(target, context);
         const callArguments = args.map((argument) => this.expression(argument, context));
         if (!callTarget || (name !== null && !callTarget[name])) {
             if (name === '__new__' && callArguments.length === 1 && callArguments[0] == callTarget) {
@@ -3650,12 +3650,16 @@ python.Execution = class {
                 callArguments.shift();
             }
             else {
-                const targetName = python.Utility.target(target) + '.' + name;
-                // console.log('  ' + targetName);
-                // console.log('      -> ' + (callTarget ? callTarget.__package__ : '?'));
-                if (this.resolve(targetName)) {
-                    return this.invoke(targetName, callArguments);
-                }
+                const format = (expression) => {
+                    if (expression.type == 'id') {
+                        return expression.value;
+                    }
+                    if (expression.type == '.') {
+                        return format(expression.target) + '.' + format(expression.member);
+                    }
+                    return null;
+                };
+                const targetName = format(target) + '.' + name;
                 throw new python.Error("Unsupported function '" +  targetName + "'.");
             }
         }
@@ -3689,7 +3693,7 @@ python.Execution = class {
 
     apply(method, args, context) {
         const locals = Array.prototype.slice.call(args);
-        context = context.push();
+        context = new python.Execution.Context(context.globals, {});
         for (const parameter of method.parameters) {
             let value = locals.shift();
             if (value === undefined && parameter.initializer) {
@@ -3741,7 +3745,7 @@ python.Execution = class {
             case 'class': {
                 const value = this._createType(context.get('__name__') + '.' + statement.name, class {});
                 context.set(statement.name, value);
-                this.block(statement.body.statements, context.push(value.prototype));
+                this.block(statement.body.statements, new python.Execution.Context(context.globals, value.prototype));
                 break;
             }
             case 'var': {
@@ -3842,10 +3846,10 @@ python.Execution = class {
                 let module = null;
                 const fromlist = statement.names.map((name) => name.name);
                 if (statement.level > 0) {
-                    module = this.__import__(statement.module, context, null, fromlist, statement.level);
+                    module = this.__import__(statement.module, context.globals, context.locals, fromlist, statement.level);
                 }
                 else {
-                    module = this.__import__(statement.module, context, null, fromlist, 0);
+                    module = this.__import__(statement.module, context.globals, context.locals, fromlist, 0);
                     const bits = statement.module.split('.').reverse();
                     bits.pop();
                     while (bits.length > 0) {
@@ -3967,7 +3971,7 @@ python.Execution = class {
             }
             case '.': {
                 if (expression.member.type == 'id') {
-                    const target = this._target(expression.target, expression.member.value, context);
+                    const target = this.target(expression.target, context);
                     return target[expression.member.value];
                 }
                 throw new python.Error("Unsupported field expression.");
@@ -4039,32 +4043,40 @@ python.Execution = class {
         return undefined;
     }
 
-    _target(expression, name, context) {
+    target(expression, context) {
         let current = expression;
-        let packageName = '';
+        let path = [];
         for (;;) {
             if (current.type === '.' && current.member && current.member.type === 'id') {
-                packageName = '.' + current.member.value + packageName;
+                path.push(current.member.value);
                 current = current.target;
             }
             else if (current.type === 'id' && current.value !== 'self' && current.value !== 'CONSTANTS') {
-                packageName = current.value + packageName;
+                path.push(current.value);
                 break;
             }
             else {
-                packageName = null;
+                path = null;
                 break;
             }
         }
-        if (packageName) {
-            let target = context.getx(packageName);
+        if (path) {
+            let target = null;
+            for (let i = path.length - 1; i >= 0; i--) {
+                target = target ? target[path[i]] : context.get(path[i]);
+                if (!target) {
+                    break;
+                }
+            }
             if (!target) {
-                const file = packageName.split('.').join('/') + '.py';
+                path.reverse();
+                const name = path.join('.');
+                const file = path.join('/') + '.py';
                 if (this._sources.has(file)) {
-                    target = this.import(packageName);
+                    target = this.import(name);
                 }
                 else {
-                    target = this.resolve(packageName);
+                    target = this.resolve(name);
                 }
             }
             return target;
@@ -4130,41 +4142,26 @@ python.Execution = class {
 
 python.Execution.Context = class {
 
-    constructor(parent, scope) {
-        this._parent = parent || null;
-        this._scope = scope || {};
-    }
-
-    push(scope) {
-        return new python.Execution.Context(this, scope);
+    constructor(globals, locals) {
+        this.globals = globals;
+        this.locals = locals;
     }
 
     set(name, value) {
-        this._scope[name] = value;
+        if (this.locals) {
+            this.locals[name] = value;
+        }
+        else {
+            this.globals[name] = value;
+        }
     }
 
     get(name) {
-        if (name in this._scope) {
-            return this._scope[name];
+        if (this.locals && name in this.locals) {
+            return this.locals[name];
         }
-        if (this._parent) {
-            return this._parent.get(name);
-        }
-        return undefined;
-    }
-
-    getx(name) {
-        const parts = name.split('.');
-        let value = this.get(parts[0]);
-        if (value !== undefined) {
-            parts.shift();
-            while (parts.length > 0 && value[parts[0]]) {
-                value = value[parts[0]];
-                parts.shift();
-            }
-            if (parts.length === 0) {
-                return value;
-            }
+        if (name in this.globals) {
+            return this.globals[name];
         }
         return undefined;
     }
@@ -4172,19 +4169,6 @@ python.Execution.Context = class {
     get target() {
         this._target = this._target || [];
         return this._target;
-    }
-};
-
-python.Utility = class {
-
-    static target(expression) {
-        if (expression.type == 'id') {
-            return expression.value;
-        }
-        if (expression.type == '.') {
-            return python.Utility.target(expression.target) + '.' + python.Utility.target(expression.member);
-        }
-        return null;
     }
 };
 
