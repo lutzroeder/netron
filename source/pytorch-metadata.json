@@ -4931,6 +4931,28 @@
     ]
   },
   {
+    "name": "torch.cdist:",
+    "inputs": [
+      { "name": "x1", "type": "Tensor" },
+      { "name": "x2", "type": "Tensor" },
+      { "name": "p", "type": "float32", "default": 2 },
+      { "name": "compute_mode", "type": "int64", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.pdist:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "p", "type": "float32", "default": 2 }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.narrow:",
     "inputs": [
       { "name": "self", "type": "Tensor" },
