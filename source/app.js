@@ -10,7 +10,6 @@ const url = require('url');
 class Application {
 
     constructor() {
-
         this._views = new ViewCollection();
         this._configuration = new ConfigurationService();
         this._menu = new MenuService();
@@ -173,7 +172,7 @@ class Application {
                     'pkl', 'joblib',
                     'pbtxt', 'prototxt',
                     'cfg', 'xml',
-                    'zip', 'tar' ] }
+                    'zip', 'tar', 'hn' ] }
             ]
         };
         const selectedFiles = electron.dialog.showOpenDialogSync(showOpenDialogOptions);
