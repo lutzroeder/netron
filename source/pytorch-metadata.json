@@ -4783,6 +4783,18 @@
     ]
   },
   {
+    "name": "torch.scatter:src",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "index", "type": "Tensor" },
+      { "name": "src", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.scatter_:src",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -4795,12 +4807,76 @@
     ]
   },
   {
+    "name": "torch.scatter:value",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "index", "type": "Tensor" },
+      { "name": "src", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.scatter_:value",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
       { "name": "index", "type": "Tensor" },
       { "name": "src", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.scatter:reduce",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "index", "type": "Tensor" },
+      { "name": "src", "type": "Tensor" },
+      { "name": "reduce", "type": "string" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.scatter_:reduce",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "index", "type": "Tensor" },
+      { "name": "src", "type": "Tensor" },
+      { "name": "reduce", "type": "string" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.scatter:value_reduce",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "index", "type": "Tensor" },
+      { "name": "src", "type": "Scalar" },
+      { "name": "reduce", "type": "string" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.scatter_:value_reduce",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "index", "type": "Tensor" },
+      { "name": "src", "type": "Scalar" },
+      { "name": "reduce", "type": "string" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
