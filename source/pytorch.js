@@ -1153,6 +1153,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.utils.spectral_norm.SpectralNormStateDictHook', class {});
         this.registerType('torch.nn.utils.spectral_norm.SpectralNormLoadStateDictPreHook', class {});
         this.registerType('torch.nn.utils.weight_norm.WeightNorm', class {});
+        this.registerType('torch.torch_version.TorchVersion', class extends String {});
         this.registerType('torch.optim.adam.Adam', class {});
         this.register('torch.optim').Adam = this._registry.get('torch.optim.adam').Adam;
         this.registerType('torch.optim.adamw.AdamW', class {});
@@ -1804,6 +1805,15 @@ pytorch.Execution = class extends python.Execution {
                 return left - right;
             }
             throw new pytorch.Error("Unsupported 'torch.sub' expression type.");
+        });
+        this.registerFunction('torch.nn.functional.gelu', function(/* input */) {
+            throw new pytorch.Error("Function not implemented.");
+        });
+        this.registerFunction('torch.nn.functional.leaky_relu', function(/* input */) {
+            throw new pytorch.Error("Function not implemented.");
+        });
+        this.registerFunction('torch.nn.functional.relu', function(/* input */) {
+            throw new pytorch.Error("Function not implemented.");
         });
         this.registerFunction('torch.nn.functional.tanh', function(/* input */) {
             throw new pytorch.Error("Function not implemented.");
@@ -2976,14 +2986,67 @@ pytorch.Container.Zip.Package = class extends pytorch.Container.Zip {
         if (!this._graphs) {
             this._graphs = [];
             const entries = Array.from(this._entries).filter((entry) => !entry[0].startsWith('.data/') && !entry[0].endsWith('py'));
-            for (const entry of entries) {
-                const name = entry[0];
-                const stream = entry[1];
-                const loaded_reduces = new Map();
-                const loaded_storages = new Map();
+            if (entries.length > 0) {
                 const execution = new pytorch.Container.Zip.Execution(null, this._exceptionCallback, this._metadata);
-                execution.registerFunction('torch.jit._script.unpackage_script_module', function(script_module_id) {
-                    return "torch.jit._script.RecursiveScriptModule('" + script_module_id + "')";
+                const torch_jit_script = execution.register('torch.jit._script');
+                execution.registerType('torch.package.PackageImporter', class {
+                    constructor(entries) {
+                        this._entries = entries;
+                    }
+                    load_pickle(name) {
+                        const stream = this._entries.get(name);
+                        const loaded_reduces = new Map();
+                        const loaded_storages = new Map();
+                        const unpickler = python.Unpickler.open(stream, execution);
+                        unpickler.persistent_load = (saved_id) => {
+                            const typename = saved_id.shift();
+                            switch (typename) {
+                                case 'storage': {
+                                    const storage_type = saved_id[0];
+                                    const key = saved_id[1];
+                                    /* const location = saved_id[2]; */
+                                    const size = saved_id[3];
+                                    if (!loaded_storages.has(key)) {
+                                        const storage = new storage_type(size);
+                                        const stream = this._entries.get('.data/' + key + '.storage');
+                                        const buffer = stream.peek();
+                                        storage._set_cdata(buffer);
+                                        loaded_storages.set(key, storage);
+                                    }
+                                    return loaded_storages.get(key);
+                                }
+                                case 'reduce_package': {
+                                    if (saved_id.left === 2) {
+                                        const func = saved_id[0];
+                                        const args = saved_id[1];
+                                        return execution.invoke(func, args);
+                                    }
+                                    const reduce_id = saved_id[0];
+                                    const func = saved_id[1];
+                                    const args = saved_id[2];
+                                    if (!loaded_reduces.has(reduce_id)) {
+                                        const value = execution.invoke(func, [ this ].concat(args));
+                                        loaded_reduces.set(reduce_id, value);
+                                    }
+                                    return loaded_reduces.get(reduce_id);
+                                }
+                                default: {
+                                    throw new python.Error("Unknown package typename '" + typename + "'.");
+                                }
+                            }
+                        };
+                        return unpickler.load();
+                    }
+                });
+                execution.registerFunction('torch.jit._script.unpackage_script_module', function(importer, script_module_id) {
+                    return execution.invoke('torch.jit._script.RecursiveScriptModule', [ script_module_id ]);
+                });
+                execution.registerType('torch.jit._script.ScriptModule', class {});
+                execution.registerType('torch.jit._script.RecursiveScriptModule', class extends torch_jit_script.ScriptModule {
+                    constructor(script_module_id) {
+                        super();
+                        this.script_module_id = script_module_id;
+                    }
                 });
                 for (const entry of this._entries) {
                     if (!entry[0].startsWith('.data/') && entry[0].endsWith('.py')) {
@@ -2993,50 +3056,16 @@ pytorch.Container.Zip.Package = class extends pytorch.Container.Zip {
                         execution.add(name, buffer);
                     }
                 }
-                const unpickler = python.Unpickler.open(stream, execution);
-                unpickler.persistent_load = (saved_id) => {
-                    const typename = saved_id.shift();
-                    switch (typename) {
-                        case 'storage': {
-                            const storage_type = saved_id[0];
-                            const key = saved_id[1];
-                            /* const location = saved_id[2]; */
-                            const size = saved_id[3];
-                            if (!loaded_storages.has(key)) {
-                                const storage = new storage_type(size);
-                                const stream = this._entries.get('.data/' + key + '.storage');
-                                const buffer = stream.peek();
-                                storage._set_cdata(buffer);
-                                loaded_storages.set(key, storage);
-                            }
-                            return loaded_storages.get(key);
-                        }
-                        case 'reduce_package': {
-                            if (saved_id.left === 2) {
-                                const func = saved_id[0];
-                                const args = saved_id[1];
-                                return execution.invoke(func, args);
-                            }
-                            const reduce_id = saved_id[0];
-                            const func = saved_id[1];
-                            const args = saved_id[2];
-                            if (!loaded_reduces.has(reduce_id)) {
-                                const value = execution.invoke(func, args);
-                                loaded_reduces.set(reduce_id, value);
-                            }
-                            return loaded_reduces.get(reduce_id);
-                        }
-                        default: {
-                            throw new python.Error("Unknown package typename '" + typename + "'.");
-                        }
-                    }
-                };
-                const root = unpickler.load();
-                this._graphs.push({
-                    name: name,
-                    type: 'module',
-                    data: root
-                });
+                const importer = execution.invoke('torch.package.PackageImporter', [ new Map(this._entries) ]);
+                for (const entry of entries) {
+                    const name = entry[0];
+                    const root = importer.load_pickle(name);
+                    this._graphs.push({
+                        name: name,
+                        type: 'module',
+                        data: root
+                    });
+                }
             }
         }
         return this._graphs;
