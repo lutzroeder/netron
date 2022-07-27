@@ -922,7 +922,7 @@
   },
   {
     "name": "resize",
-    "type": "Layer",
+    "type": "Tensor",
     "attributes": [
       {"name": "balance_output_multisplit", "type": "boolean", "visible": true},
       {"name": "buffer_in_l4", "type": "boolean", "visible": true},
@@ -1155,8 +1155,47 @@
     ]
   },
   {
+    "name": "activation",
+    "type": "Activation",
+    "attributes": [
+      {"name": "balance_output_multisplit", "type": "boolean", "visible": true},
+      {"name": "buffer_in_l4", "type": "boolean", "visible": true},
+      {"name": "defuse_features", "type": "number", "visible": true},
+      {"name": "defuse_features_offset", "type": "number", "visible": true},
+      {"name": "defuse_input_width", "type": "number", "visible": true},
+      {"name": "defuse_name", "type": "string", "visible": true},
+      {"name": "defuse_num_layers", "type": "number", "visible": true},
+      {"name": "defuse_original_features", "type": "number", "visible": true},
+      {"name": "defuse_spatial_w", "type": "boolean", "visible": true},
+      {"name": "defuse_type", "type": "string", "visible": true},
+      {"name": "defuse_width_offset", "type": "number", "visible": true},
+      {"name": "mixed_mem", "type": "boolean", "visible": true},
+      {"name": "no_contexts", "type": "string", "visible": true},
+      {"name": "number_of_subclusters", "type": "number", "visible": true},
+      {"name": "original_names", "type": "string", "visible": false},
+      {"name": "output_min_max_strategy", "type": "string", "visible": true},
+      {"name": "resources_allocation_strategy", "type": "string", "visible": true},
+      {"name": "use_16bit_bias", "type": "string", "visible": true},
+      {"name": "use_4bit_weights", "type": "string", "visible": true},
+      {"name": "hw_layer_type_list", "type": "string", "visible": true},
+      {"name": "use_16x4_sc", "type": "string", "visible": true},
+      {"name": "kernel_shape", "type": "string", "visible": true},
+      {"name": "strides", "type": "string", "visible": true},
+      {"name": "dilations", "type": "string", "visible": true},
+      {"name": "padding", "type": "string", "visible": false},
+      {"name": "batch_norm", "type": "boolean", "visible": false},
+      {"name": "elementwise_add", "type": "boolean", "visible": false},
+      {"name": "activation", "type": "string", "visible": false},
+      {"name": "groups", "type": "string", "visible": false},
+      {"name": "spatial_w_concat", "type": "string", "visible": false},
+      {"name": "method", "type": "string", "visible": false},
+      {"name": "resize_bilinear_pixels_mode", "type": "string", "visible": false},
+      {"name": "should_squeeze_kernel", "type": "boolean", "visible": false}
+    ]
+  },
+  {
     "name": "concat",
-    "type": "Layer",
+    "type": "Tensor",
     "attributes": [
       {"name": "balance_output_multisplit", "type": "boolean", "visible": true},
       {"name": "buffer_in_l4", "type": "boolean", "visible": true},

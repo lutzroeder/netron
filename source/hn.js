@@ -254,7 +254,7 @@ hn.Node = class {
         };
 
         const getChain = (layer) => {
-            return layer && layer.params && layer.params.activation ? [new hn.Node({name: "maxpool", type: "Activation", visible: true}, {
+            return layer && layer.params && layer.params.activation ? [new hn.Node({name: "activation", type: "Activation", visible: true}, {
                 type: "Activation",
                 name: layer.params.activation,
                 input: [],
