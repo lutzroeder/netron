@@ -679,10 +679,12 @@ mxnet.Attribute = class {
                 case 'boolean':
                     switch (value) {
                         case 0:
+                        case '0':
                         case 'False':
                             this._value = false;
                             break;
                         case 1:
+                        case '1':
                         case 'True':
                             this._value = true;
                             break;
