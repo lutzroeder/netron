@@ -1,0 +1,3081 @@
+{
+    "name": "yolov4",
+    "net_params": {
+        "version": "1.0",
+        "stage": "HN",
+        "clusters_placement": [[]],
+        "clusters_to_skip": [],
+        "output_layers_order": ["yolov4/conv110_centers", "yolov4/conv110_scales", "yolov4/conv110_obj", "yolov4/conv110_probs", "yolov4/conv103_centers", "yolov4/conv103_scales", "yolov4/conv103_obj", "yolov4/conv103_probs", "yolov4/conv95_centers", "yolov4/conv95_scales", "yolov4/conv95_obj", "yolov4/conv95_probs"],
+        "transposed_net": false,
+        "net_scopes": ["yolov4"]
+    },
+    "layers": {
+        "yolov4/input_layer1": {
+            "type": "input_layer",
+            "input": [],
+            "output": ["yolov4/normalization1"],
+            "input_shapes": [[-1, 512, 512, 3]],
+            "output_shapes": [[-1, 512, 512, 3]],
+            "original_names": ["input.1"],
+            "transposed": false
+        },
+        "yolov4/normalization1": {
+            "type": "normalization",
+            "input": ["yolov4/input_layer1"],
+            "output": ["yolov4/conv1"],
+            "input_shapes": [[-1, 512, 512, 3]],
+            "output_shapes": [[-1, 512, 512, 3]],
+            "params": {
+                "elementwise_add": false
+            }
+        },
+        "yolov4/conv1": {
+            "type": "conv",
+            "input": ["yolov4/normalization1"],
+            "output": ["yolov4/conv2"],
+            "input_shapes": [[-1, 512, 512, 3]],
+            "output_shapes": [[-1, 512, 512, 32]],
+            "original_names": ["Conv_0", "BatchNormalization_1", "LeakyRelu_2"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 3, 32],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv2": {
+            "type": "conv",
+            "input": ["yolov4/conv1"],
+            "output": ["yolov4/conv3", "yolov4/conv4"],
+            "input_shapes": [[-1, 512, 512, 32]],
+            "output_shapes": [[-1, 256, 256, 64], [-1, 256, 256, 64]],
+            "original_names": ["Conv_3", "BatchNormalization_4", "LeakyRelu_5"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 32, 64],
+                "strides": [1, 2, 2, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv3": {
+            "type": "conv",
+            "input": ["yolov4/conv2"],
+            "output": ["yolov4/concat1"],
+            "input_shapes": [[-1, 256, 256, 64]],
+            "output_shapes": [[-1, 256, 256, 64]],
+            "original_names": ["Conv_6", "BatchNormalization_7", "LeakyRelu_8"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 64, 64],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv4": {
+            "type": "conv",
+            "input": ["yolov4/conv2"],
+            "output": ["yolov4/conv5", "yolov4/ew_add1"],
+            "input_shapes": [[-1, 256, 256, 64]],
+            "output_shapes": [[-1, 256, 256, 64], [-1, 256, 256, 64]],
+            "original_names": ["Conv_9", "BatchNormalization_10", "LeakyRelu_11"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 64, 64],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv5": {
+            "type": "conv",
+            "input": ["yolov4/conv4"],
+            "output": ["yolov4/conv6"],
+            "input_shapes": [[-1, 256, 256, 64]],
+            "output_shapes": [[-1, 256, 256, 32]],
+            "original_names": ["Conv_12", "BatchNormalization_13", "LeakyRelu_14"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 64, 32],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv6": {
+            "type": "conv",
+            "input": ["yolov4/conv5"],
+            "output": ["yolov4/ew_add1"],
+            "input_shapes": [[-1, 256, 256, 32]],
+            "output_shapes": [[-1, 256, 256, 64]],
+            "original_names": ["Conv_15", "BatchNormalization_16", "LeakyRelu_17"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 32, 64],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add1": {
+            "type": "ew_add",
+            "input": ["yolov4/conv4", "yolov4/conv6"],
+            "output": ["yolov4/conv7"],
+            "input_shapes": [[-1, 256, 256, 64], [-1, 256, 256, 64]],
+            "output_shapes": [[-1, 256, 256, 64]],
+            "original_names": ["Add_18"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv7": {
+            "type": "conv",
+            "input": ["yolov4/ew_add1"],
+            "output": ["yolov4/concat1"],
+            "input_shapes": [[-1, 256, 256, 64]],
+            "output_shapes": [[-1, 256, 256, 64]],
+            "original_names": ["Conv_19", "BatchNormalization_20", "LeakyRelu_21"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 64, 64],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/concat1": {
+            "type": "concat",
+            "input": ["yolov4/conv7", "yolov4/conv3"],
+            "output": ["yolov4/conv8"],
+            "input_shapes": [[-1, 256, 256, 64], [-1, 256, 256, 64]],
+            "output_shapes": [[-1, 256, 256, 128]],
+            "original_names": ["Concat_22"],
+            "params": {
+                "spatial_w_concat": false
+            }
+        },
+        "yolov4/conv8": {
+            "type": "conv",
+            "input": ["yolov4/concat1"],
+            "output": ["yolov4/conv9"],
+            "input_shapes": [[-1, 256, 256, 128]],
+            "output_shapes": [[-1, 256, 256, 64]],
+            "original_names": ["Conv_23", "BatchNormalization_24", "LeakyRelu_25"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 128, 64],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv9": {
+            "type": "conv",
+            "input": ["yolov4/conv8"],
+            "output": ["yolov4/conv10", "yolov4/conv11"],
+            "input_shapes": [[-1, 256, 256, 64]],
+            "output_shapes": [[-1, 128, 128, 128], [-1, 128, 128, 128]],
+            "original_names": ["Conv_26", "BatchNormalization_27", "LeakyRelu_28"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 64, 128],
+                "strides": [1, 2, 2, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv10": {
+            "type": "conv",
+            "input": ["yolov4/conv9"],
+            "output": ["yolov4/concat2"],
+            "input_shapes": [[-1, 128, 128, 128]],
+            "output_shapes": [[-1, 128, 128, 64]],
+            "original_names": ["Conv_29", "BatchNormalization_30", "LeakyRelu_31"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 128, 64],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv11": {
+            "type": "conv",
+            "input": ["yolov4/conv9"],
+            "output": ["yolov4/conv12", "yolov4/ew_add2"],
+            "input_shapes": [[-1, 128, 128, 128]],
+            "output_shapes": [[-1, 128, 128, 64], [-1, 128, 128, 64]],
+            "original_names": ["Conv_32", "BatchNormalization_33", "LeakyRelu_34"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 128, 64],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv12": {
+            "type": "conv",
+            "input": ["yolov4/conv11"],
+            "output": ["yolov4/conv13"],
+            "input_shapes": [[-1, 128, 128, 64]],
+            "output_shapes": [[-1, 128, 128, 64]],
+            "original_names": ["Conv_35", "BatchNormalization_36", "LeakyRelu_37"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 64, 64],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv13": {
+            "type": "conv",
+            "input": ["yolov4/conv12"],
+            "output": ["yolov4/ew_add2"],
+            "input_shapes": [[-1, 128, 128, 64]],
+            "output_shapes": [[-1, 128, 128, 64]],
+            "original_names": ["Conv_38", "BatchNormalization_39", "LeakyRelu_40"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 64, 64],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add2": {
+            "type": "ew_add",
+            "input": ["yolov4/conv11", "yolov4/conv13"],
+            "output": ["yolov4/conv14", "yolov4/ew_add3"],
+            "input_shapes": [[-1, 128, 128, 64], [-1, 128, 128, 64]],
+            "output_shapes": [[-1, 128, 128, 64], [-1, 128, 128, 64]],
+            "original_names": ["Add_41"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv14": {
+            "type": "conv",
+            "input": ["yolov4/ew_add2"],
+            "output": ["yolov4/conv15"],
+            "input_shapes": [[-1, 128, 128, 64]],
+            "output_shapes": [[-1, 128, 128, 64]],
+            "original_names": ["Conv_42", "BatchNormalization_43", "LeakyRelu_44"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 64, 64],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv15": {
+            "type": "conv",
+            "input": ["yolov4/conv14"],
+            "output": ["yolov4/ew_add3"],
+            "input_shapes": [[-1, 128, 128, 64]],
+            "output_shapes": [[-1, 128, 128, 64]],
+            "original_names": ["Conv_45", "BatchNormalization_46", "LeakyRelu_47"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 64, 64],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add3": {
+            "type": "ew_add",
+            "input": ["yolov4/ew_add2", "yolov4/conv15"],
+            "output": ["yolov4/conv16"],
+            "input_shapes": [[-1, 128, 128, 64], [-1, 128, 128, 64]],
+            "output_shapes": [[-1, 128, 128, 64]],
+            "original_names": ["Add_48"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv16": {
+            "type": "conv",
+            "input": ["yolov4/ew_add3"],
+            "output": ["yolov4/concat2"],
+            "input_shapes": [[-1, 128, 128, 64]],
+            "output_shapes": [[-1, 128, 128, 64]],
+            "original_names": ["Conv_49", "BatchNormalization_50", "LeakyRelu_51"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 64, 64],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/concat2": {
+            "type": "concat",
+            "input": ["yolov4/conv16", "yolov4/conv10"],
+            "output": ["yolov4/conv17"],
+            "input_shapes": [[-1, 128, 128, 64], [-1, 128, 128, 64]],
+            "output_shapes": [[-1, 128, 128, 128]],
+            "original_names": ["Concat_52"],
+            "params": {
+                "spatial_w_concat": false
+            }
+        },
+        "yolov4/conv17": {
+            "type": "conv",
+            "input": ["yolov4/concat2"],
+            "output": ["yolov4/conv18"],
+            "input_shapes": [[-1, 128, 128, 128]],
+            "output_shapes": [[-1, 128, 128, 128]],
+            "original_names": ["Conv_53", "BatchNormalization_54", "LeakyRelu_55"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 128, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv18": {
+            "type": "conv",
+            "input": ["yolov4/conv17"],
+            "output": ["yolov4/conv19", "yolov4/conv20"],
+            "input_shapes": [[-1, 128, 128, 128]],
+            "output_shapes": [[-1, 64, 64, 256], [-1, 64, 64, 256]],
+            "original_names": ["Conv_56", "BatchNormalization_57", "LeakyRelu_58"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 128, 256],
+                "strides": [1, 2, 2, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv19": {
+            "type": "conv",
+            "input": ["yolov4/conv18"],
+            "output": ["yolov4/concat3"],
+            "input_shapes": [[-1, 64, 64, 256]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_59", "BatchNormalization_60", "LeakyRelu_61"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv20": {
+            "type": "conv",
+            "input": ["yolov4/conv18"],
+            "output": ["yolov4/conv21", "yolov4/ew_add4"],
+            "input_shapes": [[-1, 64, 64, 256]],
+            "output_shapes": [[-1, 64, 64, 128], [-1, 64, 64, 128]],
+            "original_names": ["Conv_62", "BatchNormalization_63", "LeakyRelu_64"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv21": {
+            "type": "conv",
+            "input": ["yolov4/conv20"],
+            "output": ["yolov4/conv22"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_65", "BatchNormalization_66", "LeakyRelu_67"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 128, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv22": {
+            "type": "conv",
+            "input": ["yolov4/conv21"],
+            "output": ["yolov4/ew_add4"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_68", "BatchNormalization_69", "LeakyRelu_70"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 128, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add4": {
+            "type": "ew_add",
+            "input": ["yolov4/conv20", "yolov4/conv22"],
+            "output": ["yolov4/conv23", "yolov4/ew_add5"],
+            "input_shapes": [[-1, 64, 64, 128], [-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128], [-1, 64, 64, 128]],
+            "original_names": ["Add_71"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv23": {
+            "type": "conv",
+            "input": ["yolov4/ew_add4"],
+            "output": ["yolov4/conv24"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_72", "BatchNormalization_73", "LeakyRelu_74"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 128, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv24": {
+            "type": "conv",
+            "input": ["yolov4/conv23"],
+            "output": ["yolov4/ew_add5"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_75", "BatchNormalization_76", "LeakyRelu_77"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 128, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add5": {
+            "type": "ew_add",
+            "input": ["yolov4/ew_add4", "yolov4/conv24"],
+            "output": ["yolov4/conv25", "yolov4/ew_add6"],
+            "input_shapes": [[-1, 64, 64, 128], [-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128], [-1, 64, 64, 128]],
+            "original_names": ["Add_78"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv25": {
+            "type": "conv",
+            "input": ["yolov4/ew_add5"],
+            "output": ["yolov4/conv26"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_79", "BatchNormalization_80", "LeakyRelu_81"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 128, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv26": {
+            "type": "conv",
+            "input": ["yolov4/conv25"],
+            "output": ["yolov4/ew_add6"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_82", "BatchNormalization_83", "LeakyRelu_84"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 128, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add6": {
+            "type": "ew_add",
+            "input": ["yolov4/ew_add5", "yolov4/conv26"],
+            "output": ["yolov4/conv27", "yolov4/ew_add7"],
+            "input_shapes": [[-1, 64, 64, 128], [-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128], [-1, 64, 64, 128]],
+            "original_names": ["Add_85"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv27": {
+            "type": "conv",
+            "input": ["yolov4/ew_add6"],
+            "output": ["yolov4/conv28"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_86", "BatchNormalization_87", "LeakyRelu_88"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 128, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv28": {
+            "type": "conv",
+            "input": ["yolov4/conv27"],
+            "output": ["yolov4/ew_add7"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_89", "BatchNormalization_90", "LeakyRelu_91"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 128, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add7": {
+            "type": "ew_add",
+            "input": ["yolov4/ew_add6", "yolov4/conv28"],
+            "output": ["yolov4/conv29", "yolov4/ew_add8"],
+            "input_shapes": [[-1, 64, 64, 128], [-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128], [-1, 64, 64, 128]],
+            "original_names": ["Add_92"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv29": {
+            "type": "conv",
+            "input": ["yolov4/ew_add7"],
+            "output": ["yolov4/conv30"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_93", "BatchNormalization_94", "LeakyRelu_95"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 128, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv30": {
+            "type": "conv",
+            "input": ["yolov4/conv29"],
+            "output": ["yolov4/ew_add8"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_96", "BatchNormalization_97", "LeakyRelu_98"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 128, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add8": {
+            "type": "ew_add",
+            "input": ["yolov4/ew_add7", "yolov4/conv30"],
+            "output": ["yolov4/conv31", "yolov4/ew_add9"],
+            "input_shapes": [[-1, 64, 64, 128], [-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128], [-1, 64, 64, 128]],
+            "original_names": ["Add_99"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv31": {
+            "type": "conv",
+            "input": ["yolov4/ew_add8"],
+            "output": ["yolov4/conv32"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_100", "BatchNormalization_101", "LeakyRelu_102"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 128, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv32": {
+            "type": "conv",
+            "input": ["yolov4/conv31"],
+            "output": ["yolov4/ew_add9"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_103", "BatchNormalization_104", "LeakyRelu_105"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 128, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add9": {
+            "type": "ew_add",
+            "input": ["yolov4/ew_add8", "yolov4/conv32"],
+            "output": ["yolov4/conv33", "yolov4/ew_add10"],
+            "input_shapes": [[-1, 64, 64, 128], [-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128], [-1, 64, 64, 128]],
+            "original_names": ["Add_106"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv33": {
+            "type": "conv",
+            "input": ["yolov4/ew_add9"],
+            "output": ["yolov4/conv34"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_107", "BatchNormalization_108", "LeakyRelu_109"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 128, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv34": {
+            "type": "conv",
+            "input": ["yolov4/conv33"],
+            "output": ["yolov4/ew_add10"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_110", "BatchNormalization_111", "LeakyRelu_112"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 128, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add10": {
+            "type": "ew_add",
+            "input": ["yolov4/ew_add9", "yolov4/conv34"],
+            "output": ["yolov4/conv35", "yolov4/ew_add11"],
+            "input_shapes": [[-1, 64, 64, 128], [-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128], [-1, 64, 64, 128]],
+            "original_names": ["Add_113"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv35": {
+            "type": "conv",
+            "input": ["yolov4/ew_add10"],
+            "output": ["yolov4/conv36"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_114", "BatchNormalization_115", "LeakyRelu_116"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 128, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv36": {
+            "type": "conv",
+            "input": ["yolov4/conv35"],
+            "output": ["yolov4/ew_add11"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_117", "BatchNormalization_118", "LeakyRelu_119"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 128, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add11": {
+            "type": "ew_add",
+            "input": ["yolov4/ew_add10", "yolov4/conv36"],
+            "output": ["yolov4/conv37"],
+            "input_shapes": [[-1, 64, 64, 128], [-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Add_120"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv37": {
+            "type": "conv",
+            "input": ["yolov4/ew_add11"],
+            "output": ["yolov4/concat3"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_121", "BatchNormalization_122", "LeakyRelu_123"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 128, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/concat3": {
+            "type": "concat",
+            "input": ["yolov4/conv37", "yolov4/conv19"],
+            "output": ["yolov4/conv38"],
+            "input_shapes": [[-1, 64, 64, 128], [-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 256]],
+            "original_names": ["Concat_124"],
+            "params": {
+                "spatial_w_concat": false
+            }
+        },
+        "yolov4/conv38": {
+            "type": "conv",
+            "input": ["yolov4/concat3"],
+            "output": ["yolov4/conv39", "yolov4/conv40"],
+            "input_shapes": [[-1, 64, 64, 256]],
+            "output_shapes": [[-1, 64, 64, 256], [-1, 64, 64, 256]],
+            "original_names": ["Conv_125", "BatchNormalization_126", "LeakyRelu_127"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv39": {
+            "type": "conv",
+            "input": ["yolov4/conv38"],
+            "output": ["yolov4/conv41", "yolov4/conv42"],
+            "input_shapes": [[-1, 64, 64, 256]],
+            "output_shapes": [[-1, 32, 32, 512], [-1, 32, 32, 512]],
+            "original_names": ["Conv_128", "BatchNormalization_129", "LeakyRelu_130"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 256, 512],
+                "strides": [1, 2, 2, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv40": {
+            "type": "conv",
+            "input": ["yolov4/conv38"],
+            "output": ["yolov4/concat8"],
+            "input_shapes": [[-1, 64, 64, 256]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_313", "BatchNormalization_314", "LeakyRelu_315"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv41": {
+            "type": "conv",
+            "input": ["yolov4/conv39"],
+            "output": ["yolov4/concat4"],
+            "input_shapes": [[-1, 32, 32, 512]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_131", "BatchNormalization_132", "LeakyRelu_133"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 512, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv42": {
+            "type": "conv",
+            "input": ["yolov4/conv39"],
+            "output": ["yolov4/conv43", "yolov4/ew_add12"],
+            "input_shapes": [[-1, 32, 32, 512]],
+            "output_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "original_names": ["Conv_134", "BatchNormalization_135", "LeakyRelu_136"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 512, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv43": {
+            "type": "conv",
+            "input": ["yolov4/conv42"],
+            "output": ["yolov4/conv44"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_137", "BatchNormalization_138", "LeakyRelu_139"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv44": {
+            "type": "conv",
+            "input": ["yolov4/conv43"],
+            "output": ["yolov4/ew_add12"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_140", "BatchNormalization_141", "LeakyRelu_142"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 256, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add12": {
+            "type": "ew_add",
+            "input": ["yolov4/conv42", "yolov4/conv44"],
+            "output": ["yolov4/conv45", "yolov4/ew_add13"],
+            "input_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "original_names": ["Add_143"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv45": {
+            "type": "conv",
+            "input": ["yolov4/ew_add12"],
+            "output": ["yolov4/conv46"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_144", "BatchNormalization_145", "LeakyRelu_146"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv46": {
+            "type": "conv",
+            "input": ["yolov4/conv45"],
+            "output": ["yolov4/ew_add13"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_147", "BatchNormalization_148", "LeakyRelu_149"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 256, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add13": {
+            "type": "ew_add",
+            "input": ["yolov4/ew_add12", "yolov4/conv46"],
+            "output": ["yolov4/conv47", "yolov4/ew_add14"],
+            "input_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "original_names": ["Add_150"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv47": {
+            "type": "conv",
+            "input": ["yolov4/ew_add13"],
+            "output": ["yolov4/conv48"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_151", "BatchNormalization_152", "LeakyRelu_153"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv48": {
+            "type": "conv",
+            "input": ["yolov4/conv47"],
+            "output": ["yolov4/ew_add14"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_154", "BatchNormalization_155", "LeakyRelu_156"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 256, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add14": {
+            "type": "ew_add",
+            "input": ["yolov4/ew_add13", "yolov4/conv48"],
+            "output": ["yolov4/conv49", "yolov4/ew_add15"],
+            "input_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "original_names": ["Add_157"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv49": {
+            "type": "conv",
+            "input": ["yolov4/ew_add14"],
+            "output": ["yolov4/conv50"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_158", "BatchNormalization_159", "LeakyRelu_160"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv50": {
+            "type": "conv",
+            "input": ["yolov4/conv49"],
+            "output": ["yolov4/ew_add15"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_161", "BatchNormalization_162", "LeakyRelu_163"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 256, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add15": {
+            "type": "ew_add",
+            "input": ["yolov4/ew_add14", "yolov4/conv50"],
+            "output": ["yolov4/conv51", "yolov4/ew_add16"],
+            "input_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "original_names": ["Add_164"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv51": {
+            "type": "conv",
+            "input": ["yolov4/ew_add15"],
+            "output": ["yolov4/conv52"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_165", "BatchNormalization_166", "LeakyRelu_167"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv52": {
+            "type": "conv",
+            "input": ["yolov4/conv51"],
+            "output": ["yolov4/ew_add16"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_168", "BatchNormalization_169", "LeakyRelu_170"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 256, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add16": {
+            "type": "ew_add",
+            "input": ["yolov4/ew_add15", "yolov4/conv52"],
+            "output": ["yolov4/conv53", "yolov4/ew_add17"],
+            "input_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "original_names": ["Add_171"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv53": {
+            "type": "conv",
+            "input": ["yolov4/ew_add16"],
+            "output": ["yolov4/conv54"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_172", "BatchNormalization_173", "LeakyRelu_174"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv54": {
+            "type": "conv",
+            "input": ["yolov4/conv53"],
+            "output": ["yolov4/ew_add17"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_175", "BatchNormalization_176", "LeakyRelu_177"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 256, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add17": {
+            "type": "ew_add",
+            "input": ["yolov4/ew_add16", "yolov4/conv54"],
+            "output": ["yolov4/conv55", "yolov4/ew_add18"],
+            "input_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "original_names": ["Add_178"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv55": {
+            "type": "conv",
+            "input": ["yolov4/ew_add17"],
+            "output": ["yolov4/conv56"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_179", "BatchNormalization_180", "LeakyRelu_181"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv56": {
+            "type": "conv",
+            "input": ["yolov4/conv55"],
+            "output": ["yolov4/ew_add18"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_182", "BatchNormalization_183", "LeakyRelu_184"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 256, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add18": {
+            "type": "ew_add",
+            "input": ["yolov4/ew_add17", "yolov4/conv56"],
+            "output": ["yolov4/conv57", "yolov4/ew_add19"],
+            "input_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "original_names": ["Add_185"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv57": {
+            "type": "conv",
+            "input": ["yolov4/ew_add18"],
+            "output": ["yolov4/conv58"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_186", "BatchNormalization_187", "LeakyRelu_188"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv58": {
+            "type": "conv",
+            "input": ["yolov4/conv57"],
+            "output": ["yolov4/ew_add19"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_189", "BatchNormalization_190", "LeakyRelu_191"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 256, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add19": {
+            "type": "ew_add",
+            "input": ["yolov4/ew_add18", "yolov4/conv58"],
+            "output": ["yolov4/conv59"],
+            "input_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Add_192"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv59": {
+            "type": "conv",
+            "input": ["yolov4/ew_add19"],
+            "output": ["yolov4/concat4"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_193", "BatchNormalization_194", "LeakyRelu_195"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/concat4": {
+            "type": "concat",
+            "input": ["yolov4/conv59", "yolov4/conv41"],
+            "output": ["yolov4/conv60"],
+            "input_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 512]],
+            "original_names": ["Concat_196"],
+            "params": {
+                "spatial_w_concat": false
+            }
+        },
+        "yolov4/conv60": {
+            "type": "conv",
+            "input": ["yolov4/concat4"],
+            "output": ["yolov4/conv61", "yolov4/conv62"],
+            "input_shapes": [[-1, 32, 32, 512]],
+            "output_shapes": [[-1, 32, 32, 512], [-1, 32, 32, 512]],
+            "original_names": ["Conv_197", "BatchNormalization_198", "LeakyRelu_199"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 512, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv61": {
+            "type": "conv",
+            "input": ["yolov4/conv60"],
+            "output": ["yolov4/conv63", "yolov4/conv64"],
+            "input_shapes": [[-1, 32, 32, 512]],
+            "output_shapes": [[-1, 16, 16, 1024], [-1, 16, 16, 1024]],
+            "original_names": ["Conv_200", "BatchNormalization_201", "LeakyRelu_202"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 512, 1024],
+                "strides": [1, 2, 2, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv62": {
+            "type": "conv",
+            "input": ["yolov4/conv60"],
+            "output": ["yolov4/concat7"],
+            "input_shapes": [[-1, 32, 32, 512]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_280", "BatchNormalization_281", "LeakyRelu_282"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 512, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv63": {
+            "type": "conv",
+            "input": ["yolov4/conv61"],
+            "output": ["yolov4/concat5"],
+            "input_shapes": [[-1, 16, 16, 1024]],
+            "output_shapes": [[-1, 16, 16, 512]],
+            "original_names": ["Conv_203", "BatchNormalization_204", "LeakyRelu_205"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 1024, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv64": {
+            "type": "conv",
+            "input": ["yolov4/conv61"],
+            "output": ["yolov4/conv65", "yolov4/ew_add20"],
+            "input_shapes": [[-1, 16, 16, 1024]],
+            "output_shapes": [[-1, 16, 16, 512], [-1, 16, 16, 512]],
+            "original_names": ["Conv_206", "BatchNormalization_207", "LeakyRelu_208"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 1024, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv65": {
+            "type": "conv",
+            "input": ["yolov4/conv64"],
+            "output": ["yolov4/conv66"],
+            "input_shapes": [[-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 512]],
+            "original_names": ["Conv_209", "BatchNormalization_210", "LeakyRelu_211"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 512, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv66": {
+            "type": "conv",
+            "input": ["yolov4/conv65"],
+            "output": ["yolov4/ew_add20"],
+            "input_shapes": [[-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 512]],
+            "original_names": ["Conv_212", "BatchNormalization_213", "LeakyRelu_214"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 512, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add20": {
+            "type": "ew_add",
+            "input": ["yolov4/conv64", "yolov4/conv66"],
+            "output": ["yolov4/conv67", "yolov4/ew_add21"],
+            "input_shapes": [[-1, 16, 16, 512], [-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 512], [-1, 16, 16, 512]],
+            "original_names": ["Add_215"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv67": {
+            "type": "conv",
+            "input": ["yolov4/ew_add20"],
+            "output": ["yolov4/conv68"],
+            "input_shapes": [[-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 512]],
+            "original_names": ["Conv_216", "BatchNormalization_217", "LeakyRelu_218"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 512, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv68": {
+            "type": "conv",
+            "input": ["yolov4/conv67"],
+            "output": ["yolov4/ew_add21"],
+            "input_shapes": [[-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 512]],
+            "original_names": ["Conv_219", "BatchNormalization_220", "LeakyRelu_221"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 512, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add21": {
+            "type": "ew_add",
+            "input": ["yolov4/ew_add20", "yolov4/conv68"],
+            "output": ["yolov4/conv69", "yolov4/ew_add22"],
+            "input_shapes": [[-1, 16, 16, 512], [-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 512], [-1, 16, 16, 512]],
+            "original_names": ["Add_222"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv69": {
+            "type": "conv",
+            "input": ["yolov4/ew_add21"],
+            "output": ["yolov4/conv70"],
+            "input_shapes": [[-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 512]],
+            "original_names": ["Conv_223", "BatchNormalization_224", "LeakyRelu_225"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 512, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv70": {
+            "type": "conv",
+            "input": ["yolov4/conv69"],
+            "output": ["yolov4/ew_add22"],
+            "input_shapes": [[-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 512]],
+            "original_names": ["Conv_226", "BatchNormalization_227", "LeakyRelu_228"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 512, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add22": {
+            "type": "ew_add",
+            "input": ["yolov4/ew_add21", "yolov4/conv70"],
+            "output": ["yolov4/conv71", "yolov4/ew_add23"],
+            "input_shapes": [[-1, 16, 16, 512], [-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 512], [-1, 16, 16, 512]],
+            "original_names": ["Add_229"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv71": {
+            "type": "conv",
+            "input": ["yolov4/ew_add22"],
+            "output": ["yolov4/conv72"],
+            "input_shapes": [[-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 512]],
+            "original_names": ["Conv_230", "BatchNormalization_231", "LeakyRelu_232"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 512, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv72": {
+            "type": "conv",
+            "input": ["yolov4/conv71"],
+            "output": ["yolov4/ew_add23"],
+            "input_shapes": [[-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 512]],
+            "original_names": ["Conv_233", "BatchNormalization_234", "LeakyRelu_235"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 512, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/ew_add23": {
+            "type": "ew_add",
+            "input": ["yolov4/ew_add22", "yolov4/conv72"],
+            "output": ["yolov4/conv73"],
+            "input_shapes": [[-1, 16, 16, 512], [-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 512]],
+            "original_names": ["Add_236"],
+            "params": {
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv73": {
+            "type": "conv",
+            "input": ["yolov4/ew_add23"],
+            "output": ["yolov4/concat5"],
+            "input_shapes": [[-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 512]],
+            "original_names": ["Conv_237", "BatchNormalization_238", "LeakyRelu_239"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 512, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/concat5": {
+            "type": "concat",
+            "input": ["yolov4/conv73", "yolov4/conv63"],
+            "output": ["yolov4/conv74"],
+            "input_shapes": [[-1, 16, 16, 512], [-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 1024]],
+            "original_names": ["Concat_240"],
+            "params": {
+                "spatial_w_concat": false
+            }
+        },
+        "yolov4/conv74": {
+            "type": "conv",
+            "input": ["yolov4/concat5"],
+            "output": ["yolov4/conv75"],
+            "input_shapes": [[-1, 16, 16, 1024]],
+            "output_shapes": [[-1, 16, 16, 1024]],
+            "original_names": ["Conv_241", "BatchNormalization_242", "LeakyRelu_243"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 1024, 1024],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv75": {
+            "type": "conv",
+            "input": ["yolov4/conv74"],
+            "output": ["yolov4/conv76"],
+            "input_shapes": [[-1, 16, 16, 1024]],
+            "output_shapes": [[-1, 16, 16, 512]],
+            "original_names": ["Conv_244", "BatchNormalization_245", "LeakyRelu_246"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 1024, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv76": {
+            "type": "conv",
+            "input": ["yolov4/conv75"],
+            "output": ["yolov4/conv77"],
+            "input_shapes": [[-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 1024]],
+            "original_names": ["Conv_247", "BatchNormalization_248", "LeakyRelu_249"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 512, 1024],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv77": {
+            "type": "conv",
+            "input": ["yolov4/conv76"],
+            "output": ["yolov4/maxpool1", "yolov4/maxpool2", "yolov4/maxpool3", "yolov4/concat6"],
+            "input_shapes": [[-1, 16, 16, 1024]],
+            "output_shapes": [[-1, 16, 16, 512], [-1, 16, 16, 512], [-1, 16, 16, 512], [-1, 16, 16, 512]],
+            "original_names": ["Conv_250", "BatchNormalization_251", "LeakyRelu_252"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 1024, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/maxpool1": {
+            "type": "maxpool",
+            "input": ["yolov4/conv77"],
+            "output": ["yolov4/concat6"],
+            "input_shapes": [[-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 512]],
+            "original_names": ["MaxPool_253"],
+            "params": {
+                "kernel_shape": [1, 5, 5, 1],
+                "strides": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "activation": "linear"
+            }
+        },
+        "yolov4/maxpool2": {
+            "type": "maxpool",
+            "input": ["yolov4/conv77"],
+            "output": ["yolov4/concat6"],
+            "input_shapes": [[-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 512]],
+            "original_names": ["MaxPool_254"],
+            "params": {
+                "kernel_shape": [1, 9, 9, 1],
+                "strides": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "activation": "linear"
+            }
+        },
+        "yolov4/maxpool3": {
+            "type": "maxpool",
+            "input": ["yolov4/conv77"],
+            "output": ["yolov4/concat6"],
+            "input_shapes": [[-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 512]],
+            "original_names": ["MaxPool_255"],
+            "params": {
+                "kernel_shape": [1, 13, 13, 1],
+                "strides": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "activation": "linear"
+            }
+        },
+        "yolov4/concat6": {
+            "type": "concat",
+            "input": ["yolov4/maxpool3", "yolov4/maxpool2", "yolov4/maxpool1", "yolov4/conv77"],
+            "output": ["yolov4/conv78"],
+            "input_shapes": [[-1, 16, 16, 512], [-1, 16, 16, 512], [-1, 16, 16, 512], [-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 2048]],
+            "original_names": ["Concat_256"],
+            "params": {
+                "spatial_w_concat": false
+            }
+        },
+        "yolov4/conv78": {
+            "type": "conv",
+            "input": ["yolov4/concat6"],
+            "output": ["yolov4/conv79"],
+            "input_shapes": [[-1, 16, 16, 2048]],
+            "output_shapes": [[-1, 16, 16, 512]],
+            "original_names": ["Conv_257", "BatchNormalization_258", "LeakyRelu_259"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 2048, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv79": {
+            "type": "conv",
+            "input": ["yolov4/conv78"],
+            "output": ["yolov4/conv80"],
+            "input_shapes": [[-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 1024]],
+            "original_names": ["Conv_260", "BatchNormalization_261", "LeakyRelu_262"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 512, 1024],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv80": {
+            "type": "conv",
+            "input": ["yolov4/conv79"],
+            "output": ["yolov4/conv81", "yolov4/concat10"],
+            "input_shapes": [[-1, 16, 16, 1024]],
+            "output_shapes": [[-1, 16, 16, 512], [-1, 16, 16, 512]],
+            "original_names": ["Conv_263", "BatchNormalization_264", "LeakyRelu_265"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 1024, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv81": {
+            "type": "conv",
+            "input": ["yolov4/conv80"],
+            "output": ["yolov4/resize1"],
+            "input_shapes": [[-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 256]],
+            "original_names": ["Conv_266", "BatchNormalization_267", "LeakyRelu_268"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 512, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/resize1": {
+            "type": "resize",
+            "input": ["yolov4/conv81"],
+            "output": ["yolov4/concat7"],
+            "input_shapes": [[-1, 16, 16, 256]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Resize_279"],
+            "compilation_params": {
+                "hw_layer_type_list": ["lcu"]
+            },
+            "params": {
+                "resize_h_ratio_list": [2.0],
+                "resize_w_ratio_list": [2.0],
+                "resize_f_ratio_list": [1.0],
+                "method": "nearest_neighbor",
+                "resize_bilinear_pixels_mode": "disabled"
+            }
+        },
+        "yolov4/concat7": {
+            "type": "concat",
+            "input": ["yolov4/conv62", "yolov4/resize1"],
+            "output": ["yolov4/conv82"],
+            "input_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 512]],
+            "original_names": ["Concat_283"],
+            "params": {
+                "spatial_w_concat": false
+            }
+        },
+        "yolov4/conv82": {
+            "type": "conv",
+            "input": ["yolov4/concat7"],
+            "output": ["yolov4/conv83"],
+            "input_shapes": [[-1, 32, 32, 512]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_284", "BatchNormalization_285", "LeakyRelu_286"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 512, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv83": {
+            "type": "conv",
+            "input": ["yolov4/conv82"],
+            "output": ["yolov4/conv84"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 512]],
+            "original_names": ["Conv_287", "BatchNormalization_288", "LeakyRelu_289"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 256, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv84": {
+            "type": "conv",
+            "input": ["yolov4/conv83"],
+            "output": ["yolov4/conv85"],
+            "input_shapes": [[-1, 32, 32, 512]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_290", "BatchNormalization_291", "LeakyRelu_292"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 512, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv85": {
+            "type": "conv",
+            "input": ["yolov4/conv84"],
+            "output": ["yolov4/conv86"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 512]],
+            "original_names": ["Conv_293", "BatchNormalization_294", "LeakyRelu_295"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 256, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv86": {
+            "type": "conv",
+            "input": ["yolov4/conv85"],
+            "output": ["yolov4/conv87", "yolov4/concat9"],
+            "input_shapes": [[-1, 32, 32, 512]],
+            "output_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "original_names": ["Conv_296", "BatchNormalization_297", "LeakyRelu_298"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 512, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv87": {
+            "type": "conv",
+            "input": ["yolov4/conv86"],
+            "output": ["yolov4/resize2"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 128]],
+            "original_names": ["Conv_299", "BatchNormalization_300", "LeakyRelu_301"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/resize2": {
+            "type": "resize",
+            "input": ["yolov4/conv87"],
+            "output": ["yolov4/concat8"],
+            "input_shapes": [[-1, 32, 32, 128]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Resize_312"],
+            "compilation_params": {
+                "hw_layer_type_list": ["lcu"]
+            },
+            "params": {
+                "resize_h_ratio_list": [2.0],
+                "resize_w_ratio_list": [2.0],
+                "resize_f_ratio_list": [1.0],
+                "method": "nearest_neighbor",
+                "resize_bilinear_pixels_mode": "disabled"
+            }
+        },
+        "yolov4/concat8": {
+            "type": "concat",
+            "input": ["yolov4/conv40", "yolov4/resize2"],
+            "output": ["yolov4/conv88"],
+            "input_shapes": [[-1, 64, 64, 128], [-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 256]],
+            "original_names": ["Concat_316"],
+            "params": {
+                "spatial_w_concat": false
+            }
+        },
+        "yolov4/conv88": {
+            "type": "conv",
+            "input": ["yolov4/concat8"],
+            "output": ["yolov4/conv89"],
+            "input_shapes": [[-1, 64, 64, 256]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_317", "BatchNormalization_318", "LeakyRelu_319"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv89": {
+            "type": "conv",
+            "input": ["yolov4/conv88"],
+            "output": ["yolov4/conv90"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 256]],
+            "original_names": ["Conv_320", "BatchNormalization_321", "LeakyRelu_322"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 128, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv90": {
+            "type": "conv",
+            "input": ["yolov4/conv89"],
+            "output": ["yolov4/conv91"],
+            "input_shapes": [[-1, 64, 64, 256]],
+            "output_shapes": [[-1, 64, 64, 128]],
+            "original_names": ["Conv_323", "BatchNormalization_324", "LeakyRelu_325"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv91": {
+            "type": "conv",
+            "input": ["yolov4/conv90"],
+            "output": ["yolov4/conv92"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 256]],
+            "original_names": ["Conv_326", "BatchNormalization_327", "LeakyRelu_328"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 128, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv92": {
+            "type": "conv",
+            "input": ["yolov4/conv91"],
+            "output": ["yolov4/conv93", "yolov4/conv94"],
+            "input_shapes": [[-1, 64, 64, 256]],
+            "output_shapes": [[-1, 64, 64, 128], [-1, 64, 64, 128]],
+            "original_names": ["Conv_329", "BatchNormalization_330", "LeakyRelu_331"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 128],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv93": {
+            "type": "conv",
+            "input": ["yolov4/conv92"],
+            "output": ["yolov4/conv95_centers", "yolov4/conv95_obj", "yolov4/conv95_probs", "yolov4/conv95_scales"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 64, 64, 256], [-1, 64, 64, 256], [-1, 64, 64, 256], [-1, 64, 64, 256]],
+            "original_names": ["Conv_332", "BatchNormalization_333", "LeakyRelu_334"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 128, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv94": {
+            "type": "conv",
+            "input": ["yolov4/conv92"],
+            "output": ["yolov4/concat9"],
+            "input_shapes": [[-1, 64, 64, 128]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_701", "BatchNormalization_702", "LeakyRelu_703"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 128, 256],
+                "strides": [1, 2, 2, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/concat9": {
+            "type": "concat",
+            "input": ["yolov4/conv94", "yolov4/conv86"],
+            "output": ["yolov4/conv96"],
+            "input_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 512]],
+            "original_names": ["Concat_704"],
+            "params": {
+                "spatial_w_concat": false
+            }
+        },
+        "yolov4/conv95_centers": {
+            "type": "conv",
+            "input": ["yolov4/conv93"],
+            "output": ["yolov4/output_layer9"],
+            "input_shapes": [[-1, 64, 64, 256]],
+            "output_shapes": [[-1, 64, 64, 6]],
+            "original_names": ["Conv_335"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 6],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": false,
+                "elementwise_add": false,
+                "activation": "sigmoid"
+            }
+        },
+        "yolov4/conv95_obj": {
+            "type": "conv",
+            "input": ["yolov4/conv93"],
+            "output": ["yolov4/output_layer11"],
+            "input_shapes": [[-1, 64, 64, 256]],
+            "output_shapes": [[-1, 64, 64, 3]],
+            "original_names": ["Conv_335"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 3],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": false,
+                "elementwise_add": false,
+                "activation": "sigmoid"
+            }
+        },
+        "yolov4/conv95_probs": {
+            "type": "conv",
+            "input": ["yolov4/conv93"],
+            "output": ["yolov4/output_layer12"],
+            "input_shapes": [[-1, 64, 64, 256]],
+            "output_shapes": [[-1, 64, 64, 240]],
+            "original_names": ["Conv_335"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 240],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": false,
+                "elementwise_add": false,
+                "activation": "sigmoid"
+            }
+        },
+        "yolov4/conv95_scales": {
+            "type": "conv",
+            "input": ["yolov4/conv93"],
+            "output": ["yolov4/output_layer10"],
+            "input_shapes": [[-1, 64, 64, 256]],
+            "output_shapes": [[-1, 64, 64, 6]],
+            "original_names": ["Conv_335"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 256, 6],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": false,
+                "elementwise_add": false,
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv96": {
+            "type": "conv",
+            "input": ["yolov4/concat9"],
+            "output": ["yolov4/conv97"],
+            "input_shapes": [[-1, 32, 32, 512]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_705", "BatchNormalization_706", "LeakyRelu_707"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 512, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv97": {
+            "type": "conv",
+            "input": ["yolov4/conv96"],
+            "output": ["yolov4/conv98"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 512]],
+            "original_names": ["Conv_708", "BatchNormalization_709", "LeakyRelu_710"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 256, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv98": {
+            "type": "conv",
+            "input": ["yolov4/conv97"],
+            "output": ["yolov4/conv99"],
+            "input_shapes": [[-1, 32, 32, 512]],
+            "output_shapes": [[-1, 32, 32, 256]],
+            "original_names": ["Conv_711", "BatchNormalization_712", "LeakyRelu_713"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 512, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv99": {
+            "type": "conv",
+            "input": ["yolov4/conv98"],
+            "output": ["yolov4/conv100"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 512]],
+            "original_names": ["Conv_714", "BatchNormalization_715", "LeakyRelu_716"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 256, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv100": {
+            "type": "conv",
+            "input": ["yolov4/conv99"],
+            "output": ["yolov4/conv101", "yolov4/conv102"],
+            "input_shapes": [[-1, 32, 32, 512]],
+            "output_shapes": [[-1, 32, 32, 256], [-1, 32, 32, 256]],
+            "original_names": ["Conv_717", "BatchNormalization_718", "LeakyRelu_719"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 512, 256],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv101": {
+            "type": "conv",
+            "input": ["yolov4/conv100"],
+            "output": ["yolov4/concat10"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 16, 16, 512]],
+            "original_names": ["Conv_1089", "BatchNormalization_1090", "LeakyRelu_1091"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 256, 512],
+                "strides": [1, 2, 2, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/concat10": {
+            "type": "concat",
+            "input": ["yolov4/conv101", "yolov4/conv80"],
+            "output": ["yolov4/conv104"],
+            "input_shapes": [[-1, 16, 16, 512], [-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 1024]],
+            "original_names": ["Concat_1092"],
+            "params": {
+                "spatial_w_concat": false
+            }
+        },
+        "yolov4/conv102": {
+            "type": "conv",
+            "input": ["yolov4/conv100"],
+            "output": ["yolov4/conv103_centers", "yolov4/conv103_obj", "yolov4/conv103_probs", "yolov4/conv103_scales"],
+            "input_shapes": [[-1, 32, 32, 256]],
+            "output_shapes": [[-1, 32, 32, 512], [-1, 32, 32, 512], [-1, 32, 32, 512], [-1, 32, 32, 512]],
+            "original_names": ["Conv_720", "BatchNormalization_721", "LeakyRelu_722"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 256, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv103_centers": {
+            "type": "conv",
+            "input": ["yolov4/conv102"],
+            "output": ["yolov4/output_layer5"],
+            "input_shapes": [[-1, 32, 32, 512]],
+            "output_shapes": [[-1, 32, 32, 6]],
+            "original_names": ["Conv_723"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 512, 6],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": false,
+                "elementwise_add": false,
+                "activation": "sigmoid"
+            }
+        },
+        "yolov4/conv103_obj": {
+            "type": "conv",
+            "input": ["yolov4/conv102"],
+            "output": ["yolov4/output_layer7"],
+            "input_shapes": [[-1, 32, 32, 512]],
+            "output_shapes": [[-1, 32, 32, 3]],
+            "original_names": ["Conv_723"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 512, 3],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": false,
+                "elementwise_add": false,
+                "activation": "sigmoid"
+            }
+        },
+        "yolov4/conv103_probs": {
+            "type": "conv",
+            "input": ["yolov4/conv102"],
+            "output": ["yolov4/output_layer8"],
+            "input_shapes": [[-1, 32, 32, 512]],
+            "output_shapes": [[-1, 32, 32, 240]],
+            "original_names": ["Conv_723"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 512, 240],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": false,
+                "elementwise_add": false,
+                "activation": "sigmoid"
+            }
+        },
+        "yolov4/conv103_scales": {
+            "type": "conv",
+            "input": ["yolov4/conv102"],
+            "output": ["yolov4/output_layer6"],
+            "input_shapes": [[-1, 32, 32, 512]],
+            "output_shapes": [[-1, 32, 32, 6]],
+            "original_names": ["Conv_723"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 512, 6],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": false,
+                "elementwise_add": false,
+                "activation": "linear"
+            }
+        },
+        "yolov4/conv104": {
+            "type": "conv",
+            "input": ["yolov4/concat10"],
+            "output": ["yolov4/conv105"],
+            "input_shapes": [[-1, 16, 16, 1024]],
+            "output_shapes": [[-1, 16, 16, 512]],
+            "original_names": ["Conv_1093", "BatchNormalization_1094", "LeakyRelu_1095"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 1024, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv105": {
+            "type": "conv",
+            "input": ["yolov4/conv104"],
+            "output": ["yolov4/conv106"],
+            "input_shapes": [[-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 1024]],
+            "original_names": ["Conv_1096", "BatchNormalization_1097", "LeakyRelu_1098"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 512, 1024],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv106": {
+            "type": "conv",
+            "input": ["yolov4/conv105"],
+            "output": ["yolov4/conv107"],
+            "input_shapes": [[-1, 16, 16, 1024]],
+            "output_shapes": [[-1, 16, 16, 512]],
+            "original_names": ["Conv_1099", "BatchNormalization_1100", "LeakyRelu_1101"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 1024, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv107": {
+            "type": "conv",
+            "input": ["yolov4/conv106"],
+            "output": ["yolov4/conv108"],
+            "input_shapes": [[-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 1024]],
+            "original_names": ["Conv_1102", "BatchNormalization_1103", "LeakyRelu_1104"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 512, 1024],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv108": {
+            "type": "conv",
+            "input": ["yolov4/conv107"],
+            "output": ["yolov4/conv109"],
+            "input_shapes": [[-1, 16, 16, 1024]],
+            "output_shapes": [[-1, 16, 16, 512]],
+            "original_names": ["Conv_1105", "BatchNormalization_1106", "LeakyRelu_1107"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 1024, 512],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv109": {
+            "type": "conv",
+            "input": ["yolov4/conv108"],
+            "output": ["yolov4/conv110_centers", "yolov4/conv110_obj", "yolov4/conv110_probs", "yolov4/conv110_scales"],
+            "input_shapes": [[-1, 16, 16, 512]],
+            "output_shapes": [[-1, 16, 16, 1024], [-1, 16, 16, 1024], [-1, 16, 16, 1024], [-1, 16, 16, 1024]],
+            "original_names": ["Conv_1108", "BatchNormalization_1109", "LeakyRelu_1110"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [3, 3, 512, 1024],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "SAME_TENSORFLOW",
+                "groups": 1,
+                "batch_norm": true,
+                "elementwise_add": false,
+                "activation": "leaky"
+            }
+        },
+        "yolov4/conv110_centers": {
+            "type": "conv",
+            "input": ["yolov4/conv109"],
+            "output": ["yolov4/output_layer1"],
+            "input_shapes": [[-1, 16, 16, 1024]],
+            "output_shapes": [[-1, 16, 16, 6]],
+            "original_names": ["Conv_1111"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 1024, 6],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": false,
+                "elementwise_add": false,
+                "activation": "sigmoid"
+            }
+        },
+        "yolov4/conv110_obj": {
+            "type": "conv",
+            "input": ["yolov4/conv109"],
+            "output": ["yolov4/output_layer3"],
+            "input_shapes": [[-1, 16, 16, 1024]],
+            "output_shapes": [[-1, 16, 16, 3]],
+            "original_names": ["Conv_1111"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 1024, 3],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": false,
+                "elementwise_add": false,
+                "activation": "sigmoid"
+            }
+        },
+        "yolov4/conv110_probs": {
+            "type": "conv",
+            "input": ["yolov4/conv109"],
+            "output": ["yolov4/output_layer4"],
+            "input_shapes": [[-1, 16, 16, 1024]],
+            "output_shapes": [[-1, 16, 16, 240]],
+            "original_names": ["Conv_1111"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 1024, 240],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": false,
+                "elementwise_add": false,
+                "activation": "sigmoid"
+            }
+        },
+        "yolov4/conv110_scales": {
+            "type": "conv",
+            "input": ["yolov4/conv109"],
+            "output": ["yolov4/output_layer2"],
+            "input_shapes": [[-1, 16, 16, 1024]],
+            "output_shapes": [[-1, 16, 16, 6]],
+            "original_names": ["Conv_1111"],
+            "quantization_params": {
+                "bias_mode": "double_scale_initialization"
+            },
+            "params": {
+                "kernel_shape": [1, 1, 1024, 6],
+                "strides": [1, 1, 1, 1],
+                "dilations": [1, 1, 1, 1],
+                "padding": "VALID",
+                "groups": 1,
+                "batch_norm": false,
+                "elementwise_add": false,
+                "activation": "linear"
+            }
+        },
+        "yolov4/output_layer1": {
+            "type": "output_layer",
+            "input": ["yolov4/conv110_centers"],
+            "output": [],
+            "input_shapes": [[-1, 16, 16, 6]],
+            "output_shapes": [[-1, 16, 16, 6]],
+            "original_names": ["out"],
+            "transposed": false
+        },
+        "yolov4/output_layer10": {
+            "type": "output_layer",
+            "input": ["yolov4/conv95_scales"],
+            "output": [],
+            "input_shapes": [[-1, 64, 64, 6]],
+            "output_shapes": [[-1, 64, 64, 6]],
+            "original_names": ["out"],
+            "transposed": false
+        },
+        "yolov4/output_layer11": {
+            "type": "output_layer",
+            "input": ["yolov4/conv95_obj"],
+            "output": [],
+            "input_shapes": [[-1, 64, 64, 3]],
+            "output_shapes": [[-1, 64, 64, 3]],
+            "original_names": ["out"],
+            "transposed": false
+        },
+        "yolov4/output_layer12": {
+            "type": "output_layer",
+            "input": ["yolov4/conv95_probs"],
+            "output": [],
+            "input_shapes": [[-1, 64, 64, 240]],
+            "output_shapes": [[-1, 64, 64, 240]],
+            "original_names": ["out"],
+            "transposed": false
+        },
+        "yolov4/output_layer2": {
+            "type": "output_layer",
+            "input": ["yolov4/conv110_scales"],
+            "output": [],
+            "input_shapes": [[-1, 16, 16, 6]],
+            "output_shapes": [[-1, 16, 16, 6]],
+            "original_names": ["out"],
+            "transposed": false
+        },
+        "yolov4/output_layer3": {
+            "type": "output_layer",
+            "input": ["yolov4/conv110_obj"],
+            "output": [],
+            "input_shapes": [[-1, 16, 16, 3]],
+            "output_shapes": [[-1, 16, 16, 3]],
+            "original_names": ["out"],
+            "transposed": false
+        },
+        "yolov4/output_layer4": {
+            "type": "output_layer",
+            "input": ["yolov4/conv110_probs"],
+            "output": [],
+            "input_shapes": [[-1, 16, 16, 240]],
+            "output_shapes": [[-1, 16, 16, 240]],
+            "original_names": ["out"],
+            "transposed": false
+        },
+        "yolov4/output_layer5": {
+            "type": "output_layer",
+            "input": ["yolov4/conv103_centers"],
+            "output": [],
+            "input_shapes": [[-1, 32, 32, 6]],
+            "output_shapes": [[-1, 32, 32, 6]],
+            "original_names": ["out"],
+            "transposed": false
+        },
+        "yolov4/output_layer6": {
+            "type": "output_layer",
+            "input": ["yolov4/conv103_scales"],
+            "output": [],
+            "input_shapes": [[-1, 32, 32, 6]],
+            "output_shapes": [[-1, 32, 32, 6]],
+            "original_names": ["out"],
+            "transposed": false
+        },
+        "yolov4/output_layer7": {
+            "type": "output_layer",
+            "input": ["yolov4/conv103_obj"],
+            "output": [],
+            "input_shapes": [[-1, 32, 32, 3]],
+            "output_shapes": [[-1, 32, 32, 3]],
+            "original_names": ["out"],
+            "transposed": false
+        },
+        "yolov4/output_layer8": {
+            "type": "output_layer",
+            "input": ["yolov4/conv103_probs"],
+            "output": [],
+            "input_shapes": [[-1, 32, 32, 240]],
+            "output_shapes": [[-1, 32, 32, 240]],
+            "original_names": ["out"],
+            "transposed": false
+        },
+        "yolov4/output_layer9": {
+            "type": "output_layer",
+            "input": ["yolov4/conv95_centers"],
+            "output": [],
+            "input_shapes": [[-1, 64, 64, 6]],
+            "output_shapes": [[-1, 64, 64, 6]],
+            "original_names": ["out"],
+            "transposed": false
+        }
+    }
+}

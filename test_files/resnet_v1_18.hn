@@ -1,0 +1,1058 @@
+{
+    "name": "resnet_v1_18", 
+    "net_params": {
+        "version": "1.0", 
+        "stage": "HN", 
+        "dtype": "uint8", 
+        "clusters_placement": [[]], 
+        "clusters_to_skip": []
+    }, 
+    "layers": {
+        "input_layer": {
+            "type": "input_layer", 
+            "input": [], 
+            "output": ["conv1"], 
+            "input_shapes": [[-1, 224, 224, 3]], 
+            "output_shapes": [[-1, 224, 224, 3]], 
+            "original_names": ["Placeholder"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }
+        }, 
+        "conv1": {
+            "type": "conv", 
+            "input": ["input_layer"], 
+            "output": ["maxpool1"], 
+            "input_shapes": [[-1, 224, 224, 3]], 
+            "output_shapes": [[-1, 112, 112, 64]], 
+            "original_names": ["resnet_v1_18/conv1/Pad", "resnet_v1_18/conv1/Conv2D", "resnet_v1_18/conv1/BatchNorm/cond/FusedBatchNorm_1/Switch", "resnet_v1_18/conv1/Relu"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [7, 7, 3, 64], 
+                "strides": [1, 2, 2, 1], 
+                "dilations": [1, 1, 1, 1], 
+                "padding": "SAME", 
+                "batch_norm": true, 
+                "elementwise_add": false, 
+                "activation": "relu"
+            }
+        }, 
+        "maxpool1": {
+            "type": "maxpool", 
+            "input": ["conv1"], 
+            "output": ["conv2", "conv3"], 
+            "input_shapes": [[-1, 112, 112, 64]], 
+            "output_shapes": [[-1, 56, 56, 64], [-1, 56, 56, 64]], 
+            "original_names": ["resnet_v1_18/pool1/MaxPool"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [1, 3, 3, 1], 
+                "strides": [1, 2, 2, 1], 
+                "padding": "SAME_TENSORFLOW"
+            }
+        }, 
+        "conv2": {
+            "type": "conv", 
+            "input": ["maxpool1"], 
+            "output": ["conv3"], 
+            "input_shapes": [[-1, 56, 56, 64]], 
+            "output_shapes": [[-1, 56, 56, 64]], 
+            "original_names": ["resnet_v1_18/block1/unit_1/res_block_v1/conv1/Conv2D", "resnet_v1_18/block1/unit_1/res_block_v1/conv1/BatchNorm/cond/FusedBatchNorm_1/Switch", "resnet_v1_18/block1/unit_1/res_block_v1/conv1/Relu"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [3, 3, 64, 64], 
+                "strides": [1, 1, 1, 1], 
+                "dilations": [1, 1, 1, 1], 
+                "padding": "SAME_TENSORFLOW", 
+                "batch_norm": true, 
+                "elementwise_add": false, 
+                "activation": "relu"
+            }
+        }, 
+        "conv3": {
+            "type": "conv", 
+            "input": ["conv2", "maxpool1"], 
+            "output": ["conv4", "conv5"], 
+            "input_shapes": [[-1, 56, 56, 64], [-1, 56, 56, 64]], 
+            "output_shapes": [[-1, 56, 56, 64], [-1, 56, 56, 64]], 
+            "original_names": ["resnet_v1_18/block1/unit_1/res_block_v1/conv2/Conv2D", "resnet_v1_18/block1/unit_1/res_block_v1/conv2/BatchNorm/cond/FusedBatchNorm_1/Switch", "resnet_v1_18/block1/unit_1/res_block_v1/add", "resnet_v1_18/block1/unit_1/res_block_v1/Relu"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [3, 3, 64, 64], 
+                "strides": [1, 1, 1, 1], 
+                "dilations": [1, 1, 1, 1], 
+                "padding": "SAME_TENSORFLOW", 
+                "batch_norm": true, 
+                "elementwise_add": true, 
+                "activation": "relu"
+            }
+        }, 
+        "conv4": {
+            "type": "conv", 
+            "input": ["conv3"], 
+            "output": ["conv5"], 
+            "input_shapes": [[-1, 56, 56, 64]], 
+            "output_shapes": [[-1, 56, 56, 64]], 
+            "original_names": ["resnet_v1_18/block1/unit_2/res_block_v1/conv1/Conv2D", "resnet_v1_18/block1/unit_2/res_block_v1/conv1/BatchNorm/cond/FusedBatchNorm_1/Switch", "resnet_v1_18/block1/unit_2/res_block_v1/conv1/Relu"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [3, 3, 64, 64], 
+                "strides": [1, 1, 1, 1], 
+                "dilations": [1, 1, 1, 1], 
+                "padding": "SAME_TENSORFLOW", 
+                "batch_norm": true, 
+                "elementwise_add": false, 
+                "activation": "relu"
+            }
+        }, 
+        "conv5": {
+            "type": "conv", 
+            "input": ["conv4", "conv3"], 
+            "output": ["conv6", "conv7"], 
+            "input_shapes": [[-1, 56, 56, 64], [-1, 56, 56, 64]], 
+            "output_shapes": [[-1, 56, 56, 64], [-1, 56, 56, 64]], 
+            "original_names": ["resnet_v1_18/block1/unit_2/res_block_v1/conv2/Conv2D", "resnet_v1_18/block1/unit_2/res_block_v1/conv2/BatchNorm/cond/FusedBatchNorm_1/Switch", "resnet_v1_18/block1/unit_2/res_block_v1/add", "resnet_v1_18/block1/unit_2/res_block_v1/Relu"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [3, 3, 64, 64], 
+                "strides": [1, 1, 1, 1], 
+                "dilations": [1, 1, 1, 1], 
+                "padding": "SAME_TENSORFLOW", 
+                "batch_norm": true, 
+                "elementwise_add": true, 
+                "activation": "relu"
+            }
+        }, 
+        "conv6": {
+            "type": "conv", 
+            "input": ["conv5"], 
+            "output": ["conv8"], 
+            "input_shapes": [[-1, 56, 56, 64]], 
+            "output_shapes": [[-1, 28, 28, 128]], 
+            "original_names": ["resnet_v1_18/block2/unit_1/res_block_v1/conv1/Pad", "resnet_v1_18/block2/unit_1/res_block_v1/conv1/Conv2D", "resnet_v1_18/block2/unit_1/res_block_v1/conv1/BatchNorm/cond/FusedBatchNorm_1/Switch", "resnet_v1_18/block2/unit_1/res_block_v1/conv1/Relu"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [3, 3, 64, 128], 
+                "strides": [1, 2, 2, 1], 
+                "dilations": [1, 1, 1, 1], 
+                "padding": "SAME", 
+                "batch_norm": true, 
+                "elementwise_add": false, 
+                "activation": "relu"
+            }
+        }, 
+        "conv7": {
+            "type": "conv", 
+            "input": ["conv5"], 
+            "output": ["conv8"], 
+            "input_shapes": [[-1, 56, 56, 64]], 
+            "output_shapes": [[-1, 28, 28, 128]], 
+            "original_names": ["resnet_v1_18/block2/unit_1/res_block_v1/shortcut/Conv2D", "resnet_v1_18/block2/unit_1/res_block_v1/shortcut/BatchNorm/cond/FusedBatchNorm_1/Switch"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [1, 1, 64, 128], 
+                "strides": [1, 2, 2, 1], 
+                "dilations": [1, 1, 1, 1], 
+                "padding": "VALID", 
+                "batch_norm": true, 
+                "elementwise_add": false, 
+                "activation": "linear"
+            }
+        }, 
+        "conv8": {
+            "type": "conv", 
+            "input": ["conv6", "conv7"], 
+            "output": ["conv9", "conv10"], 
+            "input_shapes": [[-1, 28, 28, 128], [-1, 28, 28, 128]], 
+            "output_shapes": [[-1, 28, 28, 128], [-1, 28, 28, 128]], 
+            "original_names": ["resnet_v1_18/block2/unit_1/res_block_v1/conv2/Conv2D", "resnet_v1_18/block2/unit_1/res_block_v1/conv2/BatchNorm/cond/FusedBatchNorm_1/Switch", "resnet_v1_18/block2/unit_1/res_block_v1/add", "resnet_v1_18/block2/unit_1/res_block_v1/Relu"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [3, 3, 128, 128], 
+                "strides": [1, 1, 1, 1], 
+                "dilations": [1, 1, 1, 1], 
+                "padding": "SAME_TENSORFLOW", 
+                "batch_norm": true, 
+                "elementwise_add": true, 
+                "activation": "relu"
+            }
+        }, 
+        "conv9": {
+            "type": "conv", 
+            "input": ["conv8"], 
+            "output": ["conv10"], 
+            "input_shapes": [[-1, 28, 28, 128]], 
+            "output_shapes": [[-1, 28, 28, 128]], 
+            "original_names": ["resnet_v1_18/block2/unit_2/res_block_v1/conv1/Conv2D", "resnet_v1_18/block2/unit_2/res_block_v1/conv1/BatchNorm/cond/FusedBatchNorm_1/Switch", "resnet_v1_18/block2/unit_2/res_block_v1/conv1/Relu"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [3, 3, 128, 128], 
+                "strides": [1, 1, 1, 1], 
+                "dilations": [1, 1, 1, 1], 
+                "padding": "SAME_TENSORFLOW", 
+                "batch_norm": true, 
+                "elementwise_add": false, 
+                "activation": "relu"
+            }
+        }, 
+        "conv10": {
+            "type": "conv", 
+            "input": ["conv9", "conv8"], 
+            "output": ["conv11", "conv12"], 
+            "input_shapes": [[-1, 28, 28, 128], [-1, 28, 28, 128]], 
+            "output_shapes": [[-1, 28, 28, 128], [-1, 28, 28, 128]], 
+            "original_names": ["resnet_v1_18/block2/unit_2/res_block_v1/conv2/Conv2D", "resnet_v1_18/block2/unit_2/res_block_v1/conv2/BatchNorm/cond/FusedBatchNorm_1/Switch", "resnet_v1_18/block2/unit_2/res_block_v1/add", "resnet_v1_18/block2/unit_2/res_block_v1/Relu"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [3, 3, 128, 128], 
+                "strides": [1, 1, 1, 1], 
+                "dilations": [1, 1, 1, 1], 
+                "padding": "SAME_TENSORFLOW", 
+                "batch_norm": true, 
+                "elementwise_add": true, 
+                "activation": "relu"
+            }
+        }, 
+        "conv11": {
+            "type": "conv", 
+            "input": ["conv10"], 
+            "output": ["conv13"], 
+            "input_shapes": [[-1, 28, 28, 128]], 
+            "output_shapes": [[-1, 14, 14, 256]], 
+            "original_names": ["resnet_v1_18/block3/unit_1/res_block_v1/conv1/Pad", "resnet_v1_18/block3/unit_1/res_block_v1/conv1/Conv2D", "resnet_v1_18/block3/unit_1/res_block_v1/conv1/BatchNorm/cond/FusedBatchNorm_1/Switch", "resnet_v1_18/block3/unit_1/res_block_v1/conv1/Relu"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [3, 3, 128, 256], 
+                "strides": [1, 2, 2, 1], 
+                "dilations": [1, 1, 1, 1], 
+                "padding": "SAME", 
+                "batch_norm": true, 
+                "elementwise_add": false, 
+                "activation": "relu"
+            }
+        }, 
+        "conv12": {
+            "type": "conv", 
+            "input": ["conv10"], 
+            "output": ["conv13"], 
+            "input_shapes": [[-1, 28, 28, 128]], 
+            "output_shapes": [[-1, 14, 14, 256]], 
+            "original_names": ["resnet_v1_18/block3/unit_1/res_block_v1/shortcut/Conv2D", "resnet_v1_18/block3/unit_1/res_block_v1/shortcut/BatchNorm/cond/FusedBatchNorm_1/Switch"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [1, 1, 128, 256], 
+                "strides": [1, 2, 2, 1], 
+                "dilations": [1, 1, 1, 1], 
+                "padding": "VALID", 
+                "batch_norm": true, 
+                "elementwise_add": false, 
+                "activation": "linear"
+            }
+        }, 
+        "conv13": {
+            "type": "conv", 
+            "input": ["conv11", "conv12"], 
+            "output": ["conv14", "conv15"], 
+            "input_shapes": [[-1, 14, 14, 256], [-1, 14, 14, 256]], 
+            "output_shapes": [[-1, 14, 14, 256], [-1, 14, 14, 256]], 
+            "original_names": ["resnet_v1_18/block3/unit_1/res_block_v1/conv2/Conv2D", "resnet_v1_18/block3/unit_1/res_block_v1/conv2/BatchNorm/cond/FusedBatchNorm_1/Switch", "resnet_v1_18/block3/unit_1/res_block_v1/add", "resnet_v1_18/block3/unit_1/res_block_v1/Relu"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [3, 3, 256, 256], 
+                "strides": [1, 1, 1, 1], 
+                "dilations": [1, 1, 1, 1], 
+                "padding": "SAME_TENSORFLOW", 
+                "batch_norm": true, 
+                "elementwise_add": true, 
+                "activation": "relu"
+            }
+        }, 
+        "conv14": {
+            "type": "conv", 
+            "input": ["conv13"], 
+            "output": ["conv15"], 
+            "input_shapes": [[-1, 14, 14, 256]], 
+            "output_shapes": [[-1, 14, 14, 256]], 
+            "original_names": ["resnet_v1_18/block3/unit_2/res_block_v1/conv1/Conv2D", "resnet_v1_18/block3/unit_2/res_block_v1/conv1/BatchNorm/cond/FusedBatchNorm_1/Switch", "resnet_v1_18/block3/unit_2/res_block_v1/conv1/Relu"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [3, 3, 256, 256], 
+                "strides": [1, 1, 1, 1], 
+                "dilations": [1, 1, 1, 1], 
+                "padding": "SAME_TENSORFLOW", 
+                "batch_norm": true, 
+                "elementwise_add": false, 
+                "activation": "relu"
+            }
+        }, 
+        "conv15": {
+            "type": "conv", 
+            "input": ["conv14", "conv13"], 
+            "output": ["conv16", "conv17"], 
+            "input_shapes": [[-1, 14, 14, 256], [-1, 14, 14, 256]], 
+            "output_shapes": [[-1, 14, 14, 256], [-1, 14, 14, 256]], 
+            "original_names": ["resnet_v1_18/block3/unit_2/res_block_v1/conv2/Conv2D", "resnet_v1_18/block3/unit_2/res_block_v1/conv2/BatchNorm/cond/FusedBatchNorm_1/Switch", "resnet_v1_18/block3/unit_2/res_block_v1/add", "resnet_v1_18/block3/unit_2/res_block_v1/Relu"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [3, 3, 256, 256], 
+                "strides": [1, 1, 1, 1], 
+                "dilations": [1, 1, 1, 1], 
+                "padding": "SAME_TENSORFLOW", 
+                "batch_norm": true, 
+                "elementwise_add": true, 
+                "activation": "relu"
+            }
+        }, 
+        "conv16": {
+            "type": "conv", 
+            "input": ["conv15"], 
+            "output": ["conv18"], 
+            "input_shapes": [[-1, 14, 14, 256]], 
+            "output_shapes": [[-1, 7, 7, 512]], 
+            "original_names": ["resnet_v1_18/block4/unit_1/res_block_v1/conv1/Pad", "resnet_v1_18/block4/unit_1/res_block_v1/conv1/Conv2D", "resnet_v1_18/block4/unit_1/res_block_v1/conv1/BatchNorm/cond/FusedBatchNorm_1/Switch", "resnet_v1_18/block4/unit_1/res_block_v1/conv1/Relu"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [3, 3, 256, 512], 
+                "strides": [1, 2, 2, 1], 
+                "dilations": [1, 1, 1, 1], 
+                "padding": "SAME", 
+                "batch_norm": true, 
+                "elementwise_add": false, 
+                "activation": "relu"
+            }
+        }, 
+        "conv17": {
+            "type": "conv", 
+            "input": ["conv15"], 
+            "output": ["conv18"], 
+            "input_shapes": [[-1, 14, 14, 256]], 
+            "output_shapes": [[-1, 7, 7, 512]], 
+            "original_names": ["resnet_v1_18/block4/unit_1/res_block_v1/shortcut/Conv2D", "resnet_v1_18/block4/unit_1/res_block_v1/shortcut/BatchNorm/cond/FusedBatchNorm_1/Switch"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [1, 1, 256, 512], 
+                "strides": [1, 2, 2, 1], 
+                "dilations": [1, 1, 1, 1], 
+                "padding": "VALID", 
+                "batch_norm": true, 
+                "elementwise_add": false, 
+                "activation": "linear"
+            }
+        }, 
+        "conv18": {
+            "type": "conv", 
+            "input": ["conv16", "conv17"], 
+            "output": ["conv19", "conv20"], 
+            "input_shapes": [[-1, 7, 7, 512], [-1, 7, 7, 512]], 
+            "output_shapes": [[-1, 7, 7, 512], [-1, 7, 7, 512]], 
+            "original_names": ["resnet_v1_18/block4/unit_1/res_block_v1/conv2/Conv2D", "resnet_v1_18/block4/unit_1/res_block_v1/conv2/BatchNorm/cond/FusedBatchNorm_1/Switch", "resnet_v1_18/block4/unit_1/res_block_v1/add", "resnet_v1_18/block4/unit_1/res_block_v1/Relu"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [3, 3, 512, 512], 
+                "strides": [1, 1, 1, 1], 
+                "dilations": [1, 1, 1, 1], 
+                "padding": "SAME_TENSORFLOW", 
+                "batch_norm": true, 
+                "elementwise_add": true, 
+                "activation": "relu"
+            }
+        }, 
+        "conv19": {
+            "type": "conv", 
+            "input": ["conv18"], 
+            "output": ["conv20"], 
+            "input_shapes": [[-1, 7, 7, 512]], 
+            "output_shapes": [[-1, 7, 7, 512]], 
+            "original_names": ["resnet_v1_18/block4/unit_2/res_block_v1/conv1/Conv2D", "resnet_v1_18/block4/unit_2/res_block_v1/conv1/BatchNorm/cond/FusedBatchNorm_1/Switch", "resnet_v1_18/block4/unit_2/res_block_v1/conv1/Relu"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [3, 3, 512, 512], 
+                "strides": [1, 1, 1, 1], 
+                "dilations": [1, 1, 1, 1], 
+                "padding": "SAME_TENSORFLOW", 
+                "batch_norm": true, 
+                "elementwise_add": false, 
+                "activation": "relu"
+            }
+        }, 
+        "conv20": {
+            "type": "conv", 
+            "input": ["conv19", "conv18"], 
+            "output": ["avgpool1"], 
+            "input_shapes": [[-1, 7, 7, 512], [-1, 7, 7, 512]], 
+            "output_shapes": [[-1, 7, 7, 512]], 
+            "original_names": ["resnet_v1_18/block4/unit_2/res_block_v1/conv2/Conv2D", "resnet_v1_18/block4/unit_2/res_block_v1/conv2/BatchNorm/cond/FusedBatchNorm_1/Switch", "resnet_v1_18/block4/unit_2/res_block_v1/add", "resnet_v1_18/block4/unit_2/res_block_v1/Relu"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [3, 3, 512, 512], 
+                "strides": [1, 1, 1, 1], 
+                "dilations": [1, 1, 1, 1], 
+                "padding": "SAME_TENSORFLOW", 
+                "batch_norm": true, 
+                "elementwise_add": true, 
+                "activation": "relu"
+            }
+        }, 
+        "avgpool1": {
+            "type": "avgpool", 
+            "input": ["conv20"], 
+            "output": ["fc1"], 
+            "input_shapes": [[-1, 7, 7, 512]], 
+            "output_shapes": [[-1, 1, 1, 512]], 
+            "original_names": ["resnet_v1_18/pool5/AvgPool"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [1, 7, 7, 1], 
+                "strides": [1, 7, 7, 1], 
+                "padding": "VALID"
+            }
+        }, 
+        "fc1": {
+            "type": "dense", 
+            "input": ["avgpool1"], 
+            "output": ["output_layer1"], 
+            "input_shapes": [[-1, 512]], 
+            "output_shapes": [[-1, 1000]], 
+            "original_names": ["resnet_v1_18/logits/Conv2D", "resnet_v1_18/logits/BiasAdd"], 
+            "compilation_params": {
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "balance_output_multisplit": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "no_contexts": "disabled", 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_input_width": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_width_offset": 0, 
+                "defuse_type": "NONE"
+            }, 
+            "params": {
+                "kernel_shape": [512, 1000], 
+                "batch_norm": false, 
+                "activation": "linear", 
+                "should_squeeze_kernel": true
+            }
+        }, 
+        "output_layer1": {
+            "type": "output_layer", 
+            "input": ["fc1"], 
+            "output": [], 
+            "input_shapes": [[-1, 1000]], 
+            "output_shapes": [[-1, 1000]], 
+            "original_names": ["out"], 
+            "compilation_params": {
+                "no_contexts": "disabled", 
+                "defuse_num_layers": 1, 
+                "mixed_mem": true, 
+                "hw_layer_type_list": [], 
+                "buffer_in_l4": false, 
+                "defuse_spatial_w": false, 
+                "use_16x4_sc": "allowed", 
+                "balance_output_multisplit": true, 
+                "resources_allocation_strategy": "min_scs_match_fps", 
+                "number_of_subclusters": 1
+            }, 
+            "quantization_params": {
+                "output_min_max_strategy": "default", 
+                "use_16bit_bias": false, 
+                "use_4bit_weights": "disabled"
+            }, 
+            "defuse_params": {
+                "defuse_width_offset": 0, 
+                "defuse_name": "", 
+                "defuse_features_offset": 0, 
+                "defuse_original_features": 0, 
+                "defuse_features": 0, 
+                "defuse_input_width": 0, 
+                "defuse_type": "NONE"
+            }
+        }
+    }
+}
