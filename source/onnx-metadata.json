@@ -18462,6 +18462,48 @@
     ]
   },
   {
+    "name": "Mish",
+    "module": "ai.onnx",
+    "version": 18,
+    "support_level": "common",
+    "description": "Mish: A Self Regularized Non-Monotonic Neural Activation Function.\n\nPerform the linear unit element-wise on the input tensor X using formula:\n\n```\nmish(x) = x * tanh(softplus(x)) = x * tanh(ln(1 + e^{x}))\n```\n",
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T",
+        "description": "Input tensor"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T",
+        "description": "Output tensor"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input X and output types to float tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "mish",
+        "code": "node = onnx.helper.make_node(\n    'Mish',\n    inputs=['X'],\n    outputs=['Y']\n)\n\ninput_data = np.linspace(-10, 10, 10000, dtype=np.float32)\n\n# Calculate expected output data\nexpected_output = input_data * np.tanh(np.log1p(np.exp(input_data)))\n\nexpect(node, inputs=[input_data], outputs=[expected_output],\n       name='test_mish')"
+      }
+    ]
+  },
+  {
     "name": "Mod",
     "module": "ai.onnx",
     "version": 10,
