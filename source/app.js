@@ -132,7 +132,7 @@ class Application {
                 this._openPath(file);
             }
         }
-        if (this._views.count == 0) {
+        if (this._views.count === 0) {
             this._views.openView();
         }
         this._resetMenu();
@@ -172,7 +172,7 @@ class Application {
                     'pkl', 'joblib',
                     'pbtxt', 'prototxt',
                     'cfg', 'xml',
-                    'zip', 'tar', 'hn' ] }
+                    'zip', 'tar', 'hn', 'har' ] }
             ]
         };
         const selectedFiles = electron.dialog.showOpenDialogSync(showOpenDialogOptions);
@@ -257,7 +257,7 @@ class Application {
     }
 
     service(name) {
-        if (name == 'configuration') {
+        if (name === 'configuration') {
             return this._configuration;
         }
         return undefined;
@@ -462,7 +462,7 @@ class Application {
             );
         }
 
-        if (process.platform == 'darwin') {
+        if (process.platform === 'darwin') {
             electron.systemPreferences.setUserDefault('NSDisabledDictationMenuItem', 'boolean', true);
             electron.systemPreferences.setUserDefault('NSDisabledCharacterPaletteMenuItem', 'boolean', true);
         }
@@ -611,57 +611,57 @@ class Application {
 
         const commandTable = new Map();
         commandTable.set('file.export', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => { return !!(context.view && context.view.path); }
         });
         commandTable.set('edit.cut', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => { return !!(context.view && context.view.path); }
         });
         commandTable.set('edit.copy', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => { return !!(context.view && context.view.path); }
         });
         commandTable.set('edit.paste', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => { return !!(context.view && context.view.path); }
         });
         commandTable.set('edit.select-all', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => { return !!(context.view && context.view.path); }
         });
         commandTable.set('edit.find', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => { return !!(context.view && context.view.path); }
         });
         commandTable.set('view.toggle-attributes', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; },
+            enabled: (context) => { return !!(context.view && context.view.path); },
             label: (context) => { return !context.view || context.view.get('attributes') ? 'Hide &Attributes' : 'Show &Attributes'; }
         });
         commandTable.set('view.toggle-initializers', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; },
+            enabled: (context) => { return !!(context.view && context.view.path); },
             label: (context) => { return !context.view || context.view.get('initializers') ? 'Hide &Initializers' : 'Show &Initializers'; }
         });
         commandTable.set('view.toggle-names', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; },
+            enabled: (context) => { return !!(context.view && context.view.path); },
             label: (context) => { return !context.view || context.view.get('names') ? 'Hide &Names' : 'Show &Names'; }
         });
         commandTable.set('view.toggle-direction', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; },
+            enabled: (context) => { return !!(context.view && context.view.path); },
             label: (context) => { return !context.view || context.view.get('direction') === 'vertical' ? 'Show &Horizontal' : 'Show &Vertical'; }
         });
         commandTable.set('view.toggle-mousewheel', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; },
+            enabled: (context) => { return !!(context.view && context.view.path); },
             label: (context) => { return !context.view || context.view.get('mousewheel') === 'scroll' ? '&Mouse Wheel: Zoom' : '&Mouse Wheel: Scroll'; }
         });
         commandTable.set('view.reload', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => { return !!(context.view && context.view.path); }
         });
         commandTable.set('view.reset-zoom', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => { return !!(context.view && context.view.path); }
         });
         commandTable.set('view.zoom-in', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => { return !!(context.view && context.view.path); }
         });
         commandTable.set('view.zoom-out', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => { return !!(context.view && context.view.path); }
         });
         commandTable.set('view.show-properties', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => { return !!(context.view && context.view.path); }
         });
 
         this._menu.build(menuTemplate, commandTable, this._views.views.map((view) => view.window));
@@ -704,7 +704,7 @@ class View {
                 nodeIntegration: true
             }
         };
-        if (this._owner.count > 0 && View._position && View._position.length == 2) {
+        if (this._owner.count > 0 && View._position && View._position.length === 2) {
             options.x = View._position[0] + 30;
             options.y = View._position[1] + 30;
             if (options.x + options.width > size.width) {
@@ -717,7 +717,7 @@ class View {
         this._window = new electron.BrowserWindow(options);
         View._position = this._window.getPosition();
         this._updateCallback = (event, data) => {
-            if (event.sender == this._window.webContents) {
+            if (event.sender === this._window.webContents) {
                 for (const entry of Object.entries(data)) {
                     this.update(entry[0], entry[1]);
                 }
@@ -789,7 +789,7 @@ class View {
                 return true;
             }
         }
-        return this._path == path;
+        return this._path === path;
     }
 
     execute(command, data) {
@@ -869,7 +869,7 @@ class ViewCollection {
 
     closeView(view) {
         for (let i = this._views.length - 1; i >= 0; i--) {
-            if (this._views[i] == view) {
+            if (this._views[i] === view) {
                 this._views.splice(i, 1);
             }
         }
@@ -881,7 +881,7 @@ class ViewCollection {
     }
 
     from(contents) {
-        return this._views.find(view => view && view.window && view.window.webContents && view.window.webContents == contents);
+        return this._views.find(view => view && view.window && view.window.webContents && view.window.webContents === contents);
     }
 
     get activeView() {
@@ -904,7 +904,7 @@ class ViewCollection {
 
     _updateActiveView() {
         const window = electron.BrowserWindow.getFocusedWindow();
-        const view = this._views.find(view => view.window == window) || null;
+        const view = this._views.find(view => view.window === window) || null;
         if (view !== this._activeView) {
             this._activeView = view;
             this._raise('active-view-changed', { activeView: this._activeView });

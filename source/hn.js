@@ -12,25 +12,57 @@ hn.DataTypes = {
 
 hn.MetadataFile = 'hn-metadata.json';
 
+hn.FileExtensions = {
+    HN: 'hn',
+    TAR: 'tar',
+    HAR: 'har',
+    JSON: 'json'
+}
+
 hn.ModelFactory = class {
     match(context) {
         const extension = context.identifier.split('.').pop().toLowerCase();
-        if (extension === 'hn') {
-            const obj = context.open('json');
-            if (obj && obj.name && obj.net_params && obj.layers) {
-                return 'model.hn';
+        let json;
+        if (extension === hn.FileExtensions.HN) {
+            json = context.open(hn.FileExtensions.JSON);
+            if (json && json.name && json.net_params && json.layers) {
+                return hn.FileExtensions.HN;
             }
         }
+        if (extension === hn.FileExtensions.HAR) {
+            const entries = [...context.entries(hn.FileExtensions.TAR)]
+            const regExp = new RegExp(`.${hn.FileExtensions.HN}$`)
+            const [_,stream] = entries.find(([name]) => regExp.test(name));
+            const buffer = stream.peek();
+            const decoder = new TextDecoder('utf-8');
+            const content = decoder.decode(buffer);
+            json = JSON.parse(content);
+            if (json && json.name && json.net_params && json.layers) {
+                return hn.FileExtensions.HAR;
+            }
+        }
+
         return undefined;
     }
 
     open(context, match) {
         return context.metadata(hn.MetadataFile).then((metadata) => {
             switch (match) {
-                case 'model.hn': {
-                    const configuration = context.open('json');
+                case hn.FileExtensions.HN: {
+                    const configuration = context.open(hn.FileExtensions.JSON);
                     const graph_metadata = new hn.GraphMetadata(metadata);
+                    return new hn.Model(graph_metadata, configuration);
+                }
 
+                case hn.FileExtensions.HAR: {
+                    const entries = [...context.entries(hn.FileExtensions.TAR)]
+                    const regExp = new RegExp(`.${hn.FileExtensions.HN}$`)
+                    const [_,stream] = entries.find(([name]) => regExp.test(name));
+                    const buffer = stream.peek();
+                    const decoder = new TextDecoder('utf-8');
+                    const content = decoder.decode(buffer);
+                    const configuration = JSON.parse(content);
+                    const graph_metadata = new hn.GraphMetadata(metadata);
                     return new hn.Model(graph_metadata, configuration);
                 }
 
@@ -38,6 +70,10 @@ hn.ModelFactory = class {
                     throw new hn.Error("Unsupported Hailo Network format '" + match + "'.");
                 }
             }
+
+
+
+
         });
     }
 };
@@ -48,7 +84,7 @@ hn.Model = class {
         this._graphs.push(new hn.Graph(metadata, configuration));
         this._name = configuration && configuration.name || "";
         this._version = configuration && configuration.net_params && configuration.net_params.version || 0.0;
-        this._format = 'hn';
+        this._format = hn.FileExtensions.HN;
     }
 
     get graphs() {
