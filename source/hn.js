@@ -22,9 +22,8 @@ hn.FileExtensions = {
 hn.ModelFactory = class {
     match(context) {
         const extension = context.identifier.split('.').pop().toLowerCase();
-        let json;
         if (extension === hn.FileExtensions.HN) {
-            json = context.open(hn.FileExtensions.JSON);
+            const json = context.open(hn.FileExtensions.JSON);
             if (json && json.name && json.net_params && json.layers) {
                 return hn.FileExtensions.HN;
             }
@@ -36,7 +35,7 @@ hn.ModelFactory = class {
             const buffer = stream.peek();
             const decoder = new TextDecoder('utf-8');
             const content = decoder.decode(buffer);
-            json = JSON.parse(content);
+            const json = JSON.parse(content);
             if (json && json.name && json.net_params && json.layers) {
                 return hn.FileExtensions.HAR;
             }
