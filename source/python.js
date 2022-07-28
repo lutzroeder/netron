@@ -497,8 +497,17 @@ python.Parser = class {
                             node.type = 'is not';
                         }
                     }
-                    node.left = stack.pop();
-                    node.right = this._expression(precedence, terminal, tuple === false ? false : true);
+                    if (stack.length > 0) {
+                        node.op = node.type;
+                        node.type = 'binary';
+                        node.left = stack.pop();
+                        node.right = this._expression(precedence, terminal, tuple === false ? false : true);
+                    }
+                    else {
+                        node.op = node.type;
+                        node.type = 'unary';
+                        node.operand = this._expression(precedence, terminal, tuple === false ? false : true);
+                    }
                     stack.push(node);
                     continue;
                 }
@@ -4035,6 +4044,16 @@ python.Execution = class {
                     dict[key] = value;
                 }
                 return dict;
+            }
+            case 'unary': {
+                switch (expression.op) {
+                    case '-': {
+                        return -this.expression(expression.operand, context);
+                    }
+                    default: {
+                        throw new python.Error("Unsupported unary expression '" + expression.op + "'.");
+                    }
+                }
             }
             default: {
                 throw new python.Error("Unsupported expression '" + expression.type + "'.");

@@ -2156,6 +2156,7 @@ pytorch.Execution = class extends python.Execution {
         torch.per_tensor_symmetric = new torch.qscheme();
         torch.per_channel_symmetric = new torch.qscheme();
         torch.per_channel_affine_float_qparams = new torch.qscheme();
+        torch.inf = this.register('math').inf;
     }
 
     debug(file) {
@@ -2675,6 +2676,7 @@ pytorch.Container.Zip.Script = class {
         this._execution.builtins.torch = torch;
         this._execution.builtins.Tensor = torch.Tensor;
         this._execution.builtins.ops = torch.ops;
+        this._execution.builtins.inf = torch.inf;
         const constants = {};
         for (let i = 0; i < this.constants.length; i++) {
             constants['c' + i.toString()] = this.constants[i];
