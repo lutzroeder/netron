@@ -1416,7 +1416,7 @@
     "attributes": [
       {
         "default": "1.0",
-        "description": "Additive (Laplace/Lidstone) smoothing parameter\n(0 for no smoothing).\n",
+        "description": "Additive (Laplace/Lidstone) smoothing parameter\n(set alpha=0 and force_alpha=True, for no smoothing).\n",
         "name": "alpha",
         "optional": true,
         "type": "float32"
@@ -1439,6 +1439,12 @@
         "description": "Prior probabilities of the classes. If specified, the priors are not\nadjusted according to the data.\n",
         "name": "class_prior",
         "optional": true
+      },
+      {
+        "name": "force_alpha",
+        "description": "If False and alpha is less than 1e-10, it will set alpha to\n1e-10. If True, alpha will remain unchanged. This may cause\nnumerical errors if alpha is too close to 0.\n\n.. versionadded:: 1.2\n.. deprecated:: 1.2\nThe default value of `force_alpha` will change to `True` in v1.4.\n",
+        "type": "boolean",
+        "default": false
       }
     ]
   },
@@ -1448,7 +1454,7 @@
     "attributes": [
       {
         "default": "1.0",
-        "description": "Additive (Laplace/Lidstone) smoothing parameter (0 for no smoothing).\n",
+        "description": "Additive (Laplace/Lidstone) smoothing parameter\n(set alpha=0 and force_alpha=True, for no smoothing).\n",
         "name": "alpha",
         "optional": true,
         "type": "float32"
@@ -1472,6 +1478,12 @@
         "name": "norm",
         "optional": true,
         "type": "boolean"
+      },
+      {
+        "name": "force_alpha",
+        "description": "If False and alpha is less than 1e-10, it will set alpha to\n1e-10. If True, alpha will remain unchanged. This may cause\nnumerical errors if alpha is too close to 0.\n\n.. versionadded:: 1.2\n.. deprecated:: 1.2\nThe default value of `force_alpha` will change to `True` in v1.4.\n",
+        "type": "boolean",
+        "default": false
       }
     ]
   },
@@ -1481,7 +1493,7 @@
     "attributes": [
       {
         "default": "1.0",
-        "description": "Additive (Laplace/Lidstone) smoothing parameter\n(0 for no smoothing).\n",
+        "description": "Additive (Laplace/Lidstone) smoothing parameter\n(set alpha=0 and force_alpha=True, for no smoothing).\n",
         "name": "alpha",
         "optional": true,
         "type": "float32"
@@ -1498,6 +1510,12 @@
         "description": "Prior probabilities of the classes. If specified, the priors are not\nadjusted according to the data.\n",
         "name": "class_prior",
         "optional": true
+      },
+      {
+        "name": "force_alpha",
+        "description": "If False and alpha is less than 1e-10, it will set alpha to\n1e-10. If True, alpha will remain unchanged. This may cause\nnumerical errors if alpha is too close to 0.\n\n.. versionadded:: 1.2\n.. deprecated:: 1.2\nThe default value of `force_alpha` will change to `True` in v1.4.\n",
+        "type": "boolean",
+        "default": false
       }
     ]
   },
