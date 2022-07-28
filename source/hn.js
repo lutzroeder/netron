@@ -70,10 +70,6 @@ hn.ModelFactory = class {
                     throw new hn.Error("Unsupported Hailo Network format '" + match + "'.");
                 }
             }
-
-
-
-
         });
     }
 };
@@ -147,7 +143,6 @@ hn.Graph = class {
                 return new hn.Node(layer_metadata, layer);
             });
         };
-
 
         const layers = mapLayersObjectToArray(configuration.layers);
 
