@@ -63,7 +63,7 @@ hn.ModelFactory = class {
     _getJSONFromTAR(context){
         const entries = [...context.entries(hn.FileExtensions.TAR)];
         const regExp = new RegExp(`.${hn.FileExtensions.HN}$`);
-        const [_, stream] = entries.find(([name]) => regExp.test(name));
+        const [, stream] = entries.find(([name]) => regExp.test(name));
         const buffer = stream.peek();
         const decoder = new TextDecoder('utf-8');
         const content = decoder.decode(buffer);
