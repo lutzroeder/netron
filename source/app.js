@@ -302,7 +302,7 @@ class Application {
             const file = path.join(path.dirname(__dirname), 'package.json');
             const data = fs.readFileSync(file);
             this._package = JSON.parse(data);
-            this._package.date = new Date(fs.statSync(file).mtime);
+            this._package.date = fs.statSync(file).mtime;
         }
         return this._package;
     }
