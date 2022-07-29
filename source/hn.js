@@ -17,7 +17,7 @@ hn.FileExtensions = {
     TAR: 'tar',
     HAR: 'har',
     JSON: 'json'
-}
+};
 
 hn.ModelFactory = class {
     match(context) {
@@ -29,9 +29,9 @@ hn.ModelFactory = class {
             }
         }
         if (extension === hn.FileExtensions.HAR) {
-            const entries = [...context.entries(hn.FileExtensions.TAR)]
-            const regExp = new RegExp(`.${hn.FileExtensions.HN}$`)
-            const [_,stream] = entries.find(([name]) => regExp.test(name));
+            const entries = [...context.entries(hn.FileExtensions.TAR)];
+            const regExp = new RegExp(`.${hn.FileExtensions.HN}$`);
+            const [_, stream] = entries.find(([name]) => regExp.test(name));
             const buffer = stream.peek();
             const decoder = new TextDecoder('utf-8');
             const content = decoder.decode(buffer);
@@ -54,9 +54,9 @@ hn.ModelFactory = class {
                 }
 
                 case hn.FileExtensions.HAR: {
-                    const entries = [...context.entries(hn.FileExtensions.TAR)]
-                    const regExp = new RegExp(`.${hn.FileExtensions.HN}$`)
-                    const [_,stream] = entries.find(([name]) => regExp.test(name));
+                    const entries = [...context.entries(hn.FileExtensions.TAR)];
+                    const regExp = new RegExp(`.${hn.FileExtensions.HN}$`);
+                    const [_, stream] = entries.find(([name]) => regExp.test(name));
                     const buffer = stream.peek();
                     const decoder = new TextDecoder('utf-8');
                     const content = decoder.decode(buffer);
@@ -212,35 +212,26 @@ hn.Node = class {
 
         const getTypeByName = ((layer_metadata) => (attribute_name) => {
             return layer_metadata && layer_metadata.attributes && layer_metadata.attributes.find(({name}) => {
-                return name === attribute_name
+                return name === attribute_name;
             }) || {
                 name,
                 type: "Layer",
                 visible: true
-            }
-        })(layer_metadata)
+            };
+        })(layer_metadata);
 
         const getNodeAttributes = (layer) => {
             const {
-                original_names,
-                compilation_params,
-                quantization_params,
-                defuse_params,
+                original_names = [],
             } = layer;
 
             const params_object = {
-                ...compilation_params,
-                ...quantization_params,
-                ...defuse_params,
+                original_names
             };
 
-            if (original_names) {
-                params_object.original_names = original_names;
-            }
-
             return Object.entries(params_object).reduce((acc, [name, value]) => {
-                const schema = getTypeByName(name)
-                const attribute = new hn.Attribute(schema, name, value)
+                const schema = getTypeByName(name);
+                const attribute = new hn.Attribute(schema, name, value);
                 acc.push(attribute);
                 return acc;
             }, []);
@@ -258,15 +249,15 @@ hn.Node = class {
                     const schema = getTypeByName(name);
                     if (schema.visible) {
                         if (!Array.isArray(value)) {
-                            value = [value]
+                            value = [value];
                         }
                         acc.push(new hn.Parameter(name, true, [
                             new hn.Argument(name, null, new hn.Tensor(hn.DataTypes.ARRAY, value), value)
                         ]));
                     }
                     return acc;
-                }, [])
-            }
+                }, []);
+            };
 
             const params_array = params ? Object.entries(params) : [];
             const params_list = getParams(params_array, layer_metadata);
@@ -284,17 +275,21 @@ hn.Node = class {
         };
 
         const getChain = (layer) => {
-            return layer && layer.params && layer.params.activation ? [new hn.Node({name: "activation", type: "Activation", visible: true}, {
-                type: "Activation",
+            return layer && layer.params && layer.params.activation ? [new hn.Node({
+                name: "activation",
+                type: "activation",
+                visible: true
+            }, {
+                type: layer.params.activation,
                 name: layer.params.activation,
                 input: [],
                 output: []
-            })] : []
+            })] : [];
         };
 
 
         this._name = layer.name || '';
-        this._type = { category: layer_metadata.type, name: layer.name, attributes: layer_metadata.attributes };
+        this._type = { category: layer_metadata.type, name: layer.type, attributes: layer_metadata.attributes };
 
         this._inputs = getNodeInputs(layer);
         this._outputs = getNodeOutputs(layer);
