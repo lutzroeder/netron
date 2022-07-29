@@ -123,7 +123,8 @@
             { "ext": "tnnproto",    "name": "TNN Model"                },
             { "ext": "torchscript", "name": "PyTorch Model"            },
             { "ext": "uff",         "name": "UFF Model"                },
-            { "ext": "xmodel",      "name": "Vitis AI Model"           }
+            { "ext": "xmodel",      "name": "Vitis AI Model"           },
+            { "ext": "tm",          "name": "MegEngine TracedModule"   }
         ],
         "afterSign": "./publish/notarize.js",
         "publish": [
