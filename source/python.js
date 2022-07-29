@@ -1621,16 +1621,13 @@ python.Execution = class {
         const dict = class extends Map {};
         this._modules = new dict();
         this._registry = new Map();
-        const builtins = this.register('builtins');
-        this._builtins = builtins;
-        this._builtins.type = { __module__: 'builtins', __name__: 'type' };
-        this._builtins.type.__class__ = this._builtins.type;
-        this._builtins.module = { __module__: 'builtins', __name__: 'module', __class__: this._builtins.type };
-        this._builtins.module.__type__ = this._builtins.module;
+        this._builtins = this.register('builtins');
         this._registry.set('__builtin__', this._builtins);
         this.import('builtins');
-        const typing = this.register('typing');
-        this._typing = typing;
+        this.registerType('builtins.type', class {}).__class__ = this._builtins.type;
+        this.registerType('builtins.module', class {});
+        this.registerType('builtins.builtin_function_or_method', class {});
+        this._typing = this.register('typing');
         this.register('_codecs');
         this.register('argparse');
         this.register('collections');
@@ -1709,17 +1706,17 @@ python.Execution = class {
             }
         });
         this.registerType('builtins.Warning', class {});
-        this.registerType('builtins.FutureWarning', class extends builtins.Warning {});
+        this.registerType('builtins.FutureWarning', class extends this._builtins.Warning {});
         this.registerType('typing._Final', class {});
-        this.registerType('typing._SpecialForm', class extends typing._Final {});
+        this.registerType('typing._SpecialForm', class extends this._typing._Final {});
         this.registerType('typing._BaseGenericAlias', class extends this._typing._Final {});
         this.registerType('typing._GenericAlias', class extends this._typing._BaseGenericAlias {});
         this.registerType('typing._SpecialGenericAlias', class extends this._typing._BaseGenericAlias {});
         this.registerType('typing._TupleType', class extends this._typing._SpecialGenericAlias {});
-        typing.Optional = Reflect.construct(typing._SpecialForm, []);
-        typing.List = Reflect.construct(typing._SpecialGenericAlias, []);
-        typing.Dict = Reflect.construct(typing._SpecialGenericAlias, []);
-        typing.Tuple = Reflect.construct(typing._TupleType, []);
+        this._typing.Optional = Reflect.construct(this._typing._SpecialForm, []);
+        this._typing.List = Reflect.construct(this._typing._SpecialGenericAlias, []);
+        this._typing.Dict = Reflect.construct(this._typing._SpecialGenericAlias, []);
+        this._typing.Tuple = Reflect.construct(this._typing._TupleType, []);
         this.registerType('argparse.Namespace', class {
             constructor(args) {
                 this.args = args;
