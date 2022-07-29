@@ -29,13 +29,7 @@ hn.ModelFactory = class {
             }
         }
         if (extension === hn.FileExtensions.HAR) {
-            const entries = [...context.entries(hn.FileExtensions.TAR)];
-            const regExp = new RegExp(`.${hn.FileExtensions.HN}$`);
-            const [_, stream] = entries.find(([name]) => regExp.test(name));
-            const buffer = stream.peek();
-            const decoder = new TextDecoder('utf-8');
-            const content = decoder.decode(buffer);
-            const json = JSON.parse(content);
+            const json = this._getJSONFromTAR(context);
             if (json && json.name && json.net_params && json.layers) {
                 return hn.FileExtensions.HAR;
             }
@@ -54,15 +48,9 @@ hn.ModelFactory = class {
                 }
 
                 case hn.FileExtensions.HAR: {
-                    const entries = [...context.entries(hn.FileExtensions.TAR)];
-                    const regExp = new RegExp(`.${hn.FileExtensions.HN}$`);
-                    const [_, stream] = entries.find(([name]) => regExp.test(name));
-                    const buffer = stream.peek();
-                    const decoder = new TextDecoder('utf-8');
-                    const content = decoder.decode(buffer);
-                    const configuration = JSON.parse(content);
+                    const json = this._getJSONFromTAR(context);
                     const graph_metadata = new hn.GraphMetadata(metadata);
-                    return new hn.Model(graph_metadata, configuration);
+                    return new hn.Model(graph_metadata, json);
                 }
 
                 default: {
@@ -70,6 +58,16 @@ hn.ModelFactory = class {
                 }
             }
         });
+    }
+
+    _getJSONFromTAR(context){
+        const entries = [...context.entries(hn.FileExtensions.TAR)];
+        const regExp = new RegExp(`.${hn.FileExtensions.HN}$`);
+        const [_, stream] = entries.find(([name]) => regExp.test(name));
+        const buffer = stream.peek();
+        const decoder = new TextDecoder('utf-8');
+        const content = decoder.decode(buffer);
+        return JSON.parse(content);
     }
 };
 
