@@ -411,20 +411,6 @@ coreml.Graph = class {
                     [ model.description.output[0].name ]);
                 return 'Generalized Linear Regressor';
             }
-            case 'dictVectorizer': {
-                this._createNode(scope, group, 'dictVectorizer', null, description,
-                    model.dictVectorizer,
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                return 'Dictionary Vectorizer';
-            }
-            case 'featureVectorizer': {
-                this._createNode(scope, group, 'featureVectorizer', null, description,
-                    model.featureVectorizer,
-                    coreml.Graph._formatFeatureDescriptionList(model.description.input),
-                    [ model.description.output[0].name ]);
-                return 'Feature Vectorizer';
-            }
             case 'treeEnsembleClassifier': {
                 this._createNode(scope, group, 'treeEnsembleClassifier', null, description,
                     model.treeEnsembleClassifier.treeEnsemble,
@@ -469,13 +455,6 @@ coreml.Graph = class {
                     [ model.description.output[0].name ]);
                 return 'Support Vector Regressor';
             }
-            case 'arrayFeatureExtractor': {
-                this._createNode(scope, group, 'arrayFeatureExtractor', null, description,
-                    { extractIndex: model.arrayFeatureExtractor.extractIndex },
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                return 'Array Feature Extractor';
-            }
             case 'oneHotEncoder': {
                 const categoryType = model.oneHotEncoder.CategoryType;
                 const oneHotEncoderParams = { outputSparse: model.oneHotEncoder.outputSparse };
@@ -498,6 +477,34 @@ coreml.Graph = class {
                     [ model.description.output[0].name ]);
                 return 'Imputer';
             }
+            case 'featureVectorizer': {
+                this._createNode(scope, group, 'featureVectorizer', null, description,
+                    model.featureVectorizer,
+                    coreml.Graph._formatFeatureDescriptionList(model.description.input),
+                    [ model.description.output[0].name ]);
+                return 'Feature Vectorizer';
+            }
+            case 'dictVectorizer': {
+                this._createNode(scope, group, 'dictVectorizer', null, description,
+                    model.dictVectorizer,
+                    [ model.description.input[0].name ],
+                    [ model.description.output[0].name ]);
+                return 'Dictionary Vectorizer';
+            }
+            case 'scaler': {
+                this._createNode(scope, group, 'scaler', null, description,
+                    model.scaler,
+                    [ model.description.input[0].name ],
+                    [ model.description.output[0].name ]);
+                return 'Scaler';
+            }
+            case 'categoricalMapping': {
+                this._createNode(scope, group, 'categoricalMapping', null, description,
+                    model.categoricalMapping,
+                    [ model.description.input[0].name ],
+                    [ model.description.output[0].name ]);
+                return 'Categorical Mapping';
+            }
             case 'normalizer': {
                 this._createNode(scope, group, 'normalizer', null, description,
                     model.normalizer,
@@ -505,24 +512,12 @@ coreml.Graph = class {
                     [ model.description.output[0].name ]);
                 return 'Normalizer';
             }
-            case 'wordTagger': {
-                this._createNode(scope, group, 'wordTagger', null, description,
-                    model.wordTagger,
-                    [ model.description.input[0].name ],
-                    [
-                        model.wordTagger.tokensOutputFeatureName,
-                        model.wordTagger.tokenTagsOutputFeatureName,
-                        model.wordTagger.tokenLocationsOutputFeatureName,
-                        model.wordTagger.tokenLengthsOutputFeatureName
-                    ]);
-                return 'Word Tagger';
-            }
-            case 'textClassifier': {
-                this._createNode(scope, group, 'textClassifier', null, description,
-                    model.textClassifier,
+            case 'arrayFeatureExtractor': {
+                this._createNode(scope, group, 'arrayFeatureExtractor', null, description,
+                    { extractIndex: model.arrayFeatureExtractor.extractIndex },
                     [ model.description.input[0].name ],
                     [ model.description.output[0].name ]);
-                return 'Text Classifier';
+                return 'Array Feature Extractor';
             }
             case 'nonMaximumSuppression': {
                 const nonMaximumSuppressionParams = {
@@ -544,6 +539,25 @@ coreml.Graph = class {
                         model.nonMaximumSuppression.coordinatesOutputFeatureName
                     ]);
                 return 'Non Maximum Suppression';
+            }
+            case 'wordTagger': {
+                this._createNode(scope, group, 'wordTagger', null, description,
+                    model.wordTagger,
+                    [ model.description.input[0].name ],
+                    [
+                        model.wordTagger.tokensOutputFeatureName,
+                        model.wordTagger.tokenTagsOutputFeatureName,
+                        model.wordTagger.tokenLocationsOutputFeatureName,
+                        model.wordTagger.tokenLengthsOutputFeatureName
+                    ]);
+                return 'Word Tagger';
+            }
+            case 'textClassifier': {
+                this._createNode(scope, group, 'textClassifier', null, description,
+                    model.textClassifier,
+                    [ model.description.input[0].name ],
+                    [ model.description.output[0].name ]);
+                return 'Text Classifier';
             }
             case 'visionFeaturePrint': {
                 const visionFeaturePrintParams = {
