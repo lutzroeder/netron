@@ -8975,6 +8975,9 @@ $root.tensorflow.RewriterConfig = class RewriterConfig {
                 case 25:
                     message.auto_mixed_precision_mkl = reader.int32();
                     break;
+                case 31:
+                    message.auto_mixed_precision_onednn_bfloat16 = reader.int32();
+                    break;
                 case 29:
                     message.auto_mixed_precision_cpu = reader.int32();
                     break;
@@ -9094,6 +9097,9 @@ $root.tensorflow.RewriterConfig = class RewriterConfig {
                 case "auto_mixed_precision_mkl":
                     message.auto_mixed_precision_mkl = reader.enum($root.tensorflow.RewriterConfig.Toggle);
                     break;
+                case "auto_mixed_precision_onednn_bfloat16":
+                    message.auto_mixed_precision_onednn_bfloat16 = reader.enum($root.tensorflow.RewriterConfig.Toggle);
+                    break;
                 case "auto_mixed_precision_cpu":
                     message.auto_mixed_precision_cpu = reader.enum($root.tensorflow.RewriterConfig.Toggle);
                     break;
@@ -9174,6 +9180,7 @@ $root.tensorflow.RewriterConfig.prototype.pin_to_host_optimization = 0;
 $root.tensorflow.RewriterConfig.prototype.implementation_selector = 0;
 $root.tensorflow.RewriterConfig.prototype.auto_mixed_precision = 0;
 $root.tensorflow.RewriterConfig.prototype.auto_mixed_precision_mkl = 0;
+$root.tensorflow.RewriterConfig.prototype.auto_mixed_precision_onednn_bfloat16 = 0;
 $root.tensorflow.RewriterConfig.prototype.auto_mixed_precision_cpu = 0;
 $root.tensorflow.RewriterConfig.prototype.disable_meta_optimizer = false;
 $root.tensorflow.RewriterConfig.prototype.use_plugin_optimizers = 0;
