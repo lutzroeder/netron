@@ -1164,6 +1164,9 @@
   },
   {
     "name": "Flatten",
+    "attributes": [
+      { "name": "axis", "type": "int64", "default": 0 }
+    ],
     "inputs": [
       { "name": "input" }
     ],

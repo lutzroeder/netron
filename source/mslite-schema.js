@@ -1696,13 +1696,15 @@ $root.mindspore.schema.FftImag = class FftImag {
 
 $root.mindspore.schema.Flatten = class Flatten {
 
-    static decode(/* reader, position */) {
+    static decode(reader, position) {
         const $ = new $root.mindspore.schema.Flatten();
+        $.axis = reader.int64_(position, 4, 0);
         return $;
     }
 
-    static decodeText(/* reader, json */) {
+    static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.Flatten();
+        $.axis = reader.value(json.axis, 0);
         return $;
     }
 };
