@@ -2240,11 +2240,9 @@ python.Execution = class {
                 super(shape, dtype);
             }
         });
-        this.registerType('pathlib.PosixPath', class {
-            constructor() {
-                this.path = Array.from(arguments).join('/');
-            }
-        });
+        this.registerType('pathlib.Path', class {});
+        this.registerType('pathlib.PosixPath', class {});
+        this.registerType('pathlib.WindowsPath', class {});
         this.registerType('sklearn.calibration._CalibratedClassifier', class {});
         this.registerType('sklearn.calibration._SigmoidCalibration', class {});
         this.registerType('sklearn.calibration.CalibratedClassifierCV', class {});
