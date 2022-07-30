@@ -378,7 +378,8 @@ $root.tflite.BuiltinOperator = {
     UNSORTED_SEGMENT_PROD: 153,
     UNSORTED_SEGMENT_MAX: 154,
     UNSORTED_SEGMENT_SUM: 155,
-    ATAN2: 156
+    ATAN2: 156,
+    UNSORTED_SEGMENT_MIN: 157
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -504,8 +505,9 @@ $root.tflite.BuiltinOptions = class {
             case 117: return $root.tflite.DynamicUpdateSliceOptions.decode(reader, position);
             case 118: return $root.tflite.UnsortedSegmentProdOptions.decode(reader, position);
             case 119: return $root.tflite.UnsortedSegmentMaxOptions.decode(reader, position);
-            case 120: return $root.tflite.UnsortedSegmentSumOptions.decode(reader, position);
-            case 121: return $root.tflite.ATan2Options.decode(reader, position);
+            case 120: return $root.tflite.UnsortedSegmentMinOptions.decode(reader, position);
+            case 121: return $root.tflite.UnsortedSegmentSumOptions.decode(reader, position);
+            case 122: return $root.tflite.ATan2Options.decode(reader, position);
             default: return undefined;
         }
     }
@@ -631,6 +633,7 @@ $root.tflite.BuiltinOptions = class {
             case 'DynamicUpdateSliceOptions': return $root.tflite.DynamicUpdateSliceOptions.decodeText(reader, json);
             case 'UnsortedSegmentProdOptions': return $root.tflite.UnsortedSegmentProdOptions.decodeText(reader, json);
             case 'UnsortedSegmentMaxOptions': return $root.tflite.UnsortedSegmentMaxOptions.decodeText(reader, json);
+            case 'UnsortedSegmentMinOptions': return $root.tflite.UnsortedSegmentMinOptions.decodeText(reader, json);
             case 'UnsortedSegmentSumOptions': return $root.tflite.UnsortedSegmentSumOptions.decodeText(reader, json);
             case 'ATan2Options': return $root.tflite.ATan2Options.decodeText(reader, json);
             default: return undefined;
@@ -2536,6 +2539,19 @@ $root.tflite.ATan2Options = class ATan2Options {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.tflite.ATan2Options();
+        return $;
+    }
+};
+
+$root.tflite.UnsortedSegmentMinOptions = class UnsortedSegmentMinOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.tflite.UnsortedSegmentMinOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.tflite.UnsortedSegmentMinOptions();
         return $;
     }
 };
