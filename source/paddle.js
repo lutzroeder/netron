@@ -903,23 +903,21 @@ paddle.NaiveBuffer = class {
     static open(context) {
         const stream = context.stream;
         if (stream && stream.length > 4) {
-            const buffer = stream.peek();
-            const reader = new base.BinaryReader(buffer);
+            const buffer = stream.peek(4);
             if (context.identifier === '__model__.nb' || context.identifier === 'param.nb') {
                 if (buffer[0] > 2 || buffer[1] !== 0x00 || buffer[2] !== 0x76 || buffer[2] !== 0x32) {
-                    return new paddle.NaiveBuffer(reader, -1);
+                    return new paddle.NaiveBuffer(stream, -1);
                 }
             }
-            const meta_version = reader.uint16();
-            if (meta_version <= 2) {
-                return new paddle.NaiveBuffer(reader, meta_version);
+            if (buffer[1] === 0x00 && buffer[0] <= 2) {
+                return new paddle.NaiveBuffer(stream, buffer[0]);
             }
         }
         return null;
     }
 
-    constructor(reader, meta_version) {
-        this.reader = reader;
+    constructor(stream, meta_version) {
+        this.stream = stream;
         this.meta_version = meta_version;
     }
 
@@ -939,9 +937,12 @@ paddle.NaiveBuffer = class {
     }
 
     _read() {
-        if (this.reader) {
-            const reader = this.reader;
-            delete this.reader;
+        if (this.stream) {
+            const reader = new base.BinaryReader(this.stream);
+            if (this.meta_version >= 2) {
+                reader.skip(2);
+            }
+            delete this.stream;
             const decoder = new TextDecoder();
             const opt_version = reader.read(16);
             const version = decoder.decode(opt_version.slice(0, opt_version.indexOf(0x00)));
