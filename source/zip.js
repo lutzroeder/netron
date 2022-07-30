@@ -7,6 +7,15 @@ zip.Archive = class {
     static open(data) {
         const stream = data instanceof Uint8Array ? new zip.BinaryReader(data) : data;
         if (stream && stream.length > 2) {
+            if (stream && stream.length > 512) {
+                // Reject tar with Zip content
+                const buffer = stream.peek(512);
+                const sum = buffer.map((value, index) => (index >= 148 && index < 156) ? 32 : value).reduce((a, b) => a + b, 0);
+                const checksum = parseInt(Array.from(buffer.slice(148, 156)).map((c) => String.fromCharCode(c)).join('').split('\0').shift(), 8);
+                if (!isNaN(checksum) && sum === checksum) {
+                    return null;
+                }
+            }
             const buffer = stream.peek(2);
             if (buffer[0] === 0x78) { // zlib
                 const check = (buffer[0] << 8) + buffer[1];

@@ -8,11 +8,7 @@ tar.Archive = class {
         if (stream && stream.length > 512) {
             const buffer = stream.peek(512);
             const sum = buffer.map((value, index) => (index >= 148 && index < 156) ? 32 : value).reduce((a, b) => a + b, 0);
-            let checksum = '';
-            for (let i = 148; i < 156 && buffer[i] !== 0x00; i++) {
-                checksum += String.fromCharCode(buffer[i]);
-            }
-            checksum = parseInt(checksum, 8);
+            const checksum = parseInt(Array.from(buffer.slice(148, 156)).map((c) => String.fromCharCode(c)).join('').split('\0').shift(), 8);
             if (!isNaN(checksum) && sum === checksum) {
                 return new tar.Archive(stream);
             }
