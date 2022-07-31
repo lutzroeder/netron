@@ -41,13 +41,7 @@ update: install
 
 build_python: install
 	python -m pip install --user build wheel --quiet
-	rm -rf ./source/__pycache__
-	rm -rf ./dist/pypi
-	mkdir -p ./dist/pypi/netron
-	cp -R ./source/* ./dist/pypi/netron
-	cp ./publish/setup.py ./dist/pypi
-	rm ./dist/pypi/netron/electron.* ./dist/pypi/netron/app.js
-	python publish/version.py
+	python publish/python.py build version
 	python -m build --no-isolation --wheel --outdir ./dist/pypi dist/pypi
 
 install_python: build_python
@@ -96,7 +90,7 @@ build_web:
 	cp -R ./source/*.ico ./dist/web
 	cp -R ./source/*.png ./dist/web
 	rm -rf ./dist/web/electron.* ./dist/web/app.js
-	sed -i "s/0\.0\.0/$$(grep '"version":' package.json -m1 | cut -d\" -f4)/g" ./dist/web/index.html
+	node ./publish/web.js ./package.json ./dist/web/index.html
 
 publish_web: build_web
 	rm -rf ./dist/gh-pages

@@ -16,6 +16,10 @@ class Application {
         this._menu = new MenuService();
         this._openQueue = [];
 
+        const packageFile = path.join(path.dirname(__dirname), 'package.json');
+        const packageContent = fs.readFileSync(packageFile, 'utf-8');
+        this._package = JSON.parse(packageContent);
+
         electron.app.setAppUserModelId('com.lutzroeder.netron');
         electron.app.allowRendererProcessReuse = true;
 
@@ -47,7 +51,8 @@ class Application {
         electron.ipcMain.on('get-environment', (event) => {
             event.returnValue = {
                 version: electron.app.getVersion(),
-                package: electron.app.isPackaged
+                packaged: electron.app.isPackaged,
+                date: this._package.date
             };
         });
         electron.ipcMain.on('get-configuration', (event, obj) => {
@@ -297,16 +302,6 @@ class Application {
         }
     }
 
-    get package() {
-        if (!this._package) {
-            const file = path.join(path.dirname(__dirname), 'package.json');
-            const data = fs.readFileSync(file);
-            this._package = JSON.parse(data);
-            this._package.date = fs.statSync(file).mtime;
-        }
-        return this._package;
-    }
-
     _about() {
         let dialog = null;
         const options = {
@@ -351,7 +346,7 @@ class Application {
                 }
             });
             let content = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf-8');
-            content = content.replace('{version}', this.package.version);
+            content = content.replace('{version}', this._package.version);
             content = content.replace('<title>Netron</title>', '');
             content = content.replace('<body class="welcome spinner">', '<body class="about desktop">');
             content = content.replace(/<script\b[^<]*(?:(?!<\/script\s*>)<[^<]*)*<\/script\s*>/gi, '');
@@ -589,11 +584,11 @@ class Application {
         const helpSubmenu = [
             {
                 label: '&Search Feature Requests',
-                click: () => { electron.shell.openExternal('https://www.github.com/' + this.package.repository + '/issues'); }
+                click: () => { electron.shell.openExternal('https://www.github.com/' + this._package.repository + '/issues'); }
             },
             {
                 label: 'Report &Issues',
-                click: () => { electron.shell.openExternal('https://www.github.com/' + this.package.repository + '/issues/new'); }
+                click: () => { electron.shell.openExternal('https://www.github.com/' + this._package.repository + '/issues/new'); }
             }
         ];
 

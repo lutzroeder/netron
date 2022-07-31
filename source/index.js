@@ -21,11 +21,12 @@ host.BrowserHost = class {
                 this._meta[element.name].push(element.content);
             }
         }
-        this._type = this._meta.type ? this._meta.type[0] : 'Browser';
-        this._version = this._meta.version ? this._meta.version[0] : null;
-        this._telemetry = this._version && this._version !== '0.0.0';
-        this._environment = new Map();
-        this._environment.set('zoom', 'scroll');
+        this._environment = {
+            'type': this._meta.type ? this._meta.type[0] : 'Browser',
+            'version': this._meta.version ? this._meta.version[0] : null,
+            'date': this._meta.date ? new Date(this._meta.date[0].split(' ').join('T') + 'Z') : new Date(),
+        };
+        this._telemetry = this._environment.version && this._environment.version !== '0.0.0';
     }
 
     get window() {
@@ -37,11 +38,11 @@ host.BrowserHost = class {
     }
 
     get version() {
-        return this._version;
+        return this._environment.version;
     }
 
     get type() {
-        return this._type;
+        return this._environment.type;
     }
 
     get agent() {
@@ -55,76 +56,85 @@ host.BrowserHost = class {
     initialize(view) {
         this._view = view;
         return new Promise((resolve /*, reject */) => {
-            const features = () => {
-                const features = [ 'TextDecoder', 'TextEncoder', 'fetch', 'URLSearchParams', 'HTMLCanvasElement.prototype.toBlob' ];
-                const supported = features.filter((feature) => {
-                    const path = feature.split('.').reverse();
-                    let item = this.window[path.pop()];
-                    while (item && path.length > 0) {
-                        item = item[path.pop()];
-                    }
-                    return !item;
-                });
-                if (supported.length > 0) {
-                    for (const feature of features) {
-                        this.event('Host', 'Browser', feature, 1);
-                    }
-                    this._message('Your browser is not supported.');
-                }
-                else {
-                    resolve();
-                }
-            };
-            const telemetry = () => {
-                if (this._telemetry) {
-                    const script = this.document.createElement('script');
-                    script.setAttribute('type', 'text/javascript');
-                    script.setAttribute('src', 'https://www.google-analytics.com/analytics.js');
-                    script.onload = () => {
-                        if (this.window.ga) {
-                            this.window.ga.l = 1 * new Date();
-                            this.window.ga('create', 'UA-54146-13', 'auto');
-                            this.window.ga('set', 'anonymizeIp', true);
-                        }
-                        features();
-                    };
-                    script.onerror = () => {
-                        features();
-                    };
-                    this.document.body.appendChild(script);
-                }
-                else {
-                    features();
-                }
-            };
-            const consent = () => {
-                this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept', () => {
-                    this._setCookie('consent', 'yes', 30);
-                    telemetry();
-                });
-            };
-            if (this._getCookie('consent')) {
-                telemetry();
+            const age = (new Date() - new Date(this._environment.date)) / ( 24 * 60 * 60 * 1000);
+            if (age > 180) {
+                this._message('Please update to the newest version.', 'Download', () => {
+                    const link = this.document.getElementById('logo-github').href;
+                    this.openURL(link);
+                }, true);
             }
             else {
-                this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', 2000).then((text) => {
-                    try {
-                        const json = JSON.parse(text);
-                        const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
-                        if (json && json.country && !countries.indexOf(json.country) !== -1) {
-                            this._setCookie('consent', Date.now(), 30);
-                            telemetry();
+                const features = () => {
+                    const features = [ 'TextDecoder', 'TextEncoder', 'fetch', 'URLSearchParams', 'HTMLCanvasElement.prototype.toBlob' ];
+                    const supported = features.filter((feature) => {
+                        const path = feature.split('.').reverse();
+                        let item = this.window[path.pop()];
+                        while (item && path.length > 0) {
+                            item = item[path.pop()];
                         }
-                        else {
+                        return !item;
+                    });
+                    if (supported.length > 0) {
+                        for (const feature of features) {
+                            this.event('Host', 'Browser', feature, 1);
+                        }
+                        this._message('Your browser is not supported.');
+                    }
+                    else {
+                        resolve();
+                    }
+                };
+                const telemetry = () => {
+                    if (this._telemetry) {
+                        const script = this.document.createElement('script');
+                        script.setAttribute('type', 'text/javascript');
+                        script.setAttribute('src', 'https://www.google-analytics.com/analytics.js');
+                        script.onload = () => {
+                            if (this.window.ga) {
+                                this.window.ga.l = 1 * new Date();
+                                this.window.ga('create', 'UA-54146-13', 'auto');
+                                this.window.ga('set', 'anonymizeIp', true);
+                            }
+                            features();
+                        };
+                        script.onerror = () => {
+                            features();
+                        };
+                        this.document.body.appendChild(script);
+                    }
+                    else {
+                        features();
+                    }
+                };
+                const consent = () => {
+                    this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept', () => {
+                        this._setCookie('consent', 'yes', 30);
+                        telemetry();
+                    });
+                };
+                if (this._getCookie('consent')) {
+                    telemetry();
+                }
+                else {
+                    this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', 2000).then((text) => {
+                        try {
+                            const json = JSON.parse(text);
+                            const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
+                            if (json && json.country && !countries.indexOf(json.country) !== -1) {
+                                this._setCookie('consent', Date.now(), 30);
+                                telemetry();
+                            }
+                            else {
+                                consent();
+                            }
+                        }
+                        catch (err) {
                             consent();
                         }
-                    }
-                    catch (err) {
+                    }).catch(() => {
                         consent();
-                    }
-                }).catch(() => {
-                    consent();
-                });
+                    });
+                }
             }
         });
     }
@@ -135,7 +145,6 @@ host.BrowserHost = class {
         });
 
         const params = new URLSearchParams(this.window.location.search);
-        this._environment.set('zoom', params.has('zoom') ? params.get('zoom') : this._environment.get('zoom'));
 
         this._menu = new host.Dropdown(this, 'menu-button', 'menu-dropdown');
         this._menu.add({
@@ -284,7 +293,7 @@ host.BrowserHost = class {
     }
 
     environment(name) {
-        return this._environment.get(name);
+        return this._environment[name];
     }
 
     error(message, detail) {

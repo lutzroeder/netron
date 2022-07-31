@@ -7,6 +7,7 @@
         "url": "https://www.lutzroeder.com"
     },
     "version": "5.9.7",
+    "date": "2022-07-30 03:00:00",
     "description": "Visualizer for neural network, deep learning, and machine learning models",
     "license": "MIT",
     "repository": "lutzroeder/netron",
@@ -14,7 +15,7 @@
     "scripts": {
         "postinstall": "electron-builder install-app-deps",
         "start": "[ -d node_modules ] || npm install && npx electron .",
-        "server": "node ./publish/server.js"
+        "server": "python ./publish/python.py build start"
     },
     "dependencies": {
         "electron-updater": "5.0.5"
