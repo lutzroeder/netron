@@ -1318,6 +1318,9 @@ pytorch.Execution = class extends python.Execution {
         this.registerFunction('builtins.unchecked_cast', function(type, value) {
             return value;
         });
+        this.registerFunction('builtins.uninitialized', function(/* type */) {
+            return undefined;
+        });
         this.registerFunction('ops.prim.data', function(tensor) {
             return tensor;
         });
@@ -1822,9 +1825,6 @@ pytorch.Execution = class extends python.Execution {
             return Object.keys(dict).map((key) => dict[key]);
         });
         this.registerFunction('torch.warn', function() {
-        });
-        this.registerFunction('builtins.uninitialized', function(/* type */) {
-            return undefined;
         });
         this.registerFunction('torch.fx.graph_module.reduce_graph_module', function(body /*, import_block */) {
             // https://github.com/pytorch/pytorch/blob/master/torch/fx/graph_module.py
