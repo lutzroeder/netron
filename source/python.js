@@ -1705,6 +1705,11 @@ python.Execution = class {
                 }
             }
         });
+        this.registerFunction('builtins.long', this.builtins.int);
+        this.registerFunction('builtins.print', function() {});
+        this.registerFunction('builtins.unicode', function(/* value */) {
+            throw new python.Error('Not implemented.');
+        });
         this.registerType('builtins.Warning', class {});
         this.registerType('builtins.FutureWarning', class extends this._builtins.Warning {});
         this.registerType('typing._Final', class {});
@@ -2381,11 +2386,15 @@ python.Execution = class {
         this.registerType('sklearn.naive_bayes.MultinomialNB', class {});
         this.registerType('sklearn.neighbors._classification.KNeighborsClassifier', class {});
         this.registerType('sklearn.neighbors._dist_metrics.newObj', class {});
+        this.registerType('sklearn.neighbors._dist_metrics.EuclideanDistance', class {});
+        this.registerType('sklearn.neighbors._kd_tree.KDTree', class {});
         this.registerType('sklearn.neighbors._kd_tree.newObj', class {});
         this.registerType('sklearn.neighbors._regression.KNeighborsRegressor', class {});
         this.registerType('sklearn.neighbors.classification.KNeighborsClassifier', class {});
         this.registerType('sklearn.neighbors.dist_metrics.newObj', class {});
+        this.registerType('sklearn.neighbors.dist_metrics.EuclideanDistance', class {});
         this.registerType('sklearn.neighbors.kd_tree.newObj', class {});
+        this.registerType('sklearn.neighbors.kd_tree.KDTree', class {});
         this.registerType('sklearn.neighbors.KNeighborsClassifier', class {});
         this.registerType('sklearn.neighbors.KNeighborsRegressor', class {});
         this.registerType('sklearn.neighbors.regression.KNeighborsRegressor', class {});
@@ -4102,10 +4111,10 @@ python.Execution = class {
         this._sources.set(name, source);
     }
 
-    register(name) {
+    register(name, value) {
         if (!this._registry.has(name)) {
-            const module = {};
-            this._registry.set(name, module);
+            value = value || {};
+            this._registry.set(name, value);
             let current = name;
             for (;;) {
                 const index = current.lastIndexOf('.');
@@ -4115,7 +4124,7 @@ python.Execution = class {
                 const child = current.substring(index + 1);
                 current = current.substring(0, index);
                 const parent = this.register(current);
-                parent[child] = module;
+                parent[child] = value;
             }
         }
         return this._registry.get(name);
