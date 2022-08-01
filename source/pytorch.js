@@ -2520,13 +2520,16 @@ pytorch.Container.Zip = class {
             // https://github.com/pytorch/pytorch/blob/master/caffe2/serialize/inline_container.h
             // kProducedFileFormatVersion
             const versions = new Map([
-                [ '1', 'v1.3'  ],
-                [ '2', 'v1.5'  ], // 7a2889b014ce36fcc333b2c6de6f29f976652f84 (#28122)
-                [ '3', 'v1.6'  ], // 2ec6a30722b0ef85632a2f3e7ce6f80da403008a (#36085)
-                [ '4', 'v1.6'  ], // 95489b590f00801bdee7f41783f30874883cf6bb (#38620)
-                [ '5', 'v1.7'  ], // cb26661fe4faf26386703180a9045e6ac6d157df (#40364)
-                [ '6', 'v1.9'  ], // 3ee7637ffa50df0d9b231c7b40778ac1c390bf4a (#59714)
-                [ '7', 'v1.10' ]  // 880098a7e34a20628f960daa8eab0eb1ad566c39 (#63651)
+                [ '1',  'v1.3'  ],
+                [ '2',  'v1.5'  ], // 7a2889b014ce36fcc333b2c6de6f29f976652f84 (#28122)
+                [ '3',  'v1.6'  ], // 2ec6a30722b0ef85632a2f3e7ce6f80da403008a (#36085)
+                [ '4',  'v1.6'  ], // 95489b590f00801bdee7f41783f30874883cf6bb (#38620)
+                [ '5',  'v1.7'  ], // cb26661fe4faf26386703180a9045e6ac6d157df (#40364)
+                [ '6',  'v1.9'  ], // 3ee7637ffa50df0d9b231c7b40778ac1c390bf4a (#59714)
+                [ '7',  'v1.10' ], // 880098a7e34a20628f960daa8eab0eb1ad566c39 (#63651)
+                [ '8',  'v1.11' ], // b28e696516a7f0c7a6ead6da967590ce6c1d6698 (#71486)
+                [ '9',  'v1.11' ], // 8757e21c6a4fc00e83539aa7f9c28eb11eff53c1 (#72051)
+                [ '10', 'v1.12' ]  // 4f8b986e28736b59bc46cd0873a0f36fdaa6f5b8 (#61439)
             ]);
             if (!versions.has(value)) {
                 this._exceptionCallback(new pytorch.Error("Unsupported PyTorch Zip version '" + value + "'."));
@@ -2945,7 +2948,8 @@ pytorch.Container.Zip.Pickle = class extends pytorch.Container.Zip {
     }
 
     get format() {
-        return (this._entries.get('constants.pkl') ? 'TorchScript' : 'PyTorch') + ' ' + this.version('version');
+        const version = this.version('version') || this.version('.data/version');
+        return (this._entries.get('constants.pkl') ? 'TorchScript' : 'PyTorch') + (version ? ' ' + version : '');
     }
 
     get graphs() {
@@ -2981,7 +2985,8 @@ pytorch.Container.Zip.Package = class extends pytorch.Container.Zip {
     }
 
     get format() {
-        return 'PyTorch Package' + ' ' + this.version('.data/version');
+        const version = this.version('.data/version');
+        return 'PyTorch Package' + (version ? ' ' + version : '');
     }
 
     get graphs() {
