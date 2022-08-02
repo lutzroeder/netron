@@ -1004,6 +1004,8 @@ hdf5.Datatype = class {
                 return 'string';
             case 5: // opaque
                 return 'uint8[]';
+            case 6: // compound
+                return 'compound';
             case 8: // enumerated
                 if (this._base.type === 'int8' &&
                     this._names.length === 2 && this._names[0] === 'FALSE' && this._names[1] === 'TRUE' &&
