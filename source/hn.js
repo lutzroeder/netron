@@ -22,17 +22,17 @@ hn.FileExtensions = {
 hn.ModelFactory = class {
     match(context) {
         const extension = context.identifier.split('.').pop().toLowerCase();
+        let json;
         if (extension === hn.FileExtensions.HN) {
-            const json = context.open(hn.FileExtensions.JSON);
-            if (json && json.name && json.net_params && json.layers) {
-                return hn.FileExtensions.HN;
-            }
+            json = context.open(hn.FileExtensions.JSON);
         }
         if (extension === hn.FileExtensions.HAR) {
-            const json = this._getJSONFromTAR(context);
-            if (json && json.name && json.net_params && json.layers) {
-                return hn.FileExtensions.HAR;
-            }
+            json = this._getJSONFromTAR(context);
+        }
+
+        const { name, net_params, layers } = json || {};
+        if (name && net_params && layers) {
+            return extension;
         }
 
         return undefined;
@@ -44,13 +44,13 @@ hn.ModelFactory = class {
                 case hn.FileExtensions.HN: {
                     const configuration = context.open(hn.FileExtensions.JSON);
                     const graph_metadata = new hn.GraphMetadata(metadata);
-                    return new hn.Model(graph_metadata, configuration);
+                    return new hn.Model(graph_metadata, configuration, hn.FileExtensions.HN);
                 }
 
                 case hn.FileExtensions.HAR: {
-                    const json = this._getJSONFromTAR(context);
+                    const configuration = this._getJSONFromTAR(context);
                     const graph_metadata = new hn.GraphMetadata(metadata);
-                    return new hn.Model(graph_metadata, json);
+                    return new hn.Model(graph_metadata, configuration, hn.FileExtensions.HAR);
                 }
 
                 default: {
@@ -72,12 +72,12 @@ hn.ModelFactory = class {
 };
 
 hn.Model = class {
-    constructor(metadata, configuration) {
+    constructor(metadata, configuration, format) {
         this._graphs = [];
         this._graphs.push(new hn.Graph(metadata, configuration));
         this._name = configuration && configuration.name || "";
         this._version = configuration && configuration.net_params && configuration.net_params.version || 0.0;
-        this._format = hn.FileExtensions.HN;
+        this._format = format;
     }
 
     get graphs() {
@@ -123,7 +123,6 @@ hn.Graph = class {
     constructor(metadata, configuration) {
         this._inputs = [];
         this._outputs = [];
-        this._attributes = [];
 
         const mapLayersObjectToArray = (layers_object = {}) => {
             const entries = Object.entries(layers_object);
@@ -133,16 +132,44 @@ hn.Graph = class {
             });
         };
 
+        const mapLayerToNode = (layer) => {
+            const {type} = layer;
+            const layer_metadata = metadata.type(type);
+            return new hn.Node(layer_metadata, layer);
+        };
+
         const getNodes = (layers = []) => {
-            return layers.map((layer) => {
-                const {type} = layer;
-                const layer_metadata = metadata.type(type);
-                return new hn.Node(layer_metadata, layer);
+            const filtered_layers = layers.filter((layer) => {
+                return !['input_layer', 'output_layer'].includes(layer.type);
+            });
+            return filtered_layers.map(mapLayerToNode);
+        };
+
+        const getInputs = (layers = []) => {
+            const filtered_layers = layers.filter((layer) => {
+                return ['input_layer'].includes(layer.type);
+            });
+            return filtered_layers.map((layer) => {
+                return new hn.Parameter(layer.name, true, [ new hn.Argument(layer.name, layer.type, null) ]);
+            });
+        };
+
+        const getOutputs = (layers) => {
+            const filtered_layers = layers.filter((layer) => {
+                return ['output_layer'].includes(layer.type);
+            });
+            return filtered_layers.map((layer) => {
+                const inputs = layer.input.map((input) => {
+                    return new hn.Argument(input, layer.type, null);
+                });
+                return new hn.Parameter(layer.type, true, inputs);
             });
         };
 
         const layers = mapLayersObjectToArray(configuration.layers);
 
+        this._inputs = configuration && configuration.layers && getInputs(layers);
+        this._outputs = configuration && configuration.layers && getOutputs(layers);
         this._nodes = configuration && configuration.layers && getNodes(layers);
     }
 
@@ -242,7 +269,7 @@ hn.Node = class {
                 ]);
             });
 
-            const getParams = (params_array) => {
+            const getParams = (params_array = []) => {
                 return params_array.reduce((acc, [name, value]) => {
                     const schema = getTypeByName(name);
                     if (schema.visible) {
@@ -263,7 +290,7 @@ hn.Node = class {
             return input_shapes.concat(params_list);
         };
 
-        const getNodeOutputs = ({name, output = [], output_shapes: [output_shape] = []}) => {
+        const getNodeOutputs = ({name, output = [], output_shapes: [output_shape = []] = []}) => {
             return output.map((output_layer) => {
                 const slice = output_shape.slice(1, output_shape.length);
                 return new hn.Parameter(output_layer, true, [
