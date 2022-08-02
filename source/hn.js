@@ -76,8 +76,24 @@ hn.Model = class {
         this._graphs = [];
         this._graphs.push(new hn.Graph(metadata, configuration));
         this._name = configuration && configuration.name || "";
-        this._version = configuration && configuration.net_params && configuration.net_params.version || 0.0;
+        const { net_params: { version, stage, dtype, output_layers_order = [] } } = configuration;
+        this._version = version || 0.0;
         this._format = format;
+        this._stage = stage;
+        this._dtype = dtype;
+        this._output_layers_order = output_layers_order.join(', ');
+    }
+
+    get output_layers_order() {
+        return this._output_layers_order;
+    }
+
+    get dtype() {
+        return this._dtype;
+    }
+
+    get stage() {
+        return this._stage;
     }
 
     get graphs() {
@@ -248,10 +264,12 @@ hn.Node = class {
         const getNodeAttributes = (layer) => {
             const {
                 original_names = [],
+                params
             } = layer;
 
             const params_object = {
-                original_names
+                original_names,
+                ...params
             };
 
             return Object.entries(params_object).reduce((acc, [name, value]) => {

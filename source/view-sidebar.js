@@ -731,6 +731,7 @@ sidebar.ModelSidebar = class {
         this._model = model;
         this._elements = [];
 
+
         if (model.format) {
             this._addProperty('format', new sidebar.ValueTextView(this._host, model.format));
         }
@@ -760,6 +761,17 @@ sidebar.ModelSidebar = class {
                 this._addProperty(entry.name, new sidebar.ValueTextView(this._host, entry.value));
             }
         }
+
+        if (model.output_layers_order) {
+            this._addProperty('output layers order', new sidebar.ValueTextView(this._host, model.output_layers_order));
+        }
+        if (model.dtype) {
+            this._addProperty('data type', new sidebar.ValueTextView(this._host, model.dtype));
+        }
+        if (model.stage) {
+            this._addProperty('stage', new sidebar.ValueTextView(this._host, model.stage));
+        }
+
         const graphs = Array.isArray(model.graphs) ? model.graphs : [];
         if (graphs.length > 1) {
             const graphSelector = new sidebar.SelectView(this._host, model.graphs, graph);
