@@ -1722,6 +1722,7 @@ python.Execution = class {
         this._typing.List = Reflect.construct(this._typing._SpecialGenericAlias, []);
         this._typing.Dict = Reflect.construct(this._typing._SpecialGenericAlias, []);
         this._typing.Tuple = Reflect.construct(this._typing._TupleType, []);
+        this._typing.Any = Reflect.construct(this._typing._SpecialForm, []);
         this.registerType('argparse.Namespace', class {
             constructor(args) {
                 this.args = args;
@@ -2422,6 +2423,7 @@ python.Execution = class {
         this.registerType('sklearn.preprocessing._function_transformer.FunctionTransformer', class {});
         this.registerType('sklearn.preprocessing._label.LabelBinarizer', class {});
         this.registerType('sklearn.preprocessing._label.LabelEncoder', class {});
+        this.registerType('sklearn.preprocessing._polynomial.PolynomialFeatures', class {});
         this.registerType('sklearn.preprocessing.data.Binarizer', class {});
         this.registerType('sklearn.preprocessing.data.MaxAbsScaler', class {});
         this.registerType('sklearn.preprocessing.data.MinMaxScaler', class {});
