@@ -166,11 +166,10 @@ hn.Graph = class {
                 return ['input_layer'].includes(layer.type);
             });
             const result = []
-            filtered_layers.forEach(({name, type, output, output_shapes: [output_shape] = []}) => {
+            filtered_layers.forEach(({name, output, output_shapes: [output_shape] = []}) => {
                 return output.forEach(() => {
-                    const slice = output_shape.slice(1, output_shape.length);
                     const param = new hn.Parameter(name, true, [
-                        new hn.Argument(name, new hn.TensorType(type, new hn.TensorShape(slice)))
+                        new hn.Argument(name, new hn.TensorType(hn.DataTypes.ARRAY, new hn.TensorShape(output_shape)))
                     ]);
                     result.push(param)
                 });
@@ -182,12 +181,16 @@ hn.Graph = class {
             const filtered_layers = layers.filter((layer) => {
                 return ['output_layer'].includes(layer.type);
             });
-            return filtered_layers.map((layer) => {
-                const inputs = layer.input.map((input) => {
-                    return new hn.Argument(input, layer.type, null);
+            const result = []
+            filtered_layers.forEach(({name, input, input_shapes: [input_shape] = []}) => {
+                return input.forEach((item) => {
+                    const param = new hn.Parameter(name, true, [
+                        new hn.Argument(item, new hn.TensorType(hn.DataTypes.ARRAY, new hn.TensorShape(input_shape)))
+                    ]);
+                    result.push(param)
                 });
-                return new hn.Parameter(layer.type, true, inputs);
             });
+            return result;
         };
 
         const layers = mapLayersObjectToArray(configuration.layers);
@@ -318,9 +321,8 @@ hn.Node = class {
 
         const getNodeOutputs = ({name, output = [], output_shapes: [output_shape = []] = []}) => {
             return output.map((output_layer) => {
-                const slice = output_shape.slice(1, output_shape.length);
                 return new hn.Parameter(output_layer, true, [
-                    new hn.Argument(name, new hn.TensorType(hn.DataTypes.ARRAY, new hn.TensorShape(slice)))
+                    new hn.Argument(name, new hn.TensorType(hn.DataTypes.ARRAY, new hn.TensorShape(output_shape)))
                 ]);
             });
         };
