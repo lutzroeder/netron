@@ -379,7 +379,8 @@ $root.tflite.BuiltinOperator = {
     UNSORTED_SEGMENT_MAX: 154,
     UNSORTED_SEGMENT_SUM: 155,
     ATAN2: 156,
-    UNSORTED_SEGMENT_MIN: 157
+    UNSORTED_SEGMENT_MIN: 157,
+    SIGN: 158
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -508,6 +509,7 @@ $root.tflite.BuiltinOptions = class {
             case 120: return $root.tflite.UnsortedSegmentMinOptions.decode(reader, position);
             case 121: return $root.tflite.UnsortedSegmentSumOptions.decode(reader, position);
             case 122: return $root.tflite.ATan2Options.decode(reader, position);
+            case 123: return $root.tflite.SignOptions.decode(reader, position);
             default: return undefined;
         }
     }
@@ -636,6 +638,7 @@ $root.tflite.BuiltinOptions = class {
             case 'UnsortedSegmentMinOptions': return $root.tflite.UnsortedSegmentMinOptions.decodeText(reader, json);
             case 'UnsortedSegmentSumOptions': return $root.tflite.UnsortedSegmentSumOptions.decodeText(reader, json);
             case 'ATan2Options': return $root.tflite.ATan2Options.decodeText(reader, json);
+            case 'SignOptions': return $root.tflite.SignOptions.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -2552,6 +2555,19 @@ $root.tflite.UnsortedSegmentMinOptions = class UnsortedSegmentMinOptions {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.tflite.UnsortedSegmentMinOptions();
+        return $;
+    }
+};
+
+$root.tflite.SignOptions = class SignOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.tflite.SignOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.tflite.SignOptions();
         return $;
     }
 };
