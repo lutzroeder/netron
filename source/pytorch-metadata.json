@@ -6870,6 +6870,33 @@
     ]
   },
   {
+    "name": "torch.tril",
+    "category": "Layer",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "diagonal", "type": "int64", "default": 0 }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.tril_indices",
+    "category": "Layer",
+    "inputs": [
+      { "name": "row", "type": "int64" },
+      { "name": "col", "type": "int64" },
+      { "name": "offset", "type": "int64", "default": 0 },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "layout", "type": "Layout", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
+      { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.view_as_real",
     "category": "Layer",
     "inputs": [
