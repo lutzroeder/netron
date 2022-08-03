@@ -990,7 +990,7 @@
   },
   {
     "name": "sklearn.impute._base.SimpleImputer",
-    "description": "Imputation transformer for completing missing values.\n\nRead more in the :ref:`User Guide <impute>`.\n\n.. versionadded:: 0.20\n`SimpleImputer` replaces the previous `sklearn.preprocessing.Imputer`\nestimator which is now removed.\n",
+    "description": "Univariate imputer for completing missing values with simple strategies.\n\nReplace missing values using a descriptive statistic (e.g. mean, median, or\nmost frequent) along each column, or using a constant value.\n\nRead more in the :ref:`User Guide <impute>`.\n\n.. versionadded:: 0.20\n`SimpleImputer` replaces the previous `sklearn.preprocessing.Imputer`\nestimator which is now removed.\n",
     "attributes": [
       {
         "description": "The placeholder for the missing values. All occurrences of\n`missing_values` will be imputed. For pandas' dataframes with\nnullable integer dtypes with missing values, `missing_values`\ncan be set to either `np.nan` or `pd.NA`.\n",
@@ -1033,7 +1033,7 @@
     "attributes": [
       {
         "default": "l2",
-        "description": "Specify the norm of the penalty:\n\n- `'none'`: no penalty is added;\n- `'l2'`: add a L2 penalty term and it is the default choice;\n- `'l1'`: add a L1 penalty term;\n- `'elasticnet'`: both L1 and L2 penalty terms are added.\n\n.. warning::\nSome penalties may not work with some solvers. See the parameter\n`solver` below, to know the compatibility between the penalty and\nsolver.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n",
+        "description": "Specify the norm of the penalty:\n\n- `None`: no penalty is added;\n- `'l2'`: add a L2 penalty term and it is the default choice;\n- `'l1'`: add a L1 penalty term;\n- `'elasticnet'`: both L1 and L2 penalty terms are added.\n\n.. warning::\nSome penalties may not work with some solvers. See the parameter\n`solver` below, to know the compatibility between the penalty and\nsolver.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n\n.. deprecated:: 1.2\nThe 'none' option was deprecated in version 1.2, and will be removed\nin 1.4. Use `None` instead.\n",
         "name": "penalty"
       },
       {
@@ -1079,7 +1079,7 @@
       },
       {
         "default": "lbfgs",
-        "description": "\nAlgorithm to use in the optimization problem. Default is 'lbfgs'.\nTo choose a solver, you might want to consider the following aspects:\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag'\nand 'saga' are faster for large ones;\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and\n'lbfgs' handle multinomial loss;\n- 'liblinear' is limited to one-versus-rest schemes.\n\n.. warning::\nThe choice of the algorithm depends on the penalty chosen:\nSupported penalties by solver:\n\n- 'newton-cg'   -   ['l2', 'none']\n- 'lbfgs'       -   ['l2', 'none']\n- 'liblinear'   -   ['l1', 'l2']\n- 'sag'         -   ['l2', 'none']\n- 'saga'        -   ['elasticnet', 'l1', 'l2', 'none']\n\n.. note::\n'sag' and 'saga' fast convergence is only guaranteed on\nfeatures with approximately the same scale. You can\npreprocess the data with a scaler from :mod:`sklearn.preprocessing`.\n\n.. seealso::\nRefer to the User Guide for more information regarding\n:class:`LogisticRegression` and more specifically the\n:ref:`Table <Logistic_regression>`\nsummarizing solver/penalty supports.\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.22\nThe default solver changed from 'liblinear' to 'lbfgs' in 0.22.\n",
+        "description": "\nAlgorithm to use in the optimization problem. Default is 'lbfgs'.\nTo choose a solver, you might want to consider the following aspects:\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag'\nand 'saga' are faster for large ones;\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and\n'lbfgs' handle multinomial loss;\n- 'liblinear' is limited to one-versus-rest schemes.\n\n.. warning::\nThe choice of the algorithm depends on the penalty chosen:\nSupported penalties by solver:\n\n- 'newton-cg'   -   ['l2', None]\n- 'lbfgs'       -   ['l2', None]\n- 'liblinear'   -   ['l1', 'l2']\n- 'sag'         -   ['l2', None]\n- 'saga'        -   ['elasticnet', 'l1', 'l2', None]\n\n.. note::\n'sag' and 'saga' fast convergence is only guaranteed on\nfeatures with approximately the same scale. You can\npreprocess the data with a scaler from :mod:`sklearn.preprocessing`.\n\n.. seealso::\nRefer to the User Guide for more information regarding\n:class:`LogisticRegression` and more specifically the\n:ref:`Table <Logistic_regression>`\nsummarizing solver/penalty supports.\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.22\nThe default solver changed from 'liblinear' to 'lbfgs' in 0.22.\n",
         "name": "solver"
       },
       {
@@ -1246,7 +1246,7 @@
     "attributes": [
       {
         "default": "l2",
-        "description": "Specify the norm of the penalty:\n\n- `'none'`: no penalty is added;\n- `'l2'`: add a L2 penalty term and it is the default choice;\n- `'l1'`: add a L1 penalty term;\n- `'elasticnet'`: both L1 and L2 penalty terms are added.\n\n.. warning::\nSome penalties may not work with some solvers. See the parameter\n`solver` below, to know the compatibility between the penalty and\nsolver.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n",
+        "description": "Specify the norm of the penalty:\n\n- `None`: no penalty is added;\n- `'l2'`: add a L2 penalty term and it is the default choice;\n- `'l1'`: add a L1 penalty term;\n- `'elasticnet'`: both L1 and L2 penalty terms are added.\n\n.. warning::\nSome penalties may not work with some solvers. See the parameter\n`solver` below, to know the compatibility between the penalty and\nsolver.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n\n.. deprecated:: 1.2\nThe 'none' option was deprecated in version 1.2, and will be removed\nin 1.4. Use `None` instead.\n",
         "name": "penalty",
         "optional": true
       },
@@ -1300,7 +1300,7 @@
       },
       {
         "default": "lbfgs",
-        "description": "\nAlgorithm to use in the optimization problem. Default is 'lbfgs'.\nTo choose a solver, you might want to consider the following aspects:\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag'\nand 'saga' are faster for large ones;\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and\n'lbfgs' handle multinomial loss;\n- 'liblinear' is limited to one-versus-rest schemes.\n\n.. warning::\nThe choice of the algorithm depends on the penalty chosen:\nSupported penalties by solver:\n\n- 'newton-cg'   -   ['l2', 'none']\n- 'lbfgs'       -   ['l2', 'none']\n- 'liblinear'   -   ['l1', 'l2']\n- 'sag'         -   ['l2', 'none']\n- 'saga'        -   ['elasticnet', 'l1', 'l2', 'none']\n\n.. note::\n'sag' and 'saga' fast convergence is only guaranteed on\nfeatures with approximately the same scale. You can\npreprocess the data with a scaler from :mod:`sklearn.preprocessing`.\n\n.. seealso::\nRefer to the User Guide for more information regarding\n:class:`LogisticRegression` and more specifically the\n:ref:`Table <Logistic_regression>`\nsummarizing solver/penalty supports.\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.22\nThe default solver changed from 'liblinear' to 'lbfgs' in 0.22.\n",
+        "description": "\nAlgorithm to use in the optimization problem. Default is 'lbfgs'.\nTo choose a solver, you might want to consider the following aspects:\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag'\nand 'saga' are faster for large ones;\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and\n'lbfgs' handle multinomial loss;\n- 'liblinear' is limited to one-versus-rest schemes.\n\n.. warning::\nThe choice of the algorithm depends on the penalty chosen:\nSupported penalties by solver:\n\n- 'newton-cg'   -   ['l2', None]\n- 'lbfgs'       -   ['l2', None]\n- 'liblinear'   -   ['l1', 'l2']\n- 'sag'         -   ['l2', None]\n- 'saga'        -   ['elasticnet', 'l1', 'l2', None]\n\n.. note::\n'sag' and 'saga' fast convergence is only guaranteed on\nfeatures with approximately the same scale. You can\npreprocess the data with a scaler from :mod:`sklearn.preprocessing`.\n\n.. seealso::\nRefer to the User Guide for more information regarding\n:class:`LogisticRegression` and more specifically the\n:ref:`Table <Logistic_regression>`\nsummarizing solver/penalty supports.\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.22\nThe default solver changed from 'liblinear' to 'lbfgs' in 0.22.\n",
         "name": "solver",
         "optional": true
       },
@@ -2015,14 +2015,14 @@
       },
       {
         "default": 3,
-        "description": "Degree of the polynomial kernel function ('poly').\nIgnored by all other kernels.\n",
+        "description": "Degree of the polynomial kernel function ('poly').\nMust be non-negative. Ignored by all other kernels.\n",
         "name": "degree",
         "optional": true,
         "type": "int32"
       },
       {
         "default": "auto",
-        "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\n- if ``gamma='scale'`` (default) is passed then it uses\n1 / (n_features * X.var()) as value of gamma,\n- if 'auto', uses 1 / n_features.\n\n.. versionchanged:: 0.22\nThe default value of ``gamma`` changed from 'auto' to 'scale'.\n",
+        "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\n- if ``gamma='scale'`` (default) is passed then it uses\n1 / (n_features * X.var()) as value of gamma,\n- if 'auto', uses 1 / n_features\n- if float, must be non-negative.\n\n.. versionchanged:: 0.22\nThe default value of ``gamma`` changed from 'auto' to 'scale'.\n",
         "name": "gamma",
         "optional": true,
         "type": "float32"
@@ -2122,14 +2122,14 @@
       },
       {
         "default": 3,
-        "description": "Degree of the polynomial kernel function ('poly').\nIgnored by all other kernels.\n",
+        "description": "Degree of the polynomial kernel function ('poly').\nMust be non-negative. Ignored by all other kernels.\n",
         "name": "degree",
         "optional": true,
         "type": "int32"
       },
       {
         "default": "auto",
-        "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\n- if ``gamma='scale'`` (default) is passed then it uses\n1 / (n_features * X.var()) as value of gamma,\n- if 'auto', uses 1 / n_features.\n\n.. versionchanged:: 0.22\nThe default value of ``gamma`` changed from 'auto' to 'scale'.\n",
+        "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\n- if ``gamma='scale'`` (default) is passed then it uses\n1 / (n_features * X.var()) as value of gamma,\n- if 'auto', uses 1 / n_features\n- if float, must be non-negative.\n\n.. versionchanged:: 0.22\nThe default value of ``gamma`` changed from 'auto' to 'scale'.\n",
         "name": "gamma",
         "optional": true,
         "type": "float32"
