@@ -1096,26 +1096,37 @@ keras.Tensor = class {
             context.state = 'Tensor data is empty.';
             return context;
         }
+
+        try {
+            context.data = this._data instanceof Uint8Array ? this._data : this._data.peek();
+        }
+        catch (err) {
+            context.state = err.message;
+            return context;
+        }
+
         switch (this._type.dataType) {
             case 'boolean':
             case 'float16':
             case 'float32':
             case 'float64':
             case 'uint8':
+            case 'int8':
             case 'int32':
-            case 'int64':
+            case 'int64': {
                 context.dataType = this._type.dataType;
-                context.view = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+                context.view = new DataView(context.data.buffer, context.data.byteOffset, context.data.byteLength);
                 context.littleEndian = this._littleEndian;
                 break;
+            }
             case 'string':
                 context.dataType = this._type.dataType;
-                context.data = this._data;
                 break;
             default:
-                context.state = 'Tensor data type is not supported.';
+                context.state = "Tensor data type '" + this._type.dataType + "' is not supported.";
                 break;
         }
+
         context.shape = this._type.shape.dimensions;
         return context;
     }
@@ -1150,6 +1161,10 @@ keras.Tensor = class {
                         break;
                     case 'uint8':
                         results.push(context.view.getUint8(context.index));
+                        context.index += 1;
+                        break;
+                    case 'int8':
+                        results.push(context.view.getInt8(context.index));
                         context.index += 1;
                         break;
                     case 'int32':

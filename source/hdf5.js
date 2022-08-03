@@ -210,7 +210,7 @@ hdf5.Variable = class {
         switch (this._dataLayout.layoutClass) {
             case 1: // Contiguous
                 if (this._dataLayout.address) {
-                    return this._reader.at(this._dataLayout.address).read(this._dataLayout.size);
+                    return this._reader.at(this._dataLayout.address).stream(this._dataLayout.size);
                 }
                 break;
             case 2: { // Chunked
@@ -481,9 +481,24 @@ hdf5.BinaryReader = class extends hdf5.Reader {
         }
     }
 
+    peek(length) {
+        const position = this._offset + this._position;
+        length = length !== undefined ? length : this._buffer.length - position;
+        this.take(length);
+        const buffer = this._buffer.subarray(position, position + length);
+        this._position = position - this._offset;
+        return buffer;
+    }
+
     read(length) {
         const position = this.take(length);
         return this._buffer.subarray(position, position + length);
+    }
+
+    stream(length) {
+        const position = this.take(length);
+        const buffer = this._buffer.subarray(position, position + length);
+        return new hdf5.BinaryReader(buffer);
     }
 
     size(terminator) {
@@ -538,6 +553,12 @@ hdf5.StreamReader = class extends hdf5.Reader {
         this._stream.seek(this._offset + this._position);
         this.skip(length);
         return this._stream.read(length);
+    }
+
+    stream(length) {
+        this._stream.seek(this._offset + this._position);
+        this.skip(length);
+        return this._stream.stream(length);
     }
 
     byte() {
