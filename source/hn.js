@@ -165,9 +165,17 @@ hn.Graph = class {
             const filtered_layers = layers.filter((layer) => {
                 return ['input_layer'].includes(layer.type);
             });
-            return filtered_layers.map((layer) => {
-                return new hn.Parameter(layer.name, true, [ new hn.Argument(layer.name, layer.type, null) ]);
+            const result = []
+            filtered_layers.forEach(({name, type, output, output_shapes: [output_shape] = []}) => {
+                return output.forEach(() => {
+                    const slice = output_shape.slice(1, output_shape.length);
+                    const param = new hn.Parameter(name, true, [
+                        new hn.Argument(name, new hn.TensorType(type, new hn.TensorShape(slice)))
+                    ]);
+                    result.push(param)
+                });
             });
+            return result;
         };
 
         const getOutputs = (layers) => {
