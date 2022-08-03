@@ -293,7 +293,7 @@ hn.Node = class {
 
         const getNodeInputs = ({input, input_shapes: [input_shape] = [], params}) => {
             const input_shapes = input.map((input_layer) => {
-                return new hn.Parameter(input_layer, true, [
+                return new hn.Parameter("input", true, [
                     new hn.Argument(input_layer, `${hn.DataTypes.ARRAY}[${input_shape}]`)
                 ]);
             });
@@ -305,8 +305,9 @@ hn.Node = class {
                         if (!Array.isArray(value)) {
                             value = [value];
                         }
-                        acc.push(new hn.Parameter(name, true, [
-                            new hn.Argument(name, null, new hn.Tensor(hn.DataTypes.ARRAY, value), value)
+                        const label = schema.label ? schema.label : name;
+                        acc.push(new hn.Parameter(label, true, [
+                            new hn.Argument(label, null, new hn.Tensor(hn.DataTypes.ARRAY, value), value)
                         ]));
                     }
                     return acc;
@@ -320,8 +321,8 @@ hn.Node = class {
         };
 
         const getNodeOutputs = ({name, output = [], output_shapes: [output_shape = []] = []}) => {
-            return output.map((output_layer) => {
-                return new hn.Parameter(output_layer, true, [
+            return output.map(() => {
+                return new hn.Parameter("output", true, [
                     new hn.Argument(name, new hn.TensorType(hn.DataTypes.ARRAY, new hn.TensorShape(output_shape)))
                 ]);
             });
