@@ -3185,35 +3185,35 @@ python.Execution = class {
                 case 'b': {
                     const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
                     switch (dtype.itemsize) {
-                        case 1: return view.getInt8(0, true) ? true : false;
+                        case 1: return view.getInt8(0) ? true : false;
                         default: throw new python.Error("Unsupported scalar dtype boolean itemsize '" + dtype.itemsize + "'.");
                     }
                 }
                 case 'f': {
                     const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
                     switch (dtype.itemsize) {
-                        case 4: return view.getFloat32(0, true);
-                        case 8: return view.getFloat64(0, true);
+                        case 4: return view.getFloat32(0, dtype.byteorder === '<');
+                        case 8: return view.getFloat64(0, dtype.byteorder === '<');
                         default: throw new python.Error("Unsupported scalar dtype float itemsize '" + dtype.itemsize + "'.");
                     }
                 }
                 case 'i': {
                     const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
                     switch (dtype.itemsize) {
-                        case 1: return view.getInt8(0, true);
-                        case 2: return view.getInt16(0, true);
-                        case 4: return view.getInt32(0, true);
-                        case 8: return view.getInt64(0, true);
+                        case 1: return view.getInt8(0);
+                        case 2: return view.getInt16(0, dtype.byteorder === '<');
+                        case 4: return view.getInt32(0, dtype.byteorder === '<');
+                        case 8: return view.getInt64(0, dtype.byteorder === '<');
                         default: throw new python.Error("Unsupported scalar dtype int itemsize '" + dtype.itemsize + "'.");
                     }
                 }
                 case 'u': {
                     const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
                     switch (dtype.itemsize) {
-                        case 1: return view.getUint8(0, true);
-                        case 2: return view.getUint16(0, true);
-                        case 4: return view.getUint32(0, true);
-                        case 8: return view.getUint64(0, true);
+                        case 1: return view.getUint8(0);
+                        case 2: return view.getUint16(0, dtype.byteorder === '<');
+                        case 4: return view.getUint32(0, dtype.byteorder === '<');
+                        case 8: return view.getUint64(0, dtype.byteorder === '<');
                         default: throw new python.Error("Unsupported scalar dtype uint itemsize '" + dtype.itemsize + "'.");
                     }
                 }
@@ -5565,16 +5565,10 @@ python.Unpickler.BinaryReader = class {
         return this._view.getInt64(position, true).toNumber();
     }
 
-    float32() {
-        const position = this._position;
-        this.skip(4);
-        return this._view.getFloat32(position, true);
-    }
-
     float64() {
         const position = this._position;
         this.skip(8);
-        return this._view.getFloat64(position, true);
+        return this._view.getFloat64(position, false);
     }
 
     string(size, encoding) {
@@ -5666,11 +5660,6 @@ python.Unpickler.StreamReader = class {
     int64() {
         const position = this._fill(8);
         return this._view.getInt64(position, true).toNumber();
-    }
-
-    float32() {
-        const position = this._fill(4);
-        return this._view.getFloat32(position, true);
     }
 
     float64() {
