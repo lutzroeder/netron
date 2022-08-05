@@ -9277,7 +9277,7 @@
     "outputs": [
       {
         "name": "memory_config",
-        "description": "A string-encoded HbmBuffersConfig proto containing metadata about\nthe memory allocations reserved for TPUEmbedding.",
+        "description": "A string-encoded memory configuration containing metadata about\nthe memory allocations reserved for TPUEmbedding.",
         "type": 7
       }
     ]
@@ -18624,8 +18624,8 @@
   },
   {
     "name": "FloorMod",
-    "summary": "Returns element-wise remainder of division. When `x < 0` xor `y < 0` is",
-    "description": "true, this follows Python semantics in that the result here is consistent\nwith a flooring divide. E.g. `floor(x / y) * y + mod(x, y) = x`.\n\n*NOTE*: `FloorMod` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
+    "summary": "Returns element-wise remainder of division.",
+    "description": "This follows Python semantics in that the\nresult here is consistent with a flooring divide. E.g.\n`floor(x / y) * y + floormod(x, y) = x`, regardless of the signs of x and y.\n\n*NOTE*: `FloorMod` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
     "attributes": [
       {
         "name": "T",
@@ -59707,6 +59707,120 @@
         "name": "sampled_expected_count",
         "description": "A vector of length num_sampled, for each sampled\ncandidate representing the number of times the candidate is expected\nto occur in a batch of sampled candidates.  If unique=true, then this is a\nprobability.",
         "type": 1
+      }
+    ]
+  },
+  {
+    "name": "UniformDequantize",
+    "summary": "Perform dequantization on the quantized Tensor `input`.",
+    "description": "Given quantized `input` which was quantized using `scales` and `zero_points`, performs dequantization using the formula:\ndequantized_data = (quantized_data - zero_point) * scale.",
+    "attributes": [
+      {
+        "name": "Tin",
+        "type": "type",
+        "description": "The type of input Tensor. A tf.DType from: tf.float32 Must be one of the following: `qint8`, `qint32`."
+      },
+      {
+        "name": "Tout",
+        "type": "type",
+        "description": "The type of output Tensor. A tf.DType from: tf.qint8, tf.qint32 Must be one of the following: `float32`."
+      },
+      {
+        "name": "quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization. Otherwise, it must be set within range [0, input.dims()).",
+        "default": -1
+      },
+      {
+        "name": "quantization_min_val",
+        "type": "int64",
+        "description": "The quantization min value that was used when input was quantized.\nThe purpose of this attribute is typically (but not limited to) to indicate narrow range, where this is set to:\n`(Tin lowest) + 1` if narrow range, and `(Tin lowest)` otherwise.\nFor example, if Tin is qint8, this is set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "quantization_max_val",
+        "type": "int64",
+        "description": "The quantization max value that was used when input was quantized.\nThe purpose of this attribute is typically (but not limited to) indicate narrow range, where this is set to:\n`(Tout max)` for both narrow range and not narrow range.\nFor example, if Tin is qint8, this is set to 127."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Must be a Tensor of Tin.",
+        "typeAttr": "Tin"
+      },
+      {
+        "name": "scales",
+        "description": "The float value(s) used as scale(s) when quantizing original data that input represents.\nMust be a scalar Tensor if quantization_axis is -1 (per-tensor quantization), otherwise 1D Tensor of size (input.dim_size(quantization_axis),) (per-axis quantization).",
+        "type": 1
+      },
+      {
+        "name": "zero_points",
+        "description": "The int32 value(s) used as zero_point(s) when quantizing original data that input represents.\nSame shape condition as scales.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "The output dequantized Tensor of Tout, whose shape is same as input.",
+        "typeAttr": "Tout"
+      }
+    ]
+  },
+  {
+    "name": "UniformQuantize",
+    "summary": "Perform quantization on Tensor `input`.",
+    "description": "Given `input`, `scales` and `zero_points`, performs quantization using the formula:\nquantized_data = floor(input_data * (1.0f / scale) + 0.5f) + zero_point",
+    "attributes": [
+      {
+        "name": "Tin",
+        "type": "type",
+        "description": "The type of input Tensor. A tf.DType from: tf.qint8, tf.qint32 Must be one of the following: `float32`."
+      },
+      {
+        "name": "Tout",
+        "type": "type",
+        "description": "The type of output Tensor. A tf.DType from: tf.float32 Must be one of the following: `qint8`, `qint32`."
+      },
+      {
+        "name": "quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization. Otherwise, it must be set within range [0, input.dims()).",
+        "default": -1
+      },
+      {
+        "name": "quantization_min_val",
+        "type": "int64",
+        "description": "The quantization min value to quantize `input`.\nThe purpose of this attribute is typically (but not limited to) to indicate narrow range, where this is set to:\n`(Tin lowest) + 1` if narrow range, and `(Tin lowest)` otherwise.\nFor example, if Tin is qint8, this is set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "quantization_max_val",
+        "type": "int64",
+        "description": "The quantization max value to quantize `input`.\nThe purpose of this attribute is typically (but not limited to) indicate narrow range, where this is set to:\n`(Tout max)` for both narrow range and not narrow range.\nFor example, if Tin is qint8, this is set to 127."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Must be a Tensor of Tin.",
+        "typeAttr": "Tin"
+      },
+      {
+        "name": "scales",
+        "description": "The float value(s) to use as scale(s) to quantize `input`.\nMust be a scalar Tensor if quantization_axis is -1 (per-tensor quantization), otherwise 1D Tensor of size (input.dim_size(quantization_axis),) (per-axis quantization).",
+        "type": 1
+      },
+      {
+        "name": "zero_points",
+        "description": "The int32 value(s) to use as zero_point(s) to quantize `input`.\nSame shape condition as scales.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "The output quantized Tensor of Tout, whose shape is same as input.",
+        "typeAttr": "Tout"
       }
     ]
   },
