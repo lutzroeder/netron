@@ -1698,13 +1698,13 @@ $root.mindspore.schema.Flatten = class Flatten {
 
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.Flatten();
-        $.axis = reader.int64_(position, 4, 0);
+        $.axis = reader.int64_(position, 4, 1);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.Flatten();
-        $.axis = reader.value(json.axis, 0);
+        $.axis = reader.value(json.axis, 1);
         return $;
     }
 };
@@ -4235,7 +4235,8 @@ $root.mindspore.schema.WeightQuantCompressType = {
     INDEXING: 1,
     SPARSE: 2,
     FSE: 3,
-    BITPACKING: 4
+    BITPACKING: 4,
+    FSE_INT: 5
 };
 
 $root.mindspore.schema.ExternalData = class ExternalData {
