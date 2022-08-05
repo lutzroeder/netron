@@ -1770,7 +1770,15 @@ pytorch.Container.Zip.Pickle = class extends pytorch.Container.Zip {
         if (!this._graphs) {
             const execution = new pytorch.Container.Zip.Execution(null, this._exceptionCallback, this._metadata);
             const graph = new pytorch.Container.Zip.Pickle.Script(this._entries, execution);
-            this._graphs = graph.data.forward ? [ graph ] : pytorch.Utility.find(graph.data);
+            if (graph.data && graph.data.forward) {
+                this._graphs = [ graph ];
+            }
+            else if (graph.data && graph.data.__class__ && graph.data.__class__.__module__ == 'fastai.learner' && graph.data.__class__.__name__ == 'Learner') {
+                this._graphs = pytorch.Utility.find(graph.data.model);
+            }
+            else {
+                this._graphs = pytorch.Utility.find(graph.data);
+            }
         }
         return this._graphs;
     }

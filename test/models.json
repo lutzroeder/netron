@@ -4200,6 +4200,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "fruit_veg_model.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/9265633/fruit_veg_model.pkl.zip[fruit_veg_model.pkl]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "gcn2_tiny_320x240.pb",
     "source":   "https://raw.githubusercontent.com/jiexiong2016/GCNv2_SLAM/master/GCN2/gcn2_tiny_320x240.pt",
     "format":   "TorchScript v1.0",

@@ -951,8 +951,8 @@ view.Graph = class extends grapher.Graph {
                         }
                     }
                     if (groupName) {
-                        createCluster(groupName);
-                        this.setParent(viewNode.name, groupName);
+                        createCluster(groupName + '\ngroup');
+                        this.setParent(viewNode.name, groupName + '\ngroup');
                     }
                 }
             }
@@ -1100,7 +1100,7 @@ view.Node = class extends grapher.Node {
             this._add(node.inner);
         }
         if (node.nodes) {
-            this.canvas = this.canvas();
+            // this.canvas = this.canvas();
         }
     }
 
