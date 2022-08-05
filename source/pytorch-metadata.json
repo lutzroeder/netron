@@ -2452,6 +2452,28 @@
     ]
   },
   {
+    "name": "torch.moveaxis:int",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "source", "type": "int64" },
+      { "name": "destination", "type": "int64" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.moveaxis:intlist",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "source", "type": "int64[]" },
+      { "name": "destination", "type": "int64[]" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.lstm:input",
     "category": "Layer",
     "inputs": [
@@ -2863,6 +2885,19 @@
       { "name": "p", "type": "float32", "default": 2 },
       { "name": "eps", "type": "float32", "default": 1e-06 },
       { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.pad:",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "pad", "type": "int64[]" },
+      { "name": "mode", "type": "string", "default": "constant" },
+      { "name": "value", "type": "float32", "optional": true, "default": null }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -5152,7 +5187,29 @@
     ]
   },
   {
-    "name": "torch.cumsum",
+    "name": "torch.cumsum:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.cumsum:dimname",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.cumsum_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
