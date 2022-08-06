@@ -2951,7 +2951,8 @@ pytorch.Utility = class {
                     if ((key.startsWith('dico_') && Object(value) === value) ||
                         (key === 'args' && Object(value) === value) ||
                         (key.startsWith('params') && Object(value) === value && (value.id2lang || value.lang2id)) ||
-                        (key.startsWith('spk_dict_') && Object(value) === value && Object.keys(value).length === 0)) {
+                        (key.startsWith('spk_dict_') && Object(value) === value && Object.keys(value).length === 0) ||
+                        (key === 'blk_det')) {
                         continue;
                     }
                     target[key] = value;
