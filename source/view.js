@@ -1891,6 +1891,9 @@ view.ModelFactoryService = class {
                         }
                         return model;
                     }).catch((error) => {
+                        if (context.stream && context.stream.position !== 0) {
+                            context.stream.seek(0);
+                        }
                         updateErrorContext(error, context);
                         errors.push(error);
                         return nextModule();
