@@ -7,7 +7,8 @@ hn.DataTypes = {
     STRING: 'string',
     BOOLEAN: 'boolean',
     NUMBER: 'number',
-    ARRAY: 'array'
+    ARRAY: 'array',
+    SHAPE: 'shape'
 };
 
 hn.MetadataFile = 'hn-metadata.json';
@@ -169,7 +170,7 @@ hn.Graph = class {
             filtered_layers.forEach(({name, output, output_shapes: [output_shape] = []}) => {
                 return output.forEach(() => {
                     const param = new hn.Parameter(name, true, [
-                        new hn.Argument(name, new hn.TensorType(hn.DataTypes.ARRAY, new hn.TensorShape(output_shape)))
+                        new hn.Argument(name, new hn.TensorType(hn.DataTypes.SHAPE, new hn.TensorShape(output_shape)))
                     ]);
                     result.push(param)
                 });
@@ -185,7 +186,7 @@ hn.Graph = class {
             filtered_layers.forEach(({name, input, input_shapes: [input_shape] = []}) => {
                 return input.forEach((item) => {
                     const param = new hn.Parameter(name, true, [
-                        new hn.Argument(item, new hn.TensorType(hn.DataTypes.ARRAY, new hn.TensorShape(input_shape)))
+                        new hn.Argument(item, new hn.TensorType(hn.DataTypes.SHAPE, new hn.TensorShape(input_shape)))
                     ]);
                     result.push(param)
                 });
@@ -294,7 +295,7 @@ hn.Node = class {
         const getNodeInputs = ({input, input_shapes: [input_shape] = [], params}) => {
             const input_shapes = input.map((name) => {
                 return new hn.Parameter("input", true, [
-                    new hn.Argument(name, new hn.TensorType(hn.DataTypes.ARRAY, new hn.TensorShape(input_shape)))
+                    new hn.Argument(name, new hn.TensorType(hn.DataTypes.SHAPE, new hn.TensorShape(input_shape)))
                 ]);
             });
 
@@ -304,7 +305,7 @@ hn.Node = class {
                     if (schema.visible) {
                         const label = schema.label ? schema.label : name;
                         acc.push(new hn.Parameter(label, true, [
-                            new hn.Argument(label, null, new hn.Tensor(schema.type, value), value)
+                            new hn.Argument(label, new hn.TensorType(hn.DataTypes.SHAPE, new hn.TensorShape(value, schema.type)), new hn.Tensor(schema.type, value), value)
                         ]));
                     }
                     return acc;
@@ -320,7 +321,7 @@ hn.Node = class {
         const getNodeOutputs = ({name, output = [], output_shapes: [output_shape = []] = []}) => {
             return output.map(() => {
                 return new hn.Parameter("output", true, [
-                    new hn.Argument(name, new hn.TensorType(hn.DataTypes.ARRAY, new hn.TensorShape(output_shape)))
+                    new hn.Argument(name, new hn.TensorType(hn.DataTypes.SHAPE, new hn.TensorShape(output_shape)))
                 ]);
             });
         };
@@ -402,7 +403,7 @@ hn.Attribute = class {
 
 hn.Tensor = class {
     constructor(dataType, shape) {
-        this._type = new hn.TensorType(dataType, new hn.TensorShape(shape));
+        this._type = new hn.TensorType(dataType, new hn.TensorShape(shape, dataType));
     }
 
     get type() {
@@ -410,6 +411,9 @@ hn.Tensor = class {
     }
 
     get state() {
+        if(this._type.dataType === hn.DataTypes.ARRAY) {
+            return `[${this._type.shape._dimensions.join(',')}]`
+        }
         return 'Tensor data not implemented.';
     }
 };
@@ -434,12 +438,20 @@ hn.TensorType = class {
 };
 
 hn.TensorShape = class {
-    constructor(dimensions) {
+    constructor(dimensions, type = hn.DataTypes.SHAPE) {
         this._dimensions = dimensions;
+        this._type = type;
     }
 
     get dimensions() {
+        if(this._type === hn.DataTypes.ARRAY){
+            return [this._dimensions.length]
+        }
         return this._dimensions;
+    }
+
+    get type(){
+        return this._type;
     }
 
     toString() {
@@ -447,7 +459,12 @@ hn.TensorShape = class {
             if (this._dimensions.length === 0) {
                 return '';
             }
-            return ':' + this._dimensions.map((dimension) => dimension.toString()).join(',');
+
+            if(this._type === hn.DataTypes.ARRAY){
+                return `(${this._dimensions.length})`;
+            }
+
+            return ` [${this._dimensions.map((dimension) => dimension.toString()).join(',')}]`
         }
         return '';
     }
