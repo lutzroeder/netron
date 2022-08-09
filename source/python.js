@@ -2187,6 +2187,72 @@ python.Execution = class {
                 }
             }
         });
+        this.registerType('megengine.traced_module.traced_module.TracedModule', class { });
+        this.registerType('megengine.module.module.Module', class { });
+        this.registerType('megengine.traced_module.node.ModuleNode', class { });
+        this.registerType('megengine.traced_module.node.NodeMixin', class { });
+        this.registerType('megengine.traced_module.pytree.ArgsIndex', class { });
+        this.registerType('megengine.traced_module.node.TensorNode', class { });
+        this.registerType('megengine.traced_module.traced_module.InternalGraph', class { });
+        this.registerType('megengine.traced_module.expr.GetAttr', class { });
+        this.registerType('megengine.traced_module.expr.Input', class { });
+        this.registerType('megengine.traced_module.expr.CallMethod', class { });
+        this.registerType('megengine.core._imperative_rt.common.CompNode', class { });
+        this.registerType('megengine.traced_module.traced_module.NameSpace', class { });
+        this.registerType('megengine.traced_module.expr.CallFunction', class { });
+        this.registerType('megengine.traced_module.expr.Apply', class { });
+        this.registerType('megengine.traced_module.serialization._ModuleState', class { });
+        this.registerType('megengine.core._imperative_rt.ops.GetVarShape', class { });
+        this.registerType('megengine.tensor.Parameter', class {
+            constructor(data, dtype, device) {
+                this.data = data;
+                this.dtype = dtype;
+                this.device = device;
+            }
+        });
+        this.registerType('megengine.traced_module.pytree.TreeDef', class {
+            toString() {
+                let content = '';
+                for (const child of this.children_defs) {
+                    content += child.toString() + ",";
+                }
+                if (typeof this.type === "string") {
+                    return this.type.split(".").slice(-1) + '(' + content + ')';
+                }
+                return this.type.__name__ + '(' + content + ')';
+            }
+        });
+        this.registerType('megengine.traced_module.pytree.LeafDef', class {
+            toString() {
+                let content = '';
+                if (this.const_val !== null) {
+                    content += this.const_val;
+                }
+                else {content += '[';}
+                for (var t of Object.values(this.type)) {
+                    content += t.__name__;
+                }
+                content += ']';
+                return content;
+            }
+        });
+        this.registerType('megengine.tensor.Tensor', class {
+            constructor(data, dtype, device) {
+                this.data = data;
+                this.dtype = dtype;
+                this.device = device;
+            }
+        });
+        this.registerType('megengine.core.tensor.dtype.QuantDtypeMeta', class {
+            constructor(name, cname, np_dtype, qmin, qmax, is_signed) {
+                this.name = name;
+                this.cname = cname;
+                this.np_dtype = np_dtype;
+                this.qmin = qmin;
+                this.qmax = qmax;
+                this.is_signed = is_signed;
+            }
+        });
         this.registerType('nolearn.lasagne.base.BatchIterator', class {});
         this.registerType('nolearn.lasagne.base.Layers', class {});
         this.registerType('nolearn.lasagne.base.NeuralNet', class {});

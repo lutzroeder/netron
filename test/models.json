@@ -2541,6 +2541,20 @@
     "link":     "https://github.com/google/mediapipe"
   },
   {
+    "type":     "megengine",
+    "target":   "mobilenetv1.tm",
+    "source":   "https://github.com/lutzroeder/netron/files/9257882/mobilenetv1.tm.zip[mobilenetv1.tm]",
+    "format":   "MegEngine v1.10.0",
+    "link":     "https://github.com/MegEngine/MegEngine"
+  },
+  {
+    "type":     "megengine",
+    "target":   "shufflenet_v2_x1_0.tm",
+    "source":   "https://github.com/lutzroeder/netron/files/9257733/shufflenet_v2_x1_0.tm.zip[shufflenet_v2_x1_0.tm]",
+    "format":   "MegEngine v1.10.0",
+    "link":     "https://github.com/MegEngine/MegEngine"
+  },
+  {
     "type":     "mlnet",
     "target":   "BinaryClassification_AutoML_SentimentModel.zip",
     "source":   "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/getting-started/BinaryClassification_AutoML/SentimentAnalysis/MLModels/SentimentModel.zip",
