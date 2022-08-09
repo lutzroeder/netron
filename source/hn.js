@@ -473,7 +473,7 @@ hn.TensorShape = class {
                 return '';
             }
 
-            return ` [${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`
+            return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`
         }
         return '';
     }
