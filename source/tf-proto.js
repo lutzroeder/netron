@@ -8497,6 +8497,7 @@ $root.tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
 
     constructor() {
         this.coordinated_jobs = [];
+        this.recoverable_jobs = [];
     }
 
     static decode(reader, length) {
@@ -8528,6 +8529,9 @@ $root.tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
                     break;
                 case 8:
                     message.agent_destruction_without_shutdown = reader.bool();
+                    break;
+                case 9:
+                    message.recoverable_jobs.push(reader.string());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -8566,6 +8570,9 @@ $root.tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
                     break;
                 case "agent_destruction_without_shutdown":
                     message.agent_destruction_without_shutdown = reader.bool();
+                    break;
+                case "recoverable_jobs":
+                    reader.array(message.recoverable_jobs, () => reader.string());
                     break;
                 default:
                     reader.field(tag, message);
