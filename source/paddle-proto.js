@@ -61,7 +61,9 @@ $root.paddle.framework.proto.AttrType = {
     "LONG": 9,
     "BLOCKS": 10,
     "LONGS": 11,
-    "FLOAT64S": 12
+    "FLOAT64S": 12,
+    "VAR": 13,
+    "VARS": 14
 };
 
 $root.paddle.framework.proto.ProcessMeshDesc = class ProcessMeshDesc {
@@ -225,6 +227,7 @@ $root.paddle.framework.proto.OpDesc.Attr = class Attr {
         this.blocks_idx = [];
         this.longs = [];
         this.float64s = [];
+        this.vars_name = [];
     }
 
     static decode(reader, length) {
@@ -277,6 +280,12 @@ $root.paddle.framework.proto.OpDesc.Attr = class Attr {
                     break;
                 case 16:
                     message.float64s = reader.doubles(message.float64s, tag);
+                    break;
+                case 17:
+                    message.var_name = reader.string();
+                    break;
+                case 18:
+                    message.vars_name.push(reader.string());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -343,6 +352,12 @@ $root.paddle.framework.proto.OpDesc.Attr = class Attr {
                 case "float64s":
                     reader.array(message.float64s, () => reader.double());
                     break;
+                case "var_name":
+                    message.var_name = reader.string();
+                    break;
+                case "vars_name":
+                    reader.array(message.vars_name, () => reader.string());
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -366,6 +381,7 @@ $root.paddle.framework.proto.OpDesc.Attr.prototype.s = "";
 $root.paddle.framework.proto.OpDesc.Attr.prototype.b = false;
 $root.paddle.framework.proto.OpDesc.Attr.prototype.block_idx = 0;
 $root.paddle.framework.proto.OpDesc.Attr.prototype.l = protobuf.Int64.create(0);
+$root.paddle.framework.proto.OpDesc.Attr.prototype.var_name = "";
 
 $root.paddle.framework.proto.OpDesc.Var = class Var {
 
