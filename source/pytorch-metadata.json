@@ -2070,6 +2070,25 @@
     ]
   },
   {
+    "name": "torch.diag:Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "diagonal", "type": "int64", "default": 0 }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.block_diag:",
+    "inputs": [
+      { "name": "tensors", "type": "Tensor[]" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.div:Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -2166,10 +2185,20 @@
     ]
   },
   {
-    "name": "torch.view",
+    "name": "torch.view:",
     "inputs": [
-      { "name": "input", "type": "Tensor" },
+      { "name": "self", "type": "Tensor" },
       { "name": "size", "type": "int64[]", "visible": false }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.view:SymInt",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "size", "type": "SymInt[]", "visible": false }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -2780,6 +2809,28 @@
   },
   {
     "name": "torch.cat:names",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "tensors", "type": "Tensor[]" },
+      { "name": "dim", "type": "Dimname" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.concat:",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "tensors", "type": "Tensor[]" },
+      { "name": "dim", "type": "int64", "default": 0 }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.concat:names",
     "category": "Tensor",
     "inputs": [
       { "name": "tensors", "type": "Tensor[]" },
@@ -5889,7 +5940,7 @@
     ]
   },
   {
-    "name": "torch.ceil",
+    "name": "torch.ceil:",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -5898,7 +5949,7 @@
     ]
   },
   {
-    "name": "torch.ceil_",
+    "name": "torch.ceil_:",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -7177,6 +7228,17 @@
     ]
   },
   {
+    "name": "torch.cross:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" },
+      { "name": "dim", "type": "int64", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+   {
     "name": "torch.cross:out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
