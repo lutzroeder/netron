@@ -2187,22 +2187,38 @@ python.Execution = class {
                 }
             }
         });
-        this.registerType('megengine.traced_module.traced_module.TracedModule', class { });
-        this.registerType('megengine.module.module.Module', class { });
-        this.registerType('megengine.traced_module.node.ModuleNode', class { });
-        this.registerType('megengine.traced_module.node.NodeMixin', class { });
-        this.registerType('megengine.traced_module.pytree.ArgsIndex', class { });
-        this.registerType('megengine.traced_module.node.TensorNode', class { });
-        this.registerType('megengine.traced_module.traced_module.InternalGraph', class { });
-        this.registerType('megengine.traced_module.expr.GetAttr', class { });
-        this.registerType('megengine.traced_module.expr.Input', class { });
-        this.registerType('megengine.traced_module.expr.CallMethod', class { });
-        this.registerType('megengine.core._imperative_rt.common.CompNode', class { });
-        this.registerType('megengine.traced_module.traced_module.NameSpace', class { });
-        this.registerType('megengine.traced_module.expr.CallFunction', class { });
-        this.registerType('megengine.traced_module.expr.Apply', class { });
-        this.registerType('megengine.traced_module.serialization._ModuleState', class { });
-        this.registerType('megengine.core._imperative_rt.ops.GetVarShape', class { });
+        this.registerFunction('megengine.functional.nn.conv2d', function() {});
+        this.registerFunction('megengine.functional.nn.relu', function() {});
+        this.registerFunction('megengine.module.qat.module.QATModule._apply_fakequant_with_observer', function() {});
+        this.registerType('megengine.core._imperative_rt.common.CompNode', class {});
+        this.registerType('megengine.core._imperative_rt.ops.FakeQuant', class {});
+        this.registerType('megengine.core._imperative_rt.ops.GetVarShape', class {});
+        this.registerType('megengine.module.activation.ReLU', class {});
+        this.registerType('megengine.module.batchnorm.BatchNorm2d', class {});
+        this.registerType('megengine.module.conv.Conv2d', class {});
+        this.registerType('megengine.module.conv.ConvTranspose2d', class {});
+        this.registerType('megengine.module.identity.Identity', class {});
+        this.registerType('megengine.module.module.Module', class {});
+        this.registerType('megengine.module.pooling.MaxPool2d', class {});
+        this.registerType('megengine.module.qat.concat.Concat', class {});
+        this.registerType('megengine.module.qat.elemwise.Elemwise', class {});
+        this.registerType('megengine.quantization.utils.QParams', class {});
+        this.registerType('megengine.quantization.utils.QuantMode', class {});
+        this.registerType('megengine.traced_module.expr.Apply', class {});
+        this.registerType('megengine.traced_module.expr.CallFunction', class {});
+        this.registerType('megengine.traced_module.expr.CallMethod', class {});
+        this.registerType('megengine.traced_module.expr.Constant', class {});
+        this.registerType('megengine.traced_module.expr.GetAttr', class {});
+        this.registerType('megengine.traced_module.expr.Input', class {});
+        this.registerType('megengine.traced_module.fake_quant.FakeQuantize', class {});
+        this.registerType('megengine.traced_module.node.ModuleNode', class {});
+        this.registerType('megengine.traced_module.node.NodeMixin', class {});
+        this.registerType('megengine.traced_module.node.TensorNode', class {});
+        this.registerType('megengine.traced_module.pytree.ArgsIndex', class {});
+        this.registerType('megengine.traced_module.serialization._ModuleState', class {});
+        this.registerType('megengine.traced_module.traced_module.InternalGraph', class {});
+        this.registerType('megengine.traced_module.traced_module.NameSpace', class {});
+        this.registerType('megengine.traced_module.traced_module.TracedModule', class {});
         this.registerType('megengine.tensor.Parameter', class {
             constructor(data, dtype, device) {
                 this.data = data;
