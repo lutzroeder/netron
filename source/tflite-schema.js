@@ -190,6 +190,25 @@ $root.tflite.SparsityParameters = class SparsityParameters {
     }
 };
 
+$root.tflite.VariantSubType = class VariantSubType {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.VariantSubType();
+        $.shape = reader.typedArray(position, 4, Int32Array);
+        $.type = reader.int8_(position, 6, 0);
+        $.has_rank = reader.bool_(position, 8, false);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.VariantSubType();
+        $.shape = reader.typedArray(json.shape, Int32Array);
+        $.type = $root.tflite.TensorType[json.type];
+        $.has_rank = reader.value(json.has_rank, false);
+        return $;
+    }
+};
+
 $root.tflite.Tensor = class Tensor {
 
     static decode(reader, position) {
@@ -203,6 +222,7 @@ $root.tflite.Tensor = class Tensor {
         $.sparsity = reader.table(position, 16, $root.tflite.SparsityParameters.decode);
         $.shape_signature = reader.typedArray(position, 18, Int32Array);
         $.has_rank = reader.bool_(position, 20, false);
+        $.variant_tensors = reader.tableArray(position, 22, $root.tflite.VariantSubType.decode);
         return $;
     }
 
@@ -217,6 +237,7 @@ $root.tflite.Tensor = class Tensor {
         $.sparsity = reader.object(json.sparsity, $root.tflite.SparsityParameters.decodeText);
         $.shape_signature = reader.typedArray(json.shape_signature, Int32Array);
         $.has_rank = reader.value(json.has_rank, false);
+        $.variant_tensors = reader.objectArray(json.variant_tensors, $root.tflite.VariantSubType.decodeText);
         return $;
     }
 };
