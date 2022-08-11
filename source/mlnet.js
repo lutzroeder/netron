@@ -2440,7 +2440,7 @@ mlnet.Error = class extends Error {
 
     constructor(message) {
         super(message);
-        this.name = 'ML.NET Error';
+        this.name = 'Error loading ML.NET model.';
     }
 };
 
