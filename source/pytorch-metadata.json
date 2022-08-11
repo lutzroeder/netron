@@ -1340,6 +1340,24 @@
     ]
   },
   {
+    "name": "torch.atanh",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.atanh_",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.arctan",
     "inputs": [
       { "name": "self", "type": "Tensor" }
