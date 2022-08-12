@@ -120,6 +120,7 @@
             { "ext": "tfl",         "name": "TensorFlow Lite Model"    },
             { "ext": "tflite",      "name": "TensorFlow Lite Model"    },
             { "ext": "tmfile",      "name": "Tengine Model"            },
+            { "ext": "tm",          "name": "MegEngine Traced Model"   },
             { "ext": "tnnproto",    "name": "TNN Model"                },
             { "ext": "torchscript", "name": "PyTorch Model"            },
             { "ext": "uff",         "name": "UFF Model"                },
