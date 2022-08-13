@@ -540,7 +540,9 @@ barracuda.Metadata = class {
     constructor() {
         this._types = new Map();
         const register = (id, name, category, inputs) => {
-            this._types.set(id, { name: name, category: category, inputs: (inputs || []).map((input) => { return { name: input }; }) });
+            this._types.set(id, { name: name, category: category, inputs: (inputs || []).map((input) => {
+                return { name: input };
+            }) });
         };
         register(0, 'Nop', '');
         register(1, 'Dense', 'Layer', [ 'input', 'kernel', 'bias' ]);

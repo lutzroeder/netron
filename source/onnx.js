@@ -1289,7 +1289,9 @@ onnx.Function = class {
         this._description = func.doc_string;
         this._inputs = [];
         this._outputs = [];
-        this._attributes = func.attribute.map((attribtue) => { return { name: attribtue }; });
+        this._attributes = func.attribute.map((attribtue) => {
+            return { name: attribtue };
+        });
         context = new onnx.GraphContext(context, func.node);
         func.input = func.input.map((input) => context.tensor(input));
         func.output = func.output.map((output) => context.tensor(output));

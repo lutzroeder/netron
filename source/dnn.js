@@ -187,7 +187,7 @@ dnn.Node = class {
         this._inputs = [];
         this._outputs = [];
 
-        const inputs = node.input.map((input) => { return arg(input); });
+        const inputs = node.input.map((input) => arg(input));
         for (const weight of layer.weight) {
             let quantization = null;
             if (layer.is_quantized && weight === layer.weight[0] && layer.quantization && layer.quantization.data) {
@@ -201,7 +201,7 @@ dnn.Node = class {
             const initializer = new dnn.Tensor(weight, quantization);
             inputs.push(new dnn.Argument('', initializer.type, initializer, quantization));
         }
-        const outputs = node.output.map((output) => { return arg(output); });
+        const outputs = node.output.map((output) => arg(output));
 
         if (inputs && inputs.length > 0) {
             let inputIndex = 0;

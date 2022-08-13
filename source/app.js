@@ -402,7 +402,7 @@ class Application {
                     path: recent.path,
                     label: Application.minimizePath(recent.path),
                     accelerator: ((process.platform === 'darwin') ? 'Cmd+' : 'Ctrl+') + (i + 1).toString(),
-                    click: (item) => { this._openPath(item.path); }
+                    click: (item) => this._openPath(item.path)
                 });
             }
         }
@@ -433,7 +433,7 @@ class Application {
                 {
                     label: '&Open...',
                     accelerator: 'CmdOrCtrl+O',
-                    click: () => { this._openFileDialog(); }
+                    click: () => this._openFileDialog()
                 },
                 {
                     label: 'Open &Recent',
@@ -521,7 +521,7 @@ class Application {
                 {
                     id: 'view.toggle-direction',
                     accelerator: 'CmdOrCtrl+K',
-                    click: () => { this.execute('toggle', 'direction'); }
+                    click: () => this.execute('toggle', 'direction')
                 },
                 {
                     id: 'view.toggle-mousewheel',
@@ -584,11 +584,11 @@ class Application {
         const helpSubmenu = [
             {
                 label: '&Search Feature Requests',
-                click: () => { electron.shell.openExternal('https://www.github.com/' + this._package.repository + '/issues'); }
+                click: () => electron.shell.openExternal('https://www.github.com/' + this._package.repository + '/issues')
             },
             {
                 label: 'Report &Issues',
-                click: () => { electron.shell.openExternal('https://www.github.com/' + this._package.repository + '/issues/new'); }
+                click: () => electron.shell.openExternal('https://www.github.com/' + this._package.repository + '/issues/new')
             }
         ];
 
@@ -607,57 +607,57 @@ class Application {
 
         const commandTable = new Map();
         commandTable.set('file.export', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => context.view && context.view.path ? true : false
         });
         commandTable.set('edit.cut', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => context.view && context.view.path ? true : false
         });
         commandTable.set('edit.copy', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => context.view && context.view.path ? true : false
         });
         commandTable.set('edit.paste', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => context.view && context.view.path ? true : false
         });
         commandTable.set('edit.select-all', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => context.view && context.view.path ? true : false
         });
         commandTable.set('edit.find', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => context.view && context.view.path ? true : false
         });
         commandTable.set('view.toggle-attributes', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; },
-            label: (context) => { return !context.view || context.view.get('attributes') ? 'Hide &Attributes' : 'Show &Attributes'; }
+            enabled: (context) => context.view && context.view.path ? true : false,
+            label: (context) => !context.view || context.view.get('attributes') ? 'Hide &Attributes' : 'Show &Attributes'
         });
         commandTable.set('view.toggle-initializers', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; },
-            label: (context) => { return !context.view || context.view.get('initializers') ? 'Hide &Initializers' : 'Show &Initializers'; }
+            enabled: (context) => context.view && context.view.path ? true : false,
+            label: (context) => !context.view || context.view.get('initializers') ? 'Hide &Initializers' : 'Show &Initializers'
         });
         commandTable.set('view.toggle-names', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; },
-            label: (context) => { return !context.view || context.view.get('names') ? 'Hide &Names' : 'Show &Names'; }
+            enabled: (context) => context.view && context.view.path ? true : false,
+            label: (context) => !context.view || context.view.get('names') ? 'Hide &Names' : 'Show &Names'
         });
         commandTable.set('view.toggle-direction', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; },
-            label: (context) => { return !context.view || context.view.get('direction') === 'vertical' ? 'Show &Horizontal' : 'Show &Vertical'; }
+            enabled: (context) => context.view && context.view.path ? true : false,
+            label: (context) => !context.view || context.view.get('direction') === 'vertical' ? 'Show &Horizontal' : 'Show &Vertical'
         });
         commandTable.set('view.toggle-mousewheel', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; },
-            label: (context) => { return !context.view || context.view.get('mousewheel') === 'scroll' ? '&Mouse Wheel: Zoom' : '&Mouse Wheel: Scroll'; }
+            enabled: (context) => context.view && context.view.path ? true : false,
+            label: (context) => !context.view || context.view.get('mousewheel') === 'scroll' ? '&Mouse Wheel: Zoom' : '&Mouse Wheel: Scroll'
         });
         commandTable.set('view.reload', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => context.view && context.view.path ? true : false
         });
         commandTable.set('view.reset-zoom', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => context.view && context.view.path ? true : false
         });
         commandTable.set('view.zoom-in', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => context.view && context.view.path ? true : false
         });
         commandTable.set('view.zoom-out', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => context.view && context.view.path ? true : false
         });
         commandTable.set('view.show-properties', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (context) => context.view && context.view.path ? true : false
         });
 
         this._menu.build(menuTemplate, commandTable, this._views.views.map((view) => view.window));

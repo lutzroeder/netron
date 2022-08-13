@@ -745,7 +745,7 @@ openvino.Attribute = class {
                             defaultValue.push(defaultValue[defaultValue.length - 1]);
                         }
                     }
-                    if (this._value.every((item, index) => { return item == defaultValue[index]; })) {
+                    if (this._value.every((item, index) => item == defaultValue[index])) {
                         this._visible = false;
                     }
                 }

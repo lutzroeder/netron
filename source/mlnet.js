@@ -2044,9 +2044,17 @@ mlnet.FastTreeTweedieModelParameters = class extends mlnet.TreeEnsembleModelPara
         super(context);
     }
 
-    get VerNumFeaturesSerialized() { return 0x00010001; }
-    get VerDefaultValueSerialized() { return 0x00010002; }
-    get VerCategoricalSplitSerialized() { return 0x00010003; }
+    get VerNumFeaturesSerialized() {
+        return 0x00010001;
+    }
+
+    get VerDefaultValueSerialized() {
+        return 0x00010002;
+    }
+
+    get VerCategoricalSplitSerialized() {
+        return 0x00010003;
+    }
 };
 
 mlnet.FastTreeRankingModelParameters = class extends mlnet.TreeEnsembleModelParametersBasedOnRegressionTree {
@@ -2055,9 +2063,17 @@ mlnet.FastTreeRankingModelParameters = class extends mlnet.TreeEnsembleModelPara
         super(context);
     }
 
-    get VerNumFeaturesSerialized() { return 0x00010002; }
-    get VerDefaultValueSerialized() { return 0x00010004; }
-    get VerCategoricalSplitSerialized() { return 0x00010005; }
+    get VerNumFeaturesSerialized() {
+        return 0x00010002;
+    }
+
+    get VerDefaultValueSerialized() {
+        return 0x00010004;
+    }
+
+    get VerCategoricalSplitSerialized() {
+        return 0x00010005;
+    }
 };
 
 mlnet.FastTreeBinaryModelParameters = class extends mlnet.TreeEnsembleModelParametersBasedOnRegressionTree {
@@ -2066,9 +2082,17 @@ mlnet.FastTreeBinaryModelParameters = class extends mlnet.TreeEnsembleModelParam
         super(context);
     }
 
-    get VerNumFeaturesSerialized() { return 0x00010002; }
-    get VerDefaultValueSerialized() { return 0x00010004; }
-    get VerCategoricalSplitSerialized() { return 0x00010005; }
+    get VerNumFeaturesSerialized() {
+        return 0x00010002;
+    }
+
+    get VerDefaultValueSerialized() {
+        return 0x00010004;
+    }
+
+    get VerCategoricalSplitSerialized() {
+        return 0x00010005;
+    }
 };
 
 mlnet.FastTreeRegressionModelParameters = class extends mlnet.TreeEnsembleModelParametersBasedOnRegressionTree {
@@ -2077,9 +2101,17 @@ mlnet.FastTreeRegressionModelParameters = class extends mlnet.TreeEnsembleModelP
         super(context);
     }
 
-    get VerNumFeaturesSerialized() { return 0x00010002; }
-    get VerDefaultValueSerialized() { return 0x00010004; }
-    get VerCategoricalSplitSerialized() { return 0x00010005; }
+    get VerNumFeaturesSerialized() {
+        return 0x00010002;
+    }
+
+    get VerDefaultValueSerialized() {
+        return 0x00010004;
+    }
+
+    get VerCategoricalSplitSerialized() {
+        return 0x00010005;
+    }
 };
 
 mlnet.LightGbmRegressionModelParameters = class extends mlnet.TreeEnsembleModelParametersBasedOnRegressionTree {
@@ -2088,9 +2120,17 @@ mlnet.LightGbmRegressionModelParameters = class extends mlnet.TreeEnsembleModelP
         super(context);
     }
 
-    get VerNumFeaturesSerialized() { return 0x00010002; }
-    get VerDefaultValueSerialized() { return 0x00010004; }
-    get VerCategoricalSplitSerialized() { return 0x00010005; }
+    get VerNumFeaturesSerialized() {
+        return 0x00010002;
+    }
+
+    get VerDefaultValueSerialized() {
+        return 0x00010004;
+    }
+
+    get VerCategoricalSplitSerialized() {
+        return 0x00010005;
+    }
 };
 
 mlnet.LightGbmBinaryModelParameters = class extends mlnet.TreeEnsembleModelParametersBasedOnRegressionTree {
@@ -2099,9 +2139,17 @@ mlnet.LightGbmBinaryModelParameters = class extends mlnet.TreeEnsembleModelParam
         super(context);
     }
 
-    get VerNumFeaturesSerialized() { return 0x00010002; }
-    get VerDefaultValueSerialized() { return 0x00010004; }
-    get VerCategoricalSplitSerialized() { return 0x00010005; }
+    get VerNumFeaturesSerialized() {
+        return 0x00010002;
+    }
+
+    get VerDefaultValueSerialized() {
+        return 0x00010004;
+    }
+
+    get VerCategoricalSplitSerialized() {
+        return 0x00010005;
+    }
 };
 
 mlnet.FeatureWeightsCalibratedModelParameters = class extends mlnet.ValueMapperCalibratedModelParametersBase {

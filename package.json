@@ -39,7 +39,7 @@
         },
         "rules": {
             "array-callback-return": "error",
-            "brace-style": [ "error", "stroustrup", { "allowSingleLine": true } ],
+            "brace-style": [ "error", "stroustrup"  ],
             "curly": "error",
             "consistent-return": "error",
             "default-case": "error",

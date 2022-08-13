@@ -567,7 +567,7 @@ paddle.Attribute = class {
                     this._visible = false;
                 }
                 else if (Array.isArray(value) && Array.isArray(defaultValue) && value.length == defaultValue.length) {
-                    if (value.every((item, index) => { return item == defaultValue[index]; })) {
+                    if (value.every((item, index) => item == defaultValue[index])) {
                         this._visible = false;
                     }
                 }

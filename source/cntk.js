@@ -507,7 +507,7 @@ cntk.Attribute = class {
                             defaultValue.push(defaultValue[defaultValue.length - 1]);
                         }
                     }
-                    if (value.every((item, index) => { return item == defaultValue[index]; })) {
+                    if (value.every((item, index) => item == defaultValue[index])) {
                         this._visible = false;
                     }
                 }

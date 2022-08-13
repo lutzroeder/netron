@@ -637,7 +637,9 @@ tnn.TextProtoReader = class {
             };
         });
         lines.shift();
-        this._outputs = split(lines.shift(), ' ', true, false).map((output) => { return { name: output }; });
+        this._outputs = split(lines.shift(), ' ', true, false).map((output) => {
+            return { name: output };
+        });
         lines.shift();
         this._layers = [];
         while (lines.length > 0) {

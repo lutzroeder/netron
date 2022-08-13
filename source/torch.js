@@ -837,35 +837,151 @@ torch.T7Reader = class {
         this.register('nngraph.Node');
         this.register('graph.Edge');
         this.register('graph.Graph');
-        this.register('torch.ByteTensor', class extends Tensor { constructor() { super('uint8'); } });
-        this.register('torch.CharTensor', class extends Tensor { constructor() { super('int8'); } });
-        this.register('torch.ShortTensor', class extends Tensor { constructor() { super('int16'); } });
-        this.register('torch.IntTensor', class extends Tensor { constructor() { super('int32'); } });
-        this.register('torch.LongTensor', class extends Tensor { constructor() { super('int64'); } });
-        this.register('torch.FloatTensor', class extends Tensor { constructor() { super('float32'); } });
-        this.register('torch.DoubleTensor', class extends Tensor { constructor() { super('float64'); } });
-        this.register('torch.CudaByteTensor', class extends Tensor { constructor() { super('uint8'); } });
-        this.register('torch.CudaCharTensor', class extends Tensor { constructor() { super('int8'); } });
-        this.register('torch.CudaShortTensor', class extends Tensor { constructor() { super('int16'); } });
-        this.register('torch.CudaIntTensor', class extends Tensor { constructor() { super('int32'); } });
-        this.register('torch.CudaLongTensor', class extends Tensor { constructor() { super('int64'); } });
-        this.register('torch.CudaTensor', class extends Tensor { constructor() { super('float32'); } });
-        this.register('torch.CudaDoubleTensor', class extends Tensor { constructor() { super('float64'); } });
-        this.register('torch.ByteStorage', class extends Storage { constructor() { super('uint8', 1); } });
-        this.register('torch.CharStorage', class extends Storage { constructor() { super('int8', 1); } });
-        this.register('torch.ShortStorage', class extends Storage { constructor() { super('int16', 2); } });
-        this.register('torch.IntStorage', class extends Storage { constructor() { super('int32', 4); } });
-        this.register('torch.LongStorage', class extends Storage { constructor() { super('int64', 8); } });
-        this.register('torch.FloatStorage', class extends Storage { constructor() { super('float32', 4); } });
-        this.register('torch.DoubleStorage', class extends Storage { constructor() { super('float64', 8); } });
-        this.register('torch.CudaByteStorage', class extends Storage { constructor() { super('uint8', 1); } });
-        this.register('torch.CudaCharStorage', class extends Storage { constructor() { super('int8', 1); } });
-        this.register('torch.CudaShortStorage', class extends Storage { constructor() { super('int16', 2); } });
-        this.register('torch.CudaIntStorage', class extends Storage { constructor() { super('int32', 4); } });
-        this.register('torch.CudaLongStorage', class extends Storage { constructor() { super('int64', 8); } });
-        this.register('torch.CudaIntStorage', class extends Storage { constructor() { super('int32', 4); } });
-        this.register('torch.CudaStorage', class extends Storage { constructor() { super('float32', 4); } });
-        this.register('torch.CudaFloatStorage', class extends Storage { constructor() { super('float64', 8); } });
+        this.register('torch.ByteTensor', class extends Tensor {
+            constructor() {
+                super('uint8');
+            }
+        });
+        this.register('torch.CharTensor', class extends Tensor {
+            constructor() {
+                super('int8');
+            }
+        });
+        this.register('torch.ShortTensor', class extends Tensor {
+            constructor() {
+                super('int16');
+            }
+        });
+        this.register('torch.IntTensor', class extends Tensor {
+            constructor() {
+                super('int32');
+            }
+        });
+        this.register('torch.LongTensor', class extends Tensor {
+            constructor() {
+                super('int64');
+            }
+        });
+        this.register('torch.FloatTensor', class extends Tensor {
+            constructor() {
+                super('float32');
+            }
+        });
+        this.register('torch.DoubleTensor', class extends Tensor {
+            constructor() {
+                super('float64');
+            }
+        });
+        this.register('torch.CudaByteTensor', class extends Tensor {
+            constructor() {
+                super('uint8');
+            }
+        });
+        this.register('torch.CudaCharTensor', class extends Tensor {
+            constructor() {
+                super('int8');
+            }
+        });
+        this.register('torch.CudaShortTensor', class extends Tensor {
+            constructor() {
+                super('int16');
+            }
+        });
+        this.register('torch.CudaIntTensor', class extends Tensor {
+            constructor() {
+                super('int32');
+            }
+        });
+        this.register('torch.CudaLongTensor', class extends Tensor {
+            constructor() {
+                super('int64');
+            }
+        });
+        this.register('torch.CudaTensor', class extends Tensor {
+            constructor() {
+                super('float32');
+            }
+        });
+        this.register('torch.CudaDoubleTensor', class extends Tensor {
+            constructor() {
+                super('float64');
+            }
+        });
+        this.register('torch.ByteStorage', class extends Storage {
+            constructor() {
+                super('uint8', 1);
+            }
+        });
+        this.register('torch.CharStorage', class extends Storage {
+            constructor() {
+                super('int8', 1);
+            }
+        });
+        this.register('torch.ShortStorage', class extends Storage {
+            constructor() {
+                super('int16', 2);
+            }
+        });
+        this.register('torch.IntStorage', class extends Storage {
+            constructor() {
+                super('int32', 4);
+            }
+        });
+        this.register('torch.LongStorage', class extends Storage {
+            constructor() {
+                super('int64', 8);
+            }
+        });
+        this.register('torch.FloatStorage', class extends Storage {
+            constructor() {
+                super('float32', 4);
+            }
+        });
+        this.register('torch.DoubleStorage', class extends Storage {
+            constructor() {
+                super('float64', 8);
+            }
+        });
+        this.register('torch.CudaByteStorage', class extends Storage {
+            constructor() {
+                super('uint8', 1);
+            }
+        });
+        this.register('torch.CudaCharStorage', class extends Storage {
+            constructor() {
+                super('int8', 1);
+            }
+        });
+        this.register('torch.CudaShortStorage', class extends Storage {
+            constructor() {
+                super('int16', 2);
+            }
+        });
+        this.register('torch.CudaIntStorage', class extends Storage {
+            constructor() {
+                super('int32', 4);
+            }
+        });
+        this.register('torch.CudaLongStorage', class extends Storage {
+            constructor() {
+                super('int64', 8);
+            }
+        });
+        this.register('torch.CudaIntStorage', class extends Storage {
+            constructor() {
+                super('int32', 4);
+            }
+        });
+        this.register('torch.CudaStorage', class extends Storage {
+            constructor() {
+                super('float32', 4);
+            }
+        });
+        this.register('torch.CudaFloatStorage', class extends Storage {
+            constructor() {
+                super('float64', 8);
+            }
+        });
         this.register('w2nn.AuxiliaryLossTable');
         this.register('w2nn.InplaceClip01');
         this.register('w2nn.ScaleTable');

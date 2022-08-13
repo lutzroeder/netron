@@ -899,12 +899,16 @@ pytorch.Execution = class extends python.Execution {
                     type: new pytorch.nnapi.Graph(this.serialized_model),
                     attributes: [],
                     inputs: [
-                        inputs.map((input) => { return { id: input.__variable__ }; }),
+                        inputs.map((input) => {
+                            return { id: input.__variable__ };
+                        }),
                         // [ { id: this.serialized_model_tensor.__variable__ } ] //,
                         // this.parameter_buffers.map((buffer) => { return { id: buffer.__variable__ }; })
                     ],
                     outputs: [
-                        outputs.map((output) => { return { id: output.__variable__ }; })
+                        outputs.map((output) => {
+                            return { id: output.__variable__ };
+                        })
                     ],
                 });
             }
@@ -2816,7 +2820,9 @@ pytorch.Utility = class {
                     }
                     const objKeys = Object.keys(obj).filter((key) => obj[key] && obj[key]._modules);
                     if (objKeys.length > 1) {
-                        return objKeys.map((key) => { return { name: key, data: obj[key] }; });
+                        return objKeys.map((key) => {
+                            return { name: key, data: obj[key] };
+                        });
                     }
                 }
             }
@@ -3090,7 +3096,9 @@ pytorch.Utility = class {
                         }
                     }
                     else if (value && Array.isArray(value) && value.every((item) => pytorch.Utility.isTensor(item))) {
-                        layer.states.push({ name: parameter, arguments: value.map((item) => { return { id: '', value: item }; }) });
+                        layer.states.push({ name: parameter, arguments: value.map((item) => {
+                            return { id: '', value: item };
+                        }) });
                     }
                     else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
                         layer.attributes.push({ name: parameter, value: value });
@@ -3360,9 +3368,15 @@ pytorch.nnapi.Metadata = class {
         attributes = attributes || [];
         const type = {
             name: name,
-            inputs: inputs.map((name) => { return { name: name, type: 'Tensor' }; }),
-            outputs: outputs.map((name) => { return { name: name, type: 'Tensor' }; }),
-            attributes: attributes.map((pair) => { return { name: pair[0], type: pair[1] }; })
+            inputs: inputs.map((name) => {
+                return { name: name, type: 'Tensor' };
+            }),
+            outputs: outputs.map((name) => {
+                return { name: name, type: 'Tensor' };
+            }),
+            attributes: attributes.map((pair) => {
+                return { name: pair[0], type: pair[1] };
+            })
         };
         if (category) {
             type.category = category;

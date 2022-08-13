@@ -2246,7 +2246,9 @@ python.Execution = class {
                 if (this.const_val !== null) {
                     content += this.const_val;
                 }
-                else {content += '[';}
+                else {
+                    content += '[';
+                }
                 for (var t of Object.values(this.type)) {
                     content += t.__name__;
                 }
