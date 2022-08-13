@@ -1614,6 +1614,7 @@ $root.MNN.OpType = {
     ScatterElements: 151,
     GatherElements: 152,
     Svd: 153,
+    Histogram: 154,
     Plugin: 256,
     Select: 257,
     ZerosLike: 258,
