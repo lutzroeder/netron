@@ -1457,14 +1457,16 @@ sidebar.Formatter = class {
             return '\u2026';
         }
         this._values.add(value);
-        const list = [];
+        let list = null;
         const entries = Object.entries(value).filter((entry) => !entry[0].startsWith('__') && !entry[0].endsWith('__'));
         if (entries.length == 1) {
-            list.push(this._format(entries[0][1], null, true));
+            list = [ this._format(entries[0][1], null, true) ];
         }
         else {
-            for (const entry of entries) {
-                list.push(entry[0] + ': ' + this._format(entry[1], null, true));
+            list = new Array(entries.length);
+            for (let i = 0; i < entries.length; i++) {
+                const entry = entries[i];
+                list[i] = entry[0] + ': ' + this._format(entry[1], null, true);
             }
         }
         let objectType = value.__type__;
