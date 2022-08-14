@@ -40,8 +40,8 @@ update: install
 	@./tools/xmodel sync schema
 
 build_python: install
-	python -m pip install --user build wheel --quiet
 	python publish/python.py build version
+	python -m pip install --user build wheel --quiet
 	python -m build --no-isolation --wheel --outdir ./dist/pypi dist/pypi
 
 install_python: build_python
