@@ -15,7 +15,7 @@ import time
 import webbrowser
 import urllib.parse
 
-from .__version__ import __version__
+__version__ = '0.0.0'
 
 class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
     ''' HTTP Request Handler '''
@@ -46,7 +46,7 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         status_code = 0
         headers = {}
         buffer = None
-        if path == '/' or path == '/index.html':
+        if path in ('/', '/index.html'):
             meta = []
             meta.append('<meta name="type" content="Python">')
             meta.append('<meta name="version" content="' + __version__ + '">')
@@ -145,6 +145,7 @@ class HTTPServerThread(threading.Thread):
         self.stop_event.clear()
 
     def stop(self):
+        ''' Stop server '''
         if self.alive():
             sys.stdout.write("Stopping " + self.url + "\n")
             self.stop_event.set()
@@ -152,6 +153,7 @@ class HTTPServerThread(threading.Thread):
             self.terminate_event.wait(1000)
 
     def alive(self):
+        ''' Check server status '''
         return not self.terminate_event.is_set()
 
 _thread_list = []

@@ -9,7 +9,7 @@ from .server import stop
 from .server import status
 from .server import wait
 from .server import serve
-from .__version__ import __version__
+from .server import __version__
 
 def main():
     ''' main entry point '''

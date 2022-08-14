@@ -39,7 +39,7 @@ def version():
     ''' Update version '''
     package = json.loads(read('./package.json'))
     update('./dist/pypi/setup.py', '(    version=")(.*)(",)', package['version'])
-    update('./dist/pypi/netron/__version__.py',
+    update('./dist/pypi/netron/server.py',
         "(__version__ = ')(.*)(')",
         package['version'])
     update('./dist/pypi/netron/index.html',
