@@ -38,7 +38,8 @@ def _metadata():
         output = []
         while len(lines) > 0:
             line = lines.pop(0)
-            if line.startswith('>>>') and len(lines) > 0 and (lines[0].startswith('>>>') or lines[0].startswith('...')):
+            if line.startswith('>>>') and len(lines) > 0 and \
+                (lines[0].startswith('>>>') or lines[0].startswith('...')):
                 output.append('```')
                 output.append(line)
                 while len(lines) > 0 and lines[0] != '':
@@ -50,7 +51,8 @@ def _metadata():
 
     def remove_indentation(value):
         lines = value.splitlines()
-        indentation = min(map(lambda s: len(s) - len(s.lstrip()), filter(lambda s: len(s) > 0, lines)))
+        indentation = min(map(lambda s: len(s) - len(s.lstrip()), \
+            filter(lambda s: len(s) > 0, lines)))
         lines = list((s[indentation:] if len(s) > 0 else s) for s in lines)
         return '\n'.join(lines).strip()
 
@@ -67,7 +69,8 @@ def _metadata():
     def update_input(schema, description):
         if not 'inputs' in schema:
             schema['inputs'] = [ { 'name': 'input' } ]
-        parameter = next((_ for _ in schema['inputs'] if (_['name'] == 'input' or _['name'] == 'inputs')), None)
+        parameter = next((_ for _ in schema['inputs'] \
+            if (_['name'] == 'input' or _['name'] == 'inputs')), None)
         if parameter:
             parameter['description'] = remove_indentation(description)
         else:
@@ -76,7 +79,7 @@ def _metadata():
     def update_output(schema, description):
         if not 'outputs' in schema:
             schema['outputs'] = [ { 'name': 'output' } ]
-        parameter = next((parameter for parameter in schema['outputs'] if parameter['name'] == 'output'), None)
+        parameter = next((param for param in schema['outputs'] if param['name'] == 'output'), None)
         if parameter:
             parameter['description'] = remove_indentation(description)
         else:
