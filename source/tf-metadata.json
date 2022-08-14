@@ -59892,6 +59892,89 @@
     ]
   },
   {
+    "name": "UniformRequantize",
+    "summary": "Given quantized tensor `input`, requantize it with new quantization parameters.",
+    "description": "Given quantized tensor `input`, which was quantized using {input_scales, input_zero_points, input_quantization_axis, input_quantization_min_val, input_quantization_max_val},\nrequantize it to a tensor, which is quantized using {output_scales, output_zero_points, output_quantization_axis, output_quantization_min_val, output_quantization_max_val}.\nThe requantization is done by using the formula:\noutput_quantized_data = clip(\n  (input_quantized_data - input_zero_point) * (input_scale / output_scale) + output_zero_point,\n  output_quantization_min_val,\n  output_quantization_max_val)\n\nPer-tensor and per-axis quantization supported cases are followings:\n* per-tensor -> per-tensor\n* per-tensor -> per-axis\n* per-axis -> per-axis where input_quantization_axis equals output_quantization_axis.\ni.e. At least one among input_quantization_axis and output_quantization_axis must be -1, or two must be equal.",
+    "attributes": [
+      {
+        "name": "Tin",
+        "type": "type",
+        "description": "The type of input Tensor. A tf.DType from: tf.qint8, tf.qint32 Must be one of the following: `qint8`, `qint32`."
+      },
+      {
+        "name": "Tout",
+        "type": "type",
+        "description": "The type of output Tensor. A tf.DType from: tf.qint8, tf.qint32 Must be one of the following: `qint8`, `qint32`."
+      },
+      {
+        "name": "input_quantization_axis",
+        "type": "int64",
+        "description": "The quantization axis that was used when quantizing original data that `input` represents.\nIndicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization. Otherwise, it must be set within range [0, input.dims()).",
+        "default": -1
+      },
+      {
+        "name": "input_quantization_min_val",
+        "type": "int64",
+        "description": "The quantization min value that was used when quantizing original data that `input` represents.\nThe purpose of this attribute is typically (but not limited to) to indicate narrow range, where this is set to:\n`(Tin lowest) + 1` if narrow range, and `(Tin lowest)` otherwise.\nFor example, if Tin is qint8, this is set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "input_quantization_max_val",
+        "type": "int64",
+        "description": "The quantization max value that was used when quantizing original data that `input` represents.\nThe purpose of this attribute is typically (but not limited to) indicate narrow range, where this is set to:\n`(Tout max)` for both narrow range and not narrow range.\nFor example, if Tin is qint8, this is set to 127."
+      },
+      {
+        "name": "output_quantization_axis",
+        "type": "int64",
+        "description": "The new quantization axis to use to quantize original data that `input` represents.",
+        "default": -1
+      },
+      {
+        "name": "output_quantization_min_val",
+        "type": "int64",
+        "description": "The new quantization min value to quantize original data that `input` represents."
+      },
+      {
+        "name": "output_quantization_max_val",
+        "type": "int64",
+        "description": "The new quantization max value to quantize original data that `input` represents."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Must be a Tensor of Tin.",
+        "typeAttr": "Tin"
+      },
+      {
+        "name": "input_scales",
+        "description": "The float value(s) used as scale(s) when quantizing original data that `input` represents.\nMust be a scalar Tensor if quantization_axis is -1 (per-tensor quantization), otherwise 1D Tensor of size (input.dim_size(quantization_axis),) (per-axis quantization).",
+        "type": 1
+      },
+      {
+        "name": "input_zero_points",
+        "description": "The int32 value(s) used as zero_point(s) when quantizing original data that `input` represents.\nSame shape condition as scales.",
+        "type": 3
+      },
+      {
+        "name": "output_scales",
+        "description": "The float value(s) to use as new scale(s) to quantize original data that `input` represents.\nMust be a scalar Tensor if quantization_axis is -1 (per-tensor quantization), otherwise 1D Tensor of size (input.dim_size(quantization_axis),) (per-axis quantization).",
+        "type": 1
+      },
+      {
+        "name": "output_zero_points",
+        "description": "The int32 value(s) to use as new zero_point(s) to quantize original data that `input` represents.\nSame shape condition as scales.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "The output quantized Tensor of Tout, whose shape is same as input.",
+        "typeAttr": "Tout"
+      }
+    ]
+  },
+  {
     "name": "Unique",
     "summary": "Finds unique elements in a 1-D tensor.",
     "description": "This operation returns a tensor `y` containing all of the unique elements of `x`\nsorted in the same order that they occur in `x`; `x` does not need to be sorted.\nThis operation also returns a tensor `idx` the same size as `x` that contains\nthe index of each value of `x` in the unique output `y`. In other words:\n\n`y[idx[i]] = x[i] for i in [0, 1,...,rank(x) - 1]`\n\nExamples:\n\n```\n# tensor 'x' is [1, 1, 2, 4, 4, 4, 7, 8, 8]\ny, idx = unique(x)\ny ==> [1, 2, 4, 7, 8]\nidx ==> [0, 0, 1, 2, 2, 2, 3, 4, 4]\n```\n\n```\n# tensor 'x' is [4, 5, 1, 2, 3, 3, 4, 5]\ny, idx = unique(x)\ny ==> [4, 5, 1, 2, 3]\nidx ==> [0, 1, 2, 3, 4, 4, 0, 1]\n```",
