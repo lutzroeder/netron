@@ -171,9 +171,11 @@ def _metadata():
         def format_range(value):
             return '&#8734;' if value == 2147483647 else str(value)
         if schema.min_input != schema.max_input:
-            json_schema['inputs_range'] = format_range(schema.min_input) + ' - ' + format_range(schema.max_input)
+            json_schema['inputs_range'] = format_range(schema.min_input) + ' - ' \
+                + format_range(schema.max_input)
         if schema.min_output != schema.max_output:
-            json_schema['outputs_range'] = format_range(schema.min_output) + ' - ' + format_range(schema.max_output)
+            json_schema['outputs_range'] = format_range(schema.min_output) + ' - ' \
+                + format_range(schema.max_output)
         if schema.type_constraints:
             json_schema['type_constraints'] = []
             for type_constraint in schema.type_constraints:
@@ -199,7 +201,8 @@ def _metadata():
         if schema.name in categories:
             json_schema['category'] = categories[schema.name]
         json_root.append(json_schema)
-    json_root = sorted(json_root, key=lambda item: item['name'] + ':' + str(item['version'] if 'version' in item else 0).zfill(4))
+    json_root = sorted(json_root, key=lambda item: item['name'] + ':' + \
+        str(item['version'] if 'version' in item else 0).zfill(4))
     json_file = os.path.join(os.path.dirname(__file__), '../source/onnx-metadata.json')
     with io.open(json_file, 'r', encoding='utf-8') as file:
         content = file.read()
