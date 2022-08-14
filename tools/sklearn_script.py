@@ -14,7 +14,8 @@ def _split_docstring(value):
     lines = value.split('\n')
     index = 0
     while index < len(lines):
-        if index + 1 < len(lines) and len(lines[index + 1].strip(' ')) > 0 and len(lines[index + 1].strip(' ').strip('-')) == 0:
+        if index + 1 < len(lines) and len(lines[index + 1].strip(' ')) > 0 and \
+            len(lines[index + 1].strip(' ').strip('-')) == 0:
             headers[current_header] = current_lines
             current_header = lines[index].strip(' ')
             current_lines = []
@@ -224,7 +225,8 @@ def _update_attributes(schema, lines):
             elif line.startswith('default =') or line.startswith('default :'):
                 default = line[9:].strip(' ')
                 line = ''
-            elif line.startswith('default ') or line.startswith('default=') or line.startswith('default:'):
+            elif line.startswith('default ') or \
+                line.startswith('default=') or line.startswith('default:'):
                 default = line[8:].strip(' ')
                 line = ''
             else:
