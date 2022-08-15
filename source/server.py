@@ -22,7 +22,7 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
     file = ""
     data = bytearray()
     folder = ""
-    log = False
+    verbosity = 1
     mime_types_map = {
         '.html': 'text/html',
         '.js':   'text/javascript',
@@ -91,9 +91,9 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                         headers['Content-Type'] = content_type
                         headers['Content-Length'] = len(buffer)
                         status_code = 200
-        if self.log:
+        if self.verbosity > 1:
             sys.stdout.write(str(status_code) + ' ' + self.command + ' ' + self.path + '\n')
-        sys.stdout.flush()
+            sys.stdout.flush()
         self.send_response(status_code)
         for key, value in headers.items():
             self.send_header(key, value)
@@ -111,10 +111,11 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
 
 class HTTPServerThread(threading.Thread):
     ''' HTTP Server Thread '''
-    def __init__(self, data, file, address, log):
+    def __init__(self, data, file, address, verbosity):
         threading.Thread.__init__(self)
         class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
             ''' Threaded HTTP Server '''
+        self.verbosity = verbosity
         self.address = address
         self.url = 'http://' + address[0] + ':' + str(address[1])
         self.file = file
@@ -128,7 +129,7 @@ class HTTPServerThread(threading.Thread):
             self.server.RequestHandlerClass.folder = ''
             self.server.RequestHandlerClass.file = ''
         self.server.RequestHandlerClass.data = data
-        self.server.RequestHandlerClass.log = log
+        self.server.RequestHandlerClass.verbosity = verbosity
         self.terminate_event = threading.Event()
         self.terminate_event.set()
         self.stop_event = threading.Event()
@@ -147,7 +148,9 @@ class HTTPServerThread(threading.Thread):
     def stop(self):
         ''' Stop server '''
         if self.alive():
-            sys.stdout.write("Stopping " + self.url + "\n")
+            if self.verbosity > 0:
+                sys.stdout.write("Stopping " + self.url + "\n")
+                sys.stdout.flush()
             self.stop_event.set()
             self.server.server_close()
             self.terminate_event.wait(1000)
@@ -243,7 +246,7 @@ def wait():
         sys.stdout.flush()
         stop()
 
-def serve(file, data, address=None, browse=False, log=False):
+def serve(file, data, address=None, browse=False, verbosity=1):
     '''Start serving model from file or data buffer at address and open in web browser.
 
     Args:
@@ -256,6 +259,8 @@ def serve(file, data, address=None, browse=False, log=False):
     Returns:
         A (host, port) address tuple.
     '''
+    verbosity = { '0': 0, 'quiet': 0, '1': 1, 'default': 1, '2': 2, 'debug': 2 }[str(verbosity)]
+
     if not data and file and not os.path.exists(file):
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file)
 
@@ -281,6 +286,9 @@ def serve(file, data, address=None, browse=False, log=False):
                     else:
                         module = __import__(module_name)
                     model_factory = module.ModelFactory()
+                    if verbosity > 1:
+                        sys.stdout.write('Experimental\n')
+                        sys.stdout.flush()
                     data = model_factory.serialize(data)
                     file = 'test.json'
                     break
@@ -295,23 +303,26 @@ def serve(file, data, address=None, browse=False, log=False):
         address = _make_port(address)
     _update_thread_list()
 
-    thread = HTTPServerThread(data, file, address, log)
+    thread = HTTPServerThread(data, file, address, verbosity)
     thread.start()
     while not thread.alive():
         time.sleep(10)
     _add_thread(thread)
 
     if file:
-        sys.stdout.write("Serving '" + file + "' at " + thread.url + "\n")
+        if verbosity > 0:
+            sys.stdout.write("Serving '" + file + "' at " + thread.url + "\n")
+            sys.stdout.flush()
     else:
-        sys.stdout.write("Serving at " + thread.url + "\n")
-    sys.stdout.flush()
+        if verbosity > 0:
+            sys.stdout.write("Serving at " + thread.url + "\n")
+            sys.stdout.flush()
     if browse:
         webbrowser.open(thread.url)
 
     return address
 
-def start(file=None, address=None, browse=True, log=False):
+def start(file=None, address=None, browse=True, verbosity=1):
     '''Start serving model file at address and open in web browser.
 
     Args:
@@ -323,4 +334,4 @@ def start(file=None, address=None, browse=True, log=False):
     Returns:
         A (host, port) address tuple.
     '''
-    return serve(file, None, browse=browse, address=address, log=log)
+    return serve(file, None, browse=browse, address=address, verbosity=verbosity)

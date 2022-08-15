@@ -8,7 +8,6 @@ class ModelFactory:
     ''' ONNX backend model factory '''
     def serialize(self, model):
         ''' Serialize ONNX model to JSON message '''
-        print('Experimental')
         # import onnx.shape_inference
         # model = onnx.shape_inference.infer_shapes(model)
         json_model = {}

@@ -7,7 +7,6 @@ class ModelFactory:
     ''' PyTorch backend model factory '''
     def serialize(self, model):
         ''' Serialize PyTorch model to JSON message '''
-        print('Experimental')
         import torch # pylint: disable=import-outside-toplevel
         metadata = {}
         metadata_file = os.path.join(os.path.dirname(__file__), 'onnx-metadata.json')

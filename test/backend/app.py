@@ -20,19 +20,20 @@ def _test_onnx():
     file = os.path.join(third_party_dir, 'test', 'onnx', 'candy.onnx')
     import onnx # pylint: disable=import-outside-toplevel
     model = onnx.load(file)
-    netron.serve('x.onnx', model, browse=True)
+    netron.serve('x.onnx', model, browse=True, verbosity='quiet')
 
 def _test_onnx_list():
     folder = os.path.join(third_party_dir, 'test', 'onnx')
     for item in os.listdir(folder):
         file = os.path.join(folder, item)
-        if file.endswith('.onnx') and item != 'super_resolution.onnx':
+        if file.endswith('.onnx') and \
+            item != 'super_resolution.onnx' and \
+            item != 'arcface-resnet100.onnx':
             print(item)
             import onnx # pylint: disable=import-outside-toplevel
             model = onnx.load(file)
-            address = netron.serve('x.onnx', model)
+            address = netron.serve('x.onnx', model, verbosity='quiet')
             netron.stop(address)
-            print()
 
 def _test_torchscript():
     import torch # pylint: disable=import-outside-toplevel disable
@@ -42,7 +43,7 @@ def _test_torchscript():
     graph = torch.jit._get_trace_graph(model, args) # pylint: disable=protected-access
     # graph = torch.onnx._optimize_trace(graph, torch.onnx.OperatorExportTypes.ONNX)
     # https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/ir/ir.h
-    netron.serve('x.pt', graph, browse=True)
+    netron.serve('x.pt', graph, browse=True, verbosity='quiet')
 
 # _test_onnx()
 # _test_torchscript()
