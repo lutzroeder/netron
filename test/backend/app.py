@@ -3,18 +3,10 @@
 ''' Expermiental Python Server backend test '''
 
 import os
-import sys
+import netron
 
 root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-source_dir = os.path.join(root_dir, 'source')
 third_party_dir = os.path.join(root_dir, 'third_party')
-package_dir = os.path.join(root_dir, 'dist', 'backend')
-if not os.path.exists(package_dir):
-    os.makedirs(package_dir)
-    os.symlink(source_dir, package_dir + '/netron')
-sys.path.append(package_dir)
-
-import netron # pylint: disable=wrong-import-position disable=import-error
 
 def _test_onnx():
     file = os.path.join(third_party_dir, 'test', 'onnx', 'candy.onnx')
