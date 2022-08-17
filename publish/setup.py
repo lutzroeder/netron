@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 ''' Python Server setup script '''
 
 import setuptools
