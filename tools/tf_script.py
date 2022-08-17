@@ -5,9 +5,9 @@ import json
 import os
 import sys
 import google.protobuf.text_format
-from tensorflow.core.framework import api_def_pb2
-from tensorflow.core.framework import op_def_pb2
-from tensorflow.core.framework import types_pb2
+from tensorflow.core.framework import api_def_pb2 # pylint: disable=import-error
+from tensorflow.core.framework import op_def_pb2 # pylint: disable=import-error
+from tensorflow.core.framework import types_pb2 # pylint: disable=import-error
 
 def _metadata():
     categories = {
@@ -131,10 +131,10 @@ def _metadata():
     def convert_type(value):
         return { 'type': 'type', 'value': value }
 
-    def convert_tensor(tensor):
+    def convert_tensor(tensor): # pylint: disable=unused-argument
         return { 'type': 'tensor', 'value': '?' }
 
-    def convert_shape(shape):
+    def convert_shape(shape): # pylint: disable=unused-argument
         return { 'type': 'shape', 'value': '?' }
 
     def convert_number(number):
@@ -162,7 +162,7 @@ def _metadata():
         return attr_type
 
     def convert_attr_value(attr_value):
-        if attr_value.HasField('list'):
+        def convert_attr_list(attr_value):
             result = []
             attr_value_list = attr_value.list
             if len(attr_value_list.s) > 0:
@@ -182,7 +182,9 @@ def _metadata():
                     if len(value) > 0:
                         raise Exception()
             return result
-        if attr_value.HasField('s'):
+        if attr_value.HasField('list'):
+            value = convert_attr_list(attr_value)
+        elif attr_value.HasField('s'):
             value = attr_value.s.decode('utf8')
         elif attr_value.HasField('i'):
             value = attr_value.i
@@ -255,7 +257,8 @@ def _metadata():
         raise Exception()
 
     def format_attribute_value(value):
-        if isinstance(value, dict) and 'type' in value and 'value' in value and value['type'] == 'type':
+        if isinstance(value, dict) and \
+            'type' in value and 'value' in value and value['type'] == 'type':
             return format_data_type(value['value'])
         if isinstance(value, str):
             return value
@@ -318,8 +321,13 @@ def _metadata():
                 json_attribute['minimum'] = attr.minimum
             if attr.HasField('allowed_values'):
                 allowed_values = convert_attr_value(attr.allowed_values)
-                description = json_attribute['description'] + ' ' if 'description' in json_attribute else ''
-                description = description + 'Must be one of the following: ' + ', '.join(list(map(lambda x: "`" + format_attribute_value(x) + "`", allowed_values))) + '.'
+                description = json_attribute['description'] + \
+                    ' ' if 'description' in json_attribute else ''
+                allowed_values = list( \
+                    map(lambda x: "`" + format_attribute_value(x) + "`", \
+                    allowed_values))
+                description = description + \
+                    'Must be one of the following: ' + ', '.join(allowed_values) + '.'
                 json_attribute['description'] = description
             if attr.HasField('default_value'):
                 default_value = convert_attr_value(attr.default_value)
@@ -375,7 +383,7 @@ def _metadata():
             fout.write(line)
             fout.write('\n')
 
-def main():
+def main(): # pylint: disable=missing-function-docstring
     command_table = { 'metadata': _metadata }
     command = sys.argv[1] if len(sys.argv) > 1 else 'metadata'
     command_table[command]()
