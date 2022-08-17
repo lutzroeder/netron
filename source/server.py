@@ -91,9 +91,7 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                         headers['Content-Type'] = content_type
                         headers['Content-Length'] = len(buffer)
                         status_code = 200
-        if self.verbosity > 1:
-            sys.stdout.write(str(status_code) + ' ' + self.command + ' ' + self.path + '\n')
-            sys.stdout.flush()
+        _log(self.verbosity > 1, str(status_code) + ' ' + self.command + ' ' + self.path + '\n')
         self.send_response(status_code)
         for key, value in headers.items():
             self.send_header(key, value)
@@ -148,9 +146,7 @@ class HTTPServerThread(threading.Thread):
     def stop(self):
         ''' Stop server '''
         if self.alive():
-            if self.verbosity > 0:
-                sys.stdout.write("Stopping " + self.url + "\n")
-                sys.stdout.flush()
+            _log(self.verbosity > 0, "Stopping " + self.url + "\n")
             self.stop_event.set()
             self.server.server_close()
             self.terminate_event.wait(1000)
@@ -175,6 +171,11 @@ def _update_thread_list(address=None):
         if address[1]:
             threads = [ _ for _ in threads if address[1] == _.address[1] ]
     return threads
+
+def _log(condition, message):
+    if condition:
+        sys.stdout.write(message)
+        sys.stdout.flush()
 
 def _make_address(address):
     if address is None or isinstance(address, int):
@@ -242,8 +243,7 @@ def wait():
         while len(_update_thread_list()) > 0:
             time.sleep(1000)
     except (KeyboardInterrupt, SystemExit):
-        sys.stdout.write('\n')
-        sys.stdout.flush()
+        _log(True, '\n')
         stop()
 
 def serve(file, data, address=None, browse=False, verbosity=1):
@@ -286,9 +286,7 @@ def serve(file, data, address=None, browse=False, verbosity=1):
                     else:
                         module = __import__(module_name)
                     model_factory = module.ModelFactory()
-                    if verbosity > 1:
-                        sys.stdout.write('Experimental\n')
-                        sys.stdout.flush()
+                    _log(verbosity > 1, 'Experimental\n')
                     data = model_factory.serialize(data)
                     file = 'test.json'
                     break
@@ -309,14 +307,8 @@ def serve(file, data, address=None, browse=False, verbosity=1):
         time.sleep(10)
     _add_thread(thread)
 
-    if file:
-        if verbosity > 0:
-            sys.stdout.write("Serving '" + file + "' at " + thread.url + "\n")
-            sys.stdout.flush()
-    else:
-        if verbosity > 0:
-            sys.stdout.write("Serving at " + thread.url + "\n")
-            sys.stdout.flush()
+    message = (("Serving '" + file) if file else ("Serving")) + "' at " + thread.url + "\n"
+    _log(verbosity > 0, message)
     if browse:
         webbrowser.open(thread.url)
 
