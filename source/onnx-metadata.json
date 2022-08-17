@@ -20531,6 +20531,135 @@
     ]
   },
   {
+    "name": "OptionalGetElement",
+    "module": "ai.onnx",
+    "version": 18,
+    "support_level": "common",
+    "description": "If the input is a tensor or sequence type, it returns the input.\nIf the input is an optional type, it outputs the element in the input.\nIt is an error if the input is an empty optional-type (i.e. does not have an element) and the behavior is undefined in this case.\n",
+    "inputs": [
+      {
+        "name": "input",
+        "type": "O",
+        "description": "The optional input."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "V",
+        "description": "Output element in the optional input."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input type to optional tensor and optional sequence types.",
+        "type_param_str": "O",
+        "allowed_type_strs": [
+          "optional(seq(tensor(uint8)))",
+          "optional(seq(tensor(uint16)))",
+          "optional(seq(tensor(uint32)))",
+          "optional(seq(tensor(uint64)))",
+          "optional(seq(tensor(int8)))",
+          "optional(seq(tensor(int16)))",
+          "optional(seq(tensor(int32)))",
+          "optional(seq(tensor(int64)))",
+          "optional(seq(tensor(float16)))",
+          "optional(seq(tensor(float)))",
+          "optional(seq(tensor(double)))",
+          "optional(seq(tensor(string)))",
+          "optional(seq(tensor(bool)))",
+          "optional(seq(tensor(complex64)))",
+          "optional(seq(tensor(complex128)))",
+          "optional(tensor(uint8))",
+          "optional(tensor(uint16))",
+          "optional(tensor(uint32))",
+          "optional(tensor(uint64))",
+          "optional(tensor(int8))",
+          "optional(tensor(int16))",
+          "optional(tensor(int32))",
+          "optional(tensor(int64))",
+          "optional(tensor(float16))",
+          "optional(tensor(float))",
+          "optional(tensor(double))",
+          "optional(tensor(string))",
+          "optional(tensor(bool))",
+          "optional(tensor(complex64))",
+          "optional(tensor(complex128))",
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(string)",
+          "tensor(bool)",
+          "tensor(complex64)",
+          "tensor(complex128)",
+          "seq(tensor(uint8))",
+          "seq(tensor(uint16))",
+          "seq(tensor(uint32))",
+          "seq(tensor(uint64))",
+          "seq(tensor(int8))",
+          "seq(tensor(int16))",
+          "seq(tensor(int32))",
+          "seq(tensor(int64))",
+          "seq(tensor(float16))",
+          "seq(tensor(float))",
+          "seq(tensor(double))",
+          "seq(tensor(string))",
+          "seq(tensor(bool))",
+          "seq(tensor(complex64))",
+          "seq(tensor(complex128))"
+        ]
+      },
+      {
+        "description": "Constrain output type to all tensor or sequence types.",
+        "type_param_str": "V",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(string)",
+          "tensor(bool)",
+          "tensor(complex64)",
+          "tensor(complex128)",
+          "seq(tensor(uint8))",
+          "seq(tensor(uint16))",
+          "seq(tensor(uint32))",
+          "seq(tensor(uint64))",
+          "seq(tensor(int8))",
+          "seq(tensor(int16))",
+          "seq(tensor(int32))",
+          "seq(tensor(int64))",
+          "seq(tensor(float16))",
+          "seq(tensor(float))",
+          "seq(tensor(double))",
+          "seq(tensor(string))",
+          "seq(tensor(bool))",
+          "seq(tensor(complex64))",
+          "seq(tensor(complex128))"
+        ]
+      }
+    ]
+  },
+  {
     "name": "OptionalHasElement",
     "module": "ai.onnx",
     "version": 15,
@@ -20602,19 +20731,139 @@
     "examples": [
       {
         "summary": "empty",
-        "code": "optional = None\ntensor_type_proto = onnx.helper.make_tensor_type_proto(\n    elem_type=onnx.TensorProto.INT32, shape=[]\n)\ninput_type_proto = onnx.helper.make_optional_type_proto(tensor_type_proto)\nnode = onnx.helper.make_node(\n    \"OptionalHasElement\", inputs=[\"optional_input\"], outputs=[\"output\"]\n)\noutput = optional_has_element_reference_implementation(optional)\nexpect(\n    node,\n    inputs=[optional],\n    outputs=[output],\n    input_type_protos=[input_type_proto],\n    name=\"test_optional_has_element_empty\",\n)"
+        "code": "optional = None\n\ntensor_type_proto = onnx.helper.make_tensor_type_proto(\n    elem_type=onnx.TensorProto.INT32, shape=[]\n)\noptional_type_proto = onnx.helper.make_optional_type_proto(tensor_type_proto)\n\n# OptionalHasElement takes a tensor or optional as input\nfor input_type_proto in [tensor_type_proto, optional_type_proto]:\n    input_name_options = {\n        \"empty\": \"optional_input\",\n        \"empty_no_input_name\": \"\",\n        \"empty_no_input\": None,\n    }\n    for test_name_surfix, input_name in input_name_options.items():\n        if input_type_proto == tensor_type_proto and input_name:\n            # the input tensor cannot be empty if input name is provided.\n            continue\n        node = onnx.helper.make_node(\n            \"OptionalHasElement\",\n            inputs=[] if input_name is None else [input_name],\n            outputs=[\"output\"],\n        )\n        output = optional_has_element_reference_implementation(optional)\n        test_name = (\n            \"test_optional_has_element_\"\n            + test_name_surfix\n            + (\n                \"_optional_input\"\n                if input_type_proto == optional_type_proto\n                else \"_tensor_input\"\n            )\n        )\n        expect(\n            node,\n            inputs=[optional] if input_name else [],\n            outputs=[output],\n            input_type_protos=[input_type_proto] if input_name else [],\n            name=test_name,\n        )"
       },
       {
         "summary": "get_element_sequence",
-        "code": "optional = [np.array([1, 2, 3, 4]).astype(np.int32)]\ntensor_type_proto = onnx.helper.make_tensor_type_proto(\n    elem_type=onnx.TensorProto.INT32,\n    shape=[\n        4,\n    ],\n)\nseq_type_proto = onnx.helper.make_sequence_type_proto(tensor_type_proto)\ninput_type_proto = onnx.helper.make_optional_type_proto(seq_type_proto)\n\nnode = onnx.helper.make_node(\n    \"OptionalGetElement\", inputs=[\"optional_input\"], outputs=[\"output\"]\n)\noutput = optional_get_element_reference_implementation(optional)\nexpect(\n    node,\n    inputs=[optional],\n    outputs=[output],\n    input_type_protos=[input_type_proto],\n    name=\"test_optional_get_element_sequence\",\n)"
+        "code": "optional = [np.array([1, 2, 3, 4]).astype(np.int32)]\ntensor_type_proto = onnx.helper.make_tensor_type_proto(\n    elem_type=onnx.TensorProto.INT32,\n    shape=[\n        4,\n    ],\n)\nseq_type_proto = onnx.helper.make_sequence_type_proto(tensor_type_proto)\noptional_type_proto = onnx.helper.make_optional_type_proto(seq_type_proto)\n\nnode = onnx.helper.make_node(\n    \"OptionalGetElement\", inputs=[\"optional_input\"], outputs=[\"output\"]\n)\noutput = optional_get_element_reference_implementation(optional)\nexpect(\n    node,\n    inputs=[optional],\n    outputs=[output],\n    input_type_protos=[optional_type_proto],\n    name=\"test_optional_get_element_optional_sequence\",\n)\nexpect(\n    node,\n    inputs=[optional],\n    outputs=[output],\n    input_type_protos=[seq_type_proto],\n    name=\"test_optional_get_element_sequence\",\n)"
       },
       {
         "summary": "get_element_tensor",
-        "code": "optional = np.array([1, 2, 3, 4]).astype(np.float32)\ntensor_type_proto = onnx.helper.make_tensor_type_proto(\n    elem_type=onnx.TensorProto.FLOAT,\n    shape=[\n        4,\n    ],\n)\ninput_type_proto = onnx.helper.make_optional_type_proto(tensor_type_proto)\n\nnode = onnx.helper.make_node(\n    \"OptionalGetElement\", inputs=[\"optional_input\"], outputs=[\"output\"]\n)\noutput = optional_get_element_reference_implementation(optional)\nexpect(\n    node,\n    inputs=[optional],\n    outputs=[output],\n    input_type_protos=[input_type_proto],\n    name=\"test_optional_get_element\",\n)"
+        "code": "optional = np.array([1, 2, 3, 4]).astype(np.float32)\ntensor_type_proto = onnx.helper.make_tensor_type_proto(\n    elem_type=onnx.TensorProto.FLOAT,\n    shape=[\n        4,\n    ],\n)\noptional_type_proto = onnx.helper.make_optional_type_proto(tensor_type_proto)\n\nnode = onnx.helper.make_node(\n    \"OptionalGetElement\", inputs=[\"optional_input\"], outputs=[\"output\"]\n)\noutput = optional_get_element_reference_implementation(optional)\nexpect(\n    node,\n    inputs=[optional],\n    outputs=[output],\n    input_type_protos=[optional_type_proto],\n    name=\"test_optional_get_element_optional_tensor\",\n)\nexpect(\n    node,\n    inputs=[optional],\n    outputs=[output],\n    input_type_protos=[tensor_type_proto],\n    name=\"test_optional_get_element_tensor\",\n)"
       },
       {
         "summary": "optionalhaselement",
-        "code": "optional = np.array([1, 2, 3, 4]).astype(np.float32)\ntensor_type_proto = onnx.helper.make_tensor_type_proto(\n    elem_type=onnx.TensorProto.FLOAT,\n    shape=[\n        4,\n    ],\n)\ninput_type_proto = onnx.helper.make_optional_type_proto(tensor_type_proto)\nnode = onnx.helper.make_node(\n    \"OptionalHasElement\", inputs=[\"optional_input\"], outputs=[\"output\"]\n)\noutput = optional_has_element_reference_implementation(optional)\nexpect(\n    node,\n    inputs=[optional],\n    outputs=[output],\n    input_type_protos=[input_type_proto],\n    name=\"test_optional_has_element\",\n)"
+        "code": "optional = np.array([1, 2, 3, 4]).astype(np.float32)\ntensor_type_proto = onnx.helper.make_tensor_type_proto(\n    elem_type=onnx.TensorProto.FLOAT,\n    shape=[\n        4,\n    ],\n)\noptional_type_proto = onnx.helper.make_optional_type_proto(tensor_type_proto)\n\n# OptionalHasElement takes a tensor or optional as input\nfor input_type_protos in [tensor_type_proto, optional_type_proto]:\n    node = onnx.helper.make_node(\n        \"OptionalHasElement\", inputs=[\"optional_input\"], outputs=[\"output\"]\n    )\n    output = optional_has_element_reference_implementation(optional)\n    test_name = \"test_optional_has_element_\" + (\n        \"optional_input\"\n        if input_type_protos == optional_type_proto\n        else \"tensor_input\"\n    )\n    expect(\n        node,\n        inputs=[optional],\n        outputs=[output],\n        input_type_protos=[optional_type_proto],\n        name=test_name,\n    )"
+      }
+    ]
+  },
+  {
+    "name": "OptionalHasElement",
+    "module": "ai.onnx",
+    "version": 18,
+    "support_level": "common",
+    "description": "Returns true if (1) the input is an optional-type and contains an element,\nor, (2) the input is a tensor or sequence type.\nIf the input is not provided or is an empty optional-type, this op returns false.\n",
+    "inputs": [
+      {
+        "name": "input",
+        "type": "O",
+        "option": "optional",
+        "description": "The optional input."
+      }
+    ],
+    "min_input": 0,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "B",
+        "description": "A scalar boolean tensor. If true, it indicates that optional-type input contains an element. Otherwise, it is empty."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "inputs_range": "0 - 1",
+    "type_constraints": [
+      {
+        "description": "Constrain input type to optional tensor and optional sequence types.",
+        "type_param_str": "O",
+        "allowed_type_strs": [
+          "optional(seq(tensor(uint8)))",
+          "optional(seq(tensor(uint16)))",
+          "optional(seq(tensor(uint32)))",
+          "optional(seq(tensor(uint64)))",
+          "optional(seq(tensor(int8)))",
+          "optional(seq(tensor(int16)))",
+          "optional(seq(tensor(int32)))",
+          "optional(seq(tensor(int64)))",
+          "optional(seq(tensor(float16)))",
+          "optional(seq(tensor(float)))",
+          "optional(seq(tensor(double)))",
+          "optional(seq(tensor(string)))",
+          "optional(seq(tensor(bool)))",
+          "optional(seq(tensor(complex64)))",
+          "optional(seq(tensor(complex128)))",
+          "optional(tensor(uint8))",
+          "optional(tensor(uint16))",
+          "optional(tensor(uint32))",
+          "optional(tensor(uint64))",
+          "optional(tensor(int8))",
+          "optional(tensor(int16))",
+          "optional(tensor(int32))",
+          "optional(tensor(int64))",
+          "optional(tensor(float16))",
+          "optional(tensor(float))",
+          "optional(tensor(double))",
+          "optional(tensor(string))",
+          "optional(tensor(bool))",
+          "optional(tensor(complex64))",
+          "optional(tensor(complex128))",
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(string)",
+          "tensor(bool)",
+          "tensor(complex64)",
+          "tensor(complex128)",
+          "seq(tensor(uint8))",
+          "seq(tensor(uint16))",
+          "seq(tensor(uint32))",
+          "seq(tensor(uint64))",
+          "seq(tensor(int8))",
+          "seq(tensor(int16))",
+          "seq(tensor(int32))",
+          "seq(tensor(int64))",
+          "seq(tensor(float16))",
+          "seq(tensor(float))",
+          "seq(tensor(double))",
+          "seq(tensor(string))",
+          "seq(tensor(bool))",
+          "seq(tensor(complex64))",
+          "seq(tensor(complex128))"
+        ]
+      },
+      {
+        "description": "Constrain output to a boolean tensor.",
+        "type_param_str": "B",
+        "allowed_type_strs": [
+          "tensor(bool)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "empty",
+        "code": "optional = None\n\ntensor_type_proto = onnx.helper.make_tensor_type_proto(\n    elem_type=onnx.TensorProto.INT32, shape=[]\n)\noptional_type_proto = onnx.helper.make_optional_type_proto(tensor_type_proto)\n\n# OptionalHasElement takes a tensor or optional as input\nfor input_type_proto in [tensor_type_proto, optional_type_proto]:\n    input_name_options = {\n        \"empty\": \"optional_input\",\n        \"empty_no_input_name\": \"\",\n        \"empty_no_input\": None,\n    }\n    for test_name_surfix, input_name in input_name_options.items():\n        if input_type_proto == tensor_type_proto and input_name:\n            # the input tensor cannot be empty if input name is provided.\n            continue\n        node = onnx.helper.make_node(\n            \"OptionalHasElement\",\n            inputs=[] if input_name is None else [input_name],\n            outputs=[\"output\"],\n        )\n        output = optional_has_element_reference_implementation(optional)\n        test_name = (\n            \"test_optional_has_element_\"\n            + test_name_surfix\n            + (\n                \"_optional_input\"\n                if input_type_proto == optional_type_proto\n                else \"_tensor_input\"\n            )\n        )\n        expect(\n            node,\n            inputs=[optional] if input_name else [],\n            outputs=[output],\n            input_type_protos=[input_type_proto] if input_name else [],\n            name=test_name,\n        )"
+      },
+      {
+        "summary": "get_element_sequence",
+        "code": "optional = [np.array([1, 2, 3, 4]).astype(np.int32)]\ntensor_type_proto = onnx.helper.make_tensor_type_proto(\n    elem_type=onnx.TensorProto.INT32,\n    shape=[\n        4,\n    ],\n)\nseq_type_proto = onnx.helper.make_sequence_type_proto(tensor_type_proto)\noptional_type_proto = onnx.helper.make_optional_type_proto(seq_type_proto)\n\nnode = onnx.helper.make_node(\n    \"OptionalGetElement\", inputs=[\"optional_input\"], outputs=[\"output\"]\n)\noutput = optional_get_element_reference_implementation(optional)\nexpect(\n    node,\n    inputs=[optional],\n    outputs=[output],\n    input_type_protos=[optional_type_proto],\n    name=\"test_optional_get_element_optional_sequence\",\n)\nexpect(\n    node,\n    inputs=[optional],\n    outputs=[output],\n    input_type_protos=[seq_type_proto],\n    name=\"test_optional_get_element_sequence\",\n)"
+      },
+      {
+        "summary": "get_element_tensor",
+        "code": "optional = np.array([1, 2, 3, 4]).astype(np.float32)\ntensor_type_proto = onnx.helper.make_tensor_type_proto(\n    elem_type=onnx.TensorProto.FLOAT,\n    shape=[\n        4,\n    ],\n)\noptional_type_proto = onnx.helper.make_optional_type_proto(tensor_type_proto)\n\nnode = onnx.helper.make_node(\n    \"OptionalGetElement\", inputs=[\"optional_input\"], outputs=[\"output\"]\n)\noutput = optional_get_element_reference_implementation(optional)\nexpect(\n    node,\n    inputs=[optional],\n    outputs=[output],\n    input_type_protos=[optional_type_proto],\n    name=\"test_optional_get_element_optional_tensor\",\n)\nexpect(\n    node,\n    inputs=[optional],\n    outputs=[output],\n    input_type_protos=[tensor_type_proto],\n    name=\"test_optional_get_element_tensor\",\n)"
+      },
+      {
+        "summary": "optionalhaselement",
+        "code": "optional = np.array([1, 2, 3, 4]).astype(np.float32)\ntensor_type_proto = onnx.helper.make_tensor_type_proto(\n    elem_type=onnx.TensorProto.FLOAT,\n    shape=[\n        4,\n    ],\n)\noptional_type_proto = onnx.helper.make_optional_type_proto(tensor_type_proto)\n\n# OptionalHasElement takes a tensor or optional as input\nfor input_type_protos in [tensor_type_proto, optional_type_proto]:\n    node = onnx.helper.make_node(\n        \"OptionalHasElement\", inputs=[\"optional_input\"], outputs=[\"output\"]\n    )\n    output = optional_has_element_reference_implementation(optional)\n    test_name = \"test_optional_has_element_\" + (\n        \"optional_input\"\n        if input_type_protos == optional_type_proto\n        else \"tensor_input\"\n    )\n    expect(\n        node,\n        inputs=[optional],\n        outputs=[output],\n        input_type_protos=[optional_type_proto],\n        name=test_name,\n    )"
       }
     ]
   },
