@@ -7,25 +7,22 @@ import sys
 import shutil
 import subprocess
 
-def read(path):
-    ''' Read file content '''
+def _read(path):
     with open(path, 'r', encoding='utf-8') as file:
         return file.read()
 
-def write(path, content):
-    ''' Write file content '''
+def _write(path, content):
     with open(path, 'w', encoding='utf-8') as file:
         file.write(content)
 
-def update(path, regex, value):
-    ''' Update regex patter in file content with value '''
-    content = read(path)
+def _update(path, regex, value):
+    content = _read(path)
     def repl(match):
         return match.group(1) + value + match.group(3)
     content = re.sub(regex, repl, content)
-    write(path, content)
+    _write(path, content)
 
-def build():
+def _build():
     ''' Build dist/pypi '''
     shutil.rmtree('./source/__pycache__', ignore_errors=True)
     shutil.rmtree('./dist/pypi', ignore_errors=True)
@@ -35,29 +32,32 @@ def build():
     os.remove('./dist/pypi/netron/electron.js')
     os.remove('./dist/pypi/netron/app.js')
 
-def version():
+def _version():
     ''' Update version '''
-    package = json.loads(read('./package.json'))
-    update('./dist/pypi/setup.py', '(    version=")(.*)(",)', package['version'])
-    update('./dist/pypi/netron/server.py',
+    package = json.loads(_read('./package.json'))
+    _update('./dist/pypi/setup.py', '(    version=")(.*)(",)', package['version'])
+    _update('./dist/pypi/netron/server.py',
         "(__version__ = ')(.*)(')",
         package['version'])
-    update('./dist/pypi/netron/index.html',
+    _update('./dist/pypi/netron/index.html',
         '(<meta name="version" content=")(.*)(">)',
         package['version'])
-    update('./dist/pypi/netron/index.html',
+    _update('./dist/pypi/netron/index.html',
         '(<meta name="date" content=")(.*)(">)',
         package['date'])
 
-def start():
+def _start():
     ''' Start server '''
     sys.path.insert(0, './dist/pypi')
-    args = [ sys.executable, '-c', 'import netron; netron.main()' ] + sys.args
+    args = [ sys.executable, '-c', 'import netron; netron.main();' ] + sys.args
     sys.args = []
-    subprocess.run(args, env={ 'PYTHONPATH': './dist/pypi' }, check=False)
+    try:
+        subprocess.run(args, env={ 'PYTHONPATH': './dist/pypi' }, check=False)
+    except (KeyboardInterrupt, SystemExit):
+        pass
 
 def main(): # pylint: disable=missing-function-docstring
-    command_table = { 'build': build, 'version': version, 'start': start }
+    command_table = { 'build': _build, 'version': _version, 'start': _start }
     sys.args = sys.argv[1:]
     while len(sys.args) > 0:
         command = sys.args.pop(0)
