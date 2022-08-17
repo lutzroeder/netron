@@ -570,6 +570,9 @@ $root.paddle.framework.proto.OpProto.Attr = class Attr {
                 case 6:
                     message.quant = reader.bool();
                     break;
+                case 7:
+                    message.support_tensor = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -611,6 +614,9 @@ $root.paddle.framework.proto.OpProto.Attr = class Attr {
                 case "quant":
                     message.quant = reader.bool();
                     break;
+                case "support_tensor":
+                    message.support_tensor = reader.bool();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -635,6 +641,7 @@ $root.paddle.framework.proto.OpProto.Attr.prototype.comment = "";
 $root.paddle.framework.proto.OpProto.Attr.prototype.generated = false;
 $root.paddle.framework.proto.OpProto.Attr.prototype.extra = false;
 $root.paddle.framework.proto.OpProto.Attr.prototype.quant = false;
+$root.paddle.framework.proto.OpProto.Attr.prototype.support_tensor = false;
 
 $root.paddle.framework.proto.VarType = class VarType {
 
