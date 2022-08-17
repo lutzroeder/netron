@@ -2,6 +2,7 @@
     "files.exclude": {
         "dist": true,
         "node_modules": true,
+        "test/backend/netron": true,
         "third_party": true
     },
     "python.linting.enabled": true,
