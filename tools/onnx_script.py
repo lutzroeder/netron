@@ -1,7 +1,6 @@
 ''' ONNX metadata script '''
 
 import collections
-import io
 import json
 import os
 import re
@@ -204,15 +203,13 @@ def _metadata():
     json_root = sorted(json_root, key=lambda item: item['name'] + ':' + \
         str(item['version'] if 'version' in item else 0).zfill(4))
     json_file = os.path.join(os.path.dirname(__file__), '../source/onnx-metadata.json')
-    with io.open(json_file, 'r', encoding='utf-8') as file:
+    with open(json_file, 'r', encoding='utf-8') as file:
         content = file.read()
         items = json.loads(content)
         items = list(filter(lambda item: item['module'] == "com.microsoft", items))
         json_root = json_root + items
-    json_root = json.dumps(json_root, indent=2)
-    with io.open(json_file, 'w', encoding='utf-8', newline='') as file:
-        for line in json_root.splitlines():
-            file.write(line.rstrip() + '\n')
+    with open(json_file, 'w', encoding='utf-8') as file:
+        file.write(json.dumps(json_root, indent=2))
 
 def _infer():
     import onnx # pylint: disable=import-outside-toplevel
