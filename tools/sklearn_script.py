@@ -1,6 +1,5 @@
 ''' scikit-learn metadata script '''
 
-import io
 import json
 import os
 import pydoc
@@ -32,6 +31,35 @@ def _update_description(schema, lines):
             lines[i] = value.lstrip(' ')
         schema['description'] = '\n'.join(lines)
 
+def _attribute_value(attribute_type, attribute_value):
+    if attribute_type == 'float32':
+        if attribute_value == 'None':
+            return None
+        if attribute_value != "'auto'":
+            return float(attribute_value)
+        return attribute_value.strip("'").strip('"')
+    if attribute_type == 'int32':
+        if attribute_value == 'None':
+            return None
+        if attribute_value in ("'auto'", '"auto"'):
+            return attribute_value.strip("'").strip('"')
+        return int(attribute_value)
+    if attribute_type == 'string':
+        return attribute_value.strip("'").strip('"')
+    if attribute_type == 'boolean':
+        if attribute_value == 'True':
+            return True
+        if attribute_value == 'False':
+            return False
+        if attribute_value == "'auto'":
+            return attribute_value.strip("'").strip('"')
+        raise Exception("Unknown boolean default value '" + str(attribute_value) + "'.")
+    if attribute_type:
+        raise Exception("Unknown default type '" + attribute_type + "'.")
+    if attribute_value == 'None':
+        return None
+    return attribute_value.strip("'")
+
 def _update_attribute(schema, name, description, attribute_type, optional, default_value):
     attribute = None
     if not 'attributes' in schema:
@@ -50,38 +78,7 @@ def _update_attribute(schema, name, description, attribute_type, optional, defau
     if optional:
         attribute['optional'] = True
     if default_value:
-        if attribute_type == 'float32':
-            if default_value == 'None':
-                attribute['default'] = None
-            elif default_value != "'auto'":
-                attribute['default'] = float(default_value)
-            else:
-                attribute['default'] = default_value.strip("'").strip('"')
-        elif attribute_type == 'int32':
-            if default_value == 'None':
-                attribute['default'] = None
-            elif default_value in ("'auto'", '"auto"'):
-                attribute['default'] = default_value.strip("'").strip('"')
-            else:
-                attribute['default'] = int(default_value)
-        elif attribute_type == 'string':
-            attribute['default'] = default_value.strip("'").strip('"')
-        elif attribute_type == 'boolean':
-            if default_value == 'True':
-                attribute['default'] = True
-            elif default_value == 'False':
-                attribute['default'] = False
-            elif default_value == "'auto'":
-                attribute['default'] = default_value.strip("'").strip('"')
-            else:
-                raise Exception("Unknown boolean default value '" + str(default_value) + "'.")
-        else:
-            if attribute_type:
-                raise Exception("Unknown default type '" + attribute_type + "'.")
-            if default_value == 'None':
-                attribute['default'] = None
-            else:
-                attribute['default'] = default_value.strip("'")
+        attribute['default'] = _attribute_value(attribute_type, default_value)
 
 def _update_attributes(schema, lines):
     i = 0
@@ -270,11 +267,8 @@ def _metadata():
             if 'Parameters' in headers:
                 _update_attributes(schema, headers['Parameters'])
 
-    with io.open(json_file, 'w', encoding='utf-8', newline='') as fout:
-        json_data = json.dumps(json_root, sort_keys=False, indent=2)
-        for line in json_data.splitlines():
-            fout.write(line.rstrip())
-            fout.write('\n')
+    with open(json_file, 'w', encoding='utf-8') as file:
+        file.write(json.dumps(json_root, sort_keys=False, indent=2))
 
 def main(): # pylint: disable=missing-function-docstring
     command_table = { 'metadata': _metadata }
