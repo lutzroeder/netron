@@ -4224,7 +4224,7 @@
       { "name": "dims", "type": "int64[]", "default": [] }
     ],
     "outputs": [
-      { "name": "output" }
+      { "name": "output", "type": "Tensor" }
     ]
   },
   {
