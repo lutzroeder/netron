@@ -2347,6 +2347,17 @@
     ]
   },
   {
+    "name": "torch.reshape_as",
+    "category": "Shape",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.rot90",
     "inputs": [
       { "name": "self", "type": "Tensor" },
