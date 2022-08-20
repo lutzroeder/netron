@@ -4857,6 +4857,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "traced_scale_quant.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/9387784/traced_scale_quant.pt.zip[traced_scale_quant.pt]",
+    "format":   "TorchScript v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/947"
+  },
+  {
+    "type":     "pytorch",
     "target":   "test.8bit.pth",
     "source":   "https://github.com/lutzroeder/netron/files/5238524/test.8bit.pth.zip[test.8bit.pth]",
     "format":   "TorchScript v1.6",

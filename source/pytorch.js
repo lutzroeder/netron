@@ -1972,23 +1972,55 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
     }
 
     call(target, name, args, context) {
-        let resolvedTarget = pytorch.Utility.target(target);
-        let outputTypes = null;
-        if (resolvedTarget && resolvedTarget + '.' + name === 'ops.prim.NumToTensor' &&
-            args.length === 1 && args[0].type === 'call' && args[0].target.member.type == 'id') {
-            const innerCall = args[0];
-            resolvedTarget = pytorch.Utility.target(innerCall.target.target);
-            name = innerCall.target.member.value;
-            args = innerCall.arguments;
-            outputTypes = [ 'int64' ];
-        }
-        if (resolvedTarget && name !== null) {
-            const type = resolvedTarget + '.' + name;
+        let moduleName = pytorch.Utility.target(target);
+        if (moduleName && name) {
+            let outputTypes = null;
+            let type = moduleName + '.' + name;
+            if (type === 'ops.prim.NumToTensor' && args.length === 1 && args[0].type === 'call' && args[0].target.member.type == 'id') {
+                const arg = args[0];
+                moduleName = pytorch.Utility.target(arg.target.target);
+                name = arg.target.member.value;
+                args = arg.arguments;
+                outputTypes = [ 'int64' ];
+                type = moduleName + '.' + name;
+            }
             // https://github.com/pytorch/pytorch/blob/master/aten/src/ATen/native/native_functions.yaml
             let schemas = this._metadata.type(type);
+            if (!schemas && type.startsWith('ops.')) {
+                const module = this.import(moduleName);
+                if (!module || !module[name]) {
+                    const metadata = {};
+                    metadata.name = type;
+                    metadata.inputs = [];
+                    metadata.outputs = [];
+                    for (let i = 0; i< args.length; i++) {
+                        const input = {};
+                        let argument = args[i];
+                        input.name = i.toString();
+                        if (argument.type === '=' && argument.target && argument.target.type === 'id') {
+                            input.name = this.expression(argument.target, context);
+                            argument = argument.expression;
+                        }
+                        const obj = this.expression(argument, context);
+                        input.type = pytorch.Utility.getType(obj);
+                        metadata.inputs.push(input);
+                    }
+                    const count = context.target.length > 0 ? context.target[context.target.length - 1].length : 0;
+                    for (let i = 0; i < count; i++) {
+                        metadata.outputs.push({ name: '', type: '' });
+                    }
+                    this._metadata.add(type, metadata);
+                    schemas = [ metadata ];
+                }
+            }
             if (schemas) {
                 schemas = !Array.isArray(schemas) ? [ schemas ] : schemas;
-                const evalArgs = args.map((argument) => argument.type === '=' && argument.target && argument.target.type === 'id' ? this.expression(argument.expression, context) : this.expression(argument, context));
+                const evalArgs = args.map((argument) => {
+                    if (argument.type === '=' && argument.target && argument.target.type === 'id') {
+                        argument = argument.expression;
+                    }
+                    return this.expression(argument, context);
+                });
                 for (const schema of schemas) {
                     const copyArgs = Array.prototype.slice.call(args);
                     const copyEvalArgs = Array.prototype.slice.call(evalArgs);
@@ -2734,6 +2766,31 @@ pytorch.Utility = class {
         const size = tensor.size();
         const type = new pytorch.TensorType(storage.dtype.__reduce__(), new pytorch.TensorShape(size));
         return new pytorch.Tensor(name || '', type, storage.data, littleEndian);
+    }
+
+    static getType(value) {
+        if (pytorch.Utility.isTensor(value)) {
+            return 'Tensor';
+        }
+        else if (value === true || value === false) {
+            return 'boolean';
+        }
+        else if (typeof value === 'string') {
+            return 'string';
+        }
+        else if (Number(value) === value && value % 1 === 0) {
+            return 'int64';
+        }
+        else if (Number(value) === value) {
+            return 'float32';
+        }
+        else if (Array.isArray(value) && value.every((item) => Number(item) === item && item % 1 === 0)) {
+            return 'int64[]';
+        }
+        else if (Array.isArray(value) && value.every((item) => Number(item) === item)) {
+            return 'float32[]';
+        }
+        throw new pytorch.Error("Unsupported ops argument type '" + JSON.stringify(value).substring(0, 10) + "'.");
     }
 
     static isType(obj, type) {
@@ -3644,6 +3701,10 @@ pytorch.Metadata = class {
                 }
             }
         }
+    }
+
+    add(name, value) {
+        this._types.set(name, value);
     }
 
     type(name) {
