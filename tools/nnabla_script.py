@@ -3,9 +3,9 @@
 import json
 import sys
 import os
-import yaml
-import mako
-import mako.template
+import yaml # pylint: disable=import-error
+import mako # pylint: disable=import-error
+import mako.template # pylint: disable=import-error
 
 def _write(path, content):
     with open(path, 'w', encoding='utf-8') as file:
@@ -124,9 +124,9 @@ def _try_eval_default(value):
     return value
 
 def main(): # pylint: disable=missing-function-docstring
-    command_table = {'metadata': _metadata, 'schema': _schema}
-    command = sys.argv[1]
-    command_table[command]()
+    table = { 'metadata': _metadata, 'schema': _schema }
+    for command in sys.argv[1:]:
+        table[command]()
 
 if __name__ == '__main__':
     main()
