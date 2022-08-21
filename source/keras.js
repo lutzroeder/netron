@@ -11,29 +11,30 @@ keras.ModelFactory = class {
         if (stream && stream.length > signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
             return 'keras.h5';
         }
-        if (context.open('json')) {
-            const obj = context.open('json');
-            if (obj.mxnet_version || (obj.nodes && obj.arg_nodes && obj.heads)) {
+        const json = context.open('json');
+        if (json) {
+            if (json.mxnet_version || (json.nodes && json.arg_nodes && json.heads)) {
                 return undefined;
             }
-            if (obj.modelTopology && (obj.format === 'layers-model' || obj.modelTopology.class_name || obj.modelTopology.model_config)) {
+            if (json.modelTopology && (json.format === 'layers-model' || json.modelTopology.class_name || json.modelTopology.model_config)) {
                 return 'keras.json.tfjs';
             }
-            if (obj.model_config || (obj.class_name && obj.config)) {
+            if (json.model_config || (json.class_name && json.config)) {
                 return 'keras.json';
             }
-            if (Array.isArray(obj) && obj.every((item) => item.weights && item.paths)) {
+            if (Array.isArray(json) && json.every((item) => item.weights && item.paths)) {
                 return 'keras.json.tfjs.weights';
             }
-            if (obj.tfjsVersion) {
+            if (json.tfjsVersion) {
                 return 'keras.json.tfjs.metadata';
             }
         }
-        if (context.open('pkl')) {
-            const obj = context.open('pkl');
-            if (obj.__class__ && obj.__class__.__module__ === 'keras.engine.sequential' && obj.__class__.__name__ === 'Sequential') {
-                return 'keras.pickle';
-            }
+        const pickle = context.open('pkl');
+        if (pickle &&
+            pickle.__class__ &&
+            pickle.__class__.__module__ === 'keras.engine.sequential' &&
+            pickle.__class__.__name__ === 'Sequential') {
+            return 'keras.pickle';
         }
         return undefined;
     }
