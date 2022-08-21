@@ -4,7 +4,6 @@ import json
 import os
 import pydoc
 import re
-import sys
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
@@ -189,9 +188,7 @@ def _metadata():
             file.write(line.rstrip() + '\n')
 
 def main(): # pylint: disable=missing-function-docstring
-    command_table = { 'metadata': _metadata }
-    command = sys.argv[1]
-    command_table[command]()
+    _metadata()
 
 if __name__ == '__main__':
     main()

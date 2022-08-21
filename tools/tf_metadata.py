@@ -3,7 +3,6 @@
 import io
 import json
 import os
-import sys
 import google.protobuf.text_format
 from tensorflow.core.framework import api_def_pb2 # pylint: disable=import-error
 from tensorflow.core.framework import op_def_pb2 # pylint: disable=import-error
@@ -384,9 +383,7 @@ def _metadata():
             fout.write('\n')
 
 def main(): # pylint: disable=missing-function-docstring
-    command_table = { 'metadata': _metadata }
-    command = sys.argv[1] if len(sys.argv) > 1 else 'metadata'
-    command_table[command]()
+    _metadata()
 
 if __name__ == '__main__':
     main()
