@@ -57,11 +57,11 @@ def _start():
         pass
 
 def main(): # pylint: disable=missing-function-docstring
-    command_table = { 'build': _build, 'version': _version, 'start': _start }
+    table = { 'build': _build, 'version': _version, 'start': _start }
     sys.args = sys.argv[1:]
     while len(sys.args) > 0:
         command = sys.args.pop(0)
-        command_table[command]()
+        table[command]()
 
 if __name__ == '__main__':
     main()
