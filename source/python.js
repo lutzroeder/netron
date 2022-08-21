@@ -3820,6 +3820,7 @@ python.Execution = class {
         this.registerType('torch.optim.optimizer._RequiredParameter', class {});
         this.registerType('torch.optim.rmsprop.RMSprop', class {});
         this.registerType('torch.optim.sgd.SGD', class {});
+        this.registerType('torch.optim.sparse_adam.SparseAdam', class {});
         this.registerType('torch.quantization.fake_quantize.FakeQuantize', class {});
         this.registerType('torch.quantization.observer._PartialWrapper', class {});
         this.registerType('torch.quantization.observer.MinMaxObserver', class {});
@@ -3984,6 +3985,9 @@ python.Execution = class {
         });
         this.registerFunction('ops.prim.is_quantized', function(tensor) {
             return tensor && tensor.__quantized__ === true;
+        });
+        this.registerFunction('ops.prim.is_cuda', function(/* tensor */) {
+            return false;
         });
         this.registerFunction('ops.prim.unchecked_unwrap_optional', function(value) {
             return value;
@@ -4465,6 +4469,9 @@ python.Execution = class {
             throw new python.Error("Function not implemented.");
         });
         this.registerFunction('torch.nn.functional.leaky_relu', function(/* input */) {
+            throw new python.Error("Function not implemented.");
+        });
+        this.registerFunction('torch.nn.functional.linear', function(/* input */) {
             throw new python.Error("Function not implemented.");
         });
         this.registerFunction('torch.nn.functional.relu', function(/* input */) {
