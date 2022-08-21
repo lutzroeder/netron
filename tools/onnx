@@ -107,27 +107,11 @@ metadata() {
     [[ $(grep -U $'\x0D' ./source/onnx-metadata.json) ]] && crlf=1
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-    ${python} ./tools/onnx_script.py metadata
+    ${python} ./tools/onnx_metadata.py metadata
     deactivate
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/onnx-metadata.json ./source/onnx-metadata.json
     fi
-}
-
-infer() {
-    echo "onnx infer"
-    venv
-    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-    ${python} ./tools/onnx_script.py infer ${1}
-    deactivate
-}
-
-optimize() {
-    echo "onnx optimize"
-    venv
-    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-    ${python} ./tools/onnx_script.py optimize ${1}
-    deactivate
 }
 
 while [ "$#" != 0 ]; do
@@ -138,7 +122,5 @@ while [ "$#" != 0 ]; do
         "install") install;;
         "schema") schema;;
         "metadata") metadata;;
-        "infer") infer ${1} && shift;;
-        "optimize") optimize ${1} && shift;;
     esac
 done

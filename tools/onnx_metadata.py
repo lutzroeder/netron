@@ -221,9 +221,10 @@ def _infer():
     onnx.save(onnx_model, base + '.shape.onnx')
 
 def main(): # pylint: disable=missing-function-docstring
-    command_table = { 'metadata': _metadata, 'infer': _infer }
-    command = sys.argv[1]
-    command_table[command]()
+    table = { 'metadata': _metadata, 'infer': _infer }
+    for command in sys.argv[1:]:
+        table[command]()
+
 
 if __name__ == '__main__':
     main()
