@@ -392,7 +392,6 @@ om.Tensor = class {
         this._name = '';
         this._kind = kind;
         this._data = value;
-        this._shape = type.shape.dimensions;
     }
 
     get name() {
