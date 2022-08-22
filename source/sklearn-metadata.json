@@ -240,7 +240,8 @@
       },
       {
         "description": "By default, only the specified columns in `transformers` are\ntransformed and combined in the output, and the non-specified\ncolumns are dropped. (default of ``'drop'``).\nBy specifying ``remainder='passthrough'``, all remaining columns that\nwere not specified in `transformers` will be automatically passed\nthrough. This subset of columns is concatenated with the output of\nthe transformers.\nBy setting ``remainder`` to be an estimator, the remaining\nnon-specified columns will use the ``remainder`` estimator. The\nestimator must support :term:`fit` and :term:`transform`.\nNote that using this feature requires that the DataFrame columns\ninput at :term:`fit` and :term:`transform` have identical order.\n",
-        "name": "remainder"
+        "name": "remainder",
+        "default": "drop"
       },
       {
         "default": 0.3,
@@ -459,7 +460,8 @@
       },
       {
         "description": "Shrinkage parameter, possible values:\n- None: no shrinkage (default).\n- 'auto': automatic shrinkage using the Ledoit-Wolf lemma.\n- float between 0 and 1: fixed shrinkage parameter.\n\nThis should be left to None if `covariance_estimator` is used.\nNote that shrinkage works only with 'lsqr' and 'eigen' solvers.\n",
-        "name": "shrinkage"
+        "name": "shrinkage",
+        "default": null
       },
       {
         "default": null,
@@ -894,7 +896,8 @@
       },
       {
         "description": "Whether the feature should be made of word or character n-grams.\nOption 'char_wb' creates character n-grams only from text inside\nword boundaries; n-grams at the edges of words are padded with space.\n\nIf a callable is passed it is used to extract the sequence of features\nout of the raw, unprocessed input.\n\n.. versionchanged:: 0.21\nSince v0.21, if ``input`` is ``'filename'`` or ``'file'``, the data\nis first read from the file and then passed to the given callable\nanalyzer.\n",
-        "name": "analyzer"
+        "name": "analyzer",
+        "default": "word"
       },
       {
         "default": null,
@@ -902,7 +905,7 @@
         "name": "stop_words"
       },
       {
-        "default": "r\"(?u)\\\\b\\\\w\\\\w+\\\\b\"",
+        "default": "r\"(?u)\\\\b\\\\w\\\\w+\\\\b",
         "description": "Regular expression denoting what constitutes a \"token\", only used\nif ``analyzer == 'word'``. The default regexp selects tokens of 2\nor more alphanumeric characters (punctuation is completely ignored\nand always treated as a token separator).\n\nIf there is a capturing group in token_pattern then the\ncaptured group content, not the entire match, becomes the token.\nAt most one capturing group is permitted.\n",
         "name": "token_pattern",
         "type": "string"
@@ -994,7 +997,8 @@
     "attributes": [
       {
         "description": "The placeholder for the missing values. All occurrences of\n`missing_values` will be imputed. For pandas' dataframes with\nnullable integer dtypes with missing values, `missing_values`\ncan be set to either `np.nan` or `pd.NA`.\n",
-        "name": "missing_values"
+        "name": "missing_values",
+        "default": "np.nan"
       },
       {
         "default": "mean",
@@ -1165,7 +1169,8 @@
         "description": "The machine-precision regularization in the computation of the\nCholesky diagonal factors. Increase this for very ill-conditioned\nsystems. Unlike the ``tol`` parameter in some iterative\noptimization-based algorithms, this parameter does not control\nthe tolerance of the optimization.\n",
         "name": "eps",
         "optional": true,
-        "type": "float32"
+        "type": "float32",
+        "default": null
       },
       {
         "default": true,
@@ -1388,7 +1393,7 @@
         "type": "int32"
       },
       {
-        "default": true,
+        "default": "True",
         "description": "Refit an estimator using the best found parameters on the whole\ndataset.\n\nFor multiple metric evaluation, this needs to be a `str` denoting the\nscorer that would be used to find the best parameters for refitting\nthe estimator at the end.\n\nWhere there are considerations other than maximum score in\nchoosing a best estimator, ``refit`` can be set to a function which\nreturns the selected ``best_index_`` given ``cv_results_``. In that\ncase, the ``best_estimator_`` and ``best_params_`` will be set\naccording to the returned ``best_index_`` while the ``best_score_``\nattribute will not be available.\n\nThe refitted estimator is made available at the ``best_estimator_``\nattribute and permits using ``predict`` directly on this\n``GridSearchCV`` instance.\n\nAlso for multiple metric evaluation, the attributes ``best_index_``,\n``best_score_`` and ``best_params_`` will only be available if\n``refit`` is set and all of them will be determined w.r.t this specific\nscorer.\n\nSee ``scoring`` parameter to know more about multiple metric\nevaluation.\n\nSee :ref:`sphx_glr_auto_examples_model_selection_plot_grid_search_digits.py`\nto see how to design a custom selection strategy using a callable\nvia `refit`.\n\n.. versionchanged:: 0.20\nSupport for callable added.\n",
         "name": "refit",
         "type": "boolean"
@@ -1400,7 +1405,8 @@
       },
       {
         "description": "Value to assign to the score if an error occurs in estimator fitting.\nIf set to 'raise', the error is raised. If a numeric value is given,\nFitFailedWarning is raised. This parameter does not affect the refit\nstep, which will always raise the error.\n",
-        "name": "error_score"
+        "name": "error_score",
+        "default": "np.nan"
       },
       {
         "default": false,
@@ -1828,11 +1834,13 @@
     "attributes": [
       {
         "description": "Categories (unique values) per feature:\n\n- 'auto' : Determine categories automatically from the training data.\n- list : ``categories[i]`` holds the categories expected in the ith\ncolumn. The passed categories should not mix strings and numeric\nvalues within a single feature, and should be sorted in case of\nnumeric values.\n\nThe used categories can be found in the ``categories_`` attribute.\n\n.. versionadded:: 0.20\n",
-        "name": "categories"
+        "name": "categories",
+        "default": "auto"
       },
       {
         "description": "Specifies a methodology to use to drop one of the categories per\nfeature. This is useful in situations where perfectly collinear\nfeatures cause problems, such as when feeding the resulting data\ninto an unregularized linear regression model.\n\nHowever, dropping one category breaks the symmetry of the original\nrepresentation and can therefore induce a bias in downstream models,\nfor instance for penalized linear classification or regression models.\n\n- None : retain all features (the default).\n- 'first' : drop the first category in each feature. If only one\ncategory is present, the feature will be dropped entirely.\n- 'if_binary' : drop the first category in each feature with two\ncategories. Features with 1 or more than 2 categories are\nleft intact.\n- array : ``drop[i]`` is the category in feature ``X[:, i]`` that\nshould be dropped.\n\n.. versionadded:: 0.21\nThe parameter `drop` was added in 0.21.\n\n.. versionchanged:: 0.23\nThe option `drop='if_binary'` was added in 0.23.\n\n.. versionchanged:: 1.1\nSupport for dropping infrequent categories.\n",
-        "name": "drop"
+        "name": "drop",
+        "default": null
       },
       {
         "default": true,
@@ -2021,7 +2029,7 @@
         "type": "int32"
       },
       {
-        "default": "auto",
+        "default": "scale",
         "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\n- if ``gamma='scale'`` (default) is passed then it uses\n1 / (n_features * X.var()) as value of gamma,\n- if 'auto', uses 1 / n_features\n- if float, must be non-negative.\n\n.. versionchanged:: 0.22\nThe default value of ``gamma`` changed from 'auto' to 'scale'.\n",
         "name": "gamma",
         "optional": true,
@@ -2128,7 +2136,7 @@
         "type": "int32"
       },
       {
-        "default": "auto",
+        "default": "scale",
         "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\n- if ``gamma='scale'`` (default) is passed then it uses\n1 / (n_features * X.var()) as value of gamma,\n- if 'auto', uses 1 / n_features\n- if float, must be non-negative.\n\n.. versionchanged:: 0.22\nThe default value of ``gamma`` changed from 'auto' to 'scale'.\n",
         "name": "gamma",
         "optional": true,
