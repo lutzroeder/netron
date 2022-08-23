@@ -6029,6 +6029,15 @@
     ]
   },
   {
+    "name": "torch.alias:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.all:",
     "inputs": [
       { "name": "self", "type": "Tensor" }
