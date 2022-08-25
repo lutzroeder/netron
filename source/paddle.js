@@ -526,8 +526,16 @@ paddle.Attribute = class {
                 this._value = attr.f;
                 break;
             case paddle.AttributeType.FLOATS:
-                this._type = 'float[]';
+                this._type = 'float32[]';
                 this._value = Array.from(attr.floats);
+                break;
+            case paddle.AttributeType.FLOAT64:
+                this._type = 'float64';
+                this._value = attr.float64;
+                break;
+            case paddle.AttributeType.FLOAT64S:
+                this._type = 'float64[]';
+                this._value = Array.from(attr.float64s);
                 break;
             case paddle.AttributeType.INT:
                 this._type = 'int32';
@@ -1084,7 +1092,10 @@ paddle.AttributeType = {
     LONG: 9,
     BLOCKS: 10,
     LONGS: 11,
-    FLOAT64S: 12
+    FLOAT64S: 12,
+    VAR: 13,
+    VARS: 14,
+    FLOAT64: 15
 };
 
 paddle.Error = class extends Error {
