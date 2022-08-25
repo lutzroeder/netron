@@ -17,20 +17,25 @@ torch.ModelFactory = class {
                 }
                 return null;
             };
-            let root = reader.read();
-            if (root && Array.isArray(root) && root.length == 2 && root[0].__class__ && !root[1].__class__) {
-                root = root[0];
+            const obj = reader.read();
+            let graphs = [];
+            if (obj && Array.isArray(obj) && obj.length >= 2 &&
+                obj.slice(0, obj.length - 1).every((item) => item.__class__) &&
+                !obj[obj.length - 1].__class__) {
+                graphs = obj.slice(0, obj.length - 1);
             }
-            return new torch.Model(metadata, root);
+            else {
+                graphs = [ obj ];
+            }
+            return new torch.Model(metadata, graphs);
         });
     }
 };
 
 torch.Model = class {
 
-    constructor(metadata, root) {
-        this._graphs = [];
-        this._graphs.push(new torch.Graph(metadata, root));
+    constructor(metadata, graphs) {
+        this._graphs = graphs.map((graph, index) => new torch.Graph(metadata, index.toString(), graph));
     }
 
     get graphs() {
@@ -44,7 +49,8 @@ torch.Model = class {
 
 torch.Graph = class {
 
-    constructor(metadata, root) {
+    constructor(metadata, name, root) {
+        this._name = name;
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
@@ -64,6 +70,10 @@ torch.Graph = class {
         this._outputs = this._outputs.concat(outputs.map((output, index) => {
             return new torch.Parameter('output' + (index != 0 ? (index + 1).toString() : ''), true, [ output ]);
         }));
+    }
+
+    get name() {
+        return this._name;
     }
 
     get inputs() {
@@ -286,6 +296,7 @@ torch.Node = class {
             case 'cudnn.SpatialFullConvolution':
             case 'nn.SpatialConvolution':
             case 'nn.SpatialConvolutionMM':
+            case 'nn.SpatialConvolution1_fw':
             case 'nn.SpatialDilatedConvolution':
             case 'nn.SpatialFullConvolution':
                 delete module.ones;
@@ -807,6 +818,7 @@ torch.T7Reader = class {
         this.register('nn.SpatialAveragePooling');
         this.register('nn.SpatialBatchNormalization');
         this.register('nn.SpatialConvolution');
+        this.register('nn.SpatialConvolution1_fw');
         this.register('nn.SpatialConvolutionMM');
         this.register('nn.SpatialCrossMapLRN');
         this.register('nn.SpatialDilatedConvolution');

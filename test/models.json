@@ -6259,6 +6259,13 @@
   },
   {
     "type":     "torch",
+    "target":   "net_kitti2015_slow_-a_train_all.t7",
+    "source":   "https://github.com/lutzroeder/netron/files/9425494/net_kitti2015_slow_-a_train_all.t7.zip[net_kitti2015_slow_-a_train_all.t7]",
+    "format":   "Torch v7",
+    "link":     "https://github.com/lutzroeder/netron/issues/269"
+  },
+  {
+    "type":     "torch",
     "target":   "openface.nn4.small2.v1.t7",
     "source":   "https://raw.githubusercontent.com/pyannote/pyannote-data/master/openface.nn4.small2.v1.t7",
     "format":   "Torch v7",
