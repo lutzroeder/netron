@@ -63,7 +63,8 @@ $root.paddle.framework.proto.AttrType = {
     "LONGS": 11,
     "FLOAT64S": 12,
     "VAR": 13,
-    "VARS": 14
+    "VARS": 14,
+    "FLOAT64": 15
 };
 
 $root.paddle.framework.proto.OpDesc = class OpDesc {
@@ -212,6 +213,9 @@ $root.paddle.framework.proto.OpDesc.Attr = class Attr {
                 case 18:
                     message.vars_name.push(reader.string());
                     break;
+                case 19:
+                    message.float64 = reader.double();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -283,6 +287,9 @@ $root.paddle.framework.proto.OpDesc.Attr = class Attr {
                 case "vars_name":
                     reader.array(message.vars_name, () => reader.string());
                     break;
+                case "float64":
+                    message.float64 = reader.double();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -307,6 +314,7 @@ $root.paddle.framework.proto.OpDesc.Attr.prototype.b = false;
 $root.paddle.framework.proto.OpDesc.Attr.prototype.block_idx = 0;
 $root.paddle.framework.proto.OpDesc.Attr.prototype.l = protobuf.Int64.create(0);
 $root.paddle.framework.proto.OpDesc.Attr.prototype.var_name = "";
+$root.paddle.framework.proto.OpDesc.Attr.prototype.float64 = 0;
 
 $root.paddle.framework.proto.OpDesc.Var = class Var {
 
