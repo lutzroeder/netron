@@ -127,7 +127,6 @@ megengine.Graph = class {
             };
             const parseargs = (args, kwargs, meta) => {
                 const state = {};
-                const schema = meta !== undefined ? meta.schema : undefined;
                 let arg_idx = 0;
                 let attr_name = '';
                 const process_args = (inp, start_idx) => {
@@ -176,14 +175,14 @@ megengine.Graph = class {
                 };
                 let inp_idx = 0;
                 for (const arg of args.children_defs) {
-                    if (schema === undefined || (schema.attributes.length !== args.children_defs.length && schema.varargs === null)) {
+                    if (meta.attributes === undefined || (meta.attributes.length !== args.children_defs.length && meta.varargs === null)) {
                         attr_name = 'arg' + arg_idx;
                     }
-                    else if (arg_idx < schema.attributes.length) {
-                        attr_name = schema.attributes[arg_idx];
+                    else if (arg_idx < meta.attributes.length) {
+                        attr_name = meta.attributes[arg_idx].name;
                     }
                     else {
-                        attr_name = schema.varargs + (arg_idx - schema.attributes.length);
+                        attr_name = meta.varargs + (arg_idx - meta.attributes.length);
                     }
                     const rst = process_args(formatTreeDef(arg), inp_idx);
                     state[attr_name] = rst[0];
@@ -247,7 +246,8 @@ megengine.Graph = class {
                             };
                             const module_type = called_module.__class__.__name__ !== 'TracedModule' ? getModuleType(called_module) : 'TracedModule';
                             if (module_type === 'TracedModule') {
-                                const prefix = getfullname(name_prefix, expr.inputs[0]._name);
+                                const module_name = expr.outputs[0]._name.endsWith("_out")?expr.outputs[0]._name.substring(0, expr.outputs[0]._name.length-4):expr.outputs[0]._name;
+                                const prefix = getfullname(name_prefix, module_name);
                                 const internal_graph = called_module.argdef_graph_map[expr.arg_def.toString()];
                                 for (let i = 0; i < expr.inputs.length; i++) {
                                     const actual_name = getfullname(name_prefix, expr.inputs[i]._name);
@@ -257,7 +257,12 @@ megengine.Graph = class {
                                 for (let i = 0; i < expr.outputs.length; i++) {
                                     const actual_name = getfullname(name_prefix, expr.outputs[i]._name);
                                     const internal_name = getfullname(prefix, internal_graph._outputs[i]._name);
-                                    context.set(internal_name, actual_name);
+                                    if (context.get(internal_name) !== undefined) {
+                                        context.set(actual_name, context.get(internal_name));
+                                    }
+                                    else {
+                                        context.set(internal_name, actual_name);
+                                    }
                                 }
                                 loadgraph(called_module, internal_graph, context, prefix, metadata, false);
                                 continue;
@@ -290,7 +295,7 @@ megengine.Graph = class {
                         const item = { 'name': '', 'type': func };
                         const args = expr.arg_def.children_defs[0];
                         const kwargs = expr.arg_def.children_defs[1];
-                        const schema = metadata._types.get(func);
+                        const schema = metadata.type(func);
                         const state = parseargs(args, kwargs, schema);
                         this._nodes.push(getOpNode(metadata, item, expr, state));
                         break;
