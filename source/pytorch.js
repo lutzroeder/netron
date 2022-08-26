@@ -614,14 +614,18 @@ pytorch.Attribute = class {
 
 pytorch.Tensor = class {
 
-    constructor(name, type, data, littleEndian) {
+    constructor(name, type, layout, data, littleEndian) {
         this._name = name || '';
         this._type = type;
+        this._layout = layout;
         this._data = data;
         this._littleEndian = littleEndian;
     }
 
     get kind() {
+        if (this._layout === 'torch.sparse_coo') {
+            return 'Sparse Tensor';
+        }
         return 'Tensor';
     }
 
@@ -662,6 +666,10 @@ pytorch.Tensor = class {
         context.index = 0;
         context.count = 0;
 
+        if (this._layout !== null && this._layout !== 'torch.strided') {
+            context.state = "Tensor layout '" + this._layout + "' is not supported.";
+            return context;
+        }
         if (!this._type.dataType) {
             context.state = 'Tensor has no data type.';
             return context;
@@ -693,7 +701,6 @@ pytorch.Tensor = class {
             context.state = 'Tensor data is empty.';
             return context;
         }
-
         try {
             context.data = this._data instanceof Uint8Array ? this._data : this._data.peek();
         }
@@ -701,7 +708,6 @@ pytorch.Tensor = class {
             context.state = err.message;
             return context;
         }
-
         context.dataType = this._type.dataType;
         context.dimensions = this._type.shape.dimensions;
         context.view = new DataView(context.data.buffer, context.data.byteOffset, context.data.byteLength);
@@ -2765,7 +2771,8 @@ pytorch.Utility = class {
         const storage = tensor.storage();
         const size = tensor.size();
         const type = new pytorch.TensorType(storage.dtype.__reduce__(), new pytorch.TensorShape(size));
-        return new pytorch.Tensor(name || '', type, storage.data, littleEndian);
+        const layout = tensor.layout ? tensor.layout.__str__() : null;
+        return new pytorch.Tensor(name || '', type, layout, storage.data, littleEndian);
     }
 
     static getType(value) {
@@ -3529,7 +3536,7 @@ pytorch.nnapi.Argument = class {
         this._name = operand.index.toString();
         const shape = new pytorch.TensorShape(operand.dimensions);
         this._type = new pytorch.TensorType(operand.data_type.replace('[]', ''), shape);
-        this._initializer = operand.data ? new pytorch.Tensor(this._name, this._type, operand.data, true) : null;
+        this._initializer = operand.data ? new pytorch.Tensor(this._name, this._type, null, operand.data, true) : null;
         this._scale = operand.scale;
         this._zeroPoint = operand.zero_point;
     }

@@ -4083,6 +4083,20 @@ python.Execution = class {
             }
             throw new python.Error('Unsupported function range(' + JSON.stringify(start) + ', ' + JSON.stringify(stop) + ', ' + JSON.stringify(step) + ')');
         });
+        this.registerFunction('torch._utils._rebuild_sparse_tensor', function(layout, data) {
+            if (layout === torch.sparse_coo) {
+                return self.invoke('torch._sparse_coo_tensor_unsafe', data);
+            }
+            throw new python.Error("Unsupported sparse tensor layout '" + (layout ? layout.__str__() : '') + "'.");
+        });
+        this.registerFunction('torch._sparse_coo_tensor_unsafe', function(indices, values, size) {
+            const tensor = self.invoke('torch.Tensor', []);
+            tensor._layout = torch.sparse_coo;
+            tensor._indices = indices;
+            tensor._values = values;
+            tensor._shape = size;
+            return tensor;
+        });
         this.registerFunction('torch._utils._rebuild_tensor', function (storage, storage_offset, size, stride) {
             const name = storage.__class__.__module__ + '.' + storage.__class__.__name__.replace('Storage', 'Tensor');
             const tensor = self.invoke(name, []);
@@ -4297,6 +4311,11 @@ python.Execution = class {
             return false;
         });
         this.registerFunction('torch.set_grad_enabled', function(/* value */) {
+        });
+
+        this.registerFunction('torch.serialization._get_layout', function(name) {
+            const value = name.startsWith('torch.') ? torch[name.split('.')[1]] : null;
+            return value instanceof torch.layout ? value : null;
         });
         this.registerFunction('torch.jit._pickle.build_boollist', function(data) {
             return data;
@@ -4514,8 +4533,32 @@ python.Execution = class {
             __str__() {
                 return 'torch.' + this._data.name;
             }
+            toString() {
+                return this.__str__();
+            }
         });
-        this.registerType('torch.qscheme', class {});
+        this.registerType('torch.layout', class {
+            constructor(name) {
+                this._name = name;
+            }
+            __str__() {
+                return this._name;
+            }
+            toString() {
+                return this.__str__();
+            }
+        });
+        this.registerType('torch.qscheme', class {
+            constructor(name) {
+                this._name = name;
+            }
+            __str__() {
+                return this._name;
+            }
+            toString() {
+                return this.__str__();
+            }
+        });
         this.registerType('torch.utils.hooks.RemovableHandle', class {
             __setstate__(state) {
                 this.hooks_dict_ref = state[0] || new Map();
@@ -4680,16 +4723,36 @@ python.Execution = class {
         });
         this.registerType('torch.Tensor', class {
             constructor() {
+                this._layout = torch.strided;
             }
             get device() {
                 return this.storage().device;
             }
             get dtype() {
+                if (this._layout === torch.sparse_coo) {
+                    return this._values.dtype();
+                }
                 return this.storage().dtype;
             }
             get shape() {
                 return this._shape;
             }
+            get layout() {
+                return this._layout;
+            }
+            get values() {
+                if (this._layout === torch.sparse_coo) {
+                    return this._values;
+                }
+                throw new python.Error("Unsupported values in layout'" + this._layout.__str__() + "'.");
+            }
+            get indices() {
+                if (this._indices === torch.sparse_coo) {
+                    return this._indices;
+                }
+                throw new python.Error("Unsupported indices in layout'" + this._indices.__str__() + "'.");
+            }
+
             size() {
                 return this._shape;
             }
@@ -4809,11 +4872,18 @@ python.Execution = class {
         torch.qint32 = torch.QInt32Storage.dtype = new torch.dtype({ type: 14, name: 'qint32', itemsize: 4 });
         torch.bfloat16 = torch.BFloat16Storage.dtype = new torch.dtype({ type: 15, name: 'bfloat16', itemsize: 2 });
         torch.quint4x2 = new torch.dtype({ type: 16, name: 'quint4x2' });
-        torch.per_tensor_affine = new torch.qscheme();
-        torch.per_channel_affine = new torch.qscheme();
-        torch.per_tensor_symmetric = new torch.qscheme();
-        torch.per_channel_symmetric = new torch.qscheme();
-        torch.per_channel_affine_float_qparams = new torch.qscheme();
+        torch.strided = new torch.layout('torch.strided');
+        torch.sparse_coo = new torch.layout('torch.sparse_coo');
+        torch.sparse_csr = new torch.layout('torch.sparse_csr');
+        torch.sparse_csc = new torch.layout('torch.sparse_csc');
+        torch.sparse_bsr = new torch.layout('torch.sparse_bsr');
+        torch.sparse_bsc = new torch.layout('torch.sparse_bsc');
+        torch._mkldnn = new torch.layout('torch._mkldnn');
+        torch.per_tensor_affine = new torch.qscheme('torch.per_tensor_affine');
+        torch.per_channel_affine = new torch.qscheme('torch.per_channel_affine');
+        torch.per_tensor_symmetric = new torch.qscheme('torch.per_tensor_symmetric');
+        torch.per_channel_symmetric = new torch.qscheme('torch.per_channel_symmetric');
+        torch.per_channel_affine_float_qparams = new torch.qscheme('torch.per_channel_affine_float_qparams');
         torch.inf = this.register('math').inf;
     }
 
