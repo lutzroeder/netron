@@ -16,11 +16,31 @@ import urllib.parse
 
 __version__ = '0.0.0'
 
-class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
-    ''' HTTP Request Handler '''
-    file = ""
+class _ContentProvider: # pylint: disable=too-few-public-methods
     data = bytearray()
-    folder = ""
+    base_dir = ''
+    base = ''
+    title = ''
+    def __init__(self, data, path, file):
+        self.data = data if data else bytearray()
+        self.title = os.path.basename(file) if file else ''
+        if path:
+            self.dir = os.path.dirname(path) if os.path.dirname(path) else '.'
+            self.base = os.path.basename(path)
+    def read(self, path):
+        ''' Read content '''
+        if path == self.base and self.data:
+            return self.data
+        base_dir = os.path.realpath(self.dir)
+        filename = os.path.normpath(os.path.realpath(base_dir + '/' + path))
+        if os.path.commonprefix([ base_dir, filename ]) == base_dir:
+            if os.path.exists(filename) and not os.path.isdir(filename):
+                with open(filename, 'rb') as file:
+                    return file.read()
+        return None
+
+class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
+    content = None
     verbosity = 1
     mime_types = {
         '.html': 'text/html',
@@ -51,15 +71,7 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         content_type = None
         if path.startswith('/data/'):
             path = urllib.parse.unquote(path[len('/data/'):])
-            if path == self.file and self.data:
-                content = self.data
-            else:
-                base_dir = os.path.realpath(self.folder)
-                filename = os.path.normpath(os.path.realpath(base_dir + '/' + path))
-                if os.path.commonprefix([ base_dir, filename ]) == base_dir:
-                    if os.path.exists(filename) and not os.path.isdir(filename):
-                        with open(filename, 'rb') as file:
-                            content = file.read()
+            content = self.content.read(path)
             if content:
                 content_type = 'application/octet-stream'
                 status_code = 200
@@ -74,14 +86,16 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 with open(filename, 'rb') as file:
                     content = file.read()
                 if path == '/index.html':
+                    content = content.decode('utf-8')
                     meta = [
                         '<meta name="type" content="Python">',
                         '<meta name="version" content="' + __version__ + '">'
                     ]
-                    if self.file:
-                        meta.append('<meta name="file" content="/data/' + self.file + '">')
+                    if self.content.base:
+                        meta.append('<meta name="file" content="/data/' + self.content.base + '">')
+                        content = re.sub(r'<title>.*</title>', \
+                            '<title>' + self.content.title + '</title>', content)
                     meta = '\n'.join(meta)
-                    content = content.decode('utf-8')
                     content = re.sub(r'<meta name="version" content=".*">', meta, content)
                     content = content.encode('utf-8')
                 status_code = 200
@@ -101,26 +115,18 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
             elif (status_code in (200, 404)) and content is not None:
                 self.wfile.write(content)
 
-class HTTPServerThread(threading.Thread):
-    ''' HTTP Server Thread '''
-    def __init__(self, data, file, address, verbosity):
+class _ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
+    pass
+
+class _HTTPServerThread(threading.Thread):
+    def __init__(self, content, address, verbosity):
         threading.Thread.__init__(self)
-        class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
-            ''' Threaded HTTP Server '''
         self.verbosity = verbosity
         self.address = address
         self.url = 'http://' + address[0] + ':' + str(address[1])
-        self.file = file
-        self.server = ThreadedHTTPServer(address, HTTPRequestHandler)
+        self.server = _ThreadedHTTPServer(address, _HTTPRequestHandler)
         self.server.timeout = 0.25
-        if file:
-            folder = os.path.dirname(file) if os.path.dirname(file) else '.'
-            self.server.RequestHandlerClass.folder = folder
-            self.server.RequestHandlerClass.file = os.path.basename(file)
-        else:
-            self.server.RequestHandlerClass.folder = ''
-            self.server.RequestHandlerClass.file = ''
-        self.server.RequestHandlerClass.data = data
+        self.server.RequestHandlerClass.content = content
         self.server.RequestHandlerClass.verbosity = verbosity
         self.terminate_event = threading.Event()
         self.terminate_event.set()
@@ -151,7 +157,7 @@ class HTTPServerThread(threading.Thread):
         return value
 
 def _threads(address=None):
-    threads = [ _ for _ in threading.enumerate() if isinstance(_, HTTPServerThread) and _.alive() ]
+    threads = [ _ for _ in threading.enumerate() if isinstance(_, _HTTPServerThread) and _.alive() ]
     if address is not None:
         address = _make_address(address)
         threads = [ _ for _ in threads if address[0] == _.address[0] ]
@@ -250,6 +256,8 @@ def serve(file, data, address=None, browse=False, verbosity=1):
     if not data and file and not os.path.exists(file):
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file)
 
+    content = _ContentProvider(data, file, file)
+
     if data and not isinstance(data, bytearray) and isinstance(data.__class__, type):
         registry = dict([
             ('onnx.onnx_ml_pb2.ModelProto', '.onnx'),
@@ -268,7 +276,7 @@ def serve(file, data, address=None, browse=False, verbosity=1):
                     model_factory = module.ModelFactory()
                     _log(verbosity > 1, 'Experimental\n')
                     data = model_factory.serialize(data)
-                    file = 'test.json'
+                    content = _ContentProvider(data, 'model.netron', file)
                     break
             queue.extend(_ for _ in current.__bases__ if isinstance(_, type))
 
@@ -278,7 +286,7 @@ def serve(file, data, address=None, browse=False, verbosity=1):
     else:
         address = _make_port(address)
 
-    thread = HTTPServerThread(data, file, address, verbosity)
+    thread = _HTTPServerThread(content, address, verbosity)
     thread.start()
     while not thread.alive():
         time.sleep(0.01)

@@ -16,7 +16,7 @@ host.BrowserHost = class {
         };
         this._meta = {};
         for (const element of Array.from(this._document.getElementsByTagName('meta'))) {
-            if (element.content) {
+            if (element.name !== undefined && element.content !== undefined) {
                 this._meta[element.name] = this._meta[element.name] || [];
                 this._meta[element.name].push(element.content);
             }
@@ -236,7 +236,9 @@ host.BrowserHost = class {
             const identifier = params.get('identifier') || null;
             const location = url.replace(new RegExp('^https://github.com/([\\w]*/[\\w]*)/blob/([\\w/_.]*)(\\?raw=true)?$'), 'https://raw.githubusercontent.com/$1/$2');
             if (this._view.accept(identifier || location)) {
-                this._openModel(location, identifier);
+                this._openModel(location, identifier).then((identifier) => {
+                    this.document.title = identifier;
+                });
                 return;
             }
         }
@@ -492,10 +494,10 @@ host.BrowserHost = class {
     _openModel(url, identifier) {
         url = url + ((/\?/).test(url) ? '&' : '?') + 'cb=' + (new Date()).getTime();
         this._view.show('welcome spinner');
-        this._request(url).then((stream) => {
+        return this._request(url).then((stream) => {
             const context = new host.BrowserHost.BrowserContext(this, url, identifier, stream);
-            this._view.open(context).then(() => {
-                this.document.title = identifier || context.identifier;
+            return this._view.open(context).then(() => {
+                return identifier || context.identifier;
             }).catch((err) => {
                 if (err) {
                     this._view.error(err, null, 'welcome');
