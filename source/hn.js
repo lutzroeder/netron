@@ -261,14 +261,13 @@ hn.Argument = class {
 
 hn.Node = class {
     constructor(layer_metadata, layer) {
-
         const getTypeByName = ((layer_metadata) => (attribute_name) => {
             return layer_metadata && layer_metadata.attributes && layer_metadata.attributes.find(({name}) => {
                 return name === attribute_name;
             }) || {
-                name,
+                name: attribute_name,
                 type: "Layer",
-                visible: true
+                visible: false
             };
         })(layer_metadata);
 
@@ -305,10 +304,10 @@ hn.Node = class {
                         const label = schema.label ? schema.label : name;
                         acc.push(new hn.Parameter(label, true, [
                             new hn.Argument(label, new hn.TensorType(
-                                hn.DataTypes.ARRAY,
-                                new hn.TensorShape(value, schema.type, schema.show_array_length)),
+                                    hn.DataTypes.ARRAY,
+                                    new hn.TensorShape(value, schema.type, schema.show_array_length)),
                                 new hn.Tensor(schema.type, value, schema.show_array_length
-                            ), value)
+                                ), value)
                         ]));
                     }
                     return acc;
@@ -425,7 +424,7 @@ hn.TensorType = class {
     constructor(dataType, shape, show_array_length) {
         this._dataType = dataType;
         this._shape = shape;
-        this._show_array_length = show_array_length
+        this._show_array_length = show_array_length;
     }
 
     get dataType() {
@@ -453,13 +452,13 @@ hn.TensorShape = class {
     }
 
     get dimensions() {
-        if(this._show_array_length){
-            return [this._dimensions.length]
+        if (this._show_array_length) {
+            return [this._dimensions.length];
         }
         return this._dimensions;
     }
 
-    get show_array_length(){
+    get show_array_length() {
         return this._show_array_length;
     }
 
@@ -473,7 +472,7 @@ hn.TensorShape = class {
                 return '';
             }
 
-            return `[${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`
+            return ` [${this.dimensions.map((dimension) => dimension.toString()).join(',')}]`;
         }
         return '';
     }
