@@ -2402,8 +2402,6 @@ $root.mgb.serialization.fbs.v2.OperatorParam = class {
                 return $root.mgb.serialization.fbs.param.DeformablePSROIPooling.decodeText(reader, json);
             case 'BatchConvBias':
                 return $root.mgb.serialization.fbs.param.BatchConvBias.decodeText(reader, json);
-            case 'DType':
-                return $root.mgb.serialization.fbs.param.DType.decodeText(reader, json);
             case 'PersistentOutputStorage':
                 return $root.mgb.serialization.fbs.param.PersistentOutputStorage.decodeText(reader, json);
             case 'OptionalAxis':
