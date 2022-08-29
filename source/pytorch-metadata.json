@@ -2091,10 +2091,32 @@
     ]
   },
   {
+    "name": "torch.div:Tensor_mode",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" },
+      { "name": "rounding_mode", "type": "string", "optional": true }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.div:Scalar",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.div:Scalar_mode",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" },
+      { "name": "rounding_mode", "type": "string", "optional": true }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
