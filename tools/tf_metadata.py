@@ -244,9 +244,9 @@ def _update_attributes(json_schema, operator, api_def):
     api_def_attr_map = {}
     for attr in api_def.attr:
         api_def_attr_map[attr.name] = attr
-    if 'attributes' not in json_schema:
-        json_schema['attributes'] = []
     for attr in operator.attr:
+        if 'attributes' not in json_schema:
+            json_schema['attributes'] = []
         json_attribute = {}
         json_attribute['name'] = attr.name
         attr_type = _convert_attr_type(attr.type)
@@ -279,9 +279,9 @@ def _update_inputs(json_schema, operator, api_def):
     api_def_in_arg_map = {}
     for in_arg in api_def.in_arg:
         api_def_in_arg_map[in_arg.name] = in_arg
-    if 'inputs' not in json_schema:
-        json_schema['inputs'] = []
     for input_arg in operator.input_arg:
+        if 'inputs' not in json_schema:
+            json_schema['inputs'] = []
         json_input = {}
         json_input['name'] = input_arg.name
         if input_arg.name in api_def_in_arg_map:
@@ -301,12 +301,12 @@ def _update_inputs(json_schema, operator, api_def):
         json_schema['inputs'].append(json_input)
 
 def _update_outputs(json_schema, operator, api_def):
-    if 'outputs' not in json_schema:
-        json_schema['outputs'] = []
     api_def_out_arg_map = {}
     for out_arg in api_def.out_arg:
         api_def_out_arg_map[out_arg.name] = out_arg
     for output_arg in operator.output_arg:
+        if 'outputs' not in json_schema:
+            json_schema['outputs'] = []
         json_output = {}
         json_output['name'] = output_arg.name
         if output_arg.name in api_def_out_arg_map:
