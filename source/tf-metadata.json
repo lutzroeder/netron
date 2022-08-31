@@ -59825,6 +59825,68 @@
     ]
   },
   {
+    "name": "UniformQuantizedClipByValue",
+    "summary": "Perform clip by value on the quantized Tensor `operand`.",
+    "description": "Given quantized `operand` which was quantized using `scales` and `zero_points`, performs clip by value using `min` and `max` values.\nIf quantization_axis is -1 (per-tensor quantized), the entire operand is clipped using scalar min, max.\nOtherwise (per-channel quantized), the clipping is also done per-channel.",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type",
+        "description": "The type of operand, min, max, and output. A tf.DType from: tf.qint32 Must be one of the following: `qint32`."
+      },
+      {
+        "name": "quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization. Otherwise, it must be set within range [0, operand.dims()).",
+        "default": -1
+      },
+      {
+        "name": "quantization_min_val",
+        "type": "int64",
+        "description": "The quantization min value that was used when operand was quantized."
+      },
+      {
+        "name": "quantization_max_val",
+        "type": "int64",
+        "description": "The quantization max value that was used when operand was quantized."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "operand",
+        "description": "Must be a Tensor of T.",
+        "typeAttr": "T"
+      },
+      {
+        "name": "min",
+        "description": "The min value(s) to clip operand. Must be a Tensor of T.\nMust be a scalar Tensor if quantization_axis is -1 (per-tensor quantization), otherwise 1D Tensor of size (operand.dim_size(quantization_axis),) (per-axis quantization).",
+        "typeAttr": "T"
+      },
+      {
+        "name": "max",
+        "description": "The min value(s) to clip operand. Must be a Tensor of T.\nMust be a scalar Tensor if quantization_axis is -1 (per-tensor quantization), otherwise 1D Tensor of size (operand.dim_size(quantization_axis),) (per-axis quantization).",
+        "typeAttr": "T"
+      },
+      {
+        "name": "scales",
+        "description": "The float value(s) used as scale(s) when quantizing `operand`, `min` and `max`.\nMust be a scalar Tensor if quantization_axis is -1 (per-tensor quantization), otherwise 1D Tensor of size (operand.dim_size(quantization_axis),) (per-axis quantization).",
+        "type": 1
+      },
+      {
+        "name": "zero_points",
+        "description": "The int32 value(s) used as zero_point(s) when quantizing `operand`, `min` and `max`.\nSame shape condition as scales.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "The output clipped Tensor of T, whose shape is same as operand.",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
     "name": "UniformQuantizedDotHybrid",
     "summary": "Perform hybrid quantized dot of float Tensor `lhs` and quantized Tensor `rhs`.",
     "description": "Given float `lhs` and quantized `rhs`, internally performs quantization on `lhs`, and then performs quantized dot on quantized lhs and `rhs`.\nThe internal quantization on `lhs` is a quantization to qint8, dynamic range, per-batch (per-axis along axis 0), asymmetric, and not narrow range (the range is [-128, 127]).\n`lhs` and `rhs` must be 2D Tensors and the lhs.dim_size(1) must match rhs.dim_size(0).\n`rhs` must be quantized Tensor, where its data value is quantized using the formula:\nquantized_data = clip(original_data / scale + zero_point, quantization_min_val, quantization_max_val).",
