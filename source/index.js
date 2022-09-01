@@ -466,6 +466,12 @@ host.BrowserHost = class {
                 err.url = url;
                 reject(err);
             };
+            request.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    const percentComplete = e.loaded / e.total * 100;
+                    this._view.downloadProgress(percentComplete);
+                }
+            };
             request.open('GET', url, true);
             if (headers) {
                 for (const name of Object.keys(headers)) {

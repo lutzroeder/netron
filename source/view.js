@@ -92,6 +92,13 @@ view.View = class {
         this._page = page;
     }
 
+    downloadProgress(percent) {
+        const bar = this._getElementById('download-progress');
+        if (bar) {
+            bar.style.width = `${percent}%`;
+        }
+    }
+
     cut() {
         this._host.document.execCommand('cut');
     }

@@ -100,6 +100,8 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .welcome .github-button { top: 170px; left: 150px; width: 125px; opacity: 1; }
 .welcome .message-button { top: 220px; left: 0px; width: 125px; display: none; opacity: 0; }
 .welcome .message { top: 120px; left: 0px; font-size: 13px; text-align: center; line-height: 20px; color: #444444; display: none; opacity: 0; }
+.welcome .download-progress-wrapper { top: 120px; height: 2px; width: 100%; }
+.welcome .download-progress { height: 100%; background-color: #444444; }
 .welcome .graph { display: none; opacity: 0; }
 .welcome.spinner .logo-spinner { display: block; -webkit-animation: orbit 0.5s infinite linear; animation: orbit 0.5s infinite linear; cursor: wait; }
 @-webkit-keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
@@ -366,6 +368,9 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     <button id="message-button" class="center message-button">Accept</button>
     <button id="open-file-button" class="center open-file-button">Open Model&hellip;</button>
     <button id="github-button" class="center github-button">Download</button>
+    <div class="center download-progress-wrapper">
+        <div id="download-progress" class="download-progress"></div>
+    </div>
     <input type="file" id="open-file-dialog" class="open-file-dialog" multiple="false" accept=".onnx, .ort, .pb, .meta, .tflite, .lite, .tfl, .keras, .h5, .hd5, .hdf5, .json, .model, .mar, .params, .param, .armnn, .mnn, .ncnn, .tnnproto, .tm, .tmfile, .ms, .om, .nn, .uff, .rknn, .xmodel, .kmodel, .paddle, .pdmodel, .pdiparams, .pdparams, .pdopt, .nb, .dnn, .dlc, .cmf, .mlmodel, .mlpackage, .caffemodel, .pbtxt, .prototxt, .pkl, .pt, .pth, .ptl, .t7, .joblib, .cfg, .xml, .zip, .tar">
     <!-- Preload fonts to workaround Chrome SVG layout issue -->
     <div style="font-weight: normal; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
