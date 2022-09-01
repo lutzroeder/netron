@@ -234,7 +234,9 @@ host.BrowserHost = class {
         const url = params.get('url');
         if (url) {
             const identifier = params.get('identifier') || null;
-            const location = url.replace(new RegExp('^https://github.com/([\\w]*/[\\w]*)/blob/([\\w/_.]*)(\\?raw=true)?$'), 'https://raw.githubusercontent.com/$1/$2');
+            const location = url
+                .replace(new RegExp('^https://github.com/([\\w]*/[\\w]*)/blob/([\\w/_.]*)(\\?raw=true)?$'), 'https://raw.githubusercontent.com/$1/$2')
+                .replace(new RegExp('^https://huggingface.co/(.*)/blob/(.*)$'), 'https://huggingface.co/$1/resolve/$2');
             if (this._view.accept(identifier || location)) {
                 this._openModel(location, identifier).then((identifier) => {
                     this.document.title = identifier;
