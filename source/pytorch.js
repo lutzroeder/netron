@@ -3019,6 +3019,7 @@ pytorch.Utility = class {
                         continue;
                     }
                     if ((key.startsWith('dico_') && Object(value) === value) ||
+                        (key.startsWith('best_metrics') && Object(value) === value) ||
                         (key === 'args' && Object(value) === value) ||
                         (key.startsWith('params') && Object(value) === value && (value.id2lang || value.lang2id)) ||
                         (key.startsWith('spk_dict_') && Object(value) === value && Object.keys(value).length === 0) ||
