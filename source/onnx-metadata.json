@@ -28579,6 +28579,14 @@
         "code": "axis = 1\nnode = onnx.helper.make_node(\n    \"ScatterElements\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    axis=axis,\n)\ndata = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]], dtype=np.float32)\nindices = np.array([[1, -3]], dtype=np.int64)\nupdates = np.array([[1.1, 2.1]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates, axis)\n# print(y) produces\n# [[1.0, 1.1, 2.1, 4.0, 5.0]]\n\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[y],\n    name=\"test_scatter_elements_with_negative_indices\",\n)"
       },
       {
+        "summary": "scatter_elements_with_reduction_max",
+        "code": "axis = 1\nnode = onnx.helper.make_node(\n    \"ScatterElements\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    axis=axis,\n    reduction=\"max\",\n)\ndata = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]], dtype=np.float32)\nindices = np.array([[1, 1]], dtype=np.int64)\nupdates = np.array([[1.1, 2.1]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates, axis, reduction=\"max\")\n# print(y) produces\n# [[1.0, 2.1, 3.0, 4.0, 5.0]]\n\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[y],\n    name=\"test_scatter_elements_with_reduction_max\",\n)"
+      },
+      {
+        "summary": "scatter_elements_with_reduction_min",
+        "code": "axis = 1\nnode = onnx.helper.make_node(\n    \"ScatterElements\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    axis=axis,\n    reduction=\"min\",\n)\ndata = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]], dtype=np.float32)\nindices = np.array([[1, 1]], dtype=np.int64)\nupdates = np.array([[1.1, 2.1]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates, axis, reduction=\"min\")\n# print(y) produces\n# [[1.0, 1.1, 3.0, 4.0, 5.0]]\n\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[y],\n    name=\"test_scatter_elements_with_reduction_min\",\n)"
+      },
+      {
         "summary": "scatter_elements_without_axis",
         "code": "node = onnx.helper.make_node(\n    \"ScatterElements\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n)\ndata = np.zeros((3, 3), dtype=np.float32)\nindices = np.array([[1, 0, 2], [0, 2, 1]], dtype=np.int64)\nupdates = np.array([[1.0, 1.1, 1.2], [2.0, 2.1, 2.2]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates)\n# print(y) produces\n# [[2.0, 1.1, 0.0],\n#  [1.0, 0.0, 2.2],\n#  [0.0, 2.1, 1.2]]\n\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[y],\n    name=\"test_scatter_elements_without_axis\",\n)"
       }
@@ -28672,6 +28680,14 @@
         "code": "axis = 1\nnode = onnx.helper.make_node(\n    \"ScatterElements\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    axis=axis,\n)\ndata = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]], dtype=np.float32)\nindices = np.array([[1, -3]], dtype=np.int64)\nupdates = np.array([[1.1, 2.1]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates, axis)\n# print(y) produces\n# [[1.0, 1.1, 2.1, 4.0, 5.0]]\n\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[y],\n    name=\"test_scatter_elements_with_negative_indices\",\n)"
       },
       {
+        "summary": "scatter_elements_with_reduction_max",
+        "code": "axis = 1\nnode = onnx.helper.make_node(\n    \"ScatterElements\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    axis=axis,\n    reduction=\"max\",\n)\ndata = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]], dtype=np.float32)\nindices = np.array([[1, 1]], dtype=np.int64)\nupdates = np.array([[1.1, 2.1]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates, axis, reduction=\"max\")\n# print(y) produces\n# [[1.0, 2.1, 3.0, 4.0, 5.0]]\n\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[y],\n    name=\"test_scatter_elements_with_reduction_max\",\n)"
+      },
+      {
+        "summary": "scatter_elements_with_reduction_min",
+        "code": "axis = 1\nnode = onnx.helper.make_node(\n    \"ScatterElements\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    axis=axis,\n    reduction=\"min\",\n)\ndata = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]], dtype=np.float32)\nindices = np.array([[1, 1]], dtype=np.int64)\nupdates = np.array([[1.1, 2.1]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates, axis, reduction=\"min\")\n# print(y) produces\n# [[1.0, 1.1, 3.0, 4.0, 5.0]]\n\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[y],\n    name=\"test_scatter_elements_with_reduction_min\",\n)"
+      },
+      {
         "summary": "scatter_elements_without_axis",
         "code": "node = onnx.helper.make_node(\n    \"ScatterElements\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n)\ndata = np.zeros((3, 3), dtype=np.float32)\nindices = np.array([[1, 0, 2], [0, 2, 1]], dtype=np.int64)\nupdates = np.array([[1.0, 1.1, 1.2], [2.0, 2.1, 2.2]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates)\n# print(y) produces\n# [[2.0, 1.1, 0.0],\n#  [1.0, 0.0, 2.2],\n#  [0.0, 2.1, 1.2]]\n\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[y],\n    name=\"test_scatter_elements_without_axis\",\n)"
       }
@@ -28682,7 +28698,7 @@
     "module": "ai.onnx",
     "version": 16,
     "support_level": "common",
-    "description": "ScatterElements takes three inputs `data`, `updates`, and `indices` of the same\nrank r >= 1 and an optional attribute axis that identifies an axis of `data`\n(by default, the outer-most axis, that is axis 0). The output of the operation\nis produced by creating a copy of the input `data`, and then updating its value\nto values specified by `updates` at specific index positions specified by\n`indices`. Its output shape is the same as the shape of `data`.\n\nFor each entry in `updates`, the target index in `data` is obtained by combining\nthe corresponding entry in `indices` with the index of the entry itself: the\nindex-value for dimension = axis is obtained from the value of the corresponding\nentry in `indices` and the index-value for dimension != axis is obtained from the\nindex of the entry itself.\n\n`reduction` allows specification of an optional reduction operation, which is applied to all values in `updates`\ntensor into `output` at the specified `indices`.\nIn cases where `reduction` is set to \"none\", indices should not have duplicate entries: that is, if idx1 != idx2,\nthen indices[idx1] != indices[idx2]. For instance, in a 2-D tensor case, the update\ncorresponding to the [i][j] entry is performed as below:\n```\n  output[indices[i][j]][j] = updates[i][j] if axis = 0,\n  output[i][indices[i][j]] = updates[i][j] if axis = 1,\n```\nWhen `reduction` is set to \"add\", the update corresponding to the [i][j] entry is performed as below:\n```\n  output[indices[i][j]][j] += updates[i][j] if axis = 0,\n  output[i][indices[i][j]] += updates[i][j] if axis = 1,\n```\nWhen `reduction` is set to \"mul\", the update corresponding to the [i][j] entry is performed as below:\n```\n  output[indices[i][j]][j] *= updates[i][j] if axis = 0,\n  output[i][indices[i][j]] *= updates[i][j] if axis = 1,\n```\n\nThis operator is the inverse of GatherElements. It is similar to Torch's Scatter operation.\n\nExample 1:\n```\n  data = [\n      [0.0, 0.0, 0.0],\n      [0.0, 0.0, 0.0],\n      [0.0, 0.0, 0.0],\n  ]\n  indices = [\n      [1, 0, 2],\n      [0, 2, 1],\n  ]\n  updates = [\n      [1.0, 1.1, 1.2],\n      [2.0, 2.1, 2.2],\n  ]\n  output = [\n      [2.0, 1.1, 0.0]\n      [1.0, 0.0, 2.2]\n      [0.0, 2.1, 1.2]\n  ]\n```\nExample 2:\n```\n  data = [[1.0, 2.0, 3.0, 4.0, 5.0]]\n  indices = [[1, 3]]\n  updates = [[1.1, 2.1]]\n  axis = 1\n  output = [[1.0, 1.1, 3.0, 2.1, 5.0]]\n```\n",
+    "description": "ScatterElements takes three inputs `data`, `updates`, and `indices` of the same\nrank r >= 1 and an optional attribute axis that identifies an axis of `data`\n(by default, the outer-most axis, that is axis 0). The output of the operation\nis produced by creating a copy of the input `data`, and then updating its value\nto values specified by `updates` at specific index positions specified by\n`indices`. Its output shape is the same as the shape of `data`.\nFor each entry in `updates`, the target index in `data` is obtained by combining\nthe corresponding entry in `indices` with the index of the entry itself: the\nindex-value for dimension = axis is obtained from the value of the corresponding\nentry in `indices` and the index-value for dimension != axis is obtained from the\nindex of the entry itself.\n`reduction` allows specification of an optional reduction operation, which is applied to all values in `updates`\ntensor into `output` at the specified `indices`.\nIn cases where `reduction` is set to \"none\", indices should not have duplicate entries: that is, if idx1 != idx2,\nthen indices[idx1] != indices[idx2]. For instance, in a 2-D tensor case, the update\ncorresponding to the [i][j] entry is performed as below:\n```\n  output[indices[i][j]][j] = updates[i][j] if axis = 0,\n  output[i][indices[i][j]] = updates[i][j] if axis = 1,\n```\nWhen `reduction` is set to \"add\", the update corresponding to the [i][j] entry is performed as below:\n```\n  output[indices[i][j]][j] += updates[i][j] if axis = 0,\n  output[i][indices[i][j]] += updates[i][j] if axis = 1,\n```\nWhen `reduction` is set to \"mul\", the update corresponding to the [i][j] entry is performed as below:\n```\n  output[indices[i][j]][j] *= updates[i][j] if axis = 0,\n  output[i][indices[i][j]] *= updates[i][j] if axis = 1,\n```\nThis operator is the inverse of GatherElements. It is similar to Torch's Scatter operation.\nExample 1:\n```\n  data = [\n      [0.0, 0.0, 0.0],\n      [0.0, 0.0, 0.0],\n      [0.0, 0.0, 0.0],\n  ]\n  indices = [\n      [1, 0, 2],\n      [0, 2, 1],\n  ]\n  updates = [\n      [1.0, 1.1, 1.2],\n      [2.0, 2.1, 2.2],\n  ]\n  output = [\n      [2.0, 1.1, 0.0]\n      [1.0, 0.0, 2.2]\n      [0.0, 2.1, 1.2]\n  ]\n```\nExample 2:\n```\n  data = [[1.0, 2.0, 3.0, 4.0, 5.0]]\n  indices = [[1, 3]]\n  updates = [[1.1, 2.1]]\n  axis = 1\n  output = [[1.0, 1.1, 3.0, 2.1, 5.0]]\n```\n",
     "attributes": [
       {
         "name": "axis",
@@ -28772,6 +28788,122 @@
         "code": "axis = 1\nnode = onnx.helper.make_node(\n    \"ScatterElements\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    axis=axis,\n)\ndata = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]], dtype=np.float32)\nindices = np.array([[1, -3]], dtype=np.int64)\nupdates = np.array([[1.1, 2.1]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates, axis)\n# print(y) produces\n# [[1.0, 1.1, 2.1, 4.0, 5.0]]\n\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[y],\n    name=\"test_scatter_elements_with_negative_indices\",\n)"
       },
       {
+        "summary": "scatter_elements_with_reduction_max",
+        "code": "axis = 1\nnode = onnx.helper.make_node(\n    \"ScatterElements\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    axis=axis,\n    reduction=\"max\",\n)\ndata = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]], dtype=np.float32)\nindices = np.array([[1, 1]], dtype=np.int64)\nupdates = np.array([[1.1, 2.1]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates, axis, reduction=\"max\")\n# print(y) produces\n# [[1.0, 2.1, 3.0, 4.0, 5.0]]\n\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[y],\n    name=\"test_scatter_elements_with_reduction_max\",\n)"
+      },
+      {
+        "summary": "scatter_elements_with_reduction_min",
+        "code": "axis = 1\nnode = onnx.helper.make_node(\n    \"ScatterElements\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    axis=axis,\n    reduction=\"min\",\n)\ndata = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]], dtype=np.float32)\nindices = np.array([[1, 1]], dtype=np.int64)\nupdates = np.array([[1.1, 2.1]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates, axis, reduction=\"min\")\n# print(y) produces\n# [[1.0, 1.1, 3.0, 4.0, 5.0]]\n\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[y],\n    name=\"test_scatter_elements_with_reduction_min\",\n)"
+      },
+      {
+        "summary": "scatter_elements_without_axis",
+        "code": "node = onnx.helper.make_node(\n    \"ScatterElements\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n)\ndata = np.zeros((3, 3), dtype=np.float32)\nindices = np.array([[1, 0, 2], [0, 2, 1]], dtype=np.int64)\nupdates = np.array([[1.0, 1.1, 1.2], [2.0, 2.1, 2.2]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates)\n# print(y) produces\n# [[2.0, 1.1, 0.0],\n#  [1.0, 0.0, 2.2],\n#  [0.0, 2.1, 1.2]]\n\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[y],\n    name=\"test_scatter_elements_without_axis\",\n)"
+      }
+    ]
+  },
+  {
+    "name": "ScatterElements",
+    "module": "ai.onnx",
+    "version": 18,
+    "support_level": "common",
+    "description": "ScatterElements takes three inputs `data`, `updates`, and `indices` of the same\nrank r >= 1 and an optional attribute axis that identifies an axis of `data`\n(by default, the outer-most axis, that is axis 0). The output of the operation\nis produced by creating a copy of the input `data`, and then updating its value\nto values specified by `updates` at specific index positions specified by\n`indices`. Its output shape is the same as the shape of `data`.\n\nFor each entry in `updates`, the target index in `data` is obtained by combining\nthe corresponding entry in `indices` with the index of the entry itself: the\nindex-value for dimension = axis is obtained from the value of the corresponding\nentry in `indices` and the index-value for dimension != axis is obtained from the\nindex of the entry itself.\n\n`reduction` allows specification of an optional reduction operation, which is applied to all values in `updates`\ntensor into `output` at the specified `indices`.\nIn cases where `reduction` is set to \"none\", indices should not have duplicate entries: that is, if idx1 != idx2,\nthen indices[idx1] != indices[idx2]. For instance, in a 2-D tensor case, the update\ncorresponding to the [i][j] entry is performed as below:\n```\n  output[indices[i][j]][j] = updates[i][j] if axis = 0,\n  output[i][indices[i][j]] = updates[i][j] if axis = 1,\n```\nWhen `reduction` is set to some reduction function `f`, the update corresponding to the [i][j] entry is performed as below:\n```\n  output[indices[i][j]][j] += f(output[indices[i][j]][j], updates[i][j]) if axis = 0,\n  output[i][indices[i][j]] += f(output[i][indices[i][j]], updates[i][j]) if axis = 1,\n```\nwhere the `f` is +/*/max/min as specified.\n\n\nThis operator is the inverse of GatherElements. It is similar to Torch's Scatter operation.\n\n(Opset 18 change): Adds max/min to the set of allowed reduction ops.\n\nExample 1:\n```\n  data = [\n      [0.0, 0.0, 0.0],\n      [0.0, 0.0, 0.0],\n      [0.0, 0.0, 0.0],\n  ]\n  indices = [\n      [1, 0, 2],\n      [0, 2, 1],\n  ]\n  updates = [\n      [1.0, 1.1, 1.2],\n      [2.0, 2.1, 2.2],\n  ]\n  output = [\n      [2.0, 1.1, 0.0]\n      [1.0, 0.0, 2.2]\n      [0.0, 2.1, 1.2]\n  ]\n```\nExample 2:\n```\n  data = [[1.0, 2.0, 3.0, 4.0, 5.0]]\n  indices = [[1, 3]]\n  updates = [[1.1, 2.1]]\n  axis = 1\n  output = [[1.0, 1.1, 3.0, 2.1, 5.0]]\n```\n",
+    "attributes": [
+      {
+        "name": "axis",
+        "type": "int64",
+        "required": false,
+        "description": "Which axis to scatter on. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(data)."
+      },
+      {
+        "name": "reduction",
+        "type": "string",
+        "required": false,
+        "default": "none",
+        "description": "Type of reduction to apply: none (default), add, mul, max, min. 'none': no reduction applied. 'add':  reduction using the addition operation. 'mul': reduction using the multiplication operation.'max': reduction using the maximum operation.'min': reduction using the minimum operation."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "data",
+        "type": "T",
+        "description": "Tensor of rank r >= 1."
+      },
+      {
+        "name": "indices",
+        "type": "Tind",
+        "description": "Tensor of int32/int64 indices, of r >= 1 (same rank as input). All index values are expected to be within bounds [-s, s-1] along axis of size s. It is an error if any of the index values are out of bounds."
+      },
+      {
+        "name": "updates",
+        "type": "T",
+        "description": "Tensor of rank r >=1 (same rank and shape as indices)"
+      }
+    ],
+    "min_input": 3,
+    "max_input": 3,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T",
+        "description": "Tensor of rank r >= 1 (same rank as input)."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Input and output types can be of any tensor type.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(bfloat16)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(string)",
+          "tensor(bool)",
+          "tensor(complex64)",
+          "tensor(complex128)"
+        ]
+      },
+      {
+        "description": "Constrain indices to integer types",
+        "type_param_str": "Tind",
+        "allowed_type_strs": [
+          "tensor(int32)",
+          "tensor(int64)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "scatter_elements_with_axis",
+        "code": "axis = 1\nnode = onnx.helper.make_node(\n    \"ScatterElements\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    axis=axis,\n)\ndata = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]], dtype=np.float32)\nindices = np.array([[1, 3]], dtype=np.int64)\nupdates = np.array([[1.1, 2.1]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates, axis)\n# print(y) produces\n# [[1.0, 1.1, 3.0, 2.1, 5.0]]\n\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[y],\n    name=\"test_scatter_elements_with_axis\",\n)"
+      },
+      {
+        "summary": "scatter_elements_with_duplicate_indices",
+        "code": "axis = 1\nnode = onnx.helper.make_node(\n    \"ScatterElements\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    axis=axis,\n    reduction=\"add\",\n)\ndata = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]], dtype=np.float32)\nindices = np.array([[1, 1]], dtype=np.int64)\nupdates = np.array([[1.1, 2.1]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates, axis, reduction=\"add\")\n# print(y) produces\n# [[1.0, 5.2, 3.0, 4.0, 5.0]]\n\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[y],\n    name=\"test_scatter_elements_with_duplicate_indices\",\n)"
+      },
+      {
+        "summary": "scatter_elements_with_negative_indices",
+        "code": "axis = 1\nnode = onnx.helper.make_node(\n    \"ScatterElements\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    axis=axis,\n)\ndata = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]], dtype=np.float32)\nindices = np.array([[1, -3]], dtype=np.int64)\nupdates = np.array([[1.1, 2.1]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates, axis)\n# print(y) produces\n# [[1.0, 1.1, 2.1, 4.0, 5.0]]\n\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[y],\n    name=\"test_scatter_elements_with_negative_indices\",\n)"
+      },
+      {
+        "summary": "scatter_elements_with_reduction_max",
+        "code": "axis = 1\nnode = onnx.helper.make_node(\n    \"ScatterElements\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    axis=axis,\n    reduction=\"max\",\n)\ndata = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]], dtype=np.float32)\nindices = np.array([[1, 1]], dtype=np.int64)\nupdates = np.array([[1.1, 2.1]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates, axis, reduction=\"max\")\n# print(y) produces\n# [[1.0, 2.1, 3.0, 4.0, 5.0]]\n\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[y],\n    name=\"test_scatter_elements_with_reduction_max\",\n)"
+      },
+      {
+        "summary": "scatter_elements_with_reduction_min",
+        "code": "axis = 1\nnode = onnx.helper.make_node(\n    \"ScatterElements\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    axis=axis,\n    reduction=\"min\",\n)\ndata = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]], dtype=np.float32)\nindices = np.array([[1, 1]], dtype=np.int64)\nupdates = np.array([[1.1, 2.1]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates, axis, reduction=\"min\")\n# print(y) produces\n# [[1.0, 1.1, 3.0, 4.0, 5.0]]\n\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[y],\n    name=\"test_scatter_elements_with_reduction_min\",\n)"
+      },
+      {
         "summary": "scatter_elements_without_axis",
         "code": "node = onnx.helper.make_node(\n    \"ScatterElements\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n)\ndata = np.zeros((3, 3), dtype=np.float32)\nindices = np.array([[1, 0, 2], [0, 2, 1]], dtype=np.int64)\nupdates = np.array([[1.0, 1.1, 1.2], [2.0, 2.1, 2.2]], dtype=np.float32)\n\ny = scatter_elements(data, indices, updates)\n# print(y) produces\n# [[2.0, 1.1, 0.0],\n#  [1.0, 0.0, 2.2],\n#  [0.0, 2.1, 1.2]]\n\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[y],\n    name=\"test_scatter_elements_without_axis\",\n)"
       }
@@ -28842,6 +28974,14 @@
       {
         "summary": "scatternd_add",
         "code": "node = onnx.helper.make_node(\n    \"ScatterND\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    reduction=\"add\",\n)\ndata = np.array(\n    [\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n    ],\n    dtype=np.float32,\n)\nindices = np.array([[0], [0]], dtype=np.int64)\nupdates = np.array(\n    [\n        [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n        [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n    ],\n    dtype=np.float32,\n)\n# Expecting output as np.array(\n#    [[[7, 8, 9, 10], [13, 14, 15, 16], [18, 17, 16, 15], [16, 15, 14, 13]],\n#     [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n#     [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n#     [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]], dtype=np.float32)\noutput = scatter_nd_impl(data, indices, updates, reduction=\"add\")\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[output],\n    name=\"test_scatternd_add\",\n)"
+      },
+      {
+        "summary": "scatternd_max",
+        "code": "node = onnx.helper.make_node(\n    \"ScatterND\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    reduction=\"max\",\n)\ndata = np.array(\n    [\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n    ],\n    dtype=np.float32,\n)\nindices = np.array([[0], [0]], dtype=np.int64)\nupdates = np.array(\n    [\n        [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n        [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n    ],\n    dtype=np.float32,\n)\n# Expecting output as np.array(\n#    [[[5, 5, 5, 5], [6, 6, 7, 8], [8, 7, 7, 7], [8, 8 ,8, 8]],\n#     [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n#     [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n#     [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]], dtype=np.float32)\noutput = scatter_nd_impl(data, indices, updates, reduction=\"max\")\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[output],\n    name=\"test_scatternd_max\",\n)"
+      },
+      {
+        "summary": "scatternd_min",
+        "code": "node = onnx.helper.make_node(\n    \"ScatterND\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    reduction=\"min\",\n)\ndata = np.array(\n    [\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n    ],\n    dtype=np.float32,\n)\nindices = np.array([[0], [0]], dtype=np.int64)\nupdates = np.array(\n    [\n        [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n        [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n    ],\n    dtype=np.float32,\n)\n# Expecting output as np.array(\n#    [[[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 3, 2, 1]],\n#     [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n#     [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n#     [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]], dtype=np.float32)\noutput = scatter_nd_impl(data, indices, updates, reduction=\"min\")\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[output],\n    name=\"test_scatternd_min\",\n)"
       },
       {
         "summary": "scatternd_multiply",
@@ -28917,6 +29057,14 @@
         "code": "node = onnx.helper.make_node(\n    \"ScatterND\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    reduction=\"add\",\n)\ndata = np.array(\n    [\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n    ],\n    dtype=np.float32,\n)\nindices = np.array([[0], [0]], dtype=np.int64)\nupdates = np.array(\n    [\n        [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n        [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n    ],\n    dtype=np.float32,\n)\n# Expecting output as np.array(\n#    [[[7, 8, 9, 10], [13, 14, 15, 16], [18, 17, 16, 15], [16, 15, 14, 13]],\n#     [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n#     [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n#     [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]], dtype=np.float32)\noutput = scatter_nd_impl(data, indices, updates, reduction=\"add\")\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[output],\n    name=\"test_scatternd_add\",\n)"
       },
       {
+        "summary": "scatternd_max",
+        "code": "node = onnx.helper.make_node(\n    \"ScatterND\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    reduction=\"max\",\n)\ndata = np.array(\n    [\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n    ],\n    dtype=np.float32,\n)\nindices = np.array([[0], [0]], dtype=np.int64)\nupdates = np.array(\n    [\n        [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n        [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n    ],\n    dtype=np.float32,\n)\n# Expecting output as np.array(\n#    [[[5, 5, 5, 5], [6, 6, 7, 8], [8, 7, 7, 7], [8, 8 ,8, 8]],\n#     [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n#     [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n#     [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]], dtype=np.float32)\noutput = scatter_nd_impl(data, indices, updates, reduction=\"max\")\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[output],\n    name=\"test_scatternd_max\",\n)"
+      },
+      {
+        "summary": "scatternd_min",
+        "code": "node = onnx.helper.make_node(\n    \"ScatterND\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    reduction=\"min\",\n)\ndata = np.array(\n    [\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n    ],\n    dtype=np.float32,\n)\nindices = np.array([[0], [0]], dtype=np.int64)\nupdates = np.array(\n    [\n        [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n        [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n    ],\n    dtype=np.float32,\n)\n# Expecting output as np.array(\n#    [[[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 3, 2, 1]],\n#     [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n#     [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n#     [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]], dtype=np.float32)\noutput = scatter_nd_impl(data, indices, updates, reduction=\"min\")\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[output],\n    name=\"test_scatternd_min\",\n)"
+      },
+      {
         "summary": "scatternd_multiply",
         "code": "node = onnx.helper.make_node(\n    \"ScatterND\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    reduction=\"mul\",\n)\ndata = np.array(\n    [\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n    ],\n    dtype=np.float32,\n)\nindices = np.array([[0], [0]], dtype=np.int64)\nupdates = np.array(\n    [\n        [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n        [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n    ],\n    dtype=np.float32,\n)\n# Expecting output as np.array(\n#    [[[5, 10, 15, 20], [60, 72, 84, 96], [168, 147, 126, 105], [128, 96, 64, 32]],\n#     [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n#     [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n#     [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]], dtype=np.float32)\noutput = scatter_nd_impl(data, indices, updates, reduction=\"mul\")\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[output],\n    name=\"test_scatternd_multiply\",\n)"
       }
@@ -28927,7 +29075,7 @@
     "module": "ai.onnx",
     "version": 16,
     "support_level": "common",
-    "description": "ScatterND takes three inputs `data` tensor of rank r >= 1, `indices` tensor of rank q >= 1,\nand `updates` tensor of rank q + r - indices.shape[-1] - 1. The output of the operation\nis produced by creating a copy of the input `data`, and then updating its value to values\nspecified by `updates` at specific index positions specified by `indices`. Its output shape\nis the same as the shape of `data`. Note that `indices` should not have duplicate entries.\nThat is, two or more `updates` for the same index-location is not supported.\n\n`indices` is an integer tensor. Let k denote indices.shape[-1], the last dimension in the shape of `indices`.\n `indices` is treated as a (q-1)-dimensional tensor of k-tuples, where each k-tuple is a partial-index into `data`.\nHence, k can be a value at most the rank of `data`. When k equals rank(data), each update entry specifies an\nupdate to a single element of the tensor. When k is less than rank(data) each update entry specifies an\nupdate to a slice of the tensor.\n\n`updates` is treated as a (q-1)-dimensional tensor of replacement-slice-values. Thus, the\nfirst (q-1) dimensions of updates.shape must match the first (q-1) dimensions of indices.shape.\nThe remaining dimensions of `updates` correspond to the dimensions of the\nreplacement-slice-values. Each replacement-slice-value is a (r-k) dimensional tensor,\ncorresponding to the trailing (r-k) dimensions of `data`.  Thus, the shape of `updates`\nmust equal indices.shape[0:q-1] ++ data.shape[k:r-1], where ++ denotes the concatenation\nof shapes.\n\nThe `output` is calculated via the following equation:\n\n    output = np.copy(data)\n    update_indices = indices.shape[:-1]\n    for idx in np.ndindex(update_indices):\n        output[indices[idx]] = updates[idx]\n\nThe order of iteration in the above loop is not specified.\nIn particular, indices should not have duplicate entries: that is, if idx1 != idx2, then indices[idx1] != indices[idx2].\nThis ensures that the output value does not depend on the iteration order.\n\n`reduction` allows specification of an optional reduction operation, which is applied to all values in `updates`\ntensor into `output` at the specified `indices`.\nIn cases where `reduction` is set to \"none\", indices should not have duplicate entries: that is, if idx1 != idx2,\nthen indices[idx1] != indices[idx2]. This ensures that the output value does not depend on the iteration order.\nWhen `reduction` is set to \"add\", `output` is calculated as follows:\n\n    output = np.copy(data)\n    update_indices = indices.shape[:-1]\n    for idx in np.ndindex(update_indices):\n        output[indices[idx]] += updates[idx]\n\nWhen `reduction` is set to \"mul\", `output` is calculated as follows:\n\n    output = np.copy(data)\n    update_indices = indices.shape[:-1]\n    for idx in np.ndindex(update_indices):\n        output[indices[idx]] *= updates[idx]\n\nThis operator is the inverse of GatherND.\n\nExample 1:\n```\n  data    = [1, 2, 3, 4, 5, 6, 7, 8]\n  indices = [[4], [3], [1], [7]]\n  updates = [9, 10, 11, 12]\n  output  = [1, 11, 3, 10, 9, 6, 7, 12]\n```\n\nExample 2:\n```\n  data    = [[[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n             [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n             [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n             [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]]\n  indices = [[0], [2]]\n  updates = [[[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n             [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]]]\n  output  = [[[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n             [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n             [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n             [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]]\n```\n",
+    "description": "ScatterND takes three inputs `data` tensor of rank r >= 1, `indices` tensor of rank q >= 1,\nand `updates` tensor of rank q + r - indices.shape[-1] - 1. The output of the operation\nis produced by creating a copy of the input `data`, and then updating its value to values\nspecified by `updates` at specific index positions specified by `indices`. Its output shape\nis the same as the shape of `data`. Note that `indices` should not have duplicate entries.\nThat is, two or more `updates` for the same index-location is not supported.\n`indices` is an integer tensor. Let k denote indices.shape[-1], the last dimension in the shape of `indices`.\n `indices` is treated as a (q-1)-dimensional tensor of k-tuples, where each k-tuple is a partial-index into `data`.\nHence, k can be a value at most the rank of `data`. When k equals rank(data), each update entry specifies an\nupdate to a single element of the tensor. When k is less than rank(data) each update entry specifies an\nupdate to a slice of the tensor.\n`updates` is treated as a (q-1)-dimensional tensor of replacement-slice-values. Thus, the\nfirst (q-1) dimensions of updates.shape must match the first (q-1) dimensions of indices.shape.\nThe remaining dimensions of `updates` correspond to the dimensions of the\nreplacement-slice-values. Each replacement-slice-value is a (r-k) dimensional tensor,\ncorresponding to the trailing (r-k) dimensions of `data`.  Thus, the shape of `updates`\nmust equal indices.shape[0:q-1] ++ data.shape[k:r-1], where ++ denotes the concatenation\nof shapes.\nThe `output` is calculated via the following equation:\n    output = np.copy(data)\n    update_indices = indices.shape[:-1]\n    for idx in np.ndindex(update_indices):\n        output[indices[idx]] = updates[idx]\nThe order of iteration in the above loop is not specified.\nIn particular, indices should not have duplicate entries: that is, if idx1 != idx2, then indices[idx1] != indices[idx2].\nThis ensures that the output value does not depend on the iteration order.\n`reduction` allows specification of an optional reduction operation, which is applied to all values in `updates`\ntensor into `output` at the specified `indices`.\nIn cases where `reduction` is set to \"none\", indices should not have duplicate entries: that is, if idx1 != idx2,\nthen indices[idx1] != indices[idx2]. This ensures that the output value does not depend on the iteration order.\nWhen `reduction` is set to \"add\", `output` is calculated as follows:\n    output = np.copy(data)\n    update_indices = indices.shape[:-1]\n    for idx in np.ndindex(update_indices):\n        output[indices[idx]] += updates[idx]\nWhen `reduction` is set to \"mul\", `output` is calculated as follows:\n    output = np.copy(data)\n    update_indices = indices.shape[:-1]\n    for idx in np.ndindex(update_indices):\n        output[indices[idx]] *= updates[idx]\nThis operator is the inverse of GatherND.\nExample 1:\n```\n  data    = [1, 2, 3, 4, 5, 6, 7, 8]\n  indices = [[4], [3], [1], [7]]\n  updates = [9, 10, 11, 12]\n  output  = [1, 11, 3, 10, 9, 6, 7, 12]\n```\nExample 2:\n```\n  data    = [[[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n             [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n             [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n             [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]]\n  indices = [[0], [2]]\n  updates = [[[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n             [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]]]\n  output  = [[[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n             [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n             [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n             [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]]\n```\n",
     "attributes": [
       {
         "name": "reduction",
@@ -28997,6 +29145,104 @@
       {
         "summary": "scatternd_add",
         "code": "node = onnx.helper.make_node(\n    \"ScatterND\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    reduction=\"add\",\n)\ndata = np.array(\n    [\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n    ],\n    dtype=np.float32,\n)\nindices = np.array([[0], [0]], dtype=np.int64)\nupdates = np.array(\n    [\n        [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n        [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n    ],\n    dtype=np.float32,\n)\n# Expecting output as np.array(\n#    [[[7, 8, 9, 10], [13, 14, 15, 16], [18, 17, 16, 15], [16, 15, 14, 13]],\n#     [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n#     [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n#     [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]], dtype=np.float32)\noutput = scatter_nd_impl(data, indices, updates, reduction=\"add\")\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[output],\n    name=\"test_scatternd_add\",\n)"
+      },
+      {
+        "summary": "scatternd_max",
+        "code": "node = onnx.helper.make_node(\n    \"ScatterND\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    reduction=\"max\",\n)\ndata = np.array(\n    [\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n    ],\n    dtype=np.float32,\n)\nindices = np.array([[0], [0]], dtype=np.int64)\nupdates = np.array(\n    [\n        [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n        [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n    ],\n    dtype=np.float32,\n)\n# Expecting output as np.array(\n#    [[[5, 5, 5, 5], [6, 6, 7, 8], [8, 7, 7, 7], [8, 8 ,8, 8]],\n#     [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n#     [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n#     [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]], dtype=np.float32)\noutput = scatter_nd_impl(data, indices, updates, reduction=\"max\")\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[output],\n    name=\"test_scatternd_max\",\n)"
+      },
+      {
+        "summary": "scatternd_min",
+        "code": "node = onnx.helper.make_node(\n    \"ScatterND\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    reduction=\"min\",\n)\ndata = np.array(\n    [\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n    ],\n    dtype=np.float32,\n)\nindices = np.array([[0], [0]], dtype=np.int64)\nupdates = np.array(\n    [\n        [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n        [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n    ],\n    dtype=np.float32,\n)\n# Expecting output as np.array(\n#    [[[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 3, 2, 1]],\n#     [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n#     [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n#     [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]], dtype=np.float32)\noutput = scatter_nd_impl(data, indices, updates, reduction=\"min\")\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[output],\n    name=\"test_scatternd_min\",\n)"
+      },
+      {
+        "summary": "scatternd_multiply",
+        "code": "node = onnx.helper.make_node(\n    \"ScatterND\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    reduction=\"mul\",\n)\ndata = np.array(\n    [\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n    ],\n    dtype=np.float32,\n)\nindices = np.array([[0], [0]], dtype=np.int64)\nupdates = np.array(\n    [\n        [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n        [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n    ],\n    dtype=np.float32,\n)\n# Expecting output as np.array(\n#    [[[5, 10, 15, 20], [60, 72, 84, 96], [168, 147, 126, 105], [128, 96, 64, 32]],\n#     [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n#     [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n#     [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]], dtype=np.float32)\noutput = scatter_nd_impl(data, indices, updates, reduction=\"mul\")\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[output],\n    name=\"test_scatternd_multiply\",\n)"
+      }
+    ]
+  },
+  {
+    "name": "ScatterND",
+    "module": "ai.onnx",
+    "version": 18,
+    "support_level": "common",
+    "description": "ScatterND takes three inputs `data` tensor of rank r >= 1, `indices` tensor of rank q >= 1,\nand `updates` tensor of rank q + r - indices.shape[-1] - 1. The output of the operation\nis produced by creating a copy of the input `data`, and then updating its value to values\nspecified by `updates` at specific index positions specified by `indices`. Its output shape\nis the same as the shape of `data`. Note that `indices` should not have duplicate entries.\nThat is, two or more `updates` for the same index-location is not supported.\n\n`indices` is an integer tensor. Let k denote indices.shape[-1], the last dimension in the shape of `indices`.\n `indices` is treated as a (q-1)-dimensional tensor of k-tuples, where each k-tuple is a partial-index into `data`.\nHence, k can be a value at most the rank of `data`. When k equals rank(data), each update entry specifies an\nupdate to a single element of the tensor. When k is less than rank(data) each update entry specifies an\nupdate to a slice of the tensor.\n\n`updates` is treated as a (q-1)-dimensional tensor of replacement-slice-values. Thus, the\nfirst (q-1) dimensions of updates.shape must match the first (q-1) dimensions of indices.shape.\nThe remaining dimensions of `updates` correspond to the dimensions of the\nreplacement-slice-values. Each replacement-slice-value is a (r-k) dimensional tensor,\ncorresponding to the trailing (r-k) dimensions of `data`.  Thus, the shape of `updates`\nmust equal indices.shape[0:q-1] ++ data.shape[k:r-1], where ++ denotes the concatenation\nof shapes.\n\nThe `output` is calculated via the following equation:\n\n    output = np.copy(data)\n    update_indices = indices.shape[:-1]\n    for idx in np.ndindex(update_indices):\n        output[indices[idx]] = updates[idx]\n\nThe order of iteration in the above loop is not specified.\nIn particular, indices should not have duplicate entries: that is, if idx1 != idx2, then indices[idx1] != indices[idx2].\nThis ensures that the output value does not depend on the iteration order.\n\n`reduction` allows specification of an optional reduction operation, which is applied to all values in `updates`\ntensor into `output` at the specified `indices`.\nIn cases where `reduction` is set to \"none\", indices should not have duplicate entries: that is, if idx1 != idx2,\nthen indices[idx1] != indices[idx2]. This ensures that the output value does not depend on the iteration order.\nWhen `reduction` is set to some reduction function `f`, `output` is calculated as follows:\n\n    output = np.copy(data)\n    update_indices = indices.shape[:-1]\n    for idx in np.ndindex(update_indices):\n        output[indices[idx]] = f(output[indices[idx]], updates[idx])\n\nwhere the `f` is +/*/max/min as specified.\n\nThis operator is the inverse of GatherND.\n\n(Opset 18 change): Adds max/min to the set of allowed reduction ops.\n\nExample 1:\n```\n  data    = [1, 2, 3, 4, 5, 6, 7, 8]\n  indices = [[4], [3], [1], [7]]\n  updates = [9, 10, 11, 12]\n  output  = [1, 11, 3, 10, 9, 6, 7, 12]\n```\n\nExample 2:\n```\n  data    = [[[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n             [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n             [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n             [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]]\n  indices = [[0], [2]]\n  updates = [[[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n             [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]]]\n  output  = [[[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n             [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n             [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n             [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]]\n```\n",
+    "attributes": [
+      {
+        "name": "reduction",
+        "type": "string",
+        "required": false,
+        "default": "none",
+        "description": "Type of reduction to apply: none (default), add, mul, max, min. 'none': no reduction applied. 'add':  reduction using the addition operation. 'mul':  reduction using the addition operation. 'max': reduction using the maximum operation.'min': reduction using the minimum operation."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "data",
+        "type": "T",
+        "description": "Tensor of rank r >= 1."
+      },
+      {
+        "name": "indices",
+        "type": "tensor(int64)",
+        "description": "Tensor of rank q >= 1."
+      },
+      {
+        "name": "updates",
+        "type": "T",
+        "description": "Tensor of rank q + r - indices_shape[-1] - 1."
+      }
+    ],
+    "min_input": 3,
+    "max_input": 3,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T",
+        "description": "Tensor of rank r >= 1."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to any tensor type.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(bfloat16)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(string)",
+          "tensor(bool)",
+          "tensor(complex64)",
+          "tensor(complex128)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "scatternd",
+        "code": "node = onnx.helper.make_node(\n    \"ScatterND\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n)\ndata = np.array(\n    [\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n    ],\n    dtype=np.float32,\n)\nindices = np.array([[0], [2]], dtype=np.int64)\nupdates = np.array(\n    [\n        [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n        [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n    ],\n    dtype=np.float32,\n)\n# Expecting output as np.array(\n#    [[[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n#     [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n#     [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n#     [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]], dtype=np.float32)\noutput = scatter_nd_impl(data, indices, updates)\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[output],\n    name=\"test_scatternd\",\n)"
+      },
+      {
+        "summary": "scatternd_add",
+        "code": "node = onnx.helper.make_node(\n    \"ScatterND\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    reduction=\"add\",\n)\ndata = np.array(\n    [\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n    ],\n    dtype=np.float32,\n)\nindices = np.array([[0], [0]], dtype=np.int64)\nupdates = np.array(\n    [\n        [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n        [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n    ],\n    dtype=np.float32,\n)\n# Expecting output as np.array(\n#    [[[7, 8, 9, 10], [13, 14, 15, 16], [18, 17, 16, 15], [16, 15, 14, 13]],\n#     [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n#     [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n#     [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]], dtype=np.float32)\noutput = scatter_nd_impl(data, indices, updates, reduction=\"add\")\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[output],\n    name=\"test_scatternd_add\",\n)"
+      },
+      {
+        "summary": "scatternd_max",
+        "code": "node = onnx.helper.make_node(\n    \"ScatterND\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    reduction=\"max\",\n)\ndata = np.array(\n    [\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n    ],\n    dtype=np.float32,\n)\nindices = np.array([[0], [0]], dtype=np.int64)\nupdates = np.array(\n    [\n        [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n        [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n    ],\n    dtype=np.float32,\n)\n# Expecting output as np.array(\n#    [[[5, 5, 5, 5], [6, 6, 7, 8], [8, 7, 7, 7], [8, 8 ,8, 8]],\n#     [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n#     [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n#     [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]], dtype=np.float32)\noutput = scatter_nd_impl(data, indices, updates, reduction=\"max\")\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[output],\n    name=\"test_scatternd_max\",\n)"
+      },
+      {
+        "summary": "scatternd_min",
+        "code": "node = onnx.helper.make_node(\n    \"ScatterND\",\n    inputs=[\"data\", \"indices\", \"updates\"],\n    outputs=[\"y\"],\n    reduction=\"min\",\n)\ndata = np.array(\n    [\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n        [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]],\n    ],\n    dtype=np.float32,\n)\nindices = np.array([[0], [0]], dtype=np.int64)\nupdates = np.array(\n    [\n        [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n        [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n    ],\n    dtype=np.float32,\n)\n# Expecting output as np.array(\n#    [[[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 3, 2, 1]],\n#     [[1, 2, 3, 4], [5, 6, 7, 8], [8, 7, 6, 5], [4, 3, 2, 1]],\n#     [[1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3], [4, 4, 4, 4]],\n#     [[8, 7, 6, 5], [4, 3, 2, 1], [1, 2, 3, 4], [5, 6, 7, 8]]], dtype=np.float32)\noutput = scatter_nd_impl(data, indices, updates, reduction=\"min\")\nexpect(\n    node,\n    inputs=[data, indices, updates],\n    outputs=[output],\n    name=\"test_scatternd_min\",\n)"
       },
       {
         "summary": "scatternd_multiply",
