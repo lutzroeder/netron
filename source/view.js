@@ -92,6 +92,13 @@ view.View = class {
         this._page = page;
     }
 
+    progress(percent) {
+        const bar = this._getElementById('progress-bar');
+        if (bar) {
+            bar.style.width = percent.toString() + '%';
+        }
+    }
+
     cut() {
         this._host.document.execCommand('cut');
     }

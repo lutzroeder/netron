@@ -468,6 +468,11 @@ host.BrowserHost = class {
                 err.url = url;
                 reject(err);
             };
+            request.onprogress = (e) => {
+                if (e && e.lengthComputable) {
+                    this._view.progress(e.loaded / e.total * 100);
+                }
+            };
             request.open('GET', url, true);
             if (headers) {
                 for (const name of Object.keys(headers)) {
