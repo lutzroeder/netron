@@ -7,7 +7,7 @@ Netron is a viewer for neural network, deep learning and machine learning models
 
 Netron supports ONNX, TensorFlow Lite, Caffe, Keras, Darknet, PaddlePaddle, ncnn, MNN, Core ML, RKNN, MXNet, MindSpore Lite, TNN, Barracuda, Tengine, CNTK, TensorFlow.js, Caffe2 and UFF.
 
-Netron has experimental support for PyTorch, TensorFlow, TorchScript, OpenVINO, Torch, Vitis AI, kmodel, Arm NN, BigDL, Chainer, Deeplearning4j, MediaPipe, ML.NET and scikit-learn.
+Netron has experimental support for PyTorch, TensorFlow, TorchScript, OpenVINO, Torch, Vitis AI, kmodel, Arm NN, BigDL, Chainer, Deeplearning4j, MediaPipe, MegEngine, ML.NET and scikit-learn.
 
 <p align='center'><a href='https://www.lutzroeder.com/ai'><img src='.github/screenshot.png' width='800'></a></p>
 
@@ -34,3 +34,4 @@ Sample model files to download or open using the browser version:
  * **TorchScript**: [traced_online_pred_layer](https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/traced_online_pred_layer.pt) [[open](https://netron.app?url=https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/traced_online_pred_layer.pt)]
  * **Core ML**: [exermote](https://raw.githubusercontent.com/Lausbert/Exermote/master/ExermoteInference/ExermoteCoreML/ExermoteCoreML/Model/Exermote.mlmodel) [[open](https://netron.app?url=https://raw.githubusercontent.com/Lausbert/Exermote/master/ExermoteInference/ExermoteCoreML/ExermoteCoreML/Model/Exermote.mlmodel)]
  * **Darknet**: [yolo](https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolo.cfg) [[open](https://netron.app?url=https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolo.cfg)]
+ * **MegEngine**: [traced shufflenet](https://raw.githubusercontent.com/MegEngine/examples/main/netron_tracedmodule/traced_shufflenet.tm) [open](https://netron.app/?url=https://raw.githubusercontent.com/MegEngine/examples/main/netron_tracedmodule/traced_shufflenet.tm)
