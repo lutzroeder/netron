@@ -31,7 +31,7 @@ jobs:
       - name: Install npm packages 
         run: make install
 
-      - name: ESLint
+      - name: Lint
         run: make lint
 
       - name: Build Python Server
