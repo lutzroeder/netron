@@ -116,7 +116,7 @@ host.BrowserHost = class {
                     telemetry();
                 }
                 else {
-                    this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', 2000).then((text) => {
+                    this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', null, 2000).then((text) => {
                         try {
                             const json = JSON.parse(text);
                             const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
@@ -428,7 +428,7 @@ host.BrowserHost = class {
         }
     }
 
-    _request(url, headers, encoding, timeout) {
+    _request(url, headers, encoding, callback, timeout) {
         return new Promise((resolve, reject) => {
             const request = new XMLHttpRequest();
             if (!encoding) {
@@ -443,7 +443,13 @@ host.BrowserHost = class {
                 err.url = url;
                 return err;
             };
+            const progress = (value) => {
+                if (callback) {
+                    callback(value);
+                }
+            };
             request.onload = () => {
+                progress(0);
                 if (request.status == 200) {
                     if (request.responseType == 'arraybuffer') {
                         resolve(new host.BrowserHost.BinaryStream(new Uint8Array(request.response)));
@@ -457,11 +463,13 @@ host.BrowserHost = class {
                 }
             };
             request.onerror = (e) => {
+                progress(0);
                 const err = error(request.status);
                 err.type = e.type;
                 reject(err);
             };
             request.ontimeout = () => {
+                progress(0);
                 request.abort();
                 const err = new Error("The web request timed out in '" + url + "'.");
                 err.type = 'timeout';
@@ -470,7 +478,7 @@ host.BrowserHost = class {
             };
             request.onprogress = (e) => {
                 if (e && e.lengthComputable) {
-                    this._view.progress(e.loaded / e.total * 100);
+                    progress(e.loaded / e.total * 100);
                 }
             };
             request.open('GET', url, true);
@@ -501,7 +509,10 @@ host.BrowserHost = class {
     _openModel(url, identifier) {
         url = url + ((/\?/).test(url) ? '&' : '?') + 'cb=' + (new Date()).getTime();
         this._view.show('welcome spinner');
-        return this._request(url).then((stream) => {
+        const progress = (value) => {
+            this._view.progress(value);
+        };
+        return this._request(url, null, null, progress).then((stream) => {
             const context = new host.BrowserHost.BrowserContext(this, url, identifier, stream);
             return this._view.open(context).then(() => {
                 return identifier || context.identifier;
