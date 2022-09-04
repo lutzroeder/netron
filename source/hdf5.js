@@ -1,5 +1,5 @@
 
-// Experimental HDF5 JavaScript reader
+// Experimental HDF5 reader
 
 var hdf5 = hdf5 || {};
 var zip = zip || require('./zip');
