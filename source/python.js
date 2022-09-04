@@ -1829,7 +1829,7 @@ python.Execution = class {
                             this.kind = 'V';
                         }
                         else if (obj.startsWith('O')) {
-                            this.itemsize = parseInt(obj.substring(1), 10);
+                            this.itemsize = obj === 'O' ? 8 : parseInt(obj.substring(1), 10);
                             this.kind = 'O';
                         }
                         else if (obj.startsWith('S')) {
@@ -3449,6 +3449,9 @@ python.Execution = class {
             switch (dtype.byteorder) {
                 case '|': {
                     data = file.read();
+                    if (dtype.kind === 'O') {
+                        return python.Unpickler.open(data, execution).load();
+                    }
                     break;
                 }
                 case '>':
