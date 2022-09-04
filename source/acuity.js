@@ -276,16 +276,8 @@ acuity.Argument = class {
         return this._quantization;
     }
 
-    set quantization(quantization) {
-        this._quantization = quantization;
-    }
-
     get initializer() {
         return this._initializer;
-    }
-
-    set initializer(initializer) {
-        this._initializer = initializer;
     }
 };
 
@@ -306,10 +298,6 @@ acuity.TensorType = class {
 
     get shape() {
         return this._shape;
-    }
-
-    set shape(shape) {
-        this._shape = shape;
     }
 
     toString() {
