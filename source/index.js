@@ -492,18 +492,12 @@ host.BrowserHost = class {
     }
 
     _url(file) {
-        let url = file;
-        if (this.window && this.window.location && this.window.location.href) {
-            let location = this.window.location.href.split('?').shift();
-            if (location.endsWith('.html')) {
-                location = location.split('/').slice(0, -1).join('/');
-            }
-            if (location.endsWith('/')) {
-                location = location.slice(0, -1);
-            }
-            url = location + '/' + (file.startsWith('/') ? file.substring(1) : file);
-        }
-        return url;
+        file = file.startsWith('./') ? file.substring(2) : file;
+        const location = this.window.location;
+        const pathname = location.pathname.endsWith('/') ?
+            location.pathname :
+            location.pathname.split('/').slice(0, -1).join('/') + '/';
+        return location.protocol + '//' + location.host + pathname + file;
     }
 
     _openModel(url, identifier) {
