@@ -253,14 +253,9 @@ tengine.Attribute = class {
 
 tengine.Tensor = class {
 
-    constructor(type, data, kind) {
+    constructor(type, data) {
         this._type = type;
         this._data = data;
-        this._kind = kind;
-    }
-
-    get kind() {
-        return this._kind;
     }
 
     get type() {

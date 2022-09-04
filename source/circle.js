@@ -551,7 +551,7 @@ circle.Tensor = class {
         this._data = buffer.data.slice(0);
     }
 
-    get kind() {
+    get category() {
         return this._is_variable ? 'Variable' : '';
     }
 

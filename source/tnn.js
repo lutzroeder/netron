@@ -442,10 +442,9 @@ tnn.Tensor = class {
         this._data = data;
     }
 
-    get kind() {
+    get category() {
         return 'Weight';
     }
-
     get type() {
         return this._type;
     }

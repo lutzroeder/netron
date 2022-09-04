@@ -617,16 +617,13 @@ pytorch.Tensor = class {
     constructor(name, type, layout, data, littleEndian) {
         this._name = name || '';
         this._type = type;
-        this._layout = layout;
+        this._layout = (layout || '').split('.').pop().replace('_', '.');
         this._data = data;
         this._littleEndian = littleEndian;
     }
 
-    get kind() {
-        if (this._layout === 'torch.sparse_coo') {
-            return 'Sparse Tensor';
-        }
-        return 'Tensor';
+    get layout() {
+        return this._layout;
     }
 
     get name() {
@@ -666,7 +663,7 @@ pytorch.Tensor = class {
         context.index = 0;
         context.count = 0;
 
-        if (this._layout !== null && this._layout !== 'torch.strided') {
+        if (this._layout !== null && this._layout !== 'strided') {
             context.state = "Tensor layout '" + this._layout + "' is not supported.";
             return context;
         }

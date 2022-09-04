@@ -259,10 +259,6 @@ barracuda.Tensor = class {
         this._data = tensor.data;
     }
 
-    get kind() {
-        return '';
-    }
-
     get type() {
         return this._type;
     }

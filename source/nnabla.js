@@ -331,10 +331,6 @@ nnabla.Tensor = class {
         this._values = values;
     }
 
-    get kind() {
-        return this._kind;
-    }
-
     get name() {
         return this._name;
     }

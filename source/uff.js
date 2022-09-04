@@ -324,10 +324,6 @@ uff.Tensor = class {
         }
     }
 
-    get kind() {
-        return 'Const';
-    }
-
     get type() {
         return this._type;
     }

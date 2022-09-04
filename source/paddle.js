@@ -609,8 +609,8 @@ paddle.Tensor = class {
         this._kind = kind || '';
     }
 
-    get kind() {
-        return this._kind;
+    get category() {
+        return this._category;
     }
 
     get type() {

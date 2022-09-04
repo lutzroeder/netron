@@ -453,8 +453,8 @@ megengine.Tensor = class {
         this._data = tensor.data.data;
     }
 
-    get kind() {
-        return 'Tensor';
+    get category() {
+        return 'Weights';
     }
 
     get name() {

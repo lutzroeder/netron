@@ -1213,15 +1213,15 @@ coreml.Attribute = class {
 
 coreml.Tensor = class {
 
-    constructor(kind, type, data, quantization) {
-        this._kind = kind;
+    constructor(category, type, data, quantization) {
+        this._category = category;
         this._type = type;
         this._data = data;
         this._quantization = quantization;
     }
 
-    get kind() {
-        return this._kind;
+    get category() {
+        return this._category;
     }
 
     get type() {

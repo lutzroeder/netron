@@ -387,11 +387,15 @@ om.Argument = class {
 
 om.Tensor = class {
 
-    constructor(kind, type, value) {
+    constructor(category, type, value) {
         this._type = type;
         this._name = '';
-        this._kind = kind;
+        this._category = category;
         this._data = value;
+    }
+
+    get category() {
+        return this._category;
     }
 
     get name() {
@@ -400,14 +404,6 @@ om.Tensor = class {
 
     get type() {
         return this._type;
-    }
-
-    get kind() {
-        return this._kind;
-    }
-
-    set kind(value) {
-        this._kind = value;
     }
 
     get state() {

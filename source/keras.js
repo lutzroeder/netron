@@ -1035,10 +1035,6 @@ keras.Tensor = class {
         this._data = data;
     }
 
-    get kind() {
-        return 'Weights';
-    }
-
     get name() {
         return this._name;
     }

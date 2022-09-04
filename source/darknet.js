@@ -1010,8 +1010,8 @@ darknet.Tensor = class {
         this._data = data;
     }
 
-    get kind() {
-        return 'Tensor';
+    get category() {
+        return 'Weights';
     }
 
     get name() {

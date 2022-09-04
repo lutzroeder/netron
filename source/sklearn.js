@@ -349,7 +349,7 @@ sklearn.Tensor = class {
         return this._type;
     }
 
-    get kind() {
+    get category() {
         return 'NumPy Array';
     }
 

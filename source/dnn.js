@@ -307,8 +307,8 @@ dnn.Tensor = class {
         }
     }
 
-    get kind() {
-        return 'Weight';
+    get category() {
+        return 'Weights';
     }
 
     get type() {

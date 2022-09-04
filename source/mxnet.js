@@ -776,10 +776,6 @@ mxnet.Tensor = class {
         this._data = data;
     }
 
-    get kind() {
-        return 'Initializer';
-    }
-
     get name() {
         return this._name;
     }

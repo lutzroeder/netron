@@ -640,7 +640,7 @@ caffe.Tensor = class {
         this._type = new caffe.TensorType(dataType, new caffe.TensorShape(shape));
     }
 
-    get kind() {
+    get category() {
         return 'Blob';
     }
 

@@ -330,8 +330,8 @@ bigdl.Tensor = class {
         this._type = new bigdl.TensorType(tensor.datatype, new bigdl.TensorShape(tensor.size));
     }
 
-    get kind() {
-        return 'Parameter';
+    get category() {
+        return 'Weights';
     }
 
     get type() {

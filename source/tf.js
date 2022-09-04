@@ -1232,9 +1232,9 @@ tf.Attribute = class {
 
 tf.Tensor = class {
 
-    constructor(tensor, name, kind) {
+    constructor(tensor, name, category) {
         this._name = name;
-        this._kind = kind || null;
+        this._category = category || null;
         if (tensor) {
             this._type = new tf.TensorType(tensor.dtype, tensor.tensor_shape || tensor.tensorShape);
             this._tensor = tensor;
@@ -1318,12 +1318,8 @@ tf.Tensor = class {
         return this._type;
     }
 
-    get kind() {
-        return this._kind;
-    }
-
-    set kind(value) {
-        this._kind = value;
+    get category() {
+        return this._category;
     }
 
     get state() {

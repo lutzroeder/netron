@@ -368,14 +368,14 @@ mnn.Argument = class {
 
 mnn.Tensor = class {
 
-    constructor(kind, type, data) {
-        this._kind = kind;
+    constructor(category, type, data) {
+        this._category = category;
         this._type = type;
         this._data = data ? data.slice(0) : null;
     }
 
-    get kind() {
-        return this._kind;
+    get category() {
+        return this._category;
     }
 
     get type() {
@@ -569,7 +569,7 @@ mnn.Utility = class {
         return value.toString();
     }
 
-    static createTensor(param, kind) {
+    static createTensor(param, category) {
         const type = new mnn.TensorType(param.dataType, new mnn.TensorShape(param.dims), param.dataFormat);
         let data = null;
         switch (type.dataType) {
@@ -581,7 +581,7 @@ mnn.Utility = class {
             case 'float32': data = param.float32s; break;
             default: throw new mnn.Error("Unsupported blob data type '" + JSON.stringify(type.dataType) + "'.");
         }
-        return new mnn.Tensor(kind, type, data);
+        return new mnn.Tensor(category, type, data);
     }
 };
 

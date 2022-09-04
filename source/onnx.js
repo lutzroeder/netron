@@ -439,7 +439,7 @@ onnx.Graph = class {
         }
         for (const sparse_initializer of graph.sparse_initializer) {
             const tensor = context.tensor(sparse_initializer.values.name);
-            tensor.initializer = new onnx.Tensor(context, sparse_initializer, 'Sparse Initializer');
+            tensor.initializer = new onnx.Tensor(context, sparse_initializer, 'Initializer');
         }
         for (const tensor_annotation of graph.quantization_annotation || []) {
             const tensor = context.tensor(tensor_annotation.tensor_name);
@@ -804,8 +804,8 @@ onnx.Group = class {
 
 onnx.Tensor = class {
 
-    constructor(context, tensor, kind) {
-        this._kind = kind || null;
+    constructor(context, tensor, category) {
+        this._category = category || null;
         const data = (tensor) => {
             let data = undefined;
             if (tensor.data_location === onnx.DataLocation.DEFAULT) {
@@ -888,6 +888,7 @@ onnx.Tensor = class {
             this._name = tensor.values.name || '';
             this._type = context.createTensorType(tensor.values.data_type, tensor.dims.map((dim) => dim), null);
             this._location = Array.from(new Set([ context.createLocation(tensor.values.data_location), context.createLocation(tensor.indices.data_location) ])).join(':');
+            this._layout = 'sparse';
             this._values = data(tensor.values);
             this._indices = data(tensor.indices);
         }
@@ -903,8 +904,12 @@ onnx.Tensor = class {
         return this._name;
     }
 
-    get kind() {
-        return this._kind;
+    get category() {
+        return this._category;
+    }
+
+    get layout() {
+        return this._layout;
     }
 
     get type() {
@@ -1752,7 +1757,7 @@ onnx.GraphContext = class {
             }
             else if (attribute && attribute.name === 'sparse_value' && attribute.type === onnx.AttributeType.SPARSE_TENSOR && attribute.sparse_tensor) {
                 const tensor = this.tensor(node.output[0].name);
-                tensor.initializer = new onnx.Tensor(this, attribute.sparse_tensor, 'Sparse Constant');
+                tensor.initializer = new onnx.Tensor(this, attribute.sparse_tensor, 'Constant');
                 return false;
             }
             return true;

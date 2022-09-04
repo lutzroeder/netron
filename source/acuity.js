@@ -344,7 +344,7 @@ acuity.Tensor = class {
         this._type = type;
     }
 
-    get kind() {
+    get category() {
         return 'Constant';
     }
 

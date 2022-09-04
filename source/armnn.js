@@ -335,14 +335,14 @@ armnn.Argument = class {
 
 armnn.Tensor = class {
 
-    constructor(tensor, kind) {
+    constructor(tensor, category) {
         this._type = new armnn.TensorType(tensor.info);
         this._data = tensor.data.data.slice(0);
-        this._kind = kind ? kind : '';
+        this._category = category || '';
     }
 
-    get kind() {
-        return this._kind;
+    get category() {
+        return this._category;
     }
 
     get type() {

@@ -589,7 +589,7 @@ caffe2.Tensor = class {
         return this._type;
     }
 
-    get kind() {
+    get category() {
         return 'Initializer';
     }
 

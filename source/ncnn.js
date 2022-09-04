@@ -656,8 +656,8 @@ ncnn.Tensor = class {
         this._data = data;
     }
 
-    get kind() {
-        return 'Weight';
+    get category() {
+        return 'Weights';
     }
 
     get type() {

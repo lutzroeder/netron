@@ -358,11 +358,11 @@ xmodel.Tensor = class {
 
     constructor(node) {
         this._type = new xmodel.TensorType(node.output_tensor);
-        this._kind = node.op_type;
+        this._category = node.op_type;
     }
 
-    get kind() {
-        return this._kind;
+    get category() {
+        return this._category;
     }
 
     get type() {
