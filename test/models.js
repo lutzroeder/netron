@@ -665,6 +665,7 @@ const loadModel = (target, item) => {
                             argument.type.toString();
                         }
                         if (argument.initializer) {
+                            // console.log(argument.name);
                             argument.initializer.type.toString();
                             const log = (/* message */) => {
                                 // console.log('  ' + message);

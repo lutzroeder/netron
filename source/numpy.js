@@ -280,155 +280,18 @@ numpy.Tensor = class  {
         return this._byteorder;
     }
 
-    get state() {
-        return this._context().state;
-    }
-
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return numpy.Tensor._stringify(value, '', '    ');
-    }
-
-    _context() {
-        const context = {};
-        context.index = 0;
-        context.count = 0;
-        context.state = null;
-        if (this._byteorder !== '<' && this._byteorder !== '>' && this._type.dataType !== 'uint8' && this._type.dataType !== 'int8' && this._type.dataType !== 'object') {
-            context.state = 'Tensor byte order is not supported.';
-            return context;
-        }
-        if (!this._data || this._data.length == 0) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
+    get data() {
         switch (this._type.dataType) {
-            case 'object': {
-                context.itemSize = 1;
-                context.data = this._data;
-                break;
-            }
-            default: {
-                context.itemSize = this._itemsize;
-                context.rawData = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-                break;
-            }
+            case 'object': return null;
+            default: return this._data;
         }
-        context.dimensions = this._type.shape.dimensions;
-        context.dataType = this._type.dataType;
-        context.littleEndian = this._byteorder == '<';
-        context.data = this._data;
-        return context;
     }
 
-    _decode(context, dimension) {
-        const littleEndian = context.littleEndian;
-        const shape = context.dimensions.length == 0 ? [ 1 ] : context.dimensions;
-        const results = [];
-        const size = shape[dimension];
-        if (dimension == shape.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                switch (context.dataType) {
-                    case 'float16':
-                        results.push(context.rawData.getFloat16(context.index, littleEndian));
-                        break;
-                    case 'float32':
-                        results.push(context.rawData.getFloat32(context.index, littleEndian));
-                        break;
-                    case 'float64':
-                        results.push(context.rawData.getFloat64(context.index, littleEndian));
-                        break;
-                    case 'int8':
-                        results.push(context.rawData.getInt8(context.index, littleEndian));
-                        break;
-                    case 'int16':
-                        results.push(context.rawData.getInt16(context.index, littleEndian));
-                        break;
-                    case 'int32':
-                        results.push(context.rawData.getInt32(context.index, littleEndian));
-                        break;
-                    case 'int64':
-                        results.push(context.rawData.getInt64(context.index, littleEndian));
-                        break;
-                    case 'uint8':
-                        results.push(context.rawData.getUint8(context.index, littleEndian));
-                        break;
-                    case 'uint16':
-                        results.push(context.rawData.getUint16(context.index, littleEndian));
-                        break;
-                    case 'uint32':
-                        results.push(context.rawData.getUint32(context.index, littleEndian));
-                        break;
-                    case 'object':
-                        results.push(context.data[context.index]);
-                        break;
-                    default:
-                        throw new numpy.Error("Unsupported tensor data type '" + context.dataType + "'.");
-                }
-                context.index += context.itemSize;
-                context.count++;
-            }
+    get values() {
+        switch (this._type.dataType) {
+            case 'object': return this._data;
+            default: return null;
         }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        if (context.dimensions.length == 0) {
-            return results[0];
-        }
-        return results;
-    }
-
-    static _stringify(value, indentation, indent) {
-        if (Array.isArray(value)) {
-            const result = [];
-            result.push(indentation + '[');
-            const items = value.map((item) => numpy.Tensor._stringify(item, indentation + indent, indent));
-            if (items.length > 0) {
-                result.push(items.join(',\n'));
-            }
-            result.push(indentation + ']');
-            return result.join('\n');
-        }
-        if (typeof value == 'string') {
-            return indentation + value;
-        }
-        if (value == Infinity) {
-            return indentation + 'Infinity';
-        }
-        if (value == -Infinity) {
-            return indentation + '-Infinity';
-        }
-        if (isNaN(value)) {
-            return indentation + 'NaN';
-        }
-        if (value === null) {
-            return indentation + 'null';
-        }
-        return indentation + value.toString();
     }
 };
 

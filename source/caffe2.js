@@ -600,130 +600,18 @@ caffe2.Tensor = class {
         return null;
     }
 
-    get state() {
-        return this._context().state;
-    }
 
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return caffe2.Tensor._stringify(value, '', '    ');
-    }
-
-    _context() {
-        const context = {};
-        context.state = null;
-        context.index = 0;
-        context.count = 0;
-        if (!this._values) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-        if (this._values.floats === undefined) {
-            context.state = 'Tensor data is too large to load in Chrome.';
-            return context;
-        }
-        switch (this._type.dataType) {
-            case 'float32':
-                context.data = this._values.floats;
-                break;
-            case 'boolean':
-                context.data = this._values.ints;
-                break;
-            case 'int8':
-                context.data = new Int8Array(this._values.s);
-                break;
-            case 'int32':
-                context.data = this._values.ints;
-                break;
-            default:
-                context.state = 'Unknown data type.';
-                return context;
-        }
-        context.shape = this._type.shape.dimensions;
-        context.dataType = this._type.dataType;
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const results = [];
-        const size = context.shape[dimension];
-        if (dimension == context.shape.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                switch (context.dataType) {
-                    case 'float32':
-                        results.push(context.data[context.index]);
-                        break;
-                    case 'boolean':
-                        results.push(context.data[context.index] == 0 ? false : true);
-                        break;
-                    case 'int8':
-                        results.push(context.data[context.index]);
-                        break;
-                    case 'int32':
-                        results.push(context.data[context.index]);
-                        break;
-                    default:
-                        context.state = 'Unknown data type.';
-                        break;
-                }
-                context.index++;
-                context.count++;
+    get values() {
+        if (this._values) {
+            switch (this._type.dataType) {
+                case 'float32': return this._values.floats;
+                case 'boolean': return this._values.ints;
+                case 'int8': return new Int8Array(this._values.s);
+                case 'int32': return this._values.ints;
+                default: break;
             }
         }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        return results;
-    }
-
-    static _stringify(value, indentation, indent) {
-        if (Array.isArray(value)) {
-            const result = [];
-            result.push(indentation + '[');
-            const items = value.map((item) => caffe2.Tensor._stringify(item, indentation + indent, indent));
-            if (items.length > 0) {
-                result.push(items.join(',\n'));
-            }
-            result.push(indentation + ']');
-            return result.join('\n');
-        }
-        if (typeof value == 'string') {
-            return indentation + value;
-        }
-        if (value == Infinity) {
-            return indentation + 'Infinity';
-        }
-        if (value == -Infinity) {
-            return indentation + '-Infinity';
-        }
-        if (isNaN(value)) {
-            return indentation + 'NaN';
-        }
-        return indentation + value.toString();
+        return null;
     }
 };
 

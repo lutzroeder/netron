@@ -353,183 +353,45 @@ sklearn.Tensor = class {
         return 'NumPy Array';
     }
 
-    get state() {
-        return this._context().state || null;
+    get byteorder() {
+        return this._byteorder;
     }
 
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
+    get data() {
         switch (this._type.dataType) {
-            case 'int64':
-            case 'uint64':
-                return sklearn.Tensor._stringify(value, '', '    ');
-            default:
-                break;
-        }
-        return JSON.stringify(value, null, 4);
-    }
-
-    _context() {
-        const context = {};
-        context.index = 0;
-        context.count = 0;
-        context.state = null;
-
-        if (!this._type) {
-            context.state = 'Tensor has no data type.';
-            return context;
-        }
-        if (!this._data) {
-            context.state = 'Tensor is data is empty.';
-            return context;
-        }
-
-        context.dataType = this._type.dataType;
-        context.dimensions = this._type.shape.dimensions;
-
-        switch (context.dataType) {
-            case 'float32':
-            case 'float64':
-            case 'uint32':
-            case 'int8':
-            case 'int16':
-            case 'int32':
-            case 'int64':
-            case 'uint64':
-                context.view = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-                break;
-            case 'string':
-                context.data = this._data;
-                context.itemsize = this._itemsize;
-                context.decoder = new TextDecoder('utf-8');
-                break;
             case 'object':
-                context.data = this._data;
-                break;
+            case 'string':
+                return null;
             default:
-                context.state = "Tensor data type '" + context.dataType + "' is not implemented.";
-                return context;
+                return this._data;
         }
-
-        return context;
     }
 
-    _decode(context, dimension) {
-        const results = [];
-        const size = context.dimensions[dimension];
-        if (dimension == context.dimensions.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                switch (context.dataType) {
-                    case 'float32': {
-                        results.push(context.view.getFloat32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    }
-                    case 'float64': {
-                        results.push(context.view.getFloat64(context.index, true));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    }
-                    case 'int8': {
-                        results.push(context.view.getInt8(context.index, true));
-                        context.index += 1;
-                        context.count++;
-                        break;
-                    }
-                    case 'int16': {
-                        results.push(context.view.getInt16(context.index, true));
-                        context.index += 2;
-                        context.count++;
-                        break;
-                    }
-                    case 'int32': {
-                        results.push(context.view.getInt32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    }
-                    case 'int64': {
-                        results.push(context.view.getInt64(context.index, true));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    }
-                    case 'uint32': {
-                        results.push(context.view.getUint32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    }
-                    case 'uint64': {
-                        results.push(context.view.getUint64(context.index, true));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    }
-                    case 'string': {
-                        const buffer = context.data.subarray(context.index, context.index + context.itemsize);
+    get values() {
+        switch (this._type.dataType) {
+            case 'object': {
+                return this._data;
+            }
+            case 'string': {
+                if (this._data instanceof Uint8Array) {
+                    const data = this._data;
+                    const decoder = new TextDecoder('utf-8');
+                    const size = this._type.shape.dimensions.reduce((a, b) => a * b, 1);
+                    this._data = new Array(size);
+                    let offset = 0;
+                    for (let i = 0; i < size; i++) {
+                        const buffer = data.subarray(offset, offset + this._itemsize);
                         const index = buffer.indexOf(0);
-                        const content = context.decoder.decode(index >= 0 ? buffer.subarray(0, index) : buffer);
-                        results.push(content);
-                        context.index += context.itemsize;
-                        context.count++;
-                        break;
-                    }
-                    case 'object': {
-                        results.push(context.data[context.index++]);
-                        context.count++;
-                        break;
-                    }
-                    default: {
-                        throw new sklearn.Error("Unsupported tensor data type '" + context.dataType + "'.");
+                        this._data[i] = decoder.decode(index >= 0 ? buffer.subarray(0, index) : buffer);
+                        offset += this._itemsize;
                     }
                 }
+                return this._data;
+            }
+            default: {
+                return null;
             }
         }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        return results;
-    }
-
-    static _stringify(value, indentation, indent) {
-        if (Array.isArray(value)) {
-            const result = [];
-            result.push('[');
-            const items = value.map((item) => sklearn.Tensor._stringify(item, indentation + indent, indent));
-            if (items.length > 0) {
-                result.push(items.join(',\n'));
-            }
-            result.push(']');
-            return result.join('\n');
-        }
-        return indentation + value.toString();
     }
 };
 

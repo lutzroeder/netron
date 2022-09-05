@@ -1043,6 +1043,10 @@ keras.Tensor = class {
         return this._type;
     }
 
+    get byteorder() {
+        return this._littleEndian ? '<' : '>';
+    }
+
     get quantization() {
         if (this._quantization && (this._quantization.scale !== 0 || this._quantization.min !== 0)) {
             const scale = this._quantization.scale || 0;
@@ -1052,178 +1056,11 @@ keras.Tensor = class {
         return null;
     }
 
-    get state() {
-        if (Array.isArray(this._data)) {
-            return '';
-        }
-        return this._context().state;
-    }
-
-    get value() {
-        if (Array.isArray(this._data)) {
-            return this._data;
-        }
-        const context = this._context();
-        if (context.state) {
+    get data() {
+        if (Array.isArray(this._data) || this._data === null) {
             return null;
         }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        if (Array.isArray(this._data)) {
-            return keras.Tensor._stringify(this._data, '', '    ');
-        }
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return keras.Tensor._stringify(value, '', '    ');
-    }
-
-    _context() {
-        const context = {};
-        context.index = 0;
-        context.count = 0;
-        context.state = null;
-        if (!this._data) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-
-        try {
-            context.data = this._data instanceof Uint8Array ? this._data : this._data.peek();
-        }
-        catch (err) {
-            context.state = err.message;
-            return context;
-        }
-
-        switch (this._type.dataType) {
-            case 'boolean':
-            case 'float16':
-            case 'float32':
-            case 'float64':
-            case 'uint8':
-            case 'int8':
-            case 'int32':
-            case 'int64': {
-                context.dataType = this._type.dataType;
-                context.view = new DataView(context.data.buffer, context.data.byteOffset, context.data.byteLength);
-                context.littleEndian = this._littleEndian;
-                break;
-            }
-            case 'string':
-                context.dataType = this._type.dataType;
-                break;
-            default:
-                context.state = "Tensor data type '" + this._type.dataType + "' is not supported.";
-                break;
-        }
-
-        context.shape = this._type.shape.dimensions;
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const shape = context.shape.length !== 0 ? context.shape : [ 1 ];
-        const results = [];
-        const size = shape[dimension];
-        const littleEndian = context.littleEndian;
-        if (dimension == shape.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push(null);
-                    return results;
-                }
-                switch (context.dataType) {
-                    case 'float16':
-                        results.push(context.view.getFloat16(context.index, littleEndian));
-                        context.index += 2;
-                        break;
-                    case 'float32':
-                        results.push(context.view.getFloat32(context.index, littleEndian));
-                        context.index += 4;
-                        break;
-                    case 'float64':
-                        results.push(context.view.getFloat64(context.index, littleEndian));
-                        context.index += 8;
-                        break;
-                    case 'boolean':
-                        results.push(context.view.getInt8(context.index) !== 0);
-                        context.index += 1;
-                        break;
-                    case 'uint8':
-                        results.push(context.view.getUint8(context.index));
-                        context.index += 1;
-                        break;
-                    case 'int8':
-                        results.push(context.view.getInt8(context.index));
-                        context.index += 1;
-                        break;
-                    case 'int32':
-                        results.push(context.view.getInt32(context.index, littleEndian));
-                        context.index += 4;
-                        break;
-                    case 'int64':
-                        results.push(context.view.getInt64(context.index, littleEndian));
-                        context.index += 8;
-                        break;
-                    case 'string':
-                        results.push(context.view[context.index]);
-                        context.index++;
-                        break;
-                    default:
-                        throw new keras.Error("Unsupported tensor data type '" + context.dataType + "'.");
-                }
-                context.count++;
-            }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push(null);
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        if (context.shape.length == 0) {
-            return results[0];
-        }
-        return results;
-    }
-
-    static _stringify(value, indentation, indent) {
-        if (Array.isArray(value)) {
-            const result = [];
-            result.push(indentation + '[');
-            const items = value.map((item) => keras.Tensor._stringify(item, indentation + indent, indent));
-            if (items.length > 0) {
-                result.push(items.join(',\n'));
-            }
-            result.push(indentation + ']');
-            return result.join('\n');
-        }
-        if (value === null) {
-            return indentation + '...';
-        }
-        if (typeof value == 'string') {
-            return indentation + '"' + value + '"';
-        }
-        if (value == Infinity) {
-            return indentation + 'Infinity';
-        }
-        if (value == -Infinity) {
-            return indentation + '-Infinity';
-        }
-        if (isNaN(value)) {
-            return indentation + 'NaN';
-        }
-        return indentation + value.toString();
+        return this._data instanceof Uint8Array ? this._data : this._data.peek();
     }
 };
 

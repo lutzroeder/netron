@@ -1062,7 +1062,7 @@ view.Node = class extends grapher.Node {
                 let shape = '';
                 let separator = '';
                 if (type && type.shape && type.shape.dimensions && Array.isArray(type.shape.dimensions)) {
-                    shape = '\u3008' + type.shape.dimensions.map((d) => d ? d : '?').join('\u00D7') + '\u3009';
+                    shape = '\u3008' + type.shape.dimensions.map((d) => (d !== null && d !== undefined) ? d : '?').join('\u00D7') + '\u3009';
                     if (type.shape.dimensions.length === 0 && argument.initializer) {
                         try {
                             const initializer = argument.initializer;
@@ -1232,7 +1232,7 @@ view.Argument = class {
                     type.shape.dimensions &&
                     type.shape.dimensions.length > 0 &&
                     type.shape.dimensions.every((dim) => !dim || Number.isInteger(dim) || dim instanceof base.Int64 || (typeof dim === 'string'))) {
-                    content = type.shape.dimensions.map((dim) => dim || '?').join('\u00D7');
+                    content = type.shape.dimensions.map((dim) => (dim !== null && dim !== undefined) ? dim : '?').join('\u00D7');
                     content = content.length > 16 ? '' : content;
                 }
                 if (this.context.view.options.names) {

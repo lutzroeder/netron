@@ -1414,30 +1414,29 @@ sidebar.Tensor = class {
         if (Object.prototype.hasOwnProperty.call(Object.getPrototypeOf(tensor), 'data')) {
             if (!this._layout || this._layout === 'strided') {
                 this._data = this._tensor.data;
-                if (this._data !== null) {
+                if (this._data !== null && this._data !== undefined) {
                     this._format = 1;
+                    const byteorder = tensor.byteorder;
+                    if (!byteorder || byteorder === '<') {
+                        this._littleEndian = true;
+                    }
+                    else if (byteorder === '>') {
+                        this._littleEndian = false;
+                    }
+                    else {
+                        throw new Error("Unsupported tensor byte order '" + byteorder + "'.");
+                    }
                 }
             }
         }
         if (this._format === undefined && Object.prototype.hasOwnProperty.call(Object.getPrototypeOf(tensor), 'values')) {
             this._values = this._tensor.values;
-            if (this._values !== null) {
+            if (this._values !== null && this._values !== undefined) {
                 this._format = 2;
             }
         }
         if (this._format === undefined) {
             this._format = 0;
-        }
-
-        const byteorder = tensor.byteorder;
-        if (!byteorder || byteorder === '<') {
-            this._littleEndian = true;
-        }
-        else if (byteorder === '>') {
-            this._littleEndian = false;
-        }
-        else {
-            throw new Error("Unsupported tensor byte order '" + byteorder + "'.");
         }
 
         sidebar.Tensor.dataTypes = sidebar.Tensor.dataTypeSizes || new Map([
@@ -1516,8 +1515,6 @@ sidebar.Tensor = class {
 
     _context() {
         const context = {};
-        context.index = 0;
-        context.count = 0;
         if (this._layout && this._layout !== 'strided') {
             throw new Error("Tensor layout '" + this._layout + "' is not supported.");
         }
@@ -1526,7 +1523,7 @@ sidebar.Tensor = class {
         switch (this._format) {
             case 1: {
                 context.data = (this._data instanceof Uint8Array || this._data instanceof Int8Array) ? this._data : this._data.peek();
-                context.dataType = this._type.dataType;
+                context.dataType = dataType;
                 context.dimensions = this._type.shape.dimensions;
                 context.view = new DataView(context.data.buffer, context.data.byteOffset, context.data.byteLength);
                 if (!sidebar.Tensor.dataTypes.has(dataType)) {
@@ -1540,9 +1537,9 @@ sidebar.Tensor = class {
             }
             case 2: {
                 context.data = this._values;
-                context.dataType = this._type.dataType;
+                context.dataType = dataType;
                 context.dimensions = this._type.shape.dimensions;
-                if (!sidebar.Tensor.dataTypes.has(dataType) && dataType !== 'string') {
+                if (!sidebar.Tensor.dataTypes.has(dataType) && dataType !== 'string' && dataType !== 'object') {
                     throw new Error("Tensor data type '" + dataType + "' is not implemented.");
                 }
                 if (size !== this._values.length) {
@@ -1554,6 +1551,8 @@ sidebar.Tensor = class {
                 throw new sidebar.Tensor("Unsupported tensor format '" + this._format + "'.");
             }
         }
+        context.index = 0;
+        context.count = 0;
         return context;
     }
 
@@ -1561,96 +1560,98 @@ sidebar.Tensor = class {
         const results = [];
         const dimensions = (context.dimensions.length == 0) ? [ 1 ] : context.dimensions;
         const size = dimensions[dimension];
+        const dataType = context.dataType;
+        const view = context.view;
         if (dimension == dimensions.length - 1) {
             for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
                 }
-                switch (context.dataType) {
+                switch (dataType) {
                     case 'boolean':
-                        results.push(context.view.getUint8(context.index) === 0 ? false : true);
+                        results.push(view.getUint8(context.index) === 0 ? false : true);
                         context.index++;
                         context.count++;
                         break;
                     case 'qint8':
                     case 'int8':
-                        results.push(context.view.getInt8(context.index));
+                        results.push(view.getInt8(context.index));
                         context.index++;
                         context.count++;
                         break;
                     case 'qint16':
                     case 'int16':
-                        results.push(context.view.getInt16(context.index, this._littleEndian));
+                        results.push(view.getInt16(context.index, this._littleEndian));
                         context.index += 2;
                         context.count++;
                         break;
                     case 'qint32':
                     case 'int32':
-                        results.push(context.view.getInt32(context.index, this._littleEndian));
+                        results.push(view.getInt32(context.index, this._littleEndian));
                         context.index += 4;
                         context.count++;
                         break;
                     case 'int64':
-                        results.push(context.view.getInt64(context.index, this._littleEndian));
+                        results.push(view.getInt64(context.index, this._littleEndian));
                         context.index += 8;
                         context.count++;
                         break;
                     case 'quint8':
                     case 'uint8':
-                        results.push(context.view.getUint8(context.index));
+                        results.push(view.getUint8(context.index));
                         context.index++;
                         context.count++;
                         break;
                     case 'quint16':
                     case 'uint16':
-                        results.push(context.data.getUint16(context.index, true));
+                        results.push(view.getUint16(context.index, true));
                         context.index += 2;
                         context.count++;
                         break;
                     case 'quint32':
                     case 'uint32':
-                        results.push(context.data.getUint32(context.index, true));
+                        results.push(view.getUint32(context.index, true));
                         context.index += 4;
                         context.count++;
                         break;
                     case 'uint64':
-                        results.push(context.data.getUint64(context.index, true));
+                        results.push(view.getUint64(context.index, true));
                         context.index += 8;
                         context.count++;
                         break;
                     case 'float16':
-                        results.push(context.view.getFloat16(context.index, this._littleEndian));
+                        results.push(view.getFloat16(context.index, this._littleEndian));
                         context.index += 2;
                         context.count++;
                         break;
                     case 'float32':
-                        results.push(context.view.getFloat32(context.index, this._littleEndian));
+                        results.push(view.getFloat32(context.index, this._littleEndian));
                         context.index += 4;
                         context.count++;
                         break;
                     case 'float64':
-                        results.push(context.view.getFloat64(context.index, this._littleEndian));
+                        results.push(view.getFloat64(context.index, this._littleEndian));
                         context.index += 8;
                         context.count++;
                         break;
                     case 'bfloat16':
-                        results.push(context.view.getBfloat16(context.index, this._littleEndian));
+                        results.push(view.getBfloat16(context.index, this._littleEndian));
                         context.index += 2;
                         context.count++;
                         break;
                     case 'complex64':
-                        results.push(context.view.getComplex64(i << 3, this._littleEndian));
+                        results.push(view.getComplex64(i << 3, this._littleEndian));
                         context.index += 8;
                         context.count++;
                         break;
                     case 'complex128':
-                        results.push(context.view.getComplex128(i << 4, this._littleEndian));
+                        results.push(view.getComplex128(i << 4, this._littleEndian));
                         context.index += 16;
                         context.count++;
                         break;
                     default:
-                        throw new Error("Unsupported tensor data type '" + context.dataType + "'.");
+                        throw new Error("Unsupported tensor data type '" + dataType + "'.");
                 }
             }
         }
@@ -1673,13 +1674,21 @@ sidebar.Tensor = class {
         const results = [];
         const dimensions = (context.dimensions.length == 0) ? [ 1 ] : context.dimensions;
         const size = dimensions[dimension];
+        const dataType = context.dataType;
         if (dimension == dimensions.length - 1) {
             for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
                 }
-                results.push(context.data[context.index]);
+                switch (dataType) {
+                    case 'boolean':
+                        results.push(context.data[context.index] === 0 ? false : true);
+                        break;
+                    default:
+                        results.push(context.data[context.index]);
+                        break;
+                }
                 context.index++;
                 context.count++;
             }
@@ -1692,6 +1701,9 @@ sidebar.Tensor = class {
                 }
                 results.push(this._decodeValues(context, dimension + 1));
             }
+        }
+        if (context.dimensions.length == 0) {
+            return results[0];
         }
         return results;
     }
@@ -1714,7 +1726,7 @@ sidebar.Tensor = class {
             case 'boolean':
                 return indentation + value.toString();
             case 'string':
-                return indentation + value;
+                return indentation + ((value !== null && value !== undefined) ? ('"' + value + '"') : 'null');
             case 'number':
                 if (value == Infinity) {
                     return indentation + 'Infinity';
