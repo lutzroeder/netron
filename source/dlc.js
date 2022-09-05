@@ -353,8 +353,8 @@ dlc.Tensor = class {
     constructor(type, data) {
         this._type = type;
         switch (type.dataType) {
-            case 'uint8': this._data = data.bytes; break;
-            case 'float32': this._data = data.floats; break;
+            case 'uint8': this._values = data.bytes; break;
+            case 'float32': this._values = data.floats; break;
             default: throw new dlc.Error("Unsupported tensor data type '" + type.dataType + "'.");
         }
     }
@@ -363,63 +363,8 @@ dlc.Tensor = class {
         return this._type;
     }
 
-    get state() {
-        return this._context().state || null;
-    }
-
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return JSON.stringify(value, null, 4);
-    }
-
-    _context() {
-        const context = {};
-        context.state = null;
-        context.index = 0;
-        context.count = 0;
-        context.shape = this._type.shape.dimensions;
-        context.data = this._data;
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const results = [];
-        const size = context.shape[dimension];
-        if (dimension == context.shape.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(context.data[context.index]);
-                context.index++;
-                context.count++;
-            }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        return results;
+    get values() {
+        return this._values;
     }
 };
 

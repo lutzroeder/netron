@@ -665,8 +665,36 @@ const loadModel = (target, item) => {
                             argument.type.toString();
                         }
                         if (argument.initializer) {
-                            argument.initializer.toString();
                             argument.initializer.type.toString();
+                            const log = (/* message */) => {
+                                // console.log('  ' + message);
+                            };
+                            if (!Object.prototype.hasOwnProperty.call(Object.getPrototypeOf(argument.initializer), 'state')) {
+                                const tensor = new sidebar.Tensor(argument.initializer);
+                                if (tensor.layout !== '') {
+                                    log("Tensor layout '" + tensor.layout + "' is not implemented.");
+                                }
+                                else if (tensor.format === 0) {
+                                    log('Tensor data not implemented.');
+                                }
+                                else if (tensor.empty) {
+                                    log('Tensor data is empty.');
+                                }
+                                else if (tensor.type && tensor.type.dataType === '?') {
+                                    log('Tensor data type is not defined.');
+                                }
+                                else if (tensor.type && tensor.type.dataType === 'int4') {
+                                    log("Tensor data type 'int4' is not supported.");
+                                }
+                                else if (tensor.type && !tensor.type.shape) {
+                                    log('Tensor shape is not defined.');
+                                }
+                                else {
+                                    tensor.toString();
+                                    // tensor.value;
+                                }
+                            }
+
                             /*
                             const python = require('../source/python');
                             const tensor = argument.initializer;

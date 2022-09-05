@@ -337,18 +337,6 @@ bigdl.Tensor = class {
     get type() {
         return this._type;
     }
-
-    get state() {
-        return 'Tensor data not implemented.';
-    }
-
-    get value() {
-        return null;
-    }
-
-    toString() {
-        return '';
-    }
 };
 
 bigdl.TensorType = class {

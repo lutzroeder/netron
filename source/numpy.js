@@ -276,6 +276,10 @@ numpy.Tensor = class  {
         return this._type;
     }
 
+    get byteorder() {
+        return this._byteorder;
+    }
+
     get state() {
         return this._context().state;
     }

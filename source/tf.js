@@ -1353,7 +1353,7 @@ tf.Tensor = class {
         context.size = 1;
 
         if (!this._tensor) {
-            context.state = 'Tensor has content.';
+            context.state = 'Tensor data is empty.';
             return context;
         }
 
@@ -1389,7 +1389,7 @@ tf.Tensor = class {
                 case DataType.DT_INT64:
                 case DataType.DT_UINT64:
                     if (!this._buffer || this._buffer.length === 0) {
-                        context.state = 'Tensor has content.';
+                        context.state = 'Tensor data is empty.';
                         return context;
                     }
                     context.rawData = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
@@ -1406,12 +1406,12 @@ tf.Tensor = class {
                 context.data = new Array(context.size).fill(this._data[0]);
             }
             else {
-                context.state = "Tensor has no data.";
+                context.state = "Tensor data is empty.";
                 return context;
             }
         }
         else {
-            context.state = "Tensor has no data.";
+            context.state = "Tensor data is empty.";
             return context;
         }
 

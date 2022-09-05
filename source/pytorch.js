@@ -614,16 +614,13 @@ pytorch.Attribute = class {
 
 pytorch.Tensor = class {
 
-    constructor(name, type, layout, data, littleEndian) {
+    constructor(name, type, layout, stride, data, littleEndian) {
         this._name = name || '';
         this._type = type;
         this._layout = (layout || '').split('.').pop().replace('_', '.');
+        this._stride = stride;
         this._data = data;
         this._littleEndian = littleEndian;
-    }
-
-    get layout() {
-        return this._layout;
     }
 
     get name() {
@@ -634,208 +631,20 @@ pytorch.Tensor = class {
         return this._type;
     }
 
-    get state() {
-        return this._context().state;
+    get layout() {
+        return this._layout;
     }
 
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
+    get stride() {
+        return this._stride;
     }
 
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return pytorch.Tensor._stringify(value, '', '    ');
+    get byteorder() {
+        return this._littleEndian ? '<' : '>';
     }
 
-    _context() {
-        const context = {};
-        context.state = null;
-        context.index = 0;
-        context.count = 0;
-
-        if (this._layout !== null && this._layout !== 'strided') {
-            context.state = "Tensor layout '" + this._layout + "' is not supported.";
-            return context;
-        }
-        if (!this._type.dataType) {
-            context.state = 'Tensor has no data type.';
-            return context;
-        }
-        switch (this._type.dataType) {
-            case 'boolean':
-            case 'uint8':
-            case 'qint8':
-            case 'int8':
-            case 'int16':
-            case 'int32':
-            case 'int64':
-            case 'float16':
-            case 'float32':
-            case 'float64':
-            case 'bfloat16':
-            case 'complex64':
-            case 'complex128':
-                break;
-            default:
-                context.state = "Tensor data type '" + this._type.dataType + "' is not implemented.";
-                return context;
-        }
-        if (!this._type.shape) {
-            context.state = 'Tensor has no dimensions.';
-            return context;
-        }
-        if (!this._data) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-        try {
-            context.data = this._data instanceof Uint8Array ? this._data : this._data.peek();
-        }
-        catch (err) {
-            context.state = err.message;
-            return context;
-        }
-        context.dataType = this._type.dataType;
-        context.dimensions = this._type.shape.dimensions;
-        context.view = new DataView(context.data.buffer, context.data.byteOffset, context.data.byteLength);
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const results = [];
-        const dimensions = (context.dimensions.length == 0) ? [ 1 ] : context.dimensions;
-        const size = dimensions[dimension];
-        if (dimension == dimensions.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                switch (context.dataType) {
-                    case 'boolean':
-                        results.push(context.view.getUint8(context.index) === 0 ?  false : true);
-                        context.index++;
-                        context.count++;
-                        break;
-                    case 'uint8':
-                        results.push(context.view.getUint8(context.index));
-                        context.index++;
-                        context.count++;
-                        break;
-                    case 'qint8':
-                    case 'int8':
-                        results.push(context.view.getInt8(context.index));
-                        context.index++;
-                        context.count++;
-                        break;
-                    case 'int16':
-                        results.push(context.view.getInt16(context.index, this._littleEndian));
-                        context.index += 2;
-                        context.count++;
-                        break;
-                    case 'int32':
-                        results.push(context.view.getInt32(context.index, this._littleEndian));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    case 'int64':
-                        results.push(context.view.getInt64(context.index, this._littleEndian));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    case 'float16':
-                        results.push(context.view.getFloat16(context.index, this._littleEndian));
-                        context.index += 2;
-                        context.count++;
-                        break;
-                    case 'float32':
-                        results.push(context.view.getFloat32(context.index, this._littleEndian));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    case 'float64':
-                        results.push(context.view.getFloat64(context.index, this._littleEndian));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    case 'bfloat16':
-                        results.push(context.view.getBfloat16(context.index, this._littleEndian));
-                        context.index += 2;
-                        context.count++;
-                        break;
-                    case 'complex64':
-                        results.push(context.view.getComplex64(i << 3, this._littleEndian));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    case 'complex128':
-                        results.push(context.view.getComplex128(i << 4, this._littleEndian));
-                        context.index += 16;
-                        context.count++;
-                        break;
-                    default:
-                        throw new pytorch.Error("Unsupported tensor data type '" + context.dataType + "'.");
-                }
-            }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        if (context.dimensions.length == 0) {
-            return results[0];
-        }
-        return results;
-    }
-
-    static _stringify(value, indentation, indent) {
-        if (Array.isArray(value)) {
-            const result = [];
-            result.push(indentation + '[');
-            const items = value.map((item) => pytorch.Tensor._stringify(item, indentation + indent, indent));
-            if (items.length > 0) {
-                result.push(items.join(',\n'));
-            }
-            result.push(indentation + ']');
-            return result.join('\n');
-        }
-        switch (typeof value) {
-            case 'boolean':
-                return indentation + value.toString();
-            case 'string':
-                return indentation + value;
-            case 'number':
-                if (value == Infinity) {
-                    return indentation + 'Infinity';
-                }
-                if (value == -Infinity) {
-                    return indentation + '-Infinity';
-                }
-                if (isNaN(value)) {
-                    return indentation + 'NaN';
-                }
-                return indentation + value.toString();
-            default:
-                if (value && value.toString) {
-                    return indentation + value.toString();
-                }
-                return indentation + '(undefined)';
-        }
+    get data() {
+        return this._data instanceof Uint8Array ? this._data : this._data.peek();
     }
 };
 
@@ -924,7 +733,8 @@ pytorch.Execution = class extends python.Execution {
                 }
                 const tensors = state[1];
                 const opt_tensors = state[2];
-                const packed_config = pytorch.Utility.createTensor('', tensors[0], true).value;
+                const packed_config_tensor = pytorch.Utility.createTensor('', tensors[0], true);
+                const packed_config = pytorch.Utility.values(packed_config_tensor);
                 this.weight = tensors[1];
                 this.bias = opt_tensors[0];
                 this.stride = [ packed_config[1], packed_config[2] ];
@@ -942,7 +752,8 @@ pytorch.Execution = class extends python.Execution {
                 }
                 const tensors = state[1];
                 const opt_tensors = state[2];
-                const packed_config = pytorch.Utility.createTensor('', tensors[0], true).value;
+                const packed_config_tensor = pytorch.Utility.createTensor('', tensors[0], true);
+                const packed_config = pytorch.Utility.values(packed_config_tensor);
                 this.weight = tensors[1];
                 this.bias = opt_tensors[0];
                 this.stride = [ packed_config[1], packed_config[2] ];
@@ -2738,6 +2549,25 @@ pytorch.Utility = class {
         return null;
     }
 
+    static values(tensor) {
+        const type = tensor.type;
+        const data = tensor.data;
+        if (type && data) {
+            switch (type.dataType) {
+                case 'int16': {
+                    if (tensor.byteorder === '<') {
+                        return new Uint16Array(data);
+                    }
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+        }
+        throw new pytorch.Error("Tensor data type '" + type.dataType + "' not implemented.");
+    }
+
     static isTensor(obj) {
         const name = obj && obj.__class__ ? obj.__class__.__module__ : null;
         switch (name) {
@@ -2769,7 +2599,7 @@ pytorch.Utility = class {
         const size = tensor.size();
         const type = new pytorch.TensorType(storage.dtype.__reduce__(), new pytorch.TensorShape(size));
         const layout = tensor.layout ? tensor.layout.__str__() : null;
-        return new pytorch.Tensor(name || '', type, layout, storage.data, littleEndian);
+        return new pytorch.Tensor(name || '', type, layout, tensor.stride(), storage.data, littleEndian);
     }
 
     static getType(value) {
@@ -3534,7 +3364,7 @@ pytorch.nnapi.Argument = class {
         this._name = operand.index.toString();
         const shape = new pytorch.TensorShape(operand.dimensions);
         this._type = new pytorch.TensorType(operand.data_type.replace('[]', ''), shape);
-        this._initializer = operand.data ? new pytorch.Tensor(this._name, this._type, null, operand.data, true) : null;
+        this._initializer = operand.data ? new pytorch.Tensor(this._name, this._type, null, null, operand.data, true) : null;
         this._scale = operand.scale;
         this._zeroPoint = operand.zero_point;
     }

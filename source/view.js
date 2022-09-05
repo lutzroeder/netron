@@ -1063,13 +1063,28 @@ view.Node = class extends grapher.Node {
                 let separator = '';
                 if (type && type.shape && type.shape.dimensions && Array.isArray(type.shape.dimensions)) {
                     shape = '\u3008' + type.shape.dimensions.map((d) => d ? d : '?').join('\u00D7') + '\u3009';
-                    if (type.shape.dimensions.length === 0 && argument.initializer && !argument.initializer.state) {
+                    if (type.shape.dimensions.length === 0 && argument.initializer) {
                         try {
-                            shape = argument.initializer.toString();
-                            if (shape && shape.length > 10) {
-                                shape = shape.substring(0, 10) + '\u2026';
+                            const initializer = argument.initializer;
+                            if (Object.prototype.hasOwnProperty.call(Object.getPrototypeOf(initializer), 'state')) {
+                                if (!argument.initializer.state) {
+                                    shape = initializer.toString();
+                                    if (shape && shape.length > 10) {
+                                        shape = shape.substring(0, 10) + '\u2026';
+                                    }
+                                    separator = ' = ';
+                                }
                             }
-                            separator = ' = ';
+                            else {
+                                const tensor = new sidebar.Tensor(initializer);
+                                if (tensor.layout === '' && tensor.format && !tensor.empty && tensor.type.dataType !== '?') {
+                                    shape = tensor.toString();
+                                    if (shape && shape.length > 10) {
+                                        shape = shape.substring(0, 10) + '\u2026';
+                                    }
+                                    separator = ' = ';
+                                }
+                            }
                         }
                         catch (err) {
                             let type = '?';

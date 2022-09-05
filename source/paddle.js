@@ -603,10 +603,10 @@ paddle.Attribute = class {
 
 paddle.Tensor = class {
 
-    constructor(type, data, kind) {
+    constructor(type, data, category) {
         this._type = type;
         this._data = data;
-        this._kind = kind || '';
+        this._category = category || '';
     }
 
     get category() {
@@ -617,130 +617,8 @@ paddle.Tensor = class {
         return this._type;
     }
 
-    get state() {
-        return this._context().state || null;
-    }
-
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return paddle.Tensor._stringify(value, '', '    ');
-    }
-
-    _context() {
-        const context = {};
-        context.index = 0;
-        context.count = 0;
-        context.state = null;
-
-        if (!this._data) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-        if (!this._type) {
-            context.state = 'Tensor has no data type.';
-            return context;
-        }
-
-        context.dataType = this._type.dataType;
-        context.shape = this._type.shape.dimensions;
-        context.view = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-
-        switch (context.dataType) {
-            case 'float32':
-            case 'int32':
-            case 'int64':
-                break;
-            default:
-                context.state = "Tensor data type '" + context.dataType + "' is not implemented.";
-                break;
-        }
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const shape = context.shape.length !== 0 ? context.shape : [ 1 ];
-        const results = [];
-        const size = shape[dimension];
-        if (dimension == shape.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                switch (context.dataType) {
-                    case 'float32':
-                        results.push(context.view.getFloat32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    case 'int32':
-                        results.push(context.view.getInt32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    case 'int64':
-                        results.push(context.view.getInt64(context.index, true));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    default:
-                        throw new paddle.Error("Unsupported tensor data type '" + context.dataType + "'.");
-                }
-            }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        if (context.shape.length == 0) {
-            return results[0];
-        }
-        return results;
-    }
-
-    static _stringify(value, indentation, indent) {
-        if (Array.isArray(value)) {
-            const result = [];
-            result.push(indentation + '[');
-            const items = value.map((item) => paddle.Tensor._stringify(item, indentation + indent, indent));
-            if (items.length > 0) {
-                result.push(items.join(',\n'));
-            }
-            result.push(indentation + ']');
-            return result.join('\n');
-        }
-        if (typeof value == 'string') {
-            return indentation + value;
-        }
-        if (value == Infinity) {
-            return indentation + 'Infinity';
-        }
-        if (value == -Infinity) {
-            return indentation + '-Infinity';
-        }
-        if (isNaN(value)) {
-            return indentation + 'NaN';
-        }
-        return indentation + value.toString();
+    get data() {
+        return this._data;
     }
 };
 

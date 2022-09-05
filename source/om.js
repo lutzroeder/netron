@@ -389,7 +389,6 @@ om.Tensor = class {
 
     constructor(category, type, value) {
         this._type = type;
-        this._name = '';
         this._category = category;
         this._data = value;
     }
@@ -398,16 +397,8 @@ om.Tensor = class {
         return this._category;
     }
 
-    get name() {
-        return this._name;
-    }
-
     get type() {
         return this._type;
-    }
-
-    get state() {
-        return 'Tensor data not implemented.';
     }
 };
 

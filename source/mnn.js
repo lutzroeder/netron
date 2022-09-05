@@ -382,90 +382,31 @@ mnn.Tensor = class {
         return this._type;
     }
 
-    get state() {
-        return this._context().state;
-    }
-
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return JSON.stringify(value, null, 4);
-    }
-
-    _context() {
-        const context = {};
-        context.state = null;
-        if (!this._data || this._data.length === 0) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-        context.index = 0;
-        context.count = 0;
-        context.dataType = this._type.dataType;
-        context.dimensions = this._type.shape.dimensions;
-        switch (context.dataType) {
+    get data() {
+        const dataType = this._type.dataType;
+        switch (dataType) {
+            case 'int32':
+            case 'float32':
+                return null;
             case 'float16':
-                context.view = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-                break;
+                return this._data;
             default:
-                context.data = this._data;
-                break;
+                throw new mnn.Error("Unsupported data type '" + dataType + "'.");
         }
-        return context;
+
     }
 
-    _decode(context, dimension) {
-        let shape = context.dimensions;
-        if (shape.length == 0) {
-            shape = [ 1 ];
+    get values() {
+        const dataType = this._type.dataType;
+        switch (dataType) {
+            case 'int32':
+            case 'float32':
+                return this._data;
+            case 'float16':
+                return null;
+            default:
+                throw new mnn.Error("Unsupported data type '" + dataType + "'.");
         }
-        const results = [];
-        const size = shape[dimension];
-        if (dimension == shape.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                switch (context.dataType) {
-                    case 'float16':
-                        results.push(context.view.getFloat16(context.index, true));
-                        context.index += 2;
-                        break;
-                    default:
-                        results.push(context.data[context.index]);
-                        context.index++;
-                        break;
-                }
-                context.count++;
-            }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        if (context.dimensions.length == 0) {
-            return results[0];
-        }
-        return results;
     }
 };
 

@@ -772,10 +772,10 @@ openvino.Attribute = class {
 
 openvino.Tensor = class {
 
-    constructor(precision, shape, data, kind) {
-        this._data = data;
+    constructor(precision, shape, data, category) {
         this._type = new openvino.TensorType(precision, shape);
-        this._kind = kind;
+        this._data = data;
+        this._category = category;
     }
 
     get category() {
@@ -786,180 +786,8 @@ openvino.Tensor = class {
         return this._type;
     }
 
-    get state() {
-        return this._context().state;
-    }
-
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return openvino.Tensor._stringify(value, '', '    ');
-    }
-
-    _context() {
-        const context = {};
-        context.state = null;
-
-        if (!this._data) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-
-        if (!this._type.shape) {
-            context.state = 'Tensor shape is not defined.';
-            return context;
-        }
-
-        switch(this._type.dataType) {
-            case 'float16':
-            case 'float32':
-            case 'float64':
-            case 'int8':
-            case 'int16':
-            case 'int32':
-            case 'int64':
-            case 'uint8':
-            case 'uint16':
-            case 'uint32':
-            case 'uint64':
-                context.index = 0;
-                context.count = 0;
-                context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-                break;
-            default:
-                context.state = 'Tensor data type is not implemented.';
-                break;
-        }
-
-        context.dataType = this._type.dataType;
-        context.shape = this._type.shape.dimensions;
-
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const shape = context.shape.length == 0 ? [ 1 ] : context.shape;
-        const results = [];
-        const size = shape[dimension];
-        if (dimension == shape.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                switch (this._type.dataType) {
-                    case 'float16':
-                        results.push(context.data.getFloat16(context.index, true));
-                        context.index += 2;
-                        context.count++;
-                        break;
-                    case 'float32':
-                        results.push(context.data.getFloat32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    case 'float64':
-                        results.push(context.data.getFloat64(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    case 'int8':
-                        results.push(context.data.getInt8(context.index));
-                        context.index += 1;
-                        context.count++;
-                        break;
-                    case 'int16':
-                        results.push(context.data.getInt16(context.index, true));
-                        context.index += 2;
-                        context.count++;
-                        break;
-                    case 'int32':
-                        results.push(context.data.getInt32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    case 'int64':
-                        results.push(context.data.getInt64(context.index, true));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    case 'uint8':
-                        results.push(context.data.getUint8(context.index));
-                        context.index += 1;
-                        context.count++;
-                        break;
-                    case 'uint16':
-                        results.push(context.data.getUint16(context.index, true));
-                        context.index += 2;
-                        context.count++;
-                        break;
-                    case 'uint32':
-                        results.push(context.data.getUint32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    case 'uint64':
-                        results.push(context.data.getUint64(context.index, true));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    default:
-                        throw new openvino.Error("Unsupported tensor data type '" + this._type.dataType + "'.");
-                }
-            }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        if (context.shape.length == 0) {
-            return results[0];
-        }
-        return results;
-    }
-
-    static _stringify(value, indentation, indent) {
-        if (Array.isArray(value)) {
-            const result = [];
-            result.push(indentation + '[');
-            const items = value.map((item) => openvino.Tensor._stringify(item, indentation + indent, indent));
-            if (items.length > 0) {
-                result.push(items.join(',\n'));
-            }
-            result.push(indentation + ']');
-            return result.join('\n');
-        }
-        if (typeof value == 'string') {
-            return indentation + value;
-        }
-        if (value == Infinity) {
-            return indentation + 'Infinity';
-        }
-        if (value == -Infinity) {
-            return indentation + '-Infinity';
-        }
-        if (isNaN(value)) {
-            return indentation + 'NaN';
-        }
-        return indentation + value.toString();
+    get data() {
+        return this._data;
     }
 };
 
