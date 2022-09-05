@@ -218,6 +218,10 @@ flax.Tensor = class {
         return this._type;
     }
 
+    get byteorder() {
+        return this._byteorder;
+    }
+
     get state() {
         return this._context().state;
     }
@@ -246,7 +250,7 @@ flax.Tensor = class {
         context.index = 0;
         context.count = 0;
         context.state = null;
-        if (this._byteorder !== '<' && this._byteorder !== '>' && this._type.dataType !== 'uint8' && this._type.dataType !== 'int8') {
+        if (this._byteorder !== '<' && this._byteorder !== '>' && this._type.dataType !== 'uint8' && this._type.dataType !== 'int8' && this._type.dataType !== 'object') {
             context.state = 'Tensor byte order is not supported.';
             return context;
         }
@@ -254,12 +258,22 @@ flax.Tensor = class {
             context.state = 'Tensor data is empty.';
             return context;
         }
+        switch (this._type.dataType) {
+            case 'object': {
+                context.itemSize = 1;
+                context.data = this._data;
+                break;
+            }
+            default: {
+                context.itemSize = this._itemsize;
+                context.rawData = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+                break;
+            }
+        }
         context.itemSize = this._itemsize;
         context.dimensions = this._type.shape.dimensions;
         context.dataType = this._type.dataType;
         context.littleEndian = this._byteorder == '<';
-        context.data = this._data;
-        context.rawData = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
         return context;
     }
 
@@ -274,44 +288,45 @@ flax.Tensor = class {
                     results.push('...');
                     return results;
                 }
-                if (context.rawData) {
-                    switch (context.dataType) {
-                        case 'float16':
-                            results.push(context.rawData.getFloat16(context.index, littleEndian));
-                            break;
-                        case 'float32':
-                            results.push(context.rawData.getFloat32(context.index, littleEndian));
-                            break;
-                        case 'float64':
-                            results.push(context.rawData.getFloat64(context.index, littleEndian));
-                            break;
-                        case 'int8':
-                            results.push(context.rawData.getInt8(context.index, littleEndian));
-                            break;
-                        case 'int16':
-                            results.push(context.rawData.getInt16(context.index, littleEndian));
-                            break;
-                        case 'int32':
-                            results.push(context.rawData.getInt32(context.index, littleEndian));
-                            break;
-                        case 'int64':
-                            results.push(context.rawData.getInt64(context.index, littleEndian));
-                            break;
-                        case 'uint8':
-                            results.push(context.rawData.getUint8(context.index, littleEndian));
-                            break;
-                        case 'uint16':
-                            results.push(context.rawData.getUint16(context.index, littleEndian));
-                            break;
-                        case 'uint32':
-                            results.push(context.rawData.getUint32(context.index, littleEndian));
-                            break;
-                        default:
-                            throw new flax.Error("Unsupported tensor data type '" + context.dataType + "'.");
-                    }
-                    context.index += context.itemSize;
-                    context.count++;
+                switch (context.dataType) {
+                    case 'float16':
+                        results.push(context.rawData.getFloat16(context.index, littleEndian));
+                        break;
+                    case 'float32':
+                        results.push(context.rawData.getFloat32(context.index, littleEndian));
+                        break;
+                    case 'float64':
+                        results.push(context.rawData.getFloat64(context.index, littleEndian));
+                        break;
+                    case 'int8':
+                        results.push(context.rawData.getInt8(context.index, littleEndian));
+                        break;
+                    case 'int16':
+                        results.push(context.rawData.getInt16(context.index, littleEndian));
+                        break;
+                    case 'int32':
+                        results.push(context.rawData.getInt32(context.index, littleEndian));
+                        break;
+                    case 'int64':
+                        results.push(context.rawData.getInt64(context.index, littleEndian));
+                        break;
+                    case 'uint8':
+                        results.push(context.rawData.getUint8(context.index, littleEndian));
+                        break;
+                    case 'uint16':
+                        results.push(context.rawData.getUint16(context.index, littleEndian));
+                        break;
+                    case 'uint32':
+                        results.push(context.rawData.getUint32(context.index, littleEndian));
+                        break;
+                    case 'object':
+                        results.push(context.data[context.index]);
+                        break;
+                    default:
+                        throw new flax.Error("Unsupported tensor data type '" + context.dataType + "'.");
                 }
+                context.index += context.itemSize;
+                context.count++;
             }
         }
         else {

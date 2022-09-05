@@ -2705,6 +2705,7 @@
     "target":   "blazeface.mnn",
     "source":   "https://raw.githubusercontent.com/xindongzhang/MNN-APPLICATIONS/master/applications/blazeface/tensorflow/jni/blazeface.mnn",
     "format":   "MNN v2",
+    "error":    "Invalid tensor data length.",
     "link":     "https://github.com/xindongzhang/MNN-APPLICATIONS"
   },
   {
@@ -2719,6 +2720,7 @@
     "target":   "face_det.mnn",
     "source":   "https://raw.githubusercontent.com/xindongzhang/MNN-APPLICATIONS/master/applications/mssd/tflite/jni/face_det.mnn",
     "format":   "MNN v2",
+    "error":    "Invalid tensor data length.",
     "link":     "https://github.com/xindongzhang/MNN-APPLICATIONS"
   },
   {
@@ -2782,6 +2784,7 @@
     "target":   "tf_body_det.mnn",
     "source":   "https://raw.githubusercontent.com/xindongzhang/MNN-APPLICATIONS/master/applications/mssd/tensorflow/jni/tf_body_det.mnn",
     "format":   "MNN v2",
+    "error":    "Invalid tensor data length.",
     "link":     "https://github.com/xindongzhang/MNN-APPLICATIONS"
   },
   {
@@ -5007,7 +5010,7 @@
     "target":   "yolov5n.torchscript",
     "source":   "https://github.com/lutzroeder/netron/files/8457287/yolov5n.torchscript.zip[yolov5n.torchscript]",
     "format":   "TorchScript v1.6",
-    "error":    "Offset is outside the bounds of the DataView",
+    "error":    "Invalid tensor data size.",
     "link":     "https://github.com/lutzroeder/netron/issues/882"
   },
   {

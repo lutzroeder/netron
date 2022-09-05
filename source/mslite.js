@@ -320,138 +320,38 @@ mslite.Tensor = class {
         return this._type;
     }
 
-    get state() {
-        return this._context().state;
+    get data() {
+        switch (this._type.dataType) {
+            case 'string': return null;
+            default: return this._data;
+        }
     }
 
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return JSON.stringify(value, null, 4);
-    }
-
-    _context() {
-        const context = {};
-        context.state = null;
-        context.index = 0;
-        context.count = 0;
-
-        if (this._data == null || this._data.length === 0) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-
-        context.dataType = this._type.dataType;
-        context.shape = this._type.shape.dimensions;
-        context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-
-        if (this._type.dataType === 'string') {
-            let offset = 0;
-            const count = context.data.getInt32(0, true);
-            offset += 4;
-            const offsetTable = [];
-            for (let j = 0; j < count; j++) {
-                offsetTable.push(context.data.getInt32(offset, true));
+    get values() {
+        switch (this._type.dataType) {
+            case 'string': {
+                let offset = 0;
+                const data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+                const count = data.getInt32(0, true);
                 offset += 4;
-            }
-            offsetTable.push(this._data.length);
-            const stringTable = [];
-            const utf8Decoder = new TextDecoder('utf-8');
-            for (let k = 0; k < count; k++) {
-                const textArray = this._data.subarray(offsetTable[k], offsetTable[k + 1]);
-                stringTable.push(utf8Decoder.decode(textArray));
-            }
-            context.data = stringTable;
-        }
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const shape = (context.shape.length === 0) ? [ 1 ] : context.shape;
-        const size = shape[dimension];
-        const results = [];
-        if (dimension === shape.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
+                const offsetTable = [];
+                for (let j = 0; j < count; j++) {
+                    offsetTable.push(data.getInt32(offset, true));
+                    offset += 4;
                 }
-                switch (context.dataType) {
-                    case 'uint8':
-                        results.push(context.data.getUint8(context.index));
-                        context.index += 1;
-                        context.count++;
-                        break;
-                    case 'int8':
-                        results.push(context.data.getInt8(context.index));
-                        context.index += 1;
-                        context.count++;
-                        break;
-                    case 'int16':
-                        results.push(context.data.getInt16(context.index));
-                        context.index += 2;
-                        context.count++;
-                        break;
-                    case 'int32':
-                        results.push(context.data.getInt32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    case 'int64':
-                        results.push(context.data.getInt64(context.index, true));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    case 'float16':
-                        results.push(context.data.getFloat16(context.index, true));
-                        context.index += 2;
-                        context.count++;
-                        break;
-                    case 'float32':
-                        results.push(context.data.getFloat32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    case 'float64':
-                        results.push(context.data.getFloat64(context.index, true));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    case 'string':
-                        results.push(context.data[context.index++]);
-                        context.count++;
-                        break;
-                    default:
-                        break;
+                offsetTable.push(this._data.length);
+                const stringTable = [];
+                const utf8Decoder = new TextDecoder('utf-8');
+                for (let k = 0; k < count; k++) {
+                    const textArray = this._data.subarray(offsetTable[k], offsetTable[k + 1]);
+                    stringTable.push(utf8Decoder.decode(textArray));
                 }
+                return stringTable;
+            }
+            default: {
+                return null;
             }
         }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        if (context.shape.length === 0) {
-            return results[0];
-        }
-        return results;
     }
 };
 

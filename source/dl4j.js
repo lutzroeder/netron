@@ -404,10 +404,6 @@ dl4j.Tensor = class {
     get type() {
         return this._type;
     }
-
-    get state() {
-        return 'Tensor data not implemented.';
-    }
 };
 
 dl4j.TensorType = class {

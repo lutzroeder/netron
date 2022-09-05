@@ -339,14 +339,6 @@ acuity.Tensor = class {
     get type() {
         return this._type;
     }
-
-    get state() {
-        return 'Tensor data not implemented.';
-    }
-
-    toString() {
-        return '';
-    }
 };
 
 acuity.Inference = class {

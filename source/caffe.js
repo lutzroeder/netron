@@ -603,8 +603,6 @@ caffe.Attribute = class {
 caffe.Tensor = class {
 
     constructor(blob) {
-        this._blob = blob;
-
         let shape = [];
         if (Object.prototype.hasOwnProperty.call(blob, 'num') &&
             Object.prototype.hasOwnProperty.call(blob, 'channels') &&
@@ -630,11 +628,11 @@ caffe.Tensor = class {
         let dataType = '?';
         if (blob.data.length > 0) {
             dataType = 'float32';
-            this._data = blob.data;
+            this._values = blob.data;
         }
         else if (blob.double_data.length > 0) {
             dataType = 'float64';
-            this._data = blob.double_data;
+            this._values = blob.double_data;
         }
 
         this._type = new caffe.TensorType(dataType, new caffe.TensorShape(shape));
@@ -648,66 +646,8 @@ caffe.Tensor = class {
         return this._type;
     }
 
-    get state() {
-        return this._context().state;
-    }
-
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return JSON.stringify(value, null, 4);
-    }
-
-    _context() {
-        const context = {};
-        context.state = null;
-        context.index = 0;
-        context.count = 0;
-        context.data = this._data;
-        context.dimensions = this.type.shape.dimensions;
-        if (!this._data) {
-            context.state = 'Tensor data is empty.';
-        }
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const results = [];
-        const size = context.dimensions[dimension];
-        if (dimension == context.dimensions.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(context.data[context.index]);
-                context.index++;
-                context.count++;
-            }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        return results;
+    get values() {
+        return this._values;
     }
 };
 

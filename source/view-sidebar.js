@@ -651,47 +651,78 @@ sidebar.ArgumentView = class {
                 }
 
                 if (initializer) {
-
-                    const layout = initializer.layout;
-                    if (layout) {
-                        let value = '';
-                        switch (layout) {
-                            case 'sparse': value = 'Sparse'; break;
-                            case 'sparse.coo': value = 'Sparse COO'; break;
-                            case 'sparse.csr': value = 'Sparse CSR'; break;
-                            case 'sparse.csc': value = 'Sparse CSC'; break;
-                            case 'sparse.bsr': value = 'Sparse BSR'; break;
-                            case 'sparse.bsc': value = 'Sparse BSC'; break;
-                            default: value = ''; break;
-                        }
-                        if (value) {
-                            this._bold('layout', value);
-                        }
-                    }
-
                     const contentLine = this._host.document.createElement('pre');
-                    const valueLine = this._host.document.createElement('div');
                     try {
-                        const state = initializer.state;
-                        if (state === null && this._host.save &&
-                            initializer.type.dataType && initializer.type.dataType != '?' &&
-                            initializer.type.shape && initializer.type.shape.dimensions /*&& initializer.type.shape.dimensions.length > 0*/) {
-                            this._saveButton = this._host.document.createElement('div');
-                            this._saveButton.className = 'sidebar-view-item-value-expander';
-                            this._saveButton.innerHTML = '&#x1F4BE;';
-                            this._saveButton.addEventListener('click', () => {
-                                this._raise('export-tensor', initializer);
-                            });
-                            this._element.appendChild(this._saveButton);
+                        const tensor = new sidebar.Tensor(initializer);
+                        const layout = tensor.layout;
+                        if (layout) {
+                            this._bold('layout', layout);
                         }
 
-                        valueLine.className = 'sidebar-view-item-value-line-border';
-                        contentLine.innerHTML = state || initializer.toString();
+                        if (Object.prototype.hasOwnProperty.call(Object.getPrototypeOf(initializer), 'state')) {
+                            const state = initializer.state;
+                            if (state === null && this._host.save &&
+                                initializer.type.dataType && initializer.type.dataType != '?' &&
+                                initializer.type.shape && initializer.type.shape.dimensions &&
+                                initializer.type.shape.dimensions.length > 0) {
+                                this._saveButton = this._host.document.createElement('div');
+                                this._saveButton.className = 'sidebar-view-item-value-expander';
+                                this._saveButton.innerHTML = '&#x1F4BE;';
+                                this._saveButton.addEventListener('click', () => {
+                                    this._raise('export-tensor', initializer);
+                                });
+                                this._element.appendChild(this._saveButton);
+                            }
+                            contentLine.innerHTML = state || initializer.toString();
+                        }
+                        else {
+                            try {
+                                if (tensor.layout != '') {
+                                    contentLine.innerHTML = "Tensor layout '" + tensor.layout + "' is not implemented.";
+                                }
+                                else if (!tensor.format) {
+                                    contentLine.innerHTML = 'Tensor data not implemented.';
+                                }
+                                else if (tensor.empty) {
+                                    contentLine.innerHTML = 'Tensor data is empty.';
+                                }
+                                else if (tensor.type && tensor.type.dataType === '?') {
+                                    contentLine.innerHTML = 'Tensor data type is not defined.';
+                                }
+                                else if (tensor.type && tensor.type.dataType === 'int4') {
+                                    contentLine.innerHTML = "Tensor data type 'int4' is not supported.";
+                                }
+                                else if (tensor.type && !tensor.type.shape) {
+                                    contentLine.innerHTML = 'Tensor shape is not defined.';
+                                }
+                                else {
+                                    contentLine.innerHTML = tensor.toString();
+
+                                    if (this._host.save &&
+                                    initializer.type.shape && initializer.type.shape.dimensions &&
+                                    initializer.type.shape.dimensions.length > 0) {
+                                        this._saveButton = this._host.document.createElement('div');
+                                        this._saveButton.className = 'sidebar-view-item-value-expander';
+                                        this._saveButton.innerHTML = '&#x1F4BE;';
+                                        this._saveButton.addEventListener('click', () => {
+                                            this._raise('export-tensor', tensor);
+                                        });
+                                        this._element.appendChild(this._saveButton);
+                                    }
+                                }
+                            }
+                            catch (err) {
+                                contentLine.innerHTML = err.toString();
+                                this._raise('error', err);
+                            }
+                        }
                     }
                     catch (err) {
                         contentLine.innerHTML = err.toString();
                         this._raise('error', err);
                     }
+                    const valueLine = this._host.document.createElement('div');
+                    valueLine.className = 'sidebar-view-item-value-line-border';
                     valueLine.appendChild(contentLine);
                     this._element.appendChild(valueLine);
                 }
@@ -1368,6 +1399,339 @@ sidebar.FindSidebar = class {
 
     get content() {
         return this._contentElement;
+    }
+};
+
+sidebar.Tensor = class {
+
+    constructor(tensor) {
+        this._tensor = tensor;
+
+        this._type = tensor.type;
+        this._layout = tensor.layout;
+        this._stride = tensor.stride;
+
+        if (Object.prototype.hasOwnProperty.call(Object.getPrototypeOf(tensor), 'data')) {
+            if (!this._layout || this._layout === 'strided') {
+                this._data = this._tensor.data;
+                if (this._data !== null) {
+                    this._format = 1;
+                }
+            }
+        }
+        if (this._format === undefined && Object.prototype.hasOwnProperty.call(Object.getPrototypeOf(tensor), 'values')) {
+            this._values = this._tensor.values;
+            if (this._values !== null) {
+                this._format = 2;
+            }
+        }
+        if (this._format === undefined) {
+            this._format = 0;
+        }
+
+        const byteorder = tensor.byteorder;
+        if (!byteorder || byteorder === '<') {
+            this._littleEndian = true;
+        }
+        else if (byteorder === '>') {
+            this._littleEndian = false;
+        }
+        else {
+            throw new Error("Unsupported tensor byte order '" + byteorder + "'.");
+        }
+
+        sidebar.Tensor.dataTypes = sidebar.Tensor.dataTypeSizes || new Map([
+            [ 'boolean', 1 ],
+            [ 'qint8', 1 ], [ 'qint16', 2 ], [ 'qint32', 4 ],
+            [ 'quint8', 1 ], [ 'quint16', 2 ], [ 'quint32', 4 ],
+            [ 'int8', 1 ], [ 'int16', 2 ], [ 'int32', 4 ], [ 'int64', 8 ],
+            [ 'uint8', 1 ], [ 'uint16', 2 ], [ 'uint32', 4, ], [ 'uint64', 8 ],
+            [ 'float16', 2 ], [ 'float32', 4 ], [ 'float64', 8 ], [ 'bfloat16', 2 ],
+            [ 'complex64', 8 ], [ 'complex128', 15 ]
+        ]);
+    }
+
+    get type() {
+        return this._type;
+    }
+
+    get layout() {
+        switch (this._layout) {
+            case 'sparse': return 'Sparse';
+            case 'sparse.coo': return 'Sparse COO';
+            case 'sparse.csr': return 'Sparse CSR';
+            case 'sparse.csc': return 'Sparse CSC';
+            case 'sparse.bsr': return 'Sparse BSR';
+            case 'sparse.bsc': return 'Sparse BSC';
+            default: return '';
+        }
+    }
+
+    get stride() {
+        return this._stride;
+    }
+
+    get format() {
+        return this._format;
+    }
+
+    get empty() {
+        return (!(Array.isArray(this._data) || this._data instanceof Uint8Array || this._data instanceof Int8Array) || this._data.length === 0) &&
+               (!(Array.isArray(this._values) || ArrayBuffer.isView(this._values)) || this._values.length === 0);
+    }
+
+    get value() {
+        const context = this._context();
+        context.limit = Number.MAX_SAFE_INTEGER;
+        switch (this._format) {
+            case 1: {
+                return this._decodeData(context, 0);
+            }
+            case 2: {
+                return this._decodeValues(context, 0);
+            }
+            default: {
+                throw new Error("Unsupported tensor format '" + this._format + "'.");
+            }
+        }
+    }
+
+    toString() {
+        const context = this._context();
+        context.limit = 10000;
+        switch (this._format) {
+            case 1: {
+                const value = this._decodeData(context, 0);
+                return sidebar.Tensor._stringify(value, '', '    ');
+            }
+            case 2: {
+                const value = this._decodeValues(context, 0);
+                return sidebar.Tensor._stringify(value, '', '    ');
+            }
+            default: {
+                throw new Error("Unsupported tensor format '" + this._format + "'.");
+            }
+        }
+    }
+
+    _context() {
+        const context = {};
+        context.index = 0;
+        context.count = 0;
+        if (this._layout && this._layout !== 'strided') {
+            throw new Error("Tensor layout '" + this._layout + "' is not supported.");
+        }
+        const dataType = this._type.dataType;
+        const size = this._type.shape.dimensions.reduce((a, b) => a * b, 1);
+        switch (this._format) {
+            case 1: {
+                context.data = (this._data instanceof Uint8Array || this._data instanceof Int8Array) ? this._data : this._data.peek();
+                context.dataType = this._type.dataType;
+                context.dimensions = this._type.shape.dimensions;
+                context.view = new DataView(context.data.buffer, context.data.byteOffset, context.data.byteLength);
+                if (!sidebar.Tensor.dataTypes.has(dataType)) {
+                    throw new Error("Tensor data type '" + dataType + "' is not implemented.");
+                }
+                const itemsize = sidebar.Tensor.dataTypes.get(dataType);
+                if (this._data.length < (itemsize * size)) {
+                    throw new Error('Invalid tensor data size.');
+                }
+                break;
+            }
+            case 2: {
+                context.data = this._values;
+                context.dataType = this._type.dataType;
+                context.dimensions = this._type.shape.dimensions;
+                if (!sidebar.Tensor.dataTypes.has(dataType) && dataType !== 'string') {
+                    throw new Error("Tensor data type '" + dataType + "' is not implemented.");
+                }
+                if (size !== this._values.length) {
+                    throw new Error('Invalid tensor data length.');
+                }
+                break;
+            }
+            default: {
+                throw new sidebar.Tensor("Unsupported tensor format '" + this._format + "'.");
+            }
+        }
+        return context;
+    }
+
+    _decodeData(context, dimension) {
+        const results = [];
+        const dimensions = (context.dimensions.length == 0) ? [ 1 ] : context.dimensions;
+        const size = dimensions[dimension];
+        if (dimension == dimensions.length - 1) {
+            for (let i = 0; i < size; i++) {
+                if (context.count > context.limit) {
+                    results.push('...');
+                    return results;
+                }
+                switch (context.dataType) {
+                    case 'boolean':
+                        results.push(context.view.getUint8(context.index) === 0 ? false : true);
+                        context.index++;
+                        context.count++;
+                        break;
+                    case 'qint8':
+                    case 'int8':
+                        results.push(context.view.getInt8(context.index));
+                        context.index++;
+                        context.count++;
+                        break;
+                    case 'qint16':
+                    case 'int16':
+                        results.push(context.view.getInt16(context.index, this._littleEndian));
+                        context.index += 2;
+                        context.count++;
+                        break;
+                    case 'qint32':
+                    case 'int32':
+                        results.push(context.view.getInt32(context.index, this._littleEndian));
+                        context.index += 4;
+                        context.count++;
+                        break;
+                    case 'int64':
+                        results.push(context.view.getInt64(context.index, this._littleEndian));
+                        context.index += 8;
+                        context.count++;
+                        break;
+                    case 'quint8':
+                    case 'uint8':
+                        results.push(context.view.getUint8(context.index));
+                        context.index++;
+                        context.count++;
+                        break;
+                    case 'quint16':
+                    case 'uint16':
+                        results.push(context.data.getUint16(context.index, true));
+                        context.index += 2;
+                        context.count++;
+                        break;
+                    case 'quint32':
+                    case 'uint32':
+                        results.push(context.data.getUint32(context.index, true));
+                        context.index += 4;
+                        context.count++;
+                        break;
+                    case 'uint64':
+                        results.push(context.data.getUint64(context.index, true));
+                        context.index += 8;
+                        context.count++;
+                        break;
+                    case 'float16':
+                        results.push(context.view.getFloat16(context.index, this._littleEndian));
+                        context.index += 2;
+                        context.count++;
+                        break;
+                    case 'float32':
+                        results.push(context.view.getFloat32(context.index, this._littleEndian));
+                        context.index += 4;
+                        context.count++;
+                        break;
+                    case 'float64':
+                        results.push(context.view.getFloat64(context.index, this._littleEndian));
+                        context.index += 8;
+                        context.count++;
+                        break;
+                    case 'bfloat16':
+                        results.push(context.view.getBfloat16(context.index, this._littleEndian));
+                        context.index += 2;
+                        context.count++;
+                        break;
+                    case 'complex64':
+                        results.push(context.view.getComplex64(i << 3, this._littleEndian));
+                        context.index += 8;
+                        context.count++;
+                        break;
+                    case 'complex128':
+                        results.push(context.view.getComplex128(i << 4, this._littleEndian));
+                        context.index += 16;
+                        context.count++;
+                        break;
+                    default:
+                        throw new Error("Unsupported tensor data type '" + context.dataType + "'.");
+                }
+            }
+        }
+        else {
+            for (let j = 0; j < size; j++) {
+                if (context.count > context.limit) {
+                    results.push('...');
+                    return results;
+                }
+                results.push(this._decodeData(context, dimension + 1));
+            }
+        }
+        if (context.dimensions.length == 0) {
+            return results[0];
+        }
+        return results;
+    }
+
+    _decodeValues(context, dimension) {
+        const results = [];
+        const dimensions = (context.dimensions.length == 0) ? [ 1 ] : context.dimensions;
+        const size = dimensions[dimension];
+        if (dimension == dimensions.length - 1) {
+            for (let i = 0; i < size; i++) {
+                if (context.count > context.limit) {
+                    results.push('...');
+                    return results;
+                }
+                results.push(context.data[context.index]);
+                context.index++;
+                context.count++;
+            }
+        }
+        else {
+            for (let j = 0; j < size; j++) {
+                if (context.count > context.limit) {
+                    results.push('...');
+                    return results;
+                }
+                results.push(this._decodeValues(context, dimension + 1));
+            }
+        }
+        return results;
+    }
+
+    static _stringify(value, indentation, indent) {
+        if (Array.isArray(value)) {
+            const result = [];
+            result.push(indentation + '[');
+            const items = value.map((item) => sidebar.Tensor._stringify(item, indentation + indent, indent));
+            if (items.length > 0) {
+                result.push(items.join(',\n'));
+            }
+            result.push(indentation + ']');
+            return result.join('\n');
+        }
+        if (value === null) {
+            return indentation + 'null';
+        }
+        switch (typeof value) {
+            case 'boolean':
+                return indentation + value.toString();
+            case 'string':
+                return indentation + value;
+            case 'number':
+                if (value == Infinity) {
+                    return indentation + 'Infinity';
+                }
+                if (value == -Infinity) {
+                    return indentation + '-Infinity';
+                }
+                if (isNaN(value)) {
+                    return indentation + 'NaN';
+                }
+                return indentation + value.toString();
+            default:
+                if (value && value.toString) {
+                    return indentation + value.toString();
+                }
+                return indentation + '(undefined)';
+        }
     }
 };
 
@@ -2256,5 +2620,6 @@ if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.NodeSidebar = sidebar.NodeSidebar;
     module.exports.DocumentationSidebar = sidebar.DocumentationSidebar;
     module.exports.FindSidebar = sidebar.FindSidebar;
+    module.exports.Tensor = sidebar.Tensor;
     module.exports.Formatter = sidebar.Formatter;
 }
