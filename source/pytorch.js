@@ -3488,22 +3488,6 @@ pytorch.nnapi.Attribute = class {
     }
 };
 
-pytorch.nnapi.Tensor = class {
-
-    constructor(type, data) {
-        this._type = type;
-        this._data = data;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get state() {
-        return 'Not implemented.';
-    }
-};
-
 pytorch.Metadata = class {
 
     static open(context) {
