@@ -81,6 +81,7 @@
         "fileAssociations": [
             { "ext": "armnn",       "name": "Arm NN Model"             },
             { "ext": "caffemodel",  "name": "Caffe Model"              },
+            { "ext": "circle",      "name": "Circle Model"             },
             { "ext": "ckpt",        "name": "Model Checkpoint"         },
             { "ext": "cmf",         "name": "CNTK Model"               },
             { "ext": "dlc",         "name": "DLC Model"                },
