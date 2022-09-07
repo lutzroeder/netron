@@ -695,6 +695,9 @@ const loadModel = (target, item) => {
                                     // tensor.value;
                                 }
                             }
+                            else {
+                                argument.initializer.toString();
+                            }
 
                             /*
                             const python = require('../source/python');

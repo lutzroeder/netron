@@ -499,89 +499,18 @@ torch.Tensor = class {
         return this._type;
     }
 
-    get state() {
-        return this._context().state || null;
-    }
-
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
+    get values() {
+        if (this._type.shape.dimensions.length === 0) {
+            return [];
         }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 1000;
-        const value = this._decode(context, 0);
-        return JSON.stringify(value, null, 4);
-    }
-
-    _context() {
-        const context = {};
-        context.state = null;
-        context.index = 0;
-        context.count = 0;
-        if (!this._storage) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-        context.data = this._storage.data();
-        context.index = this._offset;
-        if (!context.data) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-        switch (this._type.dataType) {
-            case 'uint8':
-            case 'int8':
-            case 'int16':
-            case 'int32':
-            case 'int64':
-            case 'float32':
-            case 'float64':
-                break;
-            default:
-                context.state = 'Tensor data type is not implemented.';
-                break;
-        }
-        context.dimensions = this._type.shape.dimensions;
-        if (!context.dimensions && context.dimensions.length == 0) {
-            context.state =  'Tensor has no dimensions.';
-            return context;
-        }
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const results = [];
-        const size = context.dimensions[dimension];
-        if (dimension == context.dimensions.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(context.data[context.index]);
-                context.index++;
-                context.count++;
+        if (this._storage) {
+            const data = this._storage.data();
+            if (data) {
+                const size = this._type.shape.dimensions.reduce((a, b) => a * b, 1);
+                return data.slice(this._offset, this._offset + size);
             }
         }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        return results;
+        return null;
     }
 };
 

@@ -1280,6 +1280,7 @@ coreml.Tensor = class {
             return context;
         }
 
+
         switch (context.dataType) {
             case 'float32':
                 context.data = this._data;
