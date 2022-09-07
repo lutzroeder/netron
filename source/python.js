@@ -2195,6 +2195,8 @@ python.Execution = class {
         this.registerType('megengine.core._imperative_rt.common.CompNode', class {});
         this.registerType('megengine.core._imperative_rt.ops.FakeQuant', class {});
         this.registerType('megengine.core._imperative_rt.ops.GetVarShape', class {});
+        this.registerType('megengine.core.ops._internal.param_defs.ConvolutionV0.Mode', class {});
+        this.registerType('megengine.core.ops._internal.param_defs.Convolution.ComputeMode', class {});
         this.registerType('megengine.module.activation.ReLU', class {});
         this.registerType('megengine.module.batchnorm.BatchNorm1d', class {});
         this.registerType('megengine.module.batchnorm.BatchNorm2d', class {});
@@ -2203,9 +2205,11 @@ python.Execution = class {
         this.registerType('megengine.module.identity.Identity', class {});
         this.registerType('megengine.module.linear.Linear', class {});
         this.registerType('megengine.module.module.Module', class {});
+        this.registerType('megengine.module.pooling.AvgPool2d', class {});
         this.registerType('megengine.module.pooling.MaxPool2d', class {});
         this.registerType('megengine.module.qat.concat.Concat', class {});
         this.registerType('megengine.module.qat.elemwise.Elemwise', class {});
+        this.registerType('megengine.module.sequential.Sequential', class {});
         this.registerType('megengine.quantization.fake_quant.FakeQuantize', class {});
         this.registerType('megengine.quantization.utils.QParams', class {});
         this.registerType('megengine.quantization.utils.QuantMode', class {});
