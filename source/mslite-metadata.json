@@ -1559,6 +1559,9 @@
     ]
   },
   {
+    "name": "Log1p"
+  },
+  {
     "name": "LogGrad",
     "inputs": [
       { "name": "dy" },
