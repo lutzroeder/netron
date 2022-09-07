@@ -4504,6 +4504,24 @@
     ]
   },
   {
+    "name": "Erf",
+    "description": "Element-wise Error function.\n\n.. math::\n    y_i = \\text{erf} (x_i)",
+    "inputs": [
+      {
+        "name": "x",
+        "type": "nnabla.Variable",
+        "description": "N-D array"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "y",
+        "type": "nnabla.Variable",
+        "description": "N-D array with the same shape as x"
+      }
+    ]
+  },
+  {
     "name": "Concatenate",
     "description": "Concatenate a variable number of input arrays along the specified axis.",
     "inputs": [
