@@ -218,25 +218,18 @@ flax.Tensor = class {
         return this._type;
     }
 
-    get byteorder() {
-        return this._byteorder;
-    }
-
-    get data() {
+    get encoding() {
         switch (this._type.dataType) {
-            case 'object':
             case 'string':
-                return null;
+            case 'object':
+                return '|';
             default:
-                return this._data;
+                return this._byteorder;
         }
     }
 
     get values() {
         switch (this._type.dataType) {
-            case 'object': {
-                return this._data;
-            }
             case 'string': {
                 if (this._data instanceof Uint8Array) {
                     const data = this._data;
@@ -253,9 +246,11 @@ flax.Tensor = class {
                 }
                 return this._data;
             }
-            default: {
-                return null;
+            case 'object': {
+                return this._data;
             }
+            default:
+                return this._data;
         }
     }
 };

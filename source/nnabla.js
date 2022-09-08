@@ -331,6 +331,10 @@ nnabla.Tensor = class {
         return this._type;
     }
 
+    get encoding() {
+        return '|';
+    }
+
     get values() {
         const dataType = this._type.dataType;
         switch (dataType) {

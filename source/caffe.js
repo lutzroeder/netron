@@ -646,6 +646,10 @@ caffe.Tensor = class {
         return this._type;
     }
 
+    get encoding() {
+        return '|';
+    }
+
     get values() {
         return this._values;
     }

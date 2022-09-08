@@ -1043,7 +1043,7 @@ keras.Tensor = class {
         return this._type;
     }
 
-    get byteorder() {
+    get encoding() {
         return this._littleEndian ? '<' : '>';
     }
 
@@ -1056,7 +1056,7 @@ keras.Tensor = class {
         return null;
     }
 
-    get data() {
+    get values() {
         if (Array.isArray(this._data) || this._data === null) {
             return null;
         }

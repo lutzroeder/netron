@@ -664,7 +664,7 @@ ncnn.Tensor = class {
         return this._type;
     }
 
-    get data() {
+    get values() {
         return this._data;
     }
 };

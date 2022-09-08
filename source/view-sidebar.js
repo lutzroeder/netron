@@ -1406,39 +1406,48 @@ sidebar.Tensor = class {
 
     constructor(tensor) {
         this._tensor = tensor;
-
         this._type = tensor.type;
         this._layout = tensor.layout;
         this._stride = tensor.stride;
-
-        if (Object.prototype.hasOwnProperty.call(Object.getPrototypeOf(tensor), 'data')) {
-            if (!this._layout || this._layout === 'strided') {
-                this._data = this._tensor.data;
-                if (this._data !== null && this._data !== undefined) {
-                    this._format = 1;
-                    const byteorder = tensor.byteorder;
-                    if (!byteorder || byteorder === '<') {
+        switch (tensor.encoding) {
+            case undefined:
+            case '':
+            case '<': {
+                if (!this._layout || this._layout === 'strided') {
+                    this._data = this._tensor.values;
+                    if (this._data !== null && this._data !== undefined) {
+                        this._format = 1;
                         this._littleEndian = true;
                     }
-                    else if (byteorder === '>') {
+                }
+                break;
+            }
+            case '>': {
+                if (!this._layout || this._layout === 'strided') {
+                    this._data = this._tensor.values;
+                    if (this._data !== null && this._data !== undefined) {
+                        this._format = 1;
                         this._littleEndian = false;
                     }
-                    else {
-                        throw new Error("Unsupported tensor byte order '" + byteorder + "'.");
+                }
+                break;
+            }
+            case '|': {
+                if (!this._layout || this._layout === 'strided') {
+                    this._values = this._tensor.values;
+                    if (this._values !== null && this._values !== undefined) {
+                        this._format = 2;
                     }
                 }
+                break;
             }
-        }
-        if (this._format === undefined && Object.prototype.hasOwnProperty.call(Object.getPrototypeOf(tensor), 'values')) {
-            this._values = this._tensor.values;
-            if (this._values !== null && this._values !== undefined) {
-                this._format = 2;
+            default: {
+                throw new Error("Unsupported tensor encoding '" + tensor.encoding + "'.");
             }
         }
         if (this._format === undefined) {
             this._format = 0;
         }
-
         sidebar.Tensor.dataTypes = sidebar.Tensor.dataTypeSizes || new Map([
             [ 'boolean', 1 ],
             [ 'qint8', 1 ], [ 'qint16', 2 ], [ 'qint32', 4 ],

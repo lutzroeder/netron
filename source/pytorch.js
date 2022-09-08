@@ -639,11 +639,11 @@ pytorch.Tensor = class {
         return this._stride;
     }
 
-    get byteorder() {
+    get encoding() {
         return this._littleEndian ? '<' : '>';
     }
 
-    get data() {
+    get values() {
         return this._data instanceof Uint8Array ? this._data : this._data.peek();
     }
 };
@@ -2551,11 +2551,11 @@ pytorch.Utility = class {
 
     static values(tensor) {
         const type = tensor.type;
-        const data = tensor.data;
+        const data = tensor.values;
         if (type && data) {
             switch (type.dataType) {
                 case 'int16': {
-                    if (tensor.byteorder === '<') {
+                    if (tensor.encoding === '<') {
                         return new Uint16Array(data);
                     }
                     break;

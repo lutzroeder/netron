@@ -283,11 +283,11 @@ dnn.Tensor = class {
 
     constructor(weight, quantization) {
         const shape = new dnn.TensorShape([ weight.dim0, weight.dim1, weight.dim2, weight.dim3 ]);
-        this._data = quantization ? weight.quantized_data : weight.data;
+        this._values = quantization ? weight.quantized_data : weight.data;
 
         const size = shape.dimensions.reduce((a, b) => a * b, 1);
-        const itemSize = Math.floor(this._data.length / size);
-        const remainder = this._data.length - (itemSize * size);
+        const itemSize = Math.floor(this._values.length / size);
+        const remainder = this._values.length - (itemSize * size);
         if (remainder < 0 || remainder > itemSize) {
             throw new dnn.Error('Invalid tensor data size.');
         }
@@ -299,7 +299,7 @@ dnn.Tensor = class {
                 this._type = new dnn.TensorType('float16', shape);
                 break;
             case 4:
-                this._type = new dnn.TensorType('float16', shape);
+                this._type = new dnn.TensorType('float32', shape);
                 break;
             default:
                 this._type = new dnn.TensorType('?', shape);
@@ -315,8 +315,8 @@ dnn.Tensor = class {
         return this._type;
     }
 
-    get data() {
-        return this._data;
+    get values() {
+        return this._values;
     }
 };
 

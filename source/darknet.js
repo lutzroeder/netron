@@ -1007,7 +1007,7 @@ darknet.Tensor = class {
 
     constructor(type, data) {
         this._type = type;
-        this._data = data;
+        this._values = data;
     }
 
     get category() {
@@ -1022,8 +1022,8 @@ darknet.Tensor = class {
         return this._type;
     }
 
-    get data() {
-        return this._data;
+    get values() {
+        return this._values;
     }
 };
 

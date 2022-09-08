@@ -256,15 +256,15 @@ barracuda.Tensor = class {
 
     constructor(tensor) {
         this._type = new barracuda.TensorType(tensor.itemsize, new barracuda.TensorShape(tensor.shape));
-        this._data = tensor.data;
+        this._values = tensor.data;
     }
 
     get type() {
         return this._type;
     }
 
-    get data() {
-        return this._data;
+    get values() {
+        return this._values;
     }
 };
 

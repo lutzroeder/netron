@@ -382,30 +382,26 @@ mnn.Tensor = class {
         return this._type;
     }
 
-    get data() {
-        const dataType = this._type.dataType;
-        switch (dataType) {
+    get encoding() {
+        switch (this._type.dataType) {
             case 'int32':
             case 'float32':
-                return null;
+                return '|';
             case 'float16':
-                return this._data;
+                return '<';
             default:
-                throw new mnn.Error("Unsupported data type '" + dataType + "'.");
+                throw new mnn.Error("Unsupported data type '" + this._type.dataType + "'.");
         }
-
     }
 
     get values() {
-        const dataType = this._type.dataType;
-        switch (dataType) {
+        switch (this._type.dataType) {
             case 'int32':
             case 'float32':
-                return this._data;
             case 'float16':
-                return null;
+                return this._data;
             default:
-                throw new mnn.Error("Unsupported data type '" + dataType + "'.");
+                throw new mnn.Error("Unsupported data type '" + this._type.dataType + "'.");
         }
     }
 };

@@ -499,6 +499,10 @@ torch.Tensor = class {
         return this._type;
     }
 
+    get encoding() {
+        return '|';
+    }
+
     get values() {
         if (this._type.shape.dimensions.length === 0) {
             return [];

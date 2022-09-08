@@ -600,18 +600,21 @@ caffe2.Tensor = class {
         return null;
     }
 
+    get encoding() {
+        return '|';
+    }
 
     get values() {
-        if (this._values) {
-            switch (this._type.dataType) {
-                case 'float32': return this._values.floats;
-                case 'boolean': return this._values.ints;
-                case 'int8': return new Int8Array(this._values.s);
-                case 'int32': return this._values.ints;
-                default: break;
-            }
+        if (!this._values) {
+            return null;
         }
-        return null;
+        switch (this._type.dataType) {
+            case 'float32': return this._values.floats;
+            case 'boolean': return this._values.ints;
+            case 'int8': return new Int8Array(this._values.s);
+            case 'int32': return this._values.ints;
+            default: return null;
+        }
     }
 };
 

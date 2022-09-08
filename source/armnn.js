@@ -339,7 +339,7 @@ armnn.Tensor = class {
         this._type = new armnn.TensorType(tensor.info);
         this._category = category || '';
         const data = tensor.data.data.slice(0);
-        this._data = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+        this._values = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
     }
 
     get category() {
@@ -350,8 +350,8 @@ armnn.Tensor = class {
         return this._type;
     }
 
-    get data() {
-        return this._data;
+    get values() {
+        return this._values;
     }
 };
 

@@ -1322,13 +1322,13 @@ tf.Tensor = class {
         return this._category;
     }
 
-    get data() {
-        return this._buffer;
+    get encoding() {
+        return Array.isArray(this._values) ? '|' : '<';
     }
 
     get values() {
-        let values = this._values;
-        if (Array.isArray(values)) {
+        if (Array.isArray(this._values)) {
+            let values = this._values;
             if (this._type.dataType === 'string') {
                 values = values.map((value) => tf.Utility.decodeText(value));
             }
@@ -1339,7 +1339,7 @@ tf.Tensor = class {
             }
             return values;
         }
-        return null;
+        return this._buffer;
     }
 };
 

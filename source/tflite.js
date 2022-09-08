@@ -580,10 +580,10 @@ tflite.Tensor = class {
         return this._type;
     }
 
-    get data() {
+    get encoding() {
         switch (this._type.dataType) {
-            case 'string': return null;
-            default: return this._data;
+            case 'string': return '|';
+            default: return '<';
         }
     }
 
@@ -609,7 +609,7 @@ tflite.Tensor = class {
                 return stringTable;
             }
             default: {
-                return null;
+                return this._data;
             }
         }
     }

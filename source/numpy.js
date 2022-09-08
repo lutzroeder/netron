@@ -276,21 +276,39 @@ numpy.Tensor = class  {
         return this._type;
     }
 
-    get byteorder() {
-        return this._byteorder;
-    }
-
-    get data() {
+    get encoding() {
         switch (this._type.dataType) {
-            case 'object': return null;
-            default: return this._data;
+            case 'string':
+            case 'object':
+                return '|';
+            default:
+                return this._byteorder;
         }
     }
 
     get values() {
         switch (this._type.dataType) {
-            case 'object': return this._data;
-            default: return null;
+            case 'string': {
+                if (this._data instanceof Uint8Array) {
+                    const data = this._data;
+                    const decoder = new TextDecoder('utf-8');
+                    const size = this._type.shape.dimensions.reduce((a, b) => a * b, 1);
+                    this._data = new Array(size);
+                    let offset = 0;
+                    for (let i = 0; i < size; i++) {
+                        const buffer = data.subarray(offset, offset + this._itemsize);
+                        const index = buffer.indexOf(0);
+                        this._data[i] = decoder.decode(index >= 0 ? buffer.subarray(0, index) : buffer);
+                        offset += this._itemsize;
+                    }
+                }
+                return this._data;
+            }
+            case 'object': {
+                return this._data;
+            }
+            default:
+                return this._data;
         }
     }
 };
