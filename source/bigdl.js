@@ -58,15 +58,16 @@ bigdl.Graph = class {
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
-        this._loadModule(metadata, module);
+        const tensors = module.attr && module.attr.global_storage && module.attr.global_storage.nameAttrListValue && module.attr.global_storage.nameAttrListValue.attr ? module.attr.global_storage.nameAttrListValue.attr : {};
+        this._loadModule(metadata, module, tensors);
     }
 
-    _loadModule(metadata, module) {
+    _loadModule(metadata, module, tensors) {
         switch (module.moduleType) {
             case 'com.intel.analytics.bigdl.nn.StaticGraph':
             case 'com.intel.analytics.bigdl.nn.Sequential': {
                 for (const submodule of module.subModules) {
-                    this._loadModule(metadata, submodule);
+                    this._loadModule(metadata, submodule, tensors);
                 }
                 break;
             }
@@ -77,7 +78,7 @@ bigdl.Graph = class {
                 break;
             }
             default: {
-                this._nodes.push(new bigdl.Node(metadata, module));
+                this._nodes.push(new bigdl.Node(metadata, module, tensors));
                 break;
             }
         }
@@ -149,7 +150,7 @@ bigdl.Argument = class {
 
 bigdl.Node = class {
 
-    constructor(metadata, module) {
+    constructor(metadata, module, tensors) {
         const type = module.moduleType;
         this._name = module.name;
         this._attributes = [];
@@ -162,13 +163,13 @@ bigdl.Node = class {
         if (module.weight) {
             inputs.shift();
             this._inputs.push(new bigdl.Parameter('weight', [
-                new bigdl.Argument('', null, new bigdl.Tensor(module.weight))
+                new bigdl.Argument('', null, new bigdl.Tensor(module.weight, tensors))
             ]));
         }
         if (module.bias) {
             inputs.shift();
             this._inputs.push(new bigdl.Parameter('bias', [
-                new bigdl.Argument('', null, new bigdl.Tensor(module.bias))
+                new bigdl.Argument('', null, new bigdl.Tensor(module.bias, tensors))
             ]));
         }
         if (module.parameters && module.parameters.length > 0) {
@@ -176,7 +177,7 @@ bigdl.Node = class {
                 const input = inputs.shift();
                 const inputName = input ? input.name : this._inputs.length.toString();
                 this._inputs.push(new bigdl.Parameter(inputName, [
-                    new bigdl.Argument('', null, new bigdl.Tensor(parameter))
+                    new bigdl.Argument('', null, new bigdl.Tensor(parameter, tensors))
                 ]));
             }
         }
@@ -187,7 +188,7 @@ bigdl.Node = class {
             }
             if (value.dataType === bigdl.proto.DataType.TENSOR) {
                 if (value.value) {
-                    this._inputs.push(new bigdl.Parameter(key, [ new bigdl.Argument('', null, new bigdl.Tensor(value.tensorValue)) ]));
+                    this._inputs.push(new bigdl.Parameter(key, [ new bigdl.Argument('', null, new bigdl.Tensor(value.tensorValue, tensors)) ]));
                 }
                 continue;
             }
@@ -195,7 +196,7 @@ bigdl.Node = class {
                 continue;
             }
             if (value.dataType === bigdl.proto.DataType.ARRAY_VALUE && value.arrayValue.datatype === bigdl.proto.DataType.TENSOR) {
-                this._inputs.push(new bigdl.Parameter(key, value.arrayValue.tensor.map((tensor) => new bigdl.Argument('', null, new bigdl.Tensor(tensor)))));
+                this._inputs.push(new bigdl.Parameter(key, value.arrayValue.tensor.map((tensor) => new bigdl.Argument('', null, new bigdl.Tensor(tensor, tensors)))));
                 continue;
             }
             this._attributes.push(new bigdl.Attribute(key, value));
@@ -326,8 +327,27 @@ bigdl.Attribute = class {
 
 bigdl.Tensor = class {
 
-    constructor(tensor) {
+    constructor(tensor /*, tensors */) {
         this._type = new bigdl.TensorType(tensor.datatype, new bigdl.TensorShape(tensor.size));
+        /*
+        if (tensor && tensor.id && tensors && tensors[tensor.id] && tensors[tensor.id].tensorValue && tensors[tensor.id].tensorValue.storage) {
+            const storage = tensors[tensor.id].tensorValue.storage;
+            switch (this._type.dataType) {
+                case 'float32':
+                    if (storage.bytes_data && storage.bytes_data.length > 0) {
+                        this._values = storage.bytes_data[0];
+                        this._layout = '<';
+                    }
+                    else if (storage.float_data && storage.float_data.length > 0) {
+                        this._values = storage.float_data;
+                        this._layout = '|';
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        */
     }
 
     get category() {
@@ -336,6 +356,14 @@ bigdl.Tensor = class {
 
     get type() {
         return this._type;
+    }
+
+    get layout() {
+        return this._layout;
+    }
+
+    get values() {
+        return this._values;
     }
 };
 

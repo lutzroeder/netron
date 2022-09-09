@@ -984,29 +984,29 @@ coreml.Graph = class {
             case 'uniDirectionalLSTM':
             case 'biDirectionalLSTM': {
                 const count = (type == 'uniDirectionalLSTM') ? 1 : 2;
-                const matrixShape = [ data.outputVectorSize, data.inputVectorSize ];
-                const vectorShape = [ data.outputVectorSize ];
+                const h = data.outputVectorSize;
+                const x = data.inputVectorSize;
                 for (let i = 0; i < count; i++) {
                     const weights = count == 1 ? data.weightParams : data.weightParams[i];
                     const suffix = (i == 0) ? '' : '_rev';
-                    this._initializer(type, initializers, 'Weights', 'inputGateWeightMatrix' + suffix, matrixShape, weights.inputGateWeightMatrix);
-                    this._initializer(type, initializers, 'Weights', 'forgetGateWeightMatrix' + suffix, matrixShape, weights.forgetGateWeightMatrix);
-                    this._initializer(type, initializers, 'Weights', 'blockInputWeightMatrix' + suffix, matrixShape, weights.blockInputWeightMatrix);
-                    this._initializer(type, initializers, 'Weights', 'outputGateWeightMatrix' + suffix, matrixShape, weights.outputGateWeightMatrix);
-                    this._initializer(type, initializers, 'Weights', 'inputGateRecursionMatrix' + suffix, matrixShape, weights.inputGateRecursionMatrix);
-                    this._initializer(type, initializers, 'Weights', 'forgetGateRecursionMatrix' + suffix, matrixShape,weights.forgetGateRecursionMatrix);
-                    this._initializer(type, initializers, 'Weights', 'blockInputRecursionMatrix' + suffix, matrixShape, weights.blockInputRecursionMatrix);
-                    this._initializer(type, initializers, 'Weights', 'outputGateRecursionMatrix' + suffix, matrixShape, weights.outputGateRecursionMatrix);
+                    this._initializer(type, initializers, 'Weights', 'inputGateWeightMatrix' + suffix, [h,x], weights.inputGateWeightMatrix);
+                    this._initializer(type, initializers, 'Weights', 'forgetGateWeightMatrix' + suffix, [h,x], weights.forgetGateWeightMatrix);
+                    this._initializer(type, initializers, 'Weights', 'blockInputWeightMatrix' + suffix, [h,x], weights.blockInputWeightMatrix);
+                    this._initializer(type, initializers, 'Weights', 'outputGateWeightMatrix' + suffix, [h,x], weights.outputGateWeightMatrix);
+                    this._initializer(type, initializers, 'Weights', 'inputGateRecursionMatrix' + suffix, [h,h], weights.inputGateRecursionMatrix);
+                    this._initializer(type, initializers, 'Weights', 'forgetGateRecursionMatrix' + suffix, [h,h],weights.forgetGateRecursionMatrix);
+                    this._initializer(type, initializers, 'Weights', 'blockInputRecursionMatrix' + suffix, [h,h], weights.blockInputRecursionMatrix);
+                    this._initializer(type, initializers, 'Weights', 'outputGateRecursionMatrix' + suffix, [h,h], weights.outputGateRecursionMatrix);
                     if (data.params.hasBiasVectors) {
-                        this._initializer(type, initializers, 'Weights', 'inputGateBiasVector' + suffix, vectorShape, weights.inputGateBiasVector);
-                        this._initializer(type, initializers, 'Weights', 'forgetGateBiasVector' + suffix, vectorShape, weights.forgetGateBiasVector);
-                        this._initializer(type, initializers, 'Weights', 'blockInputBiasVector' + suffix, vectorShape, weights.blockInputBiasVector);
-                        this._initializer(type, initializers, 'Weights', 'outputGateBiasVector' + suffix, vectorShape, weights.outputGateBiasVector);
+                        this._initializer(type, initializers, 'Weights', 'inputGateBiasVector' + suffix, [h], weights.inputGateBiasVector);
+                        this._initializer(type, initializers, 'Weights', 'forgetGateBiasVector' + suffix, [h], weights.forgetGateBiasVector);
+                        this._initializer(type, initializers, 'Weights', 'blockInputBiasVector' + suffix, [h], weights.blockInputBiasVector);
+                        this._initializer(type, initializers, 'Weights', 'outputGateBiasVector' + suffix, [h], weights.outputGateBiasVector);
                     }
                     if (data.params.hasPeepholeVectors) {
-                        this._initializer(type, initializers, 'Weights', 'inputGatePeepholeVector' + suffix, vectorShape, weights.inputGatePeepholeVector);
-                        this._initializer(type, initializers, 'Weights', 'forgetGatePeepholeVector' + suffix, vectorShape, weights.forgetGatePeepholeVector);
-                        this._initializer(type, initializers, 'Weights', 'outputGatePeepholeVector' + suffix, vectorShape, weights.outputGatePeepholeVector);
+                        this._initializer(type, initializers, 'Weights', 'inputGatePeepholeVector' + suffix, [h], weights.inputGatePeepholeVector);
+                        this._initializer(type, initializers, 'Weights', 'forgetGatePeepholeVector' + suffix, [h], weights.forgetGatePeepholeVector);
+                        this._initializer(type, initializers, 'Weights', 'outputGatePeepholeVector' + suffix, [h], weights.outputGatePeepholeVector);
                     }
                 }
                 return { 'weightParams': true };
@@ -1244,110 +1244,15 @@ coreml.Tensor = class {
         return null;
     }
 
-    get state() {
-        return this._context().state;
+    get layout() {
+        switch (this._type.dataType) {
+            case 'float32': return '|';
+            default: return '<';
+        }
     }
 
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return JSON.stringify(value, null, 4);
-    }
-
-    _context() {
-        const context = {};
-        context.state = null;
-        context.index = 0;
-        context.count = 0;
-        context.dataType = this._type.dataType;
-        context.dimensions = this._type.shape.dimensions;
-
-        if (!this._data) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-
-
-        switch (context.dataType) {
-            case 'float32':
-                context.data = this._data;
-                break;
-            case 'float16':
-                context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-                break;
-            case 'uint8':
-                context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-                break;
-            default:
-                if (this._quantization) {
-                    context.dataType = 'quantization';
-                    context.bits = this._quantization.numberOfBits.toNumber();
-                    context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-                }
-                else {
-                    context.state = 'Tensor data type is not implemented.';
-                }
-                break;
-        }
-
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const results = [];
-        const size = context.dimensions[dimension];
-        if (dimension == context.dimensions.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                switch (context.dataType) {
-                    case 'float32':
-                        results.push(this._data[context.index]);
-                        context.index++;
-                        break;
-                    case 'float16':
-                        results.push(context.data.getFloat16(context.index, true));
-                        context.index += 2;
-                        break;
-                    case 'uint8':
-                        results.push(context.data.getUint8(context.index, true));
-                        context.index += 1;
-                        break;
-                    case 'quantization':
-                        results.push(context.data.getBits(context.index, context.bits));
-                        context.index++;
-                        break;
-                    default:
-                        break;
-                }
-                context.count++;
-            }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        return results;
+    get values() {
+        return this._data;
     }
 };
 

@@ -499,7 +499,7 @@ torch.Tensor = class {
         return this._type;
     }
 
-    get encoding() {
+    get layout() {
         return '|';
     }
 

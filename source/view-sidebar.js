@@ -122,9 +122,27 @@ sidebar.Sidebar = class {
     }
 };
 
-sidebar.NodeSidebar = class {
+sidebar.Control = class {
+
+    on(event, callback) {
+        this._events = this._events || {};
+        this._events[event] = this._events[event] || [];
+        this._events[event].push(callback);
+    }
+
+    _raise(event, data) {
+        if (this._events && this._events[event]) {
+            for (const callback of this._events[event]) {
+                callback(this, data);
+            }
+        }
+    }
+};
+
+sidebar.NodeSidebar = class extends sidebar.Control {
 
     constructor(host, node) {
+        super();
         this._host = host;
         this._node = node;
         this._elements = [];
@@ -255,20 +273,6 @@ sidebar.NodeSidebar = class {
             }
         }
     }
-
-    on(event, callback) {
-        this._events = this._events || {};
-        this._events[event] = this._events[event] || [];
-        this._events[event].push(callback);
-    }
-
-    _raise(event, data) {
-        if (this._events && this._events[event]) {
-            for (const callback of this._events[event]) {
-                callback(this, data);
-            }
-        }
-    }
 };
 
 sidebar.NameValueView = class {
@@ -314,9 +318,10 @@ sidebar.NameValueView = class {
     }
 };
 
-sidebar.SelectView = class {
+sidebar.SelectView = class extends sidebar.Control {
 
     constructor(host, values, selected) {
+        super();
         this._host = host;
         this._elements = [];
         this._values = values;
@@ -340,20 +345,6 @@ sidebar.SelectView = class {
 
     render() {
         return this._elements;
-    }
-
-    on(event, callback) {
-        this._events = this._events || {};
-        this._events[event] = this._events[event] || [];
-        this._events[event].push(callback);
-    }
-
-    _raise(event, data) {
-        if (this._events && this._events[event]) {
-            for (const callback of this._events[event]) {
-                callback(this, data);
-            }
-        }
     }
 };
 
@@ -395,9 +386,86 @@ sidebar.ValueTextView = class {
     }
 };
 
-sidebar.AttributeView = class {
+sidebar.ValueView = class extends sidebar.Control {
+
+    _bold(name, value) {
+        const line = this._host.document.createElement('div');
+        line.innerHTML = name + ': ' + '<b>' + value + '</b>';
+        this._add(line);
+    }
+
+    _code(name, value) {
+        const line = this._host.document.createElement('div');
+        line.innerHTML = name + ': ' + '<code><b>' + value + '</b></code>';
+        this._add(line);
+    }
+
+    _add(child) {
+        child.className = this._element.childNodes.length < 2 ? 'sidebar-view-item-value-line' : 'sidebar-view-item-value-line-border';
+        this._element.appendChild(child);
+    }
+
+    _tensor(value) {
+        const contentLine = this._host.document.createElement('pre');
+        try {
+            const tensor = new sidebar.Tensor(value);
+            const layout = tensor.layout;
+            if (layout) {
+                const layouts = new Map([
+                    [ 'sparse', 'Sparse' ],
+                    [ 'sparse.coo', 'Sparse COO' ],
+                    [ 'sparse.csr', 'Sparse CSR' ],
+                    [ 'sparse.csc', 'Sparse CSC' ],
+                    [ 'sparse.bsr', 'Sparse BSR' ],
+                    [ 'sparse.bsc', 'Sparse BSC' ]
+                ]);
+                if (layouts.has(layout)) {
+                    this._bold('layout', layouts.get(layout));
+                }
+            }
+            if (tensor.layout !== '<' && tensor.layout !== '>' && tensor.layout !== '|' && tensor.layout !== 'sparse') {
+                contentLine.innerHTML = "Tensor layout '" + tensor.layout + "' is not implemented.";
+            }
+            else if (tensor.empty) {
+                contentLine.innerHTML = 'Tensor data is empty.';
+            }
+            else if (tensor.type && tensor.type.dataType === '?') {
+                contentLine.innerHTML = 'Tensor data type is not defined.';
+            }
+            else if (tensor.type && !tensor.type.shape) {
+                contentLine.innerHTML = 'Tensor shape is not defined.';
+            }
+            else {
+                contentLine.innerHTML = tensor.toString();
+
+                if (this._host.save &&
+                    value.type.shape && value.type.shape.dimensions &&
+                    value.type.shape.dimensions.length > 0) {
+                    this._saveButton = this._host.document.createElement('div');
+                    this._saveButton.className = 'sidebar-view-item-value-expander';
+                    this._saveButton.innerHTML = '&#x1F4BE;';
+                    this._saveButton.addEventListener('click', () => {
+                        this._raise('export-tensor', tensor);
+                    });
+                    this._element.appendChild(this._saveButton);
+                }
+            }
+        }
+        catch (err) {
+            contentLine.innerHTML = err.toString();
+            this._raise('error', err);
+        }
+        const valueLine = this._host.document.createElement('div');
+        valueLine.className = 'sidebar-view-item-value-line-border';
+        valueLine.appendChild(contentLine);
+        this._element.appendChild(valueLine);
+    }
+};
+
+sidebar.AttributeView = class extends sidebar.ValueView {
 
     constructor(host, attribute) {
+        super();
         this._host = host;
         this._attribute = attribute;
         this._element = this._host.document.createElement('div');
@@ -476,13 +544,7 @@ sidebar.AttributeView = class {
             }
 
             if (this._attribute.type == 'tensor' && value) {
-                const state = value.state;
-                const valueLine = this._host.document.createElement('div');
-                valueLine.className = 'sidebar-view-item-value-line-border';
-                const contentLine = this._host.document.createElement('pre');
-                contentLine.innerHTML = state || value.toString();
-                valueLine.appendChild(contentLine);
-                this._element.appendChild(valueLine);
+                this._tensor(value);
             }
         }
         else {
@@ -492,25 +554,12 @@ sidebar.AttributeView = class {
             }
         }
     }
-
-    on(event, callback) {
-        this._events = this._events || {};
-        this._events[event] = this._events[event] || [];
-        this._events[event].push(callback);
-    }
-
-    _raise(event, data) {
-        if (this._events && this._events[event]) {
-            for (const callback of this._events[event]) {
-                callback(this, data);
-            }
-        }
-    }
 };
 
-sidebar.ParameterView = class {
+sidebar.ParameterView = class extends sidebar.Control {
 
     constructor(host, list) {
+        super();
         this._list = list;
         this._elements = [];
         this._items = [];
@@ -536,25 +585,12 @@ sidebar.ParameterView = class {
             item.toggle();
         }
     }
-
-    on(event, callback) {
-        this._events = this._events || {};
-        this._events[event] = this._events[event] || [];
-        this._events[event].push(callback);
-    }
-
-    _raise(event, data) {
-        if (this._events && this._events[event]) {
-            for (const callback of this._events[event]) {
-                callback(this, data);
-            }
-        }
-    }
 };
 
-sidebar.ArgumentView = class {
+sidebar.ArgumentView = class extends sidebar.ValueView {
 
     constructor(host, argument) {
+        super();
         this._host = host;
         this._argument = argument;
 
@@ -651,80 +687,7 @@ sidebar.ArgumentView = class {
                 }
 
                 if (initializer) {
-                    const contentLine = this._host.document.createElement('pre');
-                    try {
-                        const tensor = new sidebar.Tensor(initializer);
-                        const layout = tensor.layout;
-                        if (layout) {
-                            this._bold('layout', layout);
-                        }
-
-                        if (Object.prototype.hasOwnProperty.call(Object.getPrototypeOf(initializer), 'state')) {
-                            const state = initializer.state;
-                            if (state === null && this._host.save &&
-                                initializer.type.dataType && initializer.type.dataType != '?' &&
-                                initializer.type.shape && initializer.type.shape.dimensions &&
-                                initializer.type.shape.dimensions.length > 0) {
-                                this._saveButton = this._host.document.createElement('div');
-                                this._saveButton.className = 'sidebar-view-item-value-expander';
-                                this._saveButton.innerHTML = '&#x1F4BE;';
-                                this._saveButton.addEventListener('click', () => {
-                                    this._raise('export-tensor', initializer);
-                                });
-                                this._element.appendChild(this._saveButton);
-                            }
-                            contentLine.innerHTML = state || initializer.toString();
-                        }
-                        else {
-                            try {
-                                if (tensor.layout != '') {
-                                    contentLine.innerHTML = "Tensor layout '" + tensor.layout + "' is not implemented.";
-                                }
-                                else if (!tensor.format) {
-                                    contentLine.innerHTML = 'Tensor data not implemented.';
-                                }
-                                else if (tensor.empty) {
-                                    contentLine.innerHTML = 'Tensor data is empty.';
-                                }
-                                else if (tensor.type && tensor.type.dataType === '?') {
-                                    contentLine.innerHTML = 'Tensor data type is not defined.';
-                                }
-                                else if (tensor.type && tensor.type.dataType === 'int4') {
-                                    contentLine.innerHTML = "Tensor data type 'int4' is not supported.";
-                                }
-                                else if (tensor.type && !tensor.type.shape) {
-                                    contentLine.innerHTML = 'Tensor shape is not defined.';
-                                }
-                                else {
-                                    contentLine.innerHTML = tensor.toString();
-
-                                    if (this._host.save &&
-                                    initializer.type.shape && initializer.type.shape.dimensions &&
-                                    initializer.type.shape.dimensions.length > 0) {
-                                        this._saveButton = this._host.document.createElement('div');
-                                        this._saveButton.className = 'sidebar-view-item-value-expander';
-                                        this._saveButton.innerHTML = '&#x1F4BE;';
-                                        this._saveButton.addEventListener('click', () => {
-                                            this._raise('export-tensor', tensor);
-                                        });
-                                        this._element.appendChild(this._saveButton);
-                                    }
-                                }
-                            }
-                            catch (err) {
-                                contentLine.innerHTML = err.toString();
-                                this._raise('error', err);
-                            }
-                        }
-                    }
-                    catch (err) {
-                        contentLine.innerHTML = err.toString();
-                        this._raise('error', err);
-                    }
-                    const valueLine = this._host.document.createElement('div');
-                    valueLine.className = 'sidebar-view-item-value-line-border';
-                    valueLine.appendChild(contentLine);
-                    this._element.appendChild(valueLine);
+                    this._tensor(initializer);
                 }
             }
             else {
@@ -735,42 +698,12 @@ sidebar.ArgumentView = class {
             }
         }
     }
-
-    on(event, callback) {
-        this._events = this._events || {};
-        this._events[event] = this._events[event] || [];
-        this._events[event].push(callback);
-    }
-
-    _raise(event, data) {
-        if (this._events && this._events[event]) {
-            for (const callback of this._events[event]) {
-                callback(this, data);
-            }
-        }
-    }
-
-    _bold(name, value) {
-        const line = this._host.document.createElement('div');
-        line.innerHTML = name + ': ' + '<b>' + value + '</b>';
-        this._add(line);
-    }
-
-    _code(name, value) {
-        const line = this._host.document.createElement('div');
-        line.innerHTML = name + ': ' + '<code><b>' + value + '</b></code>';
-        this._add(line);
-    }
-
-    _add(child) {
-        child.className = this._element.childNodes.length < 2 ? 'sidebar-view-item-value-line' : 'sidebar-view-item-value-line-border';
-        this._element.appendChild(child);
-    }
 };
 
-sidebar.ModelSidebar = class {
+sidebar.ModelSidebar = class extends sidebar.Control {
 
     constructor(host, model, graph) {
+        super();
         this._host = host;
         this._model = model;
         this._elements = [];
@@ -867,25 +800,12 @@ sidebar.ModelSidebar = class {
         const item = new sidebar.NameValueView(this._host, name, view);
         this._elements.push(item.render());
     }
-
-    on(event, callback) {
-        this._events = this._events || {};
-        this._events[event] = this._events[event] || [];
-        this._events[event].push(callback);
-    }
-
-    _raise(event, data) {
-        if (this._events && this._events[event]) {
-            for (const callback of this._events[event]) {
-                callback(this, data);
-            }
-        }
-    }
 };
 
-sidebar.DocumentationSidebar = class {
+sidebar.DocumentationSidebar = class extends sidebar.Control {
 
     constructor(host, metadata) {
+        super();
         this._host = host;
         this._metadata = metadata;
     }
@@ -986,20 +906,6 @@ sidebar.DocumentationSidebar = class {
             this._elements.push(separator);
         }
         return this._elements;
-    }
-
-    on(event, callback) {
-        this._events = this._events || {};
-        this._events[event] = this._events[event] || [];
-        this._events[event].push(callback);
-    }
-
-    _raise(event, data) {
-        if (this._events && this._events[event]) {
-            for (const callback of this._events[event]) {
-                callback(this, data);
-            }
-        }
     }
 
     _append(parent, type, content) {
@@ -1197,9 +1103,10 @@ sidebar.DocumentationSidebar = class {
     }
 };
 
-sidebar.FindSidebar = class {
+sidebar.FindSidebar =- class extends sidebar.Control {
 
     constructor(host, element, graph) {
+        super();
         this._host = host;
         this._graphElement = element;
         this._graph = graph;
@@ -1407,46 +1314,37 @@ sidebar.Tensor = class {
     constructor(tensor) {
         this._tensor = tensor;
         this._type = tensor.type;
-        this._layout = tensor.layout;
         this._stride = tensor.stride;
-        switch (tensor.encoding) {
+        switch (tensor.layout) {
             case undefined:
             case '':
             case '<': {
-                if (!this._layout || this._layout === 'strided') {
-                    this._data = this._tensor.values;
-                    if (this._data !== null && this._data !== undefined) {
-                        this._format = 1;
-                        this._littleEndian = true;
-                    }
-                }
+                this._data = this._tensor.values;
+                this._layout = '<';
+                this._littleEndian = true;
                 break;
             }
             case '>': {
-                if (!this._layout || this._layout === 'strided') {
-                    this._data = this._tensor.values;
-                    if (this._data !== null && this._data !== undefined) {
-                        this._format = 1;
-                        this._littleEndian = false;
-                    }
-                }
+                this._data = this._tensor.values;
+                this._layout = '>';
+                this._littleEndian = false;
                 break;
             }
             case '|': {
-                if (!this._layout || this._layout === 'strided') {
-                    this._values = this._tensor.values;
-                    if (this._values !== null && this._values !== undefined) {
-                        this._format = 2;
-                    }
-                }
+                this._values = this._tensor.values;
+                this._layout = '|';
+                break;
+            }
+            case 'sparse': {
+                this._indices = this._tensor.indices;
+                this._values = this._tensor.values;
+                this._layout = 'sparse';
                 break;
             }
             default: {
-                throw new Error("Unsupported tensor encoding '" + tensor.encoding + "'.");
+                this._layout = tensor.layout;
+                break;
             }
-        }
-        if (this._format === undefined) {
-            this._format = 0;
         }
         sidebar.Tensor.dataTypes = sidebar.Tensor.dataTypeSizes || new Map([
             [ 'boolean', 1 ],
@@ -1464,38 +1362,40 @@ sidebar.Tensor = class {
     }
 
     get layout() {
-        switch (this._layout) {
-            case 'sparse': return 'Sparse';
-            case 'sparse.coo': return 'Sparse COO';
-            case 'sparse.csr': return 'Sparse CSR';
-            case 'sparse.csc': return 'Sparse CSC';
-            case 'sparse.bsr': return 'Sparse BSR';
-            case 'sparse.bsc': return 'Sparse BSC';
-            default: return '';
-        }
+        return this._layout;
     }
 
     get stride() {
         return this._stride;
     }
 
-    get format() {
-        return this._format;
-    }
-
     get empty() {
-        return (!(Array.isArray(this._data) || this._data instanceof Uint8Array || this._data instanceof Int8Array) || this._data.length === 0) &&
-               (!(Array.isArray(this._values) || ArrayBuffer.isView(this._values)) || this._values.length === 0);
+        switch (this._layout) {
+            case '<':
+            case '>': {
+                return !(Array.isArray(this._data) || this._data instanceof Uint8Array || this._data instanceof Int8Array) || this._data.length === 0;
+            }
+            case '|': {
+                return !(Array.isArray(this._values) || ArrayBuffer.isView(this._values)) || this._values.length === 0;
+            }
+            case 'sparse': {
+                return !this._values || this.indices || this._values.values.length === 0;
+            }
+            default: {
+                throw new Error("Unsupported tensor format '" + this._format + "'.");
+            }
+        }
     }
 
     get value() {
         const context = this._context();
         context.limit = Number.MAX_SAFE_INTEGER;
-        switch (this._format) {
-            case 1: {
+        switch (context.layout) {
+            case '<':
+            case '>': {
                 return this._decodeData(context, 0);
             }
-            case 2: {
+            case '|': {
                 return this._decodeValues(context, 0);
             }
             default: {
@@ -1507,12 +1407,13 @@ sidebar.Tensor = class {
     toString() {
         const context = this._context();
         context.limit = 10000;
-        switch (this._format) {
-            case 1: {
+        switch (context.layout) {
+            case '<':
+            case '>': {
                 const value = this._decodeData(context, 0);
                 return sidebar.Tensor._stringify(value, '', '    ');
             }
-            case 2: {
+            case '|': {
                 const value = this._decodeValues(context, 0);
                 return sidebar.Tensor._stringify(value, '', '    ');
             }
@@ -1523,31 +1424,42 @@ sidebar.Tensor = class {
     }
 
     _context() {
-        const context = {};
-        if (this._layout && this._layout !== 'strided') {
+        if (this._layout !== '<' && this._layout !== '>' && this._layout !== '|' && this._layout !== 'sparse') {
             throw new Error("Tensor layout '" + this._layout + "' is not supported.");
         }
+        const context = {};
+        context.layout = this._layout;
+        context.dimensions = this._type.shape.dimensions;
         const dataType = this._type.dataType;
         const size = this._type.shape.dimensions.reduce((a, b) => a * b, 1);
-        switch (this._format) {
-            case 1: {
+        switch (this._layout) {
+            case '<':
+            case '>': {
                 context.data = (this._data instanceof Uint8Array || this._data instanceof Int8Array) ? this._data : this._data.peek();
                 context.dataType = dataType;
-                context.dimensions = this._type.shape.dimensions;
                 context.view = new DataView(context.data.buffer, context.data.byteOffset, context.data.byteLength);
-                if (!sidebar.Tensor.dataTypes.has(dataType)) {
-                    throw new Error("Tensor data type '" + dataType + "' is not implemented.");
+                if (sidebar.Tensor.dataTypes.has(dataType)) {
+                    const itemsize = sidebar.Tensor.dataTypes.get(dataType);
+                    if (this._data.length < (itemsize * size)) {
+                        throw new Error('Invalid tensor data size.');
+                    }
                 }
-                const itemsize = sidebar.Tensor.dataTypes.get(dataType);
-                if (this._data.length < (itemsize * size)) {
-                    throw new Error('Invalid tensor data size.');
+                else if (dataType.startsWith('uint') && !isNaN(parseInt(dataType.substring(4), 10))) {
+                    context.dataType = 'uint';
+                    context.bits = parseInt(dataType.substring(4), 10);
+                }
+                else if (dataType.startsWith('int') && !isNaN(parseInt(dataType.substring(3), 10))) {
+                    context.dataType = 'int';
+                    context.bits = parseInt(dataType.substring(3), 10);
+                }
+                else {
+                    throw new Error("Tensor data type '" + dataType + "' is not implemented.");
                 }
                 break;
             }
-            case 2: {
+            case '|': {
                 context.data = this._values;
                 context.dataType = dataType;
-                context.dimensions = this._type.shape.dimensions;
                 if (!sidebar.Tensor.dataTypes.has(dataType) && dataType !== 'string' && dataType !== 'object') {
                     throw new Error("Tensor data type '" + dataType + "' is not implemented.");
                 }
@@ -1556,8 +1468,41 @@ sidebar.Tensor = class {
                 }
                 break;
             }
+            case 'sparse': {
+                context.dataType = dataType;
+                const size = context.dimensions.reduce((a, b) => a * b, 1);
+                const indices = this._indices.values;
+                const values = this._values.values;
+                const array = new values.constructor(size);
+                switch (context.dataType) {
+                    case 'boolean':
+                        array.fill(false);
+                        break;
+                    case 'int64':
+                    case 'uint64':
+                        break;
+                    default:
+                        break;
+                }
+                if (indices.length > 0) {
+                    if (Object.prototype.hasOwnProperty.call(indices[0], 'low')) {
+                        for (let i = 0; i < indices.length; i++) {
+                            const index = indices[i];
+                            array[index.high === 0 ? index.low : index.toNumber()] = values[i];
+                        }
+                    }
+                    else {
+                        for (let i = 0; i < indices.length; i++) {
+                            array[indices[i]] = values[i];
+                        }
+                    }
+                }
+                context.layout = '|';
+                context.data = array;
+                break;
+            }
             default: {
-                throw new sidebar.Tensor("Unsupported tensor format '" + this._format + "'.");
+                throw new sidebar.Tensor("Unsupported tensor layout '" + this._layout + "'.");
             }
         }
         context.index = 0;
@@ -1606,6 +1551,11 @@ sidebar.Tensor = class {
                         context.index += 8;
                         context.count++;
                         break;
+                    case 'int':
+                        results.push(view.getIntBits(context.index, context.bits));
+                        context.index++;
+                        context.count++;
+                        break;
                     case 'quint8':
                     case 'uint8':
                         results.push(view.getUint8(context.index));
@@ -1627,6 +1577,11 @@ sidebar.Tensor = class {
                     case 'uint64':
                         results.push(view.getUint64(context.index, true));
                         context.index += 8;
+                        context.count++;
+                        break;
+                    case 'uint':
+                        results.push(view.getUintBits(context.index, context.bits));
+                        context.index++;
                         context.count++;
                         break;
                     case 'float16':

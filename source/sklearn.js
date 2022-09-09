@@ -353,7 +353,7 @@ sklearn.Tensor = class {
         return 'NumPy Array';
     }
 
-    get encoding() {
+    get layout() {
         switch (this._type.dataType) {
             case 'string':
             case 'object':

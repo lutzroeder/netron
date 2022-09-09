@@ -65,7 +65,7 @@ pytorch.Graph = class {
                 if (graph.constants) {
                     for (const constant of graph.constants) {
                         if (pytorch.Utility.isTensor(constant)) {
-                            constant.initializer = pytorch.Utility.createTensor(constant.__variable__, constant, this._littleEndian);
+                            constant.initializer = new pytorch.Tensor(constant.__variable__, constant, this._littleEndian);
                             initializers.set(constant.__variable__, constant);
                         }
                         else if (constant && constant.__class__ && constant.__class__.__module__ && constant.__class__.__name__) {
@@ -78,7 +78,7 @@ pytorch.Graph = class {
                                     for (const key of Object.keys(constant)) {
                                         const value = constant[key];
                                         if (pytorch.Utility.isTensor(value)) {
-                                            value.initializer = pytorch.Utility.createTensor(value.__variable__, value, this._littleEndian);
+                                            value.initializer = new pytorch.Tensor(value.__variable__, value, this._littleEndian);
                                             initializers.set(value.__variable__, value);
                                         }
                                     }
@@ -107,7 +107,7 @@ pytorch.Graph = class {
                                         const parameter = obj;
                                         parameter.__parent__ = module;
                                         if (!parameter.initializer && parameter.storage()) {
-                                            parameter.initializer = pytorch.Utility.createTensor(parameter.name, parameter, this._littleEndian);
+                                            parameter.initializer = new pytorch.Tensor(parameter.name, parameter, this._littleEndian);
                                         }
                                         if (parameter.__variable__ && parameter.__count__ === 1) {
                                             initializers.set(parameter.__variable__, parameter);
@@ -166,7 +166,7 @@ pytorch.Graph = class {
                     const inputs = state_group.states.map((parameter) => {
                         return new pytorch.Parameter(parameter.name, true,
                             parameter.arguments.map((state) => {
-                                const tensor = pytorch.Utility.createTensor(state.id, pytorch.Utility.toTensor(state.value), this._littleEndian);
+                                const tensor = new pytorch.Tensor(state.id, pytorch.Utility.toTensor(state.value), this._littleEndian);
                                 return new pytorch.Argument(state.id, null, tensor);
                             }));
                     });
@@ -251,7 +251,7 @@ pytorch.Graph = class {
                 visible = input.visible === false ? false : true;
             }
             if (value) {
-                const initializer = pytorch.Utility.createTensor('', value, this._littleEndian);
+                const initializer = new pytorch.Tensor('', value, this._littleEndian);
                 inputs.push(new pytorch.Parameter(inputName || key, visible, [ new pytorch.Argument('', null, initializer) ]));
             }
         }
@@ -614,13 +614,27 @@ pytorch.Attribute = class {
 
 pytorch.Tensor = class {
 
-    constructor(name, type, layout, stride, data, littleEndian) {
+    constructor(name, tensor, littleEndian) {
         this._name = name || '';
-        this._type = type;
-        this._layout = (layout || '').split('.').pop().replace('_', '.');
-        this._stride = stride;
-        this._data = data;
         this._littleEndian = littleEndian;
+        const storage = tensor.storage();
+        const size = tensor.size();
+        this._type = new pytorch.TensorType(storage.dtype.__reduce__(), new pytorch.TensorShape(size));
+        const layout = tensor.layout ? tensor.layout.__str__() : null;
+        this._stride = tensor.stride();
+        if (layout && layout.startsWith('torch.sparse_')) {
+            this._layout = layout.split('.').pop().replace('_', '.');
+            this._indices = new pytorch.Tensor('', tensor.indices, littleEndian);
+            this._values = new pytorch.Tensor('', tensor.values, littleEndian);
+        }
+        else if (!layout || layout === 'torch.strided') {
+            this._layout = this._littleEndian ? '<' : '>';
+            this._indices = null;
+            this._data = storage.data;
+        }
+        else {
+            throw new pytorch.Error("Unsupported tensor layout '" + layout + "'.");
+        }
     }
 
     get name() {
@@ -639,11 +653,14 @@ pytorch.Tensor = class {
         return this._stride;
     }
 
-    get encoding() {
-        return this._littleEndian ? '<' : '>';
+    get indices() {
+        return this._indices;
     }
 
     get values() {
+        if (this._layout && this._layout.startsWith('sparse.')) {
+            return this._values;
+        }
         return this._data instanceof Uint8Array ? this._data : this._data.peek();
     }
 };
@@ -733,7 +750,7 @@ pytorch.Execution = class extends python.Execution {
                 }
                 const tensors = state[1];
                 const opt_tensors = state[2];
-                const packed_config_tensor = pytorch.Utility.createTensor('', tensors[0], true);
+                const packed_config_tensor = new pytorch.Tensor('', tensors[0], true);
                 const packed_config = pytorch.Utility.values(packed_config_tensor);
                 this.weight = tensors[1];
                 this.bias = opt_tensors[0];
@@ -752,7 +769,7 @@ pytorch.Execution = class extends python.Execution {
                 }
                 const tensors = state[1];
                 const opt_tensors = state[2];
-                const packed_config_tensor = pytorch.Utility.createTensor('', tensors[0], true);
+                const packed_config_tensor = new pytorch.Tensor('', tensors[0], true);
                 const packed_config = pytorch.Utility.values(packed_config_tensor);
                 this.weight = tensors[1];
                 this.bias = opt_tensors[0];
@@ -2555,7 +2572,7 @@ pytorch.Utility = class {
         if (type && data) {
             switch (type.dataType) {
                 case 'int16': {
-                    if (tensor.encoding === '<') {
+                    if (tensor.layout === '<') {
                         return new Uint16Array(data);
                     }
                     break;
@@ -2592,14 +2609,6 @@ pytorch.Utility = class {
             default:
                 return null;
         }
-    }
-
-    static createTensor(name, tensor, littleEndian) {
-        const storage = tensor.storage();
-        const size = tensor.size();
-        const type = new pytorch.TensorType(storage.dtype.__reduce__(), new pytorch.TensorShape(size));
-        const layout = tensor.layout ? tensor.layout.__str__() : null;
-        return new pytorch.Tensor(name || '', type, layout, tensor.stride(), storage.data, littleEndian);
     }
 
     static getType(value) {
@@ -3363,10 +3372,35 @@ pytorch.nnapi.Argument = class {
     constructor(operand) {
         this._name = operand.index.toString();
         const shape = new pytorch.TensorShape(operand.dimensions);
-        this._type = new pytorch.TensorType(operand.data_type.replace('[]', ''), shape);
-        this._initializer = operand.data ? new pytorch.Tensor(this._name, this._type, null, null, operand.data, true) : null;
-        this._scale = operand.scale;
-        this._zeroPoint = operand.zero_point;
+        let dataType = operand.data_type.replace('[]', '');
+        let quantizationType = null;
+        switch (dataType) {
+            case 'quant8_asymm':
+            case 'quant8_symm_per_channel':
+            case 'quant8_symm':
+            case 'quant8_asymm_signed[]':
+            case 'quant16_asymm':
+            case 'quant16_symm':
+                quantizationType = dataType;
+                dataType = dataType.indexOf('16') !== -1 ? 'uint16' : 'uint8';
+                break;
+            default:
+                break;
+        }
+        this._type = new pytorch.TensorType(dataType, shape);
+        this._initializer = operand.data ? new pytorch.nnapi.Tensor(this._type, operand.data) : null;
+        if (quantizationType || operand.scale !== undefined || operand.zero_point !== undefined) {
+            this._quantization = {};
+            if (quantizationType) {
+                this._quantization.type = quantizationType;
+            }
+            if (operand.scale !== undefined) {
+                this._quantization.scale = operand.scale;
+            }
+            if (operand.zero_point !== undefined) {
+                this._quantization.zeroPoint = operand.zero_point;
+            }
+        }
     }
 
     get name() {
@@ -3378,8 +3412,15 @@ pytorch.nnapi.Argument = class {
     }
 
     get quantization() {
-        if (this._scale != 0 || this._zeroPoint != 0) {
-            return this._scale.toString() + ' * ' + (this._zeroPoint == 0 ? 'q' : ('(q - ' + this._zeroPoint.toString() + ')'));
+        if (this._quantization) {
+            let value = '';
+            if (this._quantization.scale != 0 || this._quantization.zeroPoint != 0) {
+                value = this._quantization.scale.toString() + ' * ' + (this._quantization.zeroPoint == 0 ? 'q' : ('(q - ' + this._quantization.zeroPoint.toString() + ')'));
+            }
+            if (this._quantization.type) {
+                return this._quantization.type + '(' + value + ')';
+            }
+            return value;
         }
         return null;
     }
@@ -3485,6 +3526,26 @@ pytorch.nnapi.Attribute = class {
 
     get visible() {
         return false;
+    }
+};
+
+pytorch.nnapi.Tensor = class {
+
+    constructor(type, data) {
+        this._type = type;
+        this._data = data;
+    }
+
+    get type() {
+        return this._type;
+    }
+
+    get layout() {
+        return '<';
+    }
+
+    get values() {
+        return this._data;
     }
 };
 

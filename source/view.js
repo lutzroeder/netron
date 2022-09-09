@@ -1066,24 +1066,13 @@ view.Node = class extends grapher.Node {
                     if (type.shape.dimensions.length === 0 && argument.initializer) {
                         try {
                             const initializer = argument.initializer;
-                            if (Object.prototype.hasOwnProperty.call(Object.getPrototypeOf(initializer), 'state')) {
-                                if (!argument.initializer.state) {
-                                    shape = initializer.toString();
-                                    if (shape && shape.length > 10) {
-                                        shape = shape.substring(0, 10) + '\u2026';
-                                    }
-                                    separator = ' = ';
+                            const tensor = new sidebar.Tensor(initializer);
+                            if ((tensor.layout === '<' || tensor.layout === '>' || tensor.layout === '|') && !tensor.empty && tensor.type.dataType !== '?') {
+                                shape = tensor.toString();
+                                if (shape && shape.length > 10) {
+                                    shape = shape.substring(0, 10) + '\u2026';
                                 }
-                            }
-                            else {
-                                const tensor = new sidebar.Tensor(initializer);
-                                if (tensor.layout === '' && tensor.format && !tensor.empty && tensor.type.dataType !== '?') {
-                                    shape = tensor.toString();
-                                    if (shape && shape.length > 10) {
-                                        shape = shape.substring(0, 10) + '\u2026';
-                                    }
-                                    separator = ' = ';
-                                }
+                                separator = ' = ';
                             }
                         }
                         catch (err) {

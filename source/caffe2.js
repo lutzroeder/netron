@@ -600,7 +600,7 @@ caffe2.Tensor = class {
         return null;
     }
 
-    get encoding() {
+    get layout() {
         return '|';
     }
 

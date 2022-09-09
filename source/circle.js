@@ -567,7 +567,7 @@ circle.Tensor = class {
         return this._type;
     }
 
-    get encoding() {
+    get layout() {
         switch (this._type.dataType) {
             case 'string': return '|';
             default: return '<';

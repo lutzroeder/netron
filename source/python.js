@@ -4759,7 +4759,7 @@ python.Execution = class {
                 throw new python.Error("Unsupported values in layout'" + this._layout.__str__() + "'.");
             }
             get indices() {
-                if (this._indices === torch.sparse_coo) {
+                if (this._layout === torch.sparse_coo) {
                     return this._indices;
                 }
                 throw new python.Error("Unsupported indices in layout'" + this._indices.__str__() + "'.");

@@ -806,8 +806,19 @@ onnx.Tensor = class {
 
     constructor(context, tensor, category) {
         this._category = category || null;
-        const data = (tensor) => {
-            let data = undefined;
+        if ((onnx.proto && tensor instanceof onnx.proto.SparseTensorProto) ||
+            (onnx.schema && tensor instanceof onnx.schema.SparseTensor)) {
+            this._name = tensor.values.name || '';
+            this._type = context.createTensorType(tensor.values.data_type, tensor.dims.map((dim) => dim), null);
+            this._location = Array.from(new Set([ context.createLocation(tensor.values.data_location), context.createLocation(tensor.indices.data_location) ])).join(':');
+            this._layout = 'sparse';
+            this._values = new onnx.Tensor(context, tensor.values);
+            this._indices = new onnx.Tensor(context, tensor.indices);
+        }
+        else {
+            this._name = tensor.name || '';
+            this._type = context.createTensorType(tensor.data_type, tensor.dims.map((dim) => dim), null);
+            this._location = context.createLocation(tensor.data_location);
             if (tensor.data_location === onnx.DataLocation.DEFAULT) {
                 switch (tensor.data_type) {
                     case onnx.DataType.FLOAT16:
@@ -818,51 +829,60 @@ onnx.Tensor = class {
                             for (let i = 0; i < array.length; i++) {
                                 view.setUint16(i << 1, array[i], true);
                             }
-                            data = {
-                                type: tensor.data_type,
-                                buffer: buffer
-                            };
+                            this._data = buffer;
+                            this._layout = '<';
                         }
                         break;
                     case onnx.DataType.FLOAT:
-                        data = new Float32Array(tensor.float_data);
+                        this._data = new Float32Array(tensor.float_data);
+                        this._layout = '|';
                         break;
                     case onnx.DataType.DOUBLE:
-                        data = new Float64Array(tensor.double_data);
+                        this._data = new Float64Array(tensor.double_data);
+                        this._layout = '|';
                         break;
                     case onnx.DataType.BOOL:
                         if (tensor.int32_data && tensor.int32_data.length > 0) {
                             const array = tensor.int32_data;
-                            data = new Array(array.length);
-                            for (let i = 0; i < data.length; i++) {
-                                data[i] = array[i] === 0 ? false : true;
+                            this._data = new Array(array.length);
+                            for (let i = 0; i < this._data.length; i++) {
+                                this._data[i] = array[i] === 0 ? false : true;
                             }
+                            this._layout = '|';
                         }
                         break;
                     case onnx.DataType.INT8:
-                        data = new Int8Array(tensor.int32_data);
+                        this._data = new Int8Array(tensor.int32_data);
+                        this._layout = '|';
                         break;
                     case onnx.DataType.UINT8:
-                        data = new Uint8Array(tensor.int32_data);
+                        this._data = new Uint8Array(tensor.int32_data);
+                        this._layout = '|';
                         break;
                     case onnx.DataType.INT16:
-                        data = new Int32Array(tensor.int32_data);
+                        this._data = new Int32Array(tensor.int32_data);
+                        this._layout = '|';
                         break;
                     case onnx.DataType.UINT16:
-                        data = new Int32Array(tensor.int32_data);
+                        this._data = new Int32Array(tensor.int32_data);
+                        this._layout = '|';
                         break;
                     case onnx.DataType.INT32:
-                        data = new Int32Array(tensor.int32_data);
+                        this._data = new Int32Array(tensor.int32_data);
+                        this._layout = '|';
                         break;
                     case onnx.DataType.UINT32:
                     case onnx.DataType.UINT64:
-                        data = tensor.uint64_data;
+                        this._data = tensor.uint64_data;
+                        this._layout = '|';
                         break;
                     case onnx.DataType.INT64:
-                        data = tensor.int64_data;
+                        this._data = tensor.int64_data;
+                        this._layout = '|';
                         break;
                     case onnx.DataType.STRING:
-                        data = tensor.string_data;
+                        this._data = tensor.string_data;
+                        this._layout = '|';
                         break;
                     case onnx.DataType.BFLOAT16:
                     case onnx.DataType.COMPLEX64:
@@ -871,32 +891,14 @@ onnx.Tensor = class {
                     default:
                         throw new onnx.Error("Unsupported tensor data type '" + tensor.data_type + "'.");
                 }
-                if (data && (Array.isArray(data) || ArrayBuffer.isView(data)) && data.length === 0) {
-                    data = undefined;
+                if (this._data && (Array.isArray(this._data) || ArrayBuffer.isView(this._data)) && this._data.length === 0) {
+                    this._data = undefined;
                 }
-                if (!data && tensor.raw_data && tensor.raw_data.length > 0) {
-                    data = {
-                        type: tensor.data_type,
-                        buffer: tensor.raw_data
-                    };
+                if (!this._data && tensor.raw_data && tensor.raw_data.length > 0) {
+                    this._data = tensor.raw_data;
+                    this._layout = '<';
                 }
             }
-            return data;
-        };
-        if ((onnx.proto && tensor instanceof onnx.proto.SparseTensorProto) ||
-            (onnx.schema && tensor instanceof onnx.schema.SparseTensor)) {
-            this._name = tensor.values.name || '';
-            this._type = context.createTensorType(tensor.values.data_type, tensor.dims.map((dim) => dim), null);
-            this._location = Array.from(new Set([ context.createLocation(tensor.values.data_location), context.createLocation(tensor.indices.data_location) ])).join(':');
-            this._layout = 'sparse';
-            this._values = data(tensor.values);
-            this._indices = data(tensor.indices);
-        }
-        else {
-            this._name = tensor.name || '';
-            this._type = context.createTensorType(tensor.data_type, tensor.dims.map((dim) => dim), null);
-            this._location = context.createLocation(tensor.data_location);
-            this._values = data(tensor);
         }
     }
 
@@ -916,257 +918,14 @@ onnx.Tensor = class {
         return this._type;
     }
 
-    get state() {
-        return this._context().state || null;
+    get indices() {
+        return this._indices;
     }
 
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
+    get values() {
+        return this._layout === 'sparse' ? this._values : this._data;
     }
 
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return onnx.Tensor._stringify(value, '', '    ');
-    }
-
-    _context() {
-        const context = {};
-        context.state = null;
-        if (this._sparse) {
-            context.state = 'Sparse data not implemented.';
-            return context;
-        }
-        if (this._location !== 'default') {
-            context.state = "Data '" + this._location + "' location not implemented.";
-            return context;
-        }
-        const decode = (data) => {
-            if (!data || Array.isArray(data) || ArrayBuffer.isView(data)) {
-                return data;
-            }
-            const buffer = data.buffer;
-            const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-            const type = data.type;
-            data = undefined;
-            switch (type) {
-                case onnx.DataType.BOOL:
-                    data = new Array(buffer.length);
-                    for (let i = 0; i < buffer.length; i++) {
-                        data[i] = view.getUint8(i) === 0 ? false : true;
-                    }
-                    break;
-                case onnx.DataType.FLOAT16:
-                    data = new Float32Array(buffer.length >> 1);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getFloat16(i << 1, true);
-                    }
-                    break;
-                case onnx.DataType.FLOAT:
-                    data = new Float32Array(buffer.length >> 2);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getFloat32(i << 2, true);
-                    }
-                    break;
-                case onnx.DataType.DOUBLE:
-                    data = new Float64Array(buffer.length >> 3);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getFloat64(i << 3, true);
-                    }
-                    break;
-                case onnx.DataType.INT8:
-                    data = new Int8Array(buffer.length);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getInt8(i, true);
-                    }
-                    break;
-                case onnx.DataType.UINT8:
-                    data = new Uint8Array(buffer.length);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getUint8(i, true);
-                    }
-                    break;
-                case onnx.DataType.INT16:
-                    data = new Int16Array(buffer.length >> 1);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getInt16(i << 1, true);
-                    }
-                    break;
-                case onnx.DataType.UINT16:
-                    data = new Uint16Array(buffer.length >> 1);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getUint16(i << 1, true);
-                    }
-                    break;
-                case onnx.DataType.INT32:
-                    data = new Int32Array(buffer.length >> 2);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getInt32(i << 2, true);
-                    }
-                    break;
-                case onnx.DataType.UINT32:
-                    data = new Uint32Array(buffer.length >> 2);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getUint32(i << 2, true);
-                    }
-                    break;
-                case onnx.DataType.INT64:
-                    data = new Array(buffer.length >> 3);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getInt64(i << 3, true);
-                    }
-                    break;
-                case onnx.DataType.UINT64:
-                    data = new Array(buffer.length >> 3);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getUint64(i << 3, true);
-                    }
-                    break;
-                case onnx.DataType.BFLOAT16:
-                    data = new Array(buffer.length >> 1);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getBfloat16(i << 1, true);
-                    }
-                    break;
-                case onnx.DataType.COMPLEX64:
-                    data = new Array(buffer.length >> 3);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getComplex64(i << 3, true);
-                    }
-                    break;
-                case onnx.DataType.COMPLEX128:
-                    data = new Array(buffer.length >> 4);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getComplex64(i << 4, true);
-                    }
-                    break;
-                default:
-                    throw new onnx.Error("Unsupported tensor data type '" + type + "'.");
-            }
-            return data;
-        };
-        this._values = decode(this._values);
-        if (!this._values) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-        this._indices = decode(this._indices);
-        context.values = this._values;
-        context.indices = this._indices;
-        context.index = 0;
-        context.dataType = this.type.dataType;
-        context.shape = this.type.shape.dimensions;
-        context.data = function() {
-            if (!this._data) {
-                if (this.indices && this.values && this.indices.length === this.values.length) {
-                    const size = context.shape.reduce((a, b) => a * b, 1);
-                    const indices = this.indices;
-                    const values = this.values;
-                    const array = new values.constructor(size);
-                    switch (this.dataType) {
-                        case 'boolean':
-                            array.fill(false);
-                            break;
-                        case 'int64':
-                        case 'uint64':
-                            break;
-                        default:
-                            break;
-                    }
-                    if (indices.length > 0) {
-                        if (Object.prototype.hasOwnProperty.call(indices[0], 'low')) {
-                            for (let i = 0; i < indices.length; i++) {
-                                const index = indices[i];
-                                array[index.high === 0 ? index.low : index.toNumber()] = values[i];
-                            }
-                        }
-                        else {
-                            for (let i = 0; i < indices.length; i++) {
-                                array[indices[i]] = values[i];
-                            }
-                        }
-                    }
-                    this._data = array;
-                }
-                else {
-                    this._data = this.values;
-                }
-            }
-            return this._data;
-        };
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const shape = context.shape.length !== 0 ? context.shape : [ 1 ];
-        const results = [];
-        const size = shape[dimension];
-        const data = context.data();
-        if (dimension == shape.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.index > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(data[context.index++]);
-            }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.index > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        if (context.shape.length == 0) {
-            return results[0];
-        }
-        return results;
-    }
-
-    static _stringify(value, indentation, indent) {
-        if (Array.isArray(value)) {
-            const result = [];
-            result.push(indentation + '[');
-            const items = value.map((item) => onnx.Tensor._stringify(item, indentation + indent, indent));
-            if (items.length > 0) {
-                result.push(items.join(',\n'));
-            }
-            result.push(indentation + ']');
-            return result.join('\n');
-        }
-        switch (typeof value) {
-            case 'string':
-                return indentation + value;
-            case 'number':
-                if (value == Infinity) {
-                    return indentation + 'Infinity';
-                }
-                if (value == -Infinity) {
-                    return indentation + '-Infinity';
-                }
-                if (isNaN(value)) {
-                    return indentation + 'NaN';
-                }
-                return indentation + value.toString();
-            default:
-                if (value && value.toString) {
-                    return indentation + value.toString();
-                }
-                return indentation + '(undefined)';
-        }
-    }
 };
 
 onnx.TensorType = class {
