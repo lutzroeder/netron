@@ -1103,7 +1103,7 @@ sidebar.DocumentationSidebar = class extends sidebar.Control {
     }
 };
 
-sidebar.FindSidebar =- class extends sidebar.Control {
+sidebar.FindSidebar = class extends sidebar.Control {
 
     constructor(host, element, graph) {
         super();
