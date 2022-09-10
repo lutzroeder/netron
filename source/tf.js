@@ -1245,6 +1245,9 @@ tf.Tensor = class {
             else {
                 const DataType = tf.proto.tensorflow.DataType;
                 switch (tensor.dtype) {
+                    case DataType.DT_INVALID: {
+                        break;
+                    }
                     case DataType.DT_BFLOAT16: {
                         const values = tensor.half_val || [];
                         this._values = new Uint8Array(values.length << 2);
@@ -1307,6 +1310,24 @@ tf.Tensor = class {
                     case DataType.DT_STRING: {
                         this._values = tensor.string_val || null;
                         this._layout = '|';
+                        break;
+                    }
+                    case DataType.DT_COMPLEX64: {
+                        this._layout = '|';
+                        const values = tensor.scomplex_val || null;
+                        this._values = new Array(values.length >> 1);
+                        for (let i = 0; i < values.length; i += 2) {
+                            this._values[i >> 1] = base.Complex64.create(values[i], values[i + 1]);
+                        }
+                        break;
+                    }
+                    case DataType.DT_COMPLEX128: {
+                        this._layout = '|';
+                        const values = tensor.dcomplex_val || null;
+                        this._values = new Array(values.length >> 1);
+                        for (let i = 0; i < values.length; i += 2) {
+                            this._values[i >> 1] = base.Complex128.create(values[i], values[i + 1]);
+                        }
                         break;
                     }
                     default: {
@@ -1913,13 +1934,11 @@ tf.Utility = class {
 
     static dataType(type) {
         if (!tf.Utility._dataTypes) {
-            const dataTypes = new Map();
             const DataType = tf.proto.tensorflow.DataType;
-            for (let key of Object.keys(DataType)) {
-                const value = DataType[key];
-                key = key.startsWith('DT_') ? key.substring(3) : key;
-                dataTypes.set(value, key.toLowerCase());
-            }
+            const dataTypes = new Map(Object.entries(DataType).map((entry) => {
+                const key = entry[0].startsWith('DT_') ? entry[0].substring(3) : entry[0];
+                return [ entry[1], key.toLowerCase() ];
+            }));
             dataTypes.set(DataType.DT_HALF, 'float16');
             dataTypes.set(DataType.DT_FLOAT, 'float32');
             dataTypes.set(DataType.DT_DOUBLE, 'float64');
@@ -1931,17 +1950,8 @@ tf.Utility = class {
 
     static dataTypeKey(type) {
         if (!tf.Utility._dataTypeKeys) {
-            const dataTypeKeys = new Map();
-            const DataType = tf.proto.tensorflow.DataType;
-            for (let key of Object.keys(DataType)) {
-                const value = DataType[key];
-                key = key.startsWith('DT_') ? key.substring(3) : key;
-                dataTypeKeys.set(key.toLowerCase(), value);
-            }
-            dataTypeKeys.set('float16', DataType.DT_HALF);
-            dataTypeKeys.set('float32', DataType.DT_FLOAT);
-            dataTypeKeys.set('float64', DataType.DT_DOUBLE);
-            tf.Utility._dataTypeKeys = dataTypeKeys;
+            tf.Utility.dataType(0);
+            tf.Utility._dataTypeKeys = new Map(Array.from(tf.Utility._dataTypes).map((entry) => [ entry[1], entry[0] ]));
         }
         return tf.Utility._dataTypeKeys.get(type);
     }

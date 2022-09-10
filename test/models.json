@@ -5369,6 +5369,13 @@
   },
   {
     "type":     "tf",
+    "target":   "bfloat16.pbtxt",
+    "source":   "https://github.com/lutzroeder/netron/files/9540969/bfloat16.pbtxt.zip[bfloat16.pbtxt]",
+    "format":   "TensorFlow Graph",
+    "link":     "https://github.com/lutzroeder/netron/issues/187"
+  },
+  {
+    "type":     "tf",
     "target":   "char-rnn-tensorflow.pb",
     "source":   "https://github.com/lutzroeder/netron/files/2592462/char-rnn-tensorflow.pb.zip[char-rnn-tensorflow.pb]",
     "format":   "TensorFlow Graph",
@@ -5402,6 +5409,20 @@
     "source":   "https://raw.githubusercontent.com/taey16/tf/master/imagenet/classify_image_graph_def.pb",
     "format":   "TensorFlow Graph",
     "link":     "https://github.com/taey16/tf"
+  },
+  {
+    "type":     "tf",
+    "target":   "complex64.pb",
+    "source":   "https://github.com/lutzroeder/netron/files/9540970/complex.zip[complex64.pb]",
+    "format":   "TensorFlow Graph",
+    "link":     "https://github.com/lutzroeder/netron/issues/187"
+  },
+  {
+    "type":     "tf",
+    "target":   "complex128.pb",
+    "source":   "https://github.com/lutzroeder/netron/files/9540970/complex.zip[complex128.pb]",
+    "format":   "TensorFlow Graph",
+    "link":     "https://github.com/lutzroeder/netron/issues/187"
   },
   {
     "type":     "tf",

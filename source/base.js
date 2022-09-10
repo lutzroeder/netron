@@ -836,6 +836,8 @@ if (typeof window !== 'undefined' && typeof window.Long != 'undefined') {
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.Int64 = base.Int64;
     module.exports.Uint64 = base.Uint64;
+    module.exports.Complex64 = base.Complex;
+    module.exports.Complex128 = base.Complex;
     module.exports.BinaryReader = base.BinaryReader;
     module.exports.Metadata = base.Metadata;
 }
