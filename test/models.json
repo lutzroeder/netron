@@ -5965,9 +5965,9 @@
   {
     "type":     "tflite",
     "target":   "hair_segmentation.tflite",
-    "source":   "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/models/hair_segmentation.tflite",
+    "source":   "https://storage.googleapis.com/mediapipe-assets/hair_segmentation.tflite",
     "format":   "TensorFlow Lite v3",
-    "link":     "https://github.com/google/mediapipe"
+    "link":     "https://google.github.io/mediapipe/solutions/models.html"
   },
   {
     "type":     "tflite",
