@@ -423,7 +423,7 @@ sidebar.ValueView = class extends sidebar.Control {
                     this._bold('layout', layouts.get(layout));
                 }
             }
-            if (tensor.layout !== '<' && tensor.layout !== '>' && tensor.layout !== '|' && tensor.layout !== 'sparse') {
+            if (tensor.layout !== '<' && tensor.layout !== '>' && tensor.layout !== '|' && tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo') {
                 contentLine.innerHTML = "Tensor layout '" + tensor.layout + "' is not implemented.";
             }
             else if (tensor.empty) {
@@ -1341,6 +1341,12 @@ sidebar.Tensor = class {
                 this._layout = 'sparse';
                 break;
             }
+            case 'sparse.coo': {
+                this._indices = this._tensor.indices;
+                this._values = this._tensor.values;
+                this._layout = 'sparse.coo';
+                break;
+            }
             default: {
                 this._layout = tensor.layout;
                 break;
@@ -1378,7 +1384,8 @@ sidebar.Tensor = class {
             case '|': {
                 return !(Array.isArray(this._values) || ArrayBuffer.isView(this._values)) || this._values.length === 0;
             }
-            case 'sparse': {
+            case 'sparse':
+            case 'sparse.coo': {
                 return !this._values || this.indices || this._values.values.length === 0;
             }
             default: {
@@ -1424,19 +1431,19 @@ sidebar.Tensor = class {
     }
 
     _context() {
-        if (this._layout !== '<' && this._layout !== '>' && this._layout !== '|' && this._layout !== 'sparse') {
+        if (this._layout !== '<' && this._layout !== '>' && this._layout !== '|' && this._layout !== 'sparse' && this._layout !== 'sparse.coo') {
             throw new Error("Tensor layout '" + this._layout + "' is not supported.");
         }
+        const dataType = this._type.dataType;
         const context = {};
         context.layout = this._layout;
         context.dimensions = this._type.shape.dimensions;
-        const dataType = this._type.dataType;
-        const size = this._type.shape.dimensions.reduce((a, b) => a * b, 1);
+        context.dataType = dataType;
+        const size = context.dimensions.reduce((a, b) => a * b, 1);
         switch (this._layout) {
             case '<':
             case '>': {
                 context.data = (this._data instanceof Uint8Array || this._data instanceof Int8Array) ? this._data : this._data.peek();
-                context.dataType = dataType;
                 context.view = new DataView(context.data.buffer, context.data.byteOffset, context.data.byteLength);
                 if (sidebar.Tensor.dataTypes.has(dataType)) {
                     const itemsize = sidebar.Tensor.dataTypes.get(dataType);
@@ -1459,7 +1466,6 @@ sidebar.Tensor = class {
             }
             case '|': {
                 context.data = this._values;
-                context.dataType = dataType;
                 if (!sidebar.Tensor.dataTypes.has(dataType) && dataType !== 'string' && dataType !== 'object') {
                     throw new Error("Tensor data type '" + dataType + "' is not implemented.");
                 }
@@ -1469,36 +1475,32 @@ sidebar.Tensor = class {
                 break;
             }
             case 'sparse': {
-                context.dataType = dataType;
-                const size = context.dimensions.reduce((a, b) => a * b, 1);
-                const indices = this._indices.values;
-                const values = this._values.values;
-                const array = new values.constructor(size);
-                switch (context.dataType) {
-                    case 'boolean':
-                        array.fill(false);
-                        break;
-                    case 'int64':
-                    case 'uint64':
-                        break;
-                    default:
-                        break;
-                }
-                if (indices.length > 0) {
-                    if (Object.prototype.hasOwnProperty.call(indices[0], 'low')) {
-                        for (let i = 0; i < indices.length; i++) {
-                            const index = indices[i];
-                            array[index.high === 0 ? index.low : index.toNumber()] = values[i];
-                        }
-                    }
-                    else {
-                        for (let i = 0; i < indices.length; i++) {
-                            array[indices[i]] = values[i];
-                        }
-                    }
-                }
+                const indices = new sidebar.Tensor(this._indices).value;
+                const values = new sidebar.Tensor(this._values).value;
+                context.data = this._decodeSparse(dataType, context.dimensions, indices, values);
                 context.layout = '|';
-                context.data = array;
+                break;
+            }
+            case 'sparse.coo': {
+                const values = new sidebar.Tensor(this._values).value;
+                const data = new sidebar.Tensor(this._indices).value;
+                const dimensions = context.dimensions.length;
+                let stride = 1;
+                const strides = context.dimensions.slice().reverse().map((dim) => {
+                    const value = stride;
+                    stride *= dim;
+                    return value;
+                }).reverse();
+                const indices = new Uint32Array(values.length);
+                for (let i = 0; i < dimensions; i++) {
+                    const stride = strides[i];
+                    const dimension = data[i];
+                    for (let i = 0; i < indices.length; i++) {
+                        indices[i] += dimension[i] * stride;
+                    }
+                }
+                context.data = this._decodeSparse(dataType, context.dimensions, indices, values);
+                context.layout = '|';
                 break;
             }
             default: {
@@ -1508,6 +1510,33 @@ sidebar.Tensor = class {
         context.index = 0;
         context.count = 0;
         return context;
+    }
+
+    _decodeSparse(dataType, dimensions, indices, values) {
+        const size = dimensions.reduce((a, b) => a * b, 1);
+        const array = new Array(size);
+        switch (dataType) {
+            case 'boolean':
+                array.fill(false);
+                break;
+            default:
+                array.fill(0);
+                break;
+        }
+        if (indices.length > 0) {
+            if (Object.prototype.hasOwnProperty.call(indices[0], 'low')) {
+                for (let i = 0; i < indices.length; i++) {
+                    const index = indices[i];
+                    array[index.high === 0 ? index.low : index.toNumber()] = values[i];
+                }
+            }
+            else {
+                for (let i = 0; i < indices.length; i++) {
+                    array[indices[i]] = values[i];
+                }
+            }
+        }
+        return array;
     }
 
     _decodeData(context, dimension) {

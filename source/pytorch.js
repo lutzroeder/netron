@@ -663,6 +663,38 @@ pytorch.Tensor = class {
         }
         return this._data instanceof Uint8Array ? this._data : this._data.peek();
     }
+
+    decode() {
+        if (this._layout !== '<' && this._layout !== '>') {
+            throw new pytorch.Error("Tensor layout '" + this._layout + "' not implemented.");
+        }
+        const littleEndian = this._littleEndian;
+        const type = this._type;
+        const data = this.values;
+        const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+        switch (type.dataType) {
+            case 'int16': {
+                const array = new Uint16Array(data.length >> 1);
+                for (let i = 0; i < array.length; i++) {
+                    array[i] = view.getInt16(i << 1, littleEndian);
+                }
+                return array;
+            }
+            case 'int64': {
+                const array = new Uint32Array(data.length >> 3);
+                for (let i = 0; i < array.length; i++) {
+                    array[i] = view.getUint32(i << 3, littleEndian);
+                    if (view.getUint32((i << 3) + 4, littleEndian) !== 0) {
+                        throw new pytorch.Error('Signed 64-bit value exceeds 32-bit range.');
+                    }
+                }
+                return array;
+            }
+            default: {
+                throw new pytorch.Error("Tensor data type '" + type.dataType + "' not implemented.");
+            }
+        }
+    }
 };
 
 pytorch.TensorType = class {
@@ -751,7 +783,7 @@ pytorch.Execution = class extends python.Execution {
                 const tensors = state[1];
                 const opt_tensors = state[2];
                 const packed_config_tensor = new pytorch.Tensor('', tensors[0], true);
-                const packed_config = pytorch.Utility.values(packed_config_tensor);
+                const packed_config = packed_config_tensor.decode();
                 this.weight = tensors[1];
                 this.bias = opt_tensors[0];
                 this.stride = [ packed_config[1], packed_config[2] ];
@@ -770,7 +802,7 @@ pytorch.Execution = class extends python.Execution {
                 const tensors = state[1];
                 const opt_tensors = state[2];
                 const packed_config_tensor = new pytorch.Tensor('', tensors[0], true);
-                const packed_config = pytorch.Utility.values(packed_config_tensor);
+                const packed_config = packed_config_tensor.decode();
                 this.weight = tensors[1];
                 this.bias = opt_tensors[0];
                 this.stride = [ packed_config[1], packed_config[2] ];
@@ -2564,25 +2596,6 @@ pytorch.Utility = class {
             return pytorch.Utility.target(expression.target) + '.' + pytorch.Utility.target(expression.member);
         }
         return null;
-    }
-
-    static values(tensor) {
-        const type = tensor.type;
-        const data = tensor.values;
-        if (type && data) {
-            switch (type.dataType) {
-                case 'int16': {
-                    if (tensor.layout === '<') {
-                        return new Uint16Array(data);
-                    }
-                    break;
-                }
-                default: {
-                    break;
-                }
-            }
-        }
-        throw new pytorch.Error("Tensor data type '" + type.dataType + "' not implemented.");
     }
 
     static isTensor(obj) {

@@ -671,7 +671,7 @@ const loadModel = (target, item) => {
                                 // console.log('  ' + message);
                             };
                             const tensor = new sidebar.Tensor(argument.initializer);
-                            if (tensor.layout !== '<' && tensor.layout !== '>' && tensor.layout !== '|' && tensor.layout !== 'sparse') {
+                            if (tensor.layout !== '<' && tensor.layout !== '>' && tensor.layout !== '|' && tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo') {
                                 log("Tensor layout '" + tensor.layout + "' is not implemented.");
                             }
                             else if (tensor.empty) {
