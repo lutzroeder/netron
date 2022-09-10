@@ -28822,7 +28822,7 @@
       {
         "name": "TI",
         "type": "type",
-        "description": "Must be one of the following: `uint8`, `int32`, `int64`.",
+        "description": "Must be one of the following: `uint8`, `int8`, `int32`, `int64`.",
         "default": {
           "type": "type",
           "value": 9
@@ -37218,6 +37218,12 @@
     "summary": "Outputs the position of `value` in a permutation of [0, ..., max_index].",
     "description": "Output values are a bijection of the `index` for any combination and `seed` and `max_index`.\n\nIf multiple inputs are vectors (matrix in case of seed) then the size of the\nfirst dimension must match.\n\nThe outputs are deterministic.",
     "attributes": [
+      {
+        "name": "rounds",
+        "type": "int64",
+        "description": "The number of rounds to use the in block cipher.",
+        "default": 4
+      },
       {
         "name": "dtype",
         "type": "type",
@@ -52219,7 +52225,7 @@
       {
         "name": "Tlen",
         "type": "type",
-        "description": "Must be one of the following: `int32`, `int64`.",
+        "description": "Must be one of the following: `int8`, `int32`, `int64`.",
         "default": {
           "type": "type",
           "value": 9
@@ -59883,6 +59889,120 @@
         "name": "output",
         "description": "The output clipped Tensor of T, whose shape is same as operand.",
         "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "UniformQuantizedDot",
+    "summary": "Perform quantized dot of quantized Tensor `lhs` and quantized Tensor `rhs` to make quantized `output`.",
+    "description": "Given quantized `lhs` and quantized `rhs`, performs quantized dot on `lhs` and `rhs` to make quantized `output`.\n`lhs` and `rhs` must be 2D Tensors and the lhs.dim_size(1) must match rhs.dim_size(0).\n`lhs` and `rhs` must be quantized Tensor, where data value is quantized using the formula:\nquantized_data = clip(original_data / scale + zero_point, quantization_min_val, quantization_max_val).\n`output` is also quantized, using the same formula.\nIf `rhs` is per-tensor quantized, `output` must be also per-tensor quantized.",
+    "attributes": [
+      {
+        "name": "Tin",
+        "type": "type",
+        "description": "The type of lhs and rhs input Tensor. Must be one of the following: `qint8`."
+      },
+      {
+        "name": "Tout",
+        "type": "type",
+        "description": "The type of output Tensor. Must be one of the following: `qint32`."
+      },
+      {
+        "name": "lhs_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor dot op lhs, only per-tensor quantization is supported.\nThus, this attribute must be set to -1. Other values are rejected.",
+        "default": -1
+      },
+      {
+        "name": "lhs_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in lhs.\nFor example, if Tin is qint8, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "lhs_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in rhs.\nFor example, if Tin is qint8, this must be set to 127."
+      },
+      {
+        "name": "rhs_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor dot op rhs, only per-tensor quantization or per-channel quantization along dimension 1 is supported.\nThus, this attribute must be set to -1 or 1. Other values are rejected.",
+        "default": -1
+      },
+      {
+        "name": "rhs_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in rhs.\nFor example, if Trhs is qint8, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "rhs_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in rhs.\nFor example, if Trhs is qint8, this must be set to 127."
+      },
+      {
+        "name": "output_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor dot op output, only per-tensor quantization or per-channel quantization along dimension 1 is supported.\nThus, this attribute must be set to -1 or 1. Other values are rejected.",
+        "default": -1
+      },
+      {
+        "name": "output_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in output.\nFor example, if Tout is qint8, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "output_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in output.\nFor example, if Tout is qint8, this must be set to 127."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "lhs",
+        "description": "Must be a 2D Tensor of Tin.",
+        "typeAttr": "Tin"
+      },
+      {
+        "name": "rhs",
+        "description": "Must be a 2D Tensor of Tin.",
+        "typeAttr": "Tin"
+      },
+      {
+        "name": "lhs_scales",
+        "description": "The float value(s) used as scale when quantizing original data that lhs represents.\nMust be a scalar Tensor (lhs supports only per-tensor quantization).",
+        "type": 1
+      },
+      {
+        "name": "lhs_zero_points",
+        "description": "The int32 value(s) used as zero_point when quantizing original data that lhs represents.\nSame shape condition as lhs_scales.",
+        "type": 3
+      },
+      {
+        "name": "rhs_scales",
+        "description": "The float value(s) used as scale when quantizing original data that rhs represents.\nMust be a scalar Tensor (per-tensor quantization) or 1D Tensor of size (rhs.dim_size(1),) (per-channel quantization).",
+        "type": 1
+      },
+      {
+        "name": "rhs_zero_points",
+        "description": "The int32 value(s) used as zero_point when quantizing original data that rhs represents.\nSame shape condition as rhs_scales.",
+        "type": 3
+      },
+      {
+        "name": "output_scales",
+        "description": "The float value(s) to use as scales when quantizing original data that output represents.\nMust be a scalar Tensor (per-tensor quantization) or 1D Tensor of size (output.dim_size(1),) (per-channel quantization).\nIf rhs is per-tensor quantized, output must be also per-tensor quantized.\nThis means that if rhs_scales and rhs_zero_points are scalar Tensors, output_scales and output_zero_points must be scalar Tensors as well.",
+        "type": 1
+      },
+      {
+        "name": "output_zero_points",
+        "description": "The int32 value(s) used as zero_point when quantizing original data that output represents.\nSame shape condition as rhs_scales.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "The output 2D Tensor of Tout, whose shape is (lhs.dim_size(0), rhs.dim_size(1)).",
+        "typeAttr": "Tout"
       }
     ]
   },
