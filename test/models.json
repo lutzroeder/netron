@@ -3240,14 +3240,6 @@
   },
   {
     "type":     "onnx",
-    "target":   "bidaf-9.onnx.zip",
-    "source":   "https://github.com/lutzroeder/netron/files/6572387/bidaf-9.onnx.zip",
-    "format":   "ONNX v4",
-    "producer": "CNTK 2.7",
-    "link":     "https://github.com/lutzroeder/netron/issues/6"
-  },
-  {
-    "type":     "onnx",
     "target":   "bert-base-uncased.onnx.zip",
     "source":   "https://github.com/lutzroeder/netron/files/7705191/bert-base-uncased.onnx.zip",
     "format":   "ONNX v7",
@@ -3263,10 +3255,10 @@
   },
   {
     "type":     "onnx",
-    "target":   "mnist_bfloat16.onnx",
-    "source":   "https://github.com/lutzroeder/netron/files/8556399/mnist_bfloat16.onnx.zip[mnist_bfloat16.onnx]",
+    "target":   "bidaf-9.onnx.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/6572387/bidaf-9.onnx.zip",
     "format":   "ONNX v4",
-    "producer": "pytorch 1.12.0",
+    "producer": "CNTK 2.7",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
@@ -3506,6 +3498,14 @@
     "source":   "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/MNIST/Tutorial/cs/Assets/mnist.onnx",
     "format":   "ONNX v3",
     "link":     "https://github.com/Microsoft/Windows-Machine-Learning/tree/master/Samples/MNIST/Tutorial/cs/Assets"
+  },
+  {
+    "type":     "onnx",
+    "target":   "mnist_bfloat16.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/8556399/mnist_bfloat16.onnx.zip[mnist_bfloat16.onnx]",
+    "format":   "ONNX v4",
+    "producer": "pytorch 1.12.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
     "type":     "onnx",
