@@ -496,7 +496,7 @@ sidebar.AttributeView = class extends sidebar.ValueView {
             case 'function': {
                 const line = this._host.document.createElement('div');
                 line.className = 'sidebar-view-item-value-line-link';
-                line.innerHTML = type === value.type.name;
+                line.innerHTML = value.type.name;
                 line.addEventListener('click', () => {
                     this._raise('show-graph', value.type);
                 });
