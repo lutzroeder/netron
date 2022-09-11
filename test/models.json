@@ -5022,6 +5022,14 @@
   },
   {
     "type":     "pytorch",
+    "target":   "yolov5n.tensor.pth",
+    "source":   "https://github.com/lutzroeder/netron/files/9543602/yolov5n.tensor.pth.zip[yolov5n.tensor.pth]",
+    "format":   "PyTorch v1.6",
+    "error":    "Invalid tensor data size.",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "yolo4_tiny.pt",
     "source":   "https://github.com/lutzroeder/netron/files/7995416/yolo4_tiny.pt.zip[yolo4_tiny.pt]",
     "format":   "TorchScript v1.5",
