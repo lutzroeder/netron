@@ -390,7 +390,12 @@ tf.ModelFactory = class {
                         }
                     }
                     const openShards = (shards) => {
-                        const dtype_size_map = new Map([ [ 'float16', 2 ], [ 'float32', 4 ], [ 'float64', 8 ], [ 'int8', 1 ], [ 'int16', 2 ], [ 'int32', 4 ], [ 'int64', 8 ], [ 'uint8', 1 ], [ 'uint16', 2 ], [ 'uint32', 4 ], [ 'uint64', 8 ], [ 'bool', 1 ] ]);
+                        const dtype_size_map = new Map([
+                            [ 'float16', 2 ], [ 'float32', 4 ], [ 'float64', 8 ],
+                            [ 'int8', 1 ], [ 'int16', 2 ], [ 'int32', 4 ], [ 'int64', 8 ],
+                            [ 'uint8', 1 ], [ 'uint16', 2 ], [ 'uint32', 4 ], [ 'uint64', 8 ],
+                            [ 'bool', 1 ]
+                        ]);
                         for (const manifest of manifests) {
                             let buffer = null;
                             if (Array.isArray(manifest.paths) && manifest.paths.length > 0 && manifest.paths.every((path) => shards.has(path))) {
@@ -2432,7 +2437,7 @@ tf.JsonReader = class {
         const message = new tf.proto.tensorflow.TensorShapeProto();
         message.dim = (json.dim || []).map((json) => {
             const message = new tf.proto.tensorflow.TensorShapeProto.Dim();
-            message.size = json.size;
+            message.size = typeof json.size === 'string' ? parseInt(json.size, 10) : json.size;
             message.name = json.name;
             return message;
         });
