@@ -2625,11 +2625,14 @@ pytorch.Utility = class {
     }
 
     static getType(value) {
-        if (pytorch.Utility.isTensor(value)) {
-            return 'Tensor';
+        if (value === null) {
+            return undefined;
         }
         else if (value === true || value === false) {
             return 'boolean';
+        }
+        else if (pytorch.Utility.isTensor(value)) {
+            return 'Tensor';
         }
         else if (typeof value === 'string') {
             return 'string';
