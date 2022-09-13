@@ -5223,6 +5223,20 @@
     ]
   },
   {
+    "name": "torch.new_ones:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "size", "type": "int64[]" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "layout", "type": "Layout", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
+      { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.new_full",
     "inputs": [
       { "name": "self", "type": "Tensor" },
