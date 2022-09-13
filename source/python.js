@@ -3644,6 +3644,8 @@ python.Execution = class {
             throw new python.Error('Function not implemented.');
         });
         this.registerType('torch.ao.quantization.observer._PartialWrapper', class {});
+        this.registerType('torch.ao.quantization.observer.HistogramObserver', class {});
+        this.registerType('torch.ao.quantization.observer.PerChannelMinMaxObserver', class {});
         this.registerType('torch.ao.quantization.qconfig.QConfig', class {});
         this.registerType('torch.ao.quantization.stubs.DeQuantStub', class {});
         this.registerType('torch.ao.quantization.stubs.QuantStub', class {});
@@ -4497,6 +4499,9 @@ python.Execution = class {
             throw new python.Error("Unsupported 'torch.sub' expression type.");
         });
         this.registerFunction('torch.nn.functional.gelu', function(/* input */) {
+            throw new python.Error("Function not implemented.");
+        });
+        this.registerFunction('torch.nn.functional.interpolate', function(/* input */) {
             throw new python.Error("Function not implemented.");
         });
         this.registerFunction('torch.nn.functional.leaky_relu', function(/* input */) {
