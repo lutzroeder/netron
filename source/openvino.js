@@ -366,6 +366,7 @@ openvino.Graph = class {
                     switch (element_type) {
                         case 'f16': precision = 'FP16'; break;
                         case 'f32': precision = 'FP32'; break;
+                        case 'f64': precision = 'FP64'; break;
                         default: precision = element_type.toUpperCase();
                     }
                     const shape = data['shape'] ? data['shape'].split(',').map((dim) => parseInt(dim.trim(), 10)) : null;
@@ -797,8 +798,9 @@ openvino.TensorType = class {
         precision = precision ? precision.toLowerCase() : precision;
         switch (precision) {
             case 'f16':     this._dataType = 'float16'; break;
-            case 'fp16':    this._dataType = 'float16'; break;
             case 'f32':     this._dataType = 'float32'; break;
+            case 'f64':     this._dataType = 'float64'; break;
+            case 'fp16':    this._dataType = 'float16'; break;
             case 'fp32':    this._dataType = 'float32'; break;
             case 'fp64':    this._dataType = 'float64'; break;
             case 'bf16':    this._dataType = 'bfloat16'; break;
