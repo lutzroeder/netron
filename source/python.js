@@ -4095,7 +4095,7 @@ python.Execution = class {
                     return [];
                 }
             }
-            throw new python.Error('Unsupported function range(' + JSON.stringify(start) + ', ' + JSON.stringify(stop) + ', ' + JSON.stringify(step) + ')');
+            throw new python.Error('Unsupported range(' + JSON.stringify(start) + ', ' + JSON.stringify(stop) + ', ' + JSON.stringify(step) + ')');
         });
         this.registerFunction('torch._utils._rebuild_sparse_tensor', function(layout, data) {
             if (layout === torch.sparse_coo) {
@@ -5049,16 +5049,16 @@ python.Execution = class {
     }
 
     resolve(name) {
-        const parts = name.split('.');
-        const memberName = parts.pop();
-        const moduleName = parts.join('.');
+        const index = name.lastIndexOf('.');
+        const memberName = index === -1 ? name : name.substring(index + 1, name.length);
+        const moduleName = index === -1 ? '' : name.substring(0, index);
         const module = this.import(moduleName);
         let type = module ? module[memberName] : null;
         if (!type) {
             if (!this._unresolved.has(name)) {
                 const moduleName = name.split('.').shift();
                 if (this._registry.has(moduleName)) {
-                    this._exceptionCallback(new python.Error("Unsupported function '" + name + "'."), false);
+                    this._exceptionCallback(new python.Error("Unknown type name '" + name + "'."), false);
                 }
                 const type = this._createType(name, class {});
                 this._unresolved.set(name, type);
@@ -5112,7 +5112,7 @@ python.Execution = class {
                     return null;
                 };
                 const targetName = format(target) + '.' + name;
-                throw new python.Error("Unsupported function '" +  targetName + "'.");
+                throw new python.Error("Unknown function '" +  targetName + "'.");
             }
         }
         const func = name ? callTarget[name] : callTarget;

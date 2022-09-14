@@ -1294,7 +1294,7 @@ pytorch.Container.Zip.Script = class {
                                 }
                             }
                         }
-                        throw new pytorch.Error("Unsupported function parameter type '" + JSON.stringify(type) + "'.");
+                        throw new pytorch.Error("Unsupported parameter type '" + JSON.stringify(type) + "'.");
                     };
                     if (parameter.name !== 'self') {
                         const type = parameter.parameterType;
@@ -1783,6 +1783,21 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
 
     get nodes() {
         return this._nodes;
+    }
+
+    resolve(name) {
+        const index = name.lastIndexOf('.');
+        const memberName = index === -1 ? name : name.substring(index + 1, name.length);
+        const moduleName = index === -1 ? '' : name.substring(0, index);
+        const module = this.import(moduleName);
+        let type = module ? module[memberName] : null;
+        if (!type) {
+            if (name.startsWith('__torch__.')) {
+                throw new pytorch.Error("Unknown type name '" + name + "'.");
+            }
+            type = super.resolve(name);
+        }
+        return type;
     }
 
     target(expression, context) {
