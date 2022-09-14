@@ -1143,13 +1143,19 @@ $root.mindspore.schema.Concat = class Concat {
 
 $root.mindspore.schema.Attention = class Attention {
 
-    static decode(/* reader, position */) {
+    static decode(reader, position) {
         const $ = new $root.mindspore.schema.Attention();
+        $.head_num = reader.int64_(position, 4, 0);
+        $.head_size = reader.int64_(position, 6, 0);
+        $.cross = reader.bool_(position, 8, false);
         return $;
     }
 
-    static decodeText(/* reader, json */) {
+    static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.Attention();
+        $.head_num = reader.value(json.head_num, 0);
+        $.head_size = reader.value(json.head_size, 0);
+        $.cross = reader.value(json.cross, false);
         return $;
     }
 };
