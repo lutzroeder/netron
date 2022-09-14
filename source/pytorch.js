@@ -2055,6 +2055,10 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         case 'torch.hardtanh_':
                                         case 'torch.upsample_bilinear2d':
                                         case 'ops.prepacked.conv2d_clamp_run': {
+                                            const input = evalArgs[0];
+                                            if (pytorch.Utility.isTensor(input) && input.size() === undefined) {
+                                                input.resize_([ NaN, NaN, NaN, NaN ]);
+                                            }
                                             parameter.resize_([ NaN, NaN, NaN, NaN ]);
                                             break;
                                         }
@@ -2086,6 +2090,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         case 'torch.gelu':
                                         case 'torch.relu':
                                         case 'torch.clamp_':
+                                        case 'torch._add_relu_':
                                         case 'torch.hardswish_': {
                                             const input = evalArgs[0];
                                             if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
