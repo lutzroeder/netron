@@ -8,7 +8,7 @@ megengine.ModelFactory = class {
 
     match(context) {
         const obj = context.open('pkl');
-        if (obj.__class__ && obj.__class__.__module__ === 'megengine.traced_module.traced_module' && obj.__class__.__name__ === 'TracedModule') {
+        if (obj && obj.__class__ && obj.__class__.__module__ === 'megengine.traced_module.traced_module' && obj.__class__.__name__ === 'TracedModule') {
             return 'megengine.pickle';
         }
         return '';
