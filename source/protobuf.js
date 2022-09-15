@@ -398,16 +398,15 @@ protobuf.BinaryReader = class {
     }
 
     _uint32() {
-        let c;
         if (this._position < this._length) {
-            c = this._buffer[this._position++];
+            let c = this._buffer[this._position++];
             let value = (c & 127) >>> 0;
             if (c < 128) {
                 return value;
             }
             if (this._position < this._length) {
                 c = this._buffer[this._position++];
-                value = (value | (c & 127) <<  7) >>> 0;
+                value = (value | (c & 127) << 7) >>> 0;
                 if (c < 128) {
                     return value;
                 }
