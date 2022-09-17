@@ -3875,6 +3875,7 @@ python.Execution = class {
         this.registerType('torchvision.models.detection.mask_rcnn.MaskRCNN', class {});
         this.registerType('torchvision.models.detection.mask_rcnn.MaskRCNNHeads', class {});
         this.registerType('torchvision.models.detection.mask_rcnn.MaskRCNNPredictor', class {});
+        this.registerType('torchvision.models.detection.retinanet.RetinaNet', class {});
         this.registerType('torchvision.models.detection.retinanet.RetinaNetClassificationHead', class {});
         this.registerType('torchvision.models.detection.retinanet.RetinaNetHead', class {});
         this.registerType('torchvision.models.detection.retinanet.RetinaNetRegressionHead', class {});
