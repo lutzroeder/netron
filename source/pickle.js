@@ -80,7 +80,7 @@ pickle.Graph = class {
         this._outputs = [];
         this._nodes = [];
 
-        if (Array.isArray(obj) && obj.every((item) => item.__class__)) {
+        if (Array.isArray(obj) && (obj.every((item) => item.__class__) || (obj.every((item) => Array.isArray(item))))) {
             for (const item of obj) {
                 this._nodes.push(new pickle.Node(item));
             }
