@@ -59,7 +59,7 @@ start: install
 lint: install
 	npx eslint source/*.js test/*.js publish/*.js tools/*.js
 	python -m pip install --upgrade --quiet pylint onnx torch torchvision
-	python -m pylint -sn publish/*.py test/backend/*.py tools/*.py
+	python -m pylint -sn source/*.py publish/*.py test/backend/*.py tools/*.py
 
 test: install
 	node ./test/models.js

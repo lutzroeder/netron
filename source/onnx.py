@@ -3,13 +3,25 @@
 import collections
 import enum
 import json
+import os
 
-class ModelFactory:
+class ModelFactory: # pylint: disable=too-few-public-methods
     ''' ONNX backend model factory '''
-    def serialize(self, model):
+    def open(self, model): # pylint: disable=missing-function-docstring
+        return _Model(model)
+
+class _Model: # pylint: disable=too-few-public-methods
+    def __init__(self, model):
         ''' Serialize ONNX model to JSON message '''
         # import onnx.shape_inference
         # model = onnx.shape_inference.infer_shapes(model)
+        self.value = model
+        self.metadata = _Metadata()
+        self.graph = _Graph(model.graph, self.metadata)
+
+    def to_json(self): # pylint: disable=missing-function-docstring
+        ''' Serialize model to JSON message '''
+        model = self.value
         json_model = {}
         json_model['signature'] = 'netron:onnx'
         json_model['format'] = 'ONNX' + (' v' + str(model.ir_version) if model.ir_version else '')
@@ -20,8 +32,16 @@ class ModelFactory:
             json_model['version'] = str(model.model_version)
         if model.doc_string and len(model.doc_string):
             json_model['description'] = str(model.doc_string)
+        json_metadata = self._metadata_props(model.metadata_props)
+        if len(json_metadata) > 0:
+            json_model['metadata'] = json_metadata
+        json_model['graphs'] = []
+        json_model['graphs'].append(self.graph.to_json())
+        return json_model
+
+    def _metadata_props(self, metadata_props): # pylint: disable=missing-function-docstring
         json_metadata = []
-        metadata_props = [ [ entry.key, entry.value ] for entry in model.metadata_props ]
+        metadata_props = [ [ entry.key, entry.value ] for entry in metadata_props ]
         metadata = collections.OrderedDict(metadata_props)
         value = metadata.get('converted_from')
         if value:
@@ -50,44 +70,93 @@ class ModelFactory:
             metadata.pop('license_url')
         for name, value in metadata.items():
             json_metadata.append({ 'name': name, 'value': value })
-        if len(json_metadata) > 0:
-            json_model['metadata'] = json_metadata
-        json_model['graphs'] = []
-        graph = model.graph
+        return json_metadata
+
+class _Graph:
+    def __init__(self, graph, metadata):
+        self.metadata = metadata
+        self.value = graph
+        self.arguments_index = {}
+        self.arguments = []
+
+    def _tensor(self, tensor): # pylint: disable=unused-argument
+        return {}
+
+    def argument(self, name, tensor_type=None, initializer=None): # pylint: disable=missing-function-docstring
+        if not name in self.arguments_index:
+            argument = _Argument(name, tensor_type, initializer)
+            self.arguments_index[name] = len(self.arguments)
+            self.arguments.append(argument)
+        index = self.arguments_index[name]
+        # argument.set_initializer(initializer)
+        return index
+
+    def attribute(self, _, op_type): # pylint: disable=too-many-branches disable=missing-function-docstring
+        if _.type == _AttributeType.UNDEFINED:
+            attribute_type = None
+            value = None
+        elif _.type == _AttributeType.FLOAT:
+            attribute_type = 'float32'
+            value = _.f
+        elif _.type == _AttributeType.INT:
+            attribute_type = 'int64'
+            value = _.i
+        elif _.type == _AttributeType.STRING:
+            attribute_type = 'string'
+            value = _.s.decode('latin1' if op_type == 'Int8GivenTensorFill' else 'utf-8')
+        elif _.type == _AttributeType.TENSOR:
+            attribute_type = 'tensor'
+            value = self._tensor(_.t)
+        elif _.type == _AttributeType.GRAPH:
+            attribute_type = 'tensor'
+            raise Exception('Unsupported graph attribute type')
+        elif _.type == _AttributeType.FLOATS:
+            attribute_type = 'float32[]'
+            value = list(_.floats)
+        elif _.type == _AttributeType.INTS:
+            attribute_type = 'int64[]'
+            value = list(_.ints)
+        elif _.type == _AttributeType.STRINGS:
+            attribute_type = 'string[]'
+            value = [ item.decode('utf-8') for item in _.strings ]
+        elif _.type == _AttributeType.TENSORS:
+            attribute_type = 'tensor[]'
+            raise Exception('Unsupported tensors attribute type')
+        elif _.type == _AttributeType.GRAPHS:
+            attribute_type = 'graph[]'
+            raise Exception('Unsupported graphs attribute type')
+        elif _.type == _AttributeType.SPARSE_TENSOR:
+            attribute_type = 'tensor'
+            value = self._tensor(_.sparse_tensor)
+        else:
+            raise Exception("Unsupported attribute type '" + str(_.type) + "'.")
+        json_attribute = {}
+        json_attribute['name'] = _.name
+        if attribute_type:
+            json_attribute['type'] = attribute_type
+        json_attribute['value'] = value
+        return json_attribute
+
+    def to_json(self): # pylint: disable=missing-function-docstring
+        graph = self.value
         json_graph = {
             'nodes': [],
             'inputs': [],
             'outputs': [],
             'arguments': []
         }
-        json_model['graphs'].append(json_graph)
-        arguments = {}
-        def tensor(tensor): # pylint: disable=unused-argument
-            return {}
-        def argument(name, tensor_type=None, initializer=None):
-            if not name in arguments:
-                json_argument = {}
-                json_argument['name'] = name
-                arguments[name] = len(json_graph['arguments'])
-                json_graph['arguments'].append(json_argument)
-            index = arguments[name]
-            if tensor_type or initializer:
-                json_argument = json_graph['arguments'][index]
-                if initializer:
-                    json_argument['initializer'] = tensor(initializer)
-            return index
-
         for value_info in graph.value_info:
-            argument(value_info.name)
+            self.argument(value_info.name)
         for initializer in graph.initializer:
-            argument(initializer.name, None, initializer)
+            self.argument(initializer.name, None, initializer)
         for node in graph.node:
             op_type = node.op_type
             json_node = {}
             json_node_type = {}
             json_node_type['name'] = op_type
-            if self.category(op_type):
-                json_node_type['category'] = self.category(op_type)
+            type_metadata = self.metadata.type(op_type)
+            if type and 'category' in type_metadata:
+                json_node_type['category'] = type_metadata['category']
             json_node['type'] = json_node_type
             if node.name:
                 json_node['name'] = node.name
@@ -95,127 +164,50 @@ class ModelFactory:
             for value in node.input:
                 json_node['inputs'].append({
                         'name': 'X',
-                        'arguments': [ argument(value) ]
+                        'arguments': [ self.argument(value) ]
                     })
             json_node['outputs'] = []
             for value in node.output:
                 json_node['outputs'].append({
                         'name': 'X',
-                        'arguments': [ argument(value) ]
+                        'arguments': [ self.argument(value) ]
                     })
             json_node['attributes'] = []
             for _ in node.attribute:
-                if _.type == _AttributeType.UNDEFINED:
-                    attribute_type = None
-                    value = None
-                elif _.type == _AttributeType.FLOAT:
-                    attribute_type = 'float32'
-                    value = _.f
-                elif _.type == _AttributeType.INT:
-                    attribute_type = 'int64'
-                    value = _.i
-                elif _.type == _AttributeType.STRING:
-                    attribute_type = 'string'
-                    value = _.s.decode('latin1' if op_type == 'Int8GivenTensorFill' else 'utf-8')
-                elif _.type == _AttributeType.TENSOR:
-                    attribute_type = 'tensor'
-                    value = tensor(_.t)
-                elif _.type == _AttributeType.GRAPH:
-                    attribute_type = 'tensor'
-                    raise Exception('Unsupported graph attribute type')
-                elif _.type == _AttributeType.FLOATS:
-                    attribute_type = 'float32[]'
-                    value = list(_.floats)
-                elif _.type == _AttributeType.INTS:
-                    attribute_type = 'int64[]'
-                    value = list(_.ints)
-                elif _.type == _AttributeType.STRINGS:
-                    attribute_type = 'string[]'
-                    value = [ item.decode('utf-8') for item in _.strings ]
-                elif _.type == _AttributeType.TENSORS:
-                    attribute_type = 'tensor[]'
-                    raise Exception('Unsupported tensors attribute type')
-                elif _.type == _AttributeType.GRAPHS:
-                    attribute_type = 'graph[]'
-                    raise Exception('Unsupported graphs attribute type')
-                elif _.type == _AttributeType.SPARSE_TENSOR:
-                    attribute_type = 'tensor'
-                    value = tensor(_.sparse_tensor)
-                else:
-                    raise Exception("Unsupported attribute type '" + str(_.type) + "'.")
-                json_attribute = {}
-                json_attribute['name'] = _.name
-                if attribute_type:
-                    json_attribute['type'] = attribute_type
-                json_attribute['value'] = value
+                json_attribute = self.attribute(_, op_type)
                 json_node['attributes'].append(json_attribute)
             json_graph['nodes'].append(json_node)
-        text = json.dumps(json_model, ensure_ascii=False)
-        return text.encode('utf-8')
+        for _ in self.arguments:
+            json_graph['arguments'].append(_.to_json())
+        return json_graph
 
-    categories = {
-        'Constant': 'Constant',
-        'Conv': 'Layer',
-        'ConvInteger': 'Layer',
-        'ConvTranspose': 'Layer',
-        'FC': 'Layer',
-        'RNN': 'Layer',
-        'LSTM': 'Layer',
-        'GRU': 'Layer',
-        'Gemm': 'Layer',
-        'FusedConv': 'Layer',
-        'Dropout': 'Dropout',
-        'Elu': 'Activation',
-        'HardSigmoid': 'Activation',
-        'LeakyRelu': 'Activation',
-        'PRelu': 'Activation',
-        'ThresholdedRelu': 'Activation',
-        'Relu': 'Activation',
-        'Selu': 'Activation',
-        'Sigmoid': 'Activation',
-        'Tanh': 'Activation',
-        'LogSoftmax': 'Activation',
-        'Softmax': 'Activation',
-        'Softplus': 'Activation',
-        'Softsign': 'Activation',
-        'Clip': 'Activation',
-        'BatchNormalization': 'Normalization',
-        'InstanceNormalization': 'Normalization',
-        'LpNormalization': 'Normalization',
-        'LRN': 'Normalization',
-        'Flatten': 'Shape',
-        'Reshape': 'Shape',
-        'Tile': 'Shape',
-        'Xor': 'Logic',
-        'Not': 'Logic',
-        'Or': 'Logic',
-        'Less': 'Logic',
-        'And': 'Logic',
-        'Greater': 'Logic',
-        'Equal': 'Logic',
-        'AveragePool': 'Pool',
-        'GlobalAveragePool': 'Pool',
-        'GlobalLpPool': 'Pool',
-        'GlobalMaxPool': 'Pool',
-        'LpPool': 'Pool',
-        'MaxPool': 'Pool',
-        'MaxRoiPool': 'Pool',
-        'Concat': 'Tensor',
-        'Slice': 'Tensor',
-        'Split': 'Tensor',
-        'Pad': 'Tensor',
-        'ImageScaler': 'Data',
-        'Crop': 'Data',
-        'Upsample': 'Data',
-        'Transpose': 'Transform',
-        'Gather': 'Transform',
-        'Unsqueeze': 'Transform',
-        'Squeeze': 'Transform',
-    }
+class _Argument: # pylint: disable=too-few-public-methods
+    def __init__(self, name, tensor_type=None, initializer=None):
+        self.name = name
+        self.type = tensor_type
+        self.initializer = initializer
 
-    def category(self, name):
-        ''' Get category for type '''
-        return self.categories[name] if name in self.categories else ''
+    def to_json(self): # pylint: disable=missing-function-docstring
+        target = {}
+        target['name'] = self.name
+        if self.initializer:
+            target['initializer'] = {}
+        return target
+
+class _Metadata: # pylint: disable=too-few-public-methods
+    metadata = {}
+
+    def __init__(self):
+        metadata_file = os.path.join(os.path.dirname(__file__), 'onnx-metadata.json')
+        with open(metadata_file, 'r', encoding='utf-8') as file:
+            for item in json.load(file):
+                name = item['name']
+                self.metadata[name] = item
+
+    def type(self, name): # pylint: disable=missing-function-docstring
+        if name in self.metadata:
+            return self.metadata[name]
+        return {}
 
 class _AttributeType(enum.IntEnum):
     UNDEFINED = 0
