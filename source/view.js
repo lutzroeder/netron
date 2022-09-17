@@ -1598,7 +1598,7 @@ view.ModelFactoryService = class {
         this.register('./lightgbm', [ '.txt', '.pkl', '.model' ]);
         this.register('./keras', [ '.h5', '.hd5', '.hdf5', '.keras', '.json', '.cfg', '.model', '.pb', '.pth', '.weights', '.pkl', '.lite', '.tflite', '.ckpt' ], [ '.zip' ]);
         this.register('./sklearn', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z' ]);
-        this.register('./megengine', ['.tm']);
+        this.register('./megengine', [ '.tm', '.mge' ]);
         this.register('./pickle', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z', '.pdstates', '.mge' ]);
         this.register('./cntk', [ '.model', '.cntk', '.cmf', '.dnn' ]);
         this.register('./paddle', [ '.pdmodel', '.pdiparams', '.pdparams', '.pdopt', '.paddle', '__model__', '.__model__', '.pbtxt', '.txt', '.tar', '.tar.gz', '.nb' ]);

@@ -2,22 +2,40 @@
 // Experimental
 
 var megengine = megengine || {};
-var base = base || require('./base');
+var flatbuffers = flatbuffers || require('./flatbuffers');
 
 megengine.ModelFactory = class {
 
     match(context) {
+        const stream = context.stream;
+        if (stream && stream.length >= 12) {
+            const buffer = stream.peek(12);
+            const size = buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24);
+            if (size === (stream.length - 4)) {
+                const reader = flatbuffers.BinaryReader.open(buffer.slice(4, 12));
+                if (reader.identifier === 'mgv2') {
+                    return 'megengine.mge';
+                }
+            }
+        }
         const obj = context.open('pkl');
         if (obj && obj.__class__ && obj.__class__.__module__ === 'megengine.traced_module.traced_module' && obj.__class__.__name__ === 'TracedModule') {
-            return 'megengine.pickle';
+            return 'megengine.tm';
         }
         return '';
     }
 
-    open(context) {
+    open(context, match) {
         return context.metadata('megengine-metadata.json').then((metadata) => {
-            const obj = context.open('pkl');
-            return new megengine.Model(metadata, obj);
+            switch (match) {
+                case 'megengine.tm': {
+                    const obj = context.open('pkl');
+                    return new megengine.Model(metadata, obj, match);
+                }
+                default: {
+                    throw new megengine.Error("Unsupported MegEngine format '" + match + "'.");
+                }
+            }
         });
     }
 };
@@ -138,7 +156,7 @@ megengine.Graph = class {
                 };
                 const formatTreeDef = (obj) => {
                     if (obj.__class__.__name__ !== 'TreeDef' && obj.__class__.__name__ !== 'LeafDef') {
-                        throw new megengine.Error('formatTreeDef gets invalid argument');
+                        throw new megengine.Error("Invalid argument '" + obj.__class__.__name__ + "'.");
                     }
                     if (obj.__class__.__name__ === 'TreeDef') {
                         const type = typeof obj.type !== 'string' ? obj.type.__name__ : obj.type.split('.').slice(-1)[0];
