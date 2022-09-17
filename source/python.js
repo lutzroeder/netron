@@ -1829,7 +1829,7 @@ python.Execution = class {
                             this.kind = 'V';
                         }
                         else if (obj.startsWith('O')) {
-                            this.itemsize = parseInt(obj.substring(1), 10);
+                            this.itemsize = obj === 'O' ? 8 : parseInt(obj.substring(1), 10);
                             this.kind = 'O';
                         }
                         else if (obj.startsWith('S')) {
@@ -2195,6 +2195,8 @@ python.Execution = class {
         this.registerType('megengine.core._imperative_rt.common.CompNode', class {});
         this.registerType('megengine.core._imperative_rt.ops.FakeQuant', class {});
         this.registerType('megengine.core._imperative_rt.ops.GetVarShape', class {});
+        this.registerType('megengine.core.ops._internal.param_defs.ConvolutionV0.Mode', class {});
+        this.registerType('megengine.core.ops._internal.param_defs.Convolution.ComputeMode', class {});
         this.registerType('megengine.module.activation.ReLU', class {});
         this.registerType('megengine.module.batchnorm.BatchNorm1d', class {});
         this.registerType('megengine.module.batchnorm.BatchNorm2d', class {});
@@ -2203,9 +2205,11 @@ python.Execution = class {
         this.registerType('megengine.module.identity.Identity', class {});
         this.registerType('megengine.module.linear.Linear', class {});
         this.registerType('megengine.module.module.Module', class {});
+        this.registerType('megengine.module.pooling.AvgPool2d', class {});
         this.registerType('megengine.module.pooling.MaxPool2d', class {});
         this.registerType('megengine.module.qat.concat.Concat', class {});
         this.registerType('megengine.module.qat.elemwise.Elemwise', class {});
+        this.registerType('megengine.module.sequential.Sequential', class {});
         this.registerType('megengine.quantization.fake_quant.FakeQuantize', class {});
         this.registerType('megengine.quantization.utils.QParams', class {});
         this.registerType('megengine.quantization.utils.QuantMode', class {});
@@ -2538,6 +2542,7 @@ python.Execution = class {
         this.registerType('sklearn.linear_model.ridge.Ridge', class {});
         this.registerType('sklearn.linear_model.sgd_fast.Log', class {});
         this.registerType('sklearn.linear_model.stochastic_gradient.SGDClassifier', class {});
+        this.registerType('sklearn.metrics._classification.accuracy_score', class {});
         this.registerType('sklearn.metrics._scorer._PredictScorer', class {});
         this.registerType('sklearn.metrics.scorer._PredictScorer', class {});
         this.registerType('sklearn.metrics._scorer._ThresholdScorer', class {});
@@ -3449,6 +3454,9 @@ python.Execution = class {
             switch (dtype.byteorder) {
                 case '|': {
                     data = file.read();
+                    if (dtype.kind === 'O') {
+                        return python.Unpickler.open(data, execution).load();
+                    }
                     break;
                 }
                 case '>':
@@ -3636,6 +3644,8 @@ python.Execution = class {
             throw new python.Error('Function not implemented.');
         });
         this.registerType('torch.ao.quantization.observer._PartialWrapper', class {});
+        this.registerType('torch.ao.quantization.observer.HistogramObserver', class {});
+        this.registerType('torch.ao.quantization.observer.PerChannelMinMaxObserver', class {});
         this.registerType('torch.ao.quantization.qconfig.QConfig', class {});
         this.registerType('torch.ao.quantization.stubs.DeQuantStub', class {});
         this.registerType('torch.ao.quantization.stubs.QuantStub', class {});
@@ -4085,7 +4095,7 @@ python.Execution = class {
                     return [];
                 }
             }
-            throw new python.Error('Unsupported function range(' + JSON.stringify(start) + ', ' + JSON.stringify(stop) + ', ' + JSON.stringify(step) + ')');
+            throw new python.Error('Unsupported range(' + JSON.stringify(start) + ', ' + JSON.stringify(stop) + ', ' + JSON.stringify(step) + ')');
         });
         this.registerFunction('torch._utils._rebuild_sparse_tensor', function(layout, data) {
             if (layout === torch.sparse_coo) {
@@ -4491,6 +4501,9 @@ python.Execution = class {
         this.registerFunction('torch.nn.functional.gelu', function(/* input */) {
             throw new python.Error("Function not implemented.");
         });
+        this.registerFunction('torch.nn.functional.interpolate', function(/* input */) {
+            throw new python.Error("Function not implemented.");
+        });
         this.registerFunction('torch.nn.functional.leaky_relu', function(/* input */) {
             throw new python.Error("Function not implemented.");
         });
@@ -4751,7 +4764,7 @@ python.Execution = class {
                 throw new python.Error("Unsupported values in layout'" + this._layout.__str__() + "'.");
             }
             get indices() {
-                if (this._indices === torch.sparse_coo) {
+                if (this._layout === torch.sparse_coo) {
                     return this._indices;
                 }
                 throw new python.Error("Unsupported indices in layout'" + this._indices.__str__() + "'.");
@@ -5036,16 +5049,16 @@ python.Execution = class {
     }
 
     resolve(name) {
-        const parts = name.split('.');
-        const memberName = parts.pop();
-        const moduleName = parts.join('.');
+        const index = name.lastIndexOf('.');
+        const memberName = index === -1 ? name : name.substring(index + 1, name.length);
+        const moduleName = index === -1 ? '' : name.substring(0, index);
         const module = this.import(moduleName);
         let type = module ? module[memberName] : null;
         if (!type) {
             if (!this._unresolved.has(name)) {
                 const moduleName = name.split('.').shift();
                 if (this._registry.has(moduleName)) {
-                    this._exceptionCallback(new python.Error("Unsupported function '" + name + "'."), false);
+                    this._exceptionCallback(new python.Error("Unknown type name '" + name + "'."), false);
                 }
                 const type = this._createType(name, class {});
                 this._unresolved.set(name, type);
@@ -5099,7 +5112,7 @@ python.Execution = class {
                     return null;
                 };
                 const targetName = format(target) + '.' + name;
-                throw new python.Error("Unsupported function '" +  targetName + "'.");
+                throw new python.Error("Unknown function '" +  targetName + "'.");
             }
         }
         const func = name ? callTarget[name] : callTarget;

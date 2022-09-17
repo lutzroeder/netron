@@ -3485,208 +3485,208 @@ $root.nnabla.Function = class Function {
                 case 1119:
                     message.floor_param = $root.nnabla.FloorParameter.decode(reader, reader.uint32());
                     break;
-                case 1132:
+                case 1133:
                     message.concatenate_param = $root.nnabla.ConcatenateParameter.decode(reader, reader.uint32());
                     break;
-                case 1133:
+                case 1134:
                     message.split_param = $root.nnabla.SplitParameter.decode(reader, reader.uint32());
                     break;
-                case 1134:
+                case 1135:
                     message.stack_param = $root.nnabla.StackParameter.decode(reader, reader.uint32());
                     break;
-                case 1135:
+                case 1136:
                     message.slice_param = $root.nnabla.SliceParameter.decode(reader, reader.uint32());
                     break;
-                case 1136:
+                case 1137:
                     message.pad_param = $root.nnabla.PadParameter.decode(reader, reader.uint32());
                     break;
-                case 1137:
+                case 1138:
                     message.transpose_param = $root.nnabla.TransposeParameter.decode(reader, reader.uint32());
                     break;
-                case 1138:
+                case 1139:
                     message.broadcast_param = $root.nnabla.BroadcastParameter.decode(reader, reader.uint32());
                     break;
-                case 1139:
+                case 1140:
                     message.broadcast_to_param = $root.nnabla.BroadcastToParameter.decode(reader, reader.uint32());
                     break;
-                case 1140:
+                case 1141:
                     message.tile_param = $root.nnabla.TileParameter.decode(reader, reader.uint32());
                     break;
-                case 1141:
+                case 1142:
                     message.one_hot_param = $root.nnabla.OneHotParameter.decode(reader, reader.uint32());
                     break;
-                case 1142:
+                case 1143:
                     message.flip_param = $root.nnabla.FlipParameter.decode(reader, reader.uint32());
                     break;
-                case 1143:
+                case 1144:
                     message.shift_param = $root.nnabla.ShiftParameter.decode(reader, reader.uint32());
                     break;
-                case 1144:
+                case 1145:
                     message.sort_param = $root.nnabla.SortParameter.decode(reader, reader.uint32());
                     break;
-                case 1145:
+                case 1146:
                     message.reshape_param = $root.nnabla.ReshapeParameter.decode(reader, reader.uint32());
                     break;
-                case 1146:
+                case 1147:
                     message.shape_param = $root.nnabla.ShapeParameter.decode(reader, reader.uint32());
                     break;
-                case 1149:
+                case 1150:
                     message.meshgrid_param = $root.nnabla.MeshgridParameter.decode(reader, reader.uint32());
                     break;
-                case 1153:
+                case 1154:
                     message.batch_cholesky_param = $root.nnabla.BatchCholeskyParameter.decode(reader, reader.uint32());
                     break;
-                case 1155:
+                case 1156:
                     message.gather_param = $root.nnabla.GatherParameter.decode(reader, reader.uint32());
                     break;
-                case 1158:
+                case 1159:
                     message.scatter_nd_param = $root.nnabla.ScatterNdParameter.decode(reader, reader.uint32());
                     break;
-                case 1159:
+                case 1160:
                     message.scatter_add_param = $root.nnabla.ScatterAddParameter.decode(reader, reader.uint32());
                     break;
-                case 1161:
+                case 1162:
                     message.bool_fill_param = $root.nnabla.BoolFillParameter.decode(reader, reader.uint32());
                     break;
-                case 1162:
+                case 1163:
                     message.pack_padded_sequence_param = $root.nnabla.PackPaddedSequenceParameter.decode(reader, reader.uint32());
                     break;
-                case 1163:
+                case 1164:
                     message.pad_packed_sequence_param = $root.nnabla.PadPackedSequenceParameter.decode(reader, reader.uint32());
                     break;
-                case 1164:
+                case 1165:
                     message.interpolate_param = $root.nnabla.InterpolateParameter.decode(reader, reader.uint32());
                     break;
-                case 1165:
+                case 1166:
                     message.fft_param = $root.nnabla.FFTParameter.decode(reader, reader.uint32());
                     break;
-                case 1166:
+                case 1167:
                     message.ifft_param = $root.nnabla.IFFTParameter.decode(reader, reader.uint32());
                     break;
-                case 1167:
+                case 1168:
                     message.stft_param = $root.nnabla.STFTParameter.decode(reader, reader.uint32());
                     break;
-                case 1168:
+                case 1169:
                     message.istft_param = $root.nnabla.ISTFTParameter.decode(reader, reader.uint32());
                     break;
-                case 1169:
+                case 1170:
                     message.dropout_param = $root.nnabla.DropoutParameter.decode(reader, reader.uint32());
                     break;
-                case 1170:
+                case 1171:
                     message.top_k_data_param = $root.nnabla.TopKDataParameter.decode(reader, reader.uint32());
                     break;
-                case 1171:
+                case 1172:
                     message.top_k_grad_param = $root.nnabla.TopKGradParameter.decode(reader, reader.uint32());
                     break;
-                case 1172:
+                case 1173:
                     message.rand_param = $root.nnabla.RandParameter.decode(reader, reader.uint32());
                     break;
-                case 1173:
+                case 1174:
                     message.randint_param = $root.nnabla.RandintParameter.decode(reader, reader.uint32());
                     break;
-                case 1174:
+                case 1175:
                     message.randn_param = $root.nnabla.RandnParameter.decode(reader, reader.uint32());
                     break;
-                case 1175:
+                case 1176:
                     message.rand_binomial_param = $root.nnabla.RandBinomialParameter.decode(reader, reader.uint32());
                     break;
-                case 1176:
+                case 1177:
                     message.rand_beta_param = $root.nnabla.RandBetaParameter.decode(reader, reader.uint32());
                     break;
-                case 1177:
+                case 1178:
                     message.rand_gamma_param = $root.nnabla.RandGammaParameter.decode(reader, reader.uint32());
                     break;
-                case 1178:
+                case 1179:
                     message.random_choice_param = $root.nnabla.RandomChoiceParameter.decode(reader, reader.uint32());
                     break;
-                case 1179:
+                case 1180:
                     message.random_crop_param = $root.nnabla.RandomCropParameter.decode(reader, reader.uint32());
                     break;
-                case 1180:
+                case 1181:
                     message.random_flip_param = $root.nnabla.RandomFlipParameter.decode(reader, reader.uint32());
                     break;
-                case 1181:
+                case 1182:
                     message.random_shift_param = $root.nnabla.RandomShiftParameter.decode(reader, reader.uint32());
                     break;
-                case 1182:
+                case 1183:
                     message.random_erase_param = $root.nnabla.RandomEraseParameter.decode(reader, reader.uint32());
                     break;
-                case 1183:
+                case 1184:
                     message.image_augmentation_param = $root.nnabla.ImageAugmentationParameter.decode(reader, reader.uint32());
                     break;
-                case 1186:
+                case 1187:
                     message.softmax_cross_entropy_param = $root.nnabla.SoftmaxCrossEntropyParameter.decode(reader, reader.uint32());
                     break;
-                case 1187:
+                case 1188:
                     message.categorical_cross_entropy_param = $root.nnabla.CategoricalCrossEntropyParameter.decode(reader, reader.uint32());
                     break;
-                case 1190:
+                case 1191:
                     message.huber_loss_param = $root.nnabla.HuberLossParameter.decode(reader, reader.uint32());
                     break;
-                case 1191:
+                case 1192:
                     message.epsilon_insensitive_loss_param = $root.nnabla.EpsilonInsensitiveLossParameter.decode(reader, reader.uint32());
                     break;
-                case 1192:
+                case 1193:
                     message.kl_multinomial_param = $root.nnabla.KLMultinomialParameter.decode(reader, reader.uint32());
                     break;
-                case 1193:
+                case 1194:
                     message.affine_grid_param = $root.nnabla.AffineGridParameter.decode(reader, reader.uint32());
                     break;
-                case 1194:
+                case 1195:
                     message.warp_by_grid_param = $root.nnabla.WarpByGridParameter.decode(reader, reader.uint32());
                     break;
-                case 1198:
+                case 1199:
                     message.binary_connect_affine_param = $root.nnabla.BinaryConnectAffineParameter.decode(reader, reader.uint32());
                     break;
-                case 1199:
+                case 1200:
                     message.binary_connect_convolution_param = $root.nnabla.BinaryConnectConvolutionParameter.decode(reader, reader.uint32());
                     break;
-                case 1200:
+                case 1201:
                     message.binary_weight_affine_param = $root.nnabla.BinaryWeightAffineParameter.decode(reader, reader.uint32());
                     break;
-                case 1201:
+                case 1202:
                     message.binary_weight_convolution_param = $root.nnabla.BinaryWeightConvolutionParameter.decode(reader, reader.uint32());
                     break;
-                case 1202:
+                case 1203:
                     message.inq_affine_param = $root.nnabla.INQAffineParameter.decode(reader, reader.uint32());
                     break;
-                case 1203:
+                case 1204:
                     message.inq_convolution_param = $root.nnabla.INQConvolutionParameter.decode(reader, reader.uint32());
                     break;
-                case 1204:
+                case 1205:
                     message.fixed_point_quantize_param = $root.nnabla.FixedPointQuantizeParameter.decode(reader, reader.uint32());
                     break;
-                case 1205:
+                case 1206:
                     message.min_max_quantize_param = $root.nnabla.MinMaxQuantizeParameter.decode(reader, reader.uint32());
                     break;
-                case 1206:
+                case 1207:
                     message.pow2_quantize_param = $root.nnabla.Pow2QuantizeParameter.decode(reader, reader.uint32());
                     break;
-                case 1207:
+                case 1208:
                     message.prune_param = $root.nnabla.PruneParameter.decode(reader, reader.uint32());
                     break;
-                case 1208:
+                case 1209:
                     message.quantize_linear_param = $root.nnabla.QuantizeLinearParameter.decode(reader, reader.uint32());
                     break;
-                case 1210:
+                case 1211:
                     message.top_n_error_param = $root.nnabla.TopNErrorParameter.decode(reader, reader.uint32());
                     break;
-                case 1212:
+                case 1213:
                     message.confusion_matrix_param = $root.nnabla.ConfusionMatrixParameter.decode(reader, reader.uint32());
                     break;
-                case 1213:
+                case 1214:
                     message.vat_noise_param = $root.nnabla.VATNoiseParameter.decode(reader, reader.uint32());
                     break;
-                case 1215:
+                case 1216:
                     message.sink_param = $root.nnabla.SinkParameter.decode(reader, reader.uint32());
                     break;
-                case 1216:
+                case 1217:
                     message.nms_detection2d_param = $root.nnabla.NmsDetection2dParameter.decode(reader, reader.uint32());
                     break;
-                case 1217:
+                case 1218:
                     message.max_pooling_backward_param = $root.nnabla.MaxPoolingBackwardParameter.decode(reader, reader.uint32());
                     break;
-                case 1218:
+                case 1219:
                     message.patch_correlation_param = $root.nnabla.PatchCorrelationParameter.decode(reader, reader.uint32());
                     break;
                 case 100:

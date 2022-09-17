@@ -7,7 +7,7 @@ Netron is a viewer for neural network, deep learning and machine learning models
 
 Netron supports ONNX, TensorFlow Lite, Caffe, Keras, Darknet, PaddlePaddle, ncnn, MNN, Core ML, RKNN, MXNet, MindSpore Lite, TNN, Barracuda, Tengine, CNTK, TensorFlow.js, Caffe2 and UFF.
 
-Netron has experimental support for PyTorch, TensorFlow, TorchScript, OpenVINO, Torch, Vitis AI, kmodel, Arm NN, BigDL, Chainer, Deeplearning4j, MediaPipe, ML.NET and scikit-learn.
+Netron has experimental support for PyTorch, TensorFlow, TorchScript, OpenVINO, Torch, Vitis AI, kmodel, Arm NN, BigDL, Chainer, Deeplearning4j, MediaPipe, MegEngine, ML.NET and scikit-learn.
 
 <p align='center'><a href='https://www.lutzroeder.com/ai'><img src='.github/screenshot.png' width='800'></a></p>
 
@@ -28,7 +28,7 @@ Netron has experimental support for PyTorch, TensorFlow, TorchScript, OpenVINO, 
 Sample model files to download or open using the browser version:
 
  * **ONNX**: [squeezenet](https://media.githubusercontent.com/media/onnx/models/main/vision/classification/squeezenet/model/squeezenet1.0-3.onnx) [[open](https://netron.app?url=https://media.githubusercontent.com/media/onnx/models/main/vision/classification/squeezenet/model/squeezenet1.0-3.onnx)]
- * **TensorFlow Lite**: [hair_segmentation](https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/models/hair_segmentation.tflite) [[open](https://netron.app?url=https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/models/hair_segmentation.tflite)]
+ * **TensorFlow Lite**: [yamnet](https://huggingface.co/thelou1s/yamnet/resolve/main/lite-model_yamnet_tflite_1.tflite) [[open](https://netron.app?url=https://huggingface.co/thelou1s/yamnet/resolve/main/lite-model_yamnet_tflite_1.tflite)]
  * **TensorFlow**: [chessbot](https://raw.githubusercontent.com/srom/chessbot/master/model/chessbot.pb) [[open](https://netron.app?url=https://raw.githubusercontent.com/srom/chessbot/master/model/chessbot.pb)]
  * **Keras**: [mobilenet](https://raw.githubusercontent.com/aio-libs/aiohttp-demos/master/demos/imagetagger/tests/data/mobilenet.h5) [[open](https://netron.app?url=https://raw.githubusercontent.com/aio-libs/aiohttp-demos/master/demos/imagetagger/tests/data/mobilenet.h5)]
  * **TorchScript**: [traced_online_pred_layer](https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/traced_online_pred_layer.pt) [[open](https://netron.app?url=https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/traced_online_pred_layer.pt)]

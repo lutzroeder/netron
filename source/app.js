@@ -171,7 +171,7 @@ class Application {
                     'model', 'dnn', 'dlc', 'cmf', 'mar', 'params',
                     'pdmodel', 'pdiparams', 'pdparams', 'pdopt', 'nb',
                     'meta',
-                    'tflite', 'lite', 'tfl',
+                    'tflite', 'lite', 'tfl', 'circle',
                     'armnn', 'mnn', 'nn', 'uff', 'uff.txt', 'rknn', 'xmodel', 'kmodel',
                     'ncnn', 'param', 'tnnproto', 'tm', 'tmfile', 'ms', 'om',
                     'pt', 'pth', 'ptl', 't7',

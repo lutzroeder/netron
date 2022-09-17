@@ -665,8 +665,28 @@ const loadModel = (target, item) => {
                             argument.type.toString();
                         }
                         if (argument.initializer) {
-                            argument.initializer.toString();
+                            // console.log(argument.name);
                             argument.initializer.type.toString();
+                            const log = (/* message */) => {
+                                // console.log('  ' + message);
+                            };
+                            const tensor = new sidebar.Tensor(argument.initializer);
+                            if (tensor.layout !== '<' && tensor.layout !== '>' && tensor.layout !== '|' && tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo') {
+                                log("Tensor layout '" + tensor.layout + "' is not implemented.");
+                            }
+                            else if (tensor.empty) {
+                                log('Tensor data is empty.');
+                            }
+                            else if (tensor.type && tensor.type.dataType === '?') {
+                                log('Tensor data type is not defined.');
+                            }
+                            else if (tensor.type && !tensor.type.shape) {
+                                log('Tensor shape is not defined.');
+                            }
+                            else {
+                                tensor.toString();
+                                // tensor.value;
+                            }
                             /*
                             const python = require('../source/python');
                             const tensor = argument.initializer;

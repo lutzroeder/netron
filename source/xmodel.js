@@ -358,50 +358,15 @@ xmodel.Tensor = class {
 
     constructor(node) {
         this._type = new xmodel.TensorType(node.output_tensor);
-        this._kind = node.op_type;
+        this._category = node.op_type;
     }
 
-    get kind() {
-        return this._kind;
+    get category() {
+        return this._category;
     }
 
     get type() {
         return this._type;
-    }
-
-    get state() {
-        return this._context().state || null;
-    }
-
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return JSON.stringify(value, null, 4);
-    }
-
-    _context() {
-        const context = {};
-        context.index = 0;
-        context.count = 0;
-        context.state = 'Tensor data not implemented.';
-        return context;
-    }
-
-    _decode(/* context, dimension */) {
-        return [];
     }
 };
 

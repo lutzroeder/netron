@@ -6,8 +6,8 @@
         "email": "lutzroeder@users.noreply.github.com",
         "url": "https://www.lutzroeder.com"
     },
-    "version": "6.0.0",
-    "date": "2022-08-11 03:03:36",
+    "version": "6.0.6",
+    "date": "2022-09-17 01:27:16",
     "description": "Visualizer for neural network, deep learning, and machine learning models",
     "license": "MIT",
     "repository": "lutzroeder/netron",
@@ -21,10 +21,10 @@
         "electron-updater": "5.2.1"
     },
     "devDependencies": {
-        "electron": "20.1.0",
+        "electron": "20.1.4",
         "electron-builder": "23.3.3",
         "electron-notarize": "1.2.1",
-        "eslint": "8.23.0"
+        "eslint": "8.23.1"
     },
     "eslintConfig": {
         "env": {
@@ -81,6 +81,7 @@
         "fileAssociations": [
             { "ext": "armnn",       "name": "Arm NN Model"             },
             { "ext": "caffemodel",  "name": "Caffe Model"              },
+            { "ext": "circle",      "name": "Circle Model"             },
             { "ext": "ckpt",        "name": "Model Checkpoint"         },
             { "ext": "cmf",         "name": "CNTK Model"               },
             { "ext": "dlc",         "name": "DLC Model"                },

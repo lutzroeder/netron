@@ -277,17 +277,10 @@ lasagne.Tensor = class {
     get type() {
         return this._type;
     }
-
-    get state() {
-        return 'Tensor data not implemented.';
-    }
-
-    toString() {
-        return '';
-    }
 };
 
 lasagne.Error = class extends Error {
+
     constructor(message) {
         super(message);
         this.name = 'Lasagne Error';

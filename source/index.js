@@ -116,7 +116,7 @@ host.BrowserHost = class {
                     telemetry();
                 }
                 else {
-                    this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', 2000).then((text) => {
+                    this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', null, 2000).then((text) => {
                         try {
                             const json = JSON.parse(text);
                             const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
@@ -234,7 +234,9 @@ host.BrowserHost = class {
         const url = params.get('url');
         if (url) {
             const identifier = params.get('identifier') || null;
-            const location = url.replace(new RegExp('^https://github.com/([\\w]*/[\\w]*)/blob/([\\w/_.]*)(\\?raw=true)?$'), 'https://raw.githubusercontent.com/$1/$2');
+            const location = url
+                .replace(new RegExp('^https://github.com/([\\w]*/[\\w]*)/blob/([\\w/_.]*)(\\?raw=true)?$'), 'https://raw.githubusercontent.com/$1/$2')
+                .replace(new RegExp('^https://huggingface.co/(.*)/blob/(.*)$'), 'https://huggingface.co/$1/resolve/$2');
             if (this._view.accept(identifier || location)) {
                 this._openModel(location, identifier).then((identifier) => {
                     this.document.title = identifier;
@@ -426,7 +428,7 @@ host.BrowserHost = class {
         }
     }
 
-    _request(url, headers, encoding, timeout) {
+    _request(url, headers, encoding, callback, timeout) {
         return new Promise((resolve, reject) => {
             const request = new XMLHttpRequest();
             if (!encoding) {
@@ -441,7 +443,13 @@ host.BrowserHost = class {
                 err.url = url;
                 return err;
             };
+            const progress = (value) => {
+                if (callback) {
+                    callback(value);
+                }
+            };
             request.onload = () => {
+                progress(0);
                 if (request.status == 200) {
                     if (request.responseType == 'arraybuffer') {
                         resolve(new host.BrowserHost.BinaryStream(new Uint8Array(request.response)));
@@ -455,16 +463,23 @@ host.BrowserHost = class {
                 }
             };
             request.onerror = (e) => {
+                progress(0);
                 const err = error(request.status);
                 err.type = e.type;
                 reject(err);
             };
             request.ontimeout = () => {
+                progress(0);
                 request.abort();
                 const err = new Error("The web request timed out in '" + url + "'.");
                 err.type = 'timeout';
                 err.url = url;
                 reject(err);
+            };
+            request.onprogress = (e) => {
+                if (e && e.lengthComputable) {
+                    progress(e.loaded / e.total * 100);
+                }
             };
             request.open('GET', url, true);
             if (headers) {
@@ -477,24 +492,21 @@ host.BrowserHost = class {
     }
 
     _url(file) {
-        let url = file;
-        if (this.window && this.window.location && this.window.location.href) {
-            let location = this.window.location.href.split('?').shift();
-            if (location.endsWith('.html')) {
-                location = location.split('/').slice(0, -1).join('/');
-            }
-            if (location.endsWith('/')) {
-                location = location.slice(0, -1);
-            }
-            url = location + '/' + (file.startsWith('/') ? file.substring(1) : file);
-        }
-        return url;
+        file = file.startsWith('./') ? file.substring(2) : file;
+        const location = this.window.location;
+        const pathname = location.pathname.endsWith('/') ?
+            location.pathname :
+            location.pathname.split('/').slice(0, -1).join('/') + '/';
+        return location.protocol + '//' + location.host + pathname + file;
     }
 
     _openModel(url, identifier) {
         url = url + ((/\?/).test(url) ? '&' : '?') + 'cb=' + (new Date()).getTime();
         this._view.show('welcome spinner');
-        return this._request(url).then((stream) => {
+        const progress = (value) => {
+            this._view.progress(value);
+        };
+        return this._request(url, null, null, progress).then((stream) => {
             const context = new host.BrowserHost.BrowserContext(this, url, identifier, stream);
             return this._view.open(context).then(() => {
                 return identifier || context.identifier;

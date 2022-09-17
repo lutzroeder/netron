@@ -13,7 +13,8 @@ setuptools.setup(
                      'Tengine, TensorFlow.js, Caffe2 and UFF. '
                      'Netron has experimental support for '
                      'PyTorch, TensorFlow, TorchScript, OpenVINO, Torch, Vitis AI, Arm NN, '
-                     'BigDL, Chainer, CNTK, Deeplearning4j, MediaPipe, ML.NET and scikit-learn.',
+                     'BigDL, Chainer, CNTK, Deeplearning4j, MediaPipe, MegEngine, '
+                     'ML.NET and scikit-learn.',
     keywords=[
         'onnx', 'keras', 'tensorflow', 'tflite', 'coreml', 'mxnet', 'caffe', 'caffe2',
         'torchscript', 'pytorch', 'ncnn', 'mnn', 'openvino', 'darknet', 'paddlepaddle', 'chainer',

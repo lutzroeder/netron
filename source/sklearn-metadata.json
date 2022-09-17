@@ -774,7 +774,7 @@
       },
       {
         "default": null,
-        "description": "Remove accents and perform other character normalization\nduring the preprocessing step.\n'ascii' is a fast method that only works on characters that have\nan direct ASCII mapping.\n'unicode' is a slightly slower method that works on any characters.\nNone (default) does nothing.\n\nBoth 'ascii' and 'unicode' use NFKD normalization from\n:func:`unicodedata.normalize`.\n",
+        "description": "Remove accents and perform other character normalization\nduring the preprocessing step.\n'ascii' is a fast method that only works on characters that have\na direct ASCII mapping.\n'unicode' is a slightly slower method that works on any characters.\nNone (default) does nothing.\n\nBoth 'ascii' and 'unicode' use NFKD normalization from\n:func:`unicodedata.normalize`.\n",
         "name": "strip_accents"
       },
       {
@@ -875,7 +875,7 @@
       },
       {
         "default": null,
-        "description": "Remove accents and perform other character normalization\nduring the preprocessing step.\n'ascii' is a fast method that only works on characters that have\nan direct ASCII mapping.\n'unicode' is a slightly slower method that works on any characters.\nNone (default) does nothing.\n\nBoth 'ascii' and 'unicode' use NFKD normalization from\n:func:`unicodedata.normalize`.\n",
+        "description": "Remove accents and perform other character normalization\nduring the preprocessing step.\n'ascii' is a fast method that only works on characters that have\na direct ASCII mapping.\n'unicode' is a slightly slower method that works on any characters.\nNone (default) does nothing.\n\nBoth 'ascii' and 'unicode' use NFKD normalization from\n:func:`unicodedata.normalize`.\n",
         "name": "strip_accents"
       },
       {

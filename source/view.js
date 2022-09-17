@@ -92,6 +92,13 @@ view.View = class {
         this._page = page;
     }
 
+    progress(percent) {
+        const bar = this._getElementById('progress-bar');
+        if (bar) {
+            bar.style.width = percent.toString() + '%';
+        }
+    }
+
     cut() {
         this._host.document.execCommand('cut');
     }
@@ -380,7 +387,6 @@ view.View = class {
             { name: 'Error', message: /^EPERM: operation not permitted/, url: 'https://github.com/lutzroeder/netron/issues/551' },
             { name: 'Error', message: /^EACCES: permission denied/, url: 'https://github.com/lutzroeder/netron/issues/504' },
             { name: 'RangeError', message: /^Offset is outside the bounds of the DataView/, url: 'https://github.com/lutzroeder/netron/issues/563' },
-            { name: 'RangeError', message: /^start offset of Int32Array/, url: 'https://github.com/lutzroeder/netron/issues/565' },
             { name: 'RangeError', message: /^Maximum call stack size exceeded/, url: 'https://github.com/lutzroeder/netron/issues/589' },
             { name: 'RangeError', message: /^Invalid string length/, url: 'https://github.com/lutzroeder/netron/issues/648' },
             { name: 'Error loading model.', message: /^Unsupported file content \(/, url: 'https://github.com/lutzroeder/netron/issues/550' },
@@ -392,15 +398,13 @@ view.View = class {
             { name: 'Error loading DaVinci model.', message: /^Unsupported attribute type/, url: 'https://github.com/lutzroeder/netron/issues/926' },
             { name: 'Error loading Keras model.', message: /^Unsupported data object header version/, url: 'https://github.com/lutzroeder/netron/issues/548' },
             { name: 'Error loading MNN model.', message: /^File format is not mnn\.Net/, url: 'https://github.com/lutzroeder/netron/issues/746' },
+            { name: 'Error loading Python model.', message: /^Unknown function/, url: 'https://github.com/lutzroeder/netron/issues/546' },
             { name: 'Error loading PyTorch model.', message: /^File does not contain root module or state dictionary/, url: 'https://github.com/lutzroeder/netron/issues/543' },
             { name: 'Error loading PyTorch model.', message: /^Module does not contain modules/, url: 'https://github.com/lutzroeder/netron/issues/544' },
-            { name: 'Error loading PyTorch model.', message: /^Failed to resolve module/, url: 'https://github.com/lutzroeder/netron/issues/545' },
-            { name: 'Error loading PyTorch model.', message: /^Unsupported function/, url: 'https://github.com/lutzroeder/netron/issues/546' },
-            { name: 'Error loading PyTorch model.', message: /^Unsupported uninitialized argument/, url: 'https://github.com/lutzroeder/netron/issues/547' },
+            { name: 'Error loading PyTorch model.', message: /^Unknown type name/, url: 'https://github.com/lutzroeder/netron/issues/969' },
             { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto/, url: 'https://github.com/lutzroeder/netron/issues/549' },
             { name: 'Error loading TensorFlow model.', message: /^File text format is not TensorFlow\.js graph-model/, url: 'https://github.com/lutzroeder/netron/issues/764' },
             { name: 'Error loading TensorFlow Lite model.', message: /^Offset is outside the bounds of the DataView/, url: 'https://github.com/lutzroeder/netron/issues/563' },
-            { name: 'Error loading UFF model.', message: /^Unknown attribute/, url: 'https://github.com/lutzroeder/netron/issues/649' }
         ];
         const known = knowns.find((known) => (known.name.length === 0 || known.name === err.name) && err.message.match(known.message));
         const message = err.message + (known ? '\n\nPlease provide information about this issue at ' + known.url + '.' : '');
@@ -1055,14 +1059,18 @@ view.Node = class extends grapher.Node {
                 let shape = '';
                 let separator = '';
                 if (type && type.shape && type.shape.dimensions && Array.isArray(type.shape.dimensions)) {
-                    shape = '\u3008' + type.shape.dimensions.map((d) => d ? d : '?').join('\u00D7') + '\u3009';
-                    if (type.shape.dimensions.length === 0 && argument.initializer && !argument.initializer.state) {
+                    shape = '\u3008' + type.shape.dimensions.map((d) => (d !== null && d !== undefined) ? d : '?').join('\u00D7') + '\u3009';
+                    if (type.shape.dimensions.length === 0 && argument.initializer) {
                         try {
-                            shape = argument.initializer.toString();
-                            if (shape && shape.length > 10) {
-                                shape = shape.substring(0, 10) + '\u2026';
+                            const initializer = argument.initializer;
+                            const tensor = new sidebar.Tensor(initializer);
+                            if ((tensor.layout === '<' || tensor.layout === '>' || tensor.layout === '|') && !tensor.empty && tensor.type.dataType !== '?') {
+                                shape = tensor.toString();
+                                if (shape && shape.length > 10) {
+                                    shape = shape.substring(0, 10) + '\u2026';
+                                }
+                                separator = ' = ';
                             }
-                            separator = ' = ';
                         }
                         catch (err) {
                             let type = '?';
@@ -1210,7 +1218,7 @@ view.Argument = class {
                     type.shape.dimensions &&
                     type.shape.dimensions.length > 0 &&
                     type.shape.dimensions.every((dim) => !dim || Number.isInteger(dim) || dim instanceof base.Int64 || (typeof dim === 'string'))) {
-                    content = type.shape.dimensions.map((dim) => dim || '?').join('\u00D7');
+                    content = type.shape.dimensions.map((dim) => (dim !== null && dim !== undefined) ? dim : '?').join('\u00D7');
                     content = content.length > 16 ? '' : content;
                 }
                 if (this.context.view.options.names) {

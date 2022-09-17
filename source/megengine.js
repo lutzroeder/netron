@@ -23,7 +23,7 @@ megengine.ModelFactory = class {
             }
         }
         const obj = context.open('pkl');
-        if (obj.__class__ && obj.__class__.__module__ === 'megengine.traced_module.traced_module' && obj.__class__.__name__ === 'TracedModule') {
+        if (obj && obj.__class__ && obj.__class__.__module__ === 'megengine.traced_module.traced_module' && obj.__class__.__name__ === 'TracedModule') {
             return 'megengine.pickle';
         }
         return '';
@@ -644,7 +644,7 @@ megengine.Tensor = class {
         this._data = data;
     }
 
-    get kind() {
+    get category() {
         return 'Tensor';
     }
 
@@ -656,237 +656,25 @@ megengine.Tensor = class {
         return this._type;
     }
 
-    get format() {
-        return this._format;
-    }
-
-    get state() {
-        return this._context().state;
-    }
-
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return megengine.Tensor._stringify(value, '', '    ');
-    }
-
-    _context() {
-        const context = {};
-        context.state = null;
-        context.index = 0;
-        context.count = 0;
-
-        if (!this._type.dataType) {
-            context.state = 'Tensor has no data type.';
-            return context;
-        }
-        switch (this._type.dataType) {
-            case 'bool':
-            case 'boolean':
-            case 'byte':
-            case 'quantizeds4asymm':
-            case 'quantizeds8asymm':
-            case 'uintb4':
-            case 'uint8':
-            case 'quantizeds1':
-            case 'quantizeds4':
-            case 'quantizeds8':
-            case 'intb1':
-            case 'intb2':
-            case 'intb4':
-            case 'qint8':
-            case 'int8':
-            case 'uint16':
-            case 'quantizeds16':
-            case 'int16':
-            case 'quantizeds32':
-            case 'int32':
-            case 'int64':
-            case 'bfloat16':
-            case 'float16':
-            case 'float32':
-            case 'float64':
-                break;
-            default:
-                context.state = "Tensor data type '" + this._type.dataType + "' is not supported.";
-                return context;
-        }
-        if (!this._type.shape) {
-            context.state = 'Tensor has no dimensions.';
-            return context;
-        }
-        if (!this._data) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-
-        try {
-            context.data = this._data instanceof Uint8Array ? this._data : this._data.peek();
-        }
-        catch (err) {
-            context.state = err.message;
-            return context;
-        }
-
-        context.dataType = this._type.dataType;
-        context.dimensions = this._type.shape.dimensions;
-        context.dataView = new DataView(context.data.buffer, context.data.byteOffset, context.data.byteLength);
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const results = [];
-        const dimensions = (context.dimensions.length == 0) ? [1] : context.dimensions;
-        const size = dimensions[dimension];
-        if (dimension == dimensions.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                switch (context.dataType) {
-                    case 'bool':
-                    case 'boolean':
-                        results.push(context.dataView.getUint8(context.index, true) === 0 ? false : true);
-                        context.index++;
-                        context.count++;
-                        break;
-                    case 'byte':
-                    case 'quantizeds4asymm':
-                    case 'quantizeds8asymm':
-                    case 'uintb4':
-                    case 'uint8':
-                        results.push(context.dataView.getUint8(context.index, true));
-                        context.index++;
-                        context.count++;
-                        break;
-                    case 'quantizeds1':
-                    case 'quantizeds4':
-                    case 'quantizeds8':
-                    case 'intb1':
-                    case 'intb2':
-                    case 'intb4':
-                    case 'qint8':
-                    case 'int8':
-                        results.push(context.dataView.getInt8(context.index, true));
-                        context.index++;
-                        context.count++;
-                        break;
-                    case 'uint16':
-                        results.push(context.dataView.getUint16(context.index));
-                        context.index += 2;
-                        context.count++;
-                        break;
-                    case 'quantizeds16':
-                    case 'int16':
-                        results.push(context.dataView.getInt16(context.index, true));
-                        context.index += 2;
-                        context.count++;
-                        break;
-                    case 'quantizeds32':
-                    case 'int32':
-                        results.push(context.dataView.getInt32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    case 'int64':
-                        results.push(context.dataView.getInt64(context.index, true));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    case 'bfloat16':
-                        results.push(context.dataView.getBfloat16(context.index, true));
-                        context.index += 2;
-                        context.count++;
-                        break;
-                    case 'float16':
-                        results.push(context.dataView.getFloat16(context.index, true));
-                        context.index += 2;
-                        context.count++;
-                        break;
-                    case 'float32':
-                        results.push(context.dataView.getFloat32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    case 'float64':
-                        results.push(context.dataView.getFloat64(context.index, true));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    default:
-                        throw new megengine.Error("Unsupported tensor data type '" + context.dataType + "'.");
-                }
-            }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        if (context.dimensions.length == 0) {
-            return results[0];
-        }
-        return results;
-    }
-
-    static _stringify(value, indentation, indent) {
-        if (Array.isArray(value)) {
-            const result = [];
-            result.push(indentation + '[');
-            const items = value.map((item) => megengine.Tensor._stringify(item, indentation + indent, indent));
-            if (items.length > 0) {
-                result.push(items.join(',\n'));
-            }
-            result.push(indentation + ']');
-            return result.join('\n');
-        }
-        if (value && (value instanceof base.Int64 || value instanceof base.Uint64)) {
-            return indentation + value.toString();
-        }
-        if (typeof value == 'string') {
-            return indentation + value;
-        }
-        if (value == Infinity) {
-            return indentation + 'Infinity';
-        }
-        if (value == -Infinity) {
-            return indentation + '-Infinity';
-        }
-        if (isNaN(value)) {
-            return indentation + 'NaN';
-        }
-        return indentation + value.toString();
+    get values() {
+        return this._data;
     }
 };
 
 megengine.TensorType = class {
 
     constructor(dataType, shape) {
-        this._dataType = dataType;
+        this._dataTypeName = dataType;
         this._shape = shape;
         const dtype_class = 'DTypeEnum';
         if (megengine.schema && megengine.schema[dtype_class]) {
             this._value = ArrayBuffer.isView(dataType) ? Array.from(dataType) : dataType;
-            this._dataType = megengine.Utility.enum(megengine.schema, dtype_class, this._value).toLowerCase();
+            this._dataTypeName = megengine.Utility.enum(megengine.schema, dtype_class, this._value).toLowerCase();
         }
+        megengine.TensorType._dataTypeMap = megengine.TensorType._dataTypeMap || new Map([
+            [ 'bool', 'boolean' ], [ 'byte', 'uint8' ], [ 'quantizeds4asymm', 'uint8' ], [ 'quantizeds8asymm', 'uint8' ], [ 'uintb4', 'uint8' ], [ 'quantizeds1', 'int8' ], [ 'quantizeds4', 'int8' ], [ 'quantizeds8', 'int8' ], [ 'intb1', 'int8' ], [ 'intb2', 'int8' ], [ 'intb4', 'int8' ], [ 'qint8', 'int8' ], [ 'quantizeds16', 'int16' ], [ 'quantizeds32', 'int32' ]
+        ]);
+        this._dataType = megengine.TensorType._dataTypeMap.get(this._dataTypeName) || this._dataTypeName;
     }
 
     get dataType() {
@@ -898,7 +686,7 @@ megengine.TensorType = class {
     }
 
     toString() {
-        return this._dataType + this._shape.toString();
+        return this._dataTypeName + this._shape.toString();
     }
 };
 
