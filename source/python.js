@@ -1621,11 +1621,18 @@ python.Execution = class {
         const dict = class extends Map {};
         this._modules = new dict();
         this._registry = new Map();
-        this._builtins = this.register('builtins');
+        const ModuleType = class {
+            constructor(name) {
+                this.__name__ = name;
+            }
+        };
+        this._builtins = this.register('builtins', new ModuleType('builtins'));
         this._registry.set('__builtin__', this._builtins);
-        this.import('builtins');
         this.registerType('builtins.type', class {}).__class__ = this._builtins.type;
-        this.registerType('builtins.module', class {});
+        this.registerType('builtins.module', ModuleType);
+        this.registerType('builtins.method', class {});
+        this.registerType('builtins.function', class {});
+        this.import('builtins');
         this.registerType('builtins.builtin_function_or_method', class {});
         this._typing = this.register('typing');
         this.register('_codecs');
@@ -1655,8 +1662,6 @@ python.Execution = class {
         this.register('__torch__');
         this.register('sys').modules = this._modules;
         this.register('xgboost');
-        this.registerType('builtins.function', class {});
-        this.registerType('builtins.method', class {});
         this.registerType('builtins.dict', dict);
         this.registerType('builtins.list', class {});
         this.registerType('builtins.number', class {});
@@ -3190,11 +3195,10 @@ python.Execution = class {
             constructor(/* args */) {
             }
         });
-        this.registerType('types.MethodType', class {
-            constructor(/* args */) {
-            }
-        });
-        this.registerType('types.ObjectType', this._builtins.object);
+        this.register('types').ObjectType = this._builtins.object;
+        this.register('types').ModuleType = this._builtins.module;
+        this.register('types').MethodType = this._builtins.method;
+        this.register('types').FunctionType = this._builtins.function;
         this.registerType('xgboost.compat.XGBoostLabelEncoder', class {});
         this.registerType('xgboost.core.Booster', class {});
         this.registerType('xgboost.sklearn.XGBClassifier', class {});
@@ -4332,6 +4336,9 @@ python.Execution = class {
             const value = name.startsWith('torch.') ? torch[name.split('.')[1]] : null;
             return value instanceof torch.layout ? value : null;
         });
+        this.registerFunction('torch.storage._load_from_bytes', function(b) {
+            return execution.invoke('torch.load', [ b ]);
+        });
         this.registerFunction('torch.jit._pickle.build_boollist', function(data) {
             return data;
         });
@@ -4379,6 +4386,133 @@ python.Execution = class {
         });
         this.registerFunction('torch.list_with_default', function(size /*, defaults */) {
             return size;
+        });
+        this.registerFunction('torch.load', function(f) {
+            const legacy_load = (entries) => {
+                const deserialized_objects = {};
+                if (entries.has('storages')) {
+                    const data = entries.get('storages');
+                    const unpickler = execution.invoke('pickle.Unpickler', [ data ]);
+                    const num_storages = unpickler.load();
+                    for (let i = 0; i < num_storages; i++) {
+                        const args = unpickler.load();
+                        const key = args[0];
+                        const storage_type = args[2];
+                        const obj = storage_type._new_with_file(unpickler);
+                        deserialized_objects[key] = obj;
+                    }
+                    /*
+                    let storage_views = unpickler.load();
+                    for target_cdata, root_cdata, offset, size in storage_views:
+                        root = deserialized_objects[root_cdata]
+                        deserialized_objects[target_cdata] = root[offset:offset + size]
+                    */
+                }
+                if (entries.has('tensors')) {
+                    const data = entries.get('tensors');
+                    const unpickler = execution.invoke('pickle.Unpickler', [ data ]);
+                    const num_tensors = unpickler.load();
+                    const int32 = (unpickler) => {
+                        const buffer = unpickler.read(4);
+                        return buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24);
+                    };
+                    const int64 = (unpickler) => {
+                        const buffer = unpickler.read(8);
+                        if (buffer[6] !== 0 && buffer[7] !== 0) {
+                            throw new python.Error('Unsigned 64-bit value exceeds 32-bit range.');
+                        }
+                        return buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24) + (buffer[4] << 32) + (buffer[5] << 40);
+                    };
+                    for (let i = 0; i < num_tensors; i++) {
+                        const args = unpickler.load();
+                        const key = args[0];
+                        const storage_id = args[1];
+                        const storage = deserialized_objects[storage_id];
+                        const ndim = int32(unpickler);
+                        unpickler.read(4);
+                        const shape = Array.from(new Array(ndim)).map(() => int64(unpickler));
+                        const stride = Array.from(new Array(ndim)).map(() => int64(unpickler));
+                        const storage_offset = int64(unpickler);
+                        const tensor = execution.invoke('torch._utils._rebuild_tensor', [ storage, storage_offset, shape, stride ]);
+                        deserialized_objects[key] = tensor;
+                    }
+                }
+                const data = entries.get('pickle');
+                const unpickler = execution.invoke('pickle.Unpickler', [ data ]);
+                unpickler.persistent_load = (saved_id) => deserialized_objects[saved_id];
+                return unpickler.load();
+            };
+            if (f instanceof Map) {
+                if (f.has('pickle')) {
+                    return legacy_load(f);
+                }
+                throw new python.Error("Unsupported 'torch.load' input '" + JSON.stringify(Array.from(f.keys())) + "'.");
+            }
+            const unpickler = execution.invoke('pickle.Unpickler', [ f ]);
+            unpickler.load(); // magic_number
+            const protocol_version = unpickler.load();
+            if (protocol_version != 1001) {
+                throw new python.Error("Unsupported protocol version '" + protocol_version + "'.");
+            }
+            const sys_info = unpickler.load();
+            if (sys_info.protocol_version != 1001) {
+                throw new python.Error("Unsupported protocol version '" + sys_info.protocol_version + "'.");
+            }
+            if (sys_info.little_endian === false) {
+                throw new python.Error("Unsupported big-endian storage data.");
+            }
+            const module_source_map = new Map();
+            const deserialized_objects = new Map();
+            unpickler.persistent_load = (saved_id) => {
+                const typename = saved_id.shift();
+                const data = saved_id;
+                switch (typename) {
+                    case 'module': {
+                        const module = data[0];
+                        const source = data[2];
+                        module_source_map.set(module, source);
+                        return data[0];
+                    }
+                    case 'storage': {
+                        const storage_type = data.shift();
+                        const root_key = data.shift();
+                        data.shift(); // location
+                        const size = data.shift();
+                        const view_metadata = data.shift();
+                        if (!deserialized_objects.has(root_key)) {
+                            const obj = new storage_type(size);
+                            deserialized_objects.set(root_key, obj);
+                        }
+                        if (view_metadata) {
+                            const view_key = view_metadata.shift();
+                            view_metadata.shift(); // view_offset
+                            view_metadata.shift(); // view_size
+                            if (!deserialized_objects.has(view_key)) {
+                                const view = null; // storage.slice(view_offset, view_offset + view_size);
+                                deserialized_objects.set(view_key, view);
+                            }
+                            return deserialized_objects.get(view_key);
+                        }
+                        return deserialized_objects.get(root_key);
+                    }
+                    default: {
+                        throw new python.Error("Unsupported persistent load type '" + typename + "'.");
+                    }
+                }
+            };
+            const obj = unpickler.load();
+            const deserialized_storage_keys = unpickler.load();
+            for (const deserialized_storage_key of deserialized_storage_keys) {
+                const storage = deserialized_objects.get(deserialized_storage_key);
+                storage._set_from_file(unpickler);
+            }
+            if (!obj) {
+                throw new python.Error('File format is not PyTorch.');
+            }
+            if (obj === 'None') {
+                throw new python.Error("File contains 'None' root object.");
+            }
+            return obj;
         });
         this.registerFunction('torch.lt', function(left, right) {
             if (typeof left === 'number' && typeof right === 'number') {
@@ -4525,6 +4659,19 @@ python.Execution = class {
         this.registerFunction('torch.fx.graph_module.reduce_graph_module', function(body /*, import_block */) {
             // https://github.com/pytorch/pytorch/blob/master/torch/fx/graph_module.py
             return body;
+        });
+        this.registerFunction('torch_utils.persistence._reconstruct_persistent_obj', function(meta) {
+            const obj = { __class__: { __module__: '?', __name__: meta.class_name } };
+            if (meta.state) {
+                Object.assign(obj, meta.state);
+            }
+            // const name = '_imported_module_' + Math.floor(Math.random() * 10000).toString();
+            // const module = execution.invoke('types.ModuleType', [ name ]);
+            // execution.register('sys').modules.set(name, module);
+            // const context = new python.Execution.Context(module, null);
+            // execution.exec(meta.module_src, context);
+            // const obj = module[meta.class_name];
+            return obj;
         });
         this.registerType('torch.device', class {
             constructor(type, index) {
@@ -4920,6 +5067,15 @@ python.Execution = class {
     debug(/* file */) {
     }
 
+    exec(code , context) {
+        const reader = new python.Parser(code, null, null);
+        const program = reader.parse();
+        if (!program) {
+            throw new python.Error("Module '" + '?' + "' parse error.");
+        }
+        this.block(program.body, context);
+    }
+
     parse(file) {
         const buffer = this.source(file);
         if (buffer) {
@@ -4954,9 +5110,7 @@ python.Execution = class {
             this.import(parent);
         }
         if (!this._modules.has(name)) {
-            const module = this._registry.get(name) || {};
-            module.__class__ = this._builtins.module;
-            module.__name__ = name;
+            const module = this._registry.get(name) || new this._builtins.module(name);
             module.__package__ = name;
             this._modules.set(name, module);
             const path = name.split('.').join('/');
@@ -4965,7 +5119,6 @@ python.Execution = class {
             const program = this.parse(file);
             if (program) {
                 module.__file__ = file;
-                const context = new python.Execution.Context(module, null);
                 for (const entry of Object.entries(this.builtins)) {
                     switch (entry[0]) {
                         case '__class__':
@@ -4980,6 +5133,7 @@ python.Execution = class {
                             break;
                     }
                 }
+                const context = new python.Execution.Context(module, null);
                 if (name !== 'builtins') {
                     context.set('__builtins__', this._modules.get('builtins'));
                 }
@@ -5553,7 +5707,7 @@ python.Execution = class {
 
     register(name, value) {
         if (!this._registry.has(name)) {
-            value = value || {};
+            value = value || new (this.register('builtins').module)(name);
             this._registry.set(name, value);
             let current = name;
             for (;;) {
@@ -5594,11 +5748,14 @@ python.Execution = class {
 
     registerType(name, value) {
         value = this._createType(name, value);
-        const module = this.register(value.__module__);
-        if (module[value.__name__]) {
-            throw new python.Error("Class '" + name + "' is already registered.");
+        const parts = name.split('.');
+        const memberName = parts.pop();
+        const moduleName = parts.join('.');
+        const module = this.register(moduleName);
+        if (module[memberName]) {
+            throw new python.Error("Class '" + memberName + "' is already registered.");
         }
-        module[value.__name__] = value;
+        module[memberName] = value;
         return value;
     }
 };
