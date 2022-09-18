@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /* eslint "no-console": off */
 
 const fs = require('fs');
@@ -7,20 +5,17 @@ const path = require('path');
 const process = require('process');
 const util = require('util');
 
-// const json = require('../source/json');
+const base = require('../source/base');
 const protobuf = require('../source/protobuf');
 const flatbuffers = require('../source/flatbuffers');
-const sidebar = require('../source/view-sidebar.js');
-const view = require('../source/view.js');
+const sidebar = require('../source/view-sidebar');
+const view = require('../source/view');
 const zip = require('../source/zip');
 const gzip = require('../source/gzip');
 const tar = require('../source/tar');
-const base = require('../source/base');
 
 global.Int64 = base.Int64;
 global.Uint64 = base.Uint64;
-
-// global.json = json;
 global.protobuf = protobuf;
 global.flatbuffers = flatbuffers;
 
