@@ -3481,10 +3481,20 @@
     ]
   },
   {
-    "name": "torch.pixel_shuffle",
+    "name": "torch.pixel_shuffle:",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "upscale_factor", "type": "int64" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.pixel_unshuffle:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "downscale_factor", "type": "int64" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -4746,10 +4756,56 @@
     ]
   },
   {
+    "name": "torch.randint:",
+    "inputs": [
+      { "name": "high", "type": "int64" },
+      { "name": "size", "type": "int64[]" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "layout", "type": "Layout", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
+      { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.randint:generator",
+    "inputs": [
+      { "name": "high", "type": "int64" },
+      { "name": "size", "type": "int64[]" },
+      { "name": "generator", "type": "Generator", "optional": true },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "layout", "type": "Layout", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
+      { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.randint:low",
     "inputs": [
       { "name": "low", "type": "int64", "optional": true, "default": null },
       { "name": "high", "type": "int64", "optional": true, "default": null },
+      { "name": "size", "type": "int64[]" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "layout", "type": "Layout", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
+      { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.randint:low_generator",
+    "inputs": [
+      { "name": "low", "type": "int64", "optional": true, "default": null },
+      { "name": "high", "type": "int64", "optional": true, "default": null },
+      { "name": "size", "type": "int64[]" },
+      { "name": "generator", "type": "Generator", "optional": true },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
       { "name": "device", "type": "Device", "optional": true, "default": null },
