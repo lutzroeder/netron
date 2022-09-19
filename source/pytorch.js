@@ -55,7 +55,6 @@ pytorch.Graph = class {
         this._inputs = [];
         this._outputs = [];
         this._groups = true;
-        this._littleEndian = container.littleEndian;
         this._name = graph.name || '';
         const type = graph.type;
         switch (type) {
@@ -65,7 +64,7 @@ pytorch.Graph = class {
                 if (graph.constants) {
                     for (const constant of graph.constants) {
                         if (pytorch.Utility.isTensor(constant)) {
-                            constant.initializer = new pytorch.Tensor(constant.__variable__, constant, this._littleEndian);
+                            constant.initializer = new pytorch.Tensor(constant.__variable__, constant);
                             initializers.set(constant.__variable__, constant);
                         }
                         else if (constant && constant.__class__ && constant.__class__.__module__ && constant.__class__.__name__) {
@@ -78,7 +77,7 @@ pytorch.Graph = class {
                                     for (const key of Object.keys(constant)) {
                                         const value = constant[key];
                                         if (pytorch.Utility.isTensor(value)) {
-                                            value.initializer = new pytorch.Tensor(value.__variable__, value, this._littleEndian);
+                                            value.initializer = new pytorch.Tensor(value.__variable__, value);
                                             initializers.set(value.__variable__, value);
                                         }
                                     }
@@ -107,7 +106,7 @@ pytorch.Graph = class {
                                         const parameter = obj;
                                         parameter.__parent__ = module;
                                         if (!parameter.initializer && parameter.storage()) {
-                                            parameter.initializer = new pytorch.Tensor(parameter.name, parameter, this._littleEndian);
+                                            parameter.initializer = new pytorch.Tensor(parameter.name, parameter);
                                         }
                                         if (parameter.__variable__ && parameter.__count__ === 1) {
                                             initializers.set(parameter.__variable__, parameter);
@@ -166,7 +165,7 @@ pytorch.Graph = class {
                     const inputs = state_group.states.map((parameter) => {
                         return new pytorch.Parameter(parameter.name, true,
                             parameter.arguments.map((state) => {
-                                const tensor = new pytorch.Tensor(state.id, pytorch.Utility.toTensor(state.value), this._littleEndian);
+                                const tensor = new pytorch.Tensor(state.id, pytorch.Utility.toTensor(state.value));
                                 return new pytorch.Argument(state.id, null, tensor);
                             }));
                     });
@@ -251,7 +250,7 @@ pytorch.Graph = class {
                 visible = input.visible === false ? false : true;
             }
             if (value) {
-                const initializer = new pytorch.Tensor('', value, this._littleEndian);
+                const initializer = new pytorch.Tensor('', value);
                 inputs.push(new pytorch.Parameter(inputName || key, visible, [ new pytorch.Argument('', null, initializer) ]));
             }
         }
@@ -314,7 +313,7 @@ pytorch.Graph = class {
             for (const key of Object.keys(module)) {
                 if (!key.startsWith('__')) {
                     const value = module[key];
-                    if (value && value.__class__ && value.__module__ && value.__name__ && !pytorch.Utility.isTensor(value)) {
+                    if (value && value.__class__ && value.__class__.__module__ && value.__class__.__name__ && !pytorch.Utility.isTensor(value)) {
                         submodules.push(value);
                     }
                 }
@@ -403,17 +402,16 @@ pytorch.Node = class {
         this._name = item.name || '';
         const type = (metadata, name) => {
             if (name instanceof pytorch.nnapi.Graph) {
-                this._type = name;
-                return;
+                return name;
             }
-            this._type = Object.assign({}, metadata.type(name) || { name: name });
-            const identifier = this._type.name;
-            this._type.identifier = identifier;
-            const index = identifier.indexOf(':');
-            this._type.name = index === -1 ? identifier : identifier.substring(0, index);
+            const type = Object.assign({}, metadata.type(name) || { name: name });
+            type.identifier = type.name;
+            const index = type.name.indexOf(':');
+            type.name = index === -1 ? type.name : type.name.substring(0, index);
+            return type;
         };
         if (!item.module && !item.node) {
-            type(metadata, item.type);
+            this._type = type(metadata, item.type);
             this._nodes = item.children;
             this._inputs = item.inputs;
             this._outputs = item.outputs;
@@ -443,7 +441,7 @@ pytorch.Node = class {
             }
 
             if (item.node) {
-                type(metadata, item.type);
+                this._type = type(metadata, item.type);
                 module = null;
                 let match = true;
                 let count = 0;
@@ -614,9 +612,8 @@ pytorch.Attribute = class {
 
 pytorch.Tensor = class {
 
-    constructor(name, tensor, littleEndian) {
+    constructor(name, tensor) {
         this._name = name || '';
-        this._littleEndian = littleEndian;
         const storage = tensor.storage();
         const size = tensor.size();
         this._type = new pytorch.TensorType(storage.dtype.__reduce__(), new pytorch.TensorShape(size));
@@ -624,13 +621,13 @@ pytorch.Tensor = class {
         this._stride = tensor.stride();
         if (layout && layout.startsWith('torch.sparse_')) {
             this._layout = layout.split('.').pop().replace('_', '.');
-            this._indices = new pytorch.Tensor('', tensor.indices, littleEndian);
-            this._values = new pytorch.Tensor('', tensor.values, littleEndian);
+            this._indices = new pytorch.Tensor('', tensor.indices);
+            this._values = new pytorch.Tensor('', tensor.values);
         }
         else if (!layout || layout === 'torch.strided') {
-            this._layout = this._littleEndian ? '<' : '>';
-            this._indices = null;
             this._data = storage.data;
+            this._layout = '<';
+            this._indices = null;
         }
         else {
             throw new pytorch.Error("Unsupported tensor layout '" + layout + "'.");
@@ -665,10 +662,9 @@ pytorch.Tensor = class {
     }
 
     decode() {
-        if (this._layout !== '<' && this._layout !== '>') {
+        if (this._layout !== '<') {
             throw new pytorch.Error("Tensor layout '" + this._layout + "' not implemented.");
         }
-        const littleEndian = this._littleEndian;
         const type = this._type;
         const data = this.values;
         const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
@@ -676,15 +672,15 @@ pytorch.Tensor = class {
             case 'int16': {
                 const array = new Uint16Array(data.length >> 1);
                 for (let i = 0; i < array.length; i++) {
-                    array[i] = view.getInt16(i << 1, littleEndian);
+                    array[i] = view.getInt16(i << 1, true);
                 }
                 return array;
             }
             case 'int64': {
                 const array = new Uint32Array(data.length >> 3);
                 for (let i = 0; i < array.length; i++) {
-                    array[i] = view.getUint32(i << 3, littleEndian);
-                    if (view.getUint32((i << 3) + 4, littleEndian) !== 0) {
+                    array[i] = view.getUint32(i << 3, true);
+                    if (view.getUint32((i << 3) + 4, true) !== 0) {
                         throw new pytorch.Error('Signed 64-bit value exceeds 32-bit range.');
                     }
                 }
@@ -897,117 +893,23 @@ pytorch.Container.Tar = class {
     }
 
     get graphs() {
-        this._unpickle();
-        return this._graphs;
-    }
-
-    get littleEndian() {
-        this._unpickle();
-        return this._littleEndian;
-    }
-
-    _unpickle() {
-        if (!this._entries) {
-            return;
-        }
-        this._type = '';
-        this._data = null;
-        this._littleEndian = true;
-        const execution = new pytorch.Execution(null, this._exceptionCallback);
-        const entries = {};
-        for (const entry of this._entries) {
-            const key = entry[0];
-            const value = entry[1];
-            entries[key] = value.peek();
-        }
-        this._exceptionCallback = null;
-        this._entries = null;
-
-        if (entries.sys_info) {
-            const unpickler = python.Unpickler.open(entries.sys_info, execution);
-            const sys_info = unpickler.load();
-            if (sys_info.protocol_version != 1000) {
-                throw new pytorch.Error("Unsupported protocol version '" + sys_info.protocol_version + "'.");
-            }
-            if (sys_info.type_sizes &&
-                ((sys_info.type_sizes.int && sys_info.type_sizes.int != 4) ||
-                (sys_info.type_sizes.long && sys_info.type_sizes.long != 4) ||
-                (sys_info.type_sizes.short && sys_info.type_sizes.short != 2))) {
-                throw new pytorch.Error('Unsupported type sizes.');
-            }
-            this._littleEndian = sys_info.little_endian;
-        }
-
-        const deserialized_objects = {};
-        if (entries.storages) {
-            const data = entries.storages;
-            const unpickler = python.Unpickler.open(data, execution);
-            const num_storages = unpickler.load();
-            for (let i = 0; i < num_storages; i++) {
-                const args = unpickler.load();
-                const key = args[0];
-                const storage_type = args[2];
-                const obj = storage_type._new_with_file(unpickler);
-                deserialized_objects[key] = obj;
-            }
-            /*
-            let storage_views = unpickler.load();
-            for target_cdata, root_cdata, offset, size in storage_views:
-                root = deserialized_objects[root_cdata]
-                deserialized_objects[target_cdata] = root[offset:offset + size]
-            */
-        }
-
-        if (entries.tensors) {
-            const data = entries.tensors;
-            const unpickler = python.Unpickler.open(data, execution);
-            const num_tensors = unpickler.load();
-            for (let i = 0; i < num_tensors; i++) {
-                const args = unpickler.load();
-                const key = args[0];
-                const storage_id = args[1];
-                const storage = deserialized_objects[storage_id];
-                const int32 = (unpickler) => {
-                    const buffer = unpickler.read(4);
-                    const reader = new base.BinaryReader(buffer);
-                    return reader.int32();
-                };
-                const int64 = (unpickler) => {
-                    const buffer = unpickler.read(8);
-                    const reader = new base.BinaryReader(buffer);
-                    return reader.int64();
-                };
-                const ndim = int32(unpickler);
-                unpickler.read(4);
-                const shape = new Array(ndim);
-                for (let j = 0; j < ndim; j++) {
-                    shape[j] = int64(unpickler);
-                }
-                const stride = new Array(ndim);
-                for (let j = 0; j < ndim; j++) {
-                    stride[j] = int64(unpickler);
-                }
-                const storage_offset = int64(unpickler);
-                const tensor = execution.invoke('torch._utils._rebuild_tensor', [ storage, storage_offset, shape, stride ]);
-                deserialized_objects[key] = tensor;
-            }
-        }
-
-        if (entries.pickle) {
-            const unpickler = python.Unpickler.open(entries.pickle, execution);
-            unpickler.persistent_load = (saved_id) => deserialized_objects[saved_id];
-            const obj = unpickler.load();
+        if (this._entries) {
+            this._type = '';
+            this._data = null;
+            const execution = new pytorch.Execution(null, this._exceptionCallback);
+            const obj = execution.invoke('torch.load', [ this._entries ]);
             const weights = pytorch.Utility.findWeights(obj);
-            if (weights) {
-                this._graphs = weights;
-                for (const graph of this._graphs) {
-                    graph.type = 'weights';
-                }
-            }
-            else {
+            if (!weights) {
                 throw new pytorch.Error('File does not contain root module or state dictionary.');
             }
+            for (const graph of weights) {
+                graph.type = 'weights';
+            }
+            this._exceptionCallback = null;
+            this._entries = null;
+            this._graphs = weights;
         }
+        return this._graphs;
     }
 };
 
@@ -1039,92 +941,15 @@ pytorch.Container.Pickle = class {
     }
 
     get graphs() {
-        this._unpickle();
+        if (this._stream) {
+            const data = this._stream.length < 0x7ffff000 ? this._stream.peek() : this._stream;
+            const execution = new pytorch.Execution(null, this._exceptionCallback);
+            this._stream = null;
+            this._exceptionCallback = null;
+            const obj = execution.invoke('torch.load', [ data ]);
+            this._graphs = pytorch.Utility.find(obj);
+        }
         return this._graphs;
-    }
-
-    get littleEndian() {
-        this._unpickle();
-        return this._littleEndian;
-    }
-
-    _unpickle() {
-        if (!this._stream) {
-            return;
-        }
-
-        const data = this._stream.length < 0x7ffff000 ? this._stream.peek() : this._stream;
-        const execution = new pytorch.Execution(null, this._exceptionCallback);
-        const unpickler = python.Unpickler.open(data, execution);
-
-        this._stream = null;
-        this._exceptionCallback = null;
-
-        unpickler.load(); // magic_number
-        const protocol_version = unpickler.load();
-        if (protocol_version != 1001) {
-            throw new pytorch.Error("Unsupported protocol version '" + protocol_version + "'.");
-        }
-        const sys_info = unpickler.load();
-        if (sys_info.protocol_version != 1001) {
-            throw new pytorch.Error("Unsupported protocol version '" + sys_info.protocol_version + "'.");
-        }
-        this._littleEndian = sys_info.little_endian;
-
-        const module_source_map = new Map();
-        const deserialized_objects = new Map();
-        unpickler.persistent_load = (saved_id) => {
-            const typename = saved_id.shift();
-            const data = saved_id;
-            switch (typename) {
-                case 'module': {
-                    const module = data[0];
-                    const source = data[2];
-                    module_source_map.set(module, source);
-                    return data[0];
-                }
-                case 'storage': {
-                    const storage_type = data.shift();
-                    const root_key = data.shift();
-                    data.shift(); // location
-                    const size = data.shift();
-                    const view_metadata = data.shift();
-                    if (!deserialized_objects.has(root_key)) {
-                        const obj = new storage_type(size);
-                        deserialized_objects.set(root_key, obj);
-                    }
-                    if (view_metadata) {
-                        const view_key = view_metadata.shift();
-                        view_metadata.shift(); // view_offset
-                        view_metadata.shift(); // view_size
-                        if (!deserialized_objects.has(view_key)) {
-                            const view = null; // storage.slice(view_offset, view_offset + view_size);
-                            deserialized_objects.set(view_key, view);
-                        }
-                        return deserialized_objects.get(view_key);
-                    }
-                    return deserialized_objects.get(root_key);
-                }
-                default: {
-                    throw new pytorch.Error("Unsupported persistent load type '" + typename + "'.");
-                }
-            }
-        };
-        const obj = unpickler.load();
-        if (!obj) {
-            throw new pytorch.Error('File format is not PyTorch.');
-        }
-        if (obj === 'None') {
-            throw new pytorch.Error("File contains 'None' root object.");
-        }
-
-        const deserialized_storage_keys = unpickler.load();
-        for (const deserialized_storage_key of deserialized_storage_keys) {
-            const storage = deserialized_objects.get(deserialized_storage_key);
-            storage._set_from_file(unpickler);
-        }
-
-        this._graphs = pytorch.Utility.find(obj);
     }
 };
 
@@ -1185,10 +1010,6 @@ pytorch.Container.Zip = class {
 
     get producer() {
         return this._producer;
-    }
-
-    get littleEndian() {
-        return true;
     }
 
     version(name) {

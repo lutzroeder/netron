@@ -5273,6 +5273,53 @@
     ]
   },
   {
+    "name": "torch.cudnn_convolution_relu:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor", "optional": true },
+      { "name": "bias", "type": "Tensor", "optional": true },
+      { "name": "stride", "type": "int64[]" },
+      { "name": "padding", "type": "int64[]" },
+      { "name": "dilation", "type": "int64[]" },
+      { "name": "grousp", "type": "int64" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.cudnn_convolution_relu:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor", "optional": true },
+      { "name": "bias", "type": "Tensor", "optional": true },
+      { "name": "stride", "type": "int64[]" },
+      { "name": "padding", "type": "int64[]" },
+      { "name": "dilation", "type": "int64[]" },
+      { "name": "grousp", "type": "int64" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.cudnn_convolution_add_relu:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor", "optional": true },
+      { "name": "bias", "type": "Tensor", "optional": true },
+      { "name": "z", "type": "Tensor", "optional": true },
+      { "name": "alpha", "type": "Scalar", "optional": true },
+      { "name": "stride", "type": "int64[]" },
+      { "name": "padding", "type": "int64[]" },
+      { "name": "dilation", "type": "int64[]" },
+      { "name": "grousp", "type": "int64" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.cumsum:",
     "inputs": [
       { "name": "self", "type": "Tensor" },

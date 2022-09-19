@@ -3,6 +3,7 @@
 import errno
 import http.server
 import importlib.util
+import json
 import os
 import random
 import re
@@ -156,6 +157,26 @@ class _HTTPServerThread(threading.Thread):
         value = not self.terminate_event.is_set()
         return value
 
+def _open(data):
+    registry = dict([
+        ('onnx.onnx_ml_pb2.ModelProto', '.onnx'),
+        ('torch.Graph', '.pytorch'),
+        ('torch._C.Graph', '.pytorch'),
+        ('torch.nn.modules.module.Module', '.pytorch')
+    ])
+    queue = [ data.__class__ ]
+    while len(queue) > 0:
+        current = queue.pop(0)
+        if current.__module__ and current.__name__:
+            name = current.__module__ + '.' + current.__name__
+            if name in registry:
+                module_name = registry[name]
+                module = importlib.import_module(module_name, package=__package__)
+                model_factory = module.ModelFactory()
+                return model_factory.open(data)
+        queue.extend(_ for _ in current.__bases__ if isinstance(_, type))
+    return None
+
 def _threads(address=None):
     threads = [ _ for _ in threading.enumerate() if isinstance(_, _HTTPServerThread) and _.alive() ]
     if address is not None:
@@ -259,26 +280,11 @@ def serve(file, data, address=None, browse=False, verbosity=1):
     content = _ContentProvider(data, file, file)
 
     if data and not isinstance(data, bytearray) and isinstance(data.__class__, type):
-        registry = dict([
-            ('onnx.onnx_ml_pb2.ModelProto', '.onnx'),
-            ('torch.Graph', '.pytorch'),
-            ('torch._C.Graph', '.pytorch'),
-            ('torch.nn.modules.module.Module', '.pytorch')
-        ])
-        queue = [ data.__class__ ]
-        while len(queue) > 0:
-            current = queue.pop(0)
-            if current.__module__ and current.__name__:
-                name = current.__module__ + '.' + current.__name__
-                if name in registry:
-                    module_name = registry[name]
-                    module = importlib.import_module(module_name, package=__package__)
-                    model_factory = module.ModelFactory()
-                    _log(verbosity > 1, 'Experimental\n')
-                    data = model_factory.serialize(data)
-                    content = _ContentProvider(data, 'model.netron', file)
-                    break
-            queue.extend(_ for _ in current.__bases__ if isinstance(_, type))
+        _log(verbosity > 1, 'Experimental\n')
+        model = _open(data)
+        if model:
+            text = json.dumps(model.to_json(), indent=4, ensure_ascii=False)
+            content = _ContentProvider(text.encode('utf-8'), 'model.netron', file)
 
     address = _make_address(address)
     if isinstance(address[1], int) and address[1] != 0:

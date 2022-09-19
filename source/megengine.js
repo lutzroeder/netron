@@ -2,7 +2,6 @@
 // Experimental
 
 var megengine = megengine || {};
-var base = base || require('./base');
 var flatbuffers = flatbuffers || require('./flatbuffers');
 
 megengine.ModelFactory = class {
@@ -10,13 +9,10 @@ megengine.ModelFactory = class {
     match(context) {
         const stream = context.stream;
         if (stream && stream.length >= 12) {
-            const sizeVerification = (buffer, offset = 0) => {
-                return buffer[ offset ] + buffer[ ++offset ] * Math.pow(2, 8) + buffer[ ++offset ] * Math.pow(2, 16) + buffer[ ++offset ] * Math.pow(2, 24);
-            };
-            if(sizeVerification(stream.peek(4), 0) > 0) {
-                stream.skip(4);
-                const buffer = stream.peek(8);
-                const reader = flatbuffers.BinaryReader.open(buffer);
+            const buffer = stream.peek(12);
+            const size = buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24);
+            if (size === (stream.length - 4)) {
+                const reader = flatbuffers.BinaryReader.open(buffer.slice(4, 12));
                 if (reader.identifier === 'mgv2') {
                     return 'megengine.flatbuffers';
                 }
@@ -24,7 +20,7 @@ megengine.ModelFactory = class {
         }
         const obj = context.open('pkl');
         if (obj && obj.__class__ && obj.__class__.__module__ === 'megengine.traced_module.traced_module' && obj.__class__.__name__ === 'TracedModule') {
-            return 'megengine.pickle';
+            return 'megengine.tm';
         }
         return '';
     }
@@ -32,7 +28,7 @@ megengine.ModelFactory = class {
     open(context, match) {
         return context.metadata('megengine-metadata.json').then((metadata) => {
             switch (match) {
-                case 'megengine.pickle': {
+                case 'megengine.tm': {
                     const obj = context.open('pkl');
                     return new megengine.Model(metadata, obj, match);
                 }
@@ -43,6 +39,7 @@ megengine.ModelFactory = class {
 
                         const stream = context.stream;
                         try {
+                            stream.skip(4);
                             const reader = flatbuffers.BinaryReader.open(stream);
                             model = megengine.schema.v2.Model.create(reader);
                         }
@@ -65,7 +62,7 @@ megengine.Model = class {
 
     constructor(metadata, obj, modelType) {
         switch (modelType) {
-            case 'megengine.pickle': {
+            case 'megengine.tm': {
                 this._format = 'MegEngine' + (obj.dump_info && obj.dump_info.version ? ' v' + obj.dump_info.version : '');
                 break;
             }
@@ -193,7 +190,7 @@ megengine.Graph = class {
                 };
                 const formatTreeDef = (obj) => {
                     if (obj.__class__.__name__ !== 'TreeDef' && obj.__class__.__name__ !== 'LeafDef') {
-                        throw new megengine.Error('formatTreeDef gets invalid argument');
+                        throw new megengine.Error("Invalid argument '" + obj.__class__.__name__ + "'.");
                     }
                     if (obj.__class__.__name__ === 'TreeDef') {
                         const type = typeof obj.type !== 'string' ? obj.type.__name__ : obj.type.split('.').slice(-1)[0];

@@ -3,28 +3,44 @@
 import json
 import os
 
-class ModelFactory:
+class ModelFactory: # pylint: disable=too-few-public-methods
     ''' PyTorch backend model factory '''
-    def serialize(self, model):
-        ''' Serialize PyTorch model to JSON message '''
-        import torch # pylint: disable=import-outside-toplevel
+    def open(self, model): # pylint: disable=missing-function-docstring
+        return _Model(model)
+
+class _Model: # pylint: disable=too-few-public-methods
+    def __init__(self, model):
+        self.graph = _Graph(model)
+
+    def to_json(self):
+        ''' Serialize model to JSON message '''
         metadata = {}
         metadata_file = os.path.join(os.path.dirname(__file__), 'onnx-metadata.json')
         with open(metadata_file, 'r', encoding='utf-8') as file:
             for item in json.load(file):
                 name = 'onnx::' + item['name']
                 metadata[name] = item
+        json_model = {
+            'signature': 'netron:pytorch',
+            'format': 'TorchScript',
+            'graphs': [ self.graph.to_json() ]
+        }
+        return json_model
 
-        json_model = {}
-        json_model['signature'] = 'netron:pytorch'
-        json_model['format']  = 'TorchScript'
-        json_model['graphs'] = []
-        json_graph = {}
-        json_graph['arguments'] = []
-        json_graph['nodes'] = []
-        json_graph['inputs'] = []
-        json_graph['outputs'] = []
-        json_model['graphs'].append(json_graph)
+class _Graph: # pylint: disable=too-few-public-methods
+
+    def __init__(self, graph):
+        self.value = graph
+
+    def to_json(self): # pylint: disable=missing-function-docstring
+        import torch # pylint: disable=import-outside-toplevel
+        graph = self.value
+        json_graph = {
+            'arguments': [],
+            'nodes': [],
+            'inputs': [],
+            'outputs': []
+        }
         data_type_map = dict([
             [ torch.float16, 'float16'], # pylint: disable=no-member
             [ torch.float32, 'float32'], # pylint: disable=no-member
@@ -52,23 +68,19 @@ class ModelFactory:
                 arguments.append(json_argument)
             return arguments_map[value]
 
-        for input_value in model.inputs():
+        for _ in graph.inputs():
             json_graph['inputs'].append({
-                'name': input_value.debugName(),
-                'arguments': [ argument(input_value) ]
+                'name': _.debugName(),
+                'arguments': [ argument(_) ]
             })
-        for output_value in model.outputs():
+        for _ in graph.outputs():
             json_graph['outputs'].append({
-                'name': output_value.debugName(),
-                'arguments': [ argument(output_value) ]
+                'name': _.debugName(),
+                'arguments': [ argument(_) ]
             })
-        for node in model.nodes():
-            kind = node.kind()
-            json_type = {
-                'name': kind
-            }
+        for node in graph.nodes():
             json_node = {
-                'type': json_type,
+                'type': { 'name': node.kind() },
                 'inputs': [],
                 'outputs': [],
                 'attributes': []
@@ -100,6 +112,4 @@ class ModelFactory:
                     'name': 'x',
                     'arguments': [ argument(output_value) ]
                 })
-
-        text = json.dumps(json_model, ensure_ascii=False)
-        return text.encode('utf-8')
+        return json_graph

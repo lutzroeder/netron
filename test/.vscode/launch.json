@@ -2,10 +2,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Models",
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
             "program": "${workspaceFolder}/models.js"
+        },
+        {
+            "name": "Backend",
+            "type": "python",
+            "request": "launch",
+            "program": "backend.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
         }
     ]
 }

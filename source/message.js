@@ -8,9 +8,9 @@ message.ModelFactory = class {
     match(context) {
         const stream = context.stream;
         if (stream) {
-            const buffer = stream.peek(Math.min(32, stream.length));
+            const buffer = stream.peek(Math.min(64, stream.length));
             const content = String.fromCharCode.apply(null, buffer);
-            const match = content.match(/^{"signature":\s*"(.*)",\s*/);
+            const match = content.match(/^{\s*"signature":\s*"(.*)"\s*,\s*/);
             if (match && match[1].startsWith('netron:')) {
                 const obj = context.open('json');
                 if (obj && obj.signature && obj.signature.startsWith('netron:')) {
