@@ -3810,11 +3810,14 @@ python.Execution = class {
         this.registerType('torch.nn.quantized.modules.conv.ConvTranspose2d', class {});
         this.registerType('torch.nn.quantized.modules.DeQuantize', class {});
         this.registerType('torch.nn.quantized.modules.dropout.Dropout', class {});
+        this.registerType('torch.nn.quantized.modules.embedding_ops.Embedding', class {});
+        this.registerType('torch.nn.quantized.modules.embedding_ops.EmbeddingPackedParams', class {});
         this.registerType('torch.nn.quantized.modules.functional_modules.FloatFunctional', class {});
         this.registerType('torch.nn.quantized.modules.functional_modules.QFunctional', class {});
         this.registerType('torch.nn.quantized.modules.linear.Linear', class {});
         this.registerType('torch.nn.quantized.modules.linear.LinearPackedParams', class {});
         this.registerType('torch.nn.quantized.modules.normalization.InstanceNorm2d', class {});
+        this.registerType('torch.nn.quantized.modules.normalization.LayerNorm', class {});
         this.registerType('torch.nn.quantized.modules.Quantize', class {});
         this.registerType('torch.nn.utils.prune.L1Unstructured', class {});
         this.registerType('torch.nn.utils.spectral_norm.SpectralNorm', class {});
