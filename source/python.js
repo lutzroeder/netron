@@ -1621,11 +1621,18 @@ python.Execution = class {
         const dict = class extends Map {};
         this._modules = new dict();
         this._registry = new Map();
-        this._builtins = this.register('builtins');
+        const ModuleType = class {
+            constructor(name) {
+                this.__name__ = name;
+            }
+        };
+        this._builtins = this.register('builtins', new ModuleType('builtins'));
         this._registry.set('__builtin__', this._builtins);
-        this.import('builtins');
         this.registerType('builtins.type', class {}).__class__ = this._builtins.type;
-        this.registerType('builtins.module', class {});
+        this.registerType('builtins.module', ModuleType);
+        this.registerType('builtins.method', class {});
+        this.registerType('builtins.function', class {});
+        this.import('builtins');
         this.registerType('builtins.builtin_function_or_method', class {});
         this._typing = this.register('typing');
         this.register('_codecs');
@@ -1655,8 +1662,6 @@ python.Execution = class {
         this.register('__torch__');
         this.register('sys').modules = this._modules;
         this.register('xgboost');
-        this.registerType('builtins.function', class {});
-        this.registerType('builtins.method', class {});
         this.registerType('builtins.dict', dict);
         this.registerType('builtins.list', class {});
         this.registerType('builtins.number', class {});
@@ -3190,11 +3195,10 @@ python.Execution = class {
             constructor(/* args */) {
             }
         });
-        this.registerType('types.MethodType', class {
-            constructor(/* args */) {
-            }
-        });
-        this.registerType('types.ObjectType', this._builtins.object);
+        this.register('types').ObjectType = this._builtins.object;
+        this.register('types').ModuleType = this._builtins.module;
+        this.register('types').MethodType = this._builtins.method;
+        this.register('types').FunctionType = this._builtins.function;
         this.registerType('xgboost.compat.XGBoostLabelEncoder', class {});
         this.registerType('xgboost.core.Booster', class {});
         this.registerType('xgboost.sklearn.XGBClassifier', class {});
@@ -3806,11 +3810,14 @@ python.Execution = class {
         this.registerType('torch.nn.quantized.modules.conv.ConvTranspose2d', class {});
         this.registerType('torch.nn.quantized.modules.DeQuantize', class {});
         this.registerType('torch.nn.quantized.modules.dropout.Dropout', class {});
+        this.registerType('torch.nn.quantized.modules.embedding_ops.Embedding', class {});
+        this.registerType('torch.nn.quantized.modules.embedding_ops.EmbeddingPackedParams', class {});
         this.registerType('torch.nn.quantized.modules.functional_modules.FloatFunctional', class {});
         this.registerType('torch.nn.quantized.modules.functional_modules.QFunctional', class {});
         this.registerType('torch.nn.quantized.modules.linear.Linear', class {});
         this.registerType('torch.nn.quantized.modules.linear.LinearPackedParams', class {});
         this.registerType('torch.nn.quantized.modules.normalization.InstanceNorm2d', class {});
+        this.registerType('torch.nn.quantized.modules.normalization.LayerNorm', class {});
         this.registerType('torch.nn.quantized.modules.Quantize', class {});
         this.registerType('torch.nn.utils.prune.L1Unstructured', class {});
         this.registerType('torch.nn.utils.spectral_norm.SpectralNorm', class {});
@@ -4661,6 +4668,12 @@ python.Execution = class {
             if (meta.state) {
                 Object.assign(obj, meta.state);
             }
+            // const name = '_imported_module_' + Math.floor(Math.random() * 10000).toString();
+            // const module = execution.invoke('types.ModuleType', [ name ]);
+            // execution.register('sys').modules.set(name, module);
+            // const context = new python.Execution.Context(module, null);
+            // execution.exec(meta.module_src, context);
+            // const obj = module[meta.class_name];
             return obj;
         });
         this.registerType('torch.device', class {
@@ -5057,6 +5070,15 @@ python.Execution = class {
     debug(/* file */) {
     }
 
+    exec(code , context) {
+        const reader = new python.Parser(code, null, null);
+        const program = reader.parse();
+        if (!program) {
+            throw new python.Error("Module '" + '?' + "' parse error.");
+        }
+        this.block(program.body, context);
+    }
+
     parse(file) {
         const buffer = this.source(file);
         if (buffer) {
@@ -5091,9 +5113,7 @@ python.Execution = class {
             this.import(parent);
         }
         if (!this._modules.has(name)) {
-            const module = this._registry.get(name) || {};
-            module.__class__ = this._builtins.module;
-            module.__name__ = name;
+            const module = this._registry.get(name) || new this._builtins.module(name);
             module.__package__ = name;
             this._modules.set(name, module);
             const path = name.split('.').join('/');
@@ -5102,7 +5122,6 @@ python.Execution = class {
             const program = this.parse(file);
             if (program) {
                 module.__file__ = file;
-                const context = new python.Execution.Context(module, null);
                 for (const entry of Object.entries(this.builtins)) {
                     switch (entry[0]) {
                         case '__class__':
@@ -5117,6 +5136,7 @@ python.Execution = class {
                             break;
                     }
                 }
+                const context = new python.Execution.Context(module, null);
                 if (name !== 'builtins') {
                     context.set('__builtins__', this._modules.get('builtins'));
                 }
@@ -5690,7 +5710,7 @@ python.Execution = class {
 
     register(name, value) {
         if (!this._registry.has(name)) {
-            value = value || {};
+            value = value || new (this.register('builtins').module)(name);
             this._registry.set(name, value);
             let current = name;
             for (;;) {
@@ -5731,11 +5751,14 @@ python.Execution = class {
 
     registerType(name, value) {
         value = this._createType(name, value);
-        const module = this.register(value.__module__);
-        if (module[value.__name__]) {
-            throw new python.Error("Class '" + name + "' is already registered.");
+        const parts = name.split('.');
+        const memberName = parts.pop();
+        const moduleName = parts.join('.');
+        const module = this.register(moduleName);
+        if (module[memberName]) {
+            throw new python.Error("Class '" + memberName + "' is already registered.");
         }
-        module[value.__name__] = value;
+        module[memberName] = value;
         return value;
     }
 };

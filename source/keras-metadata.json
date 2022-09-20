@@ -593,7 +593,7 @@
       },
       {
         "default": "channels_last",
-        "description": "A string,\n    one of `channels_last` (default) or `channels_first`.",
+        "description": "A string, one of `channels_last` (default) or\n    `channels_first`. The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape `(batch_size, width,\n    channels)` while `channels_first` corresponds to inputs with shape\n    `(batch_size, channels, width)`. Note that the `channels_first` format\n    is currently not supported by TensorFlow on CPU.",
         "name": "data_format"
       },
       {
@@ -721,7 +721,7 @@
       },
       {
         "default": "channels_last",
-        "description": "A string, one of `channels_last` (default) or\n    `channels_first`.  The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape `(batch_size, height,\n    width, channels)` while `channels_first` corresponds to inputs with\n    shape `(batch_size, channels, height, width)`. It defaults to the\n    `image_data_format` value found in your Keras config file at\n    `~/.keras/keras.json`. If you never set it, then it will be\n    `channels_last`.",
+        "description": "A string, one of `channels_last` (default) or\n    `channels_first`.  The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape `(batch_size, height,\n    width, channels)` while `channels_first` corresponds to inputs with\n    shape `(batch_size, channels, height, width)`. It defaults to the\n    `image_data_format` value found in your Keras config file at\n    `~/.keras/keras.json`. If you never set it, then it will be\n    `channels_last`. Note that the `channels_first` format is currently not\n    supported by TensorFlow on CPU.",
         "name": "data_format"
       },
       {
@@ -976,7 +976,7 @@
         "name": "padding"
       },
       {
-        "description": "A string, one of `channels_last` (default) or\n    `channels_first`.  The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape `batch_shape +\n    (spatial_dim1, spatial_dim2, spatial_dim3, channels)` while\n    `channels_first` corresponds to inputs with shape `batch_shape +\n    (channels, spatial_dim1, spatial_dim2, spatial_dim3)`. It defaults to\n    the `image_data_format` value found in your Keras config file at\n    `~/.keras/keras.json`. If you never set it, then it will be\n    \"channels_last\".",
+        "description": "A string, one of `channels_last` (default) or\n    `channels_first`.  The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape `batch_shape +\n    (spatial_dim1, spatial_dim2, spatial_dim3, channels)` while\n    `channels_first` corresponds to inputs with shape `batch_shape +\n    (channels, spatial_dim1, spatial_dim2, spatial_dim3)`. It defaults to\n    the `image_data_format` value found in your Keras config file at\n    `~/.keras/keras.json`. If you never set it, then it will be\n    \"channels_last\". Note that the `channels_first` format is currently not\n    supported by TensorFlow on CPU.",
         "name": "data_format"
       },
       {
@@ -1223,7 +1223,7 @@
       },
       {
         "default": "channels_last",
-        "description": "A string, one of `channels_last` (default) or\n    `channels_first`.  The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape `(batch_size, height,\n    width, channels)` while `channels_first` corresponds to inputs with\n    shape `(batch_size, channels, height, width)`. It defaults to the\n    `image_data_format` value found in your Keras config file at\n    `~/.keras/keras.json`. If you never set it, then it will be\n    `channels_last`.",
+        "description": "A string, one of `channels_last` (default) or\n    `channels_first`.  The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape `(batch_size, height,\n    width, channels)` while `channels_first` corresponds to inputs with\n    shape `(batch_size, channels, height, width)`. It defaults to the\n    `image_data_format` value found in your Keras config file at\n    `~/.keras/keras.json`. If you never set it, then it will be\n    `channels_last`. Note that the `channels_first` format is currently not\n    supported by TensorFlow on CPU.",
         "name": "data_format"
       },
       {
@@ -3108,7 +3108,7 @@
   {
     "name": "MultiHeadAttention",
     "module": "tensorflow.keras.layers",
-    "description": "MultiHeadAttention layer.\n\nThis is an implementation of multi-headed attention as described in the\npaper \"Attention is all you Need\" (Vaswani et al., 2017).\nIf `query`, `key,` `value` are the same, then\nthis is self-attention. Each timestep in `query` attends to the\ncorresponding sequence in `key`, and returns a fixed-width vector.\n\nThis layer first projects `query`, `key` and `value`. These are\n(effectively) a list of tensors of length `num_attention_heads`, where the\ncorresponding shapes are `(batch_size, <query dimensions>, key_dim)`,\n`(batch_size, <key/value dimensions>, key_dim)`,\n`(batch_size, <key/value dimensions>, value_dim)`.\n\nThen, the query and key tensors are dot-producted and scaled. These are\nsoftmaxed to obtain attention probabilities. The value tensors are then\ninterpolated by these probabilities, then concatenated back to a single\ntensor.\n\nFinally, the result tensor with the last dimension as value_dim can take an\nlinear projection and return.\n\nWhen using MultiHeadAttention inside a custom Layer, the custom Layer must\nimplement `build()` and call MultiHeadAttention's `_build_from_signature()`.\nThis enables weights to be restored correctly when the model is loaded.\nTODO(b/172609172): link to documentation about calling custom build\nfunctions when used in a custom Layer.",
+    "description": "MultiHeadAttention layer.\n\nThis is an implementation of multi-headed attention as described in the\npaper \"Attention is all you Need\" (Vaswani et al., 2017).\nIf `query`, `key,` `value` are the same, then\nthis is self-attention. Each timestep in `query` attends to the\ncorresponding sequence in `key`, and returns a fixed-width vector.\n\nThis layer first projects `query`, `key` and `value`. These are\n(effectively) a list of tensors of length `num_attention_heads`, where the\ncorresponding shapes are `(batch_size, <query dimensions>, key_dim)`,\n`(batch_size, <key/value dimensions>, key_dim)`,\n`(batch_size, <key/value dimensions>, value_dim)`.\n\nThen, the query and key tensors are dot-producted and scaled. These are\nsoftmaxed to obtain attention probabilities. The value tensors are then\ninterpolated by these probabilities, then concatenated back to a single\ntensor.\n\nFinally, the result tensor with the last dimension as value_dim can take an\nlinear projection and return.\n\nWhen using `MultiHeadAttention` inside a custom layer, the custom layer must\nimplement its own `build()` method and call `MultiHeadAttention`'s\n`_build_from_signature()` there.\nThis enables weights to be restored correctly when the model is loaded.",
     "attributes": [
       {
         "description": "Number of attention heads.",
@@ -3435,7 +3435,7 @@
     ],
     "examples": [
       {
-        "code": "# First, let's define a RNN Cell, as a layer subclass.\n\nclass MinimalRNNCell(keras.layers.Layer):\n\n    def __init__(self, units, **kwargs):\n        self.units = units\n        self.state_size = units\n        super(MinimalRNNCell, self).__init__(**kwargs)\n\n    def build(self, input_shape):\n        self.kernel = self.add_weight(shape=(input_shape[-1], self.units),\n                                      initializer='uniform',\n                                      name='kernel')\n        self.recurrent_kernel = self.add_weight(\n            shape=(self.units, self.units),\n            initializer='uniform',\n            name='recurrent_kernel')\n        self.built = True\n\n    def call(self, inputs, states):\n        prev_output = states[0]\n        h = backend.dot(inputs, self.kernel)\n        output = h + backend.dot(prev_output, self.recurrent_kernel)\n        return output, [output]\n\n# Let's use this cell in a RNN layer:\n\ncell = MinimalRNNCell(32)\nx = keras.Input((None, 5))\nlayer = RNN(cell)\ny = layer(x)\n\n# Here's how to use the cell to build a stacked RNN:\n\ncells = [MinimalRNNCell(32), MinimalRNNCell(64)]\nx = keras.Input((None, 5))\nlayer = RNN(cells)\ny = layer(x)"
+        "code": "from keras.layers import RNN\nfrom keras import backend\n\n# First, let's define a RNN Cell, as a layer subclass.\nclass MinimalRNNCell(keras.layers.Layer):\n\n    def __init__(self, units, **kwargs):\n        self.units = units\n        self.state_size = units\n        super(MinimalRNNCell, self).__init__(**kwargs)\n\n    def build(self, input_shape):\n        self.kernel = self.add_weight(shape=(input_shape[-1], self.units),\n                                      initializer='uniform',\n                                      name='kernel')\n        self.recurrent_kernel = self.add_weight(\n            shape=(self.units, self.units),\n            initializer='uniform',\n            name='recurrent_kernel')\n        self.built = True\n\n    def call(self, inputs, states):\n        prev_output = states[0]\n        h = backend.dot(inputs, self.kernel)\n        output = h + backend.dot(prev_output, self.recurrent_kernel)\n        return output, [output]\n\n# Let's use this cell in a RNN layer:\n\ncell = MinimalRNNCell(32)\nx = keras.Input((None, 5))\nlayer = RNN(cell)\ny = layer(x)\n\n# Here's how to use the cell to build a stacked RNN:\n\ncells = [MinimalRNNCell(32), MinimalRNNCell(64)]\nx = keras.Input((None, 5))\nlayer = RNN(cells)\ny = layer(x)"
       }
     ]
   },
