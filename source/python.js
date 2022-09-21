@@ -1621,15 +1621,15 @@ python.Execution = class {
         const dict = class extends Map {};
         this._modules = new dict();
         this._registry = new Map();
-        const ModuleType = class {
+        this._module = class {
             constructor(name) {
                 this.__name__ = name;
             }
         };
-        this._builtins = this.register('builtins', new ModuleType('builtins'));
+        this._builtins = this.register('builtins', new this._module('builtins'));
         this._registry.set('__builtin__', this._builtins);
         this.registerType('builtins.type', class {}).__class__ = this._builtins.type;
-        this.registerType('builtins.module', ModuleType);
+        this.registerType('builtins.module', this._module);
         this.registerType('builtins.method', class {});
         this.registerType('builtins.function', class {});
         this.import('builtins');
@@ -1776,6 +1776,12 @@ python.Execution = class {
         this.registerType('haiku._src.data_structures.FlatMapping', class {
             constructor(dict) {
                 Object.assign(this, dict);
+            }
+        });
+
+        this.registerType('haiku._src.data_structures.frozendict', class {
+            constructor(obj) {
+                Object.assign(this, obj);
             }
         });
         this.registerType('hmmlearn.hmm.MultinomialHMM', class {
@@ -2043,6 +2049,11 @@ python.Execution = class {
         this.registerType('gensim.models.word2vec.Word2Vec', class {});
         this.registerType('gensim.models.word2vec.Word2VecTrainables', class {});
         this.registerType('gensim.models.word2vec.Word2VecVocab', class {});
+        this.registerType('google3.learning.deepmind.research.nbr.pbl_jax.clean_jaxline.utils.optimizers.ScaleByLarsState', class {
+            constructor(obj) {
+                Object.assign(this, obj);
+            }
+        });
         this.registerType('joblib.numpy_pickle.NumpyArrayWrapper', class {
             constructor(/* subtype, shape, dtype */) {
             }
@@ -3203,8 +3214,8 @@ python.Execution = class {
         this.registerType('xgboost.core.Booster', class {});
         this.registerType('xgboost.sklearn.XGBClassifier', class {});
         this.registerType('xgboost.sklearn.XGBRegressor', class {});
-        this.registerFunction('_codecs.encode', function(obj /*, econding */) {
-            return obj;
+        this.registerFunction('_codecs.encode', function(obj, encoding) {
+            return execution.invoke('builtins.bytearray', [ obj, encoding ]);
         });
         this.registerFunction('builtins.bytearray', function(source, encoding /*, errors */) {
             if (source) {
@@ -3215,7 +3226,7 @@ python.Execution = class {
                     }
                     return target;
                 }
-                if (encoding === 'latin-1') {
+                if (encoding === 'latin-1' || encoding === 'latin1') {
                     const target = new Uint8Array(source.length);
                     const length = source.length;
                     for (let i = 0; i < length; i++) {
@@ -3301,6 +3312,13 @@ python.Execution = class {
                 // TODO
             };
         });
+        this.registerFunction('dill._dill._create_namedtuple', function(name, fieldnames, modulename /*, defaults */) {
+            const obj = execution.invoke('dill._dill._import_module', [ modulename + '.' + name ]);
+            if (obj) {
+                return obj;
+            }
+            return undefined;
+        });
         this.registerFunction('dill._dill._get_attr', function(self, name) {
             if (Object.prototype.hasOwnProperty.call(self, name)) {
                 return self[name];
@@ -3309,7 +3327,13 @@ python.Execution = class {
         });
         this.registerFunction('dill._dill._import_module', function(import_name, safe) {
             try {
-                return self.__import__(import_name);
+                if (import_name.startsWith('__runtime__.')) {
+                    return execution.module(import_name);
+                }
+                else if (import_name.indexOf('.') === -1) {
+                    return execution.__import__(import_name);
+                }
+                return execution.resolve(import_name);
             }
             catch (err) {
                 if (safe) {
@@ -3335,6 +3359,9 @@ python.Execution = class {
         });
         this.registerFunction('nolearn.lasagne.base.objective', function() {
             throw new python.Error('Function not implemented.');
+        });
+        this.registerFunction('numpy._reconstruct', function(subtype, shape, dtype) {
+            return self.invoke(subtype, [ shape, dtype ]);
         });
         this.registerFunction('numpy.core._multiarray_umath._reconstruct', function(subtype, shape, dtype) {
             return self.invoke(subtype, [ shape, dtype ]);
@@ -5710,7 +5737,7 @@ python.Execution = class {
 
     register(name, value) {
         if (!this._registry.has(name)) {
-            value = value || new (this.register('builtins').module)(name);
+            value = value || new this._module(name);
             this._registry.set(name, value);
             let current = name;
             for (;;) {
