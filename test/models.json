@@ -2549,9 +2549,23 @@
   },
   {
     "type":     "megengine",
+    "target":   "mobilenetv3-large.mge",
+    "source":   "https://github.com/lutzroeder/netron/files/9441554/mobilenetv3-large.zip[mobilenetv3-large.mge]",
+    "format":   "MegEngine Mge v2",
+    "link":     "https://github.com/MegEngine/MegEngine"
+  },
+  {
+    "type":     "megengine",
     "target":   "shufflenet_v2_x1_0.tm",
     "source":   "https://github.com/lutzroeder/netron/files/9257733/shufflenet_v2_x1_0.tm.zip[shufflenet_v2_x1_0.tm]",
     "format":   "MegEngine v1.10.0",
+    "link":     "https://github.com/MegEngine/MegEngine"
+  },
+  {
+    "type":     "megengine",
+    "target":   "shufflenetv2.mge",
+    "source":   "https://github.com/lutzroeder/netron/files/9441551/shufflenetv2.zip[shufflenetv2.mge]",
+    "format":   "MegEngine Mge v2",
     "link":     "https://github.com/MegEngine/MegEngine"
   },
   {
