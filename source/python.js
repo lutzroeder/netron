@@ -501,12 +501,12 @@ python.Parser = class {
                         node.op = node.type;
                         node.type = 'binary';
                         node.left = stack.pop();
-                        node.right = this._expression(precedence, terminal, tuple === false ? false : true);
+                        node.right = this._expression(precedence, terminal, tuple === true ? true : false);
                     }
                     else {
                         node.op = node.type;
                         node.type = 'unary';
-                        node.operand = this._expression(precedence, terminal, tuple === false ? false : true);
+                        node.operand = this._expression(precedence, terminal, tuple === true ? true : false);
                     }
                     stack.push(node);
                     continue;
@@ -1621,15 +1621,15 @@ python.Execution = class {
         const dict = class extends Map {};
         this._modules = new dict();
         this._registry = new Map();
-        this._module = class {
+        const module = class {
             constructor(name) {
                 this.__name__ = name;
             }
         };
-        this._builtins = this.register('builtins', new this._module('builtins'));
+        this._builtins = this.register('builtins', new module('builtins'));
         this._registry.set('__builtin__', this._builtins);
         this.registerType('builtins.type', class {}).__class__ = this._builtins.type;
-        this.registerType('builtins.module', this._module);
+        this.registerType('builtins.module', module);
         this.registerType('builtins.method', class {});
         this.registerType('builtins.function', class {});
         this.import('builtins');
@@ -1773,12 +1773,12 @@ python.Execution = class {
                 this._handle = state;
             }
         });
+        this.registerType('dnnlib.util.EasyDict', class extends dict {});
         this.registerType('haiku._src.data_structures.FlatMapping', class {
             constructor(dict) {
                 Object.assign(this, dict);
             }
         });
-
         this.registerType('haiku._src.data_structures.frozendict', class {
             constructor(obj) {
                 Object.assign(this, obj);
@@ -3202,10 +3202,12 @@ python.Execution = class {
         });
         this.registerType('thinc.neural.ops.NumpyOps', class {
         });
-        this.registerType('types.CodeType', class {
-            constructor(/* args */) {
+        this.registerType('__main__.BYOLState', class {
+            constructor(dict) {
+                Object.assign(this, dict);
             }
         });
+        this.registerType('types.CodeType', class {});
         this.register('types').ObjectType = this._builtins.object;
         this.register('types').ModuleType = this._builtins.module;
         this.register('types').MethodType = this._builtins.method;
@@ -4691,18 +4693,27 @@ python.Execution = class {
             return body;
         });
         this.registerFunction('torch_utils.persistence._reconstruct_persistent_obj', function(meta) {
-            const obj = { __class__: { __module__: '?', __name__: meta.class_name } };
+            const name = '_imported_module_' + Math.floor(Math.random() * 10000).toString();
+            const module = execution.invoke('types.ModuleType', [ name ]);
+            execution.register('sys').modules.set(name, module);
+            const context = new python.Execution.Context(module, null);
+            execution.exec(meta.module_src, context);
+            const obj = execution.invoke(name + '.' + meta.class_name, []);
             if (meta.state) {
-                Object.assign(obj, meta.state);
+                if (obj.__setstate__) {
+                    obj.__setstate__(meta.state);
+                }
+                else {
+                    Object.assign(obj, meta.state);
+                }
             }
-            // const name = '_imported_module_' + Math.floor(Math.random() * 10000).toString();
-            // const module = execution.invoke('types.ModuleType', [ name ]);
-            // execution.register('sys').modules.set(name, module);
-            // const context = new python.Execution.Context(module, null);
-            // execution.exec(meta.module_src, context);
-            // const obj = module[meta.class_name];
             return obj;
         });
+        this.registerFunction('torch_utils.misc.assert_shape', function(/* tensor, ref_shape */) {});
+        this.registerFunction('torch_utils.ops.conv2d_resample.conv2d_resample', function(/* x, w, f, up, down, padding, groups, flip_weight, flip_filter */) {});
+        this.registerFunction('torch_utils.ops.upfirdn2d.setup_filter', function(/* x, f, up, down, padding, flip_filter, gain, impl */) {});
+        this.registerFunction('torch_utils.ops.bias_act', function(/* x, b, dim, act, alpha, gain, clamp, impl */) {});
+        this.registerFunction('torch_utils.ops.fma.fma', function(/* a, b, c */) {});
         this.registerType('torch.device', class {
             constructor(type, index) {
                 this.type = type;
@@ -5242,7 +5253,7 @@ python.Execution = class {
         if (!type) {
             if (!this._unresolved.has(name)) {
                 const moduleName = name.split('.').shift();
-                if (this._registry.has(moduleName)) {
+                if (this._registry.has(moduleName) && moduleName !== '__main__') {
                     this._exceptionCallback(new python.Error("Unknown type name '" + name + "'."), false);
                 }
                 const type = this._createType(name, class {});
@@ -5480,19 +5491,8 @@ python.Execution = class {
                 break;
             }
             case 'import_from': {
-                let module = null;
                 const fromlist = statement.names.map((name) => name.name);
-                if (statement.level > 0) {
-                    module = this.__import__(statement.module, context.globals, context.locals, fromlist, statement.level);
-                }
-                else {
-                    module = this.__import__(statement.module, context.globals, context.locals, fromlist, 0);
-                    const bits = statement.module.split('.').reverse();
-                    bits.pop();
-                    while (bits.length > 0) {
-                        module = module[bits.pop()];
-                    }
-                }
+                const module = this.__import__(statement.module, context.globals, context.locals, fromlist, statement.level);
                 for (const entry of statement.names) {
                     const name = entry.name;
                     const asname = entry.asname ? entry.asname : null;
@@ -5737,7 +5737,7 @@ python.Execution = class {
 
     register(name, value) {
         if (!this._registry.has(name)) {
-            value = value || new this._module(name);
+            value = value || new (this._registry.get('builtins').module)(name);
             this._registry.set(name, value);
             let current = name;
             for (;;) {
