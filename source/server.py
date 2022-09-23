@@ -112,7 +112,7 @@ class _HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         if self.command != 'HEAD':
             if status_code == 404 and content is None:
-                self.wfile.write(str(status_code))
+                self.wfile.write(str(status_code).encode('utf-8'))
             elif (status_code in (200, 404)) and content is not None:
                 self.wfile.write(content)
 
