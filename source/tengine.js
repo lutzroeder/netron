@@ -373,8 +373,8 @@ tengine.Reader = class {
 
     constructor(stream) {
         this._stream = stream;
-        // https://github.com/OAID/Tengine/blob/tengine-lite/src/serializer/tm/tm2_format.h
         // https://github.com/OAID/Tengine/wiki/The-format-of-tmfile
+        // https://github.com/OAID/Tengine/blob/tengine-lite/source/serializer/tmfile/tm2_format.h
     }
 
     _read() {
@@ -472,7 +472,7 @@ tengine.Reader = class {
             register(68, 0, 'Absval', []);
             register(69, 0, 'Cast', [ 'i', 'i' ]);
             register(70, 0, 'HardSwish', [ 'f', 'f' ]);
-            register(71, 0, 'Interp', [ 'i', 'i', 'f', 'f', 'i' ]);
+            register(71, 0, 'Interp', [ 'i', 'f', 'f', 'i', 'i' ]);
             register(72, 0, 'SELU', [ 'f', 'f' ]);
             register(73, 0, 'ELU', [ 'f' ]);
             register(74, 0, 'BroadMul', []);
