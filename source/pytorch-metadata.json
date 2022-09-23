@@ -1422,6 +1422,49 @@
     ]
   },
   {
+    "name": "torch.bernoulli:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "generator", "type": "Generator", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.bernoulli_:Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "p", "type": "Tensor" },
+      { "name": "generator", "type": "Generator", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.bernoulli_:float",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "p", "type": "float32", "default": 0.5 },
+      { "name": "generator", "type": "Generator", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.bernoulli_:p",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "p", "type": "float32", "default": 0.5 },
+      { "name": "generator", "type": "Generator", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.gather:",
     "inputs": [
       { "name": "selm", "type": "Tensor" },
@@ -3171,7 +3214,7 @@
     ]
   },
   {
-    "name": "torch.index",
+    "name": "torch.index:Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "indices", "type": "Tensor[]", "optional": true }
