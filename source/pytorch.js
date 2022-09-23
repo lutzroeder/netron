@@ -15,17 +15,11 @@ pytorch.ModelFactory = class {
         const identifier = context.identifier;
         return pytorch.Metadata.open(context).then((metadata) => {
             const container = match;
-            try {
-                container.metadata = metadata;
-                container.exception = (error, fatal) => {
-                    const message = error && error.message ? error.message : error.toString();
-                    context.exception(new pytorch.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
-                };
-            }
-            catch (error) {
+            container.metadata = metadata;
+            container.exception = (error, fatal) => {
                 const message = error && error.message ? error.message : error.toString();
-                throw new pytorch.Error('File format is not PyTorch (' + message.replace(/\.$/, '') + ').');
-            }
+                context.exception(new pytorch.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
+            };
             return new pytorch.Model(metadata, container);
         });
     }
