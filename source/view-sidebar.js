@@ -1447,7 +1447,7 @@ sidebar.Tensor = class {
                 context.view = new DataView(context.data.buffer, context.data.byteOffset, context.data.byteLength);
                 if (sidebar.Tensor.dataTypes.has(dataType)) {
                     context.itemsize = sidebar.Tensor.dataTypes.get(dataType);
-                    if (this._data.length < (context.itemsize * size)) {
+                    if (context.data.length < (context.itemsize * size)) {
                         throw new Error('Invalid tensor data size.');
                     }
                 }
