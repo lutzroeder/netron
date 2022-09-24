@@ -296,7 +296,7 @@ def serve(file, data, address=None, browse=False, verbosity=1):
     thread.start()
     while not thread.alive():
         time.sleep(0.01)
-    message = (("Serving '" + file) if file else ("Serving")) + "' at " + thread.url + "\n"
+    message = (("Serving '" + file + "'") if file else "Serving") + " at " + thread.url + "\n"
     _log(verbosity > 0, message)
     if browse:
         webbrowser.open(thread.url)
