@@ -4245,6 +4245,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "from_numpy.pth",
+    "source":   "https://github.com/lutzroeder/netron/files/9639598/from_numpy.pth.zip[from_numpy.pth]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "fruit_veg_model.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/9265633/fruit_veg_model.pkl.zip[fruit_veg_model.pkl]",
     "format":   "PyTorch v1.6",

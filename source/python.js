@@ -2324,17 +2324,19 @@ python.Execution = class {
             tobytes() {
                 return this.data;
             }
+            get size() {
+                return (this.shape || []).reduce((a, b) => a * b, 1);
+            }
             _read() {
                 if (this.data) {
-                    const dims = (this.shape || []).reduce((a, b) => a * b, 1);
-                    const size = this.dtype.itemsize * dims;
+                    const length = this.dtype.itemsize * this.size;
                     if (typeof this.data == 'string') {
-                        this.data = this._unescape(this.data, size);
-                        if (this.data.length != size) {
+                        this.data = this._unescape(this.data, length);
+                        if (this.data.length != length) {
                             throw new python.Error('Invalid string array data size.');
                         }
                     }
-                    else if (this.data.length != size) {
+                    else if (this.data.length != length) {
                         // throw new python.Error('Invalid array data size.');
                     }
                 }
@@ -4139,6 +4141,31 @@ python.Execution = class {
             }
             throw new python.Error("Unsupported sparse tensor layout '" + (layout ? layout.__str__() : '') + "'.");
         });
+        this.registerFunction('torch.from_numpy', function(obj) {
+            const dtypes = new Map([
+                [ '<f2', torch.float16 ],
+                [ '<f4', torch.float32 ],
+                [ '<f8', torch.float64 ],
+                [ '<i2', torch.int16 ],
+                [ '<i4', torch.int32 ],
+                [ '<i8', torch.int64 ],
+            ]);
+            if (!dtypes.has(obj.dtype.str)) {
+                throw new python.Error("Unsupported numpy.ndarray type '" + obj.dtype.str + "'.");
+            }
+            const dtype = dtypes.get(obj.dtype.str);
+            const storage = execution.invoke('torch.storage._TypedStorage', [ obj.size, dtype ]);
+            storage._set_cdata(obj.data);
+            const tensor = execution.invoke('torch.Tensor', []);
+            tensor.__setstate__([ storage, 0, obj.shape, null ]);
+            return tensor;
+        });
+        this.registerFunction('torch._utils._rebuild_device_tensor_from_numpy', function(data, dtype, device, requires_grad) {
+            const tensor = execution.invoke('torch.from_numpy', [ data ]);
+            // tensor = tensor.to(dtype, device)
+            tensor.requires_grad = requires_grad;
+            return tensor;
+        });
         this.registerFunction('torch._sparse_coo_tensor_unsafe', function(indices, values, size) {
             const tensor = self.invoke('torch.Tensor', []);
             tensor._layout = torch.sparse_coo;
@@ -4826,7 +4853,57 @@ python.Execution = class {
         });
         this.registerType('torch.storage._TypedStorage', class {
             constructor() {
-                throw new python.Error('_TypedStorage not implemented.');
+                if (arguments.length >= 2 && Number.isInteger(arguments[0]) && arguments[1] instanceof torch.dtype) {
+                    this._size = arguments[0];
+                    this._dtype = arguments[1];
+                    if (arguments[3] instanceof torch.device) {
+                        this._device = arguments[3];
+                    }
+                }
+                else {
+                    throw new python.Error("Unsupported _TypedStorage arguments '" + JSON.stringify(arguments) + "'.");
+                }
+            }
+            get device() {
+                return this._device;
+            }
+            get dtype() {
+                return this._dtype;
+            }
+            element_size() {
+                return this._dtype.element_size;
+            }
+            size() {
+                return this._size;
+            }
+            get data() {
+                return this._cdata;
+            }
+            _set_cdata(data) {
+                const length = this.size() * this.dtype.itemsize();
+                if (length !== data.length) {
+                    throw new python.Error('Storage data size mismatch.');
+                }
+                this._cdata = data;
+            }
+            _set_from_file(unpickler) {
+                const buffer = unpickler.read(8);
+                const size = buffer.reverse().reduce((a, b) => (a*256)+b, 0);
+                if (size !== this.size()) {
+                    throw new python.Error('Storage size mismatch.');
+                }
+                const itemsize = this.dtype.itemsize();
+                const data = unpickler.stream(itemsize * size);
+                this._set_cdata(data);
+            }
+            static _new_with_file(unpickler) {
+                const buffer = unpickler.read(8);
+                const size = buffer.reverse().reduce((a, b) => (a*256)+b, 0);
+                const storage = new this(size);
+                const itemsize = storage.dtype.itemsize();
+                const data = unpickler.stream(itemsize * size);
+                storage._set_cdata(data);
+                return storage;
             }
         });
         this.registerType('torch.storage._LegacyStorage', class extends torch_storage._TypedStorage {
