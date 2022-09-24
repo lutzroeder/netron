@@ -78,6 +78,12 @@ numpy.ModelFactory = class {
             case 'pickle': {
                 format = 'NumPy Weights';
                 const layers = new Map();
+                const layer = (name) => {
+                    if (!layers.has(name)) {
+                        layers.set(name, { name: name, parameters: [] });
+                    }
+                    return layers.get(name);
+                };
                 const weights = match.value;
                 let separator = '.';
                 if (Array.from(weights.keys()).filter((key) => key.indexOf('_') !== -1) &&
@@ -86,17 +92,20 @@ numpy.ModelFactory = class {
                 }
                 for (const pair of weights) {
                     const name = pair[0];
-                    const array = pair[1];
+                    const value = pair[1];
+                    if (name.endsWith('.__class__')) {
+                        layer(name.substring(0, name.length - 10)).type = value;
+                        continue;
+                    }
                     const parts = name.split(separator);
                     const parameterName = parts.length > 1 ? parts.pop() : '?';
                     const layerName = parts.join(separator);
                     if (!layers.has(layerName)) {
                         layers.set(layerName, { name: layerName, parameters: [] });
                     }
-                    const layer = layers.get(layerName);
-                    layer.parameters.push({
+                    layer(layerName).parameters.push({
                         name: parameterName,
-                        tensor: { name: name, array: array }
+                        tensor: { name: name, array: value }
                     });
                 }
                 graphs.push({ layers: Array.from(layers.values()) });
@@ -400,6 +409,9 @@ numpy.Utility = class {
                             }
                             if (value && !Array.isArray(value) && Object.entries(value).every((entry) => numpy.Utility.isTensor(entry[1]))) {
                                 const name = key;
+                                if (value && value.__class__ && value.__class__.__module__ && value.__class__.__name__) {
+                                    weights.set(name + '.__class__', value.__class__.__module__ + '.' + value.__class__.__name__);
+                                }
                                 for (const entry of Object.entries(value)) {
                                     weights.set(name + '.' + entry[0], entry[1]);
                                 }
@@ -445,7 +457,7 @@ numpy.Utility = class {
             }
             return null;
         };
-        const keys = [ '', 'blobs', 'model' ];
+        const keys = [ '', 'blobs', 'model', 'experiment_state' ];
         for (const key of keys) {
             const weights = dict(obj, key);
             if (weights && weights.size > 0) {
