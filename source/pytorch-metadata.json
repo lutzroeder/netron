@@ -3669,7 +3669,7 @@
     ]
   },
   {
-    "name": "torch.grid_sampler",
+    "name": "torch.grid_sampler:",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "grid", "type": "Tensor" },
@@ -4712,6 +4712,28 @@
     "name": "torch.logdet",
     "inputs": [
       { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.logsumexp:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64[]" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.logsumexp:names",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -7017,12 +7039,24 @@
     ]
   },
   {
-    "name": "torch.as_strided",
+    "name": "torch.as_strided:",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "size", "type": "int64[]" },
-      { "name": "stride", "type": "int64[]" },
-      { "name": "storage_offset", "type": "int64", "optional": true, "default": null }
+      { "name": "size", "type": "SymInt[]" },
+      { "name": "stride", "type": "SymInt[]" },
+      { "name": "storage_offset", "type": "SymInt", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.as_strided_:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "size", "type": "SymInt[]" },
+      { "name": "stride", "type": "SymInt[]" },
+      { "name": "storage_offset", "type": "SymInt", "optional": true, "default": null }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
