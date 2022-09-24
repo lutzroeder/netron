@@ -547,7 +547,7 @@ DataView.prototype.getIntBits = DataView.prototype.getUintBits || function(offse
     offset = offset * bits;
     const available = (this.byteLength << 3) - offset;
     if (bits > available) {
-        throw new RangeError();
+        throw new RangeError("Invalid bit size '" + bits + "'.");
     }
     let value = 0;
     let index = 0;
@@ -583,7 +583,7 @@ DataView.prototype.getUintBits = DataView.prototype.getUintBits || function(offs
     offset = offset * bits;
     const available = (this.byteLength << 3) - offset;
     if (bits > available) {
-        throw new RangeError();
+        throw new RangeError("Invalid bit size '" + bits + "'.");
     }
     let value = 0;
     let index = 0;
