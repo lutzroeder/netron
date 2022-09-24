@@ -94,6 +94,7 @@
             { "ext": "lite",        "name": "TensorFlow Lite Model"    },
             { "ext": "mar",         "name": "MXNet Model"              },
             { "ext": "meta",        "name": "TensorFlow Meta Graph"    },
+            { "ext": "mge",         "name": "MegEngine Mge Model"      },
             { "ext": "mlmodel",     "name": "Core ML Model"            },
             { "ext": "mlpackage",   "name": "Core ML Model Package", "isPackage": true },
             { "ext": "mnn",         "name": "MNN Model"                },
