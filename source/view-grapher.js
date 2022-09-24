@@ -36,10 +36,10 @@ grapher.Graph = class {
 
     setEdge(edge) {
         if (!this._nodes.has(edge.v)) {
-            throw new grapher.Error();
+            throw new grapher.Error("Invalid edge '" + JSON.stringify(edge.v) + "'.");
         }
         if (!this._nodes.has(edge.w)) {
-            throw new grapher.Error();
+            throw new grapher.Error("Invalid edge '" + JSON.stringify(edge.w) + "'.");
         }
         const key = edge.v + ':' + edge.w;
         if (!this._edges.has(key)) {
