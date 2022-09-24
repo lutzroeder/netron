@@ -8,16 +8,14 @@ python.Parser = class {
     constructor(text, file, debug) {
         this._tokenizer = new python.Tokenizer(text, file);
         this._debug = debug;
-        if (!python.Parser._precedence) {
-            python.Parser._precedence = {
-                'or': 2, 'and': 3, 'not' : 4,
-                'in': 5, 'instanceof': 5, 'is': 5, '<': 5, '>': 5, '<=': 5, '>=': 5, '<>': 5, '==': 5, '!=': 5,
-                '|': 6, '^' : 7, '&' : 8,
-                '<<': 9, '>>': 9, '+': 10, '-': 10, '*': 11, '@': 11, '/': 11, '//': 11, '%': 11,
-                // '+': 12, '-': 12,
-                '~': 13, '**': 14
-            };
-        }
+        python.Parser._precedence = python.Parser._precedence || {
+            'or': 2, 'and': 3, 'not' : 4,
+            'in': 5, 'instanceof': 5, 'is': 5, '<': 5, '>': 5, '<=': 5, '>=': 5, '<>': 5, '==': 5, '!=': 5,
+            '|': 6, '^' : 7, '&' : 8,
+            '<<': 9, '>>': 9, '+': 10, '-': 10, '*': 11, '@': 11, '/': 11, '//': 11, '%': 11,
+            // '+': 12, '-': 12,
+            '~': 13, '**': 14
+        };
     }
 
     parse() {
@@ -2230,6 +2228,7 @@ python.Execution = class {
         this.registerType('megengine.quantization.utils.QParams', class {});
         this.registerType('megengine.quantization.utils.QuantMode', class {});
         this.registerType('megengine.quantization.observer.PassiveObserver', class {});
+        this.registerType('megengine.quantization.observer.MinMaxObserver', class {});
         this.registerType('megengine.traced_module.expr.Apply', class {});
         this.registerType('megengine.traced_module.expr.CallFunction', class {});
         this.registerType('megengine.traced_module.expr.CallMethod', class {});
@@ -5097,9 +5096,6 @@ python.Execution = class {
         return this._builtins;
     }
 
-    get context() {
-        throw new Error();
-    }
 
     source(file) {
         return this._sources.has(file) ? this._sources.get(file) : null;
@@ -5216,7 +5212,7 @@ python.Execution = class {
                 return this.import(name.split('.')[0]);
             }
             else if (name) {
-                throw new python.Error('');
+                throw new python.Error("Unsupported relative import '" + name + "'.");
                 // cut_off = len(name) - len(name.partition('.')[0])
                 // return sys.modules[module.__name__[:len(module.__name__)-cut_off]]
             }
