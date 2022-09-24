@@ -10,6 +10,7 @@ on:
 
 jobs:
   build:
+    name: Build
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -17,7 +18,7 @@ jobs:
         os: [ macos-latest, ubuntu-latest, windows-latest ]
 
     steps:
-      - name: Check out Git repository
+      - name: Clone Git repository
         uses: actions/checkout@v3
 
       - name: Install Node.js
@@ -54,3 +55,30 @@ jobs:
               npx electron-builder --win --x64 --arm64 --publish never
               ;;
           esac
+
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+
+    permissions:
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript', 'python' ]
+
+    steps:
+      - name: Clone Git repository
+        uses: actions/checkout@v3
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
