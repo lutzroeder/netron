@@ -867,7 +867,7 @@ mlnet.ColumnConcatenatingTransformer = class {
             }
 
             if (n > 1) {
-                throw new mlnet.Error('');
+                throw new mlnet.Error("Unsupported ColumnConcatenatingTransformer name count '" + n.toString() + "'.");
             }
 
             this.outputs = [];
