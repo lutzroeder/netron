@@ -723,11 +723,10 @@ view.View = class {
                             this._host.export(file, blob);
                         }
                         else {
-                            const err = new Error();
-                            err.name = 'Error exporting image.';
-                            err.message = 'Image may be too large to render as PNG.';
-                            this._host.exception(err, false);
-                            this._host.error(err.name, err.message);
+                            const error = new Error('Image may be too large to render as PNG.');
+                            error.name = 'Error exporting image.';
+                            this._host.exception(error, false);
+                            this._host.error(error.name, error.message);
                         }
                     }, 'image/png');
                 };
