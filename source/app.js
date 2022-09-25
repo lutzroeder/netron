@@ -6,6 +6,7 @@ const os = require('os');
 const path = require('path');
 const process = require('process');
 const url = require('url');
+const base = require('./base');
 
 class Application {
 
@@ -160,26 +161,10 @@ class Application {
     }
 
     _openFileDialog() {
+        const extensions = new base.Metadata().extensions;
         const showOpenDialogOptions = {
             properties: [ 'openFile' ],
-            filters: [
-                { name: 'All Model Files',  extensions: [
-                    'onnx', 'ort', 'pb',
-                    'h5', 'hd5', 'hdf5', 'json', 'keras',
-                    'mlmodel', 'mlpackage',
-                    'caffemodel',
-                    'model', 'dnn', 'dlc', 'cmf', 'mar', 'params',
-                    'pdmodel', 'pdiparams', 'pdparams', 'pdopt', 'nb',
-                    'meta',
-                    'tflite', 'lite', 'tfl', 'circle',
-                    'armnn', 'mnn', 'nn', 'uff', 'uff.txt', 'rknn', 'xmodel', 'kmodel',
-                    'ncnn', 'param', 'tnnproto', 'tm', 'mge', 'tmfile', 'ms', 'om',
-                    'pt', 'pth', 'ptl', 't7',
-                    'pkl', 'joblib',
-                    'pbtxt', 'prototxt',
-                    'cfg', 'xml',
-                    'zip', 'tar' ] }
-            ]
+            filters: [ { name: 'All Model Files', extensions: extensions } ]
         };
         const selectedFiles = electron.dialog.showOpenDialogSync(showOpenDialogOptions);
         if (selectedFiles) {

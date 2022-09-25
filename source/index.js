@@ -1,6 +1,7 @@
 
 var host = {};
 var view = view || {};
+var base = base || {};
 
 host.BrowserHost = class {
 
@@ -258,6 +259,8 @@ host.BrowserHost = class {
                 openFileDialog.value = '';
                 openFileDialog.click();
             });
+            const extensions = new base.Metadata().extensions.map((extension) => '.' + extension);
+            openFileDialog.setAttribute('accept', extensions.join(', '));
             openFileDialog.addEventListener('change', (e) => {
                 if (e.target && e.target.files && e.target.files.length > 0) {
                     const files = Array.from(e.target.files);

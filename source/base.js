@@ -773,6 +773,28 @@ base.BinaryReader = class {
     }
 };
 
+base.Metadata = class {
+
+    get extensions() {
+        return [
+            'onnx', 'tflite', 'pb', 'pt', 'pth', 'h5', 'pbtxt', 'prototxt', 'caffemodel', 'mlmodel', 'mlpackage',
+            'model', 'json', 'xml', 'cfg',
+            'ort',
+            'dnn', 'cmf',
+            'hd5', 'hdf5', 'keras',
+            'tfl', 'circle', 'lite',
+            'mar',  'meta', 'nn',
+            'param', 'params',
+            'paddle', 'pdiparams', 'pdmodel', 'pdopt', 'pdparams', 'nb',
+            'pkl', 'joblib',
+            'ptl', 't7',
+            'dlc', 'uff', 'armnn',
+            'mnn', 'ms', 'ncnn', 'om', 'tm', 'mge', 'tmfile', 'tnnproto', 'xmodel', 'kmodel', 'rknn',
+            'tar', 'zip'
+        ];
+    }
+};
+
 if (typeof window !== 'undefined' && typeof window.Long != 'undefined') {
     window.long = { Long: window.Long };
     window.Int64 = base.Int64;
@@ -785,4 +807,5 @@ if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.Complex64 = base.Complex;
     module.exports.Complex128 = base.Complex;
     module.exports.BinaryReader = base.BinaryReader;
+    module.exports.Metadata = base.Metadata;
 }
