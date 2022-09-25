@@ -28,7 +28,6 @@ def _build():
     shutil.rmtree('./dist/pypi', ignore_errors=True)
     shutil.copytree('./source/', './dist/pypi/netron/')
     shutil.copyfile('./publish/setup.py', './dist/pypi/setup.py')
-    os.remove('./dist/pypi/netron/electron.html')
     os.remove('./dist/pypi/netron/electron.js')
     os.remove('./dist/pypi/netron/app.js')
 

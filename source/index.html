@@ -42,7 +42,6 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .canvas { margin: auto; flex-shrink: 0; text-rendering: geometricPrecision; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .toolbar { position: absolute; top: 10px; left: 10px; padding: 0; margin: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .toolbar button:focus { outline: 0; }
-.toolbar-button { background: None; border-radius: 6px; border: 0; margin: 0; padding: 0; fill: None; stroke: #777; cursor: pointer; width: 24px; height: 24px; }
 .toolbar-button { float: left; background: None; border-radius: 6px; border: 0; margin: 0; margin-right: 1px; padding: 0; fill: None; stroke: #777; cursor: pointer; width: 24px; height: 24px; }
 .toolbar-back-button { float: left; background: #777; border-top-left-radius: 6px; border-bottom-left-radius: 6px; border: 0px solid; border-color: #777; margin: 2px 0 2px 8px; padding: 0 8px 0 8px; cursor: pointer; height: 20px; color: #ffffff; font-size: 11px; line-height: 0; transition: 0.1s; }
 .toolbar-back-button:hover { background: #000000; border-color: #000000; }
@@ -368,8 +367,8 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     </a>
     <span id="message" class="center message"></span>
     <button id="message-button" class="center message-button">Accept</button>
-    <button id="open-file-button" class="center open-file-button">Open Model&hellip;</button>
-    <button id="github-button" class="center github-button">Download</button>
+    <button id="open-file-button" class="center open-file-button" tabindex="0">Open Model&hellip;</button>
+    <button id="github-button" class="center github-button">GitHub</button>
     <div class="center progress">
         <div id="progress-bar" class="progress-bar"></div>
     </div>

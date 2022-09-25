@@ -683,8 +683,6 @@ class View {
         this._ready = false;
         this._path = null;
         this._properties = new Map();
-        this._location = url.format({ protocol: 'file:', slashes: true, pathname: path.join(__dirname, 'electron.html') });
-
         const size = electron.screen.getPrimaryDisplay().workAreaSize;
         const options = {
             show: false,
@@ -743,7 +741,7 @@ class View {
         this._window.once('ready-to-show', () => {
             this._window.show();
         });
-        this._window.loadURL(this._location);
+        this._loadURL();
     }
 
     get window() {
@@ -763,8 +761,19 @@ class View {
             this._window.webContents.on('did-finish-load', () => {
                 this._window.webContents.send('open', { path: path });
             });
-            this._window.loadURL(this._location);
+            this._loadURL();
         }
+    }
+
+    _loadURL() {
+        const pathname = path.join(__dirname, 'index.html');
+        let content = fs.readFileSync(pathname, 'utf-8');
+        content = content.replace(/<script\b[^<]*(?:(?!<\/script\s*>)<[^<]*)*<\/script\s*>/gi, '');
+        const data = 'data:text/html;charset=utf-8,' + encodeURIComponent(content);
+        const options = {
+            baseURLForDataURL: url.pathToFileURL(pathname).toString()
+        };
+        this._window.loadURL(data, options);
     }
 
     restore() {
@@ -1018,11 +1027,9 @@ class MenuService {
     _updateEnabled(context) {
         for (const entry of this._commandTable.entries()) {
             const menuItem = this._menu.getMenuItemById(entry[0]);
-            if (menuItem) {
-                const command = entry[1];
-                if (command.enabled) {
-                    menuItem.enabled = command.enabled(context);
-                }
+            const command = entry[1];
+            if (menuItem && command.enabled) {
+                menuItem.enabled = command.enabled(context);
             }
         }
     }

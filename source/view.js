@@ -1509,7 +1509,7 @@ view.ModelContext = class {
     }
 
     metadata(name) {
-        return base.Metadata.open(this, name);
+        return view.Metadata.open(this, name);
     }
 };
 
@@ -2119,6 +2119,60 @@ view.ModelFactoryService = class {
             }
         }
         return Promise.resolve(context);
+    }
+};
+
+view.Metadata = class {
+
+    static open(context, name) {
+        view.Metadata._metadata = view.Metadata._metadata || new Map();
+        if (view.Metadata._metadata.has(name)) {
+            return Promise.resolve(view.Metadata._metadata.get(name));
+        }
+        return context.request(name, 'utf-8', null).then((data) => {
+            const library = new view.Metadata(data);
+            view.Metadata._metadata.set(name, library);
+            return library;
+        }).catch(() => {
+            const library = new view.Metadata(null);
+            view.Metadata._metadata.set(name, library);
+            return library;
+        });
+    }
+
+    constructor(data) {
+        this._types = new Map();
+        this._attributes = new Map();
+        if (data) {
+            const metadata = JSON.parse(data);
+            for (const entry of metadata) {
+                this._types.set(entry.name, entry);
+                if (entry.identifier !== undefined) {
+                    this._types.set(entry.identifier, entry);
+                }
+            }
+        }
+    }
+
+    type(name) {
+        if (!this._types.has(name)) {
+            this._types.set(name, { name: name.toString() });
+        }
+        return this._types.get(name);
+    }
+
+    attribute(type, name) {
+        const key = type + ':' + name;
+        if (!this._attributes.has(key)) {
+            this._attributes.set(key, null);
+            const metadata = this.type(type);
+            if (metadata && Array.isArray(metadata.attributes)) {
+                for (const attribute of metadata.attributes) {
+                    this._attributes.set(type + ':' + attribute.name, attribute);
+                }
+            }
+        }
+        return this._attributes.get(key);
     }
 };
 
