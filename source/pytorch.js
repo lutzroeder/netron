@@ -834,7 +834,7 @@ pytorch.Execution = class extends python.Execution {
         const buffer = this.source(file + '.debug_pkl');
         if (buffer) {
             return null;
-            // const unpickler = python.Unpickler.open(buffer, this);
+            // const unpickler = this.invoke('pickle.Unpickler', [ buffer ]);
             // return unpickler.load();
         }
         return null;
@@ -1187,7 +1187,7 @@ pytorch.Container.Zip.Script = class {
     _unpickle(data, storage_map) {
         const loaded_storages = new Map();
         const execution = this.execution;
-        const unpickler = python.Unpickler.open(data, execution);
+        const unpickler = execution.invoke('pickle.Unpickler', [ data ]);
         unpickler.persistent_load = (saved_id) => {
             const typename = saved_id.shift();
             switch (typename) {
@@ -1372,8 +1372,9 @@ pytorch.Container.Zip.Json.Script = class extends pytorch.Container.Zip.Script {
             const stream = this._entries.get('attributes.pkl');
             if (stream) {
                 const buffer = stream.peek();
-                const unpickler = python.Unpickler.open(buffer, this.execution);
-                this._attributes.push(...unpickler.load());
+                const unpickler = this.execution.invoke('pickle.Unpickler', [ buffer ]);
+                const obj = unpickler.load();
+                this._attributes.push(...obj);
             }
             while (queue.length > 0) {
                 const module = queue.shift();
@@ -1508,7 +1509,7 @@ pytorch.Container.Zip.Package = class extends pytorch.Container.Zip {
                         const stream = this._entries.get(name);
                         const loaded_reduces = new Map();
                         const loaded_storages = new Map();
-                        const unpickler = python.Unpickler.open(stream, execution);
+                        const unpickler = execution.invoke('pickle.Unpickler', [ stream ]);
                         unpickler.persistent_load = (saved_id) => {
                             const typename = saved_id.shift();
                             switch (typename) {

@@ -336,7 +336,7 @@ keras.ModelFactory = class {
                             if (Array.isArray(weight_names) && weight_names.length > 0) {
                                 for (const weight_name of weight_names) {
                                     const buffer = layer_weights[weight_name];
-                                    const unpickler = python.Unpickler.open(buffer, execution);
+                                    const unpickler = execution.invoke('pickle.Unpickler', [ buffer ]);
                                     const variable = unpickler.load();
                                     const tensor = new keras.Tensor(weight_name, variable.shape, variable.dtype.__name__, null, true, variable.data);
                                     weights.add(layer_name, tensor);

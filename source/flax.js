@@ -18,15 +18,14 @@ flax.ModelFactory = class {
     }
 
     open(context) {
-        return context.require('./msgpack').then((msgpack) => {
+        return Promise.resolve().then(() => {
             const stream = context.stream;
-            const buffer = stream.peek();
-            const execution = new python.Execution(null);
-            const reader = msgpack.BinaryReader.open(buffer, (code, data) => {
+            const packed = stream.peek();
+            // https://github.com/google/flax/blob/main/flax/serialization.py
+            const ext_hook = (code, data) => {
                 switch (code) {
                     case 1: { // _MsgpackExtType.ndarray
-                        const reader = msgpack.BinaryReader.open(data);
-                        const tuple = reader.read();
+                        const tuple = execution.invoke('msgpack.unpackb', [ data ]);
                         const dtype = execution.invoke('numpy.dtype', [ tuple[1] ]);
                         dtype.byteorder = '<';
                         return execution.invoke('numpy.ndarray', [ tuple[0], dtype, tuple[2] ]);
@@ -35,8 +34,9 @@ flax.ModelFactory = class {
                         throw new flax.Error("Unsupported MessagePack extension '" + code + "'.");
                     }
                 }
-            });
-            const obj = reader.read();
+            };
+            const execution = new python.Execution(null);
+            const obj = execution.invoke('msgpack.unpackb', [ packed, ext_hook ]);
             return new flax.Model(obj);
         });
     }

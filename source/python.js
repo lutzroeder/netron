@@ -1,5 +1,5 @@
 
-// Experimental Python parser
+// Experimental Python Execution
 
 var python = python || {};
 
@@ -3031,12 +3031,12 @@ python.Execution = class {
         });
         this.registerType('spacy._ml.PrecomputableAffine', class {
             __setstate__(state) {
-                Object.assign(this, python.Unpickler.open(state, execution).load());
+                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
             }
         });
         this.registerType('spacy.syntax._parser_model.ParserModel', class {
             __setstate__(state) {
-                Object.assign(this, python.Unpickler.open(state, execution).load());
+                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
             }
         });
         this.registerType('theano.compile.function_module._constructor_Function', class {});
@@ -3151,52 +3151,52 @@ python.Execution = class {
         });
         this.registerType('thinc.neural._classes.affine.Affine', class {
             __setstate__(state) {
-                Object.assign(this, python.Unpickler.open(state, execution).load());
+                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
             }
         });
         this.registerType('thinc.neural._classes.convolution.ExtractWindow', class {
             __setstate__(state) {
-                Object.assign(this, python.Unpickler.open(state, execution).load());
+                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
             }
         });
         this.registerType('thinc.neural._classes.feature_extracter.FeatureExtracter', class {
             __setstate__(state) {
-                Object.assign(this, python.Unpickler.open(state, execution).load());
+                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
             }
         });
         this.registerType('thinc.neural._classes.feed_forward.FeedForward', class {
             __setstate__(state) {
-                Object.assign(this, python.Unpickler.open(state, execution).load());
+                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
             }
         });
         this.registerType('thinc.neural._classes.function_layer.FunctionLayer', class {
             __setstate__(state) {
-                Object.assign(this, python.Unpickler.open(state, execution).load());
+                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
             }
         });
         this.registerType('thinc.neural._classes.hash_embed.HashEmbed', class {
             __setstate__(state) {
-                Object.assign(this, python.Unpickler.open(state, execution).load());
+                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
             }
         });
         this.registerType('thinc.neural._classes.layernorm.LayerNorm', class {
             __setstate__(state) {
-                Object.assign(this, python.Unpickler.open(state, execution).load());
+                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
             }
         });
         this.registerType('thinc.neural._classes.maxout.Maxout', class {
             __setstate__(state) {
-                Object.assign(this, python.Unpickler.open(state, execution).load());
+                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
             }
         });
         this.registerType('thinc.neural._classes.resnet.Residual', class {
             __setstate__(state) {
-                Object.assign(this, python.Unpickler.open(state, execution).load());
+                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
             }
         });
         this.registerType('thinc.neural._classes.softmax.Softmax', class {
             __setstate__(state) {
-                Object.assign(this, python.Unpickler.open(state, execution).load());
+                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
             }
         });
         this.registerType('thinc.neural.mem.Memory', class {
@@ -3360,6 +3360,110 @@ python.Execution = class {
         this.registerFunction('lasagne.updates.nesterov_momentum', function() {
             throw new python.Error('Function not implemented.');
         });
+        this.registerFunction('msgpack.unpackb', function(packed, ext_hook) {
+            const BinaryReader = class {
+                constructor(buffer, ext_hook) {
+                    // https://github.com/msgpack/msgpack-javascript/blob/master/src/Decoder.ts
+                    // https://github.com/msgpack/msgpack-python/blob/main/msgpack/_unpacker.pyx
+                    this._buffer = buffer;
+                    this._position = 0;
+                    this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+                    this._ext_hook = ext_hook;
+                }
+                value() {
+                    const c = this._view.getUint8(this.skip(1));
+                    if (c >= 0xe0) {
+                        return c - 0x100;
+                    }
+                    if (c < 0xC0) {
+                        if (c < 0x80) {
+                            return c;
+                        }
+                        if (c < 0x90) {
+                            return this.map(c - 0x80);
+                        }
+                        if (c < 0xa0) {
+                            return this.array(c - 0x90);
+                        }
+                        return this.string(c - 0xa0);
+                    }
+                    switch (c) {
+                        case 0xC0: return null;
+                        case 0xC2: return false;
+                        case 0xC3: return true;
+                        case 0xC4: return this.read(this._view.getUint8(this.skip(1)));
+                        case 0xC5: return this.read(this._view.getUint16(this.skip(2)));
+                        case 0xC6: return this.read(this._view.getUint32(this.skip(4)));
+                        case 0xC7: return this.extension(this._view.getUint8(this.skip(1)));
+                        case 0xC8: return this.extension(this._view.getUint16(this.skip(2)));
+                        case 0xC9: return this.extension(this._view.getUint32(this.skip(4)));
+                        case 0xCA: return this._view.getFloat32(this.skip(4));
+                        case 0xCB: return this._view.getFloat64(this.skip(8));
+                        case 0xCC: return this._view.getUint8(this.skip(1));
+                        case 0xCD: return this._view.getUint16(this.skip(2));
+                        case 0xCE: return this._view.getUint32(this.skip(4));
+                        case 0xCF: return this._view.getUint64(this.skip(8));
+                        case 0xD0: return this._view.getInt8(this.skip(1));
+                        case 0xD1: return this._view.getInt16(this.skip(2));
+                        case 0xD2: return this._view.getInt32(this.skip(4));
+                        case 0xD3: return this._view.getInt64(this.skip(8));
+                        case 0xD4: return this.extension(1);
+                        case 0xD5: return this.extension(2);
+                        case 0xD6: return this.extension(4);
+                        case 0xD7: return this.extension(8);
+                        case 0xD8: return this.extension(16);
+                        case 0xD9: return this.string(this._view.getUint8(this.skip(1)));
+                        case 0xDA: return this.string(this._view.getUint16(this.skip(2)));
+                        case 0xDB: return this.string(this._view.getUint32(this.skip(4)));
+                        case 0xDC: return this.array(this._view.getUint16(this.skip(2)));
+                        case 0xDD: return this.array(this._view.getUint32(this.skip(4)));
+                        case 0xDE: return this.map(this._view.getUint16(this.skip(2)));
+                        case 0xDF: return this.map(this._view.getUint32(this.skip(4)));
+                        default: throw new python.Error("Invalid code '" + c + "'.");
+                    }
+                }
+                map(size) {
+                    const map = {};
+                    for (let i = 0; i < size; i++) {
+                        const key = this.value();
+                        const value = this.value();
+                        map[key] = value;
+                    }
+                    return map;
+                }
+                array(size) {
+                    const array = new Array(size);
+                    for (let i = 0; i < size; i++) {
+                        array[i] = this.value();
+                    }
+                    return array;
+                }
+                extension(size) {
+                    const code = this._view.getUint8(this.skip(1));
+                    const data = this.read(size);
+                    return this._ext_hook(code, data);
+                }
+                skip(offset) {
+                    const position = this._position;
+                    this._position += offset;
+                    if (this._position > this._buffer.length) {
+                        throw new python.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+                    }
+                    return position;
+                }
+                read(size) {
+                    const data = this._buffer.subarray(this._position, this._position + size);
+                    this._position += size;
+                    return data;
+                }
+                string(size) {
+                    const buffer = this.read(size);
+                    this._decoder = this._decoder || new TextDecoder('utf8');
+                    return this._decoder.decode(buffer);
+                }
+            };
+            return new BinaryReader(packed, ext_hook).value();
+        });
         this.registerFunction('nolearn.lasagne.base.objective', function() {
             throw new python.Error('Function not implemented.');
         });
@@ -3489,7 +3593,8 @@ python.Execution = class {
                 case '|': {
                     data = file.read();
                     if (dtype.kind === 'O') {
-                        return python.Unpickler.open(data, execution).load();
+                        const unpickler = execution.invoke('pickle.Unpickler', [ data ]);
+                        return unpickler.load();
                     }
                     break;
                 }
