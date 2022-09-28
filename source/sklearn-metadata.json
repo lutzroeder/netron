@@ -455,7 +455,7 @@
     "attributes": [
       {
         "default": "svd",
-        "description": "Solver to use, possible values:\n- 'svd': Singular value decomposition (default).\nDoes not compute the covariance matrix, therefore this solver is\nrecommended for data with a large number of features.\n- 'lsqr': Least squares solution.\nCan be combined with shrinkage or custom covariance estimator.\n- 'eigen': Eigenvalue decomposition.\nCan be combined with shrinkage or custom covariance estimator.\n",
+        "description": "Solver to use, possible values:\n- 'svd': Singular value decomposition (default).\nDoes not compute the covariance matrix, therefore this solver is\nrecommended for data with a large number of features.\n- 'lsqr': Least squares solution.\nCan be combined with shrinkage or custom covariance estimator.\n- 'eigen': Eigenvalue decomposition.\nCan be combined with shrinkage or custom covariance estimator.\n\n.. versionchanged:: 1.2\n`solver=\"svd\"` now has experimental Array API support. See the\n:ref:`Array API User Guide <array_api>` for more details.\n",
         "name": "solver"
       },
       {
@@ -1830,7 +1830,7 @@
   },
   {
     "name": "sklearn.preprocessing._encoders.OneHotEncoder",
-    "description": "\nEncode categorical features as a one-hot numeric array.\n\nThe input to this transformer should be an array-like of integers or\nstrings, denoting the values taken on by categorical (discrete) features.\nThe features are encoded using a one-hot (aka 'one-of-K' or 'dummy')\nencoding scheme. This creates a binary column for each category and\nreturns a sparse matrix or dense array (depending on the ``sparse``\nparameter)\n\nBy default, the encoder derives the categories based on the unique values\nin each feature. Alternatively, you can also specify the `categories`\nmanually.\n\nThis encoding is needed for feeding categorical data to many scikit-learn\nestimators, notably linear models and SVMs with the standard kernels.\n\nNote: a one-hot encoding of y labels should use a LabelBinarizer\ninstead.\n\nRead more in the :ref:`User Guide <preprocessing_categorical_features>`.\n",
+    "description": "\nEncode categorical features as a one-hot numeric array.\n\nThe input to this transformer should be an array-like of integers or\nstrings, denoting the values taken on by categorical (discrete) features.\nThe features are encoded using a one-hot (aka 'one-of-K' or 'dummy')\nencoding scheme. This creates a binary column for each category and\nreturns a sparse matrix or dense array (depending on the ``sparse_output``\nparameter)\n\nBy default, the encoder derives the categories based on the unique values\nin each feature. Alternatively, you can also specify the `categories`\nmanually.\n\nThis encoding is needed for feeding categorical data to many scikit-learn\nestimators, notably linear models and SVMs with the standard kernels.\n\nNote: a one-hot encoding of y labels should use a LabelBinarizer\ninstead.\n\nRead more in the :ref:`User Guide <preprocessing_categorical_features>`.\n",
     "attributes": [
       {
         "description": "Categories (unique values) per feature:\n\n- 'auto' : Determine categories automatically from the training data.\n- list : ``categories[i]`` holds the categories expected in the ith\ncolumn. The passed categories should not mix strings and numeric\nvalues within a single feature, and should be sorted in case of\nnumeric values.\n\nThe used categories can be found in the ``categories_`` attribute.\n\n.. versionadded:: 0.20\n",
@@ -1844,7 +1844,7 @@
       },
       {
         "default": true,
-        "description": "Will return sparse matrix if set True else will return an array.\n",
+        "description": "Will return sparse matrix if set True else will return an array.\n\n.. deprecated:: 1.2\n`sparse` is deprecated in 1.2 and will be removed in 1.4. Use\n`sparse_output` instead.\n",
         "name": "sparse",
         "type": "boolean"
       },
@@ -1868,6 +1868,11 @@
         "description": "Specifies an upper limit to the number of output features for each input\nfeature when considering infrequent categories. If there are infrequent\ncategories, `max_categories` includes the category representing the\ninfrequent categories along with the frequent categories. If `None`,\nthere is no limit to the number of output features.\n\n.. versionadded:: 1.1\nRead more in the :ref:`User Guide <one_hot_encoder_infrequent_categories>`.\n",
         "type": "int32",
         "default": null
+      },
+      {
+        "name": "sparse_output",
+        "default": true,
+        "description": "Will return sparse matrix if set True else will return an array.\n\n.. versionadded:: 1.2\n`sparse` was renamed to `sparse_output`\n"
       }
     ]
   },
