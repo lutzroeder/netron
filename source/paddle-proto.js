@@ -689,6 +689,9 @@ $root.paddle.framework.proto.VarType = class VarType {
                 case 10:
                     message.vocab = $root.paddle.framework.proto.VarType.TensorDesc.decode(reader, reader.uint32());
                     break;
+                case 11:
+                    message.sparse_coo = $root.paddle.framework.proto.VarType.TensorDesc.decode(reader, reader.uint32());
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -733,6 +736,9 @@ $root.paddle.framework.proto.VarType = class VarType {
                 case "vocab":
                     message.vocab = $root.paddle.framework.proto.VarType.TensorDesc.decodeText(reader);
                     break;
+                case "sparse_coo":
+                    message.sparse_coo = $root.paddle.framework.proto.VarType.TensorDesc.decodeText(reader);
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -754,6 +760,7 @@ $root.paddle.framework.proto.VarType.prototype.tuple = null;
 $root.paddle.framework.proto.VarType.prototype.string = null;
 $root.paddle.framework.proto.VarType.prototype.strings = null;
 $root.paddle.framework.proto.VarType.prototype.vocab = null;
+$root.paddle.framework.proto.VarType.prototype.sparse_coo = null;
 
 $root.paddle.framework.proto.VarType.Type = {
     "BOOL": 0,
@@ -784,7 +791,8 @@ $root.paddle.framework.proto.VarType.Type = {
     "STRINGS": 26,
     "VOCAB": 27,
     "FEED_LIST": 28,
-    "PSTRING": 29
+    "PSTRING": 29,
+    "SPARSE_COO": 30
 };
 
 $root.paddle.framework.proto.VarType.TensorDesc = class TensorDesc {
