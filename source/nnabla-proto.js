@@ -9913,6 +9913,12 @@ $root.nnabla.TopKDataParameter = class TopKDataParameter {
                 case 4:
                     message.base_axis = reader.int64();
                     break;
+                case 5:
+                    message.largest = reader.bool();
+                    break;
+                case 6:
+                    message.with_index = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -9939,6 +9945,12 @@ $root.nnabla.TopKDataParameter = class TopKDataParameter {
                 case "base_axis":
                     message.base_axis = reader.int64();
                     break;
+                case "largest":
+                    message.largest = reader.bool();
+                    break;
+                case "with_index":
+                    message.with_index = reader.bool();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -9952,6 +9964,8 @@ $root.nnabla.TopKDataParameter.prototype.k = protobuf.Int64.create(0);
 $root.nnabla.TopKDataParameter.prototype.abs = false;
 $root.nnabla.TopKDataParameter.prototype.reduce = false;
 $root.nnabla.TopKDataParameter.prototype.base_axis = protobuf.Int64.create(0);
+$root.nnabla.TopKDataParameter.prototype.largest = false;
+$root.nnabla.TopKDataParameter.prototype.with_index = false;
 
 $root.nnabla.TopKGradParameter = class TopKGradParameter {
 

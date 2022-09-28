@@ -5855,6 +5855,20 @@
         "required": false,
         "default": 1,
         "description": "First dimension of the sample shape."
+      },
+      {
+        "name": "largest",
+        "type": "bool",
+        "required": false,
+        "default": true,
+        "description": "Whether to select the `k` largest or smallest values."
+      },
+      {
+        "name": "with_index",
+        "type": "bool",
+        "required": false,
+        "default": false,
+        "description": "Return top-k values and indices."
       }
     ],
     "outputs": [
@@ -5862,6 +5876,11 @@
         "name": "y",
         "type": "nnabla.Variable",
         "description": "N-D array."
+      },
+      {
+        "name": "indices",
+        "type": "nnabla.Variable",
+        "description": "N-D array of top-k indices."
       }
     ]
   },
