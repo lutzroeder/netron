@@ -379,8 +379,9 @@ dlc.Container = class {
         if (entries.size > 0) {
             const model = entries.get('model');
             const params = entries.get('model.params');
+            const metadata = entries.get('dlc.metadata');
             if (model || params) {
-                return new dlc.Container(model, params, entries.get('dlc.metadata'));
+                return new dlc.Container(model, params, metadata);
             }
         }
         const stream = context.stream;
@@ -402,7 +403,7 @@ dlc.Container = class {
     }
 
     get model() {
-        if (this._model && this._model.peek) {
+        if (this._model && typeof this._model.peek === 'function') {
             const stream = this._model;
             const reader = this._open(stream, 'NETD');
             stream.seek(0);
@@ -412,7 +413,7 @@ dlc.Container = class {
     }
 
     get params() {
-        if (this._params && this._params.peek) {
+        if (this._params && typeof this._params.peek === 'function') {
             const stream = this._params;
             const reader = this._open(stream, 'NETP');
             stream.seek(0);
@@ -422,7 +423,7 @@ dlc.Container = class {
     }
 
     get metadata() {
-        if (this._metadata && this._metadata.peek) {
+        if (this._metadata && typeof this._metadata.peek === 'function') {
             const reader = text.Reader.open(this._metadata);
             const metadata = new Map();
             for (;;) {
