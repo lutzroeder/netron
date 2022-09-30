@@ -773,7 +773,7 @@ view.View = class {
                             if (data_type === 'boolean') {
                                 data_type = 'bool';
                             }
-                            const execution = new python.Execution(null);
+                            const execution = new python.Execution();
                             const bytes = execution.invoke('io.BytesIO', []);
                             const dtype = execution.invoke('numpy.dtype', [ data_type ]);
                             const array = execution.invoke('numpy.asarray', [ tensor.value, dtype ]);

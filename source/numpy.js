@@ -38,7 +38,7 @@ numpy.ModelFactory = class {
         switch (match.name) {
             case 'npy': {
                 format = 'NumPy Array';
-                const execution = new python.Execution(null);
+                const execution = new python.Execution();
                 const stream = context.stream;
                 const buffer = stream.peek();
                 const bytes = execution.invoke('io.BytesIO', [ buffer ]);
@@ -50,7 +50,7 @@ numpy.ModelFactory = class {
             case 'npz': {
                 format = 'NumPy Zip';
                 const layers = new Map();
-                const execution = new python.Execution(null);
+                const execution = new python.Execution();
                 for (const entry of match.value) {
                     if (!entry[0].endsWith('.npy')) {
                         throw new numpy.Error("Invalid file name '" + entry.name + "'.");

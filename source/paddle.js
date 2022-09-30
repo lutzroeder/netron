@@ -175,7 +175,7 @@ paddle.ModelFactory = class {
                                     });
                                 };
                                 const openNumPyArrayPickle = (stream) => {
-                                    const execution = new python.Execution(null);
+                                    const execution = new python.Execution();
                                     const unpickler = execution.invoke('pickle.Unpickler', [ stream ]);
                                     const obj = unpickler.load();
                                     const container = new paddle.Pickle(obj);

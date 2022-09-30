@@ -318,7 +318,7 @@ keras.ModelFactory = class {
                 });
             }
             case 'keras.pickle': {
-                const execution = new python.Execution(null);
+                const execution = new python.Execution();
                 const obj = context.open('pkl');
                 const decoder = new TextDecoder('utf-8');
                 const format = 'Keras Pickle' + (obj.keras_version ? ' v' + decoder.decode(obj.keras_version) : '');

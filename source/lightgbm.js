@@ -38,7 +38,7 @@ lightgbm.ModelFactory = class {
                         const buffer = stream.peek();
                         const decoder = new TextDecoder('utf-8');
                         const model_str = decoder.decode(buffer);
-                        const execution = new python.Execution(null);
+                        const execution = new python.Execution();
                         obj = execution.invoke('lightgbm.basic.Booster', []);
                         obj.LoadModelFromString(model_str);
                         format = 'LightGBM';
