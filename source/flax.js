@@ -35,7 +35,7 @@ flax.ModelFactory = class {
                     }
                 }
             };
-            const execution = new python.Execution(null);
+            const execution = new python.Execution();
             const obj = execution.invoke('msgpack.unpackb', [ packed, ext_hook ]);
             return new flax.Model(obj);
         });
@@ -61,17 +61,40 @@ flax.Graph = class {
 
     constructor(obj) {
         const layers = new Map();
-        const flatten = (path, obj) => {
-            if (Object.entries(obj).every((entry) => entry[1].__class__ && entry[1].__class__.__module__ === 'numpy' && entry[1].__class__.__name__ === 'ndarray')) {
-                layers.set(path.join('.'), obj);
+        const layer = (path) => {
+            const name = path.join('.');
+            if (!layers.has(name)) {
+                layers.set(name, {});
             }
-            else {
-                for (const pair of Object.entries(obj)) {
-                    flatten(path.concat(pair[0]), pair[1]);
+            return layers.get(name);
+        };
+        const flatten = (path, obj) => {
+            for (const entry of Object.entries(obj)) {
+                const name = entry[0];
+                const value = entry[1];
+                if (flax.Utility.isTensor(value)) {
+                    const obj = layer(path);
+                    obj[name] = value;
+                }
+                else if (Array.isArray(value)) {
+                    const obj = layer(path);
+                    obj[name] = value;
+                }
+                else if (Object(value) === value) {
+                    flatten(path.concat(name), value);
+                }
+                else {
+                    const obj = layer(path);
+                    obj[name] = value;
                 }
             }
         };
-        flatten([], obj);
+        if (Array.isArray(obj)) {
+            layer([]).value = obj;
+        }
+        else {
+            flatten([], obj);
+        }
         this._nodes = Array.from(layers).map((entry) => new flax.Node(entry[0], entry[1]));
     }
 
@@ -133,16 +156,28 @@ flax.Argument = class {
 
 flax.Node = class {
 
-    constructor(name, weights) {
+    constructor(name, layer) {
         this._name = name;
         this._type = { name: 'Module' };
+        this._attributes = [];
         this._inputs = [];
-        for (const entry of Object.entries(weights)) {
+        for (const entry of Object.entries(layer)) {
             const name = entry[0];
-            const tensor = new flax.Tensor(entry[1]);
-            const argument = new flax.Argument(this._name + '.' + name, tensor);
-            const parameter = new flax.Parameter(name, [ argument ]);
-            this._inputs.push(parameter);
+            const value = entry[1];
+            if (flax.Utility.isTensor(value)) {
+                const tensor = new flax.Tensor(value);
+                const argument = new flax.Argument(this._name + '.' + name, tensor);
+                const parameter = new flax.Parameter(name, [ argument ]);
+                this._inputs.push(parameter);
+            }
+            else if (Array.isArray(value)) {
+                const attribute = new flax.Attribute(name, value);
+                this._attributes.push(attribute);
+            }
+            else {
+                const attribute = new flax.Attribute(name, value);
+                this._attributes.push(attribute);
+            }
         }
     }
 
@@ -163,7 +198,23 @@ flax.Node = class {
     }
 
     get attributes() {
-        return [];
+        return this._attributes;
+    }
+};
+
+flax.Attribute = class {
+
+    constructor(name, value) {
+        this._name = name;
+        this._value = value;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get value() {
+        return this._value;
     }
 };
 
@@ -252,6 +303,13 @@ flax.Tensor = class {
             default:
                 return this._data;
         }
+    }
+};
+
+flax.Utility = class {
+
+    static isTensor(obj) {
+        return obj && obj.__class__ && obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'ndarray';
     }
 };
 
