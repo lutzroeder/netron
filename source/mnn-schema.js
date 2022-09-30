@@ -559,6 +559,9 @@ $root.MNN.Interp = class Interp {
         $.heightOffset = reader.float32_(position, 20, 0);
         $.cubicCoeffA = reader.float32_(position, 22, -0.75);
         $.ctm = reader.int8_(position, 24, 0);
+        $.depthScale = reader.float32_(position, 26, 0);
+        $.outputDepth = reader.int32_(position, 28, 0);
+        $.depthOffset = reader.float32_(position, 30, 0);
         return $;
     }
 };
@@ -663,6 +666,7 @@ $root.MNN.BinaryOp = class BinaryOp {
         const $ = new $root.MNN.BinaryOp();
         $.opType = reader.int32_(position, 4, 0);
         $.T = reader.int32_(position, 6, 1);
+        $.activationType = reader.int32_(position, 8, 0);
         return $;
     }
 };
@@ -1588,6 +1592,7 @@ $root.MNN.OpType = {
     OneHot: 119,
     BroadcastTo: 120,
     Dilation2D: 121,
+    Interp3D: 122,
     Raster: 128,
     ConvertTensor: 129,
     ArgMin: 130,
