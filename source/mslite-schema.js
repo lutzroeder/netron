@@ -387,6 +387,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 210: return $root.mindspore.schema.GatherD.decode(reader, position);
             case 211: return $root.mindspore.schema.GroupNormFusion.decode(reader, position);
             case 212: return $root.mindspore.schema.Log1p.decode(reader, position);
+            case 213: return $root.mindspore.schema.TensorScatterAdd.decode(reader, position);
             default: return undefined;
         }
     }
@@ -605,6 +606,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'GatherD': return $root.mindspore.schema.GatherD.decodeText(reader, json);
             case 'GroupNormFusion': return $root.mindspore.schema.GroupNormFusion.decodeText(reader, json);
             case 'Log1p': return $root.mindspore.schema.Log1p.decodeText(reader, json);
+            case 'TensorScatterAdd': return $root.mindspore.schema.TensorScatterAdd.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -4210,6 +4212,19 @@ $root.mindspore.schema.Log1p = class Log1p {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Log1p();
+        return $;
+    }
+};
+
+$root.mindspore.schema.TensorScatterAdd = class TensorScatterAdd {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.TensorScatterAdd();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.TensorScatterAdd();
         return $;
     }
 };

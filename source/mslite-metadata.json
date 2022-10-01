@@ -2955,6 +2955,9 @@
     ]
   },
   {
+    "name": "TensorScatterAdd"
+  },
+  {
     "name": "TfReduce",
     "attributes": [
       { "name": "type", "type": "ReduceType" }
