@@ -306,8 +306,8 @@ host.ElectronHost = class {
     exception(error, fatal) {
         if (this._telemetry && error && error.telemetry !== false) {
             try {
-                const name = error && error.name ? error.name + ': ' : '';
-                const message = error && error.message ? error.message : JSON.stringify(error);
+                const name = error.name ? error.name + ': ' : '';
+                const message = error.message ? error.message : JSON.stringify(error);
                 const description = [ name + message ];
                 if (error.stack) {
                     const format = (file, line, column) => {

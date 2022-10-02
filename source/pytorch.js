@@ -2595,7 +2595,7 @@ pytorch.Utility = class {
             }
             root = obj;
         }
-        const keys = root && !Array.isArray(root) ? Object.keys(root) : [];
+        const keys = !Array.isArray(root) ? Object.keys(root) : [];
         if (keys.length > 1) {
             keys.splice(0, keys.length);
         }

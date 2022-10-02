@@ -82,10 +82,7 @@ python.Parser = class {
     }
 
     _statement() {
-
-        let node = this._node();
-
-        node = this._eat('id', 'break');
+        let node = this._eat('id', 'break');
         if (node) {
             return node;
         }
@@ -2152,7 +2149,7 @@ python.Execution = class {
                 this.feature_names = list('feature_names', this.max_feature_idx + 1);
                 this.feature_infos = list('feature_infos', this.max_feature_idx + 1);
                 if (key_vals.has('monotone_constraints')) {
-                    this.monotone_constraints = list('monotone_constraints', this.max_feature_idx + 1, true);
+                    this.monotone_constraints = list('monotone_constraints', this.max_feature_idx + 1);
                 }
                 if (key_vals.has('objective')) {
                     this.objective = key_vals.get('objective');
@@ -4584,7 +4581,7 @@ python.Execution = class {
                         if (buffer[6] !== 0 && buffer[7] !== 0) {
                             throw new python.Error('Unsigned 64-bit value exceeds 32-bit range.');
                         }
-                        return buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24) + (buffer[4] << 32) + (buffer[5] << 40);
+                        return buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24) + (buffer[4] * 4294967296) + (buffer[5] * 1099511627776);
                     };
                     for (let i = 0; i < num_tensors; i++) {
                         const args = unpickler.load();

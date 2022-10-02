@@ -1725,7 +1725,7 @@ sidebar.Tensor = class {
             case 'boolean':
                 return indentation + value.toString();
             case 'string':
-                return indentation + ((value !== null && value !== undefined) ? ('"' + value + '"') : 'null');
+                return indentation + '"' + value + '"';
             case 'number':
                 if (value == Infinity) {
                     return indentation + 'Infinity';
@@ -1932,7 +1932,8 @@ markdown.Generator = class {
     html(source) {
         const tokens = [];
         const links = new Map();
-        this._tokenize(source.replace(/\r\n|\r/g, '\n').replace(/\t/g, '    '), tokens, links, true);
+        source = source.replace(/\r\n|\r/g, '\n').replace(/\t/g, '    ');
+        this._tokenize(source, tokens, links, true);
         this._tokenizeBlock(tokens, links);
         const result = this._render(tokens, true);
         return result;

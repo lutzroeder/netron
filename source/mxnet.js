@@ -1,8 +1,6 @@
 
 var mxnet = mxnet || {};
 var json = json || require('./json');
-var zip = zip || require('./zip');
-var ndarray = ndarray || {};
 var base = base || require('./base');
 
 mxnet.ModelFactory = class {
@@ -173,7 +171,7 @@ mxnet.ModelFactory = class {
                 }
                 if (symbol) {
                     if (!manifest.format) {
-                        const version = convertVersion(symbol && symbol.attrs && symbol.attrs.mxnet_version ? symbol.attrs.mxnet_version : null);
+                        const version = convertVersion(symbol.attrs && symbol.attrs.mxnet_version ? symbol.attrs.mxnet_version : null);
                         manifest.format = 'MXNet' + (version ? ' v' + version : '');
                     }
                     if (symbol.nodes && symbol.nodes.some((node) => node && node.op == 'tvm_op')) {

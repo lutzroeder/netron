@@ -737,7 +737,7 @@ protobuf.TextReader = class {
     }
 
     double() {
-        let value = NaN;
+        let value;
         let token = this._token;
         switch (token) {
             case 'nan': value = NaN; break;

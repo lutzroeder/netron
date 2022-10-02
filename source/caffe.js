@@ -112,7 +112,7 @@ caffe.ModelFactory = class {
                         return openNetParameterText(context, file, buffer);
                     }).catch((error) => {
                         if (error) {
-                            const message = error && error.message ? error.message : error.toString();
+                            const message = error.message ? error.message : error.toString();
                             throw new caffe.Error("Failed to load '" + file + "' (" + message.replace(/\.$/, '') + ').');
                         }
                     });

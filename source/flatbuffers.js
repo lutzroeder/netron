@@ -1,7 +1,5 @@
 
-
 var flatbuffers = {};
-var json = json || require('./json');
 
 flatbuffers.get = (name) => {
     flatbuffers._map = flatbuffers._map || new Map();

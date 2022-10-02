@@ -2,8 +2,6 @@
 // Experimental
 
 var pickle = pickle || {};
-var python = python || require('./python');
-var zip = zip || require('./zip');
 
 pickle.ModelFactory = class {
 

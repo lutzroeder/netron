@@ -135,7 +135,7 @@ torch.Graph = class {
                     }
                     index++;
                 }
-                inputs = inputs.concat(newInputs);
+                // inputs = inputs.concat(newInputs);
                 for (const newOutput of newOutputs) {
                     outputs.push(newOutput);
                 }

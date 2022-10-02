@@ -601,7 +601,7 @@ rknn.Container = class {
                     }
                     this._next = new rknn.Container(stream, data_size);
                     this._next.read();
-                    const value_size = uint64(stream);
+                    const value_size = uint64();
                     this._value = stream.read(value_size);
                     break;
                 }

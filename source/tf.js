@@ -4,7 +4,6 @@
 var tf = tf || {};
 var base = base || require('./base');
 var gzip = gzip || require('./gzip');
-var json = json || require('./json');
 var protobuf = protobuf || require('./protobuf');
 
 tf.ModelFactory = class {
@@ -447,7 +446,7 @@ tf.ModelFactory = class {
                                 }
                             }
                         }
-                        return openSavedModel(saved_model, format, producer, null);
+                        return openSavedModel(saved_model, format, producer);
                     };
                     return Promise.all(shards.values()).then((streams) => {
                         for (const key of shards.keys()) {

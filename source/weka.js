@@ -2,7 +2,6 @@
 // Experimental
 
 var weka = weka || {};
-var json = json || require('./json');
 var java = {};
 
 weka.ModelFactory = class {

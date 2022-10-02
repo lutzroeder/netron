@@ -312,7 +312,7 @@ class HTMLElement {
     }
 
     get classList() {
-        return new DOMTokenList(this);
+        return new DOMTokenList();
     }
 
     getBBox() {
@@ -483,7 +483,7 @@ const download = (folder, targets, sources) => {
         if (sourceFiles.length > 0) {
             clearLine();
             process.stdout.write('  decompress...\r');
-            const archive = decompress(data, source.split('?').shift().split('/').pop());
+            const archive = decompress(data);
             clearLine();
             for (const name of sourceFiles) {
                 process.stdout.write('  write ' + name + '\r');
@@ -645,7 +645,7 @@ const loadModel = (target, item) => {
                     if (value && value.length > 1000) {
                         value = value.substring(0, 1000) + '...';
                     }
-                    value = value.split('<');
+                    /* value = */ value.split('<');
                 }
                 for (const input of node.inputs) {
                     input.name.toString();

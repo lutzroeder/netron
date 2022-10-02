@@ -876,7 +876,7 @@ dagre.layout = (graph, options) => {
                         }
                     }
                     if (!ascending) {
-                        while (pathIdx < path.length - 1 && g.node(pathV = path[pathIdx + 1]).label.minRank <= node.rank) {
+                        while (pathIdx < path.length - 1 && g.node(path[pathIdx + 1]).label.minRank <= node.rank) {
                             pathIdx++;
                         }
                         pathV = path[pathIdx];

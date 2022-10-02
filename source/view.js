@@ -2073,7 +2073,7 @@ view.ModelFactoryService = class {
         if (stream) {
             let empty = true;
             let position = 0;
-            while (empty && position < stream.length) {
+            while (position < stream.length) {
                 const buffer = stream.read(Math.min(4096, stream.length - position));
                 position += buffer.length;
                 if (!buffer.every((value) => value === 0x00)) {

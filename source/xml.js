@@ -356,7 +356,7 @@ xml.TextReader = class {
                                 let whitespace = this._whitespace(0);
                                 if (whitespace && (this._char === '"' || this._char === "'")) {
                                     node.value = this._entityValue();
-                                    whitespace = this._whitespace(0);
+                                    this._whitespace(0);
                                 }
                                 else {
                                     if (whitespace && this._match('SYSTEM')) {
@@ -466,7 +466,7 @@ xml.TextReader = class {
                                     notation.publicId = this._pubidLiteral();
                                     if (this._whitespace(0) && (this._char === '"') || this._char === "'") {
                                         notation.systemId = this._systemLiteral();
-                                        whitespace = this._whitespace(0);
+                                        this._whitespace(0);
                                     }
                                 }
                                 this._assert(notation.systemId || notation.publicId);

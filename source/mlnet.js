@@ -3,7 +3,6 @@
 
 var mlnet = mlnet || {};
 var base = base || require('./base');
-var zip = zip || require('./zip');
 
 mlnet.ModelFactory = class {
 
@@ -658,14 +657,15 @@ mlnet.BinaryReader = class extends base.BinaryReader {
         if (low == 0xffffffff && hi == 0x7fffffff) {
             return Number.MAX_SAFE_INTEGER;
         }
-        if (hi == -1) {
+        if (hi === 0xffffffff) {
             return -low;
         }
-        if (hi != 0) {
-            throw new mlnet.Error('Value not in 48-bit range.');
+        if (hi !== 0) {
+            throw new mlnet.Error('Value not in 32-bit range.');
         }
-        return (hi << 32) | low;
+        return low;
     }
+
     float32s(count) {
         const values = [];
         for (let i = 0; i < count; i++) {

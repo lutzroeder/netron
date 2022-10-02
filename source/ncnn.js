@@ -164,7 +164,7 @@ ncnn.Graph = class {
                                 shape[i] = value.shift();
                             }
                             const type = new ncnn.TensorType('?', new ncnn.TensorShape(shape));
-                            arg(output, type, null);
+                            arg(output, type);
                         }
                         attributes.delete(key);
                     }

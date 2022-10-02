@@ -1,6 +1,5 @@
 
 var acuity = acuity || {};
-var json = json || require('./json');
 
 acuity.ModelFactory = class {
 
