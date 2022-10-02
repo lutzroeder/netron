@@ -630,14 +630,12 @@ const loadModel = (target, item) => {
                 }
             }
             for (const node of graph.nodes) {
-                node.type.toString();
-                node.type.length;
-                if (!node.type || typeof node.type.name != 'string') {
+                const type = node.type;
+                if (!type || typeof type.name != 'string') {
                     throw new Error("Invalid node type '" + JSON.stringify(node.type) + "'.");
                 }
-                sidebar.DocumentationSidebar.formatDocumentation(node.type);
+                sidebar.DocumentationSidebar.formatDocumentation(type);
                 node.name.toString();
-                node.name.length;
                 node.description;
                 node.attributes.slice();
                 for (const attribute of node.attributes) {

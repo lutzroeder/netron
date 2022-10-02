@@ -804,17 +804,17 @@ sidebar.ModelSidebar = class extends sidebar.Control {
 
 sidebar.DocumentationSidebar = class extends sidebar.Control {
 
-    constructor(host, metadata) {
+    constructor(host, type) {
         super();
         this._host = host;
-        this._metadata = metadata;
+        this._type = type;
     }
 
     render() {
         if (!this._elements) {
             this._elements = [];
 
-            const type = sidebar.DocumentationSidebar.formatDocumentation(this._metadata);
+            const type = sidebar.DocumentationSidebar.formatDocumentation(this._type);
 
             const element = this._host.document.createElement('div');
             element.setAttribute('class', 'sidebar-view-documentation');
@@ -1934,8 +1934,7 @@ markdown.Generator = class {
         const links = new Map();
         this._tokenize(source.replace(/\r\n|\r/g, '\n').replace(/\t/g, '    '), tokens, links, true);
         this._tokenizeBlock(tokens, links);
-        const slugs = new Map();
-        const result = this._render(tokens, slugs, true);
+        const result = this._render(tokens, true);
         return result;
     }
 
@@ -2393,7 +2392,7 @@ markdown.Generator = class {
         }
     }
 
-    _render(tokens, slugs, top) {
+    _render(tokens, top) {
         let html = '';
         while (tokens.length > 0) {
             const token = tokens.shift();
@@ -2407,8 +2406,7 @@ markdown.Generator = class {
                 }
                 case 'heading': {
                     const level = token.depth;
-                    const id = this._slug(slugs, this._renderInline(token.tokens, true));
-                    html += '<h' + level + ' id="' + id + '">' + this._renderInline(token.tokens) + '</h' + level + '>\n';
+                    html += '<h' + level + '">' + this._renderInline(token.tokens) + '</h' + level + '>\n';
                     continue;
                 }
                 case 'code': {
@@ -2441,7 +2439,7 @@ markdown.Generator = class {
                     continue;
                 }
                 case 'blockquote': {
-                    html += '<blockquote>\n' + this._render(token.tokens, slugs, true) + '</blockquote>\n';
+                    html += '<blockquote>\n' + this._render(token.tokens, true) + '</blockquote>\n';
                     continue;
                 }
                 case 'list': {
@@ -2468,7 +2466,7 @@ markdown.Generator = class {
                                 itemBody += checkbox;
                             }
                         }
-                        itemBody += this._render(item.tokens, slugs, loose);
+                        itemBody += this._render(item.tokens, loose);
                         body += '<li>' + itemBody + '</li>\n';
                     }
                     const type = (ordered ? 'ol' : 'ul');
@@ -2501,7 +2499,7 @@ markdown.Generator = class {
         return html;
     }
 
-    _renderInline(tokens, slug) {
+    _renderInline(tokens) {
         let html = '';
         for (const token of tokens) {
             switch (token.type) {
@@ -2512,35 +2510,35 @@ markdown.Generator = class {
                     break;
                 }
                 case 'link': {
-                    const text = this._renderInline(token.tokens, slug);
-                    html += slug ? text : '<a href="' + token.href + '"' + (token.title ? ' title="' + token.title + '"' : '') + ' target="_blank">' + text + '</a>';
+                    const text = this._renderInline(token.tokens);
+                    html += '<a href="' + token.href + '"' + (token.title ? ' title="' + token.title + '"' : '') + ' target="_blank">' + text + '</a>';
                     break;
                 }
                 case 'image': {
-                    html += slug ? token.text : '<img src="' + token.href + '" alt="' + token.text + '"' + (token.title ? ' title="' + token.title + '"' : '') + '>';
+                    html += '<img src="' + token.href + '" alt="' + token.text + '"' + (token.title ? ' title="' + token.title + '"' : '') + '>';
                     break;
                 }
                 case 'strong': {
-                    const text = this._renderInline(token.tokens, slug);
-                    html += slug ? text : '<strong>' + text + '</strong>';
+                    const text = this._renderInline(token.tokens);
+                    html += '<strong>' + text + '</strong>';
                     break;
                 }
                 case 'em': {
-                    const text = this._renderInline(token.tokens, slug);
-                    html += slug ? text : '<em>' + text + '</em>';
+                    const text = this._renderInline(token.tokens);
+                    html += '<em>' + text + '</em>';
                     break;
                 }
                 case 'codespan': {
-                    html += slug ? token.text : '<code>' + token.text + '</code>';
+                    html += '<code>' + token.text + '</code>';
                     break;
                 }
                 case 'br': {
-                    html += slug ? '' : '<br>';
+                    html += '<br>';
                     break;
                 }
                 case 'del': {
-                    const text = this._renderInline(token.tokens, slug);
-                    html += slug ? text : '<del>' + text + '</del>';
+                    const text = this._renderInline(token.tokens);
+                    html += '<del>' + text + '</del>';
                     break;
                 }
                 default: {
@@ -2578,36 +2576,6 @@ markdown.Generator = class {
             }
         }
         return cells.map((cell) => cell.trim().replace(/\\\|/g, '|'));
-    }
-
-    _slug(slugs, value) {
-        value = value.replace(/&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/ig, (_, n) => {
-            n = n.toLowerCase();
-            if (n === 'colon') {
-                return ':';
-            }
-            if (n.charAt(0) === '#') {
-                return String.fromCharCode(n.charAt(1) === 'x' ? parseInt(n.substring(2), 16) : +n.substring(1));
-            }
-            return '';
-        });
-        value = value.toLowerCase().trim()
-            .replace(/<[!/a-z].*?>/ig, '')
-            .replace(/[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,./:;<=>?@[\]^`{|}~]/g, '')
-            .replace(/\s/g, '-');
-        let slug = value;
-        let count = 0;
-        if (slugs.has(value)) {
-            count = slugs.get(value);
-            do {
-                count++;
-                slug = value + '-' + count;
-            }
-            while (slugs.has(slug));
-        }
-        slugs.set(value, count);
-        slugs.set(slug, 0);
-        return slug;
     }
 
     _encode(content) {
