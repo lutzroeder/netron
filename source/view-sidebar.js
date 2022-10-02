@@ -887,13 +887,13 @@ sidebar.DocumentationSidebar = class extends sidebar.Control {
                 this._append(element, 'dl', 'In domain <tt>' + type.domain + '</tt> since version <tt>' + type.version + '</tt> at support level <tt>' + type.support_level + '</tt>.');
             }
 
-            if (!this._host.type !== 'Electron') {
+            if (this._host.type === 'Electron') {
                 element.addEventListener('click', (e) => {
                     if (e.target && e.target.href) {
-                        const link = e.target.href;
-                        if (link.startsWith('http://') || link.startsWith('https://')) {
+                        const url = e.target.href;
+                        if (url.startsWith('http://') || url.startsWith('https://')) {
                             e.preventDefault();
-                            this._raise('navigate', { link: link });
+                            this._raise('navigate', { link: url });
                         }
                     }
                 });

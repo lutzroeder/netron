@@ -324,11 +324,12 @@ class Application {
             }
             dialog.removeMenu();
             dialog.excludedFromShownWindowsMenu = true;
-            dialog.webContents.on('new-window', (event, url) => {
+            dialog.webContents.setWindowOpenHandler((detail) => {
+                const url = detail.url;
                 if (url.startsWith('http://') || url.startsWith('https://')) {
-                    event.preventDefault();
                     electron.shell.openExternal(url);
                 }
+                return { action: 'deny' };
             });
             const pathname = path.join(__dirname, 'index.html');
             let content = fs.readFileSync(pathname, 'utf-8');
@@ -718,11 +719,12 @@ class View {
         this._window.webContents.on('did-finish-load', () => {
             this._didFinishLoad = true;
         });
-        this._window.webContents.on('new-window', (event, url) => {
+        this._window.webContents.setWindowOpenHandler((detail) => {
+            const url = detail.url;
             if (url.startsWith('http://') || url.startsWith('https://')) {
-                event.preventDefault();
                 electron.shell.openExternal(url);
             }
+            return { action: 'deny' };
         });
         this._window.once('ready-to-show', () => {
             this._window.show();
