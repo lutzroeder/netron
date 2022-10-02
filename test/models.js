@@ -658,43 +658,37 @@ const loadModel = (target, item) => {
                             argument.type.toString();
                         }
                         if (argument.initializer) {
-                            // console.log(argument.name);
                             argument.initializer.type.toString();
-                            const log = (/* message */) => {
-                                // console.log('  ' + message);
-                            };
                             const tensor = new sidebar.Tensor(argument.initializer);
                             if (tensor.layout !== '<' && tensor.layout !== '>' && tensor.layout !== '|' && tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo') {
-                                log("Tensor layout '" + tensor.layout + "' is not implemented.");
+                                throw new Error("Tensor layout '" + tensor.layout + "' is not implemented.");
                             }
-                            else if (tensor.empty) {
-                                log('Tensor data is empty.');
-                            }
-                            else if (tensor.type && tensor.type.dataType === '?') {
-                                log('Tensor data type is not defined.');
-                            }
-                            else if (tensor.type && !tensor.type.shape) {
-                                log('Tensor shape is not defined.');
-                            }
-                            else {
-                                tensor.toString();
-                                // tensor.value;
-                            }
-                            /*
-                            const python = require('../source/python');
-                            const tensor = argument.initializer;
-                            if (tensor.type && tensor.type.dataType !== '?') {
-                                let data_type = tensor.type.dataType;
-                                switch (data_type) {
-                                    case 'boolean': data_type = 'bool'; break;
+                            if (!tensor.empty) {
+                                if (tensor.type && tensor.type.dataType === '?') {
+                                    throw new Error('Tensor data type is not defined.');
                                 }
-                                const execution = new python.Execution();
-                                const bytes = execution.invoke('io.BytesIO', []);
-                                const dtype = execution.invoke('numpy.dtype', [ data_type ]);
-                                const array = execution.invoke('numpy.asarray', [ tensor.value, dtype ]);
-                                execution.invoke('numpy.save', [ bytes, array ]);
+                                else if (tensor.type && !tensor.type.shape) {
+                                    throw new Error('Tensor shape is not defined.');
+                                }
+                                else {
+                                    tensor.toString();
+                                    /*
+                                    const python = require('../source/python');
+                                    const tensor = argument.initializer;
+                                    if (tensor.type && tensor.type.dataType !== '?') {
+                                        let data_type = tensor.type.dataType;
+                                        switch (data_type) {
+                                            case 'boolean': data_type = 'bool'; break;
+                                        }
+                                        const execution = new python.Execution();
+                                        const bytes = execution.invoke('io.BytesIO', []);
+                                        const dtype = execution.invoke('numpy.dtype', [ data_type ]);
+                                        const array = execution.invoke('numpy.asarray', [ tensor.value, dtype ]);
+                                        execution.invoke('numpy.save', [ bytes, array ]);
+                                    }
+                                    */
+                                }
                             }
-                            */
                         }
                     }
                 }

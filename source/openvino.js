@@ -147,7 +147,7 @@ openvino.Graph = class {
                     break;
                 }
                 default: {
-                    this._nodes.push(new openvino.Node(this, metadata, bin, layer, inputs, outputs));
+                    this._nodes.push(new openvino.Node(metadata, bin, layer, inputs, outputs));
                     break;
                 }
             }
@@ -232,7 +232,7 @@ openvino.Graph = class {
             for (const nestedLayer of this._const(iteratorLayers, iteratorAllEdges, iteratorBackEdgesMap)) {
                 const inputs = nestedLayer.inputs.map((input) => this._argument(nestedLayer.id, nestedLayer.precision, input, iteratorAllEdges));
                 const outputs = nestedLayer.outputs.map((output) => this._argument(nestedLayer.id, nestedLayer.precision || output.precision, output, null));
-                const nestedNode = new openvino.Node(this, metadata, bin, nestedLayer, inputs, outputs);
+                const nestedNode = new openvino.Node(metadata, bin, nestedLayer, inputs, outputs);
                 nestedNode._id = singleTensorIteratorNodeId + '_' + nestedLayer.id;
                 for (const input of nestedNode._inputs) {
                     for (const input_argument of input.arguments) {
@@ -474,7 +474,7 @@ openvino.Graph = class {
 
 openvino.Node = class {
 
-    constructor(graph, metadata, bin, layer, inputs, outputs) {
+    constructor(metadata, bin, layer, inputs, outputs) {
         this._name = layer.name || '';
         this._id = layer.id;
         this._inputs = [];
@@ -507,7 +507,7 @@ openvino.Node = class {
             const name = blob.name;
             const offset = blob.offset;
             const size = blob.size;
-            const data = (bin && (offset + size) <= bin.length) ? bin.slice(offset, offset + size) : null;
+            let data = (bin && (offset + size) <= bin.length) ? bin.slice(offset, offset + size) : null;
             let dimensions = blob.shape || null;
             const kind = blob.kind || 'Blob';
             const id = blob.id || '';
@@ -518,6 +518,17 @@ openvino.Node = class {
                 'U8': 1, 'U16': 2, 'U32': 4, 'U64': 8
             };
             const itemSize = precisionMap[dataType];
+            const weight = (data, name, dimensions) => {
+                const shape = dimensions ? new openvino.TensorShape(dimensions) : null;
+                this._inputs.push(new openvino.Parameter(name, [
+                    new openvino.Argument(id, null, new openvino.Tensor(dataType, shape, data, kind))
+                ]));
+                const size = dimensions.reduce((a, b) => a * b, 1) * itemSize;
+                if (data && data.length !== size) {
+                    return data.slice(size, data.length);
+                }
+                return null;
+            };
             if (itemSize) {
                 switch (type + ':' + name) {
                     case 'FullyConnected:weights': {
@@ -541,15 +552,35 @@ openvino.Node = class {
                         break;
                     }
                     case 'LSTMCell:weights': {
+                        const input_size = inputs[0].type.shape.dimensions[1];
                         const hidden_size = parseInt(attributes['hidden_size'], 10);
-                        dimensions = [ Math.floor(size / (itemSize * hidden_size)) , hidden_size ];
+                        data = weight(data, 'W', [ 4 * hidden_size, input_size ]);
+                        data = weight(data, 'R', [ 4 * hidden_size, hidden_size ]);
+                        break;
+                    }
+                    case 'LSTMCell:biases': {
+                        const hidden_size = parseInt(attributes['hidden_size'], 10);
+                        data = weight(data, 'B', [ 4 * hidden_size ]);
+                        break;
+                    }
+                    case 'GRUCell:weights': {
+                        const input_size = inputs[0].type.shape.dimensions[1];
+                        const hidden_size = parseInt(attributes['hidden_size'], 10);
+                        data = weight(data, 'W', [ 3 * hidden_size, input_size ]);
+                        data = weight(data, 'R', [ 3 * hidden_size, hidden_size ]);
+                        break;
+                    }
+                    case 'GRUCell:biases': {
+                        const linear_before_reset = parseInt(attributes['linear_before_reset'], 10);
+                        const hidden_size = parseInt(attributes['hidden_size'], 10);
+                        dimensions = linear_before_reset ? [ 4 * hidden_size ] : [ 3 * hidden_size ];
+                        data = weight(data, 'B', dimensions);
                         break;
                     }
                     case 'ScaleShift:weights':
                     case 'ScaleShift:biases':
                     case 'Convolution:biases':
                     case 'Normalize:weights':
-                    case 'LSTMCell:biases':
                     case 'PReLU:weights': {
                         dimensions = [ Math.floor(size / itemSize) ];
                         break;
@@ -568,10 +599,9 @@ openvino.Node = class {
                         break;
                 }
             }
-            const shape = dimensions ? new openvino.TensorShape(dimensions) : null;
-            this._inputs.push(new openvino.Parameter(name, [
-                new openvino.Argument(id, null, new openvino.Tensor(dataType, shape, data, kind))
-            ]));
+            if (data) {
+                weight(data, name, dimensions);
+            }
         }
     }
 
@@ -679,7 +709,8 @@ openvino.Attribute = class {
                                 throw new openvino.Error("Unsupported attribute boolean value '" + value + "'.");
                         }
                         break;
-                    case 'int32': {
+                    case 'int32':
+                    case 'int64': {
                         const intValue = Number.parseInt(this._value, 10);
                         this._value = Number.isNaN(this._value - intValue) ? value : intValue;
                         break;
