@@ -2106,7 +2106,7 @@ tf.Utility = class {
                 }
                 if (node.op === 'prim::GetAttr' && node.input.length === 1 && node.controlDependencies.length === 0 && node.attr && Object.keys(node.attr).length === 1 && node.attr.attr && node.attr.attr.s) {
                     const value = tf.Utility.decodeText(node.attr.attr.s);
-                    const match = /{\s*name\s*:\s*([A-za-z0-9_]*)\s*}/.exec(value);
+                    const match = /{\s*name\s*:\s*([A-Za-z0-9_]*)\s*}/.exec(value);
                     if (match) {
                         node.value = match[1].trim();
                     }
