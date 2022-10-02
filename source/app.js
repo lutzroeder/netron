@@ -330,11 +330,12 @@ class Application {
                     electron.shell.openExternal(url);
                 }
             });
-            let content = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf-8');
+            const pathname = path.join(__dirname, 'index.html');
+            let content = fs.readFileSync(pathname, 'utf-8');
+            content = content.replace(/<\s*script[^>]*>[\s\S]*?(<\s*\/script[^>]*>|$)/ig, '');
             content = content.replace('{version}', this._package.version);
             content = content.replace('<title>Netron</title>', '');
             content = content.replace('<body class="welcome spinner">', '<body class="about desktop">');
-            content = content.replace(/<script\b[^<]*(?:(?!<\/script\s*>)<[^<]*)*<\/script\s*>/gi, '');
             content = content.replace(/<link.*>/gi, '');
             dialog.once('ready-to-show', () => {
                 dialog.resizable = false;
@@ -753,7 +754,7 @@ class View {
     _loadURL() {
         const pathname = path.join(__dirname, 'index.html');
         let content = fs.readFileSync(pathname, 'utf-8');
-        content = content.replace(/<script\b[^<]*(?:(?!<\/script\s*>)<[^<]*)*<\/script\s*>/gi, '');
+        content = content.replace(/<\s*script[^>]*>[\s\S]*?(<\s*\/script[^>]*>|$)/ig, '');
         const data = 'data:text/html;charset=utf-8,' + encodeURIComponent(content);
         const options = {
             baseURLForDataURL: url.pathToFileURL(pathname).toString()
