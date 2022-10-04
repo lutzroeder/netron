@@ -2890,7 +2890,7 @@
         "name": "bias_initializer"
       },
       {
-        "description": "Boolean (default `True`). If True, add 1 to the bias of\n    the forget gate at initialization. Setting it to true will also force\n    `bias_initializer=\"zeros\"`. This is recommended in [Jozefowicz et\n      al.](http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf)",
+        "description": "Boolean (default `True`). If True, add 1 to the bias of\n    the forget gate at initialization. Setting it to true will also force\n    `bias_initializer=\"zeros\"`. This is recommended in [Jozefowicz et\n      al.](https://github.com/mlresearch/v37/blob/gh-pages/jozefowicz15.pdf)",
         "name": "unit_forget_bias"
       },
       {
