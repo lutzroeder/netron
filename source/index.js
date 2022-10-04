@@ -147,6 +147,11 @@ host.BrowserHost = class {
 
         const params = new URLSearchParams(this.window.location.search);
 
+        const versionLabel = this.document.getElementById('version');
+        if (versionLabel) {
+            versionLabel.innerText = this.version;
+        }
+
         this._menu = new host.Dropdown(this, 'menu-button', 'menu-dropdown');
         this._menu.add({
             label: 'Properties...',
@@ -221,8 +226,6 @@ host.BrowserHost = class {
             label: 'About ' + this.document.title,
             click: () => this._about()
         });
-
-        this.document.getElementById('version').innerText = this.version;
 
         if (this._meta.file) {
             const url = this._meta.file[0];
