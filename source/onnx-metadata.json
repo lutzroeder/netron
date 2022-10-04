@@ -3415,6 +3415,53 @@
     ]
   },
   {
+    "name": "BitwiseNot",
+    "module": "ai.onnx",
+    "version": 18,
+    "support_level": "common",
+    "description": "Returns the bitwise not of the input tensor element-wise.\n",
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T",
+        "description": "Input tensor"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T",
+        "description": "Output tensor"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input/output to integer tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "bitwisenot",
+        "code": "node = onnx.helper.make_node(\n    \"BitwiseNot\",\n    inputs=[\"x\"],\n    outputs=[\"bitwise_not\"],\n)\n\n# 2d\nx = np.random.randn(3, 4).astype(np.int32)\ny = np.bitwise_not(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_bitwise_not_2d\")\n\n# 3d\nx = np.random.randn(3, 4, 5).astype(np.uint16)\ny = np.bitwise_not(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_bitwise_not_3d\")\n\n# 4d\nx = np.random.randn(3, 4, 5, 6).astype(np.uint8)\ny = np.bitwise_not(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_bitwise_not_4d\")"
+      }
+    ]
+  },
+  {
     "name": "BlackmanWindow",
     "module": "ai.onnx",
     "version": 17,
@@ -32080,20 +32127,44 @@
     ],
     "examples": [
       {
-        "summary": "1d",
-        "code": "input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[input],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_equal_parts_1d\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[input, split],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_variable_parts_1d\",\n)"
+        "summary": "1d_opset13",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_1d_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_1d_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)"
       },
       {
-        "summary": "2d",
-        "code": "input = np.array(\n    [[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], [7.0, 8.0, 9.0, 10.0, 11.0, 12.0]]\n).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\"], outputs=[\"output_1\", \"output_2\"], axis=1\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0, 3.0], [7.0, 8.0, 9.0]]).astype(np.float32),\n    np.array([[4.0, 5.0, 6.0], [10.0, 11.0, 12.0]]).astype(np.float32),\n]\n\nexpect(\n    node,\n    inputs=[input],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_equal_parts_2d\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=1,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0], [7.0, 8.0]]).astype(np.float32),\n    np.array([[3.0, 4.0, 5.0, 6.0], [9.0, 10.0, 11.0, 12.0]]).astype(\n        np.float32\n    ),\n]\n\nexpect(\n    node,\n    inputs=[input, split],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_variable_parts_2d\",\n)"
+        "summary": "1d_opset18",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    axis=0,\n    num_outputs=3,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_1d_opset18\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_1d_opset18\",\n)"
       },
       {
-        "summary": "default_values",
-        "code": "input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\"], outputs=[\"output_1\", \"output_2\", \"output_3\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[input],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_equal_parts_default_axis\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\", \"split\"], outputs=[\"output_1\", \"output_2\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[input, split],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_variable_parts_default_axis\",\n)"
+        "summary": "1d_uneven_split_opset18",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\", \"output_4\"],\n    num_outputs=4,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n    np.array([7.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_1d_uneven_split_opset18\",\n)"
       },
       {
-        "summary": "zero_size_splits",
-        "code": "input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nsplit = np.array([0, 0, 0]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n)\n\nexpected_outputs = [\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[input, split],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_zero_size_splits\",\n)"
+        "summary": "2d_opset13",
+        "code": "node_input = np.array(\n    [[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], [7.0, 8.0, 9.0, 10.0, 11.0, 12.0]]\n).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\"], outputs=[\"output_1\", \"output_2\"], axis=1\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0, 3.0], [7.0, 8.0, 9.0]]).astype(np.float32),\n    np.array([[4.0, 5.0, 6.0], [10.0, 11.0, 12.0]]).astype(np.float32),\n]\n\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_2d_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=1,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0], [7.0, 8.0]]).astype(np.float32),\n    np.array([[3.0, 4.0, 5.0, 6.0], [9.0, 10.0, 11.0, 12.0]]).astype(\n        np.float32\n    ),\n]\n\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_2d_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)"
+      },
+      {
+        "summary": "2d_opset18",
+        "code": "node_input = np.array(\n    [[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], [7.0, 8.0, 9.0, 10.0, 11.0, 12.0]]\n).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=1,\n    num_outputs=2,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0, 3.0], [7.0, 8.0, 9.0]]).astype(np.float32),\n    np.array([[4.0, 5.0, 6.0], [10.0, 11.0, 12.0]]).astype(np.float32),\n]\n\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_2d\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=1,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0], [7.0, 8.0]]).astype(np.float32),\n    np.array([[3.0, 4.0, 5.0, 6.0], [9.0, 10.0, 11.0, 12.0]]).astype(\n        np.float32\n    ),\n]\n\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_2d_opset18\",\n)"
+      },
+      {
+        "summary": "2d_uneven_split_opset18",
+        "code": "node_input = np.array(\n    [\n        [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],\n        [9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0],\n    ]\n).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    axis=1,\n    num_outputs=3,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0, 3.0], [9.0, 10.0, 11.0]]).astype(np.float32),\n    np.array([[4.0, 5.0, 6.0], [12.0, 13.0, 14.0]]).astype(np.float32),\n    np.array([[7.0, 8.0], [15.0, 16.0]]).astype(np.float32),\n]\n\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_2d_uneven_split_opset18\",\n)"
+      },
+      {
+        "summary": "default_values_opset13",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\"], outputs=[\"output_1\", \"output_2\", \"output_3\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_default_axis_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\", \"split\"], outputs=[\"output_1\", \"output_2\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_default_axis_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)"
+      },
+      {
+        "summary": "default_values_opset18",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    num_outputs=3,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_default_axis_opset18\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\", \"split\"], outputs=[\"output_1\", \"output_2\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_default_axis_opset18\",\n)"
+      },
+      {
+        "summary": "zero_size_splits_opset13",
+        "code": "# 1-dimensional tensor with dimension_size=0\nnode_input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nsplit = np.array([0, 0, 0]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n)\n\nexpected_outputs = [\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_zero_size_splits_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)"
+      },
+      {
+        "summary": "zero_size_splits_opset18",
+        "code": "# 1-dimensional tensor with dimension_size=0\nnode_input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nsplit = np.array([0, 0, 0]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n)\n\nexpected_outputs = [\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_zero_size_splits_opset18\",\n)"
       }
     ],
     "category": "Tensor"
@@ -32163,20 +32234,44 @@
     ],
     "examples": [
       {
-        "summary": "1d",
-        "code": "input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[input],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_equal_parts_1d\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[input, split],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_variable_parts_1d\",\n)"
+        "summary": "1d_opset13",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_1d_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_1d_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)"
       },
       {
-        "summary": "2d",
-        "code": "input = np.array(\n    [[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], [7.0, 8.0, 9.0, 10.0, 11.0, 12.0]]\n).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\"], outputs=[\"output_1\", \"output_2\"], axis=1\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0, 3.0], [7.0, 8.0, 9.0]]).astype(np.float32),\n    np.array([[4.0, 5.0, 6.0], [10.0, 11.0, 12.0]]).astype(np.float32),\n]\n\nexpect(\n    node,\n    inputs=[input],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_equal_parts_2d\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=1,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0], [7.0, 8.0]]).astype(np.float32),\n    np.array([[3.0, 4.0, 5.0, 6.0], [9.0, 10.0, 11.0, 12.0]]).astype(\n        np.float32\n    ),\n]\n\nexpect(\n    node,\n    inputs=[input, split],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_variable_parts_2d\",\n)"
+        "summary": "1d_opset18",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    axis=0,\n    num_outputs=3,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_1d_opset18\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_1d_opset18\",\n)"
       },
       {
-        "summary": "default_values",
-        "code": "input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\"], outputs=[\"output_1\", \"output_2\", \"output_3\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[input],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_equal_parts_default_axis\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\", \"split\"], outputs=[\"output_1\", \"output_2\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[input, split],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_variable_parts_default_axis\",\n)"
+        "summary": "1d_uneven_split_opset18",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\", \"output_4\"],\n    num_outputs=4,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n    np.array([7.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_1d_uneven_split_opset18\",\n)"
       },
       {
-        "summary": "zero_size_splits",
-        "code": "input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nsplit = np.array([0, 0, 0]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n)\n\nexpected_outputs = [\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[input, split],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_zero_size_splits\",\n)"
+        "summary": "2d_opset13",
+        "code": "node_input = np.array(\n    [[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], [7.0, 8.0, 9.0, 10.0, 11.0, 12.0]]\n).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\"], outputs=[\"output_1\", \"output_2\"], axis=1\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0, 3.0], [7.0, 8.0, 9.0]]).astype(np.float32),\n    np.array([[4.0, 5.0, 6.0], [10.0, 11.0, 12.0]]).astype(np.float32),\n]\n\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_2d_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=1,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0], [7.0, 8.0]]).astype(np.float32),\n    np.array([[3.0, 4.0, 5.0, 6.0], [9.0, 10.0, 11.0, 12.0]]).astype(\n        np.float32\n    ),\n]\n\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_2d_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)"
+      },
+      {
+        "summary": "2d_opset18",
+        "code": "node_input = np.array(\n    [[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], [7.0, 8.0, 9.0, 10.0, 11.0, 12.0]]\n).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=1,\n    num_outputs=2,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0, 3.0], [7.0, 8.0, 9.0]]).astype(np.float32),\n    np.array([[4.0, 5.0, 6.0], [10.0, 11.0, 12.0]]).astype(np.float32),\n]\n\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_2d\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=1,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0], [7.0, 8.0]]).astype(np.float32),\n    np.array([[3.0, 4.0, 5.0, 6.0], [9.0, 10.0, 11.0, 12.0]]).astype(\n        np.float32\n    ),\n]\n\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_2d_opset18\",\n)"
+      },
+      {
+        "summary": "2d_uneven_split_opset18",
+        "code": "node_input = np.array(\n    [\n        [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],\n        [9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0],\n    ]\n).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    axis=1,\n    num_outputs=3,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0, 3.0], [9.0, 10.0, 11.0]]).astype(np.float32),\n    np.array([[4.0, 5.0, 6.0], [12.0, 13.0, 14.0]]).astype(np.float32),\n    np.array([[7.0, 8.0], [15.0, 16.0]]).astype(np.float32),\n]\n\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_2d_uneven_split_opset18\",\n)"
+      },
+      {
+        "summary": "default_values_opset13",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\"], outputs=[\"output_1\", \"output_2\", \"output_3\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_default_axis_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\", \"split\"], outputs=[\"output_1\", \"output_2\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_default_axis_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)"
+      },
+      {
+        "summary": "default_values_opset18",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    num_outputs=3,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_default_axis_opset18\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\", \"split\"], outputs=[\"output_1\", \"output_2\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_default_axis_opset18\",\n)"
+      },
+      {
+        "summary": "zero_size_splits_opset13",
+        "code": "# 1-dimensional tensor with dimension_size=0\nnode_input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nsplit = np.array([0, 0, 0]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n)\n\nexpected_outputs = [\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_zero_size_splits_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)"
+      },
+      {
+        "summary": "zero_size_splits_opset18",
+        "code": "# 1-dimensional tensor with dimension_size=0\nnode_input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nsplit = np.array([0, 0, 0]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n)\n\nexpected_outputs = [\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_zero_size_splits_opset18\",\n)"
       }
     ],
     "category": "Tensor"
@@ -32246,20 +32341,44 @@
     ],
     "examples": [
       {
-        "summary": "1d",
-        "code": "input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[input],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_equal_parts_1d\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[input, split],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_variable_parts_1d\",\n)"
+        "summary": "1d_opset13",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_1d_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_1d_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)"
       },
       {
-        "summary": "2d",
-        "code": "input = np.array(\n    [[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], [7.0, 8.0, 9.0, 10.0, 11.0, 12.0]]\n).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\"], outputs=[\"output_1\", \"output_2\"], axis=1\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0, 3.0], [7.0, 8.0, 9.0]]).astype(np.float32),\n    np.array([[4.0, 5.0, 6.0], [10.0, 11.0, 12.0]]).astype(np.float32),\n]\n\nexpect(\n    node,\n    inputs=[input],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_equal_parts_2d\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=1,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0], [7.0, 8.0]]).astype(np.float32),\n    np.array([[3.0, 4.0, 5.0, 6.0], [9.0, 10.0, 11.0, 12.0]]).astype(\n        np.float32\n    ),\n]\n\nexpect(\n    node,\n    inputs=[input, split],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_variable_parts_2d\",\n)"
+        "summary": "1d_opset18",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    axis=0,\n    num_outputs=3,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_1d_opset18\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_1d_opset18\",\n)"
       },
       {
-        "summary": "default_values",
-        "code": "input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\"], outputs=[\"output_1\", \"output_2\", \"output_3\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[input],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_equal_parts_default_axis\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\", \"split\"], outputs=[\"output_1\", \"output_2\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[input, split],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_variable_parts_default_axis\",\n)"
+        "summary": "1d_uneven_split_opset18",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\", \"output_4\"],\n    num_outputs=4,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n    np.array([7.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_1d_uneven_split_opset18\",\n)"
       },
       {
-        "summary": "zero_size_splits",
-        "code": "input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nsplit = np.array([0, 0, 0]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n)\n\nexpected_outputs = [\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[input, split],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_zero_size_splits\",\n)"
+        "summary": "2d_opset13",
+        "code": "node_input = np.array(\n    [[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], [7.0, 8.0, 9.0, 10.0, 11.0, 12.0]]\n).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\"], outputs=[\"output_1\", \"output_2\"], axis=1\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0, 3.0], [7.0, 8.0, 9.0]]).astype(np.float32),\n    np.array([[4.0, 5.0, 6.0], [10.0, 11.0, 12.0]]).astype(np.float32),\n]\n\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_2d_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=1,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0], [7.0, 8.0]]).astype(np.float32),\n    np.array([[3.0, 4.0, 5.0, 6.0], [9.0, 10.0, 11.0, 12.0]]).astype(\n        np.float32\n    ),\n]\n\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_2d_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)"
+      },
+      {
+        "summary": "2d_opset18",
+        "code": "node_input = np.array(\n    [[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], [7.0, 8.0, 9.0, 10.0, 11.0, 12.0]]\n).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=1,\n    num_outputs=2,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0, 3.0], [7.0, 8.0, 9.0]]).astype(np.float32),\n    np.array([[4.0, 5.0, 6.0], [10.0, 11.0, 12.0]]).astype(np.float32),\n]\n\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_2d\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=1,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0], [7.0, 8.0]]).astype(np.float32),\n    np.array([[3.0, 4.0, 5.0, 6.0], [9.0, 10.0, 11.0, 12.0]]).astype(\n        np.float32\n    ),\n]\n\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_2d_opset18\",\n)"
+      },
+      {
+        "summary": "2d_uneven_split_opset18",
+        "code": "node_input = np.array(\n    [\n        [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],\n        [9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0],\n    ]\n).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    axis=1,\n    num_outputs=3,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0, 3.0], [9.0, 10.0, 11.0]]).astype(np.float32),\n    np.array([[4.0, 5.0, 6.0], [12.0, 13.0, 14.0]]).astype(np.float32),\n    np.array([[7.0, 8.0], [15.0, 16.0]]).astype(np.float32),\n]\n\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_2d_uneven_split_opset18\",\n)"
+      },
+      {
+        "summary": "default_values_opset13",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\"], outputs=[\"output_1\", \"output_2\", \"output_3\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_default_axis_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\", \"split\"], outputs=[\"output_1\", \"output_2\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_default_axis_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)"
+      },
+      {
+        "summary": "default_values_opset18",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    num_outputs=3,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_default_axis_opset18\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\", \"split\"], outputs=[\"output_1\", \"output_2\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_default_axis_opset18\",\n)"
+      },
+      {
+        "summary": "zero_size_splits_opset13",
+        "code": "# 1-dimensional tensor with dimension_size=0\nnode_input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nsplit = np.array([0, 0, 0]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n)\n\nexpected_outputs = [\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_zero_size_splits_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)"
+      },
+      {
+        "summary": "zero_size_splits_opset18",
+        "code": "# 1-dimensional tensor with dimension_size=0\nnode_input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nsplit = np.array([0, 0, 0]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n)\n\nexpected_outputs = [\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_zero_size_splits_opset18\",\n)"
       }
     ],
     "category": "Tensor"
@@ -32331,20 +32450,159 @@
     ],
     "examples": [
       {
-        "summary": "1d",
-        "code": "input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[input],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_equal_parts_1d\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[input, split],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_variable_parts_1d\",\n)"
+        "summary": "1d_opset13",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_1d_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_1d_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)"
       },
       {
-        "summary": "2d",
-        "code": "input = np.array(\n    [[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], [7.0, 8.0, 9.0, 10.0, 11.0, 12.0]]\n).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\"], outputs=[\"output_1\", \"output_2\"], axis=1\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0, 3.0], [7.0, 8.0, 9.0]]).astype(np.float32),\n    np.array([[4.0, 5.0, 6.0], [10.0, 11.0, 12.0]]).astype(np.float32),\n]\n\nexpect(\n    node,\n    inputs=[input],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_equal_parts_2d\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=1,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0], [7.0, 8.0]]).astype(np.float32),\n    np.array([[3.0, 4.0, 5.0, 6.0], [9.0, 10.0, 11.0, 12.0]]).astype(\n        np.float32\n    ),\n]\n\nexpect(\n    node,\n    inputs=[input, split],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_variable_parts_2d\",\n)"
+        "summary": "1d_opset18",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    axis=0,\n    num_outputs=3,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_1d_opset18\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_1d_opset18\",\n)"
       },
       {
-        "summary": "default_values",
-        "code": "input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\"], outputs=[\"output_1\", \"output_2\", \"output_3\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[input],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_equal_parts_default_axis\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\", \"split\"], outputs=[\"output_1\", \"output_2\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[input, split],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_variable_parts_default_axis\",\n)"
+        "summary": "1d_uneven_split_opset18",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\", \"output_4\"],\n    num_outputs=4,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n    np.array([7.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_1d_uneven_split_opset18\",\n)"
       },
       {
-        "summary": "zero_size_splits",
-        "code": "input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nsplit = np.array([0, 0, 0]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n)\n\nexpected_outputs = [\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[input, split],\n    outputs=[y for y in expected_outputs],\n    name=\"test_split_zero_size_splits\",\n)"
+        "summary": "2d_opset13",
+        "code": "node_input = np.array(\n    [[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], [7.0, 8.0, 9.0, 10.0, 11.0, 12.0]]\n).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\"], outputs=[\"output_1\", \"output_2\"], axis=1\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0, 3.0], [7.0, 8.0, 9.0]]).astype(np.float32),\n    np.array([[4.0, 5.0, 6.0], [10.0, 11.0, 12.0]]).astype(np.float32),\n]\n\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_2d_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=1,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0], [7.0, 8.0]]).astype(np.float32),\n    np.array([[3.0, 4.0, 5.0, 6.0], [9.0, 10.0, 11.0, 12.0]]).astype(\n        np.float32\n    ),\n]\n\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_2d_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)"
+      },
+      {
+        "summary": "2d_opset18",
+        "code": "node_input = np.array(\n    [[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], [7.0, 8.0, 9.0, 10.0, 11.0, 12.0]]\n).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=1,\n    num_outputs=2,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0, 3.0], [7.0, 8.0, 9.0]]).astype(np.float32),\n    np.array([[4.0, 5.0, 6.0], [10.0, 11.0, 12.0]]).astype(np.float32),\n]\n\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_2d\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=1,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0], [7.0, 8.0]]).astype(np.float32),\n    np.array([[3.0, 4.0, 5.0, 6.0], [9.0, 10.0, 11.0, 12.0]]).astype(\n        np.float32\n    ),\n]\n\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_2d_opset18\",\n)"
+      },
+      {
+        "summary": "2d_uneven_split_opset18",
+        "code": "node_input = np.array(\n    [\n        [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],\n        [9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0],\n    ]\n).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    axis=1,\n    num_outputs=3,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0, 3.0], [9.0, 10.0, 11.0]]).astype(np.float32),\n    np.array([[4.0, 5.0, 6.0], [12.0, 13.0, 14.0]]).astype(np.float32),\n    np.array([[7.0, 8.0], [15.0, 16.0]]).astype(np.float32),\n]\n\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_2d_uneven_split_opset18\",\n)"
+      },
+      {
+        "summary": "default_values_opset13",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\"], outputs=[\"output_1\", \"output_2\", \"output_3\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_default_axis_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\", \"split\"], outputs=[\"output_1\", \"output_2\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_default_axis_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)"
+      },
+      {
+        "summary": "default_values_opset18",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    num_outputs=3,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_default_axis_opset18\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\", \"split\"], outputs=[\"output_1\", \"output_2\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_default_axis_opset18\",\n)"
+      },
+      {
+        "summary": "zero_size_splits_opset13",
+        "code": "# 1-dimensional tensor with dimension_size=0\nnode_input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nsplit = np.array([0, 0, 0]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n)\n\nexpected_outputs = [\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_zero_size_splits_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)"
+      },
+      {
+        "summary": "zero_size_splits_opset18",
+        "code": "# 1-dimensional tensor with dimension_size=0\nnode_input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nsplit = np.array([0, 0, 0]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n)\n\nexpected_outputs = [\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_zero_size_splits_opset18\",\n)"
+      }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "Split",
+    "module": "ai.onnx",
+    "version": 18,
+    "support_level": "common",
+    "description": "Split a tensor into a list of tensors, along the specified 'axis'.\nEither input 'split' or the attribute 'num_outputs' should be specified, but not both.\nIf the attribute 'num_outputs' is specified, then the tensor is split into equal sized parts.\nIf the tensor is not evenly splittable into `num_outputs`, the last chunk will be smaller.\nIf the input 'split' is specified, it indicates the sizes of each output in the split.\n",
+    "attributes": [
+      {
+        "name": "axis",
+        "type": "int64",
+        "required": false,
+        "description": "Which axis to split on. A negative value means counting dimensions from the back. Accepted range is [-rank, rank-1] where r = rank(input)."
+      },
+      {
+        "name": "num_outputs",
+        "type": "int64",
+        "required": false,
+        "description": "Number of outputs to split parts of the tensor into. If the tensor is not evenly splittable the last chunk will be smaller."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "type": "T",
+        "description": "The tensor to split"
+      },
+      {
+        "name": "split",
+        "type": "tensor(int64)",
+        "option": "optional",
+        "description": "Optional length of each output. Values should be >= 0.Sum of the values must be equal to the dim value at 'axis' specified."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 2,
+    "outputs": [
+      {
+        "name": "outputs",
+        "type": "T",
+        "list": true,
+        "description": "One or more outputs forming list of tensors after splitting"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 2147483647,
+    "inputs_range": "1 - 2",
+    "outputs_range": "1 - &#8734;",
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to all tensor types.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(bfloat16)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(string)",
+          "tensor(bool)",
+          "tensor(complex64)",
+          "tensor(complex128)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "1d_opset13",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_1d_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_1d_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)"
+      },
+      {
+        "summary": "1d_opset18",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    axis=0,\n    num_outputs=3,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_1d_opset18\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=0,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_1d_opset18\",\n)"
+      },
+      {
+        "summary": "1d_uneven_split_opset18",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\", \"output_4\"],\n    num_outputs=4,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n    np.array([7.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_1d_uneven_split_opset18\",\n)"
+      },
+      {
+        "summary": "2d_opset13",
+        "code": "node_input = np.array(\n    [[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], [7.0, 8.0, 9.0, 10.0, 11.0, 12.0]]\n).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\"], outputs=[\"output_1\", \"output_2\"], axis=1\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0, 3.0], [7.0, 8.0, 9.0]]).astype(np.float32),\n    np.array([[4.0, 5.0, 6.0], [10.0, 11.0, 12.0]]).astype(np.float32),\n]\n\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_2d_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=1,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0], [7.0, 8.0]]).astype(np.float32),\n    np.array([[3.0, 4.0, 5.0, 6.0], [9.0, 10.0, 11.0, 12.0]]).astype(\n        np.float32\n    ),\n]\n\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_2d_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)"
+      },
+      {
+        "summary": "2d_opset18",
+        "code": "node_input = np.array(\n    [[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], [7.0, 8.0, 9.0, 10.0, 11.0, 12.0]]\n).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=1,\n    num_outputs=2,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0, 3.0], [7.0, 8.0, 9.0]]).astype(np.float32),\n    np.array([[4.0, 5.0, 6.0], [10.0, 11.0, 12.0]]).astype(np.float32),\n]\n\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_2d\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\"],\n    axis=1,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0], [7.0, 8.0]]).astype(np.float32),\n    np.array([[3.0, 4.0, 5.0, 6.0], [9.0, 10.0, 11.0, 12.0]]).astype(\n        np.float32\n    ),\n]\n\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_2d_opset18\",\n)"
+      },
+      {
+        "summary": "2d_uneven_split_opset18",
+        "code": "node_input = np.array(\n    [\n        [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],\n        [9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0],\n    ]\n).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    axis=1,\n    num_outputs=3,\n)\n\nexpected_outputs = [\n    np.array([[1.0, 2.0, 3.0], [9.0, 10.0, 11.0]]).astype(np.float32),\n    np.array([[4.0, 5.0, 6.0], [12.0, 13.0, 14.0]]).astype(np.float32),\n    np.array([[7.0, 8.0], [15.0, 16.0]]).astype(np.float32),\n]\n\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_2d_uneven_split_opset18\",\n)"
+      },
+      {
+        "summary": "default_values_opset13",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\"], outputs=[\"output_1\", \"output_2\", \"output_3\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_default_axis_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\", \"split\"], outputs=[\"output_1\", \"output_2\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_default_axis_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)"
+      },
+      {
+        "summary": "default_values_opset18",
+        "code": "node_input = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n    num_outputs=3,\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0]).astype(np.float32),\n    np.array([5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input],\n    outputs=expected_outputs,\n    name=\"test_split_equal_parts_default_axis_opset18\",\n)\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\", inputs=[\"input\", \"split\"], outputs=[\"output_1\", \"output_2\"]\n)\n\nexpected_outputs = [\n    np.array([1.0, 2.0]).astype(np.float32),\n    np.array([3.0, 4.0, 5.0, 6.0]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_variable_parts_default_axis_opset18\",\n)"
+      },
+      {
+        "summary": "zero_size_splits_opset13",
+        "code": "# 1-dimensional tensor with dimension_size=0\nnode_input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nsplit = np.array([0, 0, 0]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n)\n\nexpected_outputs = [\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_zero_size_splits_opset13\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n)"
+      },
+      {
+        "summary": "zero_size_splits_opset18",
+        "code": "# 1-dimensional tensor with dimension_size=0\nnode_input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nsplit = np.array([0, 0, 0]).astype(np.int64)\nnode = onnx.helper.make_node(\n    \"Split\",\n    inputs=[\"input\", \"split\"],\n    outputs=[\"output_1\", \"output_2\", \"output_3\"],\n)\n\nexpected_outputs = [\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n    np.array([]).astype(np.float32),\n]\nexpect(\n    node,\n    inputs=[node_input, split],\n    outputs=expected_outputs,\n    name=\"test_split_zero_size_splits_opset18\",\n)"
       }
     ],
     "category": "Tensor"
