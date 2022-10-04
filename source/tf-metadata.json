@@ -51574,7 +51574,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`."
+        "description": "Must be one of the following: `float16`, `float32`, `float64`."
       }
     ],
     "inputs": [
