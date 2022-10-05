@@ -242,6 +242,9 @@ class Application {
             };
             const selectedFile = electron.dialog.showSaveDialogSync(owner, showSaveDialogOptions);
             if (selectedFile) {
+                if (!/\.png$|\.svg$/i.test(selectedFile)) {
+                    electron.dialog.showErrorBox("Export error", "The chosen filename does not end in .png or .svg! \n\nPlease try again.");
+                }
                 view.execute('export', { 'file': selectedFile });
             }
         }
