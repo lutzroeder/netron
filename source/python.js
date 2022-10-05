@@ -200,9 +200,7 @@ python.Parser = class {
                 node.decorator_list = Array.from(decorator_list);
                 decorator_list = null;
             }
-            if (this._tokenizer.peek().value === '(') {
-                node.bases = this._arguments();
-            }
+            node.bases = this._tokenizer.peek().value === '(' ? this._arguments() : [];
             this._tokenizer.expect(':');
             node.body = this._suite();
             return node;
@@ -3958,7 +3956,6 @@ python.Execution = class {
         this.registerType('torch.nn.utils.weight_norm.WeightNorm', class {});
         this.registerType('torch.torch_version.TorchVersion', class extends String {});
         this.registerType('torch.optim.adam.Adam', class {});
-        this.register('torch.optim').Adam = this._registry.get('torch.optim.adam').Adam;
         this.registerType('torch.optim.adamw.AdamW', class {});
         this.registerType('torch.optim.adagrad.Adagrad', class {});
         this.registerType('torch.optim.adadelta.Adadelta', class {});
@@ -5239,6 +5236,8 @@ python.Execution = class {
         this.registerType('torch.BFloat16Tensor', class extends torch.Tensor {});
         this.registerType('torch.cuda.FloatTensor', class extends torch.Tensor {});
         this.registerType('torch.cuda.DoubleTensor', class extends torch.Tensor {});
+        this.register('torch.nn').Module = this.register('torch.nn.modules.module').Module;
+        this.register('torch.optim').Adam = this.register('torch.optim.adam').Adam;
         torch.uint8 = torch.ByteStorage.dtype = new torch.dtype({ type: 0, name: 'uint8', itemsize: 1 });
         torch.int8 = torch.CharStorage.dtype = new torch.dtype({ type: 1, name: 'int8', itemsize: 1 });
         torch.int16 = torch.ShortStorage.dtype = new torch.dtype({ type: 2, name: 'int16', itemsize: 2 });
@@ -5284,7 +5283,7 @@ python.Execution = class {
     }
 
     exec(code , context) {
-        const reader = new python.Parser(code, null, null);
+        const reader = new python.Parser(code, '', null);
         const program = reader.parse();
         if (!program) {
             throw new python.Error("Module '" + '?' + "' parse error.");
@@ -5566,7 +5565,14 @@ python.Execution = class {
                 break;
             }
             case 'class': {
-                const value = this._createType(context.get('__name__') + '.' + statement.name, class {});
+                const bases = statement.bases.map((arg) => this.expression(arg, context));
+                if (bases.length > 1) {
+                    throw new python.Error("Unsupported multiple bases for class '" + statement.name + "'.");
+                }
+                const base = bases.length === 1 ? bases[0] : null;
+                const name = context.get('__name__') + '.' + statement.name;
+                const value = this._createType(name, base ? class extends base {} : class {});
+                value.__bases__ = bases;
                 context.set(statement.name, value);
                 this.block(statement.body.statements, new python.Execution.Context(context.globals, value.prototype));
                 break;

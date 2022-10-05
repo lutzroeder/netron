@@ -856,6 +856,10 @@ pytorch.Container = class {
         if (tar) {
             return tar;
         }
+        const torch_utils = pytorch.Container.torch_utils.open(context);
+        if (torch_utils) {
+            return torch_utils;
+        }
         return null;
     }
 };
@@ -919,7 +923,7 @@ pytorch.Container.Pickle = class {
 
     constructor(stream) {
         this._stream = stream;
-        this._graphs = [ this ];
+        this._graphs = [];
     }
 
     set metadata(value) {
@@ -942,6 +946,43 @@ pytorch.Container.Pickle = class {
             this._exceptionCallback = null;
             const obj = execution.invoke('torch.load', [ data ]);
             this._graphs = pytorch.Utility.find(obj);
+        }
+        return this._graphs;
+    }
+};
+
+pytorch.Container.torch_utils = class {
+
+    static open(context) {
+        const stream = context.stream;
+        if (stream && stream.length > 1) {
+            const buffer = stream.peek(Math.min(1024, stream.length));
+            if (buffer[0] === 0x80) {
+                const content = String.fromCharCode.apply(null, buffer);
+                if (content.indexOf('torch_utils') !== -1) {
+                    const obj = context.open('pkl');
+                    if (obj && Object.entries(obj).some((entry) => pytorch.Utility.isInstance(entry[1], 'torch.nn.modules.module.Module'))) {
+                        return new pytorch.Container.torch_utils(obj);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    constructor(obj) {
+        this._obj = obj;
+        this._graphs = [];
+    }
+
+    get format() {
+        return 'PyTorch torch_utils';
+    }
+
+    get graphs() {
+        if (this._obj) {
+            this._graphs = pytorch.Utility.find(this._obj);
+            this._obj = null;
         }
         return this._graphs;
     }
@@ -2518,6 +2559,26 @@ pytorch.Utility = class {
             default:
                 return true;
         }
+    }
+
+    static isSubclass(value, name) {
+        if (value.__module__ && value.__name__) {
+            if (name === value.__module__ + '.' + value.__name__) {
+                return true;
+            }
+        }
+        if (value.__bases__) {
+            for (const base of value.__bases__) {
+                if (pytorch.Utility.isSubclass(base, name)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    static isInstance(value, name) {
+        return value.__class__ ? pytorch.Utility.isSubclass(value.__class__, name) : false;
     }
 
     static isCall(expression, name, size) {
