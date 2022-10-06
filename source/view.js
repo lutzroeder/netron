@@ -665,7 +665,7 @@ view.View = class {
 
     export(file) {
         const lastIndex = file.lastIndexOf('.');
-        const extension = (lastIndex != -1) ? file.substring(lastIndex + 1) : '';
+        const extension = (lastIndex != -1) ? file.substring(lastIndex + 1).toLowerCase() : 'png';
         if (this.activeGraph && (extension === 'png' || extension === 'svg')) {
             const canvas = this._getElementById('canvas');
             const clone = canvas.cloneNode(true);
