@@ -1404,6 +1404,32 @@
     ]
   },
   {
+    "name": "torch.baddbmm:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "batch1", "type": "Tensor" },
+      { "name": "batch2", "type": "Tensor" },
+      { "name": "beta", "type": "Scalar", "default": 1 },
+      { "name": "alpha", "type": "Scalar", "default": 1 }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.baddbmm_:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "batch1", "type": "Tensor" },
+      { "name": "batch2", "type": "Tensor" },
+      { "name": "beta", "type": "Scalar", "default": 1 },
+      { "name": "alpha", "type": "Scalar", "default": 1 }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.batch_norm",
     "category": "Normalization",
     "inputs": [
