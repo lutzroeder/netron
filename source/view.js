@@ -2143,6 +2143,7 @@ view.Metadata = class {
     constructor(data) {
         this._types = new Map();
         this._attributes = new Map();
+        this._inputs = new Map();
         if (data) {
             const metadata = JSON.parse(data);
             for (const entry of metadata) {
@@ -2173,6 +2174,20 @@ view.Metadata = class {
             }
         }
         return this._attributes.get(key);
+    }
+
+    input(type, name) {
+        const key = type + ':' + name;
+        if (!this._inputs.has(key)) {
+            this._inputs.set(key, null);
+            const metadata = this.type(type);
+            if (metadata && Array.isArray(metadata.inputs)) {
+                for (const input of metadata.inputs) {
+                    this._inputs.set(type + ':' + input.name, input);
+                }
+            }
+        }
+        return this._inputs.get(key);
     }
 };
 

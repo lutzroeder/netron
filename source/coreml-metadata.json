@@ -82,7 +82,7 @@
     "category": "Tensor",
     "description": "A layer that concatenates along the channel axis (default) or sequence axis.",
     "inputs": [
-      { "name": "inputs", "option": "variadic" }
+      { "name": "inputs", "type": "Tensor[]" }
     ]
   },
   {
@@ -127,7 +127,7 @@
   {
     "name": "featureVectorizer",
     "inputs": [
-      { "name": "inputs", "option": "variadic" }
+      { "name": "inputs", "type": "Tensor[]" }
     ]
   },
   {
