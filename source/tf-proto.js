@@ -8493,59 +8493,10 @@ $root.tensorflow.ClusterDef = class ClusterDef {
     }
 };
 
-$root.tensorflow.CoordinatedJob = class CoordinatedJob {
-
-    constructor() {
-    }
-
-    static decode(reader, length) {
-        const message = new $root.tensorflow.CoordinatedJob();
-        const end = length !== undefined ? reader.position + length : reader.length;
-        while (reader.position < end) {
-            const tag = reader.uint32();
-            switch (tag >>> 3) {
-                case 1:
-                    message.name = reader.string();
-                    break;
-                case 2:
-                    message.num_tasks = reader.int32();
-                    break;
-                default:
-                    reader.skipType(tag & 7);
-                    break;
-            }
-        }
-        return message;
-    }
-
-    static decodeText(reader) {
-        const message = new $root.tensorflow.CoordinatedJob();
-        reader.start();
-        while (!reader.end()) {
-            const tag = reader.tag();
-            switch (tag) {
-                case "name":
-                    message.name = reader.string();
-                    break;
-                case "num_tasks":
-                    message.num_tasks = reader.int32();
-                    break;
-                default:
-                    reader.field(tag, message);
-                    break;
-            }
-        }
-        return message;
-    }
-};
-
-$root.tensorflow.CoordinatedJob.prototype.name = "";
-$root.tensorflow.CoordinatedJob.prototype.num_tasks = 0;
-
 $root.tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
 
     constructor() {
-        this.coordinated_job_list = [];
+        this.coordinated_jobs = [];
         this.recoverable_jobs = [];
     }
 
@@ -8570,8 +8521,8 @@ $root.tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
                 case 5:
                     message.heartbeat_timeout_in_ms = reader.int64();
                     break;
-                case 10:
-                    message.coordinated_job_list.push($root.tensorflow.CoordinatedJob.decode(reader, reader.uint32()));
+                case 6:
+                    message.coordinated_jobs.push(reader.string());
                     break;
                 case 7:
                     message.shutdown_barrier_timeout_in_ms = reader.int64();
@@ -8611,8 +8562,8 @@ $root.tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
                 case "heartbeat_timeout_in_ms":
                     message.heartbeat_timeout_in_ms = reader.int64();
                     break;
-                case "coordinated_job_list":
-                    message.coordinated_job_list.push($root.tensorflow.CoordinatedJob.decodeText(reader));
+                case "coordinated_jobs":
+                    reader.array(message.coordinated_jobs, () => reader.string());
                     break;
                 case "shutdown_barrier_timeout_in_ms":
                     message.shutdown_barrier_timeout_in_ms = reader.int64();
