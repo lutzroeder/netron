@@ -88,7 +88,7 @@
     "identifier": 44,
     "category": "Tensor",
     "inputs": [
-      { "name": "inputs", "list": true }
+      { "name": "inputs", "type": "Tensor[]" }
     ],
     "outputs": [
       { "name": "output" }
@@ -652,7 +652,7 @@
     "identifier": 43,
     "category": "Tensor",
     "inputs": [
-      { "name": "inputs", "list": true }
+      { "name": "inputs", "type": "Tensor[]" }
     ],
     "outputs": [
       { "name": "output" }

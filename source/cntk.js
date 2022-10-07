@@ -403,7 +403,7 @@ cntk.Node = class {
         if (this._type && this._type.inputs) {
             for (const inputSchema of this._type.inputs) {
                 if (inputIndex < inputs.length || inputSchema.option != 'optional') {
-                    const inputCount = inputSchema.list ? (inputs.length - inputIndex) : 1;
+                    const inputCount = inputSchema.type === 'Tensor[]' ? (inputs.length - inputIndex) : 1;
                     const inputArguments = [];
                     for (const inputArgument of inputs.slice(inputIndex, inputIndex + inputCount)) {
                         if (inputArgument.name != '' || inputSchema.option != 'optional') {
@@ -423,7 +423,7 @@ cntk.Node = class {
         if (this._type && this._type.outputs) {
             for (const outputSchema of this._type.outputs) {
                 if (outputIndex < outputs.length || !outputSchema.optional) {
-                    const outputCount = outputSchema.list ? (outputs.length - outputIndex) : 1;
+                    const outputCount = outputSchema.type === 'Tensor[]' ? (outputs.length - outputIndex) : 1;
                     this._outputs.push(new cntk.Parameter(outputSchema.name, outputs.slice(outputIndex, outputIndex + outputCount)));
                     outputIndex += outputCount;
                 }
