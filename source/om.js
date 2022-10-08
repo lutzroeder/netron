@@ -310,6 +310,10 @@ om.Attribute = class {
                 }
                 break;
             }
+            case 'list_list_int': {
+                this._value = value.list_list_int.list_list_i.map((list) => list.list_i);
+                break;
+            }
             case undefined: {
                 this._value = null;
                 break;
