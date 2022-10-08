@@ -6334,7 +6334,7 @@ python.Error = class extends Error {
 
     constructor(message) {
         super(message);
-        this.name = 'Error loading Python module.';
+        this.name = 'Python Error';
     }
 };
 
