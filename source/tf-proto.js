@@ -5511,90 +5511,6 @@ $root.tensorflow.SummaryDescription = class SummaryDescription {
 
 $root.tensorflow.SummaryDescription.prototype.type_hint = "";
 
-$root.tensorflow.HistogramProto = class HistogramProto {
-
-    constructor() {
-        this.bucket_limit = [];
-        this.bucket = [];
-    }
-
-    static decode(reader, length) {
-        const message = new $root.tensorflow.HistogramProto();
-        const end = length !== undefined ? reader.position + length : reader.length;
-        while (reader.position < end) {
-            const tag = reader.uint32();
-            switch (tag >>> 3) {
-                case 1:
-                    message.min = reader.double();
-                    break;
-                case 2:
-                    message.max = reader.double();
-                    break;
-                case 3:
-                    message.num = reader.double();
-                    break;
-                case 4:
-                    message.sum = reader.double();
-                    break;
-                case 5:
-                    message.sum_squares = reader.double();
-                    break;
-                case 6:
-                    message.bucket_limit = reader.doubles(message.bucket_limit, tag);
-                    break;
-                case 7:
-                    message.bucket = reader.doubles(message.bucket, tag);
-                    break;
-                default:
-                    reader.skipType(tag & 7);
-                    break;
-            }
-        }
-        return message;
-    }
-
-    static decodeText(reader) {
-        const message = new $root.tensorflow.HistogramProto();
-        reader.start();
-        while (!reader.end()) {
-            const tag = reader.tag();
-            switch (tag) {
-                case "min":
-                    message.min = reader.double();
-                    break;
-                case "max":
-                    message.max = reader.double();
-                    break;
-                case "num":
-                    message.num = reader.double();
-                    break;
-                case "sum":
-                    message.sum = reader.double();
-                    break;
-                case "sum_squares":
-                    message.sum_squares = reader.double();
-                    break;
-                case "bucket_limit":
-                    reader.array(message.bucket_limit, () => reader.double());
-                    break;
-                case "bucket":
-                    reader.array(message.bucket, () => reader.double());
-                    break;
-                default:
-                    reader.field(tag, message);
-                    break;
-            }
-        }
-        return message;
-    }
-};
-
-$root.tensorflow.HistogramProto.prototype.min = 0;
-$root.tensorflow.HistogramProto.prototype.max = 0;
-$root.tensorflow.HistogramProto.prototype.num = 0;
-$root.tensorflow.HistogramProto.prototype.sum = 0;
-$root.tensorflow.HistogramProto.prototype.sum_squares = 0;
-
 $root.tensorflow.SummaryMetadata = class SummaryMetadata {
 
     constructor() {
@@ -5984,6 +5900,90 @@ $root.tensorflow.Summary.Value = class Value {
 $root.tensorflow.Summary.Value.prototype.node_name = "";
 $root.tensorflow.Summary.Value.prototype.tag = "";
 $root.tensorflow.Summary.Value.prototype.metadata = null;
+
+$root.tensorflow.HistogramProto = class HistogramProto {
+
+    constructor() {
+        this.bucket_limit = [];
+        this.bucket = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.HistogramProto();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.min = reader.double();
+                    break;
+                case 2:
+                    message.max = reader.double();
+                    break;
+                case 3:
+                    message.num = reader.double();
+                    break;
+                case 4:
+                    message.sum = reader.double();
+                    break;
+                case 5:
+                    message.sum_squares = reader.double();
+                    break;
+                case 6:
+                    message.bucket_limit = reader.doubles(message.bucket_limit, tag);
+                    break;
+                case 7:
+                    message.bucket = reader.doubles(message.bucket, tag);
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.HistogramProto();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "min":
+                    message.min = reader.double();
+                    break;
+                case "max":
+                    message.max = reader.double();
+                    break;
+                case "num":
+                    message.num = reader.double();
+                    break;
+                case "sum":
+                    message.sum = reader.double();
+                    break;
+                case "sum_squares":
+                    message.sum_squares = reader.double();
+                    break;
+                case "bucket_limit":
+                    reader.array(message.bucket_limit, () => reader.double());
+                    break;
+                case "bucket":
+                    reader.array(message.bucket, () => reader.double());
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.HistogramProto.prototype.min = 0;
+$root.tensorflow.HistogramProto.prototype.max = 0;
+$root.tensorflow.HistogramProto.prototype.num = 0;
+$root.tensorflow.HistogramProto.prototype.sum = 0;
+$root.tensorflow.HistogramProto.prototype.sum_squares = 0;
 
 $root.tensorflow.GPUOptions = class GPUOptions {
 
@@ -8493,10 +8493,59 @@ $root.tensorflow.ClusterDef = class ClusterDef {
     }
 };
 
+$root.tensorflow.CoordinatedJob = class CoordinatedJob {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.CoordinatedJob();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.name = reader.string();
+                    break;
+                case 2:
+                    message.num_tasks = reader.int32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.CoordinatedJob();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "name":
+                    message.name = reader.string();
+                    break;
+                case "num_tasks":
+                    message.num_tasks = reader.int32();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.CoordinatedJob.prototype.name = "";
+$root.tensorflow.CoordinatedJob.prototype.num_tasks = 0;
+
 $root.tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
 
     constructor() {
-        this.coordinated_jobs = [];
+        this.coordinated_job_list = [];
         this.recoverable_jobs = [];
     }
 
@@ -8521,8 +8570,8 @@ $root.tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
                 case 5:
                     message.heartbeat_timeout_in_ms = reader.int64();
                     break;
-                case 6:
-                    message.coordinated_jobs.push(reader.string());
+                case 10:
+                    message.coordinated_job_list.push($root.tensorflow.CoordinatedJob.decode(reader, reader.uint32()));
                     break;
                 case 7:
                     message.shutdown_barrier_timeout_in_ms = reader.int64();
@@ -8562,8 +8611,8 @@ $root.tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
                 case "heartbeat_timeout_in_ms":
                     message.heartbeat_timeout_in_ms = reader.int64();
                     break;
-                case "coordinated_jobs":
-                    reader.array(message.coordinated_jobs, () => reader.string());
+                case "coordinated_job_list":
+                    message.coordinated_job_list.push($root.tensorflow.CoordinatedJob.decodeText(reader));
                     break;
                 case "shutdown_barrier_timeout_in_ms":
                     message.shutdown_barrier_timeout_in_ms = reader.int64();
