@@ -24675,7 +24675,7 @@
     "examples": [
       {
         "summary": "default_axes_keepdims",
-        "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\nnode = onnx.helper.make_node(\n    \"ReduceMax\", inputs=[\"data\"], outputs=[\"reduced\"], keepdims=keepdims\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32,\n)\nreduced = np.maximum.reduce(data, axis=axes, keepdims=keepdims == 1)\n# print(reduced)\n[[[60.0]]]\n\nexpect(\n    node,\n    inputs=[data],\n    outputs=[reduced],\n    name=\"test_reduce_max_default_axes_keepdim_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.maximum.reduce(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data],\n    outputs=[reduced],\n    name=\"test_reduce_max_default_axes_keepdims_random\",\n)"
+        "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\nnode = onnx.helper.make_node(\n    \"ReduceMax\", inputs=[\"data\"], outputs=[\"reduced\"], keepdims=keepdims\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32,\n)\nreduced = np.maximum.reduce(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data],\n    outputs=[reduced],\n    name=\"test_reduce_max_default_axes_keepdim_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.maximum.reduce(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data],\n    outputs=[reduced],\n    name=\"test_reduce_max_default_axes_keepdims_random\",\n)"
       },
       {
         "summary": "do_not_keepdims",
@@ -24748,7 +24748,7 @@
     "examples": [
       {
         "summary": "default_axes_keepdims",
-        "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\nnode = onnx.helper.make_node(\n    \"ReduceMax\", inputs=[\"data\"], outputs=[\"reduced\"], keepdims=keepdims\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32,\n)\nreduced = np.maximum.reduce(data, axis=axes, keepdims=keepdims == 1)\n# print(reduced)\n[[[60.0]]]\n\nexpect(\n    node,\n    inputs=[data],\n    outputs=[reduced],\n    name=\"test_reduce_max_default_axes_keepdim_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.maximum.reduce(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data],\n    outputs=[reduced],\n    name=\"test_reduce_max_default_axes_keepdims_random\",\n)"
+        "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\nnode = onnx.helper.make_node(\n    \"ReduceMax\", inputs=[\"data\"], outputs=[\"reduced\"], keepdims=keepdims\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32,\n)\nreduced = np.maximum.reduce(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data],\n    outputs=[reduced],\n    name=\"test_reduce_max_default_axes_keepdim_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.maximum.reduce(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data],\n    outputs=[reduced],\n    name=\"test_reduce_max_default_axes_keepdims_random\",\n)"
       },
       {
         "summary": "do_not_keepdims",
@@ -24823,7 +24823,7 @@
     "examples": [
       {
         "summary": "default_axes_keepdims",
-        "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\nnode = onnx.helper.make_node(\n    \"ReduceMax\", inputs=[\"data\"], outputs=[\"reduced\"], keepdims=keepdims\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32,\n)\nreduced = np.maximum.reduce(data, axis=axes, keepdims=keepdims == 1)\n# print(reduced)\n[[[60.0]]]\n\nexpect(\n    node,\n    inputs=[data],\n    outputs=[reduced],\n    name=\"test_reduce_max_default_axes_keepdim_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.maximum.reduce(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data],\n    outputs=[reduced],\n    name=\"test_reduce_max_default_axes_keepdims_random\",\n)"
+        "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\nnode = onnx.helper.make_node(\n    \"ReduceMax\", inputs=[\"data\"], outputs=[\"reduced\"], keepdims=keepdims\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32,\n)\nreduced = np.maximum.reduce(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data],\n    outputs=[reduced],\n    name=\"test_reduce_max_default_axes_keepdim_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.maximum.reduce(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data],\n    outputs=[reduced],\n    name=\"test_reduce_max_default_axes_keepdims_random\",\n)"
       },
       {
         "summary": "do_not_keepdims",
@@ -24899,7 +24899,7 @@
     "examples": [
       {
         "summary": "default_axes_keepdims",
-        "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\nnode = onnx.helper.make_node(\n    \"ReduceMax\", inputs=[\"data\"], outputs=[\"reduced\"], keepdims=keepdims\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32,\n)\nreduced = np.maximum.reduce(data, axis=axes, keepdims=keepdims == 1)\n# print(reduced)\n[[[60.0]]]\n\nexpect(\n    node,\n    inputs=[data],\n    outputs=[reduced],\n    name=\"test_reduce_max_default_axes_keepdim_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.maximum.reduce(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data],\n    outputs=[reduced],\n    name=\"test_reduce_max_default_axes_keepdims_random\",\n)"
+        "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\nnode = onnx.helper.make_node(\n    \"ReduceMax\", inputs=[\"data\"], outputs=[\"reduced\"], keepdims=keepdims\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32,\n)\nreduced = np.maximum.reduce(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data],\n    outputs=[reduced],\n    name=\"test_reduce_max_default_axes_keepdim_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.maximum.reduce(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data],\n    outputs=[reduced],\n    name=\"test_reduce_max_default_axes_keepdims_random\",\n)"
       },
       {
         "summary": "do_not_keepdims",
