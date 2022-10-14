@@ -367,7 +367,7 @@
     ]
   },
   {
-    "name": "torch._convolution:",
+    "name": "aten::_convolution",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -389,7 +389,7 @@
     ]
   },
   {
-    "name": "torch._convolution_mode:",
+    "name": "aten::_convolution_mode",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "weight", "type": "Tensor" },
@@ -404,7 +404,7 @@
     ]
   },
   {
-    "name": "torch._convolution_nogroup:",
+    "name": "aten::_convolution_nogroup",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "weight", "type": "Tensor" },
@@ -420,7 +420,7 @@
     ]
   },
   {
-    "name": "torch._convolution:deprecated",
+    "name": "aten::_convolution.deprecated",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -441,23 +441,7 @@
     ]
   },
   {
-    "name": "torch._convolution_mode:",
-    "category": "Layer",
-    "inputs": [
-      { "name": "input", "type": "Tensor" },
-      { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor", "optional": true },
-      { "name": "stride", "type": "int64[]" },
-      { "name": "padding", "type": "string" },
-      { "name": "dilation", "type": "int64[]" },
-      { "name": "groups", "type": "int64" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "Tensor" }
-    ]
-  },
-  {
-    "name": "torch.conv1d:",
+    "name": "aten::conv1d",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -473,7 +457,7 @@
     ]
   },
   {
-    "name": "torch.conv1d:padding",
+    "name": "aten::conv1d.padding",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -489,7 +473,7 @@
     ]
   },
   {
-    "name": "torch.conv2d:",
+    "name": "aten::conv2d",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -505,7 +489,7 @@
     ]
   },
   {
-    "name": "torch.conv2d:padding",
+    "name": "aten::conv2d.padding",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -521,7 +505,7 @@
     ]
   },
   {
-    "name": "torch.conv3d:",
+    "name": "aten::conv3d",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -537,7 +521,7 @@
     ]
   },
   {
-    "name": "torch.conv3d:padding",
+    "name": "aten::conv3d.padding",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -553,7 +537,7 @@
     ]
   },
   {
-    "name": "torch.conv_transpose1d:input",
+    "name": "aten::conv_transpose1d.input",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -570,7 +554,7 @@
     ]
   },
   {
-    "name": "torch.conv_transpose2d:input",
+    "name": "aten::conv_transpose2d.input",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -587,7 +571,7 @@
     ]
   },
   {
-    "name": "torch.conv_transpose3d:input",
+    "name": "aten::conv_transpose3d.input",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -604,20 +588,7 @@
     ]
   },
   {
-    "name": "ops.torchaudio.sox_effects_apply_effects_tensor",
-    "inputs": [
-      { "name": "tensor", "type": "Tensor" },
-      { "name": "sample_rate", "type": "int64" },
-      { "name": "effects", "type": "string[][]" },
-      { "name": "channels_first", "type": "boolean", "default": true }
-    ],
-    "outputs": [
-      { "name": "output", "type": "Tensor" },
-      { "name": "?", "type": "Tensor" }
-    ]
-  },
-  {
-    "name": "ops.prepacked.conv2d_clamp_run",
+    "name": "prepacked::conv2d_clamp_run",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -635,7 +606,7 @@
     ]
   },
   {
-    "name": "ops.prepacked.linear_clamp_run",
+    "name": "prepacked::linear_clamp_run",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -649,7 +620,7 @@
     ]
   },
   {
-    "name": "ops.quantized.add",
+    "name": "quantized::add",
     "inputs": [
       { "name": "A", "type": "Tensor" },
       { "name": "B", "type": "Tensor" },
@@ -661,7 +632,7 @@
     ]
   },
   {
-    "name": "ops.quantized.add_scalar:",
+    "name": "quantized::add_scalar",
     "inputs": [
       { "name": "qa", "type": "Tensor" },
       { "name": "b", "type": "Scalar" }
@@ -671,7 +642,7 @@
     ]
   },
   {
-    "name": "ops.quantized.add_scalar_relu:",
+    "name": "quantized::add_scalar_relu",
     "inputs": [
       { "name": "qa", "type": "Tensor" },
       { "name": "b", "type": "Scalar" }
@@ -681,7 +652,7 @@
     ]
   },
   {
-    "name": "ops.quantized.add_scalar:Tensor",
+    "name": "quantized::add_scalar.Tensor",
     "inputs": [
       { "name": "qa", "type": "Tensor" },
       { "name": "b", "type": "Tensor" }
@@ -691,7 +662,7 @@
     ]
   },
   {
-    "name": "ops.quantized.add_scalar_relu:Tensor",
+    "name": "quantized::add_scalar_relu.Tensor",
     "inputs": [
       { "name": "qa", "type": "Tensor" },
       { "name": "b", "type": "Tensor" }
@@ -701,7 +672,7 @@
     ]
   },
   {
-    "name": "ops.quantized.linear",
+    "name": "quantized::linear",
     "category": "Layer",
     "inputs": [
       { "name": "X", "type": "Tensor" },
@@ -715,7 +686,7 @@
     ]
   },
   {
-    "name": "ops.quantized.linear_relu",
+    "name": "quantized::linear_relu",
     "category": "Layer",
     "inputs": [
       { "name": "X", "type": "Tensor" },
@@ -729,7 +700,7 @@
     ]
   },
   {
-    "name": "ops.quantized.linear_dynamic",
+    "name": "quantized::linear_dynamic",
     "category": "Layer",
     "inputs": [
       { "name": "X", "type": "Tensor" },
@@ -742,7 +713,7 @@
     ]
   },
   {
-    "name": "ops.quantized.linear_relu_dynamic",
+    "name": "quantized::linear_relu_dynamic",
     "category": "Layer",
     "inputs": [
       { "name": "X", "type": "Tensor" },
@@ -756,7 +727,7 @@
     ]
   },
   {
-    "name": "torch.dequantize",
+    "name": "aten::dequantize",
     "inputs": [
       { "name": "input", "type": "Tensor" }
     ],
@@ -765,7 +736,7 @@
     ]
   },
   {
-    "name": "ops.quantized.conv1d:",
+    "name": "quantized::conv1d",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -783,7 +754,7 @@
     ]
   },
   {
-    "name": "ops.quantized.conv2d:",
+    "name": "quantized::conv2d",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -801,7 +772,7 @@
     ]
   },
   {
-    "name": "ops.quantized.conv2d:new",
+    "name": "quantized::conv2d.new",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -819,7 +790,7 @@
     ]
   },
   {
-    "name": "ops.quantized.conv3d:",
+    "name": "quantized::conv3d",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -837,7 +808,7 @@
     ]
   },
   {
-    "name": "ops.quantized.conv3d:new",
+    "name": "quantized::conv3d.new",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -855,7 +826,7 @@
     ]
   },
   {
-    "name": "ops.quantized.conv1d_relu:",
+    "name": "quantized::conv1d_relu",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -873,7 +844,7 @@
     ]
   },
   {
-    "name": "ops.quantized.conv2d_relu:",
+    "name": "quantized::conv2d_relu",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -891,7 +862,7 @@
     ]
   },
   {
-    "name": "ops.quantized.conv2d_relu:new",
+    "name": "quantized::conv2d_relu.new",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -909,7 +880,7 @@
     ]
   },
   {
-    "name": "ops.quantized.conv3d_relu:",
+    "name": "quantized::conv3d_relu",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -927,7 +898,7 @@
     ]
   },
   {
-    "name": "ops.quantized.conv3d_relu:new",
+    "name": "quantized::conv3d_relu.new",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -945,7 +916,7 @@
     ]
   },
   {
-    "name": "ops.quantized.add_relu:",
+    "name": "quantized::add_relu",
     "inputs": [
       { "name": "qa", "type": "Tensor" },
       { "name": "qb", "type": "Tensor" },
@@ -957,7 +928,7 @@
     ]
   },
   {
-    "name": "ops.quantized.add_relu:Scalar",
+    "name": "quantized::add_relu.Scalar",
     "inputs": [
       { "name": "qa", "type": "Tensor" },
       { "name": "b", "type": "Scalar" }
@@ -967,7 +938,7 @@
     ]
   },
   {
-    "name": "ops.quantized.cat",
+    "name": "quantized::cat",
     "category": "Tensor",
     "inputs": [
       { "name": "qx", "type": "Tensor[]" },
@@ -980,7 +951,7 @@
     ]
   },
   {
-    "name": "ops.quantized.cat_relu",
+    "name": "quantized::cat_relu",
     "category": "Tensor",
     "inputs": [
       { "name": "qx", "type": "Tensor[]" },
@@ -993,7 +964,7 @@
     ]
   },
   {
-    "name": "ops.quantized.batch_norm:",
+    "name": "quantized::batch_norm",
     "inputs": [
       { "name": "qx", "type": "Tensor" },
       { "name": "weight", "type": "Tensor", "optional": true },
@@ -1009,7 +980,7 @@
     ]
   },
   {
-    "name": "ops.quantized.batch_norm_relu",
+    "name": "quantized::batch_norm_relu",
     "category": "Normalization",
     "inputs": [
       { "name": "qx", "type": "Tensor" },
@@ -1026,7 +997,7 @@
     ]
   },
   {
-    "name": "ops.quantized.batch_norm1d",
+    "name": "quantized::batch_norm1d",
     "category": "Normalization",
     "inputs": [
       { "name": "qx", "type": "Tensor" },
@@ -1043,7 +1014,7 @@
     ]
   },
   {
-    "name": "ops.quantized.batch_norm1d_relu",
+    "name": "quantized::batch_norm1d_relu",
     "category": "Normalization",
     "inputs": [
       { "name": "qx", "type": "Tensor" },
@@ -1060,7 +1031,7 @@
     ]
   },
   {
-    "name": "ops.quantized.batch_norm2d",
+    "name": "quantized::batch_norm2d",
     "category": "Normalization",
     "inputs": [
       { "name": "qx", "type": "Tensor" },
@@ -1077,7 +1048,7 @@
     ]
   },
   {
-    "name": "ops.quantized.batch_norm2d_relu",
+    "name": "quantized::batch_norm2d_relu",
     "category": "Normalization",
     "inputs": [
       { "name": "qx", "type": "Tensor" },
@@ -1094,7 +1065,7 @@
     ]
   },
   {
-    "name": "ops.quantized.batch_norm3d",
+    "name": "quantized::batch_norm3d",
     "category": "Normalization",
     "inputs": [
       { "name": "qx", "type": "Tensor" },
@@ -1111,7 +1082,7 @@
     ]
   },
   {
-    "name": "ops.quantized.batch_norm3d_relu",
+    "name": "quantized::batch_norm3d_relu",
     "category": "Normalization",
     "inputs": [
       { "name": "qx", "type": "Tensor" },
@@ -1128,7 +1099,7 @@
     ]
   },
   {
-    "name": "torch.max_pool1d",
+    "name": "aten::max_pool1d",
     "category": "Pool",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -1143,7 +1114,7 @@
     ]
   },
   {
-    "name": "torch.max_pool2d",
+    "name": "aten::max_pool2d",
     "category": "Pool",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -1158,7 +1129,7 @@
     ]
   },
   {
-    "name": "torch.max_pool3d",
+    "name": "aten::max_pool3d",
     "category": "Pool",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -1173,7 +1144,7 @@
     ]
   },
   {
-    "name": "torch.max_unpool2d",
+    "name": "aten::max_unpool2d",
     "category": "Pool",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -1185,7 +1156,7 @@
     ]
   },
   {
-    "name": "torch.max_unpool3d",
+    "name": "aten::max_unpool3d",
     "category": "Pool",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -1199,7 +1170,7 @@
     ]
   },
   {
-    "name": "torch.max_pool1d_with_indices",
+    "name": "aten::max_pool1d_with_indices",
     "category": "Pool",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1216,7 +1187,7 @@
     ]
   },
   {
-    "name": "torch.max_pool2d_with_indices",
+    "name": "aten::max_pool2d_with_indices",
     "category": "Pool",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1233,7 +1204,7 @@
     ]
   },
   {
-    "name": "torch.adaptive_avg_pool1d",
+    "name": "aten::adaptive_avg_pool1d",
     "category": "Pool",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1244,7 +1215,7 @@
     ]
   },
   {
-    "name": "torch.adaptive_avg_pool2d",
+    "name": "aten::adaptive_avg_pool2d",
     "category": "Pool",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1255,7 +1226,7 @@
     ]
   },
   {
-    "name": "torch.adaptive_avg_pool3d",
+    "name": "aten::adaptive_avg_pool3d",
     "category": "Pool",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1266,19 +1237,7 @@
     ]
   },
   {
-    "name": "torch.adaptive_max_pool1d",
-    "category": "Pool",
-    "inputs": [
-      { "name": "input", "type": "Tensor" },
-      { "name": "output_size", "type": "int64[]", "visible": false }
-    ],
-    "outputs": [
-      { "name": "output", "type": "Tensor" },
-      { "name": "?", "type": "Tensor" }
-    ]
-  },
-  {
-    "name": "torch.adaptive_max_pool2d",
+    "name": "aten::adaptive_max_pool1d",
     "category": "Pool",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1290,7 +1249,7 @@
     ]
   },
   {
-    "name": "torch.adaptive_max_pool3d",
+    "name": "aten::adaptive_max_pool2d",
     "category": "Pool",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1302,7 +1261,19 @@
     ]
   },
   {
-    "name": "torch.atan",
+    "name": "aten::adaptive_max_pool3d",
+    "category": "Pool",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "output_size", "type": "int64[]", "visible": false }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" },
+      { "name": "?", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::atan",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -1311,7 +1282,7 @@
     ]
   },
   {
-    "name": "torch.atan_",
+    "name": "aten::atan_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -1320,7 +1291,7 @@
     ]
   },
   {
-    "name": "torch.atanh",
+    "name": "aten::atanh",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -1329,7 +1300,7 @@
     ]
   },
   {
-    "name": "torch.atanh_",
+    "name": "aten::atanh_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -1338,7 +1309,7 @@
     ]
   },
   {
-    "name": "torch.arctan",
+    "name": "aten::arctan",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -1347,7 +1318,7 @@
     ]
   },
   {
-    "name": "torch.arctan_",
+    "name": "aten::arctan_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -1356,7 +1327,7 @@
     ]
   },
   {
-    "name": "torch.avg_pool1d",
+    "name": "aten::avg_pool1d",
     "category": "Pool",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1372,7 +1343,7 @@
     ]
   },
   {
-    "name": "torch.avg_pool2d",
+    "name": "aten::avg_pool2d",
     "category": "Pool",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1388,7 +1359,7 @@
     ]
   },
   {
-    "name": "torch.avg_pool3d",
+    "name": "aten::avg_pool3d",
     "category": "Pool",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1404,7 +1375,7 @@
     ]
   },
   {
-    "name": "torch.baddbmm:",
+    "name": "aten::baddbmm",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "batch1", "type": "Tensor" },
@@ -1417,7 +1388,7 @@
     ]
   },
   {
-    "name": "torch.baddbmm_:",
+    "name": "aten::baddbmm_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "batch1", "type": "Tensor" },
@@ -1430,7 +1401,7 @@
     ]
   },
   {
-    "name": "torch.batch_norm",
+    "name": "aten::batch_norm",
     "category": "Normalization",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1448,7 +1419,7 @@
     ]
   },
   {
-    "name": "torch.bernoulli:",
+    "name": "aten::bernoulli",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "generator", "type": "Generator", "optional": true, "default": null }
@@ -1458,7 +1429,7 @@
     ]
   },
   {
-    "name": "torch.bernoulli_:Tensor",
+    "name": "aten::bernoulli_.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "p", "type": "Tensor" },
@@ -1469,7 +1440,7 @@
     ]
   },
   {
-    "name": "torch.bernoulli_:float",
+    "name": "aten::bernoulli_.float",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "p", "type": "float32", "default": 0.5 },
@@ -1480,7 +1451,7 @@
     ]
   },
   {
-    "name": "torch.bernoulli_:p",
+    "name": "aten::bernoulli_.p",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "p", "type": "float32", "default": 0.5 },
@@ -1491,7 +1462,7 @@
     ]
   },
   {
-    "name": "torch.gather:",
+    "name": "aten::gather",
     "inputs": [
       { "name": "selm", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -1503,7 +1474,7 @@
     ]
   },
   {
-    "name": "torch.gather:dimname",
+    "name": "aten::gather.dimname",
     "inputs": [
       { "name": "selm", "type": "Tensor" },
       { "name": "dim", "type": "Dimname" },
@@ -1515,7 +1486,7 @@
     ]
   },
   {
-    "name": "torch.group_norm",
+    "name": "aten::group_norm",
     "category": "Normalization",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1530,7 +1501,7 @@
     ]
   },
   {
-    "name": "torch.relu",
+    "name": "aten::relu",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -1540,7 +1511,7 @@
     ]
   },
   {
-    "name": "torch.relu_",
+    "name": "aten::relu_",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -1550,7 +1521,7 @@
     ]
   },
   {
-    "name": "torch.relu6",
+    "name": "aten::relu6",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -1560,7 +1531,7 @@
     ]
   },
   {
-    "name": "torch.relu6_",
+    "name": "aten::relu6_",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -1570,7 +1541,7 @@
     ]
   },
   {
-    "name": "torch.prelu",
+    "name": "aten::prelu",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -1581,7 +1552,7 @@
     ]
   },
   {
-    "name": "torch.prod:",
+    "name": "aten::prod",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
@@ -1591,7 +1562,7 @@
     ]
   },
   {
-    "name": "torch.prod:dim_int",
+    "name": "aten::prod.dim_int",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -1603,7 +1574,7 @@
     ]
   },
   {
-    "name": "torch.prod:dim_Dimname",
+    "name": "aten::prod.dim_Dimname",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname" },
@@ -1615,7 +1586,7 @@
     ]
   },
   {
-    "name": "torch.hardtanh",
+    "name": "aten::hardtanh",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -1627,7 +1598,7 @@
     ]
   },
   {
-    "name": "torch.hardtanh_",
+    "name": "aten::hardtanh_",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -1639,7 +1610,7 @@
     ]
   },
   {
-    "name": "torch.hardswish",
+    "name": "aten::hardswish",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -1649,7 +1620,7 @@
     ]
   },
   {
-    "name": "torch.hardswish_",
+    "name": "aten::hardswish_",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -1659,7 +1630,7 @@
     ]
   },
   {
-    "name": "torch.hardsigmoid",
+    "name": "aten::hardsigmoid",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -1669,7 +1640,7 @@
     ]
   },
   {
-    "name": "torch.hardsigmoid_",
+    "name": "aten::hardsigmoid_",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -1679,7 +1650,7 @@
     ]
   },
   {
-    "name": "torch.sigmoid",
+    "name": "aten::sigmoid",
     "category": "Activation",
     "inputs": [
       { "name": "input", "type": "Tensor" }
@@ -1689,7 +1660,7 @@
     ]
   },
   {
-    "name": "torch.sigmoid_",
+    "name": "aten::sigmoid_",
     "category": "Activation",
     "inputs": [
       { "name": "input", "type": "Tensor" }
@@ -1699,7 +1670,7 @@
     ]
   },
   {
-    "name": "torch.threshold",
+    "name": "aten::threshold",
     "category": "Activation",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1712,7 +1683,7 @@
     ]
   },
   {
-    "name": "torch.threshold_",
+    "name": "aten::threshold_",
     "category": "Activation",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1725,7 +1696,7 @@
     ]
   },
   {
-    "name": "torch.tile",
+    "name": "aten::tile",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dims", "type": "int64[]" }
@@ -1735,7 +1706,7 @@
     ]
   },
   {
-    "name": "torch.softmax:int",
+    "name": "aten::softmax.int",
     "category": "Activation",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1747,7 +1718,7 @@
     ]
   },
   {
-    "name": "torch.softmax:Dimname",
+    "name": "aten::softmax.Dimname",
     "category": "Activation",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1759,7 +1730,7 @@
     ]
   },
   {
-    "name": "torch.log_softmax:int",
+    "name": "aten::log_softmax.int",
     "category": "Activation",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1771,7 +1742,7 @@
     ]
   },
   {
-    "name": "torch.log_softmax:Dimname",
+    "name": "aten::log_softmax.Dimname",
     "category": "Activation",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1783,7 +1754,7 @@
     ]
   },
   {
-    "name": "torch.tanh",
+    "name": "aten::tanh",
     "category": "Activation",
     "inputs": [
       { "name": "input", "type": "Tensor" }
@@ -1793,7 +1764,7 @@
     ]
   },
   {
-    "name": "torch.take",
+    "name": "aten::take",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -1804,7 +1775,7 @@
     ]
   },
   {
-    "name": "torch.leaky_relu",
+    "name": "aten::leaky_relu",
     "category": "Activation",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1815,7 +1786,7 @@
     ]
   },
   {
-    "name": "torch.slice:Tensor",
+    "name": "aten::slice.Tensor",
     "category": "Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -1829,7 +1800,7 @@
     ]
   },
   {
-    "name": "torch.dropout",
+    "name": "aten::dropout",
     "category": "Dropout",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1841,7 +1812,7 @@
     ]
   },
   {
-    "name": "torch.dropout_",
+    "name": "aten::dropout_",
     "category": "Dropout",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1853,7 +1824,7 @@
     ]
   },
   {
-    "name": "torch.feature_dropout",
+    "name": "aten::feature_dropout",
     "category": "Dropout",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1865,7 +1836,7 @@
     ]
   },
   {
-    "name": "torch.feature_dropout_",
+    "name": "aten::feature_dropout_",
     "category": "Dropout",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1877,7 +1848,7 @@
     ]
   },
   {
-    "name": "torch.alpha_dropout",
+    "name": "aten::alpha_dropout",
     "category": "Dropout",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1889,7 +1860,7 @@
     ]
   },
   {
-    "name": "torch.alpha_dropout_",
+    "name": "aten::alpha_dropout_",
     "category": "Dropout",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1901,7 +1872,7 @@
     ]
   },
   {
-    "name": "torch.feature_alpha_dropout",
+    "name": "aten::feature_alpha_dropout",
     "category": "Dropout",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1913,7 +1884,7 @@
     ]
   },
   {
-    "name": "torch.feature_alpha_dropout_",
+    "name": "aten::feature_alpha_dropout_",
     "category": "Dropout",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -1925,7 +1896,7 @@
     ]
   },
   {
-    "name": "torch.mm",
+    "name": "aten::mm",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "mat2", "type": "Tensor" }
@@ -1935,7 +1906,7 @@
     ]
   },
   {
-    "name": "torch.addmm",
+    "name": "aten::addmm",
     "category": "Layer",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -1949,7 +1920,7 @@
     ]
   },
   {
-    "name": "torch.add_:Tensor",
+    "name": "aten::add_.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" },
@@ -1960,7 +1931,7 @@
     ]
   },
   {
-    "name": "torch.add_:Scalar",
+    "name": "aten::add_.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Scalar" },
@@ -1971,7 +1942,7 @@
     ]
   },
   {
-    "name": "torch._add_relu:Tensor",
+    "name": "aten::_add_relu.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" },
@@ -1982,7 +1953,7 @@
     ]
   },
   {
-    "name": "torch._add_relu_:Tensor",
+    "name": "aten::_add_relu_.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" },
@@ -1993,7 +1964,7 @@
     ]
   },
   {
-    "name": "torch.sub_:Tensor",
+    "name": "aten::sub_.Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Tensor" },
@@ -2004,7 +1975,7 @@
     ]
   },
   {
-    "name": "torch.sub_:Scalar",
+    "name": "aten::sub_.Scalar",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Scalar" },
@@ -2015,7 +1986,7 @@
     ]
   },
   {
-    "name": "torch.pow:Tensor_Tensor",
+    "name": "aten::pow.Tensor_Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "exponent", "type": "Tensor" }
@@ -2025,7 +1996,7 @@
     ]
   },
   {
-    "name": "torch.pow:Scalar",
+    "name": "aten::pow.Scalar",
     "inputs": [
       { "name": "self", "type": "Scalar" },
       { "name": "exponent", "type": "Tensor" }
@@ -2035,7 +2006,7 @@
     ]
   },
   {
-    "name": "torch.pow:Tensor_Scalar",
+    "name": "aten::pow.Tensor_Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "exponent", "type": "Scalar" }
@@ -2045,7 +2016,7 @@
     ]
   },
   {
-    "name": "torch.pow_:Tensor",
+    "name": "aten::pow_.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "exponent", "type": "Tensor" }
@@ -2055,7 +2026,7 @@
     ]
   },
   {
-    "name": "torch.pow_:Scalar",
+    "name": "aten::pow_.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "exponent", "type": "Scalar" }
@@ -2065,7 +2036,7 @@
     ]
   },
   {
-    "name": "torch.add:Tensor",
+    "name": "aten::add.Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Tensor" },
@@ -2076,7 +2047,7 @@
     ]
   },
   {
-    "name": "torch.add:Scalar",
+    "name": "aten::add.Scalar",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Scalar" },
@@ -2087,7 +2058,7 @@
     ]
   },
   {
-    "name": "torch.sub:Scalar",
+    "name": "aten::sub.Scalar",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Scalar" },
@@ -2098,7 +2069,7 @@
     ]
   },
   {
-    "name": "torch.rsub:Scalar",
+    "name": "aten::rsub.Scalar",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Scalar" },
@@ -2109,7 +2080,7 @@
     ]
   },
   {
-    "name": "torch.sub:Tensor",
+    "name": "aten::sub.Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Tensor" },
@@ -2120,7 +2091,7 @@
     ]
   },
   {
-    "name": "torch.rsub:Tensor",
+    "name": "aten::rsub.Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Tensor" },
@@ -2131,7 +2102,7 @@
     ]
   },
   {
-    "name": "torch.diag:Tensor",
+    "name": "aten::diag.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "diagonal", "type": "int64", "default": 0 }
@@ -2141,7 +2112,7 @@
     ]
   },
   {
-    "name": "torch.block_diag:",
+    "name": "aten::block_diag",
     "inputs": [
       { "name": "tensors", "type": "Tensor[]" }
     ],
@@ -2150,7 +2121,7 @@
     ]
   },
   {
-    "name": "torch.div:Tensor",
+    "name": "aten::div.Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -2160,7 +2131,7 @@
     ]
   },
   {
-    "name": "torch.div:Tensor_mode",
+    "name": "aten::div.Tensor_mode",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Tensor" },
@@ -2171,7 +2142,7 @@
     ]
   },
   {
-    "name": "torch.div:Scalar",
+    "name": "aten::div.Scalar",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Scalar" }
@@ -2181,7 +2152,7 @@
     ]
   },
   {
-    "name": "torch.div:Scalar_mode",
+    "name": "aten::div.Scalar_mode",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Scalar" },
@@ -2192,7 +2163,7 @@
     ]
   },
   {
-    "name": "torch.floordiv",
+    "name": "aten::floordiv",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -2202,7 +2173,7 @@
     ]
   },
   {
-    "name": "torch.sum:",
+    "name": "aten::sum",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -2211,7 +2182,7 @@
     ]
   },
   {
-    "name": "torch.sum:dim_IntList",
+    "name": "aten::sum.dim_IntList",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64[]" },
@@ -2223,7 +2194,7 @@
     ]
   },
   {
-    "name": "torch.matmul",
+    "name": "aten::matmul",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -2233,7 +2204,7 @@
     ]
   },
   {
-    "name": "torch.transpose",
+    "name": "aten::transpose",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "dim0", "type": "int64" },
@@ -2244,7 +2215,7 @@
     ]
   },
   {
-    "name": "torch.chunk",
+    "name": "aten::chunk",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "chunks", "type": "int64" },
@@ -2255,7 +2226,7 @@
     ]
   },
   {
-    "name": "torch.unsafe_chunk",
+    "name": "aten::unsafe_chunk",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "chunks", "type": "int64" },
@@ -2266,7 +2237,7 @@
     ]
   },
   {
-    "name": "torch.view:",
+    "name": "aten::view",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "size", "type": "int64[]", "visible": false }
@@ -2276,7 +2247,7 @@
     ]
   },
   {
-    "name": "torch.view:SymInt",
+    "name": "aten::view.SymInt",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "size", "type": "SymInt[]", "visible": false }
@@ -2286,7 +2257,7 @@
     ]
   },
   {
-    "name": "torch.to:dtype_layout",
+    "name": "aten::to.dtype_layout",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
@@ -2302,7 +2273,7 @@
     ]
   },
   {
-    "name": "torch.to:device",
+    "name": "aten::to.device",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "device", "type": "Device" },
@@ -2316,7 +2287,7 @@
     ]
   },
   {
-    "name": "torch.to:dtype",
+    "name": "aten::to.dtype",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dtype", "type": "ScalarType" },
@@ -2329,7 +2300,7 @@
     ]
   },
   {
-    "name": "torch.to:other",
+    "name": "aten::to.other",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" },
@@ -2342,7 +2313,7 @@
     ]
   },
   {
-    "name": "torch.clip:",
+    "name": "aten::clip",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "min", "type": "Scalar", "optional": true, "default": null },
@@ -2353,7 +2324,7 @@
     ]
   },
   {
-    "name": "torch.clip:Tensor",
+    "name": "aten::clip.Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "min", "type": "Tensor", "optional": true, "default": null },
@@ -2364,7 +2335,7 @@
     ]
   },
   {
-    "name": "torch.clip_:",
+    "name": "aten::clip_",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "min", "type": "Scalar", "optional": true, "default": null },
@@ -2375,7 +2346,7 @@
     ]
   },
   {
-    "name": "torch.clip_:Tensor",
+    "name": "aten::clip_.Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "min", "type": "Tensor", "optional": true, "default": null },
@@ -2386,7 +2357,7 @@
     ]
   },
   {
-    "name": "torch.clone",
+    "name": "aten::clone",
     "inputs": [
       { "name": "input", "type": "Tensor" }
     ],
@@ -2395,7 +2366,7 @@
     ]
   },
   {
-    "name": "torch.complex",
+    "name": "aten::complex",
     "inputs": [
       { "name": "real", "type": "Tensor" },
       { "name": "imag", "type": "Tensor" }
@@ -2405,7 +2376,7 @@
     ]
   },
   {
-    "name": "torch.expand",
+    "name": "aten::expand",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "size", "type": "int64[]" },
@@ -2416,7 +2387,7 @@
     ]
   },
   {
-    "name": "torch.copy_",
+    "name": "aten::copy_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "src", "type": "Tensor" },
@@ -2427,7 +2398,7 @@
     ]
   },
   {
-    "name": "torch.reshape",
+    "name": "aten::reshape",
     "category": "Shape",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -2438,7 +2409,7 @@
     ]
   },
   {
-    "name": "torch.reshape_as",
+    "name": "aten::reshape_as",
     "category": "Shape",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -2449,7 +2420,7 @@
     ]
   },
   {
-    "name": "torch.rot90",
+    "name": "aten::rot90",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "k", "type": "int64", "default": 1 },
@@ -2460,7 +2431,7 @@
     ]
   },
   {
-    "name": "torch.round:",
+    "name": "aten::round",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -2469,7 +2440,7 @@
     ]
   },
   {
-    "name": "torch.round_:",
+    "name": "aten::round_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -2478,7 +2449,7 @@
     ]
   },
   {
-    "name": "torch.round:decimals",
+    "name": "aten::round.decimals",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "decimals", "type": "int64" }
@@ -2488,7 +2459,7 @@
     ]
   },
   {
-    "name": "torch.round_:decimals",
+    "name": "aten::round_.decimals",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "decimals", "type": "int64" }
@@ -2498,7 +2469,7 @@
     ]
   },
   {
-    "name": "torch.select:int",
+    "name": "aten::select.int",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -2509,7 +2480,7 @@
     ]
   },
   {
-    "name": "torch.select:Dimname",
+    "name": "aten::select.Dimname",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname" },
@@ -2520,7 +2491,7 @@
     ]
   },
   {
-    "name": "torch.repeat",
+    "name": "aten::repeat",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "repeats", "type": "int64[]" }
@@ -2530,7 +2501,7 @@
     ]
   },
   {
-    "name": "torch.mean:",
+    "name": "aten::mean",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
@@ -2540,7 +2511,7 @@
     ]
   },
   {
-    "name": "torch.mean:dim",
+    "name": "aten::mean.dim",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64[]" },
@@ -2552,7 +2523,7 @@
     ]
   },
   {
-    "name": "torch.median:",
+    "name": "aten::median",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -2561,7 +2532,7 @@
     ]
   },
   {
-    "name": "torch.median:dim",
+    "name": "aten::median.dim",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -2573,7 +2544,7 @@
     ]
   },
   {
-    "name": "torch.moveaxis:int",
+    "name": "aten::moveaxis.int",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "source", "type": "int64" },
@@ -2584,7 +2555,7 @@
     ]
   },
   {
-    "name": "torch.moveaxis:intlist",
+    "name": "aten::moveaxis.intlist",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "source", "type": "int64[]" },
@@ -2595,7 +2566,7 @@
     ]
   },
   {
-    "name": "torch.lstm:input",
+    "name": "aten::lstm.input",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -2615,7 +2586,7 @@
     ]
   },
   {
-    "name": "torch.lstm:data",
+    "name": "aten::lstm.data",
     "category": "Layer",
     "inputs": [
       { "name": "data", "type": "Tensor" },
@@ -2635,7 +2606,7 @@
     ]
   },
   {
-    "name": "torch.gru:input",
+    "name": "aten::gru.input",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -2654,7 +2625,7 @@
     ]
   },
   {
-    "name": "torch.gru:data",
+    "name": "aten::gru.data",
     "category": "Layer",
     "inputs": [
       { "name": "data", "type": "Tensor" },
@@ -2673,7 +2644,7 @@
     ]
   },
   {
-    "name": "torch.coalesce",
+    "name": "aten::coalesce",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -2682,7 +2653,7 @@
     ]
   },
   {
-    "name": "torch._coalesce",
+    "name": "aten::_coalesce",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -2691,7 +2662,7 @@
     ]
   },
   {
-    "name": "torch.contiguous",
+    "name": "aten::contiguous",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "memory_format", "type": "MemoryFormat", "default": null }
@@ -2701,7 +2672,7 @@
     ]
   },
   {
-    "name": "torch.squeeze:",
+    "name": "aten::squeeze",
     "category": "Transform",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -2711,7 +2682,7 @@
     ]
   },
   {
-    "name": "torch.squeeze:dim",
+    "name": "aten::squeeze.dim",
     "category": "Transform",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -2722,7 +2693,7 @@
     ]
   },
   {
-    "name": "torch.squeeze:dimname",
+    "name": "aten::squeeze.dimname",
     "category": "Transform",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -2733,7 +2704,7 @@
     ]
   },
   {
-    "name": "torch.squeeze_:",
+    "name": "aten::squeeze_",
     "category": "Transform",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -2743,7 +2714,7 @@
     ]
   },
   {
-    "name": "torch.squeeze_:dim",
+    "name": "aten::squeeze_.dim",
     "category": "Transform",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -2754,7 +2725,7 @@
     ]
   },
   {
-    "name": "torch.squeeze_:dimname",
+    "name": "aten::squeeze_.dimname",
     "category": "Transform",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -2765,7 +2736,7 @@
     ]
   },
   {
-    "name": "torch.unsqueeze",
+    "name": "aten::unsqueeze",
     "category": "Transform",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -2776,7 +2747,7 @@
     ]
   },
   {
-    "name": "torch.unsqueeze_",
+    "name": "aten::unsqueeze_",
     "category": "Transform",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -2787,7 +2758,7 @@
     ]
   },
   {
-    "name": "torch.max:",
+    "name": "aten::max",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -2796,7 +2767,7 @@
     ]
   },
   {
-    "name": "torch.max:dim",
+    "name": "aten::max.dim",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64", "default": 0 },
@@ -2808,7 +2779,7 @@
     ]
   },
   {
-    "name": "torch.max:other",
+    "name": "aten::max.other",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -2818,7 +2789,7 @@
     ]
   },
   {
-    "name": "torch.maximum",
+    "name": "aten::maximum",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -2828,7 +2799,7 @@
     ]
   },
   {
-    "name": "torch.min:",
+    "name": "aten::min",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -2837,7 +2808,7 @@
     ]
   },
   {
-    "name": "torch.min:dim",
+    "name": "aten::min.dim",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64", "default": 0 },
@@ -2849,7 +2820,7 @@
     ]
   },
   {
-    "name": "torch.min:other",
+    "name": "aten::min.other",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -2859,7 +2830,7 @@
     ]
   },
   {
-    "name": "torch.minimum",
+    "name": "aten::minimum",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -2869,7 +2840,7 @@
     ]
   },
   {
-    "name": "torch.mish_:",
+    "name": "aten::mish_",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -2879,7 +2850,7 @@
     ]
   },
   {
-    "name": "torch.mish:",
+    "name": "aten::mish",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -2889,7 +2860,7 @@
     ]
   },
   {
-    "name": "torch.cat:",
+    "name": "aten::cat",
     "category": "Tensor",
     "inputs": [
       { "name": "tensors", "type": "Tensor[]" },
@@ -2900,7 +2871,7 @@
     ]
   },
   {
-    "name": "torch.cat:names",
+    "name": "aten::cat.names",
     "category": "Tensor",
     "inputs": [
       { "name": "tensors", "type": "Tensor[]" },
@@ -2911,7 +2882,7 @@
     ]
   },
   {
-    "name": "torch.concat:",
+    "name": "aten::concat",
     "category": "Tensor",
     "inputs": [
       { "name": "tensors", "type": "Tensor[]" },
@@ -2922,7 +2893,7 @@
     ]
   },
   {
-    "name": "torch.concat:names",
+    "name": "aten::concat.names",
     "category": "Tensor",
     "inputs": [
       { "name": "tensors", "type": "Tensor[]" },
@@ -2933,7 +2904,7 @@
     ]
   },
   {
-    "name": "torch.broadcast_tensors",
+    "name": "aten::broadcast_tensors",
     "inputs": [
       { "name": "tensors", "type": "Tensor[]" }
     ],
@@ -2942,7 +2913,7 @@
     ]
   },
   {
-    "name": "torch.broadcast_to:",
+    "name": "aten::broadcast_to",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "size", "type": "int64[]" }
@@ -2952,7 +2923,7 @@
     ]
   },
   {
-    "name": "torch.meshgrid:",
+    "name": "aten::meshgrid",
     "category": "Tensor",
     "inputs": [
       { "name": "tensors", "type": "Tensor[]" }
@@ -2962,7 +2933,7 @@
     ]
   },
   {
-    "name": "torch.meshgrid:indexing",
+    "name": "aten::meshgrid.indexing",
     "category": "Tensor",
     "inputs": [
       { "name": "tensors", "type": "Tensor[]" },
@@ -2973,7 +2944,7 @@
     ]
   },
   {
-    "name": "torch.stack:",
+    "name": "aten::stack",
     "category": "Tensor",
     "inputs": [
       { "name": "inputs", "type": "Tensor[]" },
@@ -2984,7 +2955,7 @@
     ]
   },
   {
-    "name": "torch.expand_as",
+    "name": "aten::expand_as",
     "inputs": [
       { "name": "inputs", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -2994,7 +2965,7 @@
     ]
   },
   {
-    "name": "torch.eye:",
+    "name": "aten::eye",
     "inputs": [
       { "name": "n", "type": "int64" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
@@ -3007,7 +2978,7 @@
     ]
   },
   {
-    "name": "torch.eye:m",
+    "name": "aten::eye.m",
     "inputs": [
       { "name": "n", "type": "int64" },
       { "name": "m", "type": "int64" },
@@ -3021,7 +2992,7 @@
     ]
   },
   {
-    "name": "torch.pairwise_distance:",
+    "name": "aten::pairwise_distance",
     "inputs": [
       { "name": "x1", "type": "Tensor" },
       { "name": "x2", "type": "Tensor" },
@@ -3034,7 +3005,7 @@
     ]
   },
   {
-    "name": "torch.pad:",
+    "name": "aten::pad",
     "category": "Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3047,7 +3018,7 @@
     ]
   },
   {
-    "name": "torch.permute",
+    "name": "aten::permute",
     "category": "Shape",
     "inputs": [
       { "name": "inputs", "type": "Tensor" },
@@ -3058,7 +3029,7 @@
     ]
   },
   {
-    "name": "torch.embedding",
+    "name": "aten::embedding",
     "category": "Transform",
     "inputs": [
       { "name": "inputs", "type": "Tensor" },
@@ -3072,7 +3043,7 @@
     ]
   },
   {
-    "name": "torch.embedding_bag",
+    "name": "aten::embedding_bag",
     "category": "Transform",
     "inputs": [
       { "name": "weight", "type": "Tensor" },
@@ -3092,7 +3063,7 @@
     ]
   },
   {
-    "name": "torch.flatten:using_ints",
+    "name": "aten::flatten.using_ints",
     "category": "Shape",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3104,7 +3075,7 @@
     ]
   },
   {
-    "name": "torch.flatten:named_out_dim",
+    "name": "aten::flatten.named_out_dim",
     "category": "Shape",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3117,7 +3088,7 @@
     ]
   },
   {
-    "name": "torch.flatten:using_names",
+    "name": "aten::flatten.using_names",
     "category": "Shape",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3130,7 +3101,7 @@
     ]
   },
   {
-    "name": "torch.flatten:DimnameList",
+    "name": "aten::flatten.DimnameList",
     "category": "Shape",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3142,7 +3113,7 @@
     ]
   },
   {
-    "name": "torch.unflatten:int",
+    "name": "aten::unflatten.int",
     "category": "Shape",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3155,7 +3126,7 @@
     ]
   },
   {
-    "name": "torch.unflatten:Dimname",
+    "name": "aten::unflatten.Dimname",
     "category": "Shape",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3168,7 +3139,7 @@
     ]
   },
   {
-    "name": "torch._pack_padded_sequence",
+    "name": "aten::_pack_padded_sequence",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "lengths", "type": "Tensor" },
@@ -3180,7 +3151,7 @@
     ]
   },
   {
-    "name": "torch._pad_packed_sequence",
+    "name": "aten::_pad_packed_sequence",
     "inputs": [
       { "name": "data", "type": "Tensor" },
       { "name": "batch_sizes", "type": "Tensor" },
@@ -3194,7 +3165,7 @@
     ]
   },
   {
-    "name": "torch.quantize_per_tensor:",
+    "name": "aten::quantize_per_tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "scale", "type": "float32" },
@@ -3206,7 +3177,7 @@
     ]
   },
   {
-    "name": "torch.quantize_per_tensor:qparams",
+    "name": "aten::quantize_per_tensor.qparams",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "scale", "type": "Tensor" },
@@ -3218,7 +3189,7 @@
     ]
   },
   {
-    "name": "torch.quantize_per_tensor:tensors",
+    "name": "aten::quantize_per_tensor.Tensors",
     "inputs": [
       { "name": "tensors", "type": "Tensor[]" },
       { "name": "scales", "type": "Tensor" },
@@ -3230,7 +3201,7 @@
     ]
   },
   {
-    "name": "torch.floor_divide",
+    "name": "aten::floor_divide",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -3240,7 +3211,7 @@
     ]
   },
   {
-    "name": "torch.index:Tensor",
+    "name": "aten::index.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "indices", "type": "Tensor[]", "optional": true }
@@ -3250,7 +3221,7 @@
     ]
   },
   {
-    "name": "torch._cast_Byte",
+    "name": "aten::_cast_Byte",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "non_blocking", "type": "boolean", "default": false }
@@ -3260,7 +3231,7 @@
     ]
   },
   {
-    "name": "torch._cast_Char",
+    "name": "aten::_cast_Char",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "non_blocking", "type": "boolean", "default": false }
@@ -3270,7 +3241,7 @@
     ]
   },
   {
-    "name": "torch._cast_Short",
+    "name": "aten::_cast_Short",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "non_blocking", "type": "boolean", "default": false }
@@ -3280,7 +3251,7 @@
     ]
   },
   {
-    "name": "torch._cast_Int",
+    "name": "aten::_cast_Int",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "non_blocking", "type": "boolean", "default": false }
@@ -3290,7 +3261,7 @@
     ]
   },
   {
-    "name": "torch._cast_Long",
+    "name": "aten::_cast_Long",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "non_blocking", "type": "boolean", "default": false }
@@ -3300,7 +3271,7 @@
     ]
   },
   {
-    "name": "torch._cast_Half",
+    "name": "aten::_cast_Half",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "non_blocking", "type": "boolean", "default": false }
@@ -3310,7 +3281,7 @@
     ]
   },
   {
-    "name": "torch._cast_Float",
+    "name": "aten::_cast_Float",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "non_blocking", "type": "boolean", "default": false }
@@ -3320,7 +3291,7 @@
     ]
   },
   {
-    "name": "torch._cast_Double",
+    "name": "aten::_cast_Double",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "non_blocking", "type": "boolean", "default": false }
@@ -3330,7 +3301,7 @@
     ]
   },
   {
-    "name": "torch.frobenius_norm:",
+    "name": "aten::frobenius_norm",
     "category": "Normalization",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -3340,7 +3311,7 @@
     ]
   },
   {
-    "name": "torch.frobenius_norm:dim",
+    "name": "aten::frobenius_norm.dim",
     "category": "Normalization",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3352,7 +3323,7 @@
     ]
   },
   {
-    "name": "torch.norm:ScalarOpt_dtype",
+    "name": "aten::norm.ScalarOpt_dtype",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "p", "type": "Scalar", "optional": true },
@@ -3363,7 +3334,7 @@
     ]
   },
   {
-    "name": "torch.norm:ScalarOpt_dim_dtype",
+    "name": "aten::norm.ScalarOpt_dim_dtype",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "p", "type": "Scalar", "optional": true },
@@ -3376,7 +3347,7 @@
     ]
   },
   {
-    "name": "torch.norm:ScalarOpt_dim",
+    "name": "aten::norm.ScalarOpt_dim",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "p", "type": "Scalar", "optional": true },
@@ -3388,7 +3359,7 @@
     ]
   },
   {
-    "name": "torch.norm:dtype_out",
+    "name": "aten::norm.dtype_out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "p", "type": "Scalar", "optional": true },
@@ -3401,7 +3372,7 @@
     ]
   },
   {
-    "name": "torch.norm:Scalar",
+    "name": "aten::norm.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "p", "type": "Scalar", "default": 2 }
@@ -3411,7 +3382,7 @@
     ]
   },
   {
-    "name": "torch.numpy_T",
+    "name": "aten::numpy_T",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -3420,7 +3391,7 @@
     ]
   },
   {
-    "name": "torch.glu",
+    "name": "aten::glu",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3431,7 +3402,7 @@
     ]
   },
   {
-    "name": "torch.gelu",
+    "name": "aten::gelu",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3442,7 +3413,7 @@
     ]
   },
   {
-    "name": "torch.gelu_",
+    "name": "aten::gelu_",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3453,7 +3424,7 @@
     ]
   },
   {
-    "name": "torch.celu",
+    "name": "aten::celu",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3464,7 +3435,7 @@
     ]
   },
   {
-    "name": "torch.elu",
+    "name": "aten::elu",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3477,7 +3448,7 @@
     ]
   },
   {
-    "name": "torch.elu_",
+    "name": "aten::elu_",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3490,7 +3461,7 @@
     ]
   },
   {
-    "name": "torch.selu",
+    "name": "aten::selu",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -3500,7 +3471,7 @@
     ]
   },
   {
-    "name": "torch.selu_",
+    "name": "aten::selu_",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -3510,7 +3481,7 @@
     ]
   },
   {
-    "name": "torch.silu",
+    "name": "aten::silu",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -3520,7 +3491,7 @@
     ]
   },
   {
-    "name": "torch.silu_",
+    "name": "aten::silu_",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -3530,7 +3501,7 @@
     ]
   },
   {
-    "name": "torch.hardswish",
+    "name": "aten::hardswish",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -3540,7 +3511,7 @@
     ]
   },
   {
-    "name": "torch.hardswish_",
+    "name": "aten::hardswish_",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -3550,7 +3521,7 @@
     ]
   },
   {
-    "name": "torch.pixel_shuffle:",
+    "name": "aten::pixel_shuffle",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "upscale_factor", "type": "int64" }
@@ -3560,7 +3531,7 @@
     ]
   },
   {
-    "name": "torch.pixel_unshuffle:",
+    "name": "aten::pixel_unshuffle",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "downscale_factor", "type": "int64" }
@@ -3570,7 +3541,7 @@
     ]
   },
   {
-    "name": "torch.nonzero",
+    "name": "aten::nonzero",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -3579,7 +3550,7 @@
     ]
   },
   {
-    "name": "torch.neg",
+    "name": "aten::neg",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -3588,7 +3559,7 @@
     ]
   },
   {
-    "name": "torch.ne:Scalar",
+    "name": "aten::ne.Scalar",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Scalar" }
@@ -3598,7 +3569,7 @@
     ]
   },
   {
-    "name": "torch.bitwise_not",
+    "name": "aten::bitwise_not",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -3607,7 +3578,7 @@
     ]
   },
   {
-    "name": "torch.bitwise_not_",
+    "name": "aten::bitwise_not_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -3616,7 +3587,7 @@
     ]
   },
   {
-    "name": "torch.bucketize:Tensor",
+    "name": "aten::bucketize.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "boundaries", "type": "Tensor" },
@@ -3628,7 +3599,7 @@
     ]
   },
   {
-    "name": "torch.bucketize:Scalar",
+    "name": "aten::bucketize.Scalar",
     "inputs": [
       { "name": "self", "type": "Scalar" },
       { "name": "boundaries", "type": "Tensor" },
@@ -3640,7 +3611,7 @@
     ]
   },
   {
-    "name": "torch.pinverse",
+    "name": "aten::pinverse",
     "inputs": [
       { "name": "self", "type": "Scalar" },
       { "name": "rcond", "type": "float32", "default": 1e-15 }
@@ -3650,7 +3621,7 @@
     ]
   },
   {
-    "name": "torch.real",
+    "name": "aten::real",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -3659,7 +3630,7 @@
     ]
   },
   {
-    "name": "torch.imag",
+    "name": "aten::imag",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -3668,7 +3639,7 @@
     ]
   },
   {
-    "name": "torch.conj",
+    "name": "aten::conj",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -3677,7 +3648,7 @@
     ]
   },
   {
-    "name": "torch._conj",
+    "name": "aten::_conj",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -3686,7 +3657,7 @@
     ]
   },
   {
-    "name": "torch.rsqrt",
+    "name": "aten::rsqrt",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -3695,7 +3666,7 @@
     ]
   },
   {
-    "name": "torch.grid_sampler:",
+    "name": "aten::grid_sampler",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "grid", "type": "Tensor" },
@@ -3708,7 +3679,7 @@
     ]
   },
   {
-    "name": "torch.sort",
+    "name": "aten::sort",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64", "default": -1 },
@@ -3720,7 +3691,7 @@
     ]
   },
   {
-    "name": "torch.gt:Tensor",
+    "name": "aten::gt.Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -3730,7 +3701,7 @@
     ]
   },
   {
-    "name": "torch.gt:Scalar",
+    "name": "aten::gt.Scalar",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Scalar" }
@@ -3740,7 +3711,7 @@
     ]
   },
   {
-    "name": "torch.mul:Tensor",
+    "name": "aten::mul.Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -3750,7 +3721,7 @@
     ]
   },
   {
-    "name": "torch.mul:Scalar",
+    "name": "aten::mul.Scalar",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Scalar" }
@@ -3760,7 +3731,7 @@
     ]
   },
   {
-    "name": "torch.mul:ScalarT",
+    "name": "aten::mul.ScalarT",
     "inputs": [
       { "name": "input", "type": "Tensor[]" },
       { "name": "other", "type": "Scalar" }
@@ -3770,7 +3741,7 @@
     ]
   },
   {
-    "name": "torch.mul_:Tensor",
+    "name": "aten::mul_.Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -3780,7 +3751,7 @@
     ]
   },
   {
-    "name": "torch.mul_:Scalar",
+    "name": "aten::mul_.Scalar",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Scalar" }
@@ -3790,7 +3761,7 @@
     ]
   },
   {
-    "name": "torch.multinomial",
+    "name": "aten::multinomial",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "num_samples", "type": "int64" },
@@ -3802,7 +3773,7 @@
     ]
   },
   {
-    "name": "torch.div_:Tensor",
+    "name": "aten::div_.Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -3812,7 +3783,7 @@
     ]
   },
   {
-    "name": "torch.div_:Scalar",
+    "name": "aten::div_.Scalar",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Scalar" }
@@ -3822,7 +3793,7 @@
     ]
   },
   {
-    "name": "torch.bmm",
+    "name": "aten::bmm",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "mat2", "type": "Tensor" }
@@ -3832,7 +3803,7 @@
     ]
   },
   {
-    "name": "torch.constant_pad_nd",
+    "name": "aten::constant_pad_nd",
     "category": "Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3844,7 +3815,7 @@
     ]
   },
   {
-    "name": "torch.ones",
+    "name": "aten::ones",
     "inputs": [
       { "name": "size", "type": "int64[]" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
@@ -3857,7 +3828,7 @@
     ]
   },
   {
-    "name": "torch.empty:names",
+    "name": "aten::empty.names",
     "inputs": [
       { "name": "size", "type": "int64[]" },
       { "name": "names", "type": "Dimname[]", "optional": true, "default": null },
@@ -3872,7 +3843,7 @@
     ]
   },
   {
-    "name": "torch.empty:memory_format",
+    "name": "aten::empty.memory_format",
     "inputs": [
       { "name": "size", "type": "int64[]" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
@@ -3886,7 +3857,7 @@
     ]
   },
   {
-    "name": "torch.zeros",
+    "name": "aten::zeros",
     "inputs": [
       { "name": "size", "type": "int64[]" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
@@ -3899,7 +3870,7 @@
     ]
   },
   {
-    "name": "torch.zeros_like",
+    "name": "aten::zeros_like",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
@@ -3913,7 +3884,7 @@
     ]
   },
   {
-    "name": "torch.ones_like",
+    "name": "aten::ones_like",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
@@ -3927,7 +3898,7 @@
     ]
   },
   {
-    "name": "torch.amax:",
+    "name": "aten::amax",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64[]", "default": [] },
@@ -3938,7 +3909,7 @@
     ]
   },
   {
-    "name": "torch.amin:",
+    "name": "aten::amin",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64[]", "default": [] },
@@ -3949,7 +3920,7 @@
     ]
   },
   {
-    "name": "torch._aminmax:",
+    "name": "aten::_aminmax",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -3959,7 +3930,7 @@
     ]
   },
   {
-    "name": "torch._aminmax:dim",
+    "name": "aten::_aminmax.dim",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -3971,7 +3942,7 @@
     ]
   },
   {
-    "name": "torch.aminmax:",
+    "name": "aten::aminmax",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64", "optional": true, "default": null },
@@ -3983,7 +3954,7 @@
     ]
   },
   {
-    "name": "torch.arange:",
+    "name": "aten::arange",
     "inputs": [
       { "name": "end", "type": "Scalar" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
@@ -3996,7 +3967,7 @@
     ]
   },
   {
-    "name": "torch.arange:start",
+    "name": "aten::arange.start",
     "inputs": [
       { "name": "start", "type": "Scalar" },
       { "name": "end", "type": "Scalar" },
@@ -4010,7 +3981,7 @@
     ]
   },
   {
-    "name": "torch.arange:start_step",
+    "name": "aten::arange.start_step",
     "inputs": [
       { "name": "start", "type": "Scalar" },
       { "name": "end", "type": "Scalar" },
@@ -4025,7 +3996,7 @@
     ]
   },
   {
-    "name": "torch.arange:start_out",
+    "name": "aten::arange.start_out",
     "inputs": [
       { "name": "start", "type": "Scalar" },
       { "name": "end", "type": "Scalar" },
@@ -4036,7 +4007,7 @@
     ]
   },
   {
-    "name": "torch.clamp",
+    "name": "aten::clamp",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "min", "type": "Scalar", "optional": true, "default": null },
@@ -4047,7 +4018,7 @@
     ]
   },
   {
-    "name": "torch.clamp_",
+    "name": "aten::clamp_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "min", "type": "Scalar", "optional": true, "default": null },
@@ -4058,7 +4029,7 @@
     ]
   },
   {
-    "name": "torch.clamp_min",
+    "name": "aten::clamp_min",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "min", "type": "Scalar" }
@@ -4068,7 +4039,7 @@
     ]
   },
   {
-    "name": "torch.clamp_min_",
+    "name": "aten::clamp_min_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "min", "type": "Scalar" }
@@ -4078,7 +4049,7 @@
     ]
   },
   {
-    "name": "torch.clamp_max",
+    "name": "aten::clamp_max",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "max", "type": "Scalar" }
@@ -4088,7 +4059,7 @@
     ]
   },
   {
-    "name": "torch.clamp_max_",
+    "name": "aten::clamp_max_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "max", "type": "Scalar" }
@@ -4098,7 +4069,7 @@
     ]
   },
   {
-    "name": "torch.fill_:Scalar",
+    "name": "aten::fill_.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "value", "type": "Scalar" }
@@ -4108,7 +4079,7 @@
     ]
   },
   {
-    "name": "torch.fill_:Tensor",
+    "name": "aten::fill_.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "value", "type": "Tensor" }
@@ -4118,7 +4089,7 @@
     ]
   },
   {
-    "name": "torch.floor",
+    "name": "aten::floor",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -4127,7 +4098,7 @@
     ]
   },
   {
-    "name": "torch.floor_",
+    "name": "aten::floor_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -4136,7 +4107,7 @@
     ]
   },
   {
-    "name": "torch.floor_divide",
+    "name": "aten::floor_divide",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -4146,7 +4117,7 @@
     ]
   },
   {
-    "name": "torch.floor_divide_:Tensor",
+    "name": "aten::floor_divide_.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -4156,7 +4127,7 @@
     ]
   },
   {
-    "name": "torch.floor_divide_:Scalar",
+    "name": "aten::floor_divide_.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Scalar" }
@@ -4166,7 +4137,7 @@
     ]
   },
   {
-    "name": "torch.abs",
+    "name": "aten::abs",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -4175,7 +4146,7 @@
     ]
   },
   {
-    "name": "torch.abs_",
+    "name": "aten::abs_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -4184,7 +4155,7 @@
     ]
   },
   {
-    "name": "torch.leaky_relu_",
+    "name": "aten::leaky_relu_",
     "category": "Activation",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -4195,7 +4166,7 @@
     ]
   },
   {
-    "name": "torch.instance_norm",
+    "name": "aten::instance_norm",
     "category": "Normalization",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -4213,7 +4184,7 @@
     ]
   },
   {
-    "name": "torch.reflection_pad1d",
+    "name": "aten::reflection_pad1d",
     "category": "Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -4224,7 +4195,7 @@
     ]
   },
   {
-    "name": "torch.replication_pad1d",
+    "name": "aten::replication_pad1d",
     "category": "Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -4235,7 +4206,7 @@
     ]
   },
   {
-    "name": "torch.replication_pad2d",
+    "name": "aten::replication_pad2d",
     "category": "Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -4246,7 +4217,7 @@
     ]
   },
   {
-    "name": "torch.replication_pad3d",
+    "name": "aten::replication_pad3d",
     "category": "Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -4257,7 +4228,7 @@
     ]
   },
   {
-    "name": "torch.reflection_pad2d",
+    "name": "aten::reflection_pad2d",
     "category": "Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -4268,7 +4239,7 @@
     ]
   },
   {
-    "name": "torch.reflection_pad3d",
+    "name": "aten::reflection_pad3d",
     "category": "Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -4279,7 +4250,7 @@
     ]
   },
   {
-    "name": "torch.rnn_relu:input",
+    "name": "aten::rnn_relu.input",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -4298,7 +4269,7 @@
     ]
   },
   {
-    "name": "torch.rnn_tanh:input",
+    "name": "aten::rnn_tanh.input",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -4317,7 +4288,7 @@
     ]
   },
   {
-    "name": "torch.roll:",
+    "name": "aten::roll",
     "category": "Layer",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -4329,7 +4300,7 @@
     ]
   },
   {
-    "name": "torch.detach",
+    "name": "aten::detach",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -4338,7 +4309,7 @@
     ]
   },
   {
-    "name": "torch.unique_consecutive:",
+    "name": "aten::unique_consecutive",
     "category": "Layer",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -4353,7 +4324,7 @@
     ]
   },
   {
-    "name": "torch.unique_dim_consecutive:",
+    "name": "aten::unique_dim_consecutive",
     "category": "Layer",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -4368,7 +4339,7 @@
     ]
   },
   {
-    "name": "torch.upsample_bicubic2d:",
+    "name": "aten::upsample_bicubic2d",
     "category": "Layer",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -4382,7 +4353,7 @@
     ]
   },
   {
-    "name": "torch.upsample_bicubic2d:vec",
+    "name": "aten::upsample_bicubic2d.vec",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -4395,7 +4366,7 @@
     ]
   },
   {
-    "name": "torch.upsample_linear1d:",
+    "name": "aten::upsample_linear1d",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "output_size", "type": "int64[]" },
@@ -4407,7 +4378,7 @@
     ]
   },
   {
-    "name": "torch.upsample_linear1d:vec",
+    "name": "aten::upsample_linear1d.vec",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "output_size", "type": "int64[]", "optional": true },
@@ -4419,7 +4390,7 @@
     ]
   },
   {
-    "name": "torch.upsample_bilinear2d:",
+    "name": "aten::upsample_bilinear2d",
     "category": "Layer",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -4433,7 +4404,7 @@
     ]
   },
   {
-    "name": "torch.upsample_bilinear2d:vec",
+    "name": "aten::upsample_bilinear2d.vec",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -4446,7 +4417,7 @@
     ]
   },
   {
-    "name": "torch.upsample_bilinear2d:vec",
+    "name": "aten::upsample_bilinear2d.vec",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -4459,7 +4430,7 @@
     ]
   },
   {
-    "name": "torch.upsample_nearest1d:",
+    "name": "aten::upsample_nearest1d",
     "category": "Layer",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -4471,7 +4442,7 @@
     ]
   },
   {
-    "name": "torch.upsample_nearest1d:vec",
+    "name": "aten::upsample_nearest1d.vec",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -4483,7 +4454,7 @@
     ]
   },
   {
-    "name": "torch.upsample_nearest2d:",
+    "name": "aten::upsample_nearest2d",
     "category": "Layer",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -4496,7 +4467,7 @@
     ]
   },
   {
-    "name": "torch.upsample_nearest2d:vec",
+    "name": "aten::upsample_nearest2d.vec",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -4508,7 +4479,7 @@
     ]
   },
   {
-    "name": "torch.upsample_nearest3d:",
+    "name": "aten::upsample_nearest3d",
     "category": "Layer",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -4522,7 +4493,7 @@
     ]
   },
   {
-    "name": "torch.upsample_nearest3d:vec",
+    "name": "aten::upsample_nearest3d.vec",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -4534,7 +4505,7 @@
     ]
   },
   {
-    "name": "torch.upsample_trilinear3d:",
+    "name": "aten::upsample_trilinear3d",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "output_size", "type": "int64[]" },
@@ -4548,7 +4519,7 @@
     ]
   },
   {
-    "name": "torch.upsample_trilinear3d:vec",
+    "name": "aten::upsample_trilinear3d.vec",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "output_size", "type": "int64[]", "optional": true },
@@ -4560,7 +4531,7 @@
     ]
   },
   {
-    "name": "torch.size",
+    "name": "aten::size",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" }
@@ -4570,7 +4541,7 @@
     ]
   },
   {
-    "name": "torch.exp",
+    "name": "aten::exp",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -4579,7 +4550,7 @@
     ]
   },
   {
-    "name": "torch.exp_",
+    "name": "aten::exp_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -4588,7 +4559,7 @@
     ]
   },
   {
-    "name": "torch.reciprocal",
+    "name": "aten::reciprocal",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -4597,7 +4568,7 @@
     ]
   },
   {
-    "name": "torch.square",
+    "name": "aten::square",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -4606,7 +4577,7 @@
     ]
   },
   {
-    "name": "torch.square_",
+    "name": "aten::square_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -4615,7 +4586,7 @@
     ]
   },
   {
-    "name": "torch.sqrt",
+    "name": "aten::sqrt",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -4624,7 +4595,7 @@
     ]
   },
   {
-    "name": "torch.std:",
+    "name": "aten::std",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "unbiased", "type": "boolean", "default": true }
@@ -4634,7 +4605,7 @@
     ]
   },
   {
-    "name": "torch.std:dim",
+    "name": "aten::std.dim",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64[]" },
@@ -4646,7 +4617,7 @@
     ]
   },
   {
-    "name": "torch.std_mean:",
+    "name": "aten::std_mean",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "unbiased", "type": "boolean", "default": true }
@@ -4656,7 +4627,7 @@
     ]
   },
   {
-    "name": "torch.std_mean:dim",
+    "name": "aten::std_mean.dim",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64[]" },
@@ -4668,7 +4639,7 @@
     ]
   },
   {
-    "name": "torch.erf",
+    "name": "aten::erf",
     "inputs": [
       { "name": "input", "type": "Tensor" }
     ],
@@ -4677,7 +4648,7 @@
     ]
   },
   {
-    "name": "torch.argmin",
+    "name": "aten::argmin",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -4688,7 +4659,7 @@
     ]
   },
   {
-    "name": "torch.argmax",
+    "name": "aten::argmax",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -4699,7 +4670,7 @@
     ]
   },
   {
-    "name": "torch.log",
+    "name": "aten::log",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -4708,7 +4679,7 @@
     ]
   },
   {
-    "name": "torch.log10",
+    "name": "aten::log10",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -4717,7 +4688,7 @@
     ]
   },
   {
-    "name": "torch.log1p",
+    "name": "aten::log1p",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -4726,7 +4697,7 @@
     ]
   },
   {
-    "name": "torch.log2",
+    "name": "aten::log2",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -4735,7 +4706,7 @@
     ]
   },
   {
-    "name": "torch.logdet",
+    "name": "aten::logdet",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -4744,7 +4715,7 @@
     ]
   },
   {
-    "name": "torch.logsumexp:",
+    "name": "aten::logsumexp",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64[]" },
@@ -4755,7 +4726,7 @@
     ]
   },
   {
-    "name": "torch.logsumexp:names",
+    "name": "aten::logsumexp.names",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname" },
@@ -4766,7 +4737,7 @@
     ]
   },
   {
-    "name": "torch.affine_grid_generator",
+    "name": "aten::affine_grid_generator",
     "inputs": [
       { "name": "theta", "type": "Tensor" },
       { "name": "size", "type": "int64[]" },
@@ -4777,7 +4748,7 @@
     ]
   },
   {
-    "name": "torch.__interpolate",
+    "name": "aten::__interpolate",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "size", "type": "int64" },
@@ -4791,7 +4762,7 @@
     ]
   },
   {
-    "name": "torch.rand:",
+    "name": "aten::rand",
     "inputs": [
       { "name": "size", "type": "int64[]" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
@@ -4804,7 +4775,7 @@
     ]
   },
   {
-    "name": "torch.rand:generator",
+    "name": "aten::rand.generator",
     "inputs": [
       { "name": "high", "type": "int64", "optional": true, "default": null },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
@@ -4818,7 +4789,7 @@
     ]
   },
   {
-    "name": "torch.rand_link",
+    "name": "aten::rand_link",
     "inputs": [
       { "name": "size", "type": "int64[]" },
       { "name": "generator", "type": "Generator", "optional": true, "default": null },
@@ -4832,7 +4803,7 @@
     ]
   },
   {
-    "name": "torch.randint:generator",
+    "name": "aten::randint.generator",
     "inputs": [
       { "name": "high", "type": "int64", "optional": true, "default": null },
       { "name": "size", "type": "int64[]" },
@@ -4847,7 +4818,7 @@
     ]
   },
   {
-    "name": "torch.randint:",
+    "name": "aten::randint",
     "inputs": [
       { "name": "high", "type": "int64" },
       { "name": "size", "type": "int64[]" },
@@ -4861,7 +4832,7 @@
     ]
   },
   {
-    "name": "torch.randint:generator",
+    "name": "aten::randint.generator",
     "inputs": [
       { "name": "high", "type": "int64" },
       { "name": "size", "type": "int64[]" },
@@ -4876,7 +4847,7 @@
     ]
   },
   {
-    "name": "torch.randint:low",
+    "name": "aten::randint.low",
     "inputs": [
       { "name": "low", "type": "int64", "optional": true, "default": null },
       { "name": "high", "type": "int64", "optional": true, "default": null },
@@ -4891,7 +4862,7 @@
     ]
   },
   {
-    "name": "torch.randint:low_generator",
+    "name": "aten::randint.low_generator",
     "inputs": [
       { "name": "low", "type": "int64", "optional": true, "default": null },
       { "name": "high", "type": "int64", "optional": true, "default": null },
@@ -4907,7 +4878,7 @@
     ]
   },
   {
-    "name": "torch.randn",
+    "name": "aten::randn",
     "inputs": [
       { "name": "size", "type": "int64[]" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
@@ -4920,7 +4891,7 @@
     ]
   },
   {
-    "name": "torch.unsafe_split:Tensor",
+    "name": "aten::unsafe_split.Tensor",
     "category": "Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -4932,7 +4903,7 @@
     ]
   },
   {
-    "name": "torch._sparse_coo_tensor_unsafe:",
+    "name": "aten::_sparse_coo_tensor_unsafe",
     "category": "Tensor",
     "inputs": [
       { "name": "indices", "type": "Tensor" },
@@ -4948,7 +4919,7 @@
     ]
   },
   {
-    "name": "torch.split:Tensor",
+    "name": "aten::split.Tensor",
     "category": "Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -4960,7 +4931,7 @@
     ]
   },
   {
-    "name": "torch.split:Tensor_sizes",
+    "name": "aten::split.Tensor_sizes",
     "category": "Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -4972,7 +4943,7 @@
     ]
   },
   {
-    "name": "torch.split_with_sizes",
+    "name": "aten::split_with_sizes",
     "category": "Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -4984,7 +4955,7 @@
     ]
   },
   {
-    "name": "torch.remainder:Tensor",
+    "name": "aten::remainder.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -4994,7 +4965,7 @@
     ]
   },
   {
-    "name": "torch.remainder:Scalar",
+    "name": "aten::remainder.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Scalar" }
@@ -5004,7 +4975,7 @@
     ]
   },
   {
-    "name": "torch.remainder_:Tensor",
+    "name": "aten::remainder_.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -5014,7 +4985,7 @@
     ]
   },
   {
-    "name": "torch.remainder_:Scalar",
+    "name": "aten::remainder_.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Scalar" }
@@ -5024,7 +4995,7 @@
     ]
   },
   {
-    "name": "torch.layer_norm",
+    "name": "aten::layer_norm",
     "category": "Normalization",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -5039,7 +5010,7 @@
     ]
   },
   {
-    "name": "torch.scatter:src",
+    "name": "aten::scatter.src",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -5051,7 +5022,7 @@
     ]
   },
   {
-    "name": "torch.scatter_:src",
+    "name": "aten::scatter_.src",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -5063,7 +5034,7 @@
     ]
   },
   {
-    "name": "torch.scatter:value",
+    "name": "aten::scatter.value",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -5075,7 +5046,7 @@
     ]
   },
   {
-    "name": "torch.scatter_:value",
+    "name": "aten::scatter_.value",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -5087,7 +5058,7 @@
     ]
   },
   {
-    "name": "torch.scatter:reduce",
+    "name": "aten::scatter.reduce",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -5100,7 +5071,7 @@
     ]
   },
   {
-    "name": "torch.scatter_:reduce",
+    "name": "aten::scatter_.reduce",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -5113,7 +5084,7 @@
     ]
   },
   {
-    "name": "torch.scatter:value_reduce",
+    "name": "aten::scatter.value_reduce",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -5126,7 +5097,7 @@
     ]
   },
   {
-    "name": "torch.scatter_:value_reduce",
+    "name": "aten::scatter_.value_reduce",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -5139,7 +5110,7 @@
     ]
   },
   {
-    "name": "torch.scatter_add_",
+    "name": "aten::scatter_add_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64"},
@@ -5151,7 +5122,7 @@
     ]
   },
   {
-    "name": "torch.sin",
+    "name": "aten::sin",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -5160,7 +5131,7 @@
     ]
   },
   {
-    "name": "torch.sinh",
+    "name": "aten::sinh",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -5169,7 +5140,7 @@
     ]
   },
   {
-    "name": "torch.cos",
+    "name": "aten::cos",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -5178,7 +5149,7 @@
     ]
   },
   {
-    "name": "torch.cosh",
+    "name": "aten::cosh",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -5187,7 +5158,7 @@
     ]
   },
   {
-    "name": "torch.ctc_loss:IntList",
+    "name": "aten::ctc_loss.IntList",
     "inputs": [
       { "name": "log_probs", "type": "Tensor" },
       { "name": "targets", "type": "Tensor" },
@@ -5202,7 +5173,7 @@
     ]
   },
   {
-    "name": "torch._ctc_loss:",
+    "name": "aten::_ctc_loss",
     "inputs": [
       { "name": "log_probs", "type": "Tensor" },
       { "name": "targets", "type": "Tensor" },
@@ -5217,7 +5188,7 @@
     ]
   },
   {
-    "name": "torch.tan",
+    "name": "aten::tan",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -5226,7 +5197,7 @@
     ]
   },
   {
-    "name": "torch.atan2:Tensor",
+    "name": "aten::atan2.Tensor",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -5236,7 +5207,7 @@
     ]
   },
   {
-    "name": "torch.tan_",
+    "name": "aten::tan_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -5245,7 +5216,7 @@
     ]
   },
   {
-    "name": "torch.tanh",
+    "name": "aten::tanh",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -5254,7 +5225,7 @@
     ]
   },
   {
-    "name": "torch.tanh_",
+    "name": "aten::tanh_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -5263,7 +5234,7 @@
     ]
   },
   {
-    "name": "torch.cdist:",
+    "name": "aten::cdist",
     "inputs": [
       { "name": "x1", "type": "Tensor" },
       { "name": "x2", "type": "Tensor" },
@@ -5275,7 +5246,7 @@
     ]
   },
   {
-    "name": "torch.pdist:",
+    "name": "aten::pdist",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "p", "type": "float32", "default": 2 }
@@ -5285,7 +5256,7 @@
     ]
   },
   {
-    "name": "torch.narrow:",
+    "name": "aten::narrow",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -5297,7 +5268,7 @@
     ]
   },
   {
-    "name": "torch.narrow:Tensor",
+    "name": "aten::narrow.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -5309,7 +5280,7 @@
     ]
   },
   {
-    "name": "torch.narrow_copy",
+    "name": "aten::narrow_copy",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -5321,7 +5292,7 @@
     ]
   },
   {
-    "name": "torch.index_select:",
+    "name": "aten::index_select",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -5332,7 +5303,7 @@
     ]
   },
   {
-    "name": "torch.index_put",
+    "name": "aten::index_put",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "indices", "type": "Tensor[]", "optional": true },
@@ -5344,7 +5315,7 @@
     ]
   },
   {
-    "name": "torch.index_put_",
+    "name": "aten::index_put_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "indices", "type": "Tensor[]", "optional": true },
@@ -5356,7 +5327,7 @@
     ]
   },
   {
-    "name": "torch.new_zeros",
+    "name": "aten::new_zeros",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "size", "type": "int64[]" },
@@ -5370,7 +5341,7 @@
     ]
   },
   {
-    "name": "torch.new_ones:",
+    "name": "aten::new_ones",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "size", "type": "int64[]" },
@@ -5384,7 +5355,7 @@
     ]
   },
   {
-    "name": "torch.new_full",
+    "name": "aten::new_full",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "size", "type": "int64[]" },
@@ -5399,7 +5370,7 @@
     ]
   },
   {
-    "name": "torch.softplus",
+    "name": "aten::softplus",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -5411,7 +5382,7 @@
     ]
   },
   {
-    "name": "torch.zero_",
+    "name": "aten::zero_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -5420,7 +5391,7 @@
     ]
   },
   {
-    "name": "torch.cudnn_convolution_relu:",
+    "name": "aten::cudnn_convolution_relu",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "weight", "type": "Tensor", "optional": true },
@@ -5435,7 +5406,7 @@
     ]
   },
   {
-    "name": "torch.cudnn_convolution_relu:",
+    "name": "aten::cudnn_convolution_relu",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "weight", "type": "Tensor", "optional": true },
@@ -5450,7 +5421,7 @@
     ]
   },
   {
-    "name": "torch.cudnn_convolution_add_relu:",
+    "name": "aten::cudnn_convolution_add_relu",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "weight", "type": "Tensor", "optional": true },
@@ -5467,7 +5438,7 @@
     ]
   },
   {
-    "name": "torch.cumsum:",
+    "name": "aten::cumsum",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -5478,7 +5449,7 @@
     ]
   },
   {
-    "name": "torch.cumsum:dimname",
+    "name": "aten::cumsum.dimname",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname" },
@@ -5489,7 +5460,7 @@
     ]
   },
   {
-    "name": "torch.cumsum_",
+    "name": "aten::cumsum_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -5500,7 +5471,7 @@
     ]
   },
   {
-    "name": "torch.masked_fill:Scalar",
+    "name": "aten::masked_fill.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "mask", "type": "Tensor" },
@@ -5511,7 +5482,7 @@
     ]
   },
   {
-    "name": "torch.masked_fill_:Scalar",
+    "name": "aten::masked_fill_.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "mask", "type": "Tensor" },
@@ -5522,7 +5493,7 @@
     ]
   },
   {
-    "name": "torch.masked_fill:Tensor",
+    "name": "aten::masked_fill.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "mask", "type": "Tensor" },
@@ -5533,7 +5504,7 @@
     ]
   },
   {
-    "name": "torch.masked_fill_:Tensor",
+    "name": "aten::masked_fill_.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "mask", "type": "Tensor" },
@@ -5544,7 +5515,7 @@
     ]
   },
   {
-    "name": "torch.masked_select:",
+    "name": "aten::masked_select",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "mask", "type": "Tensor" }
@@ -5554,7 +5525,7 @@
     ]
   },
   {
-    "name": "torch.argmax",
+    "name": "aten::argmax",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64", "optional": true, "default": null },
@@ -5565,7 +5536,7 @@
     ]
   },
   {
-    "name": "torch.argmin",
+    "name": "aten::argmin",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64", "optional": true, "default": null },
@@ -5576,7 +5547,7 @@
     ]
   },
   {
-    "name": "torch.fft",
+    "name": "aten::fft",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "signal_ndim", "type": "int64" },
@@ -5587,7 +5558,7 @@
     ]
   },
   {
-    "name": "torch.fft_fft2",
+    "name": "aten::fft_fft2",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "s", "s": "int64[]", "optional": true, "default": null },
@@ -5599,7 +5570,7 @@
     ]
   },
   {
-    "name": "torch.fft_ifft2",
+    "name": "aten::fft_ifft2",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "s", "s": "int64[]", "optional": true, "default": null },
@@ -5611,7 +5582,7 @@
     ]
   },
   {
-    "name": "torch.fft_rfft2",
+    "name": "aten::fft_rfft2",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "s", "s": "int64[]", "optional": true, "default": null },
@@ -5623,7 +5594,7 @@
     ]
   },
   {
-    "name": "torch.fft_irfft2",
+    "name": "aten::fft_irfft2",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "s", "s": "int64[]", "optional": true, "default": null },
@@ -5635,7 +5606,7 @@
     ]
   },
   {
-    "name": "torch.fft_hfft2",
+    "name": "aten::fft_hfft2",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "s", "s": "int64[]", "optional": true, "default": null },
@@ -5647,7 +5618,7 @@
     ]
   },
   {
-    "name": "torch.fft_ihfft2",
+    "name": "aten::fft_ihfft2",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "s", "s": "int64[]", "optional": true, "default": null },
@@ -5659,7 +5630,7 @@
     ]
   },
   {
-    "name": "torch.fft_fftn",
+    "name": "aten::fft_fftn",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "s", "s": "int64[]", "optional": true, "default": null },
@@ -5671,7 +5642,7 @@
     ]
   },
   {
-    "name": "torch.fft_ifftn",
+    "name": "aten::fft_ifftn",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "s", "s": "int64[]", "optional": true, "default": null },
@@ -5683,7 +5654,7 @@
     ]
   },
   {
-    "name": "torch.fft_rfftn",
+    "name": "aten::fft_rfftn",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "s", "s": "int64[]", "optional": true, "default": null },
@@ -5695,7 +5666,7 @@
     ]
   },
   {
-    "name": "torch.fft_irfftn",
+    "name": "aten::fft_irfftn",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "s", "s": "int64[]", "optional": true, "default": null },
@@ -5707,7 +5678,7 @@
     ]
   },
   {
-    "name": "torch.fft_hfftn",
+    "name": "aten::fft_hfftn",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "s", "s": "int64[]", "optional": true, "default": null },
@@ -5719,7 +5690,7 @@
     ]
   },
   {
-    "name": "torch.fft_ihfftn",
+    "name": "aten::fft_ihfftn",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "s", "s": "int64[]", "optional": true, "default": null },
@@ -5731,7 +5702,7 @@
     ]
   },
   {
-    "name": "torch.to_mkldnn:",
+    "name": "aten::to_mkldnn",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
@@ -5741,7 +5712,7 @@
     ]
   },
   {
-    "name": "torch.topk:",
+    "name": "aten::topk",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "k", "type": "int64" },
@@ -5755,7 +5726,7 @@
     ]
   },
   {
-    "name": "torch.random_:",
+    "name": "aten::random_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "generator", "type": "Generator", "optional": true, "default": null }
@@ -5765,7 +5736,7 @@
     ]
   },
   {
-    "name": "torch.random_:to",
+    "name": "aten::random_.to",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "to", "type": "int64" },
@@ -5776,7 +5747,7 @@
     ]
   },
   {
-    "name": "torch.random_:from",
+    "name": "aten::random_.from",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "from", "type": "int64" },
@@ -5788,7 +5759,7 @@
     ]
   },
   {
-    "name": "torch.uniform_",
+    "name": "aten::uniform_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "from", "type": "float32", "default": 0 },
@@ -5800,7 +5771,7 @@
     ]
   },
   {
-    "name": "torch.cauchy_",
+    "name": "aten::cauchy_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "median", "type": "float32", "default": 0 },
@@ -5812,7 +5783,7 @@
     ]
   },
   {
-    "name": "torch.log_normal_",
+    "name": "aten::log_normal_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "mean", "type": "float32", "default": 1 },
@@ -5824,7 +5795,7 @@
     ]
   },
   {
-    "name": "torch.exponential_",
+    "name": "aten::exponential_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "lambd", "type": "float32", "default": 1 },
@@ -5835,7 +5806,7 @@
     ]
   },
   {
-    "name": "torch.geometric_",
+    "name": "aten::geometric_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "p", "type": "float32" },
@@ -5846,7 +5817,7 @@
     ]
   },
   {
-    "name": "torch.mv",
+    "name": "aten::mv",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "vec", "type": "Tensor" }
@@ -5856,7 +5827,7 @@
     ]
   },
   {
-    "name": "torch.mvlgamma",
+    "name": "aten::mvlgamma",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "p", "type": "int64" }
@@ -5866,7 +5837,7 @@
     ]
   },
   {
-    "name": "torch.mvlgamma_",
+    "name": "aten::mvlgamma_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "p", "type": "int64" }
@@ -5876,7 +5847,7 @@
     ]
   },
   {
-    "name": "torch.quantize_per_channel",
+    "name": "aten::quantize_per_channel",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "scales", "type": "Tensor" },
@@ -5889,7 +5860,7 @@
     ]
   },
   {
-    "name": "torch._shape_as_tensor",
+    "name": "aten::_shape_as_tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -5898,7 +5869,7 @@
     ]
   },
   {
-    "name": "torch.clone",
+    "name": "aten::clone",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
@@ -5908,7 +5879,7 @@
     ]
   },
   {
-    "name": "torch.im2col",
+    "name": "aten::im2col",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "kernel_size", "type": "int64[]" },
@@ -5921,7 +5892,7 @@
     ]
   },
   {
-    "name": "torch.inverse:",
+    "name": "aten::inverse",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -5930,7 +5901,7 @@
     ]
   },
   {
-    "name": "torch.col2im",
+    "name": "aten::col2im",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "output_size", "type": "int64[]" },
@@ -5944,7 +5915,7 @@
     ]
   },
   {
-    "name": "torch.eq:Tensor",
+    "name": "aten::eq.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -5954,7 +5925,7 @@
     ]
   },
   {
-    "name": "torch.eq:Scalar",
+    "name": "aten::eq.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Scalar" }
@@ -5964,7 +5935,7 @@
     ]
   },
   {
-    "name": "torch.where:self",
+    "name": "aten::where.self",
     "inputs": [
       { "name": "condition", "type": "Tensor" },
       { "name": "self", "type": "Tensor" },
@@ -5975,7 +5946,7 @@
     ]
   },
   {
-    "name": "torch.__and__:Tensor",
+    "name": "aten::__and__.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -5985,7 +5956,7 @@
     ]
   },
   {
-    "name": "torch.__or__:Tensor",
+    "name": "aten::__or__.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -5995,7 +5966,7 @@
     ]
   },
   {
-    "name": "torch.ge:Tensor",
+    "name": "aten::ge.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -6005,7 +5976,7 @@
     ]
   },
   {
-    "name": "torch.ge:Scalar",
+    "name": "aten::ge.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Scalar" }
@@ -6015,7 +5986,7 @@
     ]
   },
   {
-    "name": "torch.lt:Tensor",
+    "name": "aten::lt.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -6025,7 +5996,7 @@
     ]
   },
   {
-    "name": "torch.lt:Scalar",
+    "name": "aten::lt.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Scalar" }
@@ -6035,7 +6006,7 @@
     ]
   },
   {
-    "name": "torch.flip",
+    "name": "aten::flip",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dims", "type": "int64[]" }
@@ -6045,7 +6016,7 @@
     ]
   },
   {
-    "name": "torch.linalg_solve:",
+    "name": "aten::linalg_solve",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -6055,7 +6026,7 @@
     ]
   },
   {
-    "name": "torch.linalg_tensorinv:",
+    "name": "aten::linalg_tensorinv",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "ind", "type": "int64", "default": 2 }
@@ -6065,7 +6036,7 @@
     ]
   },
   {
-    "name": "torch.linalg_tensorsolve:",
+    "name": "aten::linalg_tensorsolve",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" },
@@ -6076,7 +6047,7 @@
     ]
   },
   {
-    "name": "torch.linspace",
+    "name": "aten::linspace",
     "inputs": [
       { "name": "start", "type": "Scalar" },
       { "name": "end", "type": "Scalar" },
@@ -6091,7 +6062,7 @@
     ]
   },
   {
-    "name": "torch.sign",
+    "name": "aten::sign",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -6100,7 +6071,7 @@
     ]
   },
   {
-    "name": "torch.sign_",
+    "name": "aten::sign_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -6109,7 +6080,7 @@
     ]
   },
   {
-    "name": "torch.signbit",
+    "name": "aten::signbit",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -6118,7 +6089,7 @@
     ]
   },
   {
-    "name": "torch.dist",
+    "name": "aten::dist",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" },
@@ -6129,7 +6100,7 @@
     ]
   },
   {
-    "name": "torch.ceil:",
+    "name": "aten::ceil",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -6138,7 +6109,7 @@
     ]
   },
   {
-    "name": "torch.ceil_:",
+    "name": "aten::ceil_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -6147,7 +6118,7 @@
     ]
   },
   {
-    "name": "torch.einsum",
+    "name": "aten::einsum",
     "inputs": [
       { "name": "equation", "type": "string" },
       { "name": "tensors", "type": "Tensor[]" }
@@ -6157,7 +6128,7 @@
     ]
   },
   {
-    "name": "torch.dot",
+    "name": "aten::dot",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "tensor", "type": "Tensor" }
@@ -6167,7 +6138,7 @@
     ]
   },
   {
-    "name": "torch.vdot",
+    "name": "aten::vdot",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -6177,7 +6148,7 @@
     ]
   },
   {
-    "name": "torch.var:",
+    "name": "aten::var",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "unbiased", "type": "boolean", "default": true }
@@ -6187,7 +6158,7 @@
     ]
   },
   {
-    "name": "torch.var:dim",
+    "name": "aten::var.dim",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64[]" },
@@ -6199,7 +6170,7 @@
     ]
   },
   {
-    "name": "torch.var:correction",
+    "name": "aten::var.correction",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64[]", "optional": true },
@@ -6211,7 +6182,7 @@
     ]
   },
   {
-    "name": "torch.var:names_dim",
+    "name": "aten::var.names_dim",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname[]" },
@@ -6223,7 +6194,7 @@
     ]
   },
   {
-    "name": "torch.var:correction_names",
+    "name": "aten::var.correction_names",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname[]" },
@@ -6235,7 +6206,7 @@
     ]
   },
   {
-    "name": "torch.var_mean:",
+    "name": "aten::var_mean",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "unbiased", "type": "boolean", "default": true }
@@ -6246,7 +6217,7 @@
     ]
   },
   {
-    "name": "torch.var_mean:dim",
+    "name": "aten::var_mean.dim",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64[]" },
@@ -6259,7 +6230,7 @@
     ]
   },
   {
-    "name": "torch.alias:",
+    "name": "aten::alias",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -6268,7 +6239,7 @@
     ]
   },
   {
-    "name": "torch.all:",
+    "name": "aten::all",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -6277,7 +6248,7 @@
     ]
   },
   {
-    "name": "torch.all:dim",
+    "name": "aten::all.dim",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -6288,7 +6259,7 @@
     ]
   },
   {
-    "name": "torch.any:",
+    "name": "aten::any",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -6297,7 +6268,7 @@
     ]
   },
   {
-    "name": "torch.any:dim",
+    "name": "aten::any.dim",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
@@ -6308,7 +6279,7 @@
     ]
   },
   {
-    "name": "torch.renorm",
+    "name": "aten::renorm",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "p", "type": "Scalar" },
@@ -6320,7 +6291,7 @@
     ]
   },
   {
-    "name": "torch.unfold",
+    "name": "aten::unfold",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dimension", "type": "int64" },
@@ -6332,7 +6303,7 @@
     ]
   },
   {
-    "name": "torch.fake_quantize_per_channel_affine",
+    "name": "aten::fake_quantize_per_channel_affine",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "scale", "type": "Tensor" },
@@ -6346,7 +6317,7 @@
     ]
   },
   {
-    "name": "torch.fake_quantize_per_tensor_affine",
+    "name": "aten::fake_quantize_per_tensor_affine",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "scale", "type": "float32" },
@@ -6359,7 +6330,7 @@
     ]
   },
   {
-    "name": "torch.addmv",
+    "name": "aten::addmv",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "mat", "type": "Tensor" },
@@ -6372,7 +6343,7 @@
     ]
   },
   {
-    "name": "torch.addmv_",
+    "name": "aten::addmv_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "mat", "type": "Tensor" },
@@ -6385,7 +6356,7 @@
     ]
   },
   {
-    "name": "torch.type_as",
+    "name": "aten::type_as",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -6395,7 +6366,7 @@
     ]
   },
   {
-    "name": "torch.normal_",
+    "name": "aten::normal_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "mean", "type": "float32", "default": 0 },
@@ -6407,7 +6378,7 @@
     ]
   },
   {
-    "name": "torch.normal:Tensor_float",
+    "name": "aten::normal.Tensor_float",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "mean", "type": "float32", "default": 0 },
@@ -6418,7 +6389,7 @@
     ]
   },
   {
-    "name": "torch.normal:float_Tensor",
+    "name": "aten::normal.float_Tensor",
     "inputs": [
       { "name": "mean", "type": "float32" },
       { "name": "std", "type": "Tensor" },
@@ -6429,7 +6400,7 @@
     ]
   },
   {
-    "name": "torch.normal:Tensor_Tensor",
+    "name": "aten::normal.Tensor_Tensor",
     "inputs": [
       { "name": "mean", "type": "Tensor" },
       { "name": "std", "type": "Tensor" },
@@ -6440,7 +6411,7 @@
     ]
   },
   {
-    "name": "torch.normal:float_float",
+    "name": "aten::normal.float_float",
     "inputs": [
       { "name": "mean", "type": "float32", "default": 0 },
       { "name": "std", "type": "float32" },
@@ -6456,7 +6427,7 @@
     ]
   },
   {
-    "name": "torch.empty_like",
+    "name": "aten::empty_like",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
@@ -6470,7 +6441,7 @@
     ]
   },
   {
-    "name": "torch.classes._nnapi.Compilation",
+    "name": "aten::classes._nnapi.Compilation",
     "inputs": [
       { "name": "serialized_model", "type": "Tensor" },
       { "name": "inputs", "type": "Tensor[]" },
@@ -6481,7 +6452,7 @@
     ]
   },
   {
-    "name": "torch.argsort:",
+    "name": "aten::argsort",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64", "default": -1 },
@@ -6492,7 +6463,7 @@
     ]
   },
   {
-    "name": "torch.argsort:dimname",
+    "name": "aten::argsort.dimname",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname" },
@@ -6503,7 +6474,7 @@
     ]
   },
   {
-    "name": "ops._caffe2.CopyGPUToCPU",
+    "name": "_caffe2::CopyGPUToCPU",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "?" }
@@ -6513,7 +6484,7 @@
     ]
   },
   {
-    "name": "ops._caffe2.CopyCPUToGPU",
+    "name": "_caffe2::CopyCPUToGPU",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "?" }
@@ -6523,7 +6494,7 @@
     ]
   },
   {
-    "name": "ops._caffe2.GenerateProposals",
+    "name": "_caffe2::GenerateProposals",
     "inputs": [
       { "name": "scores", "type": "Tensor" },
       { "name": "bbox_deltas", "type": "Tensor" },
@@ -6547,7 +6518,7 @@
     ]
   },
   {
-    "name": "ops._caffe2.CollectRpnProposals",
+    "name": "_caffe2::CollectRpnProposals",
     "inputs": [
       { "name": "input_list", "type": "Tensor[]" },
       { "name": "rpn_max_level", "type": "int64" },
@@ -6560,7 +6531,7 @@
     ]
   },
   {
-    "name": "ops._caffe2.DistributeFpnProposals",
+    "name": "_caffe2::DistributeFpnProposals",
     "inputs": [
       { "name": "rois", "type": "Tensor" },
       { "name": "roi_canonical_scale", "type": "int64" },
@@ -6579,7 +6550,7 @@
     ]
   },
   {
-    "name": "ops._caffe2.RoIAlign",
+    "name": "_caffe2::RoIAlign",
     "inputs": [
       { "name": "features", "type": "Tensor" },
       { "name": "rois", "type": "Tensor" },
@@ -6596,7 +6567,7 @@
     ]
   },
   {
-    "name": "ops._caffe2.BatchPermutation",
+    "name": "_caffe2::BatchPermutation",
     "inputs": [
       { "name": "X", "type": "Tensor" },
       { "name": "indices", "type": "Tensor" },
@@ -6607,7 +6578,7 @@
     ]
   },
   {
-    "name": "ops._caffe2.BBoxTransform",
+    "name": "_caffe2::BBoxTransform",
     "inputs": [
       { "name": "rois", "type": "Tensor" },
       { "name": "deltas", "type": "Tensor" },
@@ -6628,7 +6599,7 @@
     ]
   },
   {
-    "name": "ops._caffe2.BoxWithNMSLimit",
+    "name": "_caffe2::BoxWithNMSLimit",
     "inputs": [
       { "name": "scores", "type": "Tensor" },
       { "name": "boxes", "type": "Tensor" },
@@ -6657,17 +6628,7 @@
     ]
   },
   {
-    "name": "ops.neuron.forward_v2_1",
-    "inputs": [
-      { "name": "input", "type": "Tensor[]" },
-      { "name": "model" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "Tensor" }
-    ]
-  },
-  {
-    "name": "torch.repeat_interleave:Tensor",
+    "name": "aten::repeat_interleave.Tensor",
     "inputs": [
       { "name": "repeats", "type": "Tensor" }
     ],
@@ -6676,7 +6637,7 @@
     ]
   },
   {
-    "name": "torch.repeat_interleave:self_Tensor",
+    "name": "aten::repeat_interleave.self_Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "repeats", "type": "Tensor" },
@@ -6687,7 +6648,7 @@
     ]
   },
   {
-    "name": "torch.repeat_interleave:self_int",
+    "name": "aten::repeat_interleave.self_int",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "repeats", "type": "int64" },
@@ -6698,7 +6659,7 @@
     ]
   },
   {
-    "name": "torch.cpu",
+    "name": "aten::cpu",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -6707,7 +6668,7 @@
     ]
   },
   {
-    "name": "ops.quantized.hardswish",
+    "name": "quantized::hardswish",
     "category": "Activation",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -6719,7 +6680,7 @@
     ]
   },
   {
-    "name": "ops.quantized.celu",
+    "name": "quantized::celu",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -6732,7 +6693,7 @@
     ]
   },
   {
-    "name": "ops.quantized.mul:",
+    "name": "quantized::mul",
     "inputs": [
       { "name": "qa", "type": "Tensor" },
       { "name": "qb", "type": "Tensor" },
@@ -6744,7 +6705,7 @@
     ]
   },
   {
-    "name": "ops.quantized.mul:Scalar",
+    "name": "quantized::mul.Scalar",
     "inputs": [
       { "name": "qa", "type": "Tensor" },
       { "name": "b", "type": "Scalar" }
@@ -6754,7 +6715,7 @@
     ]
   },
   {
-    "name": "ops.quantized.mul:Scalar2",
+    "name": "quantized::mul.Scalar2",
     "inputs": [
       { "name": "b", "type": "Scalar" },
       { "name": "qa", "type": "Tensor" }
@@ -6764,7 +6725,7 @@
     ]
   },
   {
-    "name": "ops.quantized.mul_relu:Scalar",
+    "name": "quantized::mul_relu.Scalar",
     "inputs": [
       { "name": "qa", "type": "Tensor" },
       { "name": "b", "type": "Scalar" }
@@ -6774,7 +6735,7 @@
     ]
   },
   {
-    "name": "ops.quantized.mul_relu:Scalar2",
+    "name": "quantized::mul_relu.Scalar2",
     "inputs": [
       { "name": "b", "type": "Scalar" },
       { "name": "qa", "type": "Tensor" }
@@ -6784,7 +6745,7 @@
     ]
   },
   {
-    "name": "ops.quantized.mul_scalar",
+    "name": "quantized::mul_scalar",
     "inputs": [
       { "name": "qa", "type": "Tensor" },
       { "name": "qb", "type": "Scalar" }
@@ -6794,7 +6755,7 @@
     ]
   },
   {
-    "name": "ops.quantized.mul_scalar_relu",
+    "name": "quantized::mul_scalar_relu",
     "inputs": [
       { "name": "qa", "type": "Tensor" },
       { "name": "qb", "type": "Scalar" }
@@ -6804,7 +6765,7 @@
     ]
   },
   {
-    "name": "ops.quantized.relu6",
+    "name": "quantized::relu6",
     "category": "Activation",
     "inputs": [
       { "name": "qx", "type": "Tensor" },
@@ -6815,7 +6776,7 @@
     ]
   },
   {
-    "name": "ops.quantized.leaky_relu",
+    "name": "quantized::leaky_relu",
     "category": "Activation",
     "inputs": [
       { "name": "qx", "type": "Tensor" },
@@ -6829,7 +6790,7 @@
     ]
   },
   {
-    "name": "ops.quantized.sigmoid",
+    "name": "quantized::sigmoid",
     "category": "Activation",
     "inputs": [
       { "name": "qx", "type": "Tensor" },
@@ -6841,7 +6802,7 @@
     ]
   },
   {
-    "name": "torch.full:names",
+    "name": "aten::full.names",
     "inputs": [
       { "name": "size", "type": "int64[]" },
       { "name": "fill_value", "type": "Scalar" },
@@ -6856,7 +6817,7 @@
     ]
   },
   {
-    "name": "torch.full:",
+    "name": "aten::full",
     "inputs": [
       { "name": "size", "type": "int64[]" },
       { "name": "fill_value", "type": "Scalar" },
@@ -6870,7 +6831,7 @@
     ]
   },
   {
-    "name": "torch.full:out",
+    "name": "aten::full.out",
     "inputs": [
       { "name": "size", "type": "int64[]" },
       { "name": "fill_value", "type": "Scalar" }
@@ -6880,7 +6841,7 @@
     ]
   },
   {
-    "name": "torch.full_like:",
+    "name": "aten::full_like",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "fill_value", "type": "Scalar" },
@@ -6895,7 +6856,7 @@
     ]
   },
   {
-    "name": "torch.new_empty:",
+    "name": "aten::new_empty",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "size", "type": "int64[]" },
@@ -6909,7 +6870,7 @@
     ]
   },
   {
-    "name": "torch.new_empty_strided:",
+    "name": "aten::new_empty_strided",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "size", "type": "int64[]" },
@@ -6924,7 +6885,7 @@
     ]
   },
   {
-    "name": "torch.linear:",
+    "name": "aten::linear",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -6936,7 +6897,7 @@
     ]
   },
   {
-    "name": "torch._thnn_fused_gru_cell",
+    "name": "aten::_thnn_fused_gru_cell",
     "inputs": [
       { "name": "input_gates", "type": "Tensor" },
       { "name": "hidden_gates", "type": "Tensor" },
@@ -6950,7 +6911,7 @@
     ]
   },
   {
-    "name": "torch._thnn_fused_lstm_cell",
+    "name": "aten::_thnn_fused_lstm_cell",
     "inputs": [
       { "name": "input_gates", "type": "Tensor" },
       { "name": "hidden_gates", "type": "Tensor" },
@@ -6965,7 +6926,7 @@
     ]
   },
   {
-    "name": "torch._unique2:",
+    "name": "aten::_unique2",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "sorted", "type": "boolean", "default": false },
@@ -6979,7 +6940,7 @@
     ]
   },
   {
-    "name": "torch._weight_norm",
+    "name": "aten::_weight_norm",
     "inputs": [
       { "name": "v", "type": "Tensor" },
       { "name": "g", "type": "Tensor" },
@@ -6990,7 +6951,7 @@
     ]
   },
   {
-    "name": "torch.requires_grad_",
+    "name": "aten::requires_grad_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "requires_grad", "type": "boolean" }
@@ -7000,7 +6961,7 @@
     ]
   },
   {
-    "name": "torch.stft",
+    "name": "aten::stft",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "n_fft", "type": "int64" },
@@ -7016,7 +6977,7 @@
     ]
   },
   {
-    "name": "torch.istft",
+    "name": "aten::istft",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "n_fft", "type": "int64" },
@@ -7034,7 +6995,7 @@
     ]
   },
   {
-    "name": "torch.unbind:int",
+    "name": "aten::unbind.int",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64", "default": 0 }
@@ -7044,7 +7005,7 @@
     ]
   },
   {
-    "name": "torch.unbind:Dimname",
+    "name": "aten::unbind.Dimname",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname" }
@@ -7054,7 +7015,7 @@
     ]
   },
   {
-    "name": "torch.as_tensor",
+    "name": "aten::as_tensor",
     "inputs": [
       { "name": "data" },
       { "name": "dtype" },
@@ -7065,7 +7026,7 @@
     ]
   },
   {
-    "name": "torch.as_strided:",
+    "name": "aten::as_strided",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "size", "type": "SymInt[]" },
@@ -7077,7 +7038,7 @@
     ]
   },
   {
-    "name": "torch.as_strided_:",
+    "name": "aten::as_strided_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "size", "type": "SymInt[]" },
@@ -7089,7 +7050,7 @@
     ]
   },
   {
-    "name": "torch.tensor",
+    "name": "aten::tensor",
     "inputs": [
       { "name": "data" },
       { "name": "dtype" },
@@ -7101,7 +7062,7 @@
     ]
   },
   {
-    "name": "torch.tensor_split:sections",
+    "name": "aten::tensor_split.sections",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "sections", "type": "int64" },
@@ -7112,7 +7073,7 @@
     ]
   },
   {
-    "name": "torch.tensor_split:indices",
+    "name": "aten::tensor_split.indices",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "indices", "type": "int64[]" },
@@ -7123,7 +7084,7 @@
     ]
   },
   {
-    "name": "torch.tensor_split:tensor_indices_or_sections",
+    "name": "aten::tensor_split.Tensor_indices_or_sections",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "tensor_indices_or_sections", "type": "Tensor" },
@@ -7134,7 +7095,7 @@
     ]
   },
   {
-    "name": "torch.__upsample:",
+    "name": "aten::__upsample",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -7148,7 +7109,7 @@
     ]
   },
   {
-    "name": "torch.__upsample:size_list",
+    "name": "aten::__upsample.size_list",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -7162,7 +7123,7 @@
     ]
   },
   {
-    "name": "torch.triu_",
+    "name": "aten::triu_",
     "category": "Layer",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -7173,7 +7134,7 @@
     ]
   },
   {
-    "name": "torch.triu:out",
+    "name": "aten::triu.out",
     "category": "Layer",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -7184,7 +7145,7 @@
     ]
   },
   {
-    "name": "torch.tril",
+    "name": "aten::tril",
     "category": "Layer",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -7195,7 +7156,7 @@
     ]
   },
   {
-    "name": "torch.tril_indices",
+    "name": "aten::tril_indices",
     "category": "Layer",
     "inputs": [
       { "name": "row", "type": "int64" },
@@ -7211,7 +7172,7 @@
     ]
   },
   {
-    "name": "torch.view_as_real",
+    "name": "aten::view_as_real",
     "category": "Layer",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -7221,7 +7182,7 @@
     ]
   },
   {
-    "name": "torch.view_as_complex",
+    "name": "aten::view_as_complex",
     "category": "Layer",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -7231,34 +7192,7 @@
     ]
   },
   {
-    "name": "ops.torchvision.nms",
-    "inputs": [
-      { "name": "dets", "type": "Tensor" },
-      { "name": "scores", "type": "Tensor" },
-      { "name": "iou_threshold", "type": "float32" }
-
-    ],
-    "outputs": [
-      { "name": "output", "type": "Tensor" }
-    ]
-  },
-  {
-    "name": "ops.torchvision.roi_align",
-    "inputs": [
-      { "name": "input", "type": "Tensor" },
-      { "name": "rois", "type": "Tensor" },
-      { "name": "spatial_scale", "type": "float32" },
-      { "name": "pooled_height", "type": "int64" },
-      { "name": "pooled_width", "type": "int64" },
-      { "name": "sampling_ratio", "type": "int64" },
-      { "name": "aligned", "type": "boolean" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "Tensor" }
-    ]
-  },
-  {
-    "name": "torch.__xor__:Scalar",
+    "name": "aten::__xor__.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Scalar" }
@@ -7268,7 +7202,7 @@
     ]
   },
   {
-    "name": "torch.__xor__:Tensor",
+    "name": "aten::__xor__.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -7278,7 +7212,7 @@
     ]
   },
   {
-    "name": "torch.__lshift__:Scalar",
+    "name": "aten::__lshift__.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Scalar" }
@@ -7288,7 +7222,7 @@
     ]
   },
   {
-    "name": "torch.__lshift__:Tensor",
+    "name": "aten::__lshift__.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -7298,7 +7232,7 @@
     ]
   },
   {
-    "name": "torch.__rshift__:Scalar",
+    "name": "aten::__rshift__.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Scalar" }
@@ -7308,7 +7242,7 @@
     ]
   },
   {
-    "name": "torch.__rshift__:Tensor",
+    "name": "aten::__rshift__.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -7318,7 +7252,7 @@
     ]
   },
   {
-    "name": "torch.__ixor__:Scalar",
+    "name": "aten::__ixor__.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Scalar" }
@@ -7328,7 +7262,7 @@
     ]
   },
   {
-    "name": "torch.__ixor__:Tensor",
+    "name": "aten::__ixor__.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -7338,7 +7272,7 @@
     ]
   },
   {
-    "name": "torch.__ilshift__:Scalar",
+    "name": "aten::__ilshift__.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Scalar" }
@@ -7348,7 +7282,7 @@
     ]
   },
   {
-    "name": "torch.__ilshift__:Tensor",
+    "name": "aten::__ilshift__.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -7358,7 +7292,7 @@
     ]
   },
   {
-    "name": "torch.__irshift__:Scalar",
+    "name": "aten::__irshift__.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Scalar" }
@@ -7368,7 +7302,7 @@
     ]
   },
   {
-    "name": "torch.__irshift__:Tensor",
+    "name": "aten::__irshift__.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
@@ -7378,7 +7312,7 @@
     ]
   },
   {
-    "name": "torch.one_hot:",
+    "name": "aten::one_hot",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "num_classes", "type": "int64", "default": -1 }
@@ -7388,7 +7322,7 @@
     ]
   },
   {
-    "name": "torch.hann_window:",
+    "name": "aten::hann_window",
     "inputs": [
       { "name": "window_length", "type": "int64" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
@@ -7401,7 +7335,7 @@
     ]
   },
   {
-    "name": "torch.hann_window:periodic",
+    "name": "aten::hann_window.periodic",
     "inputs": [
       { "name": "window_length", "type": "int64" },
       { "name": "periodic", "type": "boolean" },
@@ -7415,7 +7349,7 @@
     ]
   },
   {
-    "name": "torch.nonzero_numpy",
+    "name": "aten::nonzero_numpy",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -7424,7 +7358,7 @@
     ]
   },
   {
-    "name": "torch._dim_arange:",
+    "name": "aten::_dim_arange",
     "inputs": [
       { "name": "like", "type": "Tensor" },
       { "name": "dim", "type": "int64" }
@@ -7434,7 +7368,7 @@
     ]
   },
   {
-    "name": "torch.cross:",
+    "name": "aten::cross",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" },
@@ -7445,7 +7379,7 @@
     ]
   },
    {
-    "name": "torch.cross:out",
+    "name": "aten::cross.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" },
@@ -7456,7 +7390,7 @@
     ]
   },
   {
-    "name": "torch.cross_entropy_loss",
+    "name": "aten::cross_entropy_loss",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "target", "type": "Tensor" },
@@ -7470,13 +7404,63 @@
     ]
   },
   {
-    "name": "torch.binary_cross_entropy_with_logits",
+    "name": "aten::binary_cross_entropy_with_logits",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "target", "type": "Tensor" },
       { "name": "weight", "type": "Tensor", "optional": true, "default": null },
       { "name": "pos_weight", "type": "Tensor", "optional": true, "default": null },
       { "name": "reduction", "type": "int64" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "neuron::forward_v2_1",
+    "inputs": [
+      { "name": "input", "type": "Tensor[]" },
+      { "name": "model" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torchaudio::sox_effects_apply_effects_tensor",
+    "inputs": [
+      { "name": "tensor", "type": "Tensor" },
+      { "name": "sample_rate", "type": "int64" },
+      { "name": "effects", "type": "string[][]" },
+      { "name": "channels_first", "type": "boolean", "default": true }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" },
+      { "name": "?", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torchvision::nms",
+    "inputs": [
+      { "name": "dets", "type": "Tensor" },
+      { "name": "scores", "type": "Tensor" },
+      { "name": "iou_threshold", "type": "float32" }
+
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torchvision::roi_align",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "rois", "type": "Tensor" },
+      { "name": "spatial_scale", "type": "float32" },
+      { "name": "pooled_height", "type": "int64" },
+      { "name": "pooled_width", "type": "int64" },
+      { "name": "sampling_ratio", "type": "int64" },
+      { "name": "aligned", "type": "boolean" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }

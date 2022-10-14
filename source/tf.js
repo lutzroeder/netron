@@ -339,13 +339,15 @@ tf.ModelFactory = class {
                         return context.request('pytorch-metadata.json', 'utf-8', null).then((data) => {
                             const metadata = new Map();
                             for (const item of JSON.parse(data)) {
-                                const index = item.name.indexOf(':');
-                                const key = (index !== -1) ? item.name.substring(0, index) : item.name;
-                                const name = key.replace(/^torch\./, 'aten::');
-                                if (!metadata.has(name)) {
-                                    metadata.set(name, []);
+                                const name = item.name;
+                                if (name.indexOf('::') !== -1) {
+                                    const index = name.indexOf('.');
+                                    const key = (index !== -1) ? name.substring(0, index) : name;
+                                    if (!metadata.has(key)) {
+                                        metadata.set(key, []);
+                                    }
+                                    metadata.get(key).push(item);
                                 }
-                                metadata.get(name).push(item);
                             }
                             for (const meta_graph of saved_model.meta_graphs) {
                                 for (const node of meta_graph.graph_def.node) {
