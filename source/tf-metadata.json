@@ -9169,6 +9169,13 @@
   {
     "name": "ConfigureAndInitializeGlobalTPU",
     "summary": "An op that sets up the centralized structures for a distributed TPU system.",
+    "attributes": [
+      {
+        "name": "use_tfrt_host_runtime",
+        "type": "boolean",
+        "default": true
+      }
+    ],
     "outputs": [
       {
         "name": "output",
@@ -56410,7 +56417,7 @@
   {
     "name": "TensorArrayConcatV3",
     "summary": "Concat the elements from the TensorArray into value `value`.",
-    "description": "Takes `T` elements of shapes\n\n  ```\n  (n0 x d0 x d1 x ...), (n1 x d0 x d1 x ...), ..., (n(T-1) x d0 x d1 x ...)\n  ```\n\nand concatenates them into a Tensor of shape:\n\n  ```(n0 + n1 + ... + n(T-1) x d0 x d1 x ...)```\n\nAll elements must have the same shape (excepting the first dimension).",
+    "description": "Takes `T` elements of shapes\n\n  ```\n  (n0 x d0 x d1 x ...), (n1 x d0 x d1 x ...), ..., (n(T-1) x d0 x d1 x ...)\n  ```\n\nand concatenates them into a Tensor of shape:\n\n  ```\n  (n0 + n1 + ... + n(T-1) x d0 x d1 x ...)\n  ```\n\nAll elements must have the same shape (excepting the first dimension).",
     "attributes": [
       {
         "name": "dtype",
