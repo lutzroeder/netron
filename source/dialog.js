@@ -814,7 +814,7 @@ dialog.DocumentationSidebar = class extends dialog.Control {
         if (!this._elements) {
             this._elements = [];
 
-            const type = dialog.Documentationdialog.formatDocumentation(this._type);
+            const type = dialog.DocumentationSidebar.formatDocumentation(this._type);
 
             const element = this._host.document.createElement('div');
             element.setAttribute('class', 'sidebar-view-documentation');
