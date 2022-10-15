@@ -10,7 +10,7 @@ var xml = xml || require('./xml');
 var protobuf = protobuf || require('./protobuf');
 var flatbuffers = flatbuffers || require('./flatbuffers');
 var python = python || require('./python');
-var sidebar = sidebar || require('./view-sidebar');
+var dialog = dialog || require('./dialog');
 var grapher = grapher || require('./grapher');
 
 view.View = class {
@@ -29,7 +29,7 @@ view.View = class {
             this._model = null;
             this._graphs = [];
             this._selection = [];
-            this._sidebar = new sidebar.Sidebar(this._host, id);
+            this._sidebar = new dialog.Sidebar(this._host, id);
             this._searchText = '';
             this._modelFactoryService = new view.ModelFactoryService(this._host);
             this._getElementById('zoom-in-button').addEventListener('click', () => {
@@ -119,7 +119,7 @@ view.View = class {
         if (this._graph) {
             this.clearSelection();
             const graphElement = this._getElementById('canvas');
-            const view = new sidebar.FindSidebar(this._host, graphElement, this._graph);
+            const view = new dialog.FindSidebar(this._host, graphElement, this._graph);
             view.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
             });
@@ -737,7 +737,7 @@ view.View = class {
     showModelProperties() {
         if (this._model) {
             try {
-                const modelSidebar = new sidebar.ModelSidebar(this._host, this._model, this.activeGraph);
+                const modelSidebar = new dialog.ModelSidebar(this._host, this._model, this.activeGraph);
                 modelSidebar.on('update-active-graph', (sender, graph) => {
                     this._updateActiveGraph(graph);
                 });
@@ -757,7 +757,7 @@ view.View = class {
     showNodeProperties(node, input) {
         if (node) {
             try {
-                const nodeSidebar = new sidebar.NodeSidebar(this._host, node);
+                const nodeSidebar = new dialog.NodeSidebar(this._host, node);
                 nodeSidebar.on('show-documentation', (/* sender, e */) => {
                     this.showDocumentation(node.type);
                 });
@@ -812,7 +812,7 @@ view.View = class {
             if (type.nodes && type.nodes.length > 0) {
                 this.pushGraph(type);
             }
-            const documentationSidebar = new sidebar.DocumentationSidebar(this._host, type);
+            const documentationSidebar = new dialog.DocumentationSidebar(this._host, type);
             documentationSidebar.on('navigate', (sender, e) => {
                 this._host.openURL(e.link);
             });
@@ -1061,7 +1061,7 @@ view.Node = class extends grapher.Node {
                     if (type.shape.dimensions.length === 0 && argument.initializer) {
                         try {
                             const initializer = argument.initializer;
-                            const tensor = new sidebar.Tensor(initializer);
+                            const tensor = new dialog.Tensor(initializer);
                             if ((tensor.layout === '<' || tensor.layout === '>' || tensor.layout === '|') && !tensor.empty && tensor.type.dataType !== '?') {
                                 shape = tensor.toString();
                                 if (shape && shape.length > 10) {
@@ -1091,7 +1091,7 @@ view.Node = class extends grapher.Node {
 
             for (const attribute of sortedAttributes) {
                 if (attribute.visible) {
-                    let value = new sidebar.Formatter(attribute.value, attribute.type).toString();
+                    let value = new dialog.Formatter(attribute.value, attribute.type).toString();
                     if (value && value.length > 25) {
                         value = value.substring(0, 25) + '\u2026';
                     }

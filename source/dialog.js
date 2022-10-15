@@ -1,8 +1,8 @@
 
-var sidebar = sidebar || {};
+var dialog = dialog || {};
 var base = base || require('./base');
 
-sidebar.Sidebar = class {
+dialog.Sidebar = class {
 
     constructor(host, id) {
         this._host = host;
@@ -122,7 +122,7 @@ sidebar.Sidebar = class {
     }
 };
 
-sidebar.Control = class {
+dialog.Control = class {
 
     on(event, callback) {
         this._events = this._events || {};
@@ -139,7 +139,7 @@ sidebar.Control = class {
     }
 };
 
-sidebar.NodeSidebar = class extends sidebar.Control {
+dialog.NodeSidebar = class extends dialog.Control {
 
     constructor(host, node) {
         super();
@@ -160,26 +160,26 @@ sidebar.NodeSidebar = class extends sidebar.Control {
                     this._raise('show-documentation', null);
                 };
             }
-            this._addProperty('type', new sidebar.ValueTextView(this._host, node.type.name, showDocumentation));
+            this._addProperty('type', new dialog.ValueTextView(this._host, node.type.name, showDocumentation));
             if (node.type.module) {
-                this._addProperty('module', new sidebar.ValueTextView(this._host, node.type.module));
+                this._addProperty('module', new dialog.ValueTextView(this._host, node.type.module));
             }
         }
 
         if (node.name) {
-            this._addProperty('name', new sidebar.ValueTextView(this._host, node.name));
+            this._addProperty('name', new dialog.ValueTextView(this._host, node.name));
         }
 
         if (node.location) {
-            this._addProperty('location', new sidebar.ValueTextView(this._host, node.location));
+            this._addProperty('location', new dialog.ValueTextView(this._host, node.location));
         }
 
         if (node.description) {
-            this._addProperty('description', new sidebar.ValueTextView(this._host, node.description));
+            this._addProperty('description', new dialog.ValueTextView(this._host, node.description));
         }
 
         if (node.device) {
-            this._addProperty('device', new sidebar.ValueTextView(this._host, node.device));
+            this._addProperty('device', new dialog.ValueTextView(this._host, node.device));
         }
 
         const attributes = node.attributes;
@@ -229,30 +229,30 @@ sidebar.NodeSidebar = class extends sidebar.Control {
     }
 
     _addProperty(name, value) {
-        const item = new sidebar.NameValueView(this._host, name, value);
+        const item = new dialog.NameValueView(this._host, name, value);
         this._elements.push(item.render());
     }
 
     _addAttribute(name, attribute) {
-        const item = new sidebar.AttributeView(this._host, attribute);
+        const item = new dialog.AttributeView(this._host, attribute);
         item.on('show-graph', (sender, graph) => {
             this._raise('show-graph', graph);
         });
-        const view = new sidebar.NameValueView(this._host, name, item);
+        const view = new dialog.NameValueView(this._host, name, item);
         this._attributes.push(view);
         this._elements.push(view.render());
     }
 
     _addInput(name, input) {
         if (input.arguments.length > 0) {
-            const view = new sidebar.ParameterView(this._host, input);
+            const view = new dialog.ParameterView(this._host, input);
             view.on('export-tensor', (sender, tensor) => {
                 this._raise('export-tensor', tensor);
             });
             view.on('error', (sender, tensor) => {
                 this._raise('error', tensor);
             });
-            const item = new sidebar.NameValueView(this._host, name, view);
+            const item = new dialog.NameValueView(this._host, name, view);
             this._inputs.push(item);
             this._elements.push(item.render());
         }
@@ -260,7 +260,7 @@ sidebar.NodeSidebar = class extends sidebar.Control {
 
     _addOutput(name, output) {
         if (output.arguments.length > 0) {
-            const item = new sidebar.NameValueView(this._host, name, new sidebar.ParameterView(this._host, output));
+            const item = new dialog.NameValueView(this._host, name, new dialog.ParameterView(this._host, output));
             this._outputs.push(item);
             this._elements.push(item.render());
         }
@@ -275,7 +275,7 @@ sidebar.NodeSidebar = class extends sidebar.Control {
     }
 };
 
-sidebar.NameValueView = class {
+dialog.NameValueView = class {
 
     constructor(host, name, value) {
         this._host = host;
@@ -318,7 +318,7 @@ sidebar.NameValueView = class {
     }
 };
 
-sidebar.SelectView = class extends sidebar.Control {
+dialog.SelectView = class extends dialog.Control {
 
     constructor(host, values, selected) {
         super();
@@ -348,7 +348,7 @@ sidebar.SelectView = class extends sidebar.Control {
     }
 };
 
-sidebar.ValueTextView = class {
+dialog.ValueTextView = class {
 
     constructor(host, value, action) {
         this._host = host;
@@ -386,7 +386,7 @@ sidebar.ValueTextView = class {
     }
 };
 
-sidebar.ValueView = class extends sidebar.Control {
+dialog.ValueView = class extends dialog.Control {
 
     _bold(name, value) {
         const line = this._host.document.createElement('div');
@@ -408,7 +408,7 @@ sidebar.ValueView = class extends sidebar.Control {
     _tensor(value) {
         const contentLine = this._host.document.createElement('pre');
         try {
-            const tensor = new sidebar.Tensor(value);
+            const tensor = new dialog.Tensor(value);
             const layout = tensor.layout;
             if (layout) {
                 const layouts = new Map([
@@ -462,7 +462,7 @@ sidebar.ValueView = class extends sidebar.Control {
     }
 };
 
-sidebar.AttributeView = class extends sidebar.ValueView {
+dialog.AttributeView = class extends dialog.ValueView {
 
     constructor(host, attribute) {
         super();
@@ -504,7 +504,7 @@ sidebar.AttributeView = class extends sidebar.ValueView {
                 break;
             }
             default: {
-                let content = new sidebar.Formatter(value, type).toString();
+                let content = new dialog.Formatter(value, type).toString();
                 if (content && content.length > 1000) {
                     content = content.substring(0, 1000) + '\u2026';
                 }
@@ -556,7 +556,7 @@ sidebar.AttributeView = class extends sidebar.ValueView {
     }
 };
 
-sidebar.ParameterView = class extends sidebar.Control {
+dialog.ParameterView = class extends dialog.Control {
 
     constructor(host, list) {
         super();
@@ -564,7 +564,7 @@ sidebar.ParameterView = class extends sidebar.Control {
         this._elements = [];
         this._items = [];
         for (const argument of list.arguments) {
-            const item = new sidebar.ArgumentView(host, argument);
+            const item = new dialog.ArgumentView(host, argument);
             item.on('export-tensor', (sender, tensor) => {
                 this._raise('export-tensor', tensor);
             });
@@ -587,7 +587,7 @@ sidebar.ParameterView = class extends sidebar.Control {
     }
 };
 
-sidebar.ArgumentView = class extends sidebar.ValueView {
+dialog.ArgumentView = class extends dialog.ValueView {
 
     constructor(host, argument) {
         super();
@@ -700,7 +700,7 @@ sidebar.ArgumentView = class extends sidebar.ValueView {
     }
 };
 
-sidebar.ModelSidebar = class extends sidebar.Control {
+dialog.ModelSidebar = class extends dialog.Control {
 
     constructor(host, model, graph) {
         super();
@@ -709,37 +709,37 @@ sidebar.ModelSidebar = class extends sidebar.Control {
         this._elements = [];
 
         if (model.format) {
-            this._addProperty('format', new sidebar.ValueTextView(this._host, model.format));
+            this._addProperty('format', new dialog.ValueTextView(this._host, model.format));
         }
         if (model.producer) {
-            this._addProperty('producer', new sidebar.ValueTextView(this._host, model.producer));
+            this._addProperty('producer', new dialog.ValueTextView(this._host, model.producer));
         }
         if (model.name) {
-            this._addProperty('name', new sidebar.ValueTextView(this._host, model.name));
+            this._addProperty('name', new dialog.ValueTextView(this._host, model.name));
         }
         if (model.version) {
-            this._addProperty('version', new sidebar.ValueTextView(this._host, model.version));
+            this._addProperty('version', new dialog.ValueTextView(this._host, model.version));
         }
         if (model.description) {
-            this._addProperty('description', new sidebar.ValueTextView(this._host, model.description));
+            this._addProperty('description', new dialog.ValueTextView(this._host, model.description));
         }
         if (model.domain) {
-            this._addProperty('domain', new sidebar.ValueTextView(this._host, model.domain));
+            this._addProperty('domain', new dialog.ValueTextView(this._host, model.domain));
         }
         if (model.imports) {
-            this._addProperty('imports', new sidebar.ValueTextView(this._host, model.imports));
+            this._addProperty('imports', new dialog.ValueTextView(this._host, model.imports));
         }
         if (model.runtime) {
-            this._addProperty('runtime', new sidebar.ValueTextView(this._host, model.runtime));
+            this._addProperty('runtime', new dialog.ValueTextView(this._host, model.runtime));
         }
         if (model.metadata) {
             for (const entry of model.metadata) {
-                this._addProperty(entry.name, new sidebar.ValueTextView(this._host, entry.value));
+                this._addProperty(entry.name, new dialog.ValueTextView(this._host, entry.value));
             }
         }
         const graphs = Array.isArray(model.graphs) ? model.graphs : [];
         if (graphs.length > 1) {
-            const graphSelector = new sidebar.SelectView(this._host, model.graphs, graph);
+            const graphSelector = new dialog.SelectView(this._host, model.graphs, graph);
             graphSelector.on('change', (sender, data) => {
                 this._raise('update-active-graph', data);
             });
@@ -748,16 +748,16 @@ sidebar.ModelSidebar = class extends sidebar.Control {
 
         if (graph) {
             if (graph.version) {
-                this._addProperty('version', new sidebar.ValueTextView(this._host, graph.version));
+                this._addProperty('version', new dialog.ValueTextView(this._host, graph.version));
             }
             if (graph.type) {
-                this._addProperty('type', new sidebar.ValueTextView(this._host, graph.type));
+                this._addProperty('type', new dialog.ValueTextView(this._host, graph.type));
             }
             if (graph.tags) {
-                this._addProperty('tags', new sidebar.ValueTextView(this._host, graph.tags));
+                this._addProperty('tags', new dialog.ValueTextView(this._host, graph.tags));
             }
             if (graph.description) {
-                this._addProperty('description', new sidebar.ValueTextView(this._host, graph.description));
+                this._addProperty('description', new dialog.ValueTextView(this._host, graph.description));
             }
             if (Array.isArray(graph.inputs) && graph.inputs.length > 0) {
                 this._addHeader('Inputs');
@@ -790,19 +790,19 @@ sidebar.ModelSidebar = class extends sidebar.Control {
     }
 
     _addProperty(name, value) {
-        const item = new sidebar.NameValueView(this._host, name, value);
+        const item = new dialog.NameValueView(this._host, name, value);
         this._elements.push(item.render());
     }
 
     addArgument(name, argument) {
-        const view = new sidebar.ParameterView(this._host, argument);
+        const view = new dialog.ParameterView(this._host, argument);
         view.toggle();
-        const item = new sidebar.NameValueView(this._host, name, view);
+        const item = new dialog.NameValueView(this._host, name, view);
         this._elements.push(item.render());
     }
 };
 
-sidebar.DocumentationSidebar = class extends sidebar.Control {
+dialog.DocumentationSidebar = class extends dialog.Control {
 
     constructor(host, type) {
         super();
@@ -814,7 +814,7 @@ sidebar.DocumentationSidebar = class extends sidebar.Control {
         if (!this._elements) {
             this._elements = [];
 
-            const type = sidebar.DocumentationSidebar.formatDocumentation(this._type);
+            const type = dialog.Documentationdialog.formatDocumentation(this._type);
 
             const element = this._host.document.createElement('div');
             element.setAttribute('class', 'sidebar-view-documentation');
@@ -1103,7 +1103,7 @@ sidebar.DocumentationSidebar = class extends sidebar.Control {
     }
 };
 
-sidebar.FindSidebar = class extends sidebar.Control {
+dialog.FindSidebar = class extends dialog.Control {
 
     constructor(host, element, graph) {
         super();
@@ -1309,7 +1309,7 @@ sidebar.FindSidebar = class extends sidebar.Control {
     }
 };
 
-sidebar.Tensor = class {
+dialog.Tensor = class {
 
     constructor(tensor) {
         this._tensor = tensor;
@@ -1352,7 +1352,7 @@ sidebar.Tensor = class {
                 break;
             }
         }
-        sidebar.Tensor.dataTypes = sidebar.Tensor.dataTypeSizes || new Map([
+        dialog.Tensor.dataTypes = dialog.Tensor.dataTypeSizes || new Map([
             [ 'boolean', 1 ],
             [ 'qint8', 1 ], [ 'qint16', 2 ], [ 'qint32', 4 ],
             [ 'quint8', 1 ], [ 'quint16', 2 ], [ 'quint32', 4 ],
@@ -1418,11 +1418,11 @@ sidebar.Tensor = class {
             case '<':
             case '>': {
                 const value = this._decodeData(context, 0);
-                return sidebar.Tensor._stringify(value, '', '    ');
+                return dialog.Tensor._stringify(value, '', '    ');
             }
             case '|': {
                 const value = this._decodeValues(context, 0);
-                return sidebar.Tensor._stringify(value, '', '    ');
+                return dialog.Tensor._stringify(value, '', '    ');
             }
             default: {
                 throw new Error("Unsupported tensor format '" + this._format + "'.");
@@ -1445,8 +1445,8 @@ sidebar.Tensor = class {
             case '>': {
                 context.data = (this._data instanceof Uint8Array || this._data instanceof Int8Array) ? this._data : this._data.peek();
                 context.view = new DataView(context.data.buffer, context.data.byteOffset, context.data.byteLength);
-                if (sidebar.Tensor.dataTypes.has(dataType)) {
-                    context.itemsize = sidebar.Tensor.dataTypes.get(dataType);
+                if (dialog.Tensor.dataTypes.has(dataType)) {
+                    context.itemsize = dialog.Tensor.dataTypes.get(dataType);
                     if (context.data.length < (context.itemsize * size)) {
                         throw new Error('Invalid tensor data size.');
                     }
@@ -1468,7 +1468,7 @@ sidebar.Tensor = class {
             }
             case '|': {
                 context.data = this._values;
-                if (!sidebar.Tensor.dataTypes.has(dataType) && dataType !== 'string' && dataType !== 'object') {
+                if (!dialog.Tensor.dataTypes.has(dataType) && dataType !== 'string' && dataType !== 'object') {
                     throw new Error("Tensor data type '" + dataType + "' is not implemented.");
                 }
                 if (size !== this._values.length) {
@@ -1477,15 +1477,15 @@ sidebar.Tensor = class {
                 break;
             }
             case 'sparse': {
-                const indices = new sidebar.Tensor(this._indices).value;
-                const values = new sidebar.Tensor(this._values).value;
+                const indices = new dialog.Tensor(this._indices).value;
+                const values = new dialog.Tensor(this._values).value;
                 context.data = this._decodeSparse(dataType, context.dimensions, indices, values);
                 context.layout = '|';
                 break;
             }
             case 'sparse.coo': {
-                const values = new sidebar.Tensor(this._values).value;
-                const data = new sidebar.Tensor(this._indices).value;
+                const values = new dialog.Tensor(this._values).value;
+                const data = new dialog.Tensor(this._indices).value;
                 const dimensions = context.dimensions.length;
                 let stride = 1;
                 const strides = context.dimensions.slice().reverse().map((dim) => {
@@ -1506,7 +1506,7 @@ sidebar.Tensor = class {
                 break;
             }
             default: {
-                throw new sidebar.Tensor("Unsupported tensor layout '" + this._layout + "'.");
+                throw new dialog.Tensor("Unsupported tensor layout '" + this._layout + "'.");
             }
         }
         context.index = 0;
@@ -1711,7 +1711,7 @@ sidebar.Tensor = class {
         if (Array.isArray(value)) {
             const result = [];
             result.push(indentation + '[');
-            const items = value.map((item) => sidebar.Tensor._stringify(item, indentation + indent, indent));
+            const items = value.map((item) => dialog.Tensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
                 result.push(items.join(',\n'));
             }
@@ -1746,7 +1746,7 @@ sidebar.Tensor = class {
     }
 };
 
-sidebar.Formatter = class {
+dialog.Formatter = class {
 
     constructor(value, type, quote) {
         this._value = value;
@@ -2595,11 +2595,11 @@ markdown.Generator = class {
 };
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.Sidebar = sidebar.Sidebar;
-    module.exports.ModelSidebar = sidebar.ModelSidebar;
-    module.exports.NodeSidebar = sidebar.NodeSidebar;
-    module.exports.DocumentationSidebar = sidebar.DocumentationSidebar;
-    module.exports.FindSidebar = sidebar.FindSidebar;
-    module.exports.Tensor = sidebar.Tensor;
-    module.exports.Formatter = sidebar.Formatter;
+    module.exports.Sidebar = dialog.Sidebar;
+    module.exports.ModelSidebar = dialog.ModelSidebar;
+    module.exports.NodeSidebar = dialog.NodeSidebar;
+    module.exports.DocumentationSidebar = dialog.DocumentationSidebar;
+    module.exports.FindSidebar = dialog.FindSidebar;
+    module.exports.Tensor = dialog.Tensor;
+    module.exports.Formatter = dialog.Formatter;
 }
