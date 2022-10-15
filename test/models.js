@@ -11,7 +11,6 @@ const flatbuffers = require('../source/flatbuffers');
 const dialog = require('../source/dialog');
 const view = require('../source/view');
 const zip = require('../source/zip');
-const gzip = require('../source/gzip');
 const tar = require('../source/tar');
 
 global.Int64 = base.Int64;
@@ -360,13 +359,10 @@ const clearLine = () => {
 };
 
 const decompress = (buffer) => {
-    let archive = null;
-    if (buffer.length >= 18 && buffer[0] === 0x1f && buffer[1] === 0x8b) {
-        archive = gzip.Archive.open(buffer);
-        if (archive.entries.size == 1) {
-            const stream = archive.entries.values().next().value;
-            buffer = stream.peek();
-        }
+    let archive = zip.Archive.open(buffer, 'gzip');
+    if (archive && archive.entries.size == 1) {
+        const stream = archive.entries.values().next().value;
+        buffer = stream.peek();
     }
     const formats = [ zip, tar ];
     for (const module of formats) {
@@ -709,7 +705,7 @@ const loadModel = (target, item) => {
                         chain.name.length;
                     }
                 }
-                // new sidebar.NodeSidebar(host, node);
+                // new dialog.NodeSidebar(host, node);
             }
         }
         if (exceptions.length > 0) {

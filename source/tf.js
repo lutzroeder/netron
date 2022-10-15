@@ -3,8 +3,8 @@
 
 var tf = tf || {};
 var base = base || require('./base');
-var gzip = gzip || require('./gzip');
 var protobuf = protobuf || require('./protobuf');
+var zip = zip || require('./zip');
 
 tf.ModelFactory = class {
 
@@ -460,14 +460,11 @@ tf.ModelFactory = class {
                             try {
                                 for (const key of shards.keys()) {
                                     const stream = shards.get(key);
-                                    const archive = gzip.Archive.open(stream);
-                                    if (archive) {
-                                        const entries = archive.entries;
-                                        if (entries.size === 1) {
-                                            const stream = entries.values().next().value;
-                                            const buffer = stream.peek();
-                                            shards.set(key, buffer);
-                                        }
+                                    const archive = zip.Archive.open(stream, 'gzip');
+                                    if (archive && archive.entries.size === 1) {
+                                        const stream = archive.entries.values().next().value;
+                                        const buffer = stream.peek();
+                                        shards.set(key, buffer);
                                     }
                                 }
                             }

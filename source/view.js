@@ -3,7 +3,6 @@ var view = view || {};
 
 var base = base || require('./base');
 var zip = zip || require('./zip');
-var gzip = gzip || require('./gzip');
 var tar = tar || require('./tar');
 var json = json || require('./json');
 var xml = xml || require('./xml');
@@ -1270,7 +1269,7 @@ view.ModelContext = class {
             const entry = context instanceof view.EntryContext;
             const identifier = context.identifier;
             try {
-                const archive = gzip.Archive.open(stream);
+                const archive = zip.Archive.open(stream, 'gzip');
                 if (archive) {
                     this._entries = archive.entries;
                     this._format = 'gzip';
@@ -1365,16 +1364,13 @@ view.ModelContext = class {
                         }
                         case 'json.gz': {
                             try {
-                                const archive = gzip.Archive.open(this.stream);
-                                if (archive) {
-                                    const entries = archive.entries;
-                                    if (entries.size === 1) {
-                                        const stream = entries.values().next().value;
-                                        const reader = json.TextReader.open(stream);
-                                        if (reader) {
-                                            const obj = reader.read();
-                                            this._content.set(type, obj);
-                                        }
+                                const archive = zip.Archive.open(this.stream, 'gzip');
+                                if (archive && archive.entries.size === 1) {
+                                    const stream = archive.entries.values().next().value;
+                                    const reader = json.TextReader.open(stream);
+                                    if (reader) {
+                                        const obj = reader.read();
+                                        this._content.set(type, obj);
                                     }
                                 }
                             }
@@ -1387,18 +1383,8 @@ view.ModelContext = class {
                             let unpickler = null;
                             try {
                                 if (stream.length > 2) {
-                                    const zlib = (stream) => {
-                                        const buffer = stream.peek(2);
-                                        if (buffer[0] === 0x78) {
-                                            const check = (buffer[0] << 8) + buffer[1];
-                                            if (check % 31 === 0) {
-                                                const archive = zip.Archive.open(stream);
-                                                return archive.entries.get('');
-                                            }
-                                        }
-                                        return stream;
-                                    };
-                                    const data = zlib(stream);
+                                    const archive = zip.Archive.open(stream, 'zlib');
+                                    const data = archive ? archive.entries.get('') : stream;
                                     unpickler = python.Unpickler.open(data, () => {
                                         return new python.Execution(null, (error, fatal) => {
                                             const message = error && error.message ? error.message : error.toString();
@@ -1664,10 +1650,15 @@ view.ModelFactoryService = class {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         const stream = context.stream;
-        for (const module of [ zip, tar, gzip ]) {
+        const callbacks = [
+            (stream) => zip.Archive.open(stream, 'zip'),
+            (stream) => tar.Archive.open(stream),
+            (stream) => zip.Archive.open(stream, 'gzip')
+        ];
+        for (const callback of callbacks) {
             let archive = null;
             try {
-                archive = module.Archive.open(stream);
+                archive = callback(stream);
             }
             catch (error) {
                 // continue regardless of error
