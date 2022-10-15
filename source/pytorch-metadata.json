@@ -7172,8 +7172,26 @@
     ]
   },
   {
+    "name": "aten::view_as",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::view_as_real",
-    "category": "Layer",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::view_as_real_copy",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -7183,7 +7201,15 @@
   },
   {
     "name": "aten::view_as_complex",
-    "category": "Layer",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::view_as_complex_copy",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
