@@ -21,7 +21,7 @@
                 let scriptEl = document.createElement("script");
                 scriptEl.onload = resolve;
                 scriptEl.src = url;
-                document.body.appendChild(scriptEl);
+                document.head.appendChild(scriptEl);
             });
         }
         let urls = ["dagre.js","base.js","text.js","json.js","xml.js","python.js","protobuf.js","flatbuffers.js","flexbuffers.js","zip.js","gzip.js","tar.js","view-grapher.js","view-sidebar.js","view.js"];
