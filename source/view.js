@@ -11,7 +11,7 @@ var protobuf = protobuf || require('./protobuf');
 var flatbuffers = flatbuffers || require('./flatbuffers');
 var python = python || require('./python');
 var sidebar = sidebar || require('./view-sidebar');
-var grapher = grapher || require('./view-grapher');
+var grapher = grapher || require('./grapher');
 
 view.View = class {
 
@@ -668,7 +668,7 @@ view.View = class {
         if (this.activeGraph && (extension === 'png' || extension === 'svg')) {
             const canvas = this._getElementById('canvas');
             const clone = canvas.cloneNode(true);
-            this.applyStyleSheet(clone, 'view-grapher.css');
+            this.applyStyleSheet(clone, 'grapher.css');
             clone.setAttribute('id', 'export');
             clone.removeAttribute('viewBox');
             clone.removeAttribute('width');
