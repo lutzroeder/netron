@@ -1811,6 +1811,13 @@ python.Execution = class {
         });
         this.registerType('numpy.dtype', class {
             constructor(obj, align, copy) {
+                if (typeof obj === 'string' && (obj.startsWith('<') || obj.startsWith('>'))) {
+                    this.byteorder = obj[0];
+                    obj = obj.substring(1);
+                }
+                else {
+                    this.byteorder = '=';
+                }
                 switch (obj) {
                     case 'b1': case 'bool': this.itemsize = 1; this.kind = 'b'; break;
                     case 'i1': case 'int8': this.itemsize = 1; this.kind = 'i'; break;
@@ -1849,7 +1856,6 @@ python.Execution = class {
                         }
                         break;
                 }
-                this.byteorder = '=';
                 if (align) {
                     this.align = align;
                 }
