@@ -4162,6 +4162,14 @@
   },
   {
     "type":     "pytorch",
+    "target":   "data.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/9795497/data.pkl.zip[data.pkl]",
+    "format":   "Pickle",
+    "error":    "Unknown type name '__torch__.torchvision.models.alexnet.___torch_mangle_30.AlexNet' in 'data.pkl'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "d2go.pt",
     "source":   "https://github.com/lutzroeder/netron/files/6370675/d2go.pt.zip[d2go.pt]",
     "format":   "TorchScript v1.7",

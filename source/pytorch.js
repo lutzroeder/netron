@@ -1229,20 +1229,20 @@ pytorch.Container.Zip.Script = class {
         const execution = this.execution;
         const unpickler = execution.invoke('pickle.Unpickler', [ data ]);
         unpickler.persistent_load = (saved_id) => {
-            const typename = saved_id.shift();
+            const typename = saved_id[0];
             switch (typename) {
                 case 'storage': {
-                    const storage_type = saved_id.shift();
-                    const root_key = saved_id.shift();
-                    /* const location = */ saved_id.shift();
-                    const size = saved_id.shift();
+                    const storage_type = saved_id[1];
+                    const root_key = saved_id[2];
+                    // const location = saved_id[3];
+                    const size = saved_id[4];
                     if (!loaded_storages.has(root_key)) {
                         const storage = new storage_type(size);
                         storage._set_cdata(storage_map.get(root_key));
                         loaded_storages.set(root_key, storage);
                     }
                     const storage = loaded_storages.get(root_key);
-                    const view_metadata = saved_id.shift();
+                    const view_metadata = saved_id[5];
                     if (view_metadata) {
                         const view_key = view_metadata.shift();
                         view_metadata.shift(); // view_offset

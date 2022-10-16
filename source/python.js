@@ -4275,15 +4275,18 @@ python.Execution = class {
             return tensor;
         });
         this.registerFunction('torch._utils._rebuild_tensor', function (storage, storage_offset, size, stride) {
+            if (Array.isArray(storage) && storage.length === 5 && storage[0] === 'storage') {
+                const storage_type = storage[1];
+                const size = storage[4];
+                storage = new storage_type(size);
+            }
             const name = storage.__class__.__module__ + '.' + storage.__class__.__name__.replace('Storage', 'Tensor');
             const tensor = self.invoke(name, []);
             tensor.__setstate__([ storage, storage_offset, size, stride ]);
             return tensor;
         });
         this.registerFunction('torch._utils._rebuild_tensor_v2', function (storage, storage_offset, size, stride, requires_grad, backward_hooks) {
-            const name = storage.__class__.__module__ + '.' + storage.__class__.__name__.replace('Storage', 'Tensor');
-            const tensor = self.invoke(name, []);
-            tensor.__setstate__([ storage, storage_offset, size, stride ]);
+            const tensor = execution.invoke('torch._utils._rebuild_tensor', [ storage, storage_offset, size, stride ]);
             tensor.requires_grad = requires_grad;
             tensor.backward_hooks = backward_hooks;
             return tensor;
@@ -4294,12 +4297,8 @@ python.Execution = class {
             return obj;
         });
         this.registerFunction('torch._utils._rebuild_qtensor', function(storage, storage_offset, size, stride, quantizer_params, requires_grad, backward_hooks) {
-            const name = storage.__class__.__module__ + '.' + storage.__class__.__name__.replace('Storage', 'Tensor');
-            const tensor = self.invoke(name, []);
-            tensor.__setstate__([ storage, storage_offset, size, stride ]);
+            const tensor = execution.invoke('torch._utils._rebuild_tensor_v2', [ storage, storage_offset, size, stride, requires_grad, backward_hooks ]);
             tensor.quantizer_params = quantizer_params;
-            tensor.requires_grad = requires_grad;
-            tensor.backward_hooks = backward_hooks;
             return tensor;
         });
         this.registerFunction('torch._set_item', function(dict, key, value) {
@@ -4622,21 +4621,20 @@ python.Execution = class {
             const module_source_map = new Map();
             const deserialized_objects = new Map();
             unpickler.persistent_load = (saved_id) => {
-                const typename = saved_id.shift();
-                const data = saved_id;
+                const typename = saved_id[0];
                 switch (typename) {
                     case 'module': {
-                        const module = data[0];
-                        const source = data[2];
+                        const module = saved_id[1];
+                        const source = saved_id[3];
                         module_source_map.set(module, source);
-                        return data[0];
+                        return saved_id[1];
                     }
                     case 'storage': {
-                        const storage_type = data.shift();
-                        const root_key = data.shift();
-                        data.shift(); // location
-                        const size = data.shift();
-                        const view_metadata = data.shift();
+                        const storage_type = saved_id[1];
+                        const root_key = saved_id[2];
+                        /// const location = saved_id[3];
+                        const size = saved_id[4];
+                        const view_metadata = saved_id[5];
                         if (!deserialized_objects.has(root_key)) {
                             const obj = new storage_type(size);
                             deserialized_objects.set(root_key, obj);
