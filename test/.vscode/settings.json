@@ -1,6 +1,0 @@
-{
-    "python.linting.enabled": true,
-    "python.linting.pylintEnabled": true,
-    "python.linting.pylintCategorySeverity.convention": "Warning",
-    "python.linting.pylintCategorySeverity.refactor": "Warning"
-}

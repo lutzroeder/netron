@@ -2,18 +2,8 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Program",
-            "type": "node",
-            "request": "launch",
-            "program": "${workspaceFolder}/source/app.js",
-            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
-            "windows": {
-                "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
-            }
-        },
-        {
-            "name": "Debug Renderer Process",
-            "type": "pwa-chrome",
+            "name": "Electron View",
+            "type": "chrome",
             "request": "launch",
             "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
             "windows": {
@@ -25,6 +15,53 @@
               "--remote-debugging-port=9222"
             ],
             "webRoot": "${workspaceRoot}"
+        },
+        {
+            "name": "Electron App",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/source/app.js",
+            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
+            "windows": {
+                "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
+            }
+        },
+        {
+            "name": "Python Server",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/publish/python.py",
+            "justMyCode": true,
+            "args": [
+                "build", "start"
+            ],
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/source",
+                    "remoteRoot": "${workspaceFolder}/dist/pypi/netron",
+                }
+            ],
+            "serverReadyAction": {
+                "action": "debugWithChrome",
+                "pattern": "Serving .*at http://localhost:([0-9]+)",
+                "uriFormat": "http://localhost:%s",
+                "webRoot": "${workspaceFolder}/source",
+            },
+        },
+        {
+            "name": "Test Models",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/test/models.js",
+            "console": "integratedTerminal",
+        },
+        {
+            "name": "Test Backend",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/test/backend.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
         }
     ]
 }

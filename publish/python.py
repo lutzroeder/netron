@@ -5,7 +5,6 @@ import os
 import re
 import sys
 import shutil
-import subprocess
 
 def _read(path):
     with open(path, 'r', encoding='utf-8') as file:
@@ -47,19 +46,22 @@ def _version():
 
 def _start():
     ''' Start server '''
-    sys.path.insert(0, './dist/pypi')
-    args = [ sys.executable, '-c', 'import netron; netron.main();' ] + sys.args
+    # args = [ sys.executable, '-c', 'import netron; netron.main();' ] + sys.args
+    # try:
+    #     subprocess.run(args, env={ 'PYTHONPATH': './dist/pypi' }, check=False)
+    # except (KeyboardInterrupt, SystemExit):
+    #     pass
+    sys.path.insert(0, 'dist/pypi')
+    __import__('netron').main()
     sys.args = []
-    try:
-        subprocess.run(args, env={ 'PYTHONPATH': './dist/pypi' }, check=False)
-    except (KeyboardInterrupt, SystemExit):
-        pass
+    del sys.argv[1:]
 
 def main(): # pylint: disable=missing-function-docstring
     table = { 'build': _build, 'version': _version, 'start': _start }
     sys.args = sys.argv[1:]
     while len(sys.args) > 0:
         command = sys.args.pop(0)
+        del sys.argv[1]
         table[command]()
 
 if __name__ == '__main__':

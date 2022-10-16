@@ -13,7 +13,7 @@ npm install
 npx electron .
 ```
 
-To debug the Electron app, open the folder in [Visual Studio Code](https://code.visualstudio.com) and press <kbd>F5</kbd>. To attach the debugger to a render process select the `Debug` tab and `Debug Renderer Process` before launching.
+To debug the Electron app, open the folder in [Visual Studio Code](https://code.visualstudio.com) and press <kbd>F5</kbd>. To attach the debugger to a render process select the `Debug` tab and `Electron View` before launching.
 
 ## Python server
 
