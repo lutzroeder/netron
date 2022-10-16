@@ -994,7 +994,7 @@ pytorch.Container.Zip = class {
             let prefix = [];
             const paths = Array.from(entries.keys()).map((path) => path.split('/').reverse());
             for (;;) {
-                const set = new Set(paths.map((path) => path.length > 0 ? path.pop() : null));
+                const set = new Set(paths.map((path) => path.length > 1 ? path.pop() : null));
                 if (set.size !== 1 || set.keys().next().value === null) {
                     break;
                 }
