@@ -1,6 +1,6 @@
 
-var darknet = darknet || {};
-var text = text || require('./text');
+var darknet = {};
+var text = require('./text');
 
 darknet.ModelFactory = class {
 

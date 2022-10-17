@@ -1,8 +1,8 @@
 
-var circle = circle || {};
-var flatbuffers = flatbuffers || require('./flatbuffers');
-var flexbuffers = flexbuffers || require('./flexbuffers');
-var zip = zip || require('./zip');
+var circle = {};
+var flatbuffers = require('./flatbuffers');
+var flexbuffers = require('./flexbuffers');
+var zip = require('./zip');
 
 circle.ModelFactory = class {
 

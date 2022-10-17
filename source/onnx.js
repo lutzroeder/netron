@@ -1,8 +1,8 @@
 
-var onnx = onnx || {};
-var protobuf = protobuf || require('./protobuf');
-var flatbuffers = flatbuffers || require('./flatbuffers');
-var text = text || require('./text');
+var onnx = {};
+var protobuf = require('./protobuf');
+var flatbuffers = require('./flatbuffers');
+var text = require('./text');
 
 onnx.ModelFactory = class {
 

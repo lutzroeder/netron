@@ -1,6 +1,6 @@
 
-var armnn = armnn || {};
-var flatbuffers = flatbuffers || require('./flatbuffers');
+var armnn = {};
+var flatbuffers = require('./flatbuffers');
 
 armnn.ModelFactory = class {
 

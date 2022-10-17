@@ -1,8 +1,8 @@
 
-var rknn = rknn || {};
-var base = base || require('./base');
-var flatbuffers = flatbuffers || require('./flatbuffers');
-var json = json || require('./json');
+var rknn = {};
+var base = require('./base');
+var flatbuffers = require('./flatbuffers');
+var json = require('./json');
 
 rknn.ModelFactory = class {
 

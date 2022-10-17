@@ -1,8 +1,8 @@
 
 // Experimental HDF5 reader
 
-var hdf5 = hdf5 || {};
-var zip = zip || require('./zip');
+var hdf5 = {};
+var zip = require('./zip');
 
 hdf5.File = class {
 

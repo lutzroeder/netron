@@ -1,8 +1,8 @@
 
 // Experimental
 
-var flux = flux || {};
-var json = json || require('./json');
+var flux = {};
+var json = require('./json');
 
 flux.ModelFactory = class {
 

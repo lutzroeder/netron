@@ -1,6 +1,6 @@
 
-var json = json || {};
-var text = text || require('./text');
+var json = {};
+var text = require('./text');
 
 json.TextReader = class {
 

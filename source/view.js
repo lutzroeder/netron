@@ -1,16 +1,15 @@
 
-var view = view || {};
-
-var base = base || require('./base');
-var zip = zip || require('./zip');
-var tar = tar || require('./tar');
-var json = json || require('./json');
-var xml = xml || require('./xml');
-var protobuf = protobuf || require('./protobuf');
-var flatbuffers = flatbuffers || require('./flatbuffers');
-var python = python || require('./python');
-var dialog = dialog || require('./dialog');
-var grapher = grapher || require('./grapher');
+var view =  {};
+var base = require('./base');
+var zip = require('./zip');
+var tar = require('./tar');
+var json = require('./json');
+var xml = require('./xml');
+var protobuf = require('./protobuf');
+var flatbuffers = require('./flatbuffers');
+var python = require('./python');
+var dialog = require('./dialog');
+var grapher = require('./grapher');
 
 view.View = class {
 

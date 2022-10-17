@@ -1,6 +1,6 @@
 
-var mnn = mnn || {};
-var flatbuffers = flatbuffers || require('./flatbuffers');
+var mnn = {};
+var flatbuffers = require('./flatbuffers');
 
 mnn.ModelFactory = class {
 

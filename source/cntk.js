@@ -1,7 +1,7 @@
 
-var cntk = cntk || {};
-var base = base || require('./base');
-var protobuf = protobuf || require('./protobuf');
+var cntk = {};
+var base = require('./base');
+var protobuf = require('./protobuf');
 
 var cntk_v1 = {};
 var cntk_v2 = null;

@@ -1,6 +1,6 @@
 
-var dialog = dialog || {};
-var base = base || require('./base');
+var dialog = {};
+var base = require('./base');
 
 dialog.Sidebar = class {
 

@@ -1,6 +1,6 @@
 
-var mslite = mslite || {};
-var flatbuffers = flatbuffers || require('./flatbuffers');
+var mslite = {};
+var flatbuffers = require('./flatbuffers');
 
 mslite.ModelFactory = class {
 

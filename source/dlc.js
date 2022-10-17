@@ -1,6 +1,6 @@
 
-var dlc = dlc || {};
-var text = text || require('./text');
+var dlc = {};
+var text = require('./text');
 
 dlc.ModelFactory = class {
 

@@ -1,8 +1,8 @@
 
 // Experimental
 
-var mlnet = mlnet || {};
-var base = base || require('./base');
+var mlnet = {};
+var base = require('./base');
 
 mlnet.ModelFactory = class {
 

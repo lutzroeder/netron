@@ -1,8 +1,8 @@
 
-var coreml = coreml || {};
-var json = json || require('./json');
-var protobuf = protobuf || require('./protobuf');
-var base = base || require('./base');
+var coreml = {};
+var base = require('./base');
+var json = require('./json');
+var protobuf = require('./protobuf');
 
 coreml.ModelFactory = class {
 

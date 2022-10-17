@@ -1,6 +1,6 @@
 
-var xmodel = xmodel || {};
-var protobuf = protobuf || require('./protobuf');
+var xmodel = {};
+var protobuf = require('./protobuf');
 
 xmodel.ModelFactory = class {
 

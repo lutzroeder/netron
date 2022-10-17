@@ -1,8 +1,8 @@
 
-var tflite = tflite || {};
-var flatbuffers = flatbuffers || require('./flatbuffers');
-var flexbuffers = flexbuffers || require('./flexbuffers');
-var zip = zip || require('./zip');
+var tflite = {};
+var flatbuffers = require('./flatbuffers');
+var flexbuffers = require('./flexbuffers');
+var zip = require('./zip');
 
 tflite.ModelFactory = class {
 

@@ -1,6 +1,6 @@
 
-var lightgbm = lightgbm || {};
-var python = python || require('./python');
+var lightgbm = {};
+var python = require('./python');
 
 lightgbm.ModelFactory = class {
 

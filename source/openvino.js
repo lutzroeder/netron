@@ -1,6 +1,6 @@
 
-var openvino = openvino || {};
-var xml = xml || require('./xml');
+var openvino = {};
+var xml = require('./xml');
 
 openvino.ModelFactory = class {
 

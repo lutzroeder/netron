@@ -1,9 +1,9 @@
 
 // Experimental
 
-var om = om || {};
-var protobuf = protobuf || require('./protobuf');
-var base = base || require('./base');
+var om = {};
+var protobuf = require('./protobuf');
+var base = require('./base');
 
 om.ModelFactory = class {
 

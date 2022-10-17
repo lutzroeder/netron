@@ -1,8 +1,8 @@
 
 // Experimental
 
-var uff = uff || {};
-var protobuf = protobuf || require('./protobuf');
+var uff = {};
+var protobuf = require('./protobuf');
 
 uff.ModelFactory = class {
 

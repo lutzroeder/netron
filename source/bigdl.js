@@ -1,8 +1,8 @@
 
 // Experimental
 
-var bigdl = bigdl || {};
-var protobuf = protobuf || require('./protobuf');
+var bigdl = {};
+var protobuf = require('./protobuf');
 
 bigdl.ModelFactory = class {
 

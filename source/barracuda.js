@@ -1,8 +1,8 @@
 
 // Experimental
 
-var barracuda = barracuda || {};
-var base = base || require('./base');
+var barracuda = {};
+var base = require('./base');
 
 barracuda.ModelFactory = class {
 

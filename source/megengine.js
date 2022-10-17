@@ -1,8 +1,8 @@
 
 // Experimental
 
-var megengine = megengine || {};
-var flatbuffers = flatbuffers || require('./flatbuffers');
+var megengine = {};
+var flatbuffers = require('./flatbuffers');
 
 megengine.ModelFactory = class {
 

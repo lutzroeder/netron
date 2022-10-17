@@ -1,7 +1,7 @@
 
-var tnn = tnn || {};
-var text = text || require('./text');
-var base = base || require('./base');
+var tnn = {};
+var text = require('./text');
+var base = require('./base');
 
 tnn.ModelFactory = class {
 

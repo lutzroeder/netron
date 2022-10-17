@@ -1,9 +1,9 @@
 
-var paddle = paddle || {};
-var flatbuffers = flatbuffers || require('./flatbuffers');
-var protobuf = protobuf || require('./protobuf');
-var python = python || require('./python');
-var base = base || require('./base');
+var paddle = {};
+var flatbuffers = require('./flatbuffers');
+var protobuf = require('./protobuf');
+var python = require('./python');
+var base = require('./base');
 
 paddle.ModelFactory = class {
 

@@ -1,6 +1,6 @@
 
-var caffe = caffe || {};
-var protobuf = protobuf || require('./protobuf');
+var caffe = {};
+var protobuf = require('./protobuf');
 
 caffe.ModelFactory = class {
 

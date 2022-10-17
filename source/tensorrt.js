@@ -1,6 +1,6 @@
 
-var tensorrt = tensorrt || {};
-var base = base || require('./base');
+var tensorrt = {};
+var base = require('./base');
 
 tensorrt.ModelFactory = class {
 

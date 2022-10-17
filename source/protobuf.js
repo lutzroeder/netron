@@ -1,7 +1,7 @@
 
-var protobuf = protobuf || {};
-var base = base || require('./base');
-var text = text || require('./text');
+var protobuf = {};
+var base = require('./base');
+var text = require('./text');
 
 protobuf.get = (name) => {
     protobuf._map = protobuf._map || new Map();

@@ -1,6 +1,6 @@
 
-var mediapipe = mediapipe || {};
-var protobuf = protobuf || require('./protobuf');
+var mediapipe = {};
+var protobuf = require('./protobuf');
 
 mediapipe.ModelFactory = class {
 

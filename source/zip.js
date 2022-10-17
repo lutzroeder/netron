@@ -1,7 +1,7 @@
 
-var zip = zip || {};
-var gzip = gzip || {};
-var zlib = zlib || {};
+var zip = {};
+var gzip = {};
+var zlib = {};
 
 zip.Archive = class {
 

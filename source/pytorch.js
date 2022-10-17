@@ -1,9 +1,9 @@
 
 // Experimental
 
-var pytorch = pytorch || {};
-var python = python || require('./python');
-var base = base || require('./base');
+var pytorch = {};
+var python = require('./python');
+var base = require('./base');
 
 pytorch.ModelFactory = class {
 

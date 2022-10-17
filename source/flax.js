@@ -1,8 +1,8 @@
 
 // Experimental
 
-var flax = flax || {};
-var python = python || require('./python');
+var flax = {};
+var python = require('./python');
 
 flax.ModelFactory = class {
 

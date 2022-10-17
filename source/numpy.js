@@ -1,8 +1,8 @@
 
 // Experimental
 
-var numpy = numpy || {};
-var python = python || require('./python');
+var numpy = {};
+var python = require('./python');
 
 numpy.ModelFactory = class {
 

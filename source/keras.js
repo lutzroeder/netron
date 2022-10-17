@@ -1,7 +1,7 @@
 
 var keras = keras || {};
-var json = json || require('./json');
-var python = python || require('./python');
+var json = require('./json');
+var python = require('./python');
 
 keras.ModelFactory = class {
 

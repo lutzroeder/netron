@@ -1,10 +1,10 @@
 
 // Experimental
 
-var tf = tf || {};
-var base = base || require('./base');
-var protobuf = protobuf || require('./protobuf');
-var zip = zip || require('./zip');
+var tf = {};
+var base = require('./base');
+var protobuf = require('./protobuf');
+var zip = require('./zip');
 
 tf.ModelFactory = class {
 

@@ -1,6 +1,6 @@
 
-var kmodel = kmodel || {};
-var base = base || require('./base');
+var kmodel = {};
+var base = require('./base');
 
 kmodel.ModelFactory = class {
 

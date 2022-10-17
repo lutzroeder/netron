@@ -1,7 +1,7 @@
 
-var mxnet = mxnet || {};
-var json = json || require('./json');
-var base = base || require('./base');
+var mxnet = {};
+var json = require('./json');
+var base = require('./base');
 
 mxnet.ModelFactory = class {
 

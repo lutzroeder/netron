@@ -1,6 +1,6 @@
 
-var xml = xml || {};
-var text = text || require('./text');
+var xml = {};
+var text = require('./text');
 
 // https://www.w3.org/TR/xml
 

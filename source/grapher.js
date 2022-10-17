@@ -1,6 +1,6 @@
 
-var grapher = grapher || {};
-var dagre = dagre || require('./dagre');
+var grapher = {};
+var dagre = require('./dagre');
 
 grapher.Graph = class {
 

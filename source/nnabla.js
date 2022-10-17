@@ -1,7 +1,7 @@
 
-var nnabla = nnabla || {};
-var protobuf = protobuf || require('./protobuf');
-var text = text || require('./text');
+var nnabla = {};
+var protobuf = require('./protobuf');
+var text = require('./text');
 
 nnabla.ModelFactory = class {
 

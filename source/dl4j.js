@@ -1,8 +1,8 @@
 
 // Experimental
 
-var dl4j = dl4j || {};
-var json = json || require('./json');
+var dl4j = {};
+var json = require('./json');
 
 dl4j.ModelFactory = class {
 
