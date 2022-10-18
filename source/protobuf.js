@@ -595,6 +595,216 @@ protobuf.BinaryReader = class {
     }
 };
 
+const WIRE_TYPE_VARINT = 0;
+const WIRE_TYPE_I64 = 1;
+const WIRE_TYPE_LEN = 2;
+const WIRE_TYPE_I32 = 5;
+
+protobuf.BinaryWriter = class {
+
+    static open() {
+        return new protobuf.BinaryWriter();
+    }
+
+    constructor() {
+        this._length = 0;
+        this._bufs = [];
+        this._utf8encoder = new TextEncoder('utf-8');
+    }
+
+    addChunk(data) {
+        this._bufs.push(data);
+        this._length += data.byteLength;
+    }
+
+    encode() {
+        return new Blob(this._bufs, {type:'application/x-protobuf' } );
+    }
+
+    get length() {
+        return this._length;
+    }
+
+    get position() {
+        return this._position;
+    }
+
+    tag (id, wire_type) {
+        return this.varint32((id << 3) | wire_type);
+    }
+    string(id, value) {
+        const data = this._utf8encoder.encode(value);
+        return this.bytes(id, data);
+    }
+
+    bool(id, val) {
+        return this.tag(id, WIRE_TYPE_VARINT) + this.varint32(val ? 1 : 0);
+    }
+
+    bytes(id, val) {
+        const len = this.tag(id, WIRE_TYPE_LEN) + this.varint32(val.length) + val.length;
+        const buf = new ArrayBuffer(val.length);
+        const view = new Uint8Array(buf);
+        view.set(val);
+        this.addChunk(buf);
+        return len;
+    }
+
+    varint32(value) {
+        return this.varint(value, true);
+    }
+
+    varint64(value) {
+        return this.varint(value, false);
+    }
+
+    encodeVarInt64(value, view, pos) {
+        let len = 0;
+        do {
+            let c = (value.low & 0x7F);
+            value.low = (value.low >>> 7) | (value.high << (32 - 7));
+            value.high = value.hight >>> 7;
+            if (!value.isZero) {
+                c |= 0x80;
+            }
+            view[pos + len] = c;
+            len += 1;
+        } while(!value.isZero);
+        return len;
+    }
+
+    encodeVarInt32(value, view, pos) {
+        let len = 0;
+        do {
+            let c = (value & 0x7F);
+            value = value >>> 7;
+            if (value) {
+                c |= 0x80;
+            }
+            view[pos + len] = c;
+            len += 1;
+        } while(value != 0);
+        return len;
+    }
+
+    varints(values, is_32) {
+        const n = values.length;
+        const buf = new ArrayBuffer(n * (is_32 ? 5 : 10));
+        const view = new Uint8Array(buf);
+        let len = 0;
+        for(const value of values) {
+            len += is_32 ? this.encodeVarInt32(value, view, len) : this.encodeVarInt64(value, view, len);
+        }
+        this.addChunk(buf.slice(0, len));
+        return len;
+    }
+
+    varint(value, is_32) {
+        return this.varints([value], is_32);
+    }
+
+    uint32(id, val) {
+        if (val === 0) {
+            return 0;
+        }
+        return this.tag(id, WIRE_TYPE_VARINT) + this.varint(val, true);
+    }
+
+    uint32s(id, vals) {
+        let len = this.tag(id, WIRE_TYPE_LEN);
+        const tmpWriter = new protobuf.BinaryWriter();
+        const data_len = tmpWriter.varints(vals, true);
+        len += this.varint32(data_len) + data_len;
+        tmpWriter._bufs.forEach(x => this.addChunk(x));
+        return len;
+    }
+
+    int32(id, val) {
+        return this.uint32(id, val);
+    }
+
+    int32s(id, vals) {
+        return this.uint32s(id, vals);
+    }
+
+    int64(id, val) {
+        if (!(val instanceof base.Int64)) {
+            val = base.Int64.create(val);
+        }
+        if (val.isZero) {
+            return 0;
+        }
+        return this.tag(id, WIRE_TYPE_VARINT) + this.varint(val, false);
+    }
+
+    uint64(id, val) {
+        if (!(val instanceof base.Int64)) {
+            val = base.Uint64.create(val);
+        }
+        if (val.isZero) {
+            return 0;
+        }
+        return this.tag(id, WIRE_TYPE_VARINT) + this.varint(val, false);
+    }
+
+    fixed64(id, val) {
+        const len = this.tag(id, WIRE_TYPE_I64);
+        const buf = new ArrayBuffer(8);
+        /* eslint-disable no-undef */
+        const view = new BigUint64Array(buf);
+        /* eslint-enable no-undef */
+        view.push(val);
+        this._bufs.push(buf);
+        return len + 8;
+    }
+
+    sfixed64(id, val) {
+        throw new protobuf.Error('TODO for sfixed64 ' + id + ':' + val);
+    }
+
+    fixed32(id, val) {
+        throw new protobuf.Error('TODO for fixed32 ' + id + ':' + val);
+    }
+
+    sfixed32(id, val) {
+        throw new protobuf.Error('TODO for sfixed32 ' + id + ':' + val);
+    }
+
+    float(id, val) {
+        if (val === 0) {
+            return 0;
+        }
+        const l = this.tag(id, WIRE_TYPE_I32);
+        const buf = new ArrayBuffer(4);
+        const view = new Float32Array(buf);
+        view[0] = val;
+        this.addChunk(buf);
+        return l + 4;
+    }
+
+    double(id, val) {
+        if (val === 0) {
+            return 0;
+        }
+        const l = this.tag(id, WIRE_TYPE_I64);
+        const buf = new ArrayBuffer(8);
+        const view = new Float64Array(buf);
+        view[0] = val;
+        this.addChunk(buf);
+        return l + 8;
+
+    }
+
+    nested(id, val, encoder) {
+        let len = this.tag(id, WIRE_TYPE_LEN);
+        const tmpWriter = new protobuf.BinaryWriter();
+        const length = encoder(tmpWriter, val);
+        len += this.varint32(length) + length;
+        tmpWriter._bufs.forEach(x => this.addChunk(x));
+        return len;
+    }
+};
+
 protobuf.TextReader = class {
 
     static open(data) {
@@ -1347,6 +1557,7 @@ protobuf.Error = class extends Error {
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.BinaryReader = protobuf.BinaryReader;
+    module.exports.BinaryWriter = protobuf.BinaryWriter;
     module.exports.TextReader = protobuf.TextReader;
     module.exports.Error = protobuf.Error;
     module.exports.Int64 = protobuf.Int64;

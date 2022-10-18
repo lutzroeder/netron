@@ -1205,6 +1205,7 @@ protoc.Generator = class {
 
         this._builder.add('');
         this._buildDecodeFunction(type);
+        this._buildEncodeFunction(type);
 
         if (this._text) {
             this._builder.add('');
@@ -1422,6 +1423,66 @@ protoc.Generator = class {
             }
         this._builder.outdent();
         this._builder.add('}');
+        /* eslint-enable indent */
+    }
+
+    _buildEncodeFunction(type) {
+        /* eslint-disable indent */
+        const fieldTypeName = (type) => "$root" + type.fullName;
+        const obj = type.name + 'Obj';
+        this._builder.add('static encode(writer, ' + obj + ') {');
+        this._builder.indent();
+        this._builder.add('let length = 0;');
+
+        const writer_emit = (...args) => {
+            const method = args[0];
+            const params = args.slice(1).join(', ');
+            this._builder.add ('length += writer.' + method + '(' + params + ');');
+        };
+
+        const emitScalar = (type, id, val) => {
+            if (type instanceof protoc.Enum) {
+                writer_emit('int32',  id, val);
+            }
+            else if (type instanceof protoc.PrimitiveType) {
+                writer_emit(type.name, id, val);
+            }
+            else if (type.group) {
+                this._builder.add('// TODO: fieldName' + '.encode(writer);');
+            }
+            else {
+                writer_emit('nested', id, val, fieldTypeName(type) + '.encode');
+            }
+        };
+
+        for(const field of type.fields.values()) {
+            const val = obj + '.' + field.name;
+            const is_primitive =  field.type instanceof protoc.PrimitiveType;
+            if (field.repeated) {
+                if (field.type.packed) {
+                    // packed is always primitive types.
+                    if (!is_primitive) {
+                        this._builder.add('// Corrupted');
+                        throw('corrupted protobuf types');
+                    }
+                    writer_emit(field.type.name + 's', field.id, val);
+                }
+                else { // non-packed repeated.
+                    this._builder.add('for (const val of ' + val + ') {');
+                    this._builder.indent();
+                    emitScalar(field.type, field.id, 'val');
+                    this._builder.outdent();
+                    this._builder.add('}');
+                }
+            }
+            else  {
+                emitScalar(field.type, field.id, val);
+            }
+        }
+        this._builder.add('return length;');
+        this._builder.outdent();
+        this._builder.add('}');
+
         /* eslint-enable indent */
     }
 
