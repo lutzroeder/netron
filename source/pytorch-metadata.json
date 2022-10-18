@@ -6330,6 +6330,19 @@
     ]
   },
   {
+    "name": "aten::fake_quantize_per_tensor_affine.tensor_qparams",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "scale", "type": "Tensor" },
+      { "name": "zero_point", "type": "Tensor" },
+      { "name": "quant_min", "type": "int64" },
+      { "name": "quant_max", "type": "int64" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::addmv",
     "inputs": [
       { "name": "self", "type": "Tensor" },
