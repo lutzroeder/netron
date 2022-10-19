@@ -464,16 +464,18 @@ om.File = class {
 
     static open(context) {
         const stream = context.stream;
-        const signature = [ 0x49, 0x4D, 0x4F, 0x44 ]; // IMOD
-        if (stream && stream.length >= 256 && stream.peek(4).every((value, index) => value === signature[index])) {
-            const reader = new base.BinaryReader(stream);
-            return new om.File(reader);
+        if (stream && stream.length >= 256) {
+            const buffer = stream.peek(4);
+            const signature = Array.from(buffer).map((c) => String.fromCharCode(c)).join('');
+            if (signature === 'IMOD' || signature === 'PICO') {
+                return new om.File(stream);
+            }
         }
         return null;
     }
 
-    constructor(reader) {
-        this._reader = reader;
+    constructor(stream) {
+        this._stream = stream;
     }
 
     get model() {
@@ -487,72 +489,95 @@ om.File = class {
     }
 
     _read() {
-        if (this._reader) {
-            const reader = this._reader;
-            delete this._reader;
-            const decoder = new TextDecoder('utf-8');
-            this.header = reader.uint32();
-            const size = reader.uint32();
-            this.version = reader.uint32();
-            this.checksum = reader.read(64);
-            reader.skip(4);
-            this.is_encrypt = reader.byte();
-            this.is_checksum = reader.byte();
-            this.type = reader.byte(); // 0=IR model, 1=standard model, 2=OM Tiny model
-            this.mode = reader.byte(); // 0=offline, 1=online
-            this.name = decoder.decode(reader.read(32));
-            this.ops = reader.uint32();
-            this.userdefineinfo = reader.read(32);
-            this.ir_version = reader.uint32();
-            this.model_num = reader.uint32();
-            this.platform_version = reader.read(20);
-            this.platform_type = reader.byte();
-            reader.seek(0);
-            reader.skip(size);
-            const partitions = new Array(reader.uint32());
-            for (let i = 0; i < partitions.length; i++) {
-                partitions[i] = {
-                    type: reader.uint32(),
-                    offset: reader.uint32(),
-                    size: reader.uint32()
-                };
-            }
-            const offset = 256 + 4 + 12 * partitions.length;
-            for (const partition of partitions) {
-                reader.seek(offset + partition.offset);
-                const buffer = reader.read(partition.size);
-                switch (partition.type) {
-                    case 0: { // MODEL_DEF
-                        this._model = buffer;
-                        break;
+        if (this._stream) {
+            const reader = new base.BinaryReader(this._stream);
+            delete this._stream;
+            const buffer = reader.read(4);
+            this.signature = Array.from(buffer).map((c) => String.fromCharCode(c)).join('');
+            switch (this.signature) {
+                case 'IMOD': {
+                    const decoder = new TextDecoder('utf-8');
+                    const size = reader.uint32();
+                    this.version = reader.uint32();
+                    this.checksum = reader.read(64);
+                    reader.skip(4);
+                    this.is_encrypt = reader.byte();
+                    this.is_checksum = reader.byte();
+                    this.type = reader.byte(); // 0=IR model, 1=standard model, 2=OM Tiny model
+                    this.mode = reader.byte(); // 0=offline, 1=online
+                    this.name = decoder.decode(reader.read(32));
+                    this.ops = reader.uint32();
+                    this.userdefineinfo = reader.read(32);
+                    this.ir_version = reader.uint32();
+                    this.model_num = reader.uint32();
+                    this.platform_version = reader.read(20);
+                    this.platform_type = reader.byte();
+                    reader.seek(0);
+                    reader.skip(size);
+                    const partitions = new Array(reader.uint32());
+                    for (let i = 0; i < partitions.length; i++) {
+                        partitions[i] = {
+                            type: reader.uint32(),
+                            offset: reader.uint32(),
+                            size: reader.uint32()
+                        };
                     }
-                    case 1: { // WEIGHTS_DATA
-                        this._weights = buffer;
-                        break;
-                    }
-                    case 2: // TASK_INFO
-                    case 3: // TBE_KERNELS
-                    case 4: { // CUST_AICPU_KERNELS
-                        break;
-                    }
-                    case 5: { // DEVICE_CONFIG
-                        this.devices = new Map();
-                        const decoder = new TextDecoder('ascii');
-                        const reader = new base.BinaryReader(buffer);
-                        reader.uint32();
-                        for (let position = 4; position < partition.size; ) {
-                            const length = reader.uint32();
-                            const buffer = reader.read(length);
-                            const name = decoder.decode(buffer);
-                            const device = reader.uint32();
-                            this.devices.set(name, device);
-                            position += 4 + length + 4;
+                    const offset = 256 + 4 + 12 * partitions.length;
+                    for (const partition of partitions) {
+                        reader.seek(offset + partition.offset);
+                        const buffer = reader.read(partition.size);
+                        switch (partition.type) {
+                            case 0: { // MODEL_DEF
+                                this._model = buffer;
+                                break;
+                            }
+                            case 1: { // WEIGHTS_DATA
+                                this._weights = buffer;
+                                break;
+                            }
+                            case 2: // TASK_INFO
+                            case 3: // TBE_KERNELS
+                            case 4: { // CUST_AICPU_KERNELS
+                                break;
+                            }
+                            case 5: { // DEVICE_CONFIG
+                                this.devices = new Map();
+                                const decoder = new TextDecoder('ascii');
+                                const reader = new base.BinaryReader(buffer);
+                                reader.uint32();
+                                for (let position = 4; position < partition.size; ) {
+                                    const length = reader.uint32();
+                                    const buffer = reader.read(length);
+                                    const name = decoder.decode(buffer);
+                                    const device = reader.uint32();
+                                    this.devices.set(name, device);
+                                    position += 4 + length + 4;
+                                }
+                                break;
+                            }
+                            default: {
+                                throw new om.Error("Unsupported partition type '" + partition.type + "'.");
+                            }
                         }
-                        break;
                     }
-                    default: {
-                        throw new om.Error("Unsupported partition type '" + partition.type + "'.");
-                    }
+                    break;
+                }
+                case 'PICO': {
+                    reader.uint32(); // reserved
+                    this.size = reader.uint32();
+                    const param_size = reader.uint32();
+                    const param_offset = reader.uint32();
+                    reader.uint32(); // tmp_bufsize
+                    const tfm_offset = reader.uint32();
+                    reader.uint32(); // tfm_size
+                    this.type = 2;
+                    reader.seek(param_offset);
+                    this.param = reader.read(param_size);
+                    this._model = reader.read(tfm_offset - reader.position);
+                    throw new om.Error("Unsupported DaVinci OM '" + this.signature + "' signature.");
+                }
+                default: {
+                    throw new om.Error("Unsupported DaVinci OM '" + this.signature + "' signature.");
                 }
             }
         }
