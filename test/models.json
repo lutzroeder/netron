@@ -3197,6 +3197,14 @@
     "link":     "https://nnabla.readthedocs.io/en/latest/python/api/models/imagenet.html"
   },
   {
+    "type":     "nnef",
+    "target":   "squeezenet_v1.0.onnx.nnef.tgz",
+    "source":   "https://sfo2.digitaloceanspaces.com/nnef-public/squeezenet_v1.0.onnx.nnef.tgz",
+    "format":   "NNEF v1.0",
+    "error":    "NNEF v1.0 support not implemented.",
+    "link":     "https://github.com/lutzroeder/netron/issues/992"
+  },
+  {
     "type":     "numpy",
     "target":   "cifar10-1w-1a.npz",
     "source":   "https://raw.githubusercontent.com/Xilinx/BNN-PYNQ/master/bnn/src/training/cifar10-1w-1a.npz",

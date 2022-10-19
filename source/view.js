@@ -397,6 +397,7 @@ view.View = class {
             { name: 'Error loading DaVinci model.', message: /^Unsupported attribute type/, url: 'https://github.com/lutzroeder/netron/issues/926' },
             { name: 'Error loading Keras model.', message: /^Unsupported data object header version/, url: 'https://github.com/lutzroeder/netron/issues/548' },
             { name: 'Error loading MNN model.', message: /^File format is not mnn\.Net/, url: 'https://github.com/lutzroeder/netron/issues/746' },
+            { name: 'Error loading NNEF model.', message: /^.*/, url: 'https://github.com/lutzroeder/netron/issues/992' },
             { name: 'Error loading PyTorch model.', message: /^File does not contain root module or state dictionary/, url: 'https://github.com/lutzroeder/netron/issues/543' },
             { name: 'Error loading PyTorch model.', message: /^Module does not contain modules/, url: 'https://github.com/lutzroeder/netron/issues/544' },
             { name: 'Error loading PyTorch model.', message: /^Unknown type name/, url: 'https://github.com/lutzroeder/netron/issues/969' },
@@ -404,7 +405,7 @@ view.View = class {
             { name: 'Error loading TensorFlow Lite model.', message: /^Offset is outside the bounds of the DataView/, url: 'https://github.com/lutzroeder/netron/issues/563' },
         ];
         const known = knowns.find((known) => (known.name.length === 0 || known.name === err.name) && err.message.match(known.message));
-        const message = err.message + (known ? '\n\nPlease provide information about this issue at ' + known.url + '.' : '');
+        const message = err.message + (known ? '\n\n' + known.url : '');
         name = name || err.name;
         this._host.error(name, message);
         this.show(screen !== undefined ? screen : 'welcome');
@@ -1609,6 +1610,7 @@ view.ModelFactoryService = class {
         this.register('./flax', [ '.msgpack' ]);
         this.register('./om', [ '.om', '.onnx', '.pb', '.engine' ]);
         this.register('./nnabla', [ '.nntxt' ], [ '.nnp' ]);
+        this.register('./nnef', [ '.nnef', '.dat' ]);
         this.register('./cambricon', [ '.cambricon' ]);
     }
 
@@ -1973,6 +1975,12 @@ view.ModelFactoryService = class {
                         matches.some((e) => e.name.toLowerCase().endsWith('.bin')) &&
                         matches.some((e) => e.name.toLowerCase().endsWith('.param.bin'))) {
                         matches = matches.filter((e) => e.name.toLowerCase().endsWith('.param.bin'));
+                    }
+                    // NNEF
+                    if (matches.length > 0 &&
+                        matches.some((e) => e.name.toLowerCase().endsWith('.nnef')) &&
+                        matches.some((e) => e.name.toLowerCase().endsWith('.dat'))) {
+                        matches = matches.filter((e) => e.name.toLowerCase().endsWith('.nnef'));
                     }
                     // Paddle
                     if (matches.length > 0 &&
