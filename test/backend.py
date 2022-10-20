@@ -7,7 +7,7 @@ import sys
 
 root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(root_dir)
-sys.pycache_prefix = os.path.join(root_dir, 'dist', '__pycache__')
+sys.pycache_prefix = os.path.join(root_dir, 'dist', 'pycache', 'test', 'backend')
 netron = __import__('source')
 
 test_data_dir = os.path.join(root_dir, 'third_party', 'test')
@@ -34,7 +34,8 @@ def _test_onnx_list():
 def _test_torchscript():
     torch = __import__('torch')
     torchvision = __import__('torchvision')
-    model = torchvision.models.resnet34(weights=torchvision.models.ResNet34_Weights.DEFAULT)
+    # model = torchvision.models.resnet34(weights=torchvision.models.ResNet34_Weights.DEFAULT)
+    model = torchvision.models.alexnet(weights=torchvision.models.AlexNet_Weights.DEFAULT)
     args = torch.zeros([1, 3, 224, 224])
     graph, _ = torch.jit._get_trace_graph(model, args) # pylint: disable=protected-access
     # graph = torch.onnx._optimize_trace(graph, torch.onnx.OperatorExportTypes.ONNX)
