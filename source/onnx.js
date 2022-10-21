@@ -123,11 +123,11 @@ onnx.ModelFactory = class {
                 }
             }
         }
-        if (onnx.Text.Reader.open(stream)) {
+        if (onnx.Reader.text.open(stream)) {
             return 'onnx.text';
         }
-        if (onnx.Runtime.Reader.open(stream, extension)) {
-            return 'onnx.flatbuffers';
+        if (onnx.Reader.ort.open(stream, extension)) {
+            return 'onnx.ort';
         }
         tags = context.tags('pbtxt');
         if (tags.has('ir_version')) {
@@ -247,12 +247,12 @@ onnx.ModelFactory = class {
                         throw new onnx.Error('File format is not onnx.ModelProto (' + message.replace(/\.$/, '') + ').');
                     }
                 });
-            case 'onnx.flatbuffers': {
+            case 'onnx.ort': {
                 return context.require('./onnx-schema').then((/* schema */) => {
                     try {
                         onnx.schema = flatbuffers.get('ort').onnxruntime.fbs;
                         const stream = context.stream;
-                        const reader = onnx.Runtime.Reader.open(stream, 'ort');
+                        const reader = onnx.Reader.ort.open(stream, 'ort');
                         const model = reader.read();
                         const format = 'ONNX Runtime' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
                         return open(model, format);
@@ -268,7 +268,7 @@ onnx.ModelFactory = class {
                     try {
                         onnx.proto = protobuf.get('onnx').onnx;
                         const stream = context.stream;
-                        const reader = onnx.Text.Reader.open(stream);
+                        const reader = onnx.Reader.text.open(stream);
                         const model = reader.read();
                         const format = 'ONNX Text' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
                         return open(model, format);
@@ -1584,9 +1584,10 @@ onnx.GraphContext = class {
     }
 };
 
-onnx.Runtime = {};
+onnx.Reader = class {
+};
 
-onnx.Runtime.Reader = class {
+onnx.Reader.ort = class {
 
     static open(stream, extension) {
         if (stream && stream.length >= 8) {
@@ -1594,12 +1595,12 @@ onnx.Runtime.Reader = class {
             const reader = flatbuffers.BinaryReader.open(buffer);
             const identifier = reader.identifier;
             if (identifier === 'ORTM') {
-                return new onnx.Runtime.Reader(stream);
+                return new onnx.Reader.ort(stream);
             }
             if (extension === 'ort') {
                 const signature = [ 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
                 if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                    return new onnx.Runtime.Reader(stream);
+                    return new onnx.Reader.ort(stream);
                 }
             }
         }
@@ -1735,9 +1736,7 @@ onnx.Runtime.Reader = class {
     }
 };
 
-onnx.Text = {};
-
-onnx.Text.Reader = class {
+onnx.Reader.text = class {
 
     static open(stream) {
         try {
@@ -1754,7 +1753,7 @@ onnx.Text.Reader = class {
                 const content = lines.join('\n');
                 if (/^\s*<\s*ir_version\s*:/m.exec(content) ||
                     /^\s*[a-zA-Z][a-zA-Z0-9]*\s*\(.*\)\s=>\s\(/m.exec(content)) {
-                    return new onnx.Text.Reader(stream);
+                    return new onnx.Reader.text(stream);
                 }
             }
         }
