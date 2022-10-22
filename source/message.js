@@ -14,17 +14,16 @@ message.ModelFactory = class {
             if (match && match[1].startsWith('netron:')) {
                 const obj = context.open('json');
                 if (obj && obj.signature && obj.signature.startsWith('netron:')) {
-                    return obj.signature;
+                    return obj;
                 }
             }
         }
-        return '';
+        return null;
     }
 
-    open(context) {
+    open(context, match) {
         return Promise.resolve().then(() => {
-            const obj = context.open('json');
-            return new message.Model(obj);
+            return new message.Model(match);
         });
     }
 };
