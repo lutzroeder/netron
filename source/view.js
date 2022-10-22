@@ -7,6 +7,7 @@ var json = require('./json');
 var xml = require('./xml');
 var protobuf = require('./protobuf');
 var flatbuffers = require('./flatbuffers');
+var hdf5 = require('./hdf5');
 var python = require('./python');
 var dialog = require('./dialog');
 var grapher = require('./grapher');
@@ -1340,7 +1341,6 @@ view.ModelContext = class {
             if (stream) {
                 const position = stream.position;
                 const signatures = [
-                    [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ], // HDF5
                     [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ] // PyTorch
                 ];
                 const skip =
@@ -1402,6 +1402,13 @@ view.ModelContext = class {
                                 };
                                 const obj = unpickler.load();
                                 this._content.set(type, obj);
+                            }
+                            break;
+                        }
+                        case 'hdf5': {
+                            const file = hdf5.File.open(stream);
+                            if (file && file.rootGroup && file.rootGroup.attributes) {
+                                this._content.set(type, file.rootGroup);
                             }
                             break;
                         }
@@ -1610,6 +1617,7 @@ view.ModelFactoryService = class {
         this.register('./flax', [ '.msgpack' ]);
         this.register('./om', [ '.om', '.onnx', '.pb', '.engine' ]);
         this.register('./nnabla', [ '.nntxt' ], [ '.nnp' ]);
+        this.register('./hickle', [ '.h5', '.hkl' ]);
         this.register('./nnef', [ '.nnef', '.dat' ]);
         this.register('./cambricon', [ '.cambricon' ]);
     }
@@ -1886,19 +1894,29 @@ view.ModelFactoryService = class {
                         return Promise.reject(error);
                     }
                     success = true;
-                    return modelFactory.open(context, match).then((model) => {
-                        if (!model.identifier) {
-                            model.identifier = context.identifier;
-                        }
-                        return model;
-                    }).catch((error) => {
+                    try {
+                        return modelFactory.open(context, match).then((model) => {
+                            if (!model.identifier) {
+                                model.identifier = context.identifier;
+                            }
+                            return model;
+                        }).catch((error) => {
+                            if (context.stream && context.stream.position !== 0) {
+                                context.stream.seek(0);
+                            }
+                            updateErrorContext(error, context);
+                            errors.push(error);
+                            return nextModule();
+                        });
+                    }
+                    catch (error) {
                         if (context.stream && context.stream.position !== 0) {
                             context.stream.seek(0);
                         }
                         updateErrorContext(error, context);
                         errors.push(error);
                         return nextModule();
-                    });
+                    }
                 });
             }
             if (success) {
@@ -1928,7 +1946,7 @@ view.ModelFactoryService = class {
                 const nextEntry = () => {
                     if (queue.length > 0) {
                         const entry = queue.shift();
-                        const context = new view.ModelContext(new view.EntryContext(this._host, null, folder, entry.name, entry.stream));
+                        const context = new view.ModelContext(new view.EntryContext(this._host, entries, folder, entry.name, entry.stream));
                         let modules = this._filter(context);
                         const nextModule = () => {
                             if (modules.length > 0) {
@@ -1939,7 +1957,7 @@ view.ModelFactoryService = class {
                                     }
                                     const factory = new module.ModelFactory();
                                     if (factory.match(context)) {
-                                        matches.push(entry);
+                                        matches.push(context);
                                         modules = [];
                                     }
                                     return nextModule();
@@ -1954,63 +1972,63 @@ view.ModelFactoryService = class {
                     }
                     // MXNet
                     if (matches.length === 2 &&
-                        matches.some((e) => e.name.toLowerCase().endsWith('.params')) &&
-                        matches.some((e) => e.name.toLowerCase().endsWith('-symbol.json'))) {
-                        matches = matches.filter((e) => e.name.toLowerCase().endsWith('.params'));
+                        matches.some((context) => context.identifier.toLowerCase().endsWith('.params')) &&
+                        matches.some((context) => context.identifier.toLowerCase().endsWith('-symbol.json'))) {
+                        matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.params'));
                     }
                     // TensorFlow.js
                     if (matches.length > 0 &&
-                        matches.some((e) => e.name.toLowerCase().endsWith('.bin')) &&
-                        matches.some((e) => e.name.toLowerCase().endsWith('.json'))) {
-                        matches = matches.filter((e) => e.name.toLowerCase().endsWith('.json'));
+                        matches.some((context) => context.identifier.toLowerCase().endsWith('.bin')) &&
+                        matches.some((context) => context.identifier.toLowerCase().endsWith('.json'))) {
+                        matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.json'));
                     }
                     // ncnn
                     if (matches.length > 0 &&
-                        matches.some((e) => e.name.toLowerCase().endsWith('.bin')) &&
-                        matches.some((e) => e.name.toLowerCase().endsWith('.param'))) {
-                        matches = matches.filter((e) => e.name.toLowerCase().endsWith('.param'));
+                        matches.some((context) => context.identifier.toLowerCase().endsWith('.bin')) &&
+                        matches.some((context) => context.identifier.toLowerCase().endsWith('.param'))) {
+                        matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.param'));
                     }
                     // ncnn
                     if (matches.length > 0 &&
-                        matches.some((e) => e.name.toLowerCase().endsWith('.bin')) &&
-                        matches.some((e) => e.name.toLowerCase().endsWith('.param.bin'))) {
-                        matches = matches.filter((e) => e.name.toLowerCase().endsWith('.param.bin'));
+                        matches.some((context) => context.identifier.toLowerCase().endsWith('.bin')) &&
+                        matches.some((context) => context.identifier.toLowerCase().endsWith('.param.bin'))) {
+                        matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.param.bin'));
                     }
                     // NNEF
                     if (matches.length > 0 &&
-                        matches.some((e) => e.name.toLowerCase().endsWith('.nnef')) &&
-                        matches.some((e) => e.name.toLowerCase().endsWith('.dat'))) {
-                        matches = matches.filter((e) => e.name.toLowerCase().endsWith('.nnef'));
+                        matches.some((context) => context.identifier.toLowerCase().endsWith('.nnef')) &&
+                        matches.some((context) => context.identifier.toLowerCase().endsWith('.dat'))) {
+                        matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.nnef'));
                     }
                     // Paddle
                     if (matches.length > 0 &&
-                        matches.some((e) => e.name.toLowerCase().endsWith('.pdmodel')) &&
-                        (matches.some((e) => e.name.toLowerCase().endsWith('.pdparams')) ||
-                            matches.some((e) => e.name.toLowerCase().endsWith('.pdopt')) ||
-                            matches.some((e) => e.name.toLowerCase().endsWith('.pdiparams')))) {
-                        matches = matches.filter((e) => e.name.toLowerCase().endsWith('.pdmodel'));
+                        matches.some((context) => context.identifier.toLowerCase().endsWith('.pdmodel')) &&
+                        (matches.some((context) => context.identifier.toLowerCase().endsWith('.pdparams')) ||
+                            matches.some((context) => context.identifier.toLowerCase().endsWith('.pdopt')) ||
+                            matches.some((context) => context.identifier.toLowerCase().endsWith('.pdiparams')))) {
+                        matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.pdmodel'));
                     }
                     // Paddle Lite
                     if (matches.length > 0 &&
-                        matches.some((e) => e.name.toLowerCase().split('/').pop() === '__model__.nb') &&
-                        matches.some((e) => e.name.toLowerCase().split('/').pop() === 'param.nb')) {
-                        matches = matches.filter((e) => e.name.toLowerCase().split('/').pop() == '__model__.nb');
+                        matches.some((context) => context.identifier.toLowerCase().split('/').pop() === '__model__.nb') &&
+                        matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'param.nb')) {
+                        matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == '__model__.nb');
                     }
                     // TensorFlow Bundle
                     if (matches.length > 1 &&
-                        matches.some((e) => e.name.toLowerCase().endsWith('.data-00000-of-00001'))) {
-                        matches = matches.filter((e) => !e.name.toLowerCase().endsWith('.data-00000-of-00001'));
+                        matches.some((context) => context.identifier.toLowerCase().endsWith('.data-00000-of-00001'))) {
+                        matches = matches.filter((context) => !context.identifier.toLowerCase().endsWith('.data-00000-of-00001'));
                     }
                     // TensorFlow SavedModel
                     if (matches.length === 2 &&
-                        matches.some((e) => e.name.toLowerCase().split('/').pop() === 'keras_metadata.pb')) {
-                        matches = matches.filter((e) => e.name.toLowerCase().split('/').pop() !== 'keras_metadata.pb');
+                        matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'keras_metadata.pb')) {
+                        matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() !== 'keras_metadata.pb');
                     }
                     if (matches.length > 1) {
                         return Promise.reject(new view.ArchiveError('Archive contains multiple model files.'));
                     }
                     const match = matches.shift();
-                    return Promise.resolve(new view.ModelContext(new view.EntryContext(this._host, entries, folder, match.name, match.stream)));
+                    return Promise.resolve(match);
                 };
                 return nextEntry();
             };

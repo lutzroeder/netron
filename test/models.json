@@ -1974,6 +1974,13 @@
     "link":     "https://github.com/lutzroeder/netron/issues/334"
   },
   {
+    "type":     "hickle",
+    "target":   "googlenet.h5",
+    "source":   "https://github.com/vadimkantorov/metriclearningbench/releases/download/data/googlenet.h5",
+    "format":   "Hickle Weights",
+    "link":     "https://github.com/lutzroeder/netron/issues/998"
+  },
+  {
     "type":     "keras",
     "target":   "5_model_fold_0.h5",
     "source":   "https://github.com/lutzroeder/netron/files/6174822/5_model_fold_0.h5.zip[5_model_fold_0.h5]",
@@ -3201,7 +3208,7 @@
     "target":   "squeezenet_v1.0.onnx.nnef.tgz",
     "source":   "https://sfo2.digitaloceanspaces.com/nnef-public/squeezenet_v1.0.onnx.nnef.tgz",
     "format":   "NNEF v1.0",
-    "error":    "NNEF v1.0 support not implemented.",
+    "error":    "NNEF v1.0 support not implemented in 'graph.nnef'.",
     "link":     "https://github.com/lutzroeder/netron/issues/992"
   },
   {

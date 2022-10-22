@@ -19,7 +19,10 @@ hdf5.File = class {
 
     constructor(data) {
         // https://support.hdfgroup.org/HDF5/doc/H5.format.html
-        const reader = data instanceof Uint8Array ? new hdf5.BinaryReader(data) : (data.length < 0x10000000 ? new hdf5.BinaryReader(data.peek()) : new hdf5.StreamReader(data));        reader.skip(8);
+        const reader = data instanceof Uint8Array ?
+            new hdf5.BinaryReader(data) :
+            (data.length < 0x10000000 ? new hdf5.BinaryReader(data.peek()) : new hdf5.StreamReader(data));
+        reader.skip(8);
         this._globalHeap = new hdf5.GlobalHeap(reader);
         const version = reader.byte();
         switch (version) {
