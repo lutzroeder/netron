@@ -10014,7 +10014,28 @@
         "type": "string"
       },
       {
-        "name": "source_layout",
+        "name": "T",
+        "type": "type"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "typeAttr": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "CopyToMeshGrad",
+    "attributes": [
+      {
+        "name": "reference_layout",
         "type": "string",
         "default": ""
       },
@@ -10026,6 +10047,10 @@
     "inputs": [
       {
         "name": "input",
+        "typeAttr": "T"
+      },
+      {
+        "name": "forward_input",
         "typeAttr": "T"
       }
     ],
@@ -57075,7 +57100,7 @@
   {
     "name": "TensorArraySplitV3",
     "summary": "Split the data from the input value into TensorArray elements.",
-    "description": "Assuming that `lengths` takes on values\n\n  ```\n  (n0, n1, ..., n(T-1))\n  ```\n\nand that `value` has shape\n\n  ```\n  (n0 + n1 + ... + n(T-1) x d0 x d1 x ...)\n  ```,\n\nthis splits values into a TensorArray with T tensors.\n\nTensorArray index t will be the subtensor of values with starting position\n\n  ```\n  (n0 + n1 + ... + n(t-1), 0, 0, ...)\n  ```\n\nand having size\n\n  ```\n  nt x d0 x d1 x ...\n  ```",
+    "description": "Assuming that `lengths` takes on values\n\n  ```\n  (n0, n1, ..., n(T-1))\n  ```\n\nand that `value` has shape\n\n  ```\n  (n0 + n1 + ... + n(T-1) x d0 x d1 x ...),\n  ```\n\nthis splits values into a TensorArray with T tensors.\n\nTensorArray index t will be the subtensor of values with starting position\n\n  ```\n  (n0 + n1 + ... + n(t-1), 0, 0, ...)\n  ```\n\nand having size\n\n  ```\n  nt x d0 x d1 x ...\n  ```",
     "attributes": [
       {
         "name": "T",
