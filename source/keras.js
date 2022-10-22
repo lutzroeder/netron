@@ -1,5 +1,6 @@
 
 var keras = keras || {};
+var tfjs = tfjs || {};
 var json = require('./json');
 var python = require('./python');
 
@@ -14,20 +15,14 @@ keras.ModelFactory = class {
         const json = context.open('json');
         if (json) {
             if (json.mxnet_version || (json.nodes && json.arg_nodes && json.heads)) {
-                return undefined;
-            }
-            if (json.modelTopology && (json.format === 'layers-model' || json.modelTopology.class_name || json.modelTopology.model_config)) {
-                return 'keras.json.tfjs';
+                return null;
             }
             if (json.model_config || (json.class_name && json.config)) {
                 return 'keras.json';
             }
-            if (Array.isArray(json) && json.every((item) => item.weights && item.paths)) {
-                return 'keras.json.tfjs.weights';
-            }
-            if (json.tfjsVersion) {
-                return 'keras.json.tfjs.metadata';
-            }
+        }
+        if (tfjs.Container.open(context)) {
+            return 'tfjs.json';
         }
         const pickle = context.open('pkl');
         if (pickle &&
@@ -36,80 +31,13 @@ keras.ModelFactory = class {
             pickle.__class__.__name__ === 'Sequential') {
             return 'keras.pickle';
         }
-        return undefined;
+        return null;
     }
 
     open(context, match) {
         const openModel = (format, producer, backend, config, weights) => {
             return context.metadata('keras-metadata.json').then((metadata) => {
                 return new keras.Model(metadata, format, producer, backend, config, weights);
-            });
-        };
-        const openShards = (manifests, shards) => {
-            const weights = new keras.Weights();
-            const dtype_size_map = new Map([ [ 'float16', 2 ], [ 'float32', 4 ], [ 'float64', 8 ], [ 'int8', 1 ], [ 'int16', 2 ], [ 'int32', 4 ], [ 'int64', 8 ], [ 'uint8', 1 ], [ 'uint16', 2 ], [ 'uint32', 4 ], [ 'uint64', 8 ] ]);
-            for (const manifest of manifests) {
-                let buffer = null;
-                if (Array.isArray(manifest.paths) && manifest.paths.length > 0 && manifest.paths.every((path) => shards.has(path))) {
-                    const list = manifest.paths.map((path) => shards.get(path));
-                    const size = list.reduce((a, b) => a + b.length, 0);
-                    buffer = new Uint8Array(size);
-                    let offset = 0;
-                    for (const item of list) {
-                        buffer.set(item, offset);
-                        offset += item.length;
-                    }
-                }
-                let offset = 0;
-                for (const weight of manifest.weights) {
-                    const dtype = weight.quantization && weight.quantization.dtype ? weight.quantization.dtype : weight.dtype;
-                    if (!dtype_size_map.has(dtype)) {
-                        throw new keras.Error("Unsupported weight data type size '" + dtype + "'.");
-                    }
-                    const itemsize = dtype_size_map.get(dtype);
-                    const size = weight.shape.reduce((a, b) => a * b, 1);
-                    const length = itemsize * size;
-                    const data = buffer ? buffer.slice(offset, offset + length) : null;
-                    weights.add(weight.identifier, new keras.Tensor(weight.name, weight.shape, dtype, weight.quantization, true, data));
-                    offset += length;
-                }
-            }
-            return Promise.resolve(weights);
-        };
-        const openManifests = (manifests) => {
-            const shards = new Map();
-            for (const manifest of manifests) {
-                for (const path of manifest.paths) {
-                    if (!shards.has(path)) {
-                        shards.set(path, context.request(path, null));
-                    }
-                }
-            }
-            const promises = shards.values();
-            return Promise.all(promises).then((streams) => {
-                for (const key of shards.keys()) {
-                    shards.set(key, streams.shift().peek());
-                }
-                return openShards(manifests, shards);
-            }).catch(() => {
-                shards.clear();
-                return openShards(manifests, shards);
-            });
-        };
-        const openModelJson = (context, obj) => {
-            const modelTopology = obj.modelTopology;
-            const backend = modelTopology.backend || '';
-            const format = 'TensorFlow.js ' + (obj.format ? obj.format : 'Keras' + (modelTopology.keras_version ? (' v' + modelTopology.keras_version) : ''));
-            const producer = obj.convertedBy || obj.generatedBy || '';
-            const manifests = obj.weightsManifest;
-            for (const manifest of manifests) {
-                for (const weight of manifest.weights) {
-                    weight.identifier = '';
-                }
-            }
-            const model_config = modelTopology.model_config ? modelTopology.model_config : modelTopology;
-            return openManifests(manifests).then((weights) => {
-                return openModel(format, producer, backend, model_config, weights);
             });
         };
         const stream = context.stream;
@@ -290,31 +218,10 @@ keras.ModelFactory = class {
                 const weights = new keras.Weights();
                 return openModel(format, '', backend, config, weights);
             }
-            case 'keras.json.tfjs': {
-                const obj = context.open('json');
-                return openModelJson(context, obj);
-            }
-            case 'keras.json.tfjs.weights': {
-                const obj = context.open('json');
-                const manifests = [];
-                const format = 'TensorFlow.js Weights';
-                manifests.push(...obj);
-                for (const manifest of manifests) {
-                    for (const weight of manifest.weights) {
-                        const parts = weight.name.split('/');
-                        parts.pop();
-                        weight.identifier = parts.join('/');
-                    }
-                }
-                return openManifests(manifests).then((weights) => {
-                    return openModel(format, '', '', null, weights);
-                });
-            }
-            case 'keras.json.tfjs.metadata': {
-                return context.request('model.json').then((buffer) => {
-                    const reader = json.TextReader.open(buffer);
-                    const obj = reader.read();
-                    return openModelJson(context, obj);
+            case 'tfjs.json': {
+                const container = tfjs.Container.open(context);
+                return container.open().then(() => {
+                    return openModel(container.format, container.producer, container.backend, container.config, container.weights);
                 });
             }
             case 'keras.pickle': {
@@ -1175,6 +1082,167 @@ keras.Error = class extends Error {
     constructor(message) {
         super(message);
         this.name = 'Error loading Keras model.';
+    }
+};
+
+tfjs.Container = class {
+
+    static open(context) {
+        const json = context.open('json');
+        if (json) {
+            if (json.modelTopology && (json.format === 'layers-model' || json.modelTopology.class_name || json.modelTopology.model_config)) {
+                return new tfjs.Container(context, '');
+            }
+            if (Array.isArray(json) && json.every((item) => item.weights && item.paths)) {
+                return new tfjs.Container(context, 'weights');
+            }
+            if (json.tfjsVersion) {
+                return new tfjs.Container(context, 'metadata');
+            }
+        }
+        return null;
+    }
+
+    constructor(context, type) {
+        this._context = context;
+        this._type = type;
+    }
+
+    get format() {
+        return this._format;
+    }
+
+    get producer() {
+        return this._producer || '';
+    }
+
+    get backend() {
+        return this._backend || '';
+    }
+
+    get config() {
+        return this._config;
+    }
+
+    get weights() {
+        return this._weights;
+    }
+
+    open() {
+        switch (this._type) {
+            case '': {
+                const obj = this._context.open('json');
+                return this._openModelJson(obj);
+            }
+            case 'weights': {
+                this._format = 'TensorFlow.js Weights';
+                this._config = null;
+                const obj = this._context.open('json');
+                const manifests = Array.from(obj);
+                for (const manifest of manifests) {
+                    for (const weight of manifest.weights) {
+                        const parts = weight.name.split('/');
+                        parts.pop();
+                        weight.identifier = parts.join('/');
+                    }
+                }
+                return this._openManifests(manifests).then(() => {
+                    return this;
+                });
+            }
+            case 'metadata': {
+                return this._context.request('model.json').then((buffer) => {
+                    const reader = json.TextReader.open(buffer);
+                    const obj = reader.read();
+                    return this._openModelJson(obj);
+                });
+            }
+            default: {
+                throw new tfjs.Error("Unsupported TensorFlow.js format '" + this._type + "'.");
+            }
+        }
+    }
+
+    _openShards(manifests, shards) {
+        const weights = new keras.Weights();
+        const dtype_size_map = new Map([
+            [ 'float16', 2 ], [ 'float32', 4 ], [ 'float64', 8 ],
+            [ 'int8', 1 ], [ 'int16', 2 ], [ 'int32', 4 ], [ 'int64', 8 ],
+            [ 'uint8', 1 ], [ 'uint16', 2 ], [ 'uint32', 4 ], [ 'uint64', 8 ]
+        ]);
+        for (const manifest of manifests) {
+            let buffer = null;
+            if (Array.isArray(manifest.paths) && manifest.paths.length > 0 && manifest.paths.every((path) => shards.has(path))) {
+                const list = manifest.paths.map((path) => shards.get(path));
+                const size = list.reduce((a, b) => a + b.length, 0);
+                buffer = new Uint8Array(size);
+                let offset = 0;
+                for (const item of list) {
+                    buffer.set(item, offset);
+                    offset += item.length;
+                }
+            }
+            let offset = 0;
+            for (const weight of manifest.weights) {
+                const dtype = weight.quantization && weight.quantization.dtype ? weight.quantization.dtype : weight.dtype;
+                if (!dtype_size_map.has(dtype)) {
+                    throw new keras.Error("Unsupported weight data type size '" + dtype + "'.");
+                }
+                const itemsize = dtype_size_map.get(dtype);
+                const size = weight.shape.reduce((a, b) => a * b, 1);
+                const length = itemsize * size;
+                const data = buffer ? buffer.slice(offset, offset + length) : null;
+                weights.add(weight.identifier, new keras.Tensor(weight.name, weight.shape, dtype, weight.quantization, true, data));
+                offset += length;
+            }
+        }
+        this._weights = weights;
+        return Promise.resolve();
+    }
+
+    _openManifests(manifests) {
+        const shards = new Map();
+        for (const manifest of manifests) {
+            for (const path of manifest.paths) {
+                if (!shards.has(path)) {
+                    const promise = this._context.request(path, null);
+                    shards.set(path, promise);
+                }
+            }
+        }
+        const promises = shards.values();
+        return Promise.all(promises).then((streams) => {
+            for (const key of shards.keys()) {
+                shards.set(key, streams.shift().peek());
+            }
+            return this._openShards(manifests, shards);
+        }).catch(() => {
+            shards.clear();
+            return this._openShards(manifests, shards);
+        });
+    }
+
+    _openModelJson(obj) {
+        const modelTopology = obj.modelTopology;
+        this._format = 'TensorFlow.js ' + (obj.format ? obj.format : 'Keras' + (modelTopology.keras_version ? (' v' + modelTopology.keras_version) : ''));
+        this._producer = obj.convertedBy || obj.generatedBy || '';
+        this._backend = modelTopology.backend || '';
+        const manifests = obj.weightsManifest;
+        for (const manifest of manifests) {
+            for (const weight of manifest.weights) {
+                weight.identifier = '';
+            }
+        }
+        this._config = modelTopology.model_config ? modelTopology.model_config : modelTopology;
+        return this._openManifests(manifests);
+    }
+};
+
+tfjs.Error = class extends Error {
+
+    constructor(message) {
+        super(message);
+        this.name = 'Error loading TensorFlow.js model.';
     }
 };
 
