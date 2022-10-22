@@ -8,16 +8,15 @@ acuity.ModelFactory = class {
         if (extension === 'json') {
             const obj = context.open('json');
             if (obj && obj.MetaData && obj.Layers) {
-                return 'acuity.json';
+                return obj;
             }
         }
-        return undefined;
+        return null;
     }
 
-    open(context) {
+    open(context, match) {
         return context.metadata('acuity-metadata.json').then((metadata) => {
-            const obj = context.open('json');
-            return new acuity.Model(metadata, obj);
+            return new acuity.Model(metadata, match);
         });
     }
 };
