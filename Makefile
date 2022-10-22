@@ -114,7 +114,7 @@ publish_cask:
 	git -C ./dist/homebrew-cask add --all
 	git -C ./dist/homebrew-cask commit -m "Update $$(node -pe "require('./package.json').productName") to $$(node -pe "require('./package.json').version")"
 	git -C ./dist/homebrew-cask push
-	curl -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/Homebrew/homebrew-cask/pulls -d "{\"title\":\"Update $$(node -pe "require('./package.json').name") to $$(node -pe "require('./package.json').version")\",\"body\":\"Update version and sha256.\",\"base\":\"master\",\"head\":\"$(GITHUB_USER):master\",\"body\":\"\"}" 2>&1 > /dev/null
+	curl -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/Homebrew/homebrew-cask/pulls -d "{\"title\":\"Update $$(node -pe "require('./package.json').name") to $$(node -pe "require('./package.json').version")\",\"base\":\"master\",\"head\":\"$(GITHUB_USER):master\",\"body\":\"Update version and sha256.\"}" 2>&1 > /dev/null
 	rm -rf ./dist/homebrew-cask
 
 publish_winget:
