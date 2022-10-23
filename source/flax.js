@@ -14,7 +14,7 @@ flax.ModelFactory = class {
                 return 'msgpack.map';
             }
         }
-        return '';
+        return null;
     }
 
     open(context) {
