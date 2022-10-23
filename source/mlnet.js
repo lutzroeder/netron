@@ -14,7 +14,7 @@ mlnet.ModelFactory = class {
                 return 'mlnet';
             }
         }
-        return undefined;
+        return null;
     }
 
     open(context) {
