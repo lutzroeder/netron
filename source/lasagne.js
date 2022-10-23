@@ -8,15 +8,14 @@ lasagne.ModelFactory = class {
     match(context) {
         const obj = context.open('pkl');
         if (obj && obj.__class__ && obj.__class__.__module__ === 'nolearn.lasagne.base' && obj.__class__.__name__ == 'NeuralNet') {
-            return 'lasagne';
+            return obj;
         }
-        return '';
+        return null;
     }
 
-    open(context) {
+    open(context, match) {
         return context.metadata('lasagne-metadata.json').then((metadata) => {
-            const obj = context.open('pkl');
-            return new lasagne.Model(metadata, obj);
+            return new lasagne.Model(metadata, match);
         });
     }
 };
