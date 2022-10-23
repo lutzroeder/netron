@@ -10,19 +10,19 @@ pickle.ModelFactory = class {
         const signature = [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
         if (stream && signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) {
             // Reject PyTorch models with .pkl file extension.
-            return undefined;
+            return null;
         }
         const obj = context.open('pkl');
         if (obj !== undefined) {
-            return 'pickle';
+            return obj;
         }
-        return undefined;
+        return null;
     }
 
-    open(context) {
+    open(context, match) {
         return new Promise((resolve) => {
             let format = 'Pickle';
-            const obj = context.open('pkl');
+            const obj = match;
             if (obj === null || obj === undefined) {
                 context.exception(new pickle.Error("Unsupported Pickle null object in '" + context.identifier + "'."));
             }
