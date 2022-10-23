@@ -13,7 +13,7 @@ flux.ModelFactory = class {
         if (stream && extension === 'bson') {
             return 'flux.bson';
         }
-        return undefined;
+        return null;
     }
 
     open(context) {
@@ -29,7 +29,28 @@ flux.ModelFactory = class {
                 throw new flux.Error('File format is not Flux BSON (' + message.replace(/\.$/, '') + ').');
             }
             return context.metadata('flux-metadata.json').then((metadata) => {
-                const obj = flux.ModelFactory._backref(root, root);
+                const backref = (obj, root) => {
+                    if (Array.isArray(obj)) {
+                        for (let i = 0; i < obj.length; i++) {
+                            obj[i] = backref(obj[i], root);
+                        }
+                    }
+                    else if (obj === Object(obj)) {
+                        if (obj.tag == 'backref' && obj.ref) {
+                            if (!root._backrefs[obj.ref - 1]) {
+                                throw new flux.Error("Invalid backref '" + obj.ref + "'.");
+                            }
+                            obj = root._backrefs[obj.ref - 1];
+                        }
+                        for (const key of Object.keys(obj)) {
+                            if (obj !== root || key !== '_backrefs') {
+                                obj[key] = backref(obj[key], root);
+                            }
+                        }
+                    }
+                    return obj;
+                };
+                const obj = backref(root, root);
                 const model = obj.model;
                 if (!model) {
                     throw new flux.Error('File does not contain Flux model.');
@@ -37,28 +58,6 @@ flux.ModelFactory = class {
                 return new flux.Model(metadata, model);
             });
         });
-    }
-
-    static _backref(obj, root) {
-        if (Array.isArray(obj)) {
-            for (let i = 0; i < obj.length; i++) {
-                obj[i] = flux.ModelFactory._backref(obj[i], root);
-            }
-        }
-        else if (obj === Object(obj)) {
-            if (obj.tag == 'backref' && obj.ref) {
-                if (!root._backrefs[obj.ref - 1]) {
-                    throw new flux.Error("Invalid backref '" + obj.ref + "'.");
-                }
-                obj = root._backrefs[obj.ref - 1];
-            }
-            for (const key of Object.keys(obj)) {
-                if (obj !== root || key !== '_backrefs') {
-                    obj[key] = flux.ModelFactory._backref(obj[key], root);
-                }
-            }
-        }
-        return obj;
     }
 };
 
