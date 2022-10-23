@@ -1766,6 +1766,7 @@ python.Execution = class {
                 this._handle = state;
             }
         });
+        this.registerType('dnnlib.tflib.network.Network', class {});
         this.registerType('dnnlib.util.EasyDict', class extends dict {});
         this.registerType('haiku._src.data_structures.FlatMapping', class {
             constructor(dict) {
