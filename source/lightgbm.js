@@ -5,21 +5,16 @@ var python = require('./python');
 lightgbm.ModelFactory = class {
 
     match(context) {
-        try {
-            const stream = context.stream;
-            const signature = [ 0x74, 0x72, 0x65, 0x65, 0x0A ];
-            if (stream && stream.length >= signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                return 'lightgbm.text';
-            }
-        }
-        catch (err) {
-            // continue regardless of error
+        const stream = context.stream;
+        const signature = [ 0x74, 0x72, 0x65, 0x65, 0x0A ];
+        if (stream && stream.length >= signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
+            return 'lightgbm.text';
         }
         const obj = context.open('pkl');
         if (obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__module__.startsWith('lightgbm.')) {
             return 'lightgbm.pickle';
         }
-        return '';
+        return null;
     }
 
     open(context, match) {
