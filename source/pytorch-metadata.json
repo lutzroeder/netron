@@ -537,7 +537,7 @@
     ]
   },
   {
-    "name": "aten::conv_transpose1d.input",
+    "name": "aten::conv_transpose1d",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -727,9 +727,18 @@
     ]
   },
   {
-    "name": "aten::dequantize",
+    "name": "aten::dequantize.self",
     "inputs": [
-      { "name": "input", "type": "Tensor" }
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::dequantize.tensors",
+    "inputs": [
+      { "name": "tensors", "type": "Tensor[]" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -1451,7 +1460,7 @@
     ]
   },
   {
-    "name": "aten::bernoulli_.p",
+    "name": "aten::bernoulli.p",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "p", "type": "float32", "default": 0.5 },
@@ -2102,7 +2111,7 @@
     ]
   },
   {
-    "name": "aten::diag.Tensor",
+    "name": "aten::diag",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "diagonal", "type": "int64", "default": 0 }
@@ -2204,11 +2213,22 @@
     ]
   },
   {
-    "name": "aten::transpose",
+    "name": "aten::transpose.int",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "dim0", "type": "int64" },
       { "name": "dim1", "type": "int64" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::transpose.Dimname",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "dim0", "type": "Dimname" },
+      { "name": "dim1", "type": "Dimname" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -2250,7 +2270,17 @@
     "name": "aten::view.SymInt",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "size", "type": "SymInt[]", "visible": false }
+      { "name": "size", "type": "SymInt[]" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::view.dtype",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dtype", "type": "ScalarType" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -3177,7 +3207,7 @@
     ]
   },
   {
-    "name": "aten::quantize_per_tensor.qparams",
+    "name": "aten::quantize_per_tensor.tensor_qparams",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "scale", "type": "Tensor" },
@@ -3189,7 +3219,7 @@
     ]
   },
   {
-    "name": "aten::quantize_per_tensor.Tensors",
+    "name": "aten::quantize_per_tensor.tensors",
     "inputs": [
       { "name": "tensors", "type": "Tensor[]" },
       { "name": "scales", "type": "Tensor" },
@@ -4931,12 +4961,12 @@
     ]
   },
   {
-    "name": "aten::split.Tensor_sizes",
+    "name": "aten::split.sizes",
     "category": "Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "split_sizes", "type": "int64[]" },
-      { "name": "dim", "type": "int64" }
+      { "name": "dim", "type": "int64", "default": 0 }
     ],
     "outputs": [
       { "name": "outputs", "type": "Tensor[]" }
@@ -5197,9 +5227,19 @@
     ]
   },
   {
-    "name": "aten::atan2.Tensor",
+    "name": "aten::atan2",
     "inputs": [
-      { "name": "input", "type": "Tensor" },
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::atan2_",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
@@ -7097,7 +7137,7 @@
     ]
   },
   {
-    "name": "aten::tensor_split.Tensor_indices_or_sections",
+    "name": "aten::tensor_split.tensor_indices_or_sections",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "tensor_indices_or_sections", "type": "Tensor" },
