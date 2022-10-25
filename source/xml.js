@@ -216,7 +216,7 @@ xml.TextReader = class {
                             const elementType = documentType ? documentType.elements.getNamedItem(name) : null;
                             if (namespaceURI !== null) {
                                 this._assert(name === ':' || (!name.endsWith(':') && !name.startsWith(':')));
-                                if (prefix && (namespaceURI === '' || namespaceURI === null)) {
+                                if (prefix && namespaceURI === '') {
                                     this._error("Invalid namespace prefix '" + prefix + "'", this._start);
                                 }
                                 element = document.createElementNS(namespaceURI, name);
