@@ -2798,6 +2798,7 @@ $root.mindspore.schema.QuantDTypeCast = class QuantDTypeCast {
         const $ = new $root.mindspore.schema.QuantDTypeCast();
         $.src_t = reader.int64_(position, 4, 0);
         $.dst_t = reader.int64_(position, 6, 0);
+        $.axis = reader.int64_(position, 8, 0);
         return $;
     }
 
@@ -2805,6 +2806,7 @@ $root.mindspore.schema.QuantDTypeCast = class QuantDTypeCast {
         const $ = new $root.mindspore.schema.QuantDTypeCast();
         $.src_t = reader.value(json.src_t, 0);
         $.dst_t = reader.value(json.dst_t, 0);
+        $.axis = reader.value(json.axis, 0);
         return $;
     }
 };
@@ -4272,7 +4274,8 @@ $root.mindspore.schema.WeightQuantCompressType = {
     SPARSE: 2,
     FSE: 3,
     BITPACKING: 4,
-    FSE_INT: 5
+    FSE_INT: 5,
+    FSE_INFER: 6
 };
 
 $root.mindspore.schema.ExternalData = class ExternalData {
