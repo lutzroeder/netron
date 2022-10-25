@@ -62,6 +62,15 @@ lint: install
 	python -m pip install --upgrade --quiet pylint onnx torch torchvision
 	python -m pylint -sn source/*.py publish/*.py test/*.py tools/*.py
 
+codeql:
+	@[ -d third_party/tools/codeql ] || git clone --depth=1 https://github.com/github/codeql.git ./third_party/tools/codeql
+	rm -rf dist/codeql
+	mkdir -p dist/codeql/netron
+	cp -r publish source test tools dist/codeql/netron/
+	codeql database create dist/codeql/database --source-root dist/codeql/netron --language=javascript --threads=3
+	codeql database analyze dist/codeql/database ./third_party/tools/codeql/javascript/ql/src/codeql-suites/javascript-security-and-quality.qls --format=csv --output=dist/codeql/results.csv --threads=3
+	cat dist/codeql/results.csv
+
 test: install
 	node ./test/models.js
 
