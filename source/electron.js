@@ -87,12 +87,12 @@ host.ElectronHost = class {
                         try {
                             const json = JSON.parse(text);
                             const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
-                            if (json && json.country && !countries.indexOf(json.country) !== -1) {
-                                this._setConfiguration('consent', Date.now());
-                                telemetry();
+                            if (json && json.country && countries.indexOf(json.country) >= 0) {
+                                consent();
                             }
                             else {
-                                consent();
+                                this._setConfiguration('consent', Date.now());
+                                telemetry();
                             }
                         }
                         catch (err) {
