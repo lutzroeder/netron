@@ -557,36 +557,35 @@ protoc.Parser = class {
             throw this._parseError(token, 'type');
         }
         const type = new protoc.Type(parent, token);
-        const self = this;
-        this._ifBlock(type, function(token) {
-            if (self._parseCommon(type, token)) {
+        this._ifBlock(type, (token) => {
+            if (this._parseCommon(type, token)) {
                 return;
             }
             switch (token) {
                 case 'map':
-                    self._parseMapField(type, token);
+                    this._parseMapField(type, token);
                     break;
                 case 'required':
                 case 'optional':
                 case 'repeated':
-                    self._parseField(type, token);
+                    this._parseField(type, token);
                     break;
                 case 'oneof':
-                    self._parseOneOf(type, token);
+                    this._parseOneOf(type, token);
                     break;
                 case 'reserved':
-                    self._readRanges(type.reserved, true);
+                    this._readRanges(type.reserved, true);
                     break;
                 case 'extensions':
-                    self._readRanges(type.extensions);
+                    this._readRanges(type.extensions);
                     break;
                     // throw new protoc.Error("Keyword 'extensions' is not supported" + self._tokenizer.location());
                 default:
-                    if (self._syntax !== 'proto3' || !protoc.Parser._isTypeReference(token)) {
-                        throw self._parseError(token);
+                    if (this._syntax !== 'proto3' || !protoc.Parser._isTypeReference(token)) {
+                        throw this._parseError(token);
                     }
-                    self._tokenizer.push(token);
-                    self._parseField(type, 'optional');
+                    this._tokenizer.push(token);
+                    this._parseField(type, 'optional');
                     break;
             }
         });
@@ -608,17 +607,16 @@ protoc.Parser = class {
         this._tokenizer.expect("=");
         const id = this._parseId(this._tokenizer.next());
         const field = new protoc.Field(parent, name, id, type, rule, extend);
-        const self = this;
-        this._ifBlock(field, function (token) {
+        this._ifBlock(field, (token) => {
             if (token === "option") {
-                self._parseOption(field, token);
-                self._tokenizer.expect(";");
+                this._parseOption(field, token);
+                this._tokenizer.expect(";");
             }
             else {
-                throw self._parseError(token);
+                throw this._parseError(token);
             }
-        }, function () {
-            self._parseInlineOptions(field);
+        }, () => {
+            this._parseInlineOptions(field);
         });
     }
 
@@ -637,19 +635,19 @@ protoc.Parser = class {
         type.group = true;
         const field = new protoc.Field(parent, fieldName, id, name, rule);
         field.file = this._file;
-        this._ifBlock(type, function parseGroup_block(token) {
+        this._ifBlock(type, (token) => {
             switch (token) {
                 case "option":
-                    self._parseOption(type, token);
-                    self._tokenizer.expect(";");
+                    this._parseOption(type, token);
+                    this._tokenizer.expect(";");
                     break;
                 case "required":
                 case "optional":
                 case "repeated":
-                    self._parseField(type, token);
+                    this._parseField(type, token);
                     break;
                 default:
-                    throw self._parseError(token); // there are no groups with proto3 semantics
+                    throw this._parseError(token); // there are no groups with proto3 semantics
             }
         });
         parent.add(type).add(field);
@@ -675,18 +673,16 @@ protoc.Parser = class {
         this._tokenizer.expect("=");
         const id = this._parseId(this._tokenizer.next());
         const field = new protoc.MapField(parent, name, id, keyType, valueType);
-        const self = this;
-        this._ifBlock(field, function(token) {
+        this._ifBlock(field, (token) => {
             if (token === "option") {
-                self._parseOption(field, token);
-                self._tokenizer.expect(";");
+                this._parseOption(field, token);
+                this._tokenizer.expect(";");
             }
             else {
-                throw self._parseError(token);
+                throw this._parseError(token);
             }
-
-        }, function() {
-            self._parseInlineOptions(field);
+        }, () => {
+            this._parseInlineOptions(field);
         });
     }
 
@@ -697,15 +693,14 @@ protoc.Parser = class {
             throw this._parseError(token, 'name');
         }
         const oneof = new protoc.OneOf(parent, token);
-        const self = this;
-        this._ifBlock(oneof, function(token) {
+        this._ifBlock(oneof, (token) => {
             if (token === "option") {
-                self._parseOption(oneof, token);
-                self._tokenizer.expect(";");
+                this._parseOption(oneof, token);
+                this._tokenizer.expect(";");
             }
             else {
-                self._tokenizer.push(token);
-                self._parseField(oneof, 'optional');
+                this._tokenizer.push(token);
+                this._parseField(oneof, 'optional');
             }
         });
     }
@@ -716,18 +711,17 @@ protoc.Parser = class {
             throw this._parseError(token, 'name');
         }
         const obj = new protoc.Enum(parent, token);
-        const self = this;
-        this._ifBlock(obj, function(token) {
+        this._ifBlock(obj, (token) => {
             switch(token) {
                 case "option":
-                    self._parseOption(obj, token);
-                    self._tokenizer.expect(";");
+                    this._parseOption(obj, token);
+                    this._tokenizer.expect(";");
                     break;
                 case "reserved":
-                    self._readRanges(obj.reserved, true);
+                    this._readRanges(obj.reserved, true);
                     break;
                 default:
-                    self._parseEnumValue(obj, token);
+                    this._parseEnumValue(obj, token);
                     break;
             }
         });
@@ -740,18 +734,17 @@ protoc.Parser = class {
         this._tokenizer.expect("=");
         const value = this._parseId(this._tokenizer.next(), true);
         const dummy = {};
-        const self = this;
-        this._ifBlock(dummy, function(token) {
+        this._ifBlock(dummy, (token) => {
             if (token === "option") {
-                self._parseOption(dummy, token); // skip
-                self._tokenizer.expect(";");
+                this._parseOption(dummy, token); // skip
+                this._tokenizer.expect(";");
             }
             else {
-                throw self._parseError(token);
+                throw this._parseError(token);
             }
 
-        }, function() {
-            self._parseInlineOptions(dummy); // skip
+        }, () => {
+            this._parseInlineOptions(dummy); // skip
         });
         parent.add(token, value);
     }
@@ -762,20 +755,19 @@ protoc.Parser = class {
             throw this._parseError(token, 'reference');
         }
         const reference = token;
-        const self = this;
-        this._ifBlock(null, function(token) {
+        this._ifBlock(null, (token) => {
             switch (token) {
                 case "required":
                 case "repeated":
                 case "optional":
-                    self._parseField(parent, token, reference);
+                    this._parseField(parent, token, reference);
                     break;
                 default:
-                    if (!self._syntax !== 'proto3' || !protoc.Parser._isTypeReference(token)) {
-                        throw self._parseError(token);
+                    if (!this._syntax !== 'proto3' || !protoc.Parser._isTypeReference(token)) {
+                        throw this._parseError(token);
                     }
-                    self._tokenizer.push(token);
-                    self._parseField(parent, 'optional', reference);
+                    this._tokenizer.push(token);
+                    this._parseField(parent, 'optional', reference);
                     break;
             }
         });
