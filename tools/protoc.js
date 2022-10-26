@@ -320,7 +320,7 @@ protoc.Field = class extends protoc.Object {
         if (!Number.isInteger(id) || id < 0) {
             throw new protoc.Error('Identifier must be a non-negative integer.');
         }
-        if (rule && !/^required|optional|repeated$/.test(rule = rule.toString().toLowerCase())) {
+        if (rule && rule !== 'required' && rule !== 'optional' && rule !== 'repeated') {
             throw new protoc.Error('Rule must be a string.');
         }
         this.id = id;
@@ -763,7 +763,7 @@ protoc.Parser = class {
                     this._parseField(parent, token, reference);
                     break;
                 default:
-                    if (!this._syntax !== 'proto3' || !protoc.Parser._isTypeReference(token)) {
+                    if (this._syntax === 'proto3' || !protoc.Parser._isTypeReference(token)) {
                         throw this._parseError(token);
                     }
                     this._tokenizer.push(token);
