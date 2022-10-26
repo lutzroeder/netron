@@ -94,7 +94,7 @@ onnx.ModelFactory = class {
                 }
                 // ModelProto
                 if (tags.get(7) === 2) {
-                    const schema = [[1,0],[2,2],[3,2],[4,2][5,0],[6,2],[7,2],[8,2],[14,2],[20,2]];
+                    const schema = [[1,0],[2,2],[3,2],[4,2],[5,0],[6,2],[7,2],[8,2],[14,2],[20,2]];
                     if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
                         return 'onnx.pb.ModelProto';
                     }
