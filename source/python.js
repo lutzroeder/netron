@@ -200,7 +200,7 @@ python.Parser = class {
                 node.decorator_list = Array.from(decorator_list);
                 decorator_list = null;
             }
-            node.bases = this._tokenizer.peek().value === '(' ? this._arguments() : [];
+            node.bases = this._tokenizer.peek().type === '(' ? this._arguments() : [];
             this._tokenizer.expect(':');
             node.body = this._suite();
             return node;
@@ -608,7 +608,7 @@ python.Parser = class {
                 stack.push(node);
                 continue;
             }
-            if (this._tokenizer.peek().value === '(') {
+            if (this._tokenizer.peek().type === '(') {
                 if (stack.length == 0) {
                     node = this._node('tuple');
                     const args = this._arguments();
@@ -628,7 +628,7 @@ python.Parser = class {
                 }
                 continue;
             }
-            if (this._tokenizer.peek().value === '[') {
+            if (this._tokenizer.peek().type === '[') {
                 if (stack.length == 0) {
                     stack.push(this._expressions());
                 }
@@ -640,7 +640,7 @@ python.Parser = class {
                 }
                 continue;
             }
-            if (this._tokenizer.peek().value == '{') {
+            if (this._tokenizer.peek().type == '{') {
                 stack.push(this._dictOrSetMaker());
                 continue;
             }
@@ -694,7 +694,7 @@ python.Parser = class {
                     stack.push(node);
                 }
                 // for, bar, = <expr>
-                if (this._tokenizer.peek().value === '=') {
+                if (this._tokenizer.peek().type === '=') {
                     continue;
                 }
                 if (!this._tokenizer.match('=') && !terminalSet.has(this._tokenizer.peek().value)) {
@@ -803,7 +803,7 @@ python.Parser = class {
                 // list.push({});
                 continue;
             }
-            if (this._tokenizer.peek().value != ']') {
+            if (this._tokenizer.peek().type != ']') {
                 const expression = this._expression();
                 if (expression == null) {
                     throw new python.Error('Expected expression' + this._tokenizer.location());
@@ -990,7 +990,7 @@ python.Tokenizer = class {
 
     peek() {
         if (!this._cache) {
-            this._token = this._tokenize(this._token);
+            this._tokenize();
             this._cache = true;
         }
         return this._token;
@@ -998,7 +998,7 @@ python.Tokenizer = class {
 
     read() {
         if (!this._cache) {
-            this._token = this._tokenize(this._token);
+            this._tokenize();
         }
         const next = this._position + this._token.value.length;
         while (this._position < next) {
@@ -1175,7 +1175,7 @@ python.Tokenizer = class {
         return position + 1;
     }
 
-    _tokenize(token) {
+    _tokenize() {
         if (this._token.type !== '\n') {
             this._skipWhitespace();
         }
@@ -1183,10 +1183,11 @@ python.Tokenizer = class {
             this._indentation.pop();
             this._outdent--;
             if (this._outdent > 0) {
-                return { type: 'dedent', value: '' };
+                this._token = { type: 'dedent', value: '' };
+                return;
             }
         }
-        if (token.type == '\n') {
+        if (this._token.type == '\n') {
             let indent = '';
             let i = this._position;
             while (i < this._text.length) {
@@ -1232,30 +1233,35 @@ python.Tokenizer = class {
                 }
             }
             else if (i >= this._text.length) {
-                return { type: 'eof', value: '' };
+                this._token = { type: 'eof', value: '' };
+                return;
             }
             else if (this._indentation.length > 0) {
                 type = 'dedent';
                 this._outdent = this._indentation.length;
             }
             if (type === 'indent' || type === 'dedent') {
-                return { type: type, value: indent };
+                this._token = { type: type, value: indent };
+                return;
             }
         }
         if (this._position >= this._text.length) {
-            return { type: 'eof', value: '' };
+            this._token = { type: 'eof', value: '' };
+            return;
         }
         const c = this._get(this._position);
         const string = this._string();
         if (string) {
-            return string;
+            this._token = string;
+            return;
         }
         switch (c) {
             case '(':
             case '[':
             case '{':
                 this._brackets++;
-                return { type: c, value: c };
+                this._token = { type: c, value: c };
+                return;
             case ')':
             case ']':
             case '}':
@@ -1263,15 +1269,18 @@ python.Tokenizer = class {
                     throw new python.Error("Unexpected '" + c + "'" + this.location);
                 }
                 this._brackets--;
-                return { type: c, value: c };
+                this._token = { type: c, value: c };
+                return;
             case ',':
             case ';':
             case '?':
-                return { type: c, value: c };
+                this._token = { type: c, value: c };
+                return;
             default: {
                 const number = this._number();
                 if (number) {
-                    return number;
+                    this._token = number;
+                    return;
                 }
                 if (c === '.') {
                     let end = this._position + 1;
@@ -1279,27 +1288,33 @@ python.Tokenizer = class {
                         end++;
                     }
                     const text = this._text.substring(this._position, end);
-                    return { type: text, value: text };
+                    this._token = { type: text, value: text };
+                    return;
                 }
                 const identifier = this._identifier();
                 if (identifier) {
-                    return identifier;
+                    this._token = identifier;
+                    return;
                 }
                 const operator = this._operator();
                 if (operator) {
-                    return operator;
+                    this._token = operator;
+                    return;
                 }
                 break;
             }
         }
         if (c === '.') {
-            return { type: c, value: c };
+            this._token = { type: c, value: c };
+            return;
         }
         if (c === '\\') {
-            return { type: '\\', value: c };
+            this._token = { type: '\\', value: c };
+            return;
         }
         if (python.Tokenizer._isNewline(c)) {
-            return { type: '\n', value: this._text.substring(this._position, this._newLine(this._position)) };
+            this._token = { type: '\n', value: this._text.substring(this._position, this._newLine(this._position)) };
+            return;
         }
         throw new python.Error("Unexpected token '" + c + "'" + this.location());
     }
