@@ -596,10 +596,9 @@ const loadModel = (target, item) => {
                 }
             }
         }
-        model.version;
-        model.description;
-        model.author;
-        model.license;
+        if (model.version || model.description || model.author || model.license) {
+            // continue
+        }
         for (const graph of model.graphs) {
             for (const input of graph.inputs) {
                 input.name.toString();
@@ -610,8 +609,9 @@ const loadModel = (target, item) => {
                     if (argument.type) {
                         argument.type.toString();
                     }
-                    argument.quantization;
-                    argument.initializer;
+                    if (argument.quantization || argument.initializer) {
+                        // continue
+                    }
                 }
             }
             for (const output of graph.outputs) {
