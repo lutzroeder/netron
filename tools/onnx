@@ -107,7 +107,7 @@ metadata() {
     [[ $(grep -U $'\x0D' ./source/onnx-metadata.json) ]] && crlf=1
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-    ${python} ./tools/onnx_metadata.py metadata
+    ${python} ./tools/onnx_metadata.py
     deactivate
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/onnx-metadata.json ./source/onnx-metadata.json

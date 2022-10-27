@@ -4,7 +4,6 @@ import collections
 import json
 import os
 import re
-import sys
 import onnx.backend.test.case
 import onnx.defs
 
@@ -232,9 +231,7 @@ def _metadata():
     _write(json_file, json.dumps(json_root, indent=2))
 
 def main(): # pylint: disable=missing-function-docstring
-    table = { 'metadata': _metadata }
-    for command in sys.argv[1:]:
-        table[command]()
+    _metadata()
 
 if __name__ == '__main__':
     main()
