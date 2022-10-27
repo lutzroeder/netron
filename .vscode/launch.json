@@ -7,12 +7,12 @@
             "request": "launch",
             "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
             "windows": {
-              "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
+                "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
             },
             "runtimeArgs": [
-              "${workspaceRoot}",
-              "--enable-logging",
-              "--remote-debugging-port=9222"
+                "${workspaceRoot}",
+                "--enable-logging",
+                "--remote-debugging-port=9222"
             ],
             "webRoot": "${workspaceRoot}"
         },
@@ -33,7 +33,8 @@
             "program": "${workspaceFolder}/publish/python.py",
             "justMyCode": true,
             "args": [
-                "build", "start"
+                "build",
+                "start"
             ],
             "pathMappings": [
                 {
@@ -60,6 +61,14 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/test/backend.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Tools Python",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": false
         }
