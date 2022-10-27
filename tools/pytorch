@@ -28,11 +28,20 @@ schema() {
     fi
 }
 
+metadata() {
+    echo "pytorch metadata"
+    [[ $(grep -U $'\x0D' ./source/pytorch-metadata.json) ]] && crlf=1
+    ${python} ./tools/pytorch_metadata.py
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/pytorch-metadata.json ./source/pytorch-metadata.json
+    fi
+}
+
 while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
         "clean") clean;;
         "sync") sync;;
-        "schema") schema;;
+        "metadata") metadata;;
     esac
 done

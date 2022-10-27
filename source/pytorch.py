@@ -69,6 +69,8 @@ class _Graph: # pylint: disable=too-few-public-methods
             return arguments_map[value]
 
         for _ in graph.inputs():
+            # if len(_.uses()) == 0:
+            #     continue
             json_graph['inputs'].append({
                 'name': _.debugName(),
                 'arguments': [ argument(_) ]
@@ -79,6 +81,15 @@ class _Graph: # pylint: disable=too-few-public-methods
                 'arguments': [ argument(_) ]
             })
         for node in graph.nodes():
+            # if node.kind() == 'prim::ListConstruct':
+            #     continue
+            # if node.kind() == 'prim::Constant':
+            #     continue
+            # if node.kind() == 'prim::GetAttr':
+            #     continue
+            # schema = node.schema() if hasattr(node, 'schema') else None
+            # if schema and schema != '(no schema)':
+            #     schema = Schema(schema)
             json_node = {
                 'type': { 'name': node.kind() },
                 'inputs': [],
@@ -113,3 +124,213 @@ class _Graph: # pylint: disable=too-few-public-methods
                     'arguments': [ argument(output_value) ]
                 })
         return json_graph
+
+class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
+    def __init__(self, value):
+        lexer = Schema.Lexer(value)
+        lexer.whitespace(0)
+        self._parse_name(lexer)
+        lexer.whitespace(0)
+        if lexer.kind == '(':
+            self._parse_arguments(lexer)
+            lexer.whitespace(0)
+            lexer.expect('->')
+            lexer.whitespace(0)
+            self._parse_returns(lexer)
+    def _parse_name(self, lexer):
+        self.name = lexer.expect('id')
+        if lexer.eat(':'):
+            lexer.expect(':')
+            self.name = self.name + '::' + lexer.expect('id')
+        if lexer.eat('.'):
+            self.name = self.name + '.' + lexer.expect('id')
+    def _parse_arguments(self, lexer):
+        self.arguments = []
+        self.is_vararg = False
+        self.kwarg_only = False
+        lexer.expect('(')
+        if not lexer.eat(')'):
+            while True:
+                lexer.whitespace(0)
+                if self.is_vararg:
+                    raise Exception()
+                if lexer.eat('*'):
+                    self.kwarg_only = True
+                elif lexer.eat('...'):
+                    self.is_vararg = True
+                else:
+                    self.arguments.append(Schema.Argument(lexer, False, self.kwarg_only))
+                lexer.whitespace(0)
+                if not lexer.eat(','):
+                    break
+            lexer.expect(')')
+    def _parse_returns(self, lexer):
+        self.returns = []
+        self.is_varret = False
+        if lexer.eat('...'):
+            self.is_varret = True
+        elif lexer.eat('('):
+            lexer.whitespace(0)
+            if not lexer.eat(')'):
+                while True:
+                    lexer.whitespace(0)
+                    if self.is_varret:
+                        raise Exception()
+                    if lexer.eat('...'):
+                        self.is_varret = True
+                    else:
+                        self.returns.append(Schema.Argument(lexer, True, False))
+                    lexer.whitespace(0)
+                    if not lexer.eat(','):
+                        break
+                lexer.expect(')')
+            lexer.whitespace(0)
+        else:
+            self.returns.append(Schema.Argument(lexer, True, False))
+    class Argument: # pylint: disable=too-few-public-methods
+        def __init__(self, lexer, is_return, kwarg_only):
+            value = Schema.Type(lexer)
+            if lexer.eat('('):
+                while not lexer.eat(')'):
+                    lexer.next()
+            while True:
+                if lexer.eat('['):
+                    size = None
+                    if lexer.kind == '#':
+                        size = int(lexer.value)
+                        lexer.next()
+                    lexer.expect(']')
+                    value = Schema.ListType(type, size)
+                elif lexer.eat('?'):
+                    value = Schema.OptionalType(type)
+                else:
+                    break
+            self.type = value
+            lexer.whitespace(0)
+            if is_return:
+                self.kwarg_only = False
+                if lexer.kind == 'id':
+                    self.name = lexer.expect('id')
+            else:
+                self.kwarg_only = kwarg_only
+                self.name = lexer.expect('id')
+                lexer.whitespace(0)
+                if lexer.eat('='):
+                    lexer.whitespace(0)
+                    self.default = self._parse_value(lexer)
+        def _parse_value(self, lexer):
+            if lexer.kind == 'id':
+                if lexer.value in ('True', 'False'):
+                    value = bool(lexer.value)
+                elif lexer.value == 'None':
+                    value = None
+                elif lexer.value in ('Mean', 'contiguous_format', 'long'):
+                    value = lexer.value
+                else:
+                    raise Exception()
+            elif lexer.kind == '#':
+                value = float(lexer.value) if \
+                    lexer.value.find('.') != -1 or lexer.value.find('e') != -1 else \
+                    int(lexer.value)
+            elif lexer.kind == 'string':
+                value = lexer.value
+            elif lexer.eat('['):
+                value = []
+                if not lexer.eat(']'):
+                    while True:
+                        lexer.whitespace(0)
+                        value.append(self._parse_value(lexer))
+                        lexer.whitespace(0)
+                        if not lexer.eat(','):
+                            break
+                    lexer.expect(']')
+                return value
+            else:
+                raise Exception()
+            lexer.next()
+            return value
+    class Type: # pylint: disable=too-few-public-methods,missing-class-docstring
+        def __init__(self, lexer):
+            self.name = lexer.expect('id')
+            while lexer.eat('.'):
+                self.name = self.name + '.' + lexer.expect('id')
+    class OptionalType: # pylint: disable=too-few-public-methods,missing-class-docstring
+        def __init__(self, element_type):
+            self.element_type = element_type
+    class ListType: # pylint: disable=too-few-public-methods,missing-class-docstring
+        def __init__(self, element_type, size):
+            self.element_type = element_type
+            self.size = size
+    class Lexer: # pylint: disable=too-few-public-methods,missing-class-docstring
+        def __init__(self, buffer):
+            self.buffer = buffer
+            self.position = 0
+            self.value = ''
+            self.next()
+        def eat(self, kind): # pylint: disable=missing-function-docstring
+            if self.kind != kind:
+                return None
+            value = self.value
+            self.next()
+            return value
+        def expect(self, kind): # pylint: disable=missing-function-docstring
+            if self.kind != kind:
+                raise Exception('')
+            value = self.value
+            self.next()
+            return value
+        def whitespace(self, count): # pylint: disable=missing-function-docstring
+            if self.kind != ' ':
+                if count > len(self.value):
+                    raise Exception('')
+                return False
+            self.next()
+            return True
+        def next(self): # pylint: disable=missing-function-docstring,too-many-branches
+            self.position += len(self.value)
+            i = self.position
+            if i >= len(self.buffer):
+                self.kind = '\0'
+                self.value = ''
+            elif self.buffer[i] == ' ':
+                while self.buffer[i] == ' ':
+                    i += 1
+                self.kind = ' '
+                self.value = self.buffer[self.position:i]
+            elif self.buffer[i] in ('(', ')', ':', '.', '[', ']', ',', '=', '?', '!', '*'):
+                self.kind = self.buffer[i]
+                self.value = self.buffer[i]
+            elif (self.buffer[i] >= 'a' and self.buffer[i] <= 'z') or \
+                 (self.buffer[i] >= 'A' and self.buffer[i] <= 'Z') or self.buffer[i] == '_':
+                i += 1
+                while i < len(self.buffer) and \
+                    ((self.buffer[i] >= 'a' and self.buffer[i] <= 'z') or \
+                     (self.buffer[i] >= 'A' and self.buffer[i] <= 'Z') or \
+                     (self.buffer[i] >= '0' and self.buffer[i] <= '9') or self.buffer[i] == '_'):
+                    i += 1
+                self.kind = 'id'
+                self.value = self.buffer[self.position:i]
+            elif self.buffer[i] == '-' and self.buffer[i+1] == '>':
+                self.kind = '->'
+                self.value = '->'
+            elif (self.buffer[i] >= '0' and self.buffer[i] <= '9') or self.buffer[i] == '-':
+                i += 1
+                while i < len(self.buffer) and \
+                    ((self.buffer[i] >= '0' and self.buffer[i] <= '9') or \
+                    self.buffer[i] == '.' or self.buffer[i] == 'e' or self.buffer[i] == '-'):
+                    i += 1
+                self.kind = '#'
+                self.value = self.buffer[self.position:i]
+            elif self.buffer[i] == '.' and self.buffer[i+1] == '.' and self.buffer[i+2] == '.':
+                self.kind = '...'
+                self.value = '...'
+            elif self.buffer[i] in ("'", '"'):
+                quote = self.buffer[i]
+                i += 1
+                while i < len(self.buffer) and self.buffer[i] != quote:
+                    i += 2 if self.buffer[i] == '\\' and self.buffer[i+1] in ("'", '"', '\\') else 1
+                i += 1
+                self.kind = 'string'
+                self.value = self.buffer[self.position:i]
+            else:
+                raise Exception("Unsupported token at " + self.position)

@@ -1185,8 +1185,7 @@
       { "name": "stride", "type": "int64[]" },
       { "name": "padding", "type": "int64[]", "default": 0 },
       { "name": "ceil_mode", "type": "boolean", "default": false },
-      { "name": "count_include_pad", "type": "boolean", "default": true },
-      { "name": "divisor_override" }
+      { "name": "count_include_pad", "type": "boolean", "default": true }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
