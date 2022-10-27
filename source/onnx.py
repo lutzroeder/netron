@@ -91,7 +91,7 @@ class _Graph:
         # argument.set_initializer(initializer)
         return index
 
-    def attribute(self, _, op_type): # pylint: disable=too-many-branches disable=missing-function-docstring
+    def attribute(self, _, op_type): # pylint: disable=missing-function-docstring,too-many-branches
         if _.type == _AttributeType.UNDEFINED:
             attribute_type = None
             value = None
