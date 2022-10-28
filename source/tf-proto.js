@@ -6542,83 +6542,6 @@ $root.tensorflow.ThreadPoolOptionProto = class ThreadPoolOptionProto {
 $root.tensorflow.ThreadPoolOptionProto.prototype.num_threads = 0;
 $root.tensorflow.ThreadPoolOptionProto.prototype.global_name = "";
 
-$root.tensorflow.RPCOptions = class RPCOptions {
-
-    constructor() {
-    }
-
-    static decode(reader, length) {
-        const message = new $root.tensorflow.RPCOptions();
-        const end = length !== undefined ? reader.position + length : reader.length;
-        while (reader.position < end) {
-            const tag = reader.uint32();
-            switch (tag >>> 3) {
-                case 1:
-                    message.use_rpc_for_inprocess_master = reader.bool();
-                    break;
-                case 2:
-                    message.compression_algorithm = reader.string();
-                    break;
-                case 3:
-                    message.compression_level = reader.int32();
-                    break;
-                case 4:
-                    message.cache_rpc_response = reader.bool();
-                    break;
-                case 5:
-                    message.disable_session_connection_sharing = reader.bool();
-                    break;
-                case 6:
-                    message.num_channels_per_target = reader.int32();
-                    break;
-                default:
-                    reader.skipType(tag & 7);
-                    break;
-            }
-        }
-        return message;
-    }
-
-    static decodeText(reader) {
-        const message = new $root.tensorflow.RPCOptions();
-        reader.start();
-        while (!reader.end()) {
-            const tag = reader.tag();
-            switch (tag) {
-                case "use_rpc_for_inprocess_master":
-                    message.use_rpc_for_inprocess_master = reader.bool();
-                    break;
-                case "compression_algorithm":
-                    message.compression_algorithm = reader.string();
-                    break;
-                case "compression_level":
-                    message.compression_level = reader.int32();
-                    break;
-                case "cache_rpc_response":
-                    message.cache_rpc_response = reader.bool();
-                    break;
-                case "disable_session_connection_sharing":
-                    message.disable_session_connection_sharing = reader.bool();
-                    break;
-                case "num_channels_per_target":
-                    message.num_channels_per_target = reader.int32();
-                    break;
-                default:
-                    reader.field(tag, message);
-                    break;
-            }
-        }
-        return message;
-    }
-};
-
-$root.tensorflow.RPCOptions.prototype.use_rpc_for_inprocess_master = false;
-$root.tensorflow.RPCOptions.prototype.compression_algorithm = "";
-$root.tensorflow.RPCOptions.prototype.compression_level = 0;
-$root.tensorflow.RPCOptions.prototype.cache_rpc_response = false;
-$root.tensorflow.RPCOptions.prototype.disable_session_connection_sharing = false;
-$root.tensorflow.RPCOptions.prototype.num_channels_per_target = 0;
-
 $root.tensorflow.SessionMetadata = class SessionMetadata {
 
     constructor() {
@@ -9290,6 +9213,85 @@ $root.tensorflow.VerifierConfig.Toggle = {
     "ON": 1,
     "OFF": 2
 };
+
+$root.tensorflow.dummy = {};
+
+$root.tensorflow.RPCOptions = class RPCOptions {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.RPCOptions();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.use_rpc_for_inprocess_master = reader.bool();
+                    break;
+                case 2:
+                    message.compression_algorithm = reader.string();
+                    break;
+                case 3:
+                    message.compression_level = reader.int32();
+                    break;
+                case 4:
+                    message.cache_rpc_response = reader.bool();
+                    break;
+                case 5:
+                    message.disable_session_connection_sharing = reader.bool();
+                    break;
+                case 6:
+                    message.num_channels_per_target = reader.int32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.RPCOptions();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "use_rpc_for_inprocess_master":
+                    message.use_rpc_for_inprocess_master = reader.bool();
+                    break;
+                case "compression_algorithm":
+                    message.compression_algorithm = reader.string();
+                    break;
+                case "compression_level":
+                    message.compression_level = reader.int32();
+                    break;
+                case "cache_rpc_response":
+                    message.cache_rpc_response = reader.bool();
+                    break;
+                case "disable_session_connection_sharing":
+                    message.disable_session_connection_sharing = reader.bool();
+                    break;
+                case "num_channels_per_target":
+                    message.num_channels_per_target = reader.int32();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.RPCOptions.prototype.use_rpc_for_inprocess_master = false;
+$root.tensorflow.RPCOptions.prototype.compression_algorithm = "";
+$root.tensorflow.RPCOptions.prototype.compression_level = 0;
+$root.tensorflow.RPCOptions.prototype.cache_rpc_response = false;
+$root.tensorflow.RPCOptions.prototype.disable_session_connection_sharing = false;
+$root.tensorflow.RPCOptions.prototype.num_channels_per_target = 0;
 
 $root.tensorflow.CoordinatedJob = class CoordinatedJob {
 
