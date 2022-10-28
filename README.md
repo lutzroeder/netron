@@ -13,7 +13,7 @@ Netron has experimental support for PyTorch, TensorFlow, TorchScript, OpenVINO, 
 
 ## Install
 
-**macOS**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.dmg` file or run `brew install netron`
+**macOS**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.dmg` file or run `brew install --cask netron`
 
 **Linux**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.AppImage` file or run `snap install netron`
 
