@@ -8,14 +8,16 @@ megengine.ModelFactory = class {
 
     match(context) {
         const stream = context.stream;
-        if (stream && stream.length >= 12) {
-            const buffer = stream.peek(12);
-            const size = buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24);
-            if (size === (stream.length - 4)) {
+        if (stream && stream.length >= 24) {
+            var i = String(stream.peek(24)).indexOf("mgv2");
+            if (i >= 0) {
+                i = ((i - 8) > 0 ? (i - 8): 0);
+                stream.skip(i);
+                const buffer = stream.peek(12);
                 const reader = flatbuffers.BinaryReader.open(buffer.slice(4, 12));
                 if (reader.identifier === 'mgv2') {
                     return 'megengine.flatbuffers';
-                }
+            }
             }
         }
         const obj = context.open('pkl');
@@ -399,6 +401,10 @@ megengine.Graph = class {
                 }
                 args.push(new megengine.Argument(name, type, initializer, quantization));
             }
+            else if(opr.shape) {
+                const type = new megengine.TensorType('TypePlaceHolder', new megengine.TensorShape(opr.shape));
+                args.push(new megengine.Argument(name, type));
+            }
             else {
                 args.push(new megengine.Argument(name));
             }
@@ -407,28 +413,31 @@ megengine.Graph = class {
 
         const getAllOprAndTensor = (oprs) => {
             const allOprAndTensor = new Map();
-            let keyId = 0;
             for (const opr of oprs) {
-                if (opr.type === 'MultipleDeviceTensorWithFormatHolder') {
+                if (opr.type === 'MultipleDeviceTensorWithFormatHolder' || opr.outputs.length > 1) {
+                    if(opr.type === 'MultipleDeviceTensorWithFormatHolder' || opr.type === 'MultipleDeviceTensorHolder') {
+                        opr.type = 'ImmutableTensor';
+                    }
                     for (var id = 0; id < opr.outputs.length; id++) {
-                        const name = obj.middle_tensors[opr.outputs[id]].name;
-                        const tensors = [opr.tensors[id]];
-                        const type = 'ImmutableTensor';
-                        allOprAndTensor.set(keyId, { name: name, type: type, tensors: tensors });
+                        const keyId = opr.outputs[id];
+                        const name = obj.middle_tensors[keyId] ? obj.middle_tensors[keyId].name : String(keyId);
+                        const type = opr.type;
+                        const tensors = opr.tensors.length? [opr.tensors[id]] : [];
+                        const onlyShape = obj.middle_tensors[keyId] ? obj.middle_tensors[keyId].shape : [];
+                        allOprAndTensor.set(keyId, { name: name, type: type, tensors: tensors, shape: onlyShape, inputs: opr.inputs, outputs: opr.outputs });
                         const _opr = allOprAndTensor.get(keyId);
                         _opr.extraInfo = getExtraInfo(_opr);
-                        keyId = keyId + 1;
                     }
                 }
                 else {
-                    if (opr.outputs.length !== 1) {
-                        throw new megengine.Error('The length of opr.outputs in the model must be one');
+                    const keyId = opr.outputs[0];
+                    opr.name = obj.middle_tensors[keyId] ? obj.middle_tensors[keyId].name : String(keyId);
+                    if(obj.middle_tensors[keyId] && obj.middle_tensors[keyId].shape) {
+                        opr.shape = obj.middle_tensors[keyId].shape;
                     }
-                    opr.name = obj.middle_tensors[opr.outputs[0]].name;
                     allOprAndTensor.set(keyId, opr);
                     const _opr = allOprAndTensor.get(keyId);
                     _opr.extraInfo = getExtraInfo(_opr);
-                    keyId = keyId + 1;
                 }
             }
             return allOprAndTensor;
@@ -440,7 +449,7 @@ megengine.Graph = class {
             if (opr.type === 'Host2DeviceCopy') {
                 this._inputs.push(new megengine.Parameter('input', true, opr.extraInfo.args));
             }
-            else if (opr.param && opr.tensors.length === 0) {
+            else if ( opr.type !== 'ImmutableTensor' ) {
                 this._nodes.push(new megengine.Node(metadata, opr, allOprAndTensor));
             }
         }
@@ -543,7 +552,7 @@ megengine.Node = class {
         this._chain = [];
         this._attributes = [];
 
-        if(item.inputs && item.outputs && item.param) {
+        if(item.inputs && item.outputs) {
             const inputSchemas = this._type && this._type.inputs ? [...this._type.inputs] : [];
             for (let i = 0; i < item.inputs.length; i++) {
                 const inputOpr = allOprAndTensor.get(item.inputs[i]);
@@ -556,14 +565,16 @@ megengine.Node = class {
                 const outputSchema = outputSchemas.length > 0 ? outputSchemas.shift() : { name: ('output' + i) };
                 this._outputs.push(new megengine.Parameter(outputSchema.name, true, outputOpr.extraInfo.args));
             }
-            for (const pair of Object.entries(item.param)) {
-                const name = pair[0];
-                const value = pair[1];
-                if (value === null) {
-                    continue;
+            if(item.param) {
+                for (const pair of Object.entries(item.param)) {
+                    const name = pair[0];
+                    const value = pair[1];
+                    if (value === null) {
+                        continue;
+                    }
+                    const attribute = new megengine.Attribute(metadata.attribute(item.param.constructor.name, name), name, value);
+                    this._attributes.push(attribute);
                 }
-                const attribute = new megengine.Attribute(metadata.attribute(item.param.constructor.name, name), name, value);
-                this._attributes.push(attribute);
             }
         }
     }
@@ -669,7 +680,7 @@ megengine.TensorType = class {
             this._dataTypeName = megengine.Utility.enum(megengine.schema, dtype_class, this._value).toLowerCase();
         }
         megengine.TensorType._dataTypeMap = megengine.TensorType._dataTypeMap || new Map([
-            [ 'bool', 'boolean' ], [ 'byte', 'uint8' ], [ 'quantizeds4asymm', 'uint8' ], [ 'quantizeds8asymm', 'uint8' ], [ 'uintb4', 'uint8' ], [ 'quantizeds1', 'int8' ], [ 'quantizeds4', 'int8' ], [ 'quantizeds8', 'int8' ], [ 'intb1', 'int8' ], [ 'intb2', 'int8' ], [ 'intb4', 'int8' ], [ 'qint8', 'int8' ], [ 'quantizeds16', 'int16' ], [ 'quantizeds32', 'int32' ]
+            [ 'bool', 'boolean' ], [ 'byte', 'uint8' ], [ 'quantizeds4asymm', 'uint8' ], [ 'quantizeds8asymm', 'uint8' ], [ 'uintb4', 'uint8' ], [ 'quantizeds1', 'int8' ], [ 'quantizeds4', 'int8' ], [ 'quantizeds8', 'int8' ], [ 'intb1', 'int8' ], [ 'intb2', 'int8' ], [ 'intb4', 'int8' ], [ 'qint8', 'int8' ], [ 'quantizeds16', 'int16' ], [ 'quantizeds32', 'int32' ], [ 'TypePlaceHolder', 'boolean' ]
         ]);
         this._dataType = megengine.TensorType._dataTypeMap.get(this._dataTypeName) || this._dataTypeName;
     }
