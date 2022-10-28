@@ -17,6 +17,7 @@ sync() {
     curl --silent --location --output "./third_party/source/megengine/src/serialization/fbs/opr_param_defs.fbs" "https://github.com/MegEngine/MegEngine/blob/master/ci/compatibility/fbs/V2-backup/opr_param_defs.fbs?raw=true"
     curl --silent --location --output "./third_party/source/megengine/src/serialization/fbs/schema_v2.fbs" "https://github.com/MegEngine/MegEngine/blob/master/ci/compatibility/fbs/V2-backup/schema_v2.fbs?raw=true"
     sed -i 's/struct/table/g; s/\<DTypeEnum\>/fbs.DTypeEnum/g; s/\<DType\>/fbs.DType/g; s/\[ubyte:4\]/ubyte/g; s/(bit_flags)//g; s/table fbs.DType/table DType/g; s/table fbs.DTypeEnum/table DTypeEnum/g' ./third_party/source/megengine/src/serialization/fbs/*[^dtype].fbs
+    sed -i 's/items\:\[IndexDescMaskItem\]/items\:IndexDescMaskItem/g; s/desc\:\[AxisDesc\]/desc\:AxisDesc/g' ./third_party/source/megengine/src/serialization/fbs/mgb_cpp_opr.fbs
     sed -i 's/param.fbs.DType = 51/param.DType = 51/g; s/mge2/mgv2/g' ./third_party/source/megengine/src/serialization/fbs/schema_v2.fbs
 }
 
