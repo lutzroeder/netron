@@ -2151,7 +2151,8 @@
     "name": "aten::einsum",
     "inputs": [
       { "name": "equation", "type": "string" },
-      { "name": "tensors", "type": "Tensor[]" }
+      { "name": "tensors", "type": "Tensor[]" },
+      { "name": "path", "type": "int64", "optional": true, "default": null }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -3577,8 +3578,7 @@
       { "name": "stride", "type": "int64[]" },
       { "name": "padding", "type": "int64[]", "default": 0 },
       { "name": "dilation", "type": "int64[]", "default": 1 },
-      { "name": "ceil_mode", "type": "boolean", "default": false },
-      { "name": "return_indices", "type": "boolean", "default": false }
+      { "name": "ceil_mode", "type": "boolean", "default": false }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" },
@@ -4752,7 +4752,8 @@
   {
     "name": "aten::repeat_interleave.Tensor",
     "inputs": [
-      { "name": "repeats", "type": "Tensor" }
+      { "name": "repeats", "type": "Tensor" },
+      { "name": "output_size", "type": "int64", "optional": true, "default": null }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -5877,8 +5878,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
-      { "name": "sizes", "type": "int64[]" },
-      { "name": "names", "type": "Dimname[]", "optional": true, "default": null }
+      { "name": "sizes", "type": "int64[]" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
