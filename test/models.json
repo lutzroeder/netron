@@ -273,7 +273,7 @@
   {
     "type":     "caffe",
     "target":   "bvlc_alexnet.caffemodel",
-    "source":   "http://dl.caffe.berkeleyvision.org/bvlc_alexnet.caffemodel",
+    "source":   "https://media.githubusercontent.com/media/facebookarchive/models/master/bvlc_alexnet/original.caffemodel",
     "format":   "Caffe v1",
     "link":     "https://github.com/BVLC/caffe/tree/master/models/bvlc_alexnet"
   },
@@ -294,7 +294,7 @@
   {
     "type":     "caffe",
     "target":   "bvlc_googlenet.caffemodel",
-    "source":   "http://dl.caffe.berkeleyvision.org/bvlc_googlenet.caffemodel",
+    "source":   "https://media.githubusercontent.com/media/facebookarchive/models/master/bvlc_googlenet/original.caffemodel",
     "format":   "Caffe v1",
     "link":     "https://github.com/BVLC/caffe/tree/master/models/bvlc_googlenet"
   },
