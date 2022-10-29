@@ -3829,6 +3829,14 @@
     "link":     "https://github.com/lutzroeder/netron/issues/799"
   },
   {
+    "type":     "om",
+    "target":   "resnet50_issue_svp.om",
+    "source":   "https://github.com/lutzroeder/netron/files/9892582/resnet50_issue_svp.om.zip[resnet50_issue_svp.om]",
+    "format":   "DaVinci OM SVM",
+    "error":    "Unsupported DaVinci OM PICO signature in 'resnet50_issue_svp.om'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/799"
+  },
+  {
     "type":     "openvino",
     "target":   "2018_R3_age-gender-recognition-retail-0013.xml,2018_R3_age-gender-recognition-retail-0013.bin",
     "source":   "https://github.com/lutzroeder/netron/files/8983748/2018_R3_age-gender-recognition-retail-0013.zip[2018_R3_age-gender-recognition-retail-0013.xml,2018_R3_age-gender-recognition-retail-0013.bin]",
