@@ -536,22 +536,6 @@
     ]
   },
   {
-    "name": "aten::_convolution_nogroup",
-    "inputs": [
-      { "name": "input", "type": "Tensor" },
-      { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor", "optional": true },
-      { "name": "stride", "type": "int64[]" },
-      { "name": "padding", "type": "string" },
-      { "name": "dilation", "type": "int64[]" },
-      { "name": "transposed", "type": "boolean" },
-      { "name": "output_padding", "type": "int64[]" }
-    ],
-    "outputs": [
-      { "name": "output", "type": "Tensor" }
-    ]
-  },
-  {
     "name": "aten::_ctc_loss",
     "inputs": [
       { "name": "log_probs", "type": "Tensor" },
@@ -4477,20 +4461,6 @@
     ]
   },
   {
-    "name": "aten::rand_link",
-    "inputs": [
-      { "name": "size", "type": "int64[]" },
-      { "name": "generator", "type": "Generator", "optional": true, "default": null },
-      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
-      { "name": "layout", "type": "Layout", "optional": true, "default": null },
-      { "name": "device", "type": "Device", "optional": true, "default": null },
-      { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
-    ],
-    "outputs": [
-      { "name": "output", "type": "Tensor" }
-    ]
-  },
-  {
     "name": "aten::randint",
     "inputs": [
       { "name": "high", "type": "int64" },
@@ -5216,7 +5186,17 @@
     ]
   },
   {
-    "name": "aten::size",
+    "name": "aten::size.Dimname",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "int64" }
+    ]
+  },
+  {
+    "name": "aten::size.int",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" }
@@ -5454,7 +5434,8 @@
       { "name": "unbiased", "type": "boolean", "default": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "name": "result1", "type": "Tensor" },
+      { "name": "result2", "type": "Tensor" }
     ]
   },
   {
@@ -5466,7 +5447,8 @@
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "name": "result1", "type": "Tensor" },
+      { "name": "result2", "type": "Tensor" }
     ]
   },
   {
@@ -6259,16 +6241,6 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "size", "type": "int64[]", "visible": false }
-    ],
-    "outputs": [
-      { "name": "output", "type": "Tensor" }
-    ]
-  },
-  {
-    "name": "aten::view.SymInt",
-    "inputs": [
-      { "name": "self", "type": "Tensor" },
-      { "name": "size", "type": "SymInt[]" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
