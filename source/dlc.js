@@ -12,26 +12,25 @@ dlc.ModelFactory = class {
         return context.require('./dlc-schema').then(() => {
             dlc.schema = flatbuffers.get('dlc').dlc;
             const container = match;
+            let model = null;
+            let params = null;
+            const metadata_props = container.metadata;
+            try {
+                model = container.model;
+            }
+            catch (error) {
+                const message = error && error.message ? error.message : error.toString();
+                throw new dlc.Error('File format is not dlc.NetDef (' + message.replace(/\.$/, '') + ').');
+            }
+            try {
+                params = container.params;
+            }
+            catch (error) {
+                const message = error && error.message ? error.message : error.toString();
+                throw new dlc.Error('File format is not dlc.NetParam (' + message.replace(/\.$/, '') + ').');
+            }
             return context.metadata('dlc-metadata.json').then((metadata) => {
-                let model = null;
-                let params = null;
-                const metadata_props = container.metadata;
-                try {
-                    model = container.model;
-                }
-                catch (error) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new dlc.Error('File format is not dlc.NetDef (' + message.replace(/\.$/, '') + ').');
-                }
-                try {
-                    params = container.params;
-                }
-                catch (error) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new dlc.Error('File format is not dlc.NetParam (' + message.replace(/\.$/, '') + ').');
-                }
                 return new dlc.Model(metadata, model, params, metadata_props);
-
             });
         });
     }
