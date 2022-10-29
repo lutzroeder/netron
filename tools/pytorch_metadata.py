@@ -47,6 +47,8 @@ schema_source_files = [
         re.compile(r'(aten::.*->\s*Tensor)', re.MULTILINE)),
     ('torch/csrc/jit/passes/shape_analysis.cpp',
         re.compile(r'(aten::.*->\s*Tensor)', re.MULTILINE)),
+    ('torch/csrc/jit/passes/device_type_analysis.cpp',
+        re.compile(r'(aten::.*->\s*Tensor)', re.MULTILINE)),
     ('caffe2/operators/copy_op.cc',
         re.compile(r'(_caffe2::.*->\s*Tensor)', re.MULTILINE)),
     ('caffe2/operators/batch_permutation_op.cc',
@@ -67,12 +69,7 @@ def _metadata():
 
     types = _read_metadata()
 
-    _write_metadata(types)
-
-    for key in list(types.keys()):
-        if key.startswith('torch.nn'):
-            types.pop(key)
-
+    schemas = []
     for entry in schema_source_files:
         path = os.path.join(pytorch_source_dir, entry[0])
         content = _read(path)
@@ -80,13 +77,32 @@ def _metadata():
             value = re.sub(r'\n|\r|\s*"', '', value) if value.startswith('_caffe2::') else value
             definition = entry[2] + value if len(entry) > 2 else value
             schema = pytorch.Schema(definition)
+            schemas.append(schema)
             if schema.name in types:
-                # value = types[schema.name]
-                # if len(schema.arguments) != len(value['inputs']):
-                #     pass
-                types.pop(schema.name)
+                value = types[schema.name]
+                arguments = list(filter(lambda argument: not argument.is_out, schema.arguments))
+                if len(arguments) != len(value['inputs']):
+                    pass
+                    # raise Exception(schema.name)
+                returns = schema.returns
+                if len(returns) != len(value['outputs']):
+                    raise Exception(schema.name)
 
-    # print('\n'.join(list(types.keys())))
+    _write_metadata(types)
+
+    for schema in schemas:
+        if schema.name in types:
+            types.pop(schema.name)
+
+    for key in list(types.keys()):
+        if key.startswith('torch.nn'):
+            types.pop(key)
+        if key.startswith('torchvision::') or key.startswith('torchaudio::'):
+            types.pop(key)
+        if key.startswith('neuron::'):
+            types.pop(key)
+
+    print('\n'.join(list(types.keys())))
 
 def main(): # pylint: disable=missing-function-docstring
     _metadata()

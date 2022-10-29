@@ -190,9 +190,8 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
     class Argument: # pylint: disable=too-few-public-methods
         def __init__(self, lexer, is_return, kwarg_only):
             value = Schema.Type(lexer)
-            if lexer.eat('('):
-                while not lexer.eat(')'):
-                    lexer.next()
+            if lexer.kind == '(':
+                self.alias = self._parse_alias(lexer)
             while True:
                 if lexer.eat('['):
                     size = None
@@ -218,6 +217,7 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
                 if lexer.eat('='):
                     lexer.whitespace(0)
                     self.default = self._parse_value(lexer)
+            self.is_out = self.kwarg_only and hasattr(self, 'alias')
         def _parse_value(self, lexer):
             if lexer.kind == 'id':
                 if lexer.value in ('True', 'False'):
@@ -248,6 +248,13 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
             else:
                 raise Exception()
             lexer.next()
+            return value
+        def _parse_alias(self, lexer):
+            value = ''
+            lexer.expect('(')
+            while not lexer.eat(')'):
+                value += lexer.value
+                lexer.next()
             return value
     class Type: # pylint: disable=too-few-public-methods,missing-class-docstring
         def __init__(self, lexer):
