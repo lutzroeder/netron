@@ -613,17 +613,19 @@ svp.ModelDef = class ModelDef {
 
     constructor(buffer) {
         const reader = new svp.BinaryReader(buffer);
-        const decoder = new TextDecoder('utf-8');
         this.attr = {};
         this.graph = [];
-        this.name = decoder.decode(reader.get(0x800D)).replace(/\0.*$/g, '');
-        this.batch_num = reader.get(0x600A);
+        this.name = reader.find(0x800D, 'string');
+        this.batch_num = reader.find(0x600A);
         while (reader.position < reader.length) {
             const tag = reader.uint16();
             const value = reader.value(tag);
-            switch (tag) {
-                case 0xA040: this.graph.push(new svp.GraphDef(value)); break;
-                case 0xC111: {
+            switch (tag & 0x1fff) {
+                case 0x0040: {
+                    this.graph.push(new svp.GraphDef(value));
+                    break;
+                }
+                case 0x0111: {
                     const op = new svp.OpDef(value);
                     for (const item of this.graph) {
                         if (op.seg_id == item.id) {
@@ -632,21 +634,14 @@ svp.ModelDef = class ModelDef {
                                 out_num = op.output_index + 1;
                             }
                             else {
-                                const input_num = [];
-                                op.input.forEach((element) => input_num.push(element.split(":")[1]));
-                                if (input_num.length > 0) {
-                                    out_num = Math.max(...input_num) + 1;
-                                }
-                                else {
-                                    out_num = 1;
-                                }
+                                const input_num = op.input.map((element) => element.split(":")[1]);
+                                out_num = input_num.length > 0 ? Math.max(...input_num) + 1 : 1;
                             }
                             const out_types = [];
                             if (op.data_flow != null && op.data_flow != '') {
                                 const data = op.data_flow;
                                 if (data.indexOf('o[{t') != -1) {
-                                    let outs = data.substring(data.indexOf('o[{t'));
-                                    outs = outs.split(',');
+                                    const outs = data.substring(data.indexOf('o[{t')).split(',');
                                     for (const out of outs) {
                                         const startIndex = out.indexOf("\"");
                                         const endIndex = out.indexOf("\"", startIndex + 1);
@@ -709,18 +704,11 @@ svp.GraphDef = class {
         while (reader.position < reader.length) {
             const tag = reader.uint16();
             const value = reader.value(tag);
-            switch (tag) {
-                case 0x4041:
-                    this.id = value;
-                    break;
-                case 0xA050:
-                    this.input.push(this._input(value));
-                    break;
-                case 0xA060:
-                    this.output.push(this._output(value));
-                    break;
-                default:
-                    break;
+            switch (tag & 0x1fff) {
+                case 0x0041: this.id = value; break;
+                case 0x0050: this.input.push(this._input(value)); break;
+                case 0x0060: this.output.push(this._output(value)); break;
+                default: break;
             }
         }
     }
@@ -730,10 +718,10 @@ svp.GraphDef = class {
         const reader = new svp.BinaryReader(buffer);
         while (reader.position < reader.length) {
             const tag = reader.uint16();
-            switch (tag) {
-                case 0x4051: input.id = reader.value(tag); break;
-                case 0x8058: input.name = reader.value(tag, 'string'); break;
-                case 0x805a: input.shape_vector = reader.value(tag, 'uint32[]'); break;
+            switch (tag & 0x1fff) {
+                case 0x0051: input.id = reader.value(tag); break;
+                case 0x0058: input.name = reader.value(tag, 'string'); break;
+                case 0x005a: input.shape_vector = reader.value(tag, 'uint32[]'); break;
                 default: reader.value(tag); break;
             }
         }
@@ -745,11 +733,11 @@ svp.GraphDef = class {
         const reader = new svp.BinaryReader(buffer);
         while (reader.position < reader.length) {
             const tag = reader.uint16();
-            switch (tag) {
-                case 0x4061: output.id = reader.value(tag); break;
-                case 0x8066: output.name = reader.value(tag, 'string'); break;
-                case 0x4110: output.layer_num = reader.value(tag); break;
-                case 0x8069: output.shape_vector = reader.value(tag, 'uint32[]'); break;
+            switch (tag & 0x1fff) {
+                case 0x0061: output.id = reader.value(tag); break;
+                case 0x0066: output.name = reader.value(tag, 'string'); break;
+                case 0x0069: output.shape_vector = reader.value(tag, 'uint32[]'); break;
+                case 0x0110: output.layer_num = reader.value(tag); break;
                 default: reader.value(tag); break;
             }
         }
@@ -769,78 +757,33 @@ svp.OpDef = class {
         const reader = new svp.BinaryReader(buffer);
         while (reader.position < reader.length) {
             const tag = reader.uint16();
-            switch (tag) {
-                case 0x8114:
-                    this.name = reader.value(tag, 'string').trim();
-                    break;
-                case 0x4112:
-                    this.id = reader.value(tag);
-                    break;
-                case 0x2119:
-                    this.attr.output_m2m_flag = new svp.AttrDef(reader.value(tag), 'i');
-                    break;
-                case 0x2121:
-                    this.attr.batch_flag = new svp.AttrDef(reader.value(tag), 'i');
-                    break;
-                case 0x6124:
-                    this.attr.dequant_scale = new svp.AttrDef(reader.value(tag), 'i');
-                    break;
-                case 0x6126:
-                    this.attr.output_address = new svp.AttrDef(reader.value(tag), 'i');
-                    break;
-                case 0x6125:
-                    this.attr.dequant_offset = new svp.AttrDef(reader.value(tag), 'i');
-                    break;
-                case 0x6127:
-                    this.attr.first_inst_addr = new svp.AttrDef(reader.value(tag), 'i');
-                    break;
-                case 0x6128:
-                    this.attr.last_inst_addr = new svp.AttrDef(reader.value(tag), 'i');
-                    break;
-                case 0x213B:
-                    this.attr.is_fusion_layer = new svp.AttrDef(reader.value(tag), 'i');
-                    break;
-                case 0xA13C:
-                    this.input = reader.value(tag, 'string').split(',');
-                    break;
-                case 0x414B:
-                    this.seg_id = reader.value(tag);
-                    this.attr.seg_id = new svp.AttrDef(this.seg_id, 'i');
-                    break;
-                case 0x2150:
-                    this.attr.is_not_last_merge_layer = new svp.AttrDef(reader.value(tag), 'i');
-                    break;
-                case 0x2151:
-                    this.attr.is_dump_avavilable = new svp.AttrDef(reader.value(tag), 'i');
-                    break;
-                case 0x6153:
-                    this.attr.debug_dump_offset = new svp.AttrDef(reader.value(tag), 'i');
-                    break;
-                case 0x8152:
-                    this.type = reader.value(tag, 'string');
-                    break;
-                case 0x8154:
-                    this.output_shape_vector = reader.value(tag, 'uint32[]');
-                    break;
-                case 0x8155:
-                    this.input_index = reader.value(tag, 'string');
-                    break;
-                case 0x415B:
-                    this.output_index = reader.value(tag, 'string');
-                    break;
-                case 0x6156:
-                    this.attr.trap_inst_pc = new svp.AttrDef(reader.value(tag), 'i');
-                    break;
-                case 0x4157:
-                    this.attr.profile_layer_id = new svp.AttrDef(reader.value(tag), 'i');
-                    break;
+            switch (tag & 0x1fff) {
+                case 0x0114: this.name = reader.value(tag, 'string').trim(); break;
+                case 0x0112: this.id = reader.value(tag); break;
+                case 0x0119: this.attr.output_m2m_flag = reader.attribute(tag, 'i'); break;
+                case 0x0121: this.attr.batch_flag = reader.attribute(tag, 'i'); break;
+                case 0x0124: this.attr.dequant_scale = reader.attribute(tag, 'i'); break;
+                case 0x0126: this.attr.output_address = reader.attribute(tag, 'i'); break;
+                case 0x0125: this.attr.dequant_offset = reader.attribute(tag, 'i'); break;
+                case 0x0127: this.attr.first_inst_addr = reader.attribute(tag, 'i'); break;
+                case 0x0128: this.attr.last_inst_addr = reader.attribute(tag, 'i'); break;
+                case 0x013B: this.attr.is_fusion_layer = reader.attribute(tag, 'i'); break;
+                case 0x013C: this.input = reader.value(tag, 'string').split(','); break;
+                case 0x014B: this.seg_id = reader.value(tag); break;
+                case 0x0150: this.attr.is_not_last_merge_layer = reader.attribute(tag, 'i'); break;
+                case 0x0151: this.attr.is_dump_avavilable = reader.attribute(tag, 'i'); break;
+                case 0x0153: this.attr.debug_dump_offset = reader.attribute(tag, 'i'); break;
+                case 0x0152: this.type = reader.value(tag, 'string'); break;
+                case 0x0154: this.output_shape_vector = reader.value(tag, 'uint32[]'); break;
+                case 0x0155: this.input_index = reader.value(tag, 'string'); break;
+                case 0x015B: this.output_index = reader.value(tag, 'string'); break;
+                case 0x0156: this.attr.trap_inst_pc = reader.attribute(tag, 'i'); break;
+                case 0x0157: this.attr.profile_layer_id = reader.attribute(tag, 'i'); break;
                 case 0xA15A:
                     this.data_flow = reader.value(tag, 'string');
                     this.attr.data_flow = new svp.AttrDef(this.data_flow.replace('i[{t', 'input[{type').replace(',f[{t', '\tforward[{type').replace(',o[{t', '\toutput[{type').replace(',{[t', ',{type'), 's');
                     break;
-                default:
-                    reader.value(tag);
-                    break;
+                default: reader.value(tag); break;
             }
         }
         for (let i = 0; i < this.input.length; i++) {
@@ -849,7 +792,7 @@ svp.OpDef = class {
     }
 };
 
-svp.AttrDef = class AttrDef {
+svp.AttrDef = class {
 
     constructor(item, type) {
         switch (type) {
@@ -877,48 +820,53 @@ svp.BinaryReader = class extends base.BinaryReader {
     }
 
     value(tag, type) {
-        if (type) {
-            switch (type) {
-                case 'string': {
-                    const buffer = this.value(tag);
-                    svp.BinaryReader._decoder = svp.BinaryReader._decoder || new TextDecoder('utf-8');
-                    return svp.BinaryReader._decoder.decode(buffer).replace(/\0.*$/g, '');
-                }
-                case 'uint32[]': {
-                    const buffer = this.value(tag);
-                    const reader = new base.BinaryReader(buffer);
-                    const value = [];
-                    while (reader.position < reader.length) {
-                        value.push(reader.uint32());
-                    }
-                    return value;
-                }
-                default:
-                    return this.value(tag);
-            }
-        }
+        let value;
         switch (tag >> 13) {
-            case 1: return this.int8();
-            case 2: return this.uint16();
-            case 3: return this.uint32();
-            case 4: return this.read(this.int8());
-            case 5: return this.read(this.uint16());
-            case 6: return this.read(this.uint32());
+            case 1: value = this.int8(); break;
+            case 2: value = this.uint16(); break;
+            case 3: value = this.uint32(); break;
+            case 4: value = this.read(this.int8()); break;
+            case 5: value = this.read(this.uint16()); break;
+            case 6: value = this.read(this.uint32()); break;
             default: throw new svp.Error("Unsupported value identifier '" + tag + "'.");
         }
+        return type ? this._cast(value, type) : value;
     }
 
-    get(id) {
-        while (this.position < this.length) {
-            const tag = this.uint16();
-            const value = this.value(tag);
-            if (id == tag) {
-                this.seek(0);
-                return value;
-            }
+    find(tag, type) {
+        let value = null;
+        let match = false;
+        while (!match && this.position < this.length) {
+            const current = this.uint16();
+            value = this.value(current);
+            match = current == tag;
         }
         this.seek(0);
-        return '';
+        return match && type ? this._cast(value, type) : value;
+    }
+
+    attribute(tag, type) {
+        const value = this.value(tag);
+        return new svp.AttrDef(value, type);
+    }
+
+    _cast(value, type) {
+        switch (type) {
+            case 'string': {
+                svp.BinaryReader._decoder = svp.BinaryReader._decoder || new TextDecoder('utf-8');
+                return svp.BinaryReader._decoder.decode(value).replace(/\0.*$/g, '');
+            }
+            case 'uint32[]': {
+                const reader = new base.BinaryReader(value);
+                value = [];
+                while (reader.position < reader.length) {
+                    value.push(reader.uint32());
+                }
+                return value;
+            }
+            default:
+                return value;
+        }
     }
 };
 
