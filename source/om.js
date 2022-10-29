@@ -8,27 +8,14 @@ var base = require('./base');
 om.ModelFactory = class {
 
     match(context) {
-        return om.File.open(context);
+        return om.Container.open(context);
     }
 
     open(context, match) {
-        const file = match;
-        if (!file.model) {
-            throw new om.Error('File does not contain a model definition.');
-        }
-        return context.require('./om-proto').then(() => {
-            let model = null;
-            try {
-                om.proto = protobuf.get('om').ge.proto;
-                const reader = protobuf.BinaryReader.open(file.model);
-                model = om.proto.ModelDef.decode(reader);
-            }
-            catch (error) {
-                const message = error && error.message ? error.message : error.toString();
-                throw new om.Error('File format is not ge.proto.ModelDef (' + message.replace(/\.$/, '') + ').');
-            }
+        const container = match;
+        return container.open().then(() => {
             return context.metadata('om-metadata.json').then((metadata) => {
-                return new om.Model(metadata, model, file.weights);
+                return new om.Model(metadata, container);
             });
         });
     }
@@ -36,16 +23,17 @@ om.ModelFactory = class {
 
 om.Model = class {
 
-    constructor(metadata, model, weights) {
+    constructor(metadata, container) {
         this._graphs = [];
-        const context = { metadata: metadata, weights: weights };
-        for (const graph of model.graph) {
+        this._format = container.format;
+        const context = { metadata: metadata, weights: container.weights };
+        for (const graph of container.model.graph) {
             this._graphs.push(new om.Graph(context, graph));
         }
     }
 
     get format() {
-        return 'DaVinci OM';
+        return this._format;
     }
 
     get graphs() {
@@ -140,14 +128,14 @@ om.Node = class {
                     else {
                         data = value.data;
                     }
-                    const dataType = om.Utility.dtype(value.desc.dtype);
+                    const dataType = desc && desc.dtype ? om.Utility.dtype(value.desc.dtype) : '?';
                     const tensorType = new om.TensorType(dataType, shape, format, value.desc.layout);
                     const tensor = new om.Tensor('Constant', tensorType, data);
                     const argument = new om.Argument(name, null, tensor);
                     this._inputs.push(new om.Parameter(parameterName, true, [ argument ]));
                 }
                 else {
-                    const dataType = desc ? om.Utility.dtype(desc.dtype) : '?';
+                    const dataType = desc && desc.dtype ? om.Utility.dtype(desc.dtype) : '?';
                     const shape = desc.shape ? desc.shape.dim : undefined;
                     const tensorType = new om.TensorType(dataType, shape, format, null);
                     const identifier = src_index === '0' ? name : name + ':' + src_index;
@@ -163,7 +151,7 @@ om.Node = class {
                 if (op.type === 'Data' || op.type === 'ImageData' || op.type === 'DynamicImageData') {
                     shape = desc.shape ? desc.shape.dim : op.input_desc[0].shape.dim;
                 }
-                const dataType = om.Utility.dtype(desc.dtype);
+                const dataType = desc && desc.dtype ? om.Utility.dtype(desc.dtype) : '?';
                 const format = desc.layout;
                 const tensorType = new om.TensorType(dataType, shape, format);
                 const identifier = i === 0 ? this._name : this._name + ':' + i;
@@ -460,7 +448,7 @@ om.TensorShape = class {
     }
 };
 
-om.File = class {
+om.Container = class {
 
     static open(context) {
         const stream = context.stream;
@@ -468,117 +456,123 @@ om.File = class {
             const buffer = stream.peek(4);
             const signature = Array.from(buffer).map((c) => String.fromCharCode(c)).join('');
             if (signature === 'IMOD' || signature === 'PICO') {
-                return new om.File(stream);
+                return new om.Container(context, signature);
             }
         }
         return null;
     }
 
-    constructor(stream) {
-        this._stream = stream;
+    constructor(context, signature) {
+        this._context = context;
+        this._signature = signature;
     }
 
-    get model() {
-        this._read();
-        return this._model;
-    }
-
-    get weights() {
-        this._read();
-        return this._weights;
-    }
-
-    _read() {
-        if (this._stream) {
-            const reader = new base.BinaryReader(this._stream);
-            delete this._stream;
-            const buffer = reader.read(4);
-            this.signature = Array.from(buffer).map((c) => String.fromCharCode(c)).join('');
-            switch (this.signature) {
-                case 'IMOD': {
-                    const decoder = new TextDecoder('utf-8');
-                    const size = reader.uint32();
-                    this.version = reader.uint32();
-                    this.checksum = reader.read(64);
-                    reader.skip(4);
-                    this.is_encrypt = reader.byte();
-                    this.is_checksum = reader.byte();
-                    this.type = reader.byte(); // 0=IR model, 1=standard model, 2=OM Tiny model
-                    this.mode = reader.byte(); // 0=offline, 1=online
-                    this.name = decoder.decode(reader.read(32));
-                    this.ops = reader.uint32();
-                    this.userdefineinfo = reader.read(32);
-                    this.ir_version = reader.uint32();
-                    this.model_num = reader.uint32();
-                    this.platform_version = reader.read(20);
-                    this.platform_type = reader.byte();
-                    reader.seek(0);
-                    reader.skip(size);
-                    const partitions = new Array(reader.uint32());
-                    for (let i = 0; i < partitions.length; i++) {
-                        partitions[i] = {
-                            type: reader.uint32(),
-                            offset: reader.uint32(),
-                            size: reader.uint32()
-                        };
-                    }
-                    const offset = 256 + 4 + 12 * partitions.length;
-                    for (const partition of partitions) {
-                        reader.seek(offset + partition.offset);
-                        const buffer = reader.read(partition.size);
-                        switch (partition.type) {
-                            case 0: { // MODEL_DEF
-                                this._model = buffer;
-                                break;
+    open() {
+        const stream = this._context.stream;
+        const reader = new base.BinaryReader(stream);
+        const buffer = reader.read(4);
+        this.signature = Array.from(buffer).map((c) => String.fromCharCode(c)).join('');
+        switch (this.signature) {
+            case 'IMOD': {
+                this.format = 'DaVinci OM';
+                const decoder = new TextDecoder('utf-8');
+                const size = reader.uint32();
+                this.version = reader.uint32();
+                this.checksum = reader.read(64);
+                reader.skip(4);
+                this.is_encrypt = reader.byte();
+                this.is_checksum = reader.byte();
+                this.type = reader.byte(); // 0=IR model, 1=standard model, 2=OM Tiny model
+                this.mode = reader.byte(); // 0=offline, 1=online
+                this.name = decoder.decode(reader.read(32));
+                this.ops = reader.uint32();
+                this.userdefineinfo = reader.read(32);
+                this.ir_version = reader.uint32();
+                this.model_num = reader.uint32();
+                this.platform_version = reader.read(20);
+                this.platform_type = reader.byte();
+                reader.seek(0);
+                reader.skip(size);
+                const partitions = new Array(reader.uint32());
+                for (let i = 0; i < partitions.length; i++) {
+                    partitions[i] = {
+                        type: reader.uint32(),
+                        offset: reader.uint32(),
+                        size: reader.uint32()
+                    };
+                }
+                const offset = 256 + 4 + 12 * partitions.length;
+                for (const partition of partitions) {
+                    reader.seek(offset + partition.offset);
+                    const buffer = reader.read(partition.size);
+                    switch (partition.type) {
+                        case 0: { // MODEL_DEF
+                            this.model = buffer;
+                            break;
+                        }
+                        case 1: { // WEIGHTS_DATA
+                            this.weights = buffer;
+                            break;
+                        }
+                        case 2: // TASK_INFO
+                        case 3: // TBE_KERNELS
+                        case 4: { // CUST_AICPU_KERNELS
+                            break;
+                        }
+                        case 5: { // DEVICE_CONFIG
+                            this.devices = new Map();
+                            const decoder = new TextDecoder('ascii');
+                            const reader = new base.BinaryReader(buffer);
+                            reader.uint32();
+                            for (let position = 4; position < partition.size; ) {
+                                const length = reader.uint32();
+                                const buffer = reader.read(length);
+                                const name = decoder.decode(buffer);
+                                const device = reader.uint32();
+                                this.devices.set(name, device);
+                                position += 4 + length + 4;
                             }
-                            case 1: { // WEIGHTS_DATA
-                                this._weights = buffer;
-                                break;
-                            }
-                            case 2: // TASK_INFO
-                            case 3: // TBE_KERNELS
-                            case 4: { // CUST_AICPU_KERNELS
-                                break;
-                            }
-                            case 5: { // DEVICE_CONFIG
-                                this.devices = new Map();
-                                const decoder = new TextDecoder('ascii');
-                                const reader = new base.BinaryReader(buffer);
-                                reader.uint32();
-                                for (let position = 4; position < partition.size; ) {
-                                    const length = reader.uint32();
-                                    const buffer = reader.read(length);
-                                    const name = decoder.decode(buffer);
-                                    const device = reader.uint32();
-                                    this.devices.set(name, device);
-                                    position += 4 + length + 4;
-                                }
-                                break;
-                            }
-                            default: {
-                                throw new om.Error("Unsupported partition type '" + partition.type + "'.");
-                            }
+                            break;
+                        }
+                        default: {
+                            throw new om.Error("Unsupported partition type '" + partition.type + "'.");
                         }
                     }
-                    break;
                 }
-                case 'PICO': {
-                    reader.uint32(); // reserved
-                    this.size = reader.uint32();
-                    const param_size = reader.uint32();
-                    const param_offset = reader.uint32();
-                    reader.uint32(); // tmp_bufsize
-                    const tfm_offset = reader.uint32();
-                    reader.uint32(); // tfm_size
-                    this.type = 2;
-                    reader.seek(param_offset);
-                    this.param = reader.read(param_size);
-                    this._model = reader.read(tfm_offset - reader.position);
-                    throw new om.Error("Unsupported DaVinci OM '" + this.signature + "' signature.");
+                if (!this.model) {
+                    throw new om.Error('File does not contain a model definition.');
                 }
-                default: {
-                    throw new om.Error("Unsupported DaVinci OM '" + this.signature + "' signature.");
-                }
+                return this._context.require('./om-proto').then(() => {
+                    try {
+                        om.proto = protobuf.get('om').ge.proto;
+                        const reader = protobuf.BinaryReader.open(this.model);
+                        this.model = om.proto.ModelDef.decode(reader);
+                    }
+                    catch (error) {
+                        const message = error && error.message ? error.message : error.toString();
+                        throw new om.Error('File format is not ge.proto.ModelDef (' + message.replace(/\.$/, '') + ').');
+                    }
+                });
+            }
+            case 'PICO': {
+                this.format = 'DaVinci OM SVM';
+                reader.uint32(); // reserved
+                this.size = reader.uint32();
+                const param_size = reader.uint32();
+                const param_offset = reader.uint32();
+                reader.uint32(); // tmp_bufsize
+                const tfm_offset = reader.uint32();
+                reader.uint32(); // tfm_size
+                this.type = 2;
+                reader.seek(param_offset);
+                this.param = reader.read(param_size);
+                const buffer = reader.read(tfm_offset - reader.position);
+                this.model = new svp.ModelDef(buffer);
+                // return Promise.resolve();
+                return Promise.reject(new om.Error('Unsupported DaVinci OM ' + this.signature + ' signature.'));
+            }
+            default: {
+                return Promise.reject(new om.Error('Unsupported DaVinci OM ' + this.signature + ' signature.'));
             }
         }
     }
@@ -610,6 +604,329 @@ om.Error = class extends Error {
     constructor(message) {
         super(message);
         this.name = 'Error loading DaVinci model.';
+    }
+};
+
+var svp = svp || {};
+
+svp.ModelDef = class ModelDef {
+
+    constructor(buffer) {
+        const reader = new svp.BinaryReader(buffer);
+        const decoder = new TextDecoder('utf-8');
+        this.attr = {};
+        this.graph = [];
+        this.name = decoder.decode(reader.get(0x800D)).replace(/\0.*$/g, '');
+        this.batch_num = reader.get(0x600A);
+        while (reader.position < reader.length) {
+            const tag = reader.uint16();
+            const value = reader.value(tag);
+            switch (tag) {
+                case 0xA040: this.graph.push(new svp.GraphDef(value)); break;
+                case 0xC111: {
+                    const op = new svp.OpDef(value);
+                    for (const item of this.graph) {
+                        if (op.seg_id == item.id) {
+                            let out_num;
+                            if (op.output_index) {
+                                out_num = op.output_index + 1;
+                            }
+                            else {
+                                const input_num = [];
+                                op.input.forEach((element) => input_num.push(element.split(":")[1]));
+                                if (input_num.length > 0) {
+                                    out_num = Math.max(...input_num) + 1;
+                                }
+                                else {
+                                    out_num = 1;
+                                }
+                            }
+                            const out_types = [];
+                            if (op.data_flow != null && op.data_flow != '') {
+                                const data = op.data_flow;
+                                if (data.indexOf('o[{t') != -1) {
+                                    let outs = data.substring(data.indexOf('o[{t'));
+                                    outs = outs.split(',');
+                                    for (const out of outs) {
+                                        const startIndex = out.indexOf("\"");
+                                        const endIndex = out.indexOf("\"", startIndex + 1);
+                                        out_types.push(out.substring(startIndex + 1, endIndex));
+                                    }
+                                }
+                            }
+                            const out_list = [];
+                            while (out_num > 0) {
+                                const output_desc = {};
+                                output_desc.shape = { dim: op.output_shape_vector };
+                                output_desc.layout = 'NCHW';
+                                if (op.data_flow && out_types.length >= out_num) {
+                                    output_desc.dtype = out_types[op.output_index + 1 - out_num];
+                                }
+                                out_list.push(output_desc);
+                                out_num--;
+                            }
+
+                            let curr_op = null;
+                            for (const op_item of item.op) {
+                                if (op_item.id == op.id) {
+                                    curr_op = op_item;
+                                    break;
+                                }
+                            }
+                            if (curr_op != null) {
+                                curr_op.output_desc = curr_op.output_desc.concat(out_list);
+                            }
+                            else {
+                                op.output_desc = op.output_desc.concat(out_list);
+                                item.op.push(op);
+                            }
+                            break;
+                        }
+                    }
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
+        }
+        if (this.graph.length > 1) {
+            for (let i = 1; i < this.graph.length; i++) {
+                this.graph[0].op = this.graph[0].op.concat(this.graph[i].op);
+            }
+        }
+    }
+};
+
+svp.GraphDef = class {
+
+    constructor(buffer) {
+        this.input = [];
+        this.output = [];
+        this.op = [];
+        this.attr = {};
+        const reader = new svp.BinaryReader(buffer);
+        while (reader.position < reader.length) {
+            const tag = reader.uint16();
+            const value = reader.value(tag);
+            switch (tag) {
+                case 0x4041:
+                    this.id = value;
+                    break;
+                case 0xA050:
+                    this.input.push(this._input(value));
+                    break;
+                case 0xA060:
+                    this.output.push(this._output(value));
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    _input(buffer) {
+        const input = {};
+        const reader = new svp.BinaryReader(buffer);
+        while (reader.position < reader.length) {
+            const tag = reader.uint16();
+            switch (tag) {
+                case 0x4051: input.id = reader.value(tag); break;
+                case 0x8058: input.name = reader.value(tag, 'string'); break;
+                case 0x805a: input.shape_vector = reader.value(tag, 'uint32[]'); break;
+                default: reader.value(tag); break;
+            }
+        }
+        return input;
+    }
+
+    _output(buffer) {
+        const output = {};
+        const reader = new svp.BinaryReader(buffer);
+        while (reader.position < reader.length) {
+            const tag = reader.uint16();
+            switch (tag) {
+                case 0x4061: output.id = reader.value(tag); break;
+                case 0x8066: output.name = reader.value(tag, 'string'); break;
+                case 0x4110: output.layer_num = reader.value(tag); break;
+                case 0x8069: output.shape_vector = reader.value(tag, 'uint32[]'); break;
+                default: reader.value(tag); break;
+            }
+        }
+        return output;
+    }
+};
+
+svp.OpDef = class {
+
+    constructor(buffer) {
+        this.input = [];
+        this.attr = {};
+        this.input_i = [];
+        this.output_i = [];
+        this.input_desc = [];
+        this.output_desc = [];
+        const reader = new svp.BinaryReader(buffer);
+        while (reader.position < reader.length) {
+            const tag = reader.uint16();
+            switch (tag) {
+                case 0x8114:
+                    this.name = reader.value(tag, 'string').trim();
+                    break;
+                case 0x4112:
+                    this.id = reader.value(tag);
+                    break;
+                case 0x2119:
+                    this.attr.output_m2m_flag = new svp.AttrDef(reader.value(tag), 'i');
+                    break;
+                case 0x2121:
+                    this.attr.batch_flag = new svp.AttrDef(reader.value(tag), 'i');
+                    break;
+                case 0x6124:
+                    this.attr.dequant_scale = new svp.AttrDef(reader.value(tag), 'i');
+                    break;
+                case 0x6126:
+                    this.attr.output_address = new svp.AttrDef(reader.value(tag), 'i');
+                    break;
+                case 0x6125:
+                    this.attr.dequant_offset = new svp.AttrDef(reader.value(tag), 'i');
+                    break;
+                case 0x6127:
+                    this.attr.first_inst_addr = new svp.AttrDef(reader.value(tag), 'i');
+                    break;
+                case 0x6128:
+                    this.attr.last_inst_addr = new svp.AttrDef(reader.value(tag), 'i');
+                    break;
+                case 0x213B:
+                    this.attr.is_fusion_layer = new svp.AttrDef(reader.value(tag), 'i');
+                    break;
+                case 0xA13C:
+                    this.input = reader.value(tag, 'string').split(',');
+                    break;
+                case 0x414B:
+                    this.seg_id = reader.value(tag);
+                    this.attr.seg_id = new svp.AttrDef(this.seg_id, 'i');
+                    break;
+                case 0x2150:
+                    this.attr.is_not_last_merge_layer = new svp.AttrDef(reader.value(tag), 'i');
+                    break;
+                case 0x2151:
+                    this.attr.is_dump_avavilable = new svp.AttrDef(reader.value(tag), 'i');
+                    break;
+                case 0x6153:
+                    this.attr.debug_dump_offset = new svp.AttrDef(reader.value(tag), 'i');
+                    break;
+                case 0x8152:
+                    this.type = reader.value(tag, 'string');
+                    break;
+                case 0x8154:
+                    this.output_shape_vector = reader.value(tag, 'uint32[]');
+                    break;
+                case 0x8155:
+                    this.input_index = reader.value(tag, 'string');
+                    break;
+                case 0x415B:
+                    this.output_index = reader.value(tag, 'string');
+                    break;
+                case 0x6156:
+                    this.attr.trap_inst_pc = new svp.AttrDef(reader.value(tag), 'i');
+                    break;
+                case 0x4157:
+                    this.attr.profile_layer_id = new svp.AttrDef(reader.value(tag), 'i');
+                    break;
+                case 0xA15A:
+                    this.data_flow = reader.value(tag, 'string');
+                    this.attr.data_flow = new svp.AttrDef(this.data_flow.replace('i[{t', 'input[{type').replace(',f[{t', '\tforward[{type').replace(',o[{t', '\toutput[{type').replace(',{[t', ',{type'), 's');
+                    break;
+                default:
+                    reader.value(tag);
+                    break;
+            }
+        }
+        for (let i = 0; i < this.input.length; i++) {
+            this.input_desc.push({ layout: 'NCHW', shape: {} });
+        }
+    }
+};
+
+svp.AttrDef = class AttrDef {
+
+    constructor(item, type) {
+        switch (type) {
+            case 's': this.s = item; break;
+            case 'i': this.i = item; break;
+            default: throw new svp.Error("Unsupported attribute type '" + type + "'.");
+        }
+    }
+
+    get value() {
+        if (this.s !== undefined) {
+            return 's';
+        }
+        if (this.i !== undefined) {
+            return 'i';
+        }
+        return undefined;
+    }
+};
+
+svp.BinaryReader = class extends base.BinaryReader {
+
+    constructor(buffer) {
+        super(buffer);
+    }
+
+    value(tag, type) {
+        if (type) {
+            switch (type) {
+                case 'string': {
+                    const buffer = this.value(tag);
+                    svp.BinaryReader._decoder = svp.BinaryReader._decoder || new TextDecoder('utf-8');
+                    return svp.BinaryReader._decoder.decode(buffer).replace(/\0.*$/g, '');
+                }
+                case 'uint32[]': {
+                    const buffer = this.value(tag);
+                    const reader = new base.BinaryReader(buffer);
+                    const value = [];
+                    while (reader.position < reader.length) {
+                        value.push(reader.uint32());
+                    }
+                    return value;
+                }
+                default:
+                    return this.value(tag);
+            }
+        }
+        switch (tag >> 13) {
+            case 1: return this.int8();
+            case 2: return this.uint16();
+            case 3: return this.uint32();
+            case 4: return this.read(this.int8());
+            case 5: return this.read(this.uint16());
+            case 6: return this.read(this.uint32());
+            default: throw new svp.Error("Unsupported value identifier '" + tag + "'.");
+        }
+    }
+
+    get(id) {
+        while (this.position < this.length) {
+            const tag = this.uint16();
+            const value = this.value(tag);
+            if (id == tag) {
+                this.seek(0);
+                return value;
+            }
+        }
+        this.seek(0);
+        return '';
+    }
+};
+
+svp.Error = class extends Error {
+
+    constructor(message) {
+        super(message);
+        this.name = 'Error loading DaVinci SVP model.';
     }
 };
 
