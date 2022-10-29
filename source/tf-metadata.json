@@ -53516,6 +53516,61 @@
     ]
   },
   {
+    "name": "StatelessRandomGammaV3",
+    "summary": "Outputs deterministic pseudorandom random numbers from a gamma distribution.",
+    "description": "Outputs random values from a gamma distribution.\n\nThe outputs are a deterministic function of the inputs.",
+    "attributes": [
+      {
+        "name": "dtype",
+        "type": "type",
+        "description": "The type of the output. Must be one of the following: `float16`, `float32`, `float64`."
+      },
+      {
+        "name": "shape_dtype",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `int64`.",
+        "default": {
+          "type": "type",
+          "value": 3
+        }
+      }
+    ],
+    "inputs": [
+      {
+        "name": "shape",
+        "description": "The shape of the output tensor.",
+        "typeAttr": "shape_dtype"
+      },
+      {
+        "name": "key",
+        "description": "Key for the counter-based RNG algorithm (shape uint64[1]).",
+        "type": 23
+      },
+      {
+        "name": "counter",
+        "description": "Initial counter for the counter-based RNG algorithm (shape uint64[2] or uint64[1] depending on the algorithm). If a larger vector is given, only the needed portion on the left (i.e. [:N]) will be used.",
+        "type": 23
+      },
+      {
+        "name": "alg",
+        "description": "The RNG algorithm (shape int32[]).",
+        "type": 3
+      },
+      {
+        "name": "alpha",
+        "description": "The concentration of the gamma distribution. Shape must match the rightmost\ndimensions of `shape`.",
+        "typeAttr": "dtype"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Random values with specified shape.",
+        "typeAttr": "dtype"
+      }
+    ]
+  },
+  {
     "name": "StatelessRandomGetAlg",
     "summary": "Picks the best counter-based RNG algorithm based on device.",
     "description": "This op picks the best counter-based RNG algorithm based on device.",
@@ -59879,6 +59934,120 @@
         "name": "output",
         "description": "The output clipped Tensor of T, whose shape is same as operand.",
         "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "UniformQuantizedConvolutionHybrid",
+    "summary": "Perform hybrid quantized convolution of float Tensor `lhs` and quantized Tensor `rhs`.",
+    "description": "Given float `lhs` and quantized `rhs`, internally performs quantization on `lhs`,\nand then performs quantized convolution on quantized `lhs` and `rhs`.\n\nThe internal quantization on `lhs` is a quantization to `Trhs`, dynamic range,\nper-batch (per-axis along axis `dimension_numbers.input_batch_dimension`), asymmetric,\nand not narrow range (the range is [Trhs_MIN, Trhs_MAX]).\n\n`lhs` and `rhs` must be Tensors of same rank, and meet following shape conditions.\n- lhs_feature % feature_group_count == 0\n- lhs_feature % rhs_input_feature == 0\n- lhs_feature / feature_group_count == rhs_input_feature\n- rhs_output_feature % feature_group_count == 0\n- lhs_batch % batch_group_count == 0\n- rhs_output_feature % batch_group_count == 0\n\n`rhs` must be quantized Tensor, where its data value is quantized using the formula:\nquantized_data = clip(original_data / scale + zero_point, quantization_min_val, quantization_max_val).",
+    "attributes": [
+      {
+        "name": "Tlhs",
+        "type": "type",
+        "description": "The type of `lhs` input Tensor. Must be one of the following: `float32`."
+      },
+      {
+        "name": "Trhs",
+        "type": "type",
+        "description": "The type of `rhs` (quantized) input Tensor. Must be one of the following: `qint8`."
+      },
+      {
+        "name": "Tout",
+        "type": "type",
+        "description": "The type of output Tensor. Must be one of the following: `float32`."
+      },
+      {
+        "name": "window_strides",
+        "type": "int64[]",
+        "description": "The stride of the sliding window for each spatial dimension of `lhs`.\nMust be an empty list (default) or a list of size (number of spatial dimensions).\nIf an empty list is provided, the stride for each spatial dimension is set to 1.",
+        "default": []
+      },
+      {
+        "name": "padding",
+        "type": "string",
+        "description": "string from: `\"SAME\"`, `\"VALID\"`, or `\"EXPLICIT\"`, indicating the type of padding algorithm to use."
+      },
+      {
+        "name": "explicit_padding",
+        "type": "int64[]",
+        "description": "If `padding` Attr is `\"EXPLICIT\"`, must be set as a list indicating\nthe explicit paddings at the start and end of each lhs spatial dimension.\nOtherwise, this Attr is must be empty.\n\n(If used,) Must be a list of size 2 * (number of lhs spatial dimensions),\nwhere (explicit_padding[2 * i], explicit_padding[2 * i + 1]) indicates\nspatial_dimensions[i] (start_padding, end_padding).",
+        "default": []
+      },
+      {
+        "name": "lhs_dilation",
+        "type": "int64[]",
+        "description": "The dilation factor to apply in each spatial dimension of `lhs`.\nMust be an empty list (default) or a list of size (number of lhs spatial dimensions).\nIf empty list, the dilation for each lhs spatial dimension is set to 1.",
+        "default": []
+      },
+      {
+        "name": "rhs_dilation",
+        "type": "int64[]",
+        "description": "The dilation factor to apply in each spatial dimension of `rhs`.\nMust be an empty list (default) or a list of size (number of rhs spatial dimensions).\nIf empty list, the dilation for each rhs spatial dimension is set to 1.",
+        "default": []
+      },
+      {
+        "name": "batch_group_count",
+        "type": "int64",
+        "description": "The number of batch groups. Used for grouped filters.\nMust be a divisor of output_feature.",
+        "default": 1
+      },
+      {
+        "name": "feature_group_count",
+        "type": "int64",
+        "description": "The number of feature groups. Used for grouped convolutions.\nMust be a divisor of both lhs_feature and output_feature.",
+        "default": 1
+      },
+      {
+        "name": "dimension_numbers",
+        "type": "string",
+        "description": "Structure of dimension information for the convolution op.\nMust be an empty string (default) or a serialized string of tensorflow.UniformQuantizedConvolutionDimensionNumbersAttr proto.\nIf empty string, the default is `(\"NCHW\", \"OIHW\", \"NCHW\")` (for a 2D convolution).",
+        "default": ""
+      },
+      {
+        "name": "rhs_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor the `rhs`, only per-tensor quantization\nor per-channel quantization along kernel_output_feature_dimension is supported.\nThus, this attribute must be set to -1 or `dimension_numbers.kernel_output_feature_dimension`.\nOther values will raise error at OpKernel construction.",
+        "default": -1
+      },
+      {
+        "name": "rhs_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in `rhs`.\nFor example, if `Trhs` is qint8, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "rhs_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in `rhs`.\nFor example, if `Trhs` is qint8, this must be set to 127."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "lhs",
+        "description": "Must be a non-quantized Tensor of `Tlhs`, rank >= 3.",
+        "typeAttr": "Tlhs"
+      },
+      {
+        "name": "rhs",
+        "description": "Must be a quantized Tensor of `Trhs`, same rank as `lhs`.",
+        "typeAttr": "Trhs"
+      },
+      {
+        "name": "rhs_scales",
+        "description": "The float value(s) used as scale factors when quantizing the original data that `rhs` represents.\nMust be a scalar Tensor for per-tensor quantization,\nor 1D Tensor of size `rhs.dim_size(kernel_output_feature_dimension)`, for per-channel quantization.",
+        "type": 1
+      },
+      {
+        "name": "rhs_zero_points",
+        "description": "The int32 value(s) used as zero_point when quantizing original data that `rhs` represents.\nSame shape condition as `rhs_scales`.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "The output Tensor of `Tout`, same rank as `lhs` and `rhs`.\nThe output data is the non-quantized output data.",
+        "typeAttr": "Tout"
       }
     ]
   },
