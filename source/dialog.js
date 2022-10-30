@@ -160,7 +160,7 @@ dialog.NodeSidebar = class extends dialog.Control {
                     this._raise('show-documentation', null);
                 };
             }
-            this._addProperty('type', new dialog.ValueTextView(this._host, node.type.name, showDocumentation));
+            this._addProperty('type', new dialog.ValueTextView(this._host, node.type.identifier || node.type.name, showDocumentation));
             if (node.type.module) {
                 this._addProperty('module', new dialog.ValueTextView(this._host, node.type.module));
             }
