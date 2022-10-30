@@ -109,6 +109,9 @@ def _metadata():
             else:
                 for i, _ in enumerate(arguments):
                     value['inputs'][i]['name'] = _.name
+                for i, _ in enumerate(returns):
+                    if hasattr(_, 'name'):
+                        value['outputs'][i]['name'] = _.name
 
     # import torch
     # for name in dir(torch.ops.aten):
