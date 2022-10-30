@@ -1770,6 +1770,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
             }
             if (schemas) {
                 schemas = !Array.isArray(schemas) ? [ schemas ] : schemas;
+                // schemas = schemas.sort((a, b) => b.inputs.length - a.inputs.length);
                 const evalArgs = args.map((argument) => {
                     if (argument.type === '=' && argument.target && argument.target.type === 'id') {
                         argument = argument.expression;
@@ -1792,7 +1793,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                     while (copyEvalArgs.length > 0 || (op_context && parameters.length > 0)) {
 
                         if (parameters.length <= 0) {
-                            next = true;
+                            next = !schema.name.startsWith('_caffe2::');
                             break;
                         }
 
