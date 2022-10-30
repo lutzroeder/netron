@@ -137,6 +137,19 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
             lexer.expect('->')
             lexer.whitespace(0)
             self._parse_returns(lexer)
+    def __str__(self):
+        arguments = []
+        kwarg_only = False
+        for _ in self.arguments:
+            if not kwarg_only and _.kwarg_only:
+                kwarg_only = True
+                arguments.append('*')
+            arguments.append(_.__str__())
+        if self.is_vararg:
+            arguments.append('...')
+        returns = ', '.join(map(lambda _: _.__str__(), self.returns))
+        returns = returns if len(self.returns) == 1 else '(' + returns + ')'
+        return self.name + '(' + ', '.join(arguments) + ') -> ' + returns
     def _parse_name(self, lexer):
         self.name = lexer.expect('id')
         if lexer.eat(':'):
@@ -199,9 +212,9 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
                         size = int(lexer.value)
                         lexer.next()
                     lexer.expect(']')
-                    value = Schema.ListType(type, size)
+                    value = Schema.ListType(value, size)
                 elif lexer.eat('?'):
-                    value = Schema.OptionalType(type)
+                    value = Schema.OptionalType(value)
                 else:
                     break
             self.type = value
@@ -218,10 +231,15 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
                     lexer.whitespace(0)
                     self.default = self._parse_value(lexer)
             self.is_out = self.kwarg_only and hasattr(self, 'alias')
+        def __str__(self):
+            alias = '(' + self.alias + ')' if hasattr(self, 'alias') else ''
+            name = ' ' + self.name if hasattr(self, 'name') else ''
+            default = '=' + self.default.__str__() if hasattr(self, 'default') else ''
+            return self.type.__str__() + alias + name + default
         def _parse_value(self, lexer):
             if lexer.kind == 'id':
                 if lexer.value in ('True', 'False'):
-                    value = bool(lexer.value)
+                    value = bool(lexer.value == 'True')
                 elif lexer.value == 'None':
                     value = None
                 elif lexer.value in ('Mean', 'contiguous_format', 'long'):
@@ -261,13 +279,21 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
             self.name = lexer.expect('id')
             while lexer.eat('.'):
                 self.name = self.name + '.' + lexer.expect('id')
+        def __str__(self):
+            return self.name
     class OptionalType: # pylint: disable=too-few-public-methods,missing-class-docstring
         def __init__(self, element_type):
             self.element_type = element_type
+        def __str__(self):
+            return self.element_type.__str__() + '?'
     class ListType: # pylint: disable=too-few-public-methods,missing-class-docstring
         def __init__(self, element_type, size):
             self.element_type = element_type
-            self.size = size
+            if size:
+                self.size = size
+        def __str__(self):
+            size = self.size.__str__() if hasattr(self, 'size') else ''
+            return self.element_type.__str__() + '[' + size + ']'
     class Lexer: # pylint: disable=too-few-public-methods,missing-class-docstring
         def __init__(self, buffer):
             self.buffer = buffer
@@ -304,6 +330,9 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
                     i += 1
                 self.kind = ' '
                 self.value = self.buffer[self.position:i]
+            elif self.buffer[i] == '.' and self.buffer[i+1] == '.' and self.buffer[i+2] == '.':
+                self.kind = '...'
+                self.value = '...'
             elif self.buffer[i] in ('(', ')', ':', '.', '[', ']', ',', '=', '?', '!', '*'):
                 self.kind = self.buffer[i]
                 self.value = self.buffer[i]
@@ -328,9 +357,6 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
                     i += 1
                 self.kind = '#'
                 self.value = self.buffer[self.position:i]
-            elif self.buffer[i] == '.' and self.buffer[i+1] == '.' and self.buffer[i+2] == '.':
-                self.kind = '...'
-                self.value = '...'
             elif self.buffer[i] in ("'", '"'):
                 quote = self.buffer[i]
                 i += 1

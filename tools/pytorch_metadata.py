@@ -36,6 +36,23 @@ def _write_metadata(value):
     content = re.sub(r'\s {6}}', ' }', content)
     _write(metadata_file, content)
 
+def _check_types(types, schemas):
+    for schema in schemas.values():
+        if schema.name in types:
+            types.pop(schema.name)
+    for key in list(types.keys()):
+        if key.startswith('torch.nn'):
+            types.pop(key)
+        if key.startswith('torchvision::') or \
+           key.startswith('torchaudio::') or \
+           key.startswith('neuron::'):
+            types.pop(key)
+    types.pop('aten::fft')
+    types.pop('aten::mul.ScalarT')
+    types.pop('aten::classes._nnapi.Compilation')
+    if len(types) > 0:
+        print('\n'.join(list(types.keys())))
+
 schema_source_files = [
     ('aten/src/ATen/native/native_functions.yaml',
         re.compile(r'-\s*func:\s*(.*)', re.MULTILINE), 'aten::'),
@@ -43,11 +60,11 @@ schema_source_files = [
         re.compile(r'TORCH_SELECTIVE_SCHEMA\("(.*)"\)', re.MULTILINE)),
     ('aten/src/ATen/native/xnnpack/RegisterOpContextClass.cpp',
         re.compile(r'TORCH_SELECTIVE_SCHEMA\("(.*)"', re.MULTILINE)),
+    ('torch/csrc/jit/runtime/register_prim_ops.cpp',
+        re.compile(r'(aten::.*->\s*Tensor)', re.MULTILINE)),
     ('torch/csrc/jit/runtime/register_prim_ops_fulljit.cpp',
         re.compile(r'(aten::.*->\s*Tensor)', re.MULTILINE)),
-    ('torch/csrc/jit/passes/shape_analysis.cpp',
-        re.compile(r'(aten::.*->\s*Tensor)', re.MULTILINE)),
-    ('torch/csrc/jit/passes/device_type_analysis.cpp',
+    ('torch/csrc/jit/runtime/register_special_ops.cpp',
         re.compile(r'(aten::.*->\s*Tensor)', re.MULTILINE)),
     ('caffe2/operators/copy_op.cc',
         re.compile(r'(_caffe2::.*->\s*Tensor)', re.MULTILINE)),
@@ -69,7 +86,7 @@ def _metadata():
 
     types = _read_metadata()
 
-    schemas = []
+    schemas = {}
     for entry in schema_source_files:
         path = os.path.join(pytorch_source_dir, entry[0])
         content = _read(path)
@@ -77,32 +94,39 @@ def _metadata():
             value = re.sub(r'\n|\r|\s*"', '', value) if value.startswith('_caffe2::') else value
             definition = entry[2] + value if len(entry) > 2 else value
             schema = pytorch.Schema(definition)
-            schemas.append(schema)
-            if schema.name in types:
-                value = types[schema.name]
-                arguments = list(filter(lambda argument: not argument.is_out, schema.arguments))
-                if len(arguments) != len(value['inputs']):
-                    pass
-                    # raise Exception(schema.name)
-                returns = schema.returns
-                if len(returns) != len(value['outputs']):
+            if schema.name in schemas:
+                raise Exception()
+            schemas[schema.name] = schema
+
+    for schema in schemas.values():
+        if schema.name in types:
+            value = types[schema.name]
+            arguments = list(filter(lambda argument: not argument.is_out, schema.arguments))
+            returns = schema.returns
+            if len(arguments) != len(value['inputs']) or len(returns) != len(value['outputs']):
+                if str(schema).find('__torch__') == -1:
                     raise Exception(schema.name)
+            else:
+                for i, _ in enumerate(arguments):
+                    value['inputs'][i]['name'] = _.name
+
+    # import torch
+    # for name in dir(torch.ops.aten):
+    #     if name.startswith('__') or name == 'name':
+    #         continue
+    #     packet = getattr(torch.ops.aten, name)
+    #     for overload in packet.overloads():
+    #         key = 'aten::' + name + ('.' + overload if overload != 'default' else '')
+    #         overload_schema = str(getattr(packet, overload)._schema)
+    #         if key in schemas:
+    #             schema = schemas[key]
+    #             if overload_schema != str(schema):
+    #                 print(overload_schema)
+    #                 print(schema)
 
     _write_metadata(types)
 
-    for schema in schemas:
-        if schema.name in types:
-            types.pop(schema.name)
-
-    for key in list(types.keys()):
-        if key.startswith('torch.nn'):
-            types.pop(key)
-        if key.startswith('torchvision::') or key.startswith('torchaudio::'):
-            types.pop(key)
-        if key.startswith('neuron::'):
-            types.pop(key)
-
-    print('\n'.join(list(types.keys())))
+    _check_types(types, schemas)
 
 def main(): # pylint: disable=missing-function-docstring
     _metadata()
