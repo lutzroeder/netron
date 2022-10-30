@@ -104,14 +104,12 @@ def _metadata():
             arguments = list(filter(lambda argument: not argument.is_out, schema.arguments))
             returns = schema.returns
             if len(arguments) != len(value['inputs']) or len(returns) != len(value['outputs']):
-                if str(schema).find('__torch__') == -1:
-                    raise Exception(schema.name)
-            else:
-                for i, _ in enumerate(arguments):
-                    value['inputs'][i]['name'] = _.name
-                for i, _ in enumerate(returns):
-                    if hasattr(_, 'name'):
-                        value['outputs'][i]['name'] = _.name
+                raise Exception(schema.name)
+            for i, _ in enumerate(arguments):
+                value['inputs'][i]['name'] = _.name
+            for i, _ in enumerate(returns):
+                if hasattr(_, 'name'):
+                    value['outputs'][i]['name'] = _.name
 
     # import torch
     # for name in dir(torch.ops.aten):

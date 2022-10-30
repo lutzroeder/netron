@@ -439,7 +439,7 @@ pytorch.Node = class {
                 let match = true;
                 let count = 0;
                 for (const input of item.node.inputs) {
-                    for (const argument of input) {
+                    for (const argument of input.arguments) {
                         const parameter = initializers.get(argument.id);
                         if (parameter) {
                             if (parameter.__parent__ && (module == null || module == parameter.__parent__)) {
@@ -465,7 +465,7 @@ pytorch.Node = class {
                     if (params.length == count && match) {
                         module.__hide__ = true;
                         for (const input of item.node.inputs) {
-                            for (const argument of input) {
+                            for (const argument of input.arguments) {
                                 const parameter = initializers.get(argument.id);
                                 if (parameter && parameter.initializer) {
                                     argument.initializer = parameter.initializer;
@@ -479,13 +479,16 @@ pytorch.Node = class {
                 }
 
                 for (let inputIndex = 0; inputIndex < item.node.inputs.length; inputIndex++) {
-                    let inputName = inputIndex.toString();
-                    if (this._type && this._type.inputs && this._type.inputs.length > inputIndex) {
-                        inputName = this._type.inputs[inputIndex].name;
+                    const input = item.node.inputs[inputIndex];
+                    if (!input.name) {
+                        input.name = inputIndex.toString();
+                        if (this._type && this._type.inputs && this._type.inputs.length > inputIndex) {
+                            input.name = this._type.inputs[inputIndex].name;
+                        }
                     }
-                    this._inputs.push(new pytorch.Parameter(inputName, true,
-                        item.node.inputs[inputIndex].map((input) => new pytorch.Argument(input.id, null, input.initializer || null))
-                    ));
+                    const args = input.arguments.map((argument) => new pytorch.Argument(argument.id, null, argument.initializer || null));
+                    const parameter = new pytorch.Parameter(input.name, true, args);
+                    this._inputs.push(parameter);
                 }
 
                 for (let outputIndex = 0; outputIndex < item.node.outputs.length; outputIndex++) {
@@ -728,7 +731,7 @@ pytorch.Execution = class extends python.Execution {
 
     constructor(sources, exceptionCallback) {
         super(sources, exceptionCallback);
-        const self = this;
+        const execution = this;
         this.registerType('__torch__.torch.classes._nnapi.Compilation', class {
             constructor() {
                 this.__hide__ = true;
@@ -743,23 +746,24 @@ pytorch.Execution = class extends python.Execution {
                 this.serialized_model = new pytorch.nnapi.SerializedModel(serialized_model, buffers);
             }
             run(inputs, outputs) {
-                this.serialized_model_tensor.__variable__ = this.serialized_model_tensor.__variable__ || self.variable();
+                this.serialized_model_tensor.__variable__ = this.serialized_model_tensor.__variable__ || execution.variable();
                 this.serialized_model_tensor.__count__ = (this.serialized_model_tensor.__count__ || 0) + 1;
-                self.push({
-                    type: new pytorch.nnapi.Graph(this.serialized_model),
+                const type = new pytorch.nnapi.Graph(this.serialized_model);
+                const input = {
+                    arguments: inputs.map((input) => {
+                        return { id: input.__variable__ };
+                    })
+                    // [ { id: this.serialized_model_tensor.__variable__ } ] //,
+                    // this.parameter_buffers.map((buffer) => { return { id: buffer.__variable__ }; })
+                };
+                const output = outputs.map((output) => {
+                    return { id: output.__variable__ };
+                });
+                execution.push({
+                    type: type,
                     attributes: [],
-                    inputs: [
-                        inputs.map((input) => {
-                            return { id: input.__variable__ };
-                        }),
-                        // [ { id: this.serialized_model_tensor.__variable__ } ] //,
-                        // this.parameter_buffers.map((buffer) => { return { id: buffer.__variable__ }; })
-                    ],
-                    outputs: [
-                        outputs.map((output) => {
-                            return { id: output.__variable__ };
-                        })
-                    ],
+                    inputs: [ input ],
+                    outputs: [ output ],
                 });
             }
         });
@@ -1789,41 +1793,11 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                     const referencedParameters = [];
                     let next = false;
                     const parameters = Array.prototype.slice.call(schema.inputs || []).concat(Array.prototype.slice.call(schema.attributes || []));
-                    let op_context = null;
-                    while (copyEvalArgs.length > 0 || (op_context && parameters.length > 0)) {
-
+                    while (copyEvalArgs.length > 0) {
                         if (parameters.length <= 0) {
                             next = !schema.name.startsWith('_caffe2::');
                             break;
                         }
-
-                        const arg = copyEvalArgs[0];
-                        if (arg && arg.__class__ && arg.__class__.__module__ && arg.__class__.__name__) {
-                            const type = arg.__class__.__module__ + '.' + arg.__class__.__name__;
-                            switch (type) {
-                                case '__torch__.torch.classes.quantized.Conv2dPackedParamsBase':
-                                case '__torch__.torch.classes.quantized.Conv3dPackedParamsBase':
-                                case '__torch__.torch.classes.quantized.LinearPackedParamsBase':
-                                case '__torch__.torch.classes.xnnpack.Conv2dOpContext':
-                                case '__torch__.torch.classes.xnnpack.LinearOpContext':
-                                    op_context = arg;
-                                    copyArgs.shift();
-                                    copyEvalArgs.shift();
-                                    continue;
-                                default:
-                                    break;
-                            }
-                        }
-
-                        if (op_context && parameters[0]) {
-                            const parameter = parameters[0];
-                            const name = parameter.name;
-                            if (name in op_context && parameter.context) {
-                                copyArgs.unshift({ type: null });
-                                copyEvalArgs.unshift(op_context[name]);
-                            }
-                        }
-
                         if (copyArgs.every((arg) => arg.type === '=' && arg.target && arg.target.type === 'id') &&
                             parameters.every((parameter) => parameter.type !== 'Tensor' && parameter.type !== 'Tensor[]')) {
                             const map = new Map(parameters.map((parameter) => [ parameter.name, parameter ]));
@@ -1849,10 +1823,8 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                         if (next) {
                             break;
                         }
-
                         const parameter = parameters.shift();
                         const argument = copyEvalArgs[0];
-
                         if (parameter.type === 'Tensor' || (parameter.type === 'Scalar' && pytorch.Utility.isTensor(argument))) {
                             if (Array.isArray(argument) || (!pytorch.Utility.isTensor(argument) && argument !== null && argument !== undefined)) {
                                 if (parameter.optional) {
@@ -1867,12 +1839,12 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                             else {
                                 copyArgs.shift();
                                 copyEvalArgs.shift();
-                                const item = (argument === null || argument === undefined) ? {} : argument;
-                                item.__variable__ = item.__variable__ || this.variable();
-                                const inputs = [];
-                                inputs.push({ id: item.__variable__ });
-                                referencedParameters.push(item);
-                                node.inputs.push(inputs);
+                                const tensor = (argument === null || argument === undefined) ? {} : argument;
+                                tensor.__variable__ = tensor.__variable__ || this.variable();
+                                referencedParameters.push(tensor);
+                                node.inputs.push({
+                                    arguments: [ { id: tensor.__variable__ }]
+                                });
                             }
                         }
                         else if (parameter.type === 'Tensor[]') {
@@ -1886,16 +1858,16 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                             else {
                                 copyArgs.shift();
                                 copyEvalArgs.shift();
-                                const inputs = [];
-                                for (let item of argument) {
-                                    if (item === null) {
-                                        item = {};
+                                const param = {};
+                                param.arguments = argument.map((tensor) => {
+                                    if (tensor === null) {
+                                        tensor = {};
                                     }
-                                    item.__variable__ = item.__variable__ || this.variable();
-                                    inputs.push({ id: item.__variable__ });
-                                    referencedParameters.push(item);
-                                }
-                                node.inputs.push(inputs);
+                                    tensor.__variable__ = tensor.__variable__ || this.variable();
+                                    referencedParameters.push(tensor);
+                                    return { id: tensor.__variable__ };
+                                });
+                                node.inputs.push(param);
                             }
                         }
                         else {
@@ -1909,7 +1881,37 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                             else if (arg.type !== '=') {
                                 copyArgs.shift();
                                 copyEvalArgs.shift();
-                                node.attributes.push({ name: parameter.name, value: argument });
+                                switch (parameter.type) {
+                                    case '__torch__.torch.classes.quantized.Conv2dPackedParamsBase':
+                                    case '__torch__.torch.classes.quantized.Conv3dPackedParamsBase':
+                                    case '__torch__.torch.classes.quantized.LinearPackedParamsBase':
+                                    case '__torch__.torch.classes.xnnpack.Conv2dOpContext':
+                                    case '__torch__.torch.classes.xnnpack.LinearOpContext':
+                                        for (const entry of Object.entries(argument)) {
+                                            const key = entry[0];
+                                            if (pytorch.Utility.isTensor(entry[1])) {
+                                                const tensor = entry[1];
+                                                tensor.__variable__ = tensor.__variable__ || this.variable();
+                                                const param = {};
+                                                param.name = /* parameter.name + '.' + */ key;
+                                                param.arguments = [
+                                                    { id: tensor.__variable__ }
+                                                ];
+                                                referencedParameters.push(tensor);
+                                                node.inputs.push(param);
+                                            }
+                                            else {
+                                                const attribute = {};
+                                                attribute.name = /* parameter.name + '.' + */ key;
+                                                attribute.value = entry[1];
+                                                node.attributes.push(attribute);
+                                            }
+                                        }
+                                        break;
+                                    default:
+                                        node.attributes.push({ name: parameter.name, value: argument });
+                                        break;
+                                }
                             }
                             else {
                                 throw new pytorch.Error('Expected named argument.');
@@ -2116,7 +2118,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         count = node.attributes.filter((attribute) => attribute.name == 'chunks')[0].value;
                                         break;
                                     case 'torch.meshgrid':
-                                        count = node.inputs[0].length;
+                                        count = node.inputs[0].arguments.length;
                                         break;
                                     case 'torch.unbind':
                                         count = args[0].__tuple__ || count;
