@@ -2562,24 +2562,46 @@ pytorch.Utility = class {
                 return (obj !== null && obj !== Object(obj)) || (pytorch.Utility.isTensor(obj) && Array.isArray(obj.size()) && obj.size().length === 0);
             case 'boolean':
                 return obj === true || obj === false;
+            case 'string':
+                return obj === null || typeof obj === 'string';
+            case 'SymInt':
             case 'int64':
                 return Number.isInteger(obj) || obj instanceof base.Int64 || (typeof obj === 'number' && isNaN(obj));
+            case 'SymInt[]':
+            case 'SymInt[2]':
+            case 'SymInt[3]':
+            case 'SymInt[4]':
+            case 'SymInt[5]':
+            case 'SymInt[6]':
             case 'int64[]':
+            case 'int64[2]':
+            case 'int64[3]':
                 return Array.isArray(obj) && obj.every((item) => Number.isInteger(item) || (typeof item === 'number' && isNaN(item)) || item === undefined);
             case 'int64[1]':
+            case 'SymInt[1]':
                 return pytorch.Utility.isType(obj, 'int64') || pytorch.Utility.isType(obj, 'int64[]');
             case 'float32':
             case 'float64':
                 return obj !== null && obj !== Object(obj);
+            case 'float32[]':
+                return Array.isArray(obj) && obj.every((item) => typeof item === 'number' && !isNaN(item));
             case 'string[][]':
                 return Array.isArray(obj) && obj.every((item) => Array.isArray(item) && item.every((item) => typeof item === 'string'));
             case 'Layout':
             case 'ScalarType':
             case 'MemoryFormat':
                 return Number.isInteger(obj) || obj === null;
+            case 'Dimname':
+                return obj === null || typeof obj === 'string';
+            case 'Dimname[]':
+                return Array.isArray(obj) && obj.every((item) => item === null || typeof item === 'string');
             case 'Device':
                 return obj === null || obj === Object(obj);
             default:
+                if (type && type.startsWith('__torch__.') &&
+                    obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__) {
+                    return type === obj.__class__.__module__ + '.' + obj.__class__.__name__;
+                }
                 return true;
         }
     }

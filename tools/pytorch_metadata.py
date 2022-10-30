@@ -36,23 +36,6 @@ def _write_metadata(value):
     content = re.sub(r'\s {6}}', ' }', content)
     _write(metadata_file, content)
 
-def _check_types(types, schemas):
-    for schema in schemas.values():
-        if schema.name in types:
-            types.pop(schema.name)
-    for key in list(types.keys()):
-        if key.startswith('torch.nn'):
-            types.pop(key)
-        if key.startswith('torchvision::') or \
-           key.startswith('torchaudio::') or \
-           key.startswith('neuron::'):
-            types.pop(key)
-    types.pop('aten::fft')
-    types.pop('aten::mul.ScalarT')
-    types.pop('aten::classes._nnapi.Compilation')
-    if len(types) > 0:
-        print('\n'.join(list(types.keys())))
-
 schema_source_files = [
     ('aten/src/ATen/native/native_functions.yaml',
         re.compile(r'-\s*func:\s*(.*)', re.MULTILINE), 'aten::'),
@@ -82,10 +65,7 @@ schema_source_files = [
         re.compile(r'"(_caffe2::[\w+]*\([\w"\s\[\],]*\)\s*->.*)"', re.MULTILINE))
 ]
 
-def _metadata():
-
-    types = _read_metadata()
-
+def _parse_schemas():
     schemas = {}
     for entry in schema_source_files:
         path = os.path.join(pytorch_source_dir, entry[0])
@@ -97,19 +77,81 @@ def _metadata():
             if schema.name in schemas:
                 raise Exception()
             schemas[schema.name] = schema
+    return schemas
+
+def _translate_type(value):
+    optional = False
+    argument_type = ''
+    while not isinstance(value, str):
+        if isinstance(value, pytorch.Schema.OptionalType):
+            value = value.element_type
+            optional = True
+        elif isinstance(value, pytorch.Schema.ListType):
+            size = str(value.size) if hasattr(value, 'size') else ''
+            value = value.element_type
+            argument_type = '[' + size + ']' + argument_type
+        else:
+            name = value.name
+            if name == 'int':
+                name = 'int64'
+            elif name == 'float':
+                name = 'float32'
+            elif name == 'bool':
+                name = 'boolean'
+            elif name == 'str':
+                name = 'string'
+            argument_type = name + argument_type
+            break
+    return argument_type, optional
+
+def _check_types(types, schemas):
+    for schema in schemas.values():
+        if schema.name in types:
+            types.pop(schema.name)
+    for key in list(types.keys()):
+        if key.startswith('torch.nn'):
+            types.pop(key)
+        if key.startswith('torchvision::') or \
+           key.startswith('torchaudio::') or \
+           key.startswith('neuron::'):
+            types.pop(key)
+    types.pop('aten::fft')
+    types.pop('aten::mul.ScalarT')
+    types.pop('aten::classes._nnapi.Compilation')
+    if len(types) > 0:
+        print('\n'.join(list(types.keys())))
+
+def _metadata():
+
+    types = _read_metadata()
+    schemas = _parse_schemas()
 
     for schema in schemas.values():
         if schema.name in types:
             value = types[schema.name]
             arguments = list(filter(lambda argument: not argument.is_out, schema.arguments))
             returns = schema.returns
+            if schema.name == 'aten::as_tensor':
+                continue
             if len(arguments) != len(value['inputs']) or len(returns) != len(value['outputs']):
                 raise Exception(schema.name)
             for i, _ in enumerate(arguments):
-                value['inputs'][i]['name'] = _.name
+                argument = value['inputs'][i]
+                argument['name'] = _.name
+                argument_type, optional = _translate_type(getattr(_, 'type'))
+                argument['type'] = argument_type
+                if optional:
+                    argument['optional'] = True
+                if hasattr(_, 'default'):
+                    argument['default'] = _.default
             for i, _ in enumerate(returns):
+                argument = value['outputs'][i]
                 if hasattr(_, 'name'):
                     value['outputs'][i]['name'] = _.name
+                argument_type, optional = _translate_type(getattr(_, 'type'))
+                argument['type'] = argument_type
+                if optional:
+                    argument['optional'] = True
 
     # import torch
     # for name in dir(torch.ops.aten):
@@ -126,7 +168,6 @@ def _metadata():
     #                 print(schema)
 
     _write_metadata(types)
-
     _check_types(types, schemas)
 
 def main(): # pylint: disable=missing-function-docstring

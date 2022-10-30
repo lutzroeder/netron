@@ -251,7 +251,7 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
                     lexer.value.find('.') != -1 or lexer.value.find('e') != -1 else \
                     int(lexer.value)
             elif lexer.kind == 'string':
-                value = lexer.value
+                value = lexer.value[1:-1]
             elif lexer.eat('['):
                 value = []
                 if not lexer.eat(']'):
