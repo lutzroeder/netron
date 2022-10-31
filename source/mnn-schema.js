@@ -145,6 +145,8 @@ $root.MNN.Convolution3DCommon = class Convolution3DCommon {
         $.relu = reader.bool_(position, 18, false);
         $.relu6 = reader.bool_(position, 20, false);
         $.group = reader.int32_(position, 22, 1);
+        $.outPads = reader.typedArray(position, 24, Int32Array);
+        $.hasOutputShape = reader.bool_(position, 26, false);
         return $;
     }
 };
