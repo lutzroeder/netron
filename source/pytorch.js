@@ -478,8 +478,9 @@ pytorch.Node = class {
                     }
                 }
 
-                for (let inputIndex = 0; inputIndex < item.node.inputs.length; inputIndex++) {
-                    const input = item.node.inputs[inputIndex];
+                const node = item.node;
+                for (let inputIndex = 0; inputIndex < node.inputs.length; inputIndex++) {
+                    const input = node.inputs[inputIndex];
                     if (!input.name) {
                         input.name = inputIndex.toString();
                         if (this._type && this._type.inputs && this._type.inputs.length > inputIndex) {
@@ -491,17 +492,20 @@ pytorch.Node = class {
                     this._inputs.push(parameter);
                 }
 
-                for (let outputIndex = 0; outputIndex < item.node.outputs.length; outputIndex++) {
-                    let outputName = outputIndex.toString();
-                    if (this._type && this._type.outputs && this._type.outputs.length > outputIndex) {
-                        outputName = this._type.outputs[outputIndex].name;
+                for (let i = 0; i < node.outputs.length; i++) {
+                    const output = node.outputs[i];
+                    if (!output.name) {
+                        output.name = i === 0 ? 'output' : 'output' + i.toString();
+                        if (this._type && this._type.outputs && i > this._type.outputs.length && this._type.outputs[i] && this._type.outputs[i].name) {
+                            output.name = this._type.outputs[i].name;
+                        }
                     }
-                    this._outputs.push(new pytorch.Parameter(outputName, true,
-                        item.node.outputs[outputIndex].map((output) => new pytorch.Argument(output.id, null, null))
-                    ));
+                    const args = output.arguments.map((argument) => new pytorch.Argument(argument.id, null, argument.initializer || null));
+                    const parameter = new pytorch.Parameter(output.name, true, args);
+                    this._outputs.push(parameter);
                 }
 
-                for (const attribute of item.node.attributes) {
+                for (const attribute of node.attributes) {
                     const name = attribute.name;
                     const value = attribute.value;
                     const schema = metadata.attribute(this._type.identifier, name);
@@ -756,9 +760,11 @@ pytorch.Execution = class extends python.Execution {
                     // [ { id: this.serialized_model_tensor.__variable__ } ] //,
                     // this.parameter_buffers.map((buffer) => { return { id: buffer.__variable__ }; })
                 };
-                const output = outputs.map((output) => {
-                    return { id: output.__variable__ };
-                });
+                const output = {
+                    arguments: outputs.map((output) => {
+                        return { id: output.__variable__ };
+                    })
+                };
                 execution.push({
                     type: type,
                     attributes: [],
@@ -1842,9 +1848,9 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                 const tensor = (argument === null || argument === undefined) ? {} : argument;
                                 tensor.__variable__ = tensor.__variable__ || this.variable();
                                 referencedParameters.push(tensor);
-                                node.inputs.push({
-                                    arguments: [ { id: tensor.__variable__ }]
-                                });
+                                const parameter = {};
+                                parameter.arguments = [ { id: tensor.__variable__ } ];
+                                node.inputs.push(parameter);
                             }
                         }
                         else if (parameter.type === 'Tensor[]') {
@@ -1858,8 +1864,8 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                             else {
                                 copyArgs.shift();
                                 copyEvalArgs.shift();
-                                const param = {};
-                                param.arguments = argument.map((tensor) => {
+                                const parameter = {};
+                                parameter.arguments = argument.map((tensor) => {
                                     if (tensor === null) {
                                         tensor = {};
                                     }
@@ -1867,7 +1873,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                     referencedParameters.push(tensor);
                                     return { id: tensor.__variable__ };
                                 });
-                                node.inputs.push(param);
+                                node.inputs.push(parameter);
                             }
                         }
                         else {
@@ -1892,13 +1898,13 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                             if (pytorch.Utility.isTensor(entry[1])) {
                                                 const tensor = entry[1];
                                                 tensor.__variable__ = tensor.__variable__ || this.variable();
-                                                const param = {};
-                                                param.name = /* parameter.name + '.' + */ key;
-                                                param.arguments = [
+                                                const parameter = {};
+                                                parameter.name = /* parameter.name + '.' + */ key;
+                                                parameter.arguments = [
                                                     { id: tensor.__variable__ }
                                                 ];
                                                 referencedParameters.push(tensor);
-                                                node.inputs.push(param);
+                                                node.inputs.push(parameter);
                                             }
                                             else {
                                                 const attribute = {};
@@ -1929,13 +1935,13 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                         const parameter = schema.outputs[i];
                         switch (parameter.type) {
                             case 'Tensor': {
-                                const parameter = this.invoke('torch.Tensor', []);
-                                parameter.__origin__ = type;
+                                const output = this.invoke('torch.Tensor', []);
+                                output.__origin__ = type;
                                 if (i === 0) {
                                     switch (type) {
                                         case 'torch.conv1d':
                                         case 'torch.embedding': {
-                                            parameter.resize_([ NaN, NaN, NaN ]);
+                                            output.resize_([ NaN, NaN, NaN ]);
                                             break;
                                         }
                                         case 'torch.cat':
@@ -1954,14 +1960,14 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                             if (pytorch.Utility.isTensor(input) && input.size() === undefined) {
                                                 input.resize_([ NaN, NaN, NaN, NaN ]);
                                             }
-                                            parameter.resize_([ NaN, NaN, NaN, NaN ]);
+                                            output.resize_([ NaN, NaN, NaN, NaN ]);
                                             break;
                                         }
                                         case 'torch.slice': {
                                             const input = evalArgs[0];
                                             if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
                                                 const size = input.size();
-                                                parameter.resize_(size);
+                                                output.resize_(size);
                                             }
                                             break;
                                         }
@@ -1969,12 +1975,12 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                             const input = evalArgs[0];
                                             if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
                                                 const size = input.size();
-                                                parameter.resize_(size);
+                                                output.resize_(size);
                                             }
                                             break;
                                         }
                                         case 'torch.conv3d': {
-                                            parameter.resize_([ NaN, NaN, NaN, NaN, NaN ]);
+                                            output.resize_([ NaN, NaN, NaN, NaN, NaN ]);
                                             break;
                                         }
                                         case 'torch.detach':
@@ -1989,7 +1995,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         case 'torch.hardswish_': {
                                             const input = evalArgs[0];
                                             if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
-                                                parameter.resize_(input.size());
+                                                output.resize_(input.size());
                                             }
                                             break;
                                         }
@@ -1997,12 +2003,12 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         case 'torch.sub': {
                                             const input = evalArgs[0];
                                             if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
-                                                parameter.resize_(input.size());
+                                                output.resize_(input.size());
                                             }
                                             else {
                                                 const other = evalArgs[1];
                                                 if (pytorch.Utility.isTensor(other) && Array.isArray(other.size())) {
-                                                    parameter.resize_(other.size());
+                                                    output.resize_(other.size());
                                                 }
                                             }
                                             break;
@@ -2010,7 +2016,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         case 'torch.select': {
                                             const input = evalArgs[0];
                                             if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
-                                                parameter.resize_(Array(input.size().length - 1).fill(NaN));
+                                                output.resize_(Array(input.size().length - 1).fill(NaN));
                                             }
                                             break;
                                         }
@@ -2022,7 +2028,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                                 if (Array.isArray(normalized_shape) && normalized_shape.length === 1) {
                                                     shape[shape.length - 1] = normalized_shape[0];
                                                 }
-                                                parameter.resize_(shape);
+                                                output.resize_(shape);
                                             }
                                             break;
                                         }
@@ -2030,13 +2036,13 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         case 'torch.ones':
                                         case 'torch.zeros':
                                         case 'torch.zeros_like': {
-                                            parameter.resize_(evalArgs[0]);
+                                            output.resize_(evalArgs[0]);
                                             break;
                                         }
                                         case 'torch.view':
                                         case 'torch.reshape':
                                         case 'torch.new_full': {
-                                            parameter.resize_(evalArgs[1]);
+                                            output.resize_(evalArgs[1]);
                                             break;
                                         }
                                         case 'torch.squeeze': {
@@ -2045,12 +2051,12 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                             if (Array.isArray(size)) {
                                                 switch (evalArgs.length) {
                                                     case 1: {
-                                                        parameter.resize_(size.filter((value) => value !== 1));
+                                                        output.resize_(size.filter((value) => value !== 1));
                                                         break;
                                                     }
                                                     case 2: {
                                                         const dim = evalArgs[1];
-                                                        parameter.resize_(size.filter((value, index) => (value !== 1 && !isNaN(value)) || index !== dim));
+                                                        output.resize_(size.filter((value, index) => (value !== 1 && !isNaN(value)) || index !== dim));
                                                         break;
                                                     }
                                                     default: {
@@ -2067,10 +2073,10 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                             if (Array.isArray(size) && dim !== undefined) {
                                                 const shape = size.slice();
                                                 shape.splice(dim, 0, 1);
-                                                parameter.resize_(shape);
+                                                output.resize_(shape);
                                             }
                                             else {
-                                                parameter.resize_([ NaN, NaN, NaN, NaN ]);
+                                                output.resize_([ NaN, NaN, NaN, NaN ]);
                                             }
                                             break;
                                         }
@@ -2085,7 +2091,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                                 const value = size[dim0];
                                                 size[dim0] = size[1];
                                                 size[dim1] = value;
-                                                parameter.resize_(size);
+                                                output.resize_(size);
                                             }
                                             break;
                                         }
@@ -2096,19 +2102,21 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         case 'ops.quantized.conv2d_relu':
                                         case 'ops.quantized.add':
                                         case 'ops.quantized.add_relu':
-                                            parameter.resize_([ NaN, NaN, NaN, NaN ]);
-                                            parameter.__quantized__ = true;
+                                            output.resize_([ NaN, NaN, NaN, NaN ]);
+                                            output.__quantized__ = true;
                                             break;
                                         case 'torch.contiguous':
-                                            parameter.__source__ = evalArgs[0];
+                                            output.__source__ = evalArgs[0];
                                             break;
                                         default:
                                             break;
                                     }
                                 }
-                                parameter.__variable__ = this.variable();
-                                result.push(parameter);
-                                node.outputs.push([ { id: parameter.__variable__ } ]);
+                                output.__variable__ = this.variable();
+                                const parameter = {};
+                                parameter.arguments = [ { id: output.__variable__ } ];
+                                result.push(output);
+                                node.outputs.push(parameter);
                                 break;
                             }
                             case 'Tensor[]': {
@@ -2134,16 +2142,16 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         break;
                                 }
                                 const tensors = [];
-                                const outputs = [];
+                                const parameter = { arguments: [] };
                                 for (let i = 0; i < count; i ++) {
-                                    const tensor = this.invoke('torch.Tensor', []);
-                                    tensor.__origin__ = type;
-                                    tensor.__variable__ = this.variable();
-                                    tensors.push(tensor);
-                                    outputs.push({ id: tensor.__variable__ });
+                                    const output = this.invoke('torch.Tensor', []);
+                                    output.__origin__ = type;
+                                    output.__variable__ = this.variable();
+                                    tensors.push(output);
+                                    parameter.arguments.push({ id: output.__variable__ });
                                 }
                                 result.push(tensors);
-                                node.outputs.push(outputs);
+                                node.outputs.push(parameter);
                                 break;
                             }
                             default: {
@@ -2151,12 +2159,14 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                     next = true;
                                     break;
                                 }
-                                const tensor = this.invoke('torch.Tensor', []);
-                                tensor.resize_([]);
-                                tensor.__origin__ = type;
-                                tensor.__variable__ = this.variable();
-                                result.push(tensor);
-                                node.outputs.push([ { id: tensor.__variable__ } ]);
+                                const parameter = { arguments: [] };
+                                const output = this.invoke('torch.Tensor', []);
+                                output.resize_([]);
+                                output.__origin__ = type;
+                                output.__variable__ = this.variable();
+                                parameter.arguments.push({ id: output.__variable__ });
+                                result.push(output);
+                                node.outputs.push(parameter);
                                 break;
                             }
                         }
@@ -2164,8 +2174,8 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                     if (next) {
                         continue;
                     }
-                    for (const parameter of referencedParameters) {
-                        parameter.__count__ = (parameter.__count__ || 0) + 1;
+                    for (const referencedParameter of referencedParameters) {
+                        referencedParameter.__count__ = (referencedParameter.__count__ || 0) + 1;
                     }
                     this.push(node);
                     if (result.length > 1) {
@@ -2726,7 +2736,9 @@ pytorch.Utility = class {
         if (obj && pytorch.Utility.isTensor(obj)) {
             const layers = [];
             const argument = { id: '', value: obj };
-            const parameter = { name: 'value', arguments: [ argument ] };
+            const parameter = {};
+            parameter.name = 'value';
+            parameter.arguments = [ argument ];
             layers.push({ states: [ parameter ] });
             return [ { data: layers } ];
         }

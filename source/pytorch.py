@@ -203,8 +203,7 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
     class Argument: # pylint: disable=too-few-public-methods
         def __init__(self, lexer, is_return, kwarg_only):
             value = Schema.Type(lexer)
-            if lexer.kind == '(':
-                self.alias = self._parse_alias(lexer)
+            lexer.whitespace(0)
             while True:
                 if lexer.eat('['):
                     size = None
@@ -215,15 +214,18 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
                     value = Schema.ListType(value, size)
                 elif lexer.eat('?'):
                     value = Schema.OptionalType(value)
+                elif lexer.kind == '(' and not hasattr(self, 'alias'):
+                    self.alias = self._parse_alias(lexer)
                 else:
                     break
             self.type = value
-            lexer.whitespace(0)
             if is_return:
+                lexer.whitespace(0)
                 self.kwarg_only = False
                 if lexer.kind == 'id':
                     self.name = lexer.expect('id')
             else:
+                lexer.whitespace(1)
                 self.kwarg_only = kwarg_only
                 self.name = lexer.expect('id')
                 lexer.whitespace(0)
@@ -308,7 +310,7 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
             return value
         def expect(self, kind): # pylint: disable=missing-function-docstring
             if self.kind != kind:
-                raise Exception('')
+                raise Exception("Unexpected '" + self.kind + "' instead of '" + kind + "'.")
             value = self.value
             self.next()
             return value
@@ -333,7 +335,7 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
             elif self.buffer[i] == '.' and self.buffer[i+1] == '.' and self.buffer[i+2] == '.':
                 self.kind = '...'
                 self.value = '...'
-            elif self.buffer[i] in ('(', ')', ':', '.', '[', ']', ',', '=', '?', '!', '*'):
+            elif self.buffer[i] in ('(', ')', ':', '.', '[', ']', ',', '=', '?', '!', '*', '|'):
                 self.kind = self.buffer[i]
                 self.value = self.buffer[i]
             elif (self.buffer[i] >= 'a' and self.buffer[i] <= 'z') or \
