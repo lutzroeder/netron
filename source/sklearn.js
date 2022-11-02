@@ -54,7 +54,9 @@ sklearn.Model = class {
             case 'sklearn':
             case 'scipy':
             case 'hmmlearn': {
-                version.push(obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
+                if (obj._sklearn_version) {
+                    version.push(' v' + obj._sklearn_version.toString());
+                }
                 this._graphs.push(new sklearn.Graph(metadata, '', obj));
                 break;
             }
@@ -64,7 +66,9 @@ sklearn.Model = class {
                 for (let i = 0; i < list.length; i++) {
                     const obj = list[i];
                     this._graphs.push(new sklearn.Graph(metadata, i.toString(), obj));
-                    version.push(obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
+                    if (obj._sklearn_version) {
+                        version.push(' v' + obj._sklearn_version.toString());
+                    }
                 }
                 break;
             }
@@ -73,7 +77,9 @@ sklearn.Model = class {
                 for (const entry of Object.entries(obj)) {
                     const obj = entry[1];
                     this._graphs.push(new sklearn.Graph(metadata, entry[0], obj));
-                    version.push(obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
+                    if (obj._sklearn_version) {
+                        version.push(' v' + obj._sklearn_version.toString());
+                    }
                 }
                 break;
             }
@@ -81,7 +87,7 @@ sklearn.Model = class {
                 throw new sklearn.Error("Unsupported scikit-learn format '" + match + "'.");
             }
         }
-        if (version.every((value) => value === version[0])) {
+        if (version.length > 0 && version.every((value) => value === version[0])) {
             this._format += version[0];
         }
     }
