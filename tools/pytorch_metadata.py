@@ -25,8 +25,8 @@ def _write(path, content):
         file.write(content)
 
 def _read_metadata():
-    metadata = json.loads(_read(metadata_file))
-    return dict(map(lambda item: [ item['name'], item ], metadata))
+    metadata: list[dict[str,object]] = json.loads(_read(metadata_file))
+    return dict(map(lambda _: ( _['name'], _ ), metadata))
 
 def _write_metadata(value):
     metadata = list(collections.OrderedDict(sorted(value.items())).values())
@@ -80,7 +80,14 @@ def _parse_schemas():
     return schemas
 
 def _filter_schemas(schemas, types):
-    filtered_schemas = set(types.keys())
+
+    keys = set(map(lambda _: _.split('.')[0], types.keys()))
+    filtered_schemas = set()
+    for schema in schemas.values():
+        for key in keys:
+            if schema.name == key or schema.name.startswith(key + '.'):
+                filtered_schemas.add(schema.name)
+    # filtered_schemas = set(types.keys())
     # content = _read('list.csv')
     # regex = re.compile(r'Unsupported function \'(.*)\' in', re.MULTILINE)
     # matches = set()
@@ -163,7 +170,7 @@ def _metadata():
     for schema in filtered_schemas.values():
         arguments = list(filter(lambda argument: not argument.is_out, schema.arguments))
         returns = schema.returns
-        if not schema.name in types:
+        if schema.name not in types:
             types[schema.name] = {
                 'name': schema.name,
                 'inputs': [ {} for i in range(len(arguments)) ],

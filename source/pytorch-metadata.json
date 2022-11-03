@@ -145,6 +145,16 @@
     ]
   },
   {
+    "name": "aten::__and__.Scalar",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::__and__.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -315,6 +325,16 @@
     ]
   },
   {
+    "name": "aten::__or__.Scalar",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::__or__.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -437,6 +457,17 @@
     ]
   },
   {
+    "name": "aten::_add_relu.Scalar",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" },
+      { "name": "alpha", "type": "Scalar", "default": 1 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::_add_relu.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -445,6 +476,28 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::_add_relu.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" },
+      { "name": "alpha", "type": "Scalar", "default": 1 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::_add_relu_.Scalar",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" },
+      { "name": "alpha", "type": "Scalar", "default": 1 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -649,6 +702,21 @@
     "outputs": [
       { "name": "output", "type": "Tensor" },
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::_ctc_loss.Tensor",
+    "inputs": [
+      { "name": "log_probs", "type": "Tensor" },
+      { "name": "targets", "type": "Tensor" },
+      { "name": "input_lengths", "type": "Tensor" },
+      { "name": "target_lengths", "type": "Tensor" },
+      { "name": "blank", "type": "int64", "default": 0 },
+      { "name": "zero_infinity", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" },
+      { "type": "Tensor" }
     ]
   },
   {
@@ -869,6 +937,15 @@
     ]
   },
   {
+    "name": "aten::abs.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::abs_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -954,6 +1031,16 @@
     ]
   },
   {
+    "name": "aten::adaptive_avg_pool2d.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "output_size", "type": "SymInt[2]" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::adaptive_avg_pool3d",
     "category": "Pool",
     "inputs": [
@@ -962,6 +1049,16 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::adaptive_avg_pool3d.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "output_size", "type": "int64[3]" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -989,6 +1086,17 @@
     ]
   },
   {
+    "name": "aten::adaptive_max_pool2d.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "output_size", "type": "int64[2]" }
+    ],
+    "outputs": [
+      { "type": "Tensor" },
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::adaptive_max_pool3d",
     "category": "Pool",
     "inputs": [
@@ -998,6 +1106,17 @@
     "outputs": [
       { "name": "output", "type": "Tensor" },
       { "name": "?", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::adaptive_max_pool3d.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "output_size", "type": "int64[3]" }
+    ],
+    "outputs": [
+      { "type": "Tensor" },
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1020,6 +1139,27 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::add.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" },
+      { "name": "alpha", "type": "Scalar", "default": 1 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::add.t",
+    "inputs": [
+      { "name": "a", "type": "t[]" },
+      { "name": "b", "type": "t[]" }
+    ],
+    "outputs": [
+      { "type": "t[]" }
     ]
   },
   {
@@ -1144,6 +1284,19 @@
     ]
   },
   {
+    "name": "aten::addmv.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "mat", "type": "Tensor" },
+      { "name": "vec", "type": "Tensor" },
+      { "name": "beta", "type": "Scalar", "default": 1 },
+      { "name": "alpha", "type": "Scalar", "default": 1 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::addmv_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -1204,6 +1357,24 @@
     ]
   },
   {
+    "name": "aten::all.all_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::all.bool",
+    "inputs": [
+      { "name": "self", "type": "boolean[]" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
     "name": "aten::all.dim",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -1212,6 +1383,57 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::all.dimname",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::all.dimname_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::all.float",
+    "inputs": [
+      { "name": "self", "type": "float32[]" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::all.int",
+    "inputs": [
+      { "name": "self", "type": "int64[]" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::all.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1250,6 +1472,17 @@
     ]
   },
   {
+    "name": "aten::amax.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64[1]", "default": [] },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::amin",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -1261,7 +1494,30 @@
     ]
   },
   {
+    "name": "aten::amin.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64[1]", "default": [] },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::aminmax",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64", "optional": true, "default": null },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "min", "type": "Tensor" },
+      { "name": "max", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::aminmax.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64", "optional": true, "default": null },
@@ -1300,6 +1556,24 @@
     ]
   },
   {
+    "name": "aten::any.all_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::any.bool",
+    "inputs": [
+      { "name": "self", "type": "boolean[]" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
     "name": "aten::any.dim",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -1308,6 +1582,66 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::any.dimname",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::any.dimname_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::any.float",
+    "inputs": [
+      { "name": "self", "type": "float32[]" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::any.int",
+    "inputs": [
+      { "name": "self", "type": "int64[]" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::any.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::any.str",
+    "inputs": [
+      { "name": "self", "type": "string[]" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
     ]
   },
   {
@@ -1392,6 +1726,15 @@
     ]
   },
   {
+    "name": "aten::arctan.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::arctan_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -1412,6 +1755,17 @@
     ]
   },
   {
+    "name": "aten::argmax.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64", "optional": true, "default": null },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::argmin",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -1420,6 +1774,17 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::argmin.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64", "optional": true, "default": null },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1442,6 +1807,18 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::argsort.stable",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "stable", "type": "boolean" },
+      { "name": "dim", "type": "int64", "default": -1 },
+      { "name": "descending", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1517,12 +1894,32 @@
     ]
   },
   {
+    "name": "aten::as_tensor.list",
+    "inputs": [
+      { "name": "data", "type": "t[]" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::atan",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::atan.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1533,6 +1930,16 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::atan2.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1613,6 +2020,21 @@
     ]
   },
   {
+    "name": "aten::avg_pool2d.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "kernel_size", "type": "int64[2]" },
+      { "name": "stride", "type": "int64[2]", "default": [] },
+      { "name": "padding", "type": "int64[2]", "default": 0 },
+      { "name": "ceil_mode", "type": "boolean", "default": false },
+      { "name": "count_include_pad", "type": "boolean", "default": true },
+      { "name": "divisor_override", "type": "int64", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::avg_pool3d",
     "category": "Pool",
     "inputs": [
@@ -1626,6 +2048,21 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::avg_pool3d.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "kernel_size", "type": "int64[3]" },
+      { "name": "stride", "type": "int64[3]", "default": [] },
+      { "name": "padding", "type": "int64[3]", "default": 0 },
+      { "name": "ceil_mode", "type": "boolean", "default": false },
+      { "name": "count_include_pad", "type": "boolean", "default": true },
+      { "name": "divisor_override", "type": "int64", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1912,6 +2349,15 @@
     ]
   },
   {
+    "name": "aten::bitwise_not.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::bitwise_not_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -1937,6 +2383,16 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::bmm.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "mat2", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2079,6 +2535,15 @@
     ]
   },
   {
+    "name": "aten::ceil.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::ceil_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -2131,6 +2596,39 @@
     ]
   },
   {
+    "name": "aten::clamp.Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "min", "type": "Tensor", "optional": true, "default": null },
+      { "name": "max", "type": "Tensor", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::clamp.Tensor_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "min", "type": "Tensor", "optional": true, "default": null },
+      { "name": "max", "type": "Tensor", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::clamp.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "min", "type": "Scalar", "optional": true, "default": null },
+      { "name": "max", "type": "Scalar", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::clamp_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -2139,6 +2637,17 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::clamp_.Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "min", "type": "Tensor", "optional": true, "default": null },
+      { "name": "max", "type": "Tensor", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2152,6 +2661,36 @@
     ]
   },
   {
+    "name": "aten::clamp_max.Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "max", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::clamp_max.Tensor_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "max", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::clamp_max.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "max", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::clamp_max_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -2159,6 +2698,16 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::clamp_max_.Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "max", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2255,6 +2804,28 @@
     ]
   },
   {
+    "name": "aten::clip.Tensor_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "min", "type": "Tensor", "optional": true, "default": null },
+      { "name": "max", "type": "Tensor", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::clip.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "min", "type": "Scalar", "optional": true, "default": null },
+      { "name": "max", "type": "Scalar", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::clip_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -2310,6 +2881,20 @@
     ]
   },
   {
+    "name": "aten::col2im.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "output_size", "type": "SymInt[2]" },
+      { "name": "kernel_size", "type": "int64[2]" },
+      { "name": "dilation", "type": "int64[2]" },
+      { "name": "padding", "type": "int64[2]" },
+      { "name": "stride", "type": "int64[2]" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::column_stack",
     "inputs": [
       { "name": "tensors", "type": "Tensor[]" }
@@ -2335,6 +2920,16 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::complex.out",
+    "inputs": [
+      { "name": "real", "type": "Tensor" },
+      { "name": "imag", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2693,12 +3288,30 @@
     ]
   },
   {
+    "name": "aten::cos.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::cosh",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::cosh.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2904,6 +3517,28 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::cumsum.dimname_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::cumsum.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3406,6 +4041,16 @@
     ]
   },
   {
+    "name": "aten::dot.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "tensor", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::dropout",
     "category": "Dropout",
     "inputs": [
@@ -3441,6 +4086,15 @@
     ]
   },
   {
+    "name": "aten::einsum.sublist",
+    "inputs": [
+      { "name": "a", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::elu",
     "category": "Activation",
     "inputs": [
@@ -3451,6 +4105,18 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::elu.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "alpha", "type": "Scalar", "default": 1 },
+      { "name": "scale", "type": "Scalar", "default": 1 },
+      { "name": "input_scale", "type": "Scalar", "default": 1 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3501,6 +4167,26 @@
     ]
   },
   {
+    "name": "aten::embedding_bag.padding_idx",
+    "inputs": [
+      { "name": "weight", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" },
+      { "name": "offsets", "type": "Tensor" },
+      { "name": "scale_grad_by_freq", "type": "boolean" },
+      { "name": "mode", "type": "int64" },
+      { "name": "sparse", "type": "boolean" },
+      { "name": "per_sample_weights", "type": "Tensor", "optional": true },
+      { "name": "include_last_offset", "type": "boolean" },
+      { "name": "padding_idx", "type": "int64", "optional": true }
+    ],
+    "outputs": [
+      { "type": "Tensor" },
+      { "type": "Tensor" },
+      { "type": "Tensor" },
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::embedding_renorm_",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3542,6 +4228,16 @@
     ]
   },
   {
+    "name": "aten::empty.out",
+    "inputs": [
+      { "name": "size", "type": "SymInt[]" },
+      { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::empty_like",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3566,6 +4262,16 @@
     ]
   },
   {
+    "name": "aten::eq.Scalar_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::eq.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3573,6 +4279,96 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::eq.Tensor_list",
+    "inputs": [
+      { "name": "a", "type": "Tensor[]" },
+      { "name": "b", "type": "Tensor[]" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::eq.Tensor_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::eq.bool",
+    "inputs": [
+      { "name": "a", "type": "boolean" },
+      { "name": "b", "type": "boolean" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::eq.bool_list",
+    "inputs": [
+      { "name": "a", "type": "boolean[]" },
+      { "name": "b", "type": "boolean[]" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::eq.device",
+    "inputs": [
+      { "name": "a", "type": "Device" },
+      { "name": "b", "type": "Device" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::eq.enum",
+    "inputs": [
+      { "name": "a", "type": "AnyEnumType" },
+      { "name": "b", "type": "AnyEnumType" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::eq.float_list",
+    "inputs": [
+      { "name": "a", "type": "float32[]" },
+      { "name": "b", "type": "float32[]" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::eq.int_list",
+    "inputs": [
+      { "name": "a", "type": "int64[]" },
+      { "name": "b", "type": "int64[]" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::eq.str_list",
+    "inputs": [
+      { "name": "a", "type": "string[]" },
+      { "name": "b", "type": "string[]" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
     ]
   },
   {
@@ -3595,12 +4391,30 @@
     ]
   },
   {
+    "name": "aten::erf.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::exp",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::exp.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3853,6 +4667,18 @@
     ]
   },
   {
+    "name": "aten::fft_fft2.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::fft_fftn",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3862,6 +4688,18 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::fft_fftn.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3887,6 +4725,18 @@
     ]
   },
   {
+    "name": "aten::fft_hfft2.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::fft_hfftn",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3896,6 +4746,18 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::fft_hfftn.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3911,6 +4773,18 @@
     ]
   },
   {
+    "name": "aten::fft_ifft2.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::fft_ifftn",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3920,6 +4794,18 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::fft_ifftn.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3945,6 +4831,18 @@
     ]
   },
   {
+    "name": "aten::fft_ihfft2.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::fft_ihfftn",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3954,6 +4852,18 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::fft_ihfftn.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3969,6 +4879,18 @@
     ]
   },
   {
+    "name": "aten::fft_irfft2.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::fft_irfftn",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3981,6 +4903,18 @@
     ]
   },
   {
+    "name": "aten::fft_irfftn.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::fft_rfft2",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3990,6 +4924,18 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::fft_rfft2.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4106,6 +5052,15 @@
     ]
   },
   {
+    "name": "aten::floor.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::floor_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -4193,6 +5148,17 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::frobenius_norm.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64[1]" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4547,6 +5513,16 @@
     ]
   },
   {
+    "name": "aten::glu.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64", "default": -1 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::greater_equal.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -4683,6 +5659,16 @@
     ]
   },
   {
+    "name": "aten::gt.Scalar_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::gt.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -4690,6 +5676,16 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::gt.Tensor_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4730,6 +5726,15 @@
     ]
   },
   {
+    "name": "aten::hardsigmoid.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::hardsigmoid_",
     "category": "Activation",
     "inputs": [
@@ -4747,6 +5752,15 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::hardswish.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4779,6 +5793,17 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::hardtanh.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "min_val", "type": "Scalar", "default": -1 },
+      { "name": "max_val", "type": "Scalar", "default": 1 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4878,6 +5903,19 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::im2col.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "kernel_size", "type": "int64[2]" },
+      { "name": "dilation", "type": "int64[2]" },
+      { "name": "padding", "type": "int64[2]" },
+      { "name": "stride", "type": "int64[2]" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5313,6 +6351,15 @@
     ]
   },
   {
+    "name": "aten::inverse.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::is_contiguous",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -5428,6 +6475,16 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::leaky_relu.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "negative_slope", "type": "Scalar", "default": 0.01 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5640,6 +6697,16 @@
     ]
   },
   {
+    "name": "aten::linalg_tensorinv.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "ind", "type": "int64", "default": 2 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::linalg_tensorsolve",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -5648,6 +6715,17 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::linalg_tensorsolve.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" },
+      { "name": "dims", "type": "int64[]", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5700,6 +6778,17 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::linspace.out",
+    "inputs": [
+      { "name": "start", "type": "Scalar" },
+      { "name": "end", "type": "Scalar" },
+      { "name": "steps", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6313,6 +7402,16 @@
     ]
   },
   {
+    "name": "aten::lt.Scalar_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::lt.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -6320,6 +7419,16 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::lt.Tensor_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6388,6 +7497,16 @@
     ]
   },
   {
+    "name": "aten::masked_select.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "mask", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::matmul",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -6395,6 +7514,16 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::matmul.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6419,6 +7548,42 @@
     ]
   },
   {
+    "name": "aten::max.dim_max",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "values", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::max.names_dim",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "values", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::max.names_dim_max",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "values", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::max.other",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -6426,6 +7591,25 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::max.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::max.unary_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6488,6 +7672,21 @@
     "outputs": [
       { "name": "output", "type": "Tensor" },
       { "name": "indices", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::max_pool2d_with_indices.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "kernel_size", "type": "int64[2]" },
+      { "name": "stride", "type": "int64[2]", "default": [] },
+      { "name": "padding", "type": "int64[2]", "default": 0 },
+      { "name": "dilation", "type": "int64[2]", "default": 1 },
+      { "name": "ceil_mode", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" },
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6580,6 +7779,17 @@
     ]
   },
   {
+    "name": "aten::max_unpool2d.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" },
+      { "name": "output_size", "type": "int64[2]" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::max_unpool3d",
     "category": "Pool",
     "inputs": [
@@ -6594,6 +7804,19 @@
     ]
   },
   {
+    "name": "aten::max_unpool3d.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" },
+      { "name": "output_size", "type": "int64[3]" },
+      { "name": "stride", "type": "int64[3]" },
+      { "name": "padding", "type": "int64[3]" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::maximum",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -6601,6 +7824,16 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::maximum.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6693,6 +7926,42 @@
     ]
   },
   {
+    "name": "aten::median.dim_values",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "values", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::median.names_dim",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "values", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::median.names_dim_values",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "values", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::meshgrid",
     "category": "Tensor",
     "inputs": [
@@ -6735,6 +8004,42 @@
     ]
   },
   {
+    "name": "aten::min.dim_min",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "values", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::min.names_dim",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "values", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::min.names_dim_min",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "values", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::min.other",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -6742,6 +8047,25 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::min.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::min.unary_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6755,6 +8079,16 @@
     ]
   },
   {
+    "name": "aten::minimum.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::mish",
     "category": "Activation",
     "inputs": [
@@ -6762,6 +8096,15 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::mish.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6795,6 +8138,16 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::mm.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "mat2", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6915,6 +8268,36 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::mul.left_t",
+    "inputs": [
+      { "name": "l", "type": "t[]" },
+      { "name": "n", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "t[]" }
+    ]
+  },
+  {
+    "name": "aten::mul.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::mul.right_",
+    "inputs": [
+      { "name": "n", "type": "int64" },
+      { "name": "l", "type": "t[]" }
+    ],
+    "outputs": [
+      { "type": "t[]" }
     ]
   },
   {
@@ -7144,6 +8527,18 @@
     ]
   },
   {
+    "name": "aten::narrow_copy.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "start", "type": "SymInt" },
+      { "name": "length", "type": "SymInt" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::ne.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -7154,12 +8549,131 @@
     ]
   },
   {
+    "name": "aten::ne.Scalar_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::ne.Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::ne.Tensor_list",
+    "inputs": [
+      { "name": "a", "type": "Tensor[]" },
+      { "name": "b", "type": "Tensor[]" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::ne.Tensor_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::ne.bool",
+    "inputs": [
+      { "name": "a", "type": "boolean" },
+      { "name": "b", "type": "boolean" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::ne.bool_list",
+    "inputs": [
+      { "name": "a", "type": "boolean[]" },
+      { "name": "b", "type": "boolean[]" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::ne.device",
+    "inputs": [
+      { "name": "a", "type": "Device" },
+      { "name": "b", "type": "Device" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::ne.enum",
+    "inputs": [
+      { "name": "a", "type": "AnyEnumType" },
+      { "name": "b", "type": "AnyEnumType" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::ne.float_list",
+    "inputs": [
+      { "name": "a", "type": "float32[]" },
+      { "name": "b", "type": "float32[]" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::ne.int_list",
+    "inputs": [
+      { "name": "a", "type": "int64[]" },
+      { "name": "b", "type": "int64[]" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
+    "name": "aten::ne.str_list",
+    "inputs": [
+      { "name": "a", "type": "string[]" },
+      { "name": "b", "type": "string[]" }
+    ],
+    "outputs": [
+      { "type": "boolean" }
+    ]
+  },
+  {
     "name": "aten::neg",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::neg.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7244,6 +8758,15 @@
     ]
   },
   {
+    "name": "aten::nonzero.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::nonzero_numpy",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -7312,6 +8835,68 @@
     ]
   },
   {
+    "name": "aten::norm.names_ScalarOpt_dim",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "p", "type": "Scalar", "optional": true },
+      { "name": "dim", "type": "Dimname[1]" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::norm.names_ScalarOpt_dim_dtype",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "p", "type": "Scalar", "optional": true },
+      { "name": "dim", "type": "Dimname[1]" },
+      { "name": "keepdim", "type": "boolean" },
+      { "name": "dtype", "type": "ScalarType" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::norm.names_dtype_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "p", "type": "Scalar", "optional": true },
+      { "name": "dim", "type": "Dimname[1]" },
+      { "name": "keepdim", "type": "boolean" },
+      { "name": "dtype", "type": "ScalarType" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::norm.names_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "p", "type": "Scalar", "optional": true },
+      { "name": "dim", "type": "Dimname[1]" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::norm.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "p", "type": "Scalar", "optional": true },
+      { "name": "dim", "type": "int64[1]" },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::normal.Tensor_Tensor",
     "inputs": [
       { "name": "mean", "type": "Tensor" },
@@ -7320,6 +8905,17 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::normal.Tensor_Tensor_out",
+    "inputs": [
+      { "name": "mean", "type": "Tensor" },
+      { "name": "std", "type": "Tensor" },
+      { "name": "generator", "type": "Generator", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7334,6 +8930,17 @@
     ]
   },
   {
+    "name": "aten::normal.Tensor_float_out",
+    "inputs": [
+      { "name": "mean", "type": "Tensor" },
+      { "name": "std", "type": "float32", "default": 1 },
+      { "name": "generator", "type": "Generator", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::normal.float_Tensor",
     "inputs": [
       { "name": "mean", "type": "float32" },
@@ -7342,6 +8949,17 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::normal.float_Tensor_out",
+    "inputs": [
+      { "name": "mean", "type": "float32" },
+      { "name": "std", "type": "Tensor" },
+      { "name": "generator", "type": "Generator", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7358,6 +8976,18 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::normal.float_float_out",
+    "inputs": [
+      { "name": "mean", "type": "float32" },
+      { "name": "std", "type": "float32" },
+      { "name": "size", "type": "SymInt[]" },
+      { "name": "generator", "type": "Generator", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7420,6 +9050,29 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::ones.names",
+    "inputs": [
+      { "name": "size", "type": "int64[]" },
+      { "name": "names", "type": "Dimname[]", "optional": true },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "layout", "type": "Layout", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
+      { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::ones.out",
+    "inputs": [
+      { "name": "size", "type": "SymInt[]" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8239,6 +9892,15 @@
     ]
   },
   {
+    "name": "aten::reciprocal.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::reflection_pad1d",
     "category": "Tensor",
     "inputs": [
@@ -8247,6 +9909,16 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::reflection_pad1d.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "padding", "type": "SymInt[2]" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8261,6 +9933,16 @@
     ]
   },
   {
+    "name": "aten::reflection_pad2d.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "padding", "type": "SymInt[4]" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::reflection_pad3d",
     "category": "Tensor",
     "inputs": [
@@ -8269,6 +9951,16 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::reflection_pad3d.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "padding", "type": "SymInt[6]" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8322,6 +10014,26 @@
     ]
   },
   {
+    "name": "aten::remainder.Scalar_Tensor",
+    "inputs": [
+      { "name": "self", "type": "Scalar" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::remainder.Scalar_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::remainder.Tensor",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -8329,6 +10041,16 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::remainder.Tensor_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8361,6 +10083,18 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::renorm.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "p", "type": "Scalar" },
+      { "name": "dim", "type": "int64" },
+      { "name": "maxnorm", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8419,6 +10153,16 @@
     ]
   },
   {
+    "name": "aten::replication_pad1d.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "padding", "type": "SymInt[2]" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::replication_pad2d",
     "category": "Tensor",
     "inputs": [
@@ -8430,6 +10174,16 @@
     ]
   },
   {
+    "name": "aten::replication_pad2d.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "padding", "type": "SymInt[4]" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::replication_pad3d",
     "category": "Tensor",
     "inputs": [
@@ -8438,6 +10192,16 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::replication_pad3d.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "padding", "type": "SymInt[6]" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8487,6 +10251,24 @@
       { "name": "self", "type": "t[]" }
     ],
     "outputs": []
+  },
+  {
+    "name": "aten::rnn_relu.data",
+    "inputs": [
+      { "name": "data", "type": "Tensor" },
+      { "name": "batch_sizes", "type": "Tensor" },
+      { "name": "hx", "type": "Tensor" },
+      { "name": "params", "type": "Tensor[]" },
+      { "name": "has_biases", "type": "boolean" },
+      { "name": "num_layers", "type": "int64" },
+      { "name": "dropout", "type": "float32" },
+      { "name": "train", "type": "boolean" },
+      { "name": "bidirectional", "type": "boolean" }
+    ],
+    "outputs": [
+      { "type": "Tensor" },
+      { "type": "Tensor" }
+    ]
   },
   {
     "name": "aten::rnn_relu.input",
@@ -8645,6 +10427,15 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::rsqrt.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9055,6 +10846,15 @@
     ]
   },
   {
+    "name": "aten::sigmoid.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::sigmoid_",
     "category": "Activation",
     "inputs": [
@@ -9168,12 +10968,39 @@
     ]
   },
   {
+    "name": "aten::sin.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::sinh",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::sinh.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::size",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "int64[]" }
     ]
   },
   {
@@ -9208,6 +11035,30 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::slice.str",
+    "inputs": [
+      { "name": "string", "type": "string" },
+      { "name": "start", "type": "int64", "optional": true, "default": null },
+      { "name": "end", "type": "int64", "optional": true, "default": null },
+      { "name": "step", "type": "int64", "default": 1 }
+    ],
+    "outputs": [
+      { "type": "string" }
+    ]
+  },
+  {
+    "name": "aten::slice.t",
+    "inputs": [
+      { "name": "l", "type": "t[]" },
+      { "name": "start", "type": "int64", "optional": true, "default": null },
+      { "name": "end", "type": "int64", "optional": true, "default": null },
+      { "name": "step", "type": "int64", "default": 1 }
+    ],
+    "outputs": [
+      { "type": "t[]" }
     ]
   },
   {
@@ -9334,9 +11185,156 @@
     ]
   },
   {
+    "name": "aten::softplus.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "beta", "type": "Scalar", "default": 1 },
+      { "name": "threshold", "type": "Scalar", "default": 20 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::sort",
     "inputs": [
       { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64", "default": -1 },
+      { "name": "descending", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "values", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::sort.Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor[]" },
+      { "name": "reverse", "type": "boolean", "default": false }
+    ],
+    "outputs": []
+  },
+  {
+    "name": "aten::sort.any",
+    "inputs": [
+      { "name": "self", "type": "t[]" },
+      { "name": "reverse", "type": "boolean", "default": false }
+    ],
+    "outputs": []
+  },
+  {
+    "name": "aten::sort.bool",
+    "inputs": [
+      { "name": "self", "type": "boolean[]" },
+      { "name": "reverse", "type": "boolean", "default": false }
+    ],
+    "outputs": []
+  },
+  {
+    "name": "aten::sort.dimname",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "descending", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "values", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::sort.dimname_stable",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "stable", "type": "boolean", "optional": true },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "descending", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "values", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::sort.dimname_values",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "descending", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "values", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::sort.dimname_values_stable",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "stable", "type": "boolean", "optional": true },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "descending", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "values", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::sort.float",
+    "inputs": [
+      { "name": "self", "type": "float32[]" },
+      { "name": "reverse", "type": "boolean", "default": false }
+    ],
+    "outputs": []
+  },
+  {
+    "name": "aten::sort.int",
+    "inputs": [
+      { "name": "self", "type": "int64[]" },
+      { "name": "reverse", "type": "boolean", "default": false }
+    ],
+    "outputs": []
+  },
+  {
+    "name": "aten::sort.stable",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "stable", "type": "boolean", "optional": true },
+      { "name": "dim", "type": "int64", "default": -1 },
+      { "name": "descending", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "values", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::sort.str",
+    "inputs": [
+      { "name": "self", "type": "string[]" },
+      { "name": "reverse", "type": "boolean", "default": false }
+    ],
+    "outputs": []
+  },
+  {
+    "name": "aten::sort.values",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64", "default": -1 },
+      { "name": "descending", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "values", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::sort.values_stable",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "stable", "type": "boolean", "optional": true },
       { "name": "dim", "type": "int64", "default": -1 },
       { "name": "descending", "type": "boolean", "default": false }
     ],
@@ -9490,6 +11488,15 @@
     ]
   },
   {
+    "name": "aten::square.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::square_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -9594,6 +11601,54 @@
     ]
   },
   {
+    "name": "aten::std.correction",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64[1]", "optional": true },
+      { "name": "correction", "type": "int64", "optional": true },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::std.correction_names",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname[1]" },
+      { "name": "correction", "type": "int64", "optional": true },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::std.correction_names_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname[1]" },
+      { "name": "correction", "type": "int64", "optional": true },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::std.correction_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64[1]", "optional": true },
+      { "name": "correction", "type": "int64", "optional": true },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::std.dim",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -9606,6 +11661,42 @@
     ]
   },
   {
+    "name": "aten::std.names_dim",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname[1]" },
+      { "name": "unbiased", "type": "boolean", "default": true },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::std.names_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname[1]" },
+      { "name": "unbiased", "type": "boolean", "default": true },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::std.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64[1]", "optional": true },
+      { "name": "unbiased", "type": "boolean", "default": true },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::std_mean",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -9614,6 +11705,32 @@
     "outputs": [
       { "name": "result1", "type": "Tensor" },
       { "name": "result2", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::std_mean.correction",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64[1]", "optional": true },
+      { "name": "correction", "type": "int64", "optional": true },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" },
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::std_mean.correction_names",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname[1]" },
+      { "name": "correction", "type": "int64", "optional": true },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" },
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9630,6 +11747,19 @@
     ]
   },
   {
+    "name": "aten::std_mean.names_dim",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname[1]" },
+      { "name": "unbiased", "type": "boolean", "default": true },
+      { "name": "keepdim", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "type": "Tensor" },
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::stft",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -9643,6 +11773,24 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::stft.center",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "n_fft", "type": "int64" },
+      { "name": "hop_length", "type": "int64", "optional": true, "default": null },
+      { "name": "win_length", "type": "int64", "optional": true, "default": null },
+      { "name": "window", "type": "Tensor", "optional": true, "default": null },
+      { "name": "center", "type": "boolean", "default": true },
+      { "name": "pad_mode", "type": "string", "default": "reflect" },
+      { "name": "normalized", "type": "boolean", "default": false },
+      { "name": "onesided", "type": "boolean", "optional": true, "default": null },
+      { "name": "return_complex", "type": "boolean", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9697,6 +11845,17 @@
     ]
   },
   {
+    "name": "aten::sub.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" },
+      { "name": "alpha", "type": "Scalar", "default": 1 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::sub_.Scalar",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -9729,6 +11888,60 @@
     ]
   },
   {
+    "name": "aten::sum.DimnameList_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname[1]" },
+      { "name": "keepdim", "type": "boolean", "default": false },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::sum.IntList_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64[1]", "optional": true },
+      { "name": "keepdim", "type": "boolean", "default": false },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::sum.bool",
+    "inputs": [
+      { "name": "self", "type": "boolean[]" }
+    ],
+    "outputs": [
+      { "type": "int64" }
+    ]
+  },
+  {
+    "name": "aten::sum.complex",
+    "inputs": [
+      { "name": "self", "type": "complex[]" }
+    ],
+    "outputs": [
+      { "type": "complex" }
+    ]
+  },
+  {
+    "name": "aten::sum.dim_DimnameList",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname[1]" },
+      { "name": "keepdim", "type": "boolean", "default": false },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::sum.dim_IntList",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -9738,6 +11951,24 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::sum.float",
+    "inputs": [
+      { "name": "self", "type": "float32[]" }
+    ],
+    "outputs": [
+      { "type": "float32" }
+    ]
+  },
+  {
+    "name": "aten::sum.int",
+    "inputs": [
+      { "name": "self", "type": "int64[]" }
+    ],
+    "outputs": [
+      { "type": "int64" }
     ]
   },
   {
@@ -9774,12 +12005,31 @@
     ]
   },
   {
+    "name": "aten::take.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "index", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::tan",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::tan.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9798,6 +12048,15 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::tanh.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9888,6 +12147,17 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::threshold.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "threshold", "type": "Scalar" },
+      { "name": "value", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10243,6 +12513,16 @@
     ]
   },
   {
+    "name": "aten::triu",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "diagonal", "type": "int64", "default": 0 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::triu.out",
     "category": "Layer",
     "inputs": [
@@ -10533,6 +12813,19 @@
     ]
   },
   {
+    "name": "aten::upsample_bicubic2d.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "output_size", "type": "SymInt[2]" },
+      { "name": "align_corners", "type": "boolean" },
+      { "name": "scales_h", "type": "float32", "optional": true, "default": null },
+      { "name": "scales_w", "type": "float32", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::upsample_bicubic2d.vec",
     "category": "Layer",
     "inputs": [
@@ -10639,6 +12932,18 @@
     ]
   },
   {
+    "name": "aten::upsample_linear1d.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "output_size", "type": "SymInt[1]" },
+      { "name": "align_corners", "type": "boolean" },
+      { "name": "scales", "type": "float32", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::upsample_linear1d.vec",
     "inputs": [
       { "name": "input", "type": "Tensor" },
@@ -10660,6 +12965,17 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::upsample_nearest1d.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "output_size", "type": "SymInt[1]" },
+      { "name": "scales", "type": "float32", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10761,6 +13077,19 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::upsample_nearest3d.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "output_size", "type": "SymInt[3]" },
+      { "name": "scales_d", "type": "float32", "optional": true, "default": null },
+      { "name": "scales_h", "type": "float32", "optional": true, "default": null },
+      { "name": "scales_w", "type": "float32", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11035,6 +13364,16 @@
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::vdot.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
     ]
   },
   {
