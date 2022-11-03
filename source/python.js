@@ -2246,6 +2246,7 @@ python.Execution = class {
         this.registerType('megengine.quantization.utils.QuantMode', class {});
         this.registerType('megengine.quantization.observer.PassiveObserver', class {});
         this.registerType('megengine.quantization.observer.MinMaxObserver', class {});
+        this.registerType('megengine.quantization.observer.ExponentialMovingAverageObserver', class {});
         this.registerType('megengine.traced_module.expr.Apply', class {});
         this.registerType('megengine.traced_module.expr.CallFunction', class {});
         this.registerType('megengine.traced_module.expr.CallMethod', class {});
