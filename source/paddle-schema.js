@@ -20,7 +20,11 @@ $root.paddle.lite.fbs.proto.AttrType = {
     BLOCK: 8,
     LONG: 9,
     BLOCKS: 10,
-    LONGS: 11
+    LONGS: 11,
+    FLOAT64S: 12,
+    VAR: 13,
+    VARS: 14,
+    FLOAT64: 15
 };
 
 $root.paddle.lite.fbs.proto.Version = class Version {
@@ -398,6 +402,8 @@ $root.paddle.lite.fbs.proto.OpDesc_.Attr = class Attr {
         $.l = reader.int64_(position, 26, 0);
         $.blocks_idx = reader.typedArray(position, 28, Int32Array);
         $.longs = reader.int64s_(position, 30);
+        $.float64 = reader.float64_(position, 32, 0);
+        $.float64s = reader.typedArray(position, 34, Float64Array);
         return $;
     }
 
@@ -417,6 +423,8 @@ $root.paddle.lite.fbs.proto.OpDesc_.Attr = class Attr {
         $.l = reader.value(json.l, 0);
         $.blocks_idx = reader.typedArray(json.blocks_idx, Int32Array);
         $.longs = reader.array(json.longs);
+        $.float64 = reader.value(json.float64, 0);
+        $.float64s = reader.typedArray(json.float64s, Float64Array);
         return $;
     }
 };
