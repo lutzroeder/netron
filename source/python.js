@@ -2677,7 +2677,7 @@ python.Execution = class {
         this.registerType('sklearn.tree.tree.DecisionTreeClassifier', class {});
         this.registerType('sklearn.tree.tree.DecisionTreeRegressor', class {});
         this.registerType('sklearn.tree.tree.ExtraTreeClassifier', class {});
-        this.registerType('sklearn.utils.Bunch', class {});
+        this.registerType('sklearn.utils._bunch.Bunch', class {});
         this.registerType('sklearn.utils.deprecation.DeprecationDict', class {});
         this.registerType('pickle.Unpickler', class {
             constructor(data) {
@@ -5263,6 +5263,7 @@ python.Execution = class {
         this.register('torch.nn').Module = this.register('torch.nn.modules.module').Module;
         this.register('torch.optim').Adam = this.register('torch.optim.adam').Adam;
         this.register('torch.nn').ReLU = this.register('torch.nn.modules.activation').ReLU;
+        this.register('sklearn.utils').Bunch = this.register('sklearn.utils._bunch').Bunch;
         torch.uint8 = torch.ByteStorage.dtype = new torch.dtype({ type: 0, name: 'uint8', itemsize: 1 });
         torch.int8 = torch.CharStorage.dtype = new torch.dtype({ type: 1, name: 'int8', itemsize: 1 });
         torch.int16 = torch.ShortStorage.dtype = new torch.dtype({ type: 2, name: 'int16', itemsize: 2 });
