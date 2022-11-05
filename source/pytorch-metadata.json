@@ -26,7 +26,7 @@
       { "name": "indices", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -75,7 +75,7 @@
       { "name": "input", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -84,7 +84,7 @@
       { "name": "input", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -141,7 +141,7 @@
       { "name": "aligned", "type": "boolean" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -161,7 +161,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -191,7 +191,7 @@
       { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -201,7 +201,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -216,7 +216,7 @@
       { "name": "antialias", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -231,7 +231,7 @@
       { "name": "antialias", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -246,7 +246,7 @@
       { "name": "antialias", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -261,7 +261,7 @@
       { "name": "antialias", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -271,7 +271,7 @@
       { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -281,7 +281,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -291,7 +291,7 @@
       { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -301,7 +301,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -311,7 +311,7 @@
       { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -321,7 +321,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -341,7 +341,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -351,7 +351,7 @@
       { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -361,7 +361,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -375,7 +375,7 @@
       { "name": "align_corners", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -389,7 +389,7 @@
       { "name": "align_corners", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -443,7 +443,7 @@
       { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -453,7 +453,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -475,7 +475,7 @@
       { "name": "alpha", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -508,7 +508,7 @@
       { "name": "alpha", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -540,7 +540,7 @@
       { "name": "non_blocking", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -550,7 +550,7 @@
       { "name": "non_blocking", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -560,7 +560,7 @@
       { "name": "non_blocking", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -570,7 +570,7 @@
       { "name": "non_blocking", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -580,7 +580,7 @@
       { "name": "non_blocking", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -590,7 +590,7 @@
       { "name": "non_blocking", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -600,7 +600,7 @@
       { "name": "non_blocking", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -610,7 +610,7 @@
       { "name": "non_blocking", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -619,7 +619,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -628,7 +628,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -650,7 +650,7 @@
       { "name": "allow_tf32", "type": "boolean", "visible": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -671,7 +671,7 @@
       { "name": "cudnn_enabled", "type": "boolean", "visible": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -686,7 +686,7 @@
       { "name": "groups", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -700,8 +700,8 @@
       { "name": "zero_infinity", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" },
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" },
+      { "type": "Tensor" }
     ]
   },
   {
@@ -726,7 +726,7 @@
       { "name": "dim", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -779,7 +779,7 @@
       { "name": "batch_first", "type": "boolean" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" },
+      { "type": "Tensor" },
       { "name": "?", "type": "Tensor" }
     ]
   },
@@ -793,7 +793,7 @@
       { "name": "total_length", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" },
+      { "type": "Tensor" },
       { "name": "?", "type": "Tensor" }
     ]
   },
@@ -803,7 +803,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -843,7 +843,7 @@
       { "name": "hidden_bias", "type": "Tensor", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" },
+      { "type": "Tensor" },
       { "name": "output2", "type": "Tensor" }
     ]
   },
@@ -857,7 +857,7 @@
       { "name": "hidden_bias", "type": "Tensor", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" },
+      { "type": "Tensor" },
       { "name": "output2", "type": "Tensor" },
       { "name": "output3", "type": "Tensor" }
     ]
@@ -871,9 +871,9 @@
       { "name": "return_counts", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" },
-      { "name": "output", "type": "Tensor" },
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" },
+      { "type": "Tensor" },
+      { "type": "Tensor" }
     ]
   },
   {
@@ -884,7 +884,7 @@
       { "name": "dim", "type": "int64", "default": 0 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -933,7 +933,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -951,7 +951,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1016,7 +1016,7 @@
       { "name": "output_size", "type": "int64[1]", "visible": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1027,7 +1027,7 @@
       { "name": "output_size", "type": "SymInt[2]", "visible": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1048,7 +1048,7 @@
       { "name": "output_size", "type": "int64[3]", "visible": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1069,7 +1069,7 @@
       { "name": "output_size", "type": "int64[1]", "visible": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" },
+      { "type": "Tensor" },
       { "name": "?", "type": "Tensor" }
     ]
   },
@@ -1081,7 +1081,7 @@
       { "name": "output_size", "type": "int64[2]", "visible": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" },
+      { "type": "Tensor" },
       { "name": "?", "type": "Tensor" }
     ]
   },
@@ -1104,7 +1104,7 @@
       { "name": "output_size", "type": "int64[3]", "visible": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" },
+      { "type": "Tensor" },
       { "name": "?", "type": "Tensor" }
     ]
   },
@@ -1127,7 +1127,7 @@
       { "name": "alpha", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1138,7 +1138,7 @@
       { "name": "alpha", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1170,7 +1170,7 @@
       { "name": "alpha", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1181,7 +1181,7 @@
       { "name": "alpha", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1241,7 +1241,7 @@
       { "name": "alpha", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1280,7 +1280,7 @@
       { "name": "alpha", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1306,7 +1306,7 @@
       { "name": "alpha", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1317,7 +1317,7 @@
       { "name": "align_corners", "type": "boolean" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1326,7 +1326,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1353,7 +1353,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1382,7 +1382,7 @@
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1445,7 +1445,7 @@
       { "name": "train", "type": "boolean" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1457,7 +1457,7 @@
       { "name": "train", "type": "boolean" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1468,7 +1468,7 @@
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1490,7 +1490,7 @@
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1552,7 +1552,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1581,7 +1581,7 @@
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1654,7 +1654,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1677,7 +1677,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1688,7 +1688,7 @@
       { "name": "step", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1713,7 +1713,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1722,7 +1722,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1740,7 +1740,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1751,7 +1751,7 @@
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1773,7 +1773,7 @@
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1795,7 +1795,7 @@
       { "name": "descending", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1806,7 +1806,7 @@
       { "name": "descending", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1830,7 +1830,7 @@
       { "name": "storage_offset", "type": "SymInt", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1842,7 +1842,7 @@
       { "name": "storage_offset", "type": "SymInt", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1890,7 +1890,7 @@
       { "name": "device", "type": "Device", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1910,7 +1910,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1929,7 +1929,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1949,7 +1949,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1958,7 +1958,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1967,7 +1967,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -1985,7 +1985,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2000,7 +2000,7 @@
       { "name": "count_include_pad", "type": "boolean", "default": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2016,7 +2016,7 @@
       { "name": "divisor_override", "type": "int64", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2047,7 +2047,7 @@
       { "name": "divisor_override", "type": "int64", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2075,7 +2075,7 @@
       { "name": "alpha", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2101,7 +2101,7 @@
       { "name": "alpha", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2119,7 +2119,7 @@
       { "name": "cudnn_enabled", "type": "boolean", "visible": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2129,7 +2129,7 @@
       { "name": "generator", "type": "Generator", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2150,7 +2150,7 @@
       { "name": "generator", "type": "Generator", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2161,7 +2161,7 @@
       { "name": "generator", "type": "Generator", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2172,7 +2172,7 @@
       { "name": "generator", "type": "Generator", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2244,7 +2244,7 @@
       { "name": "reduction", "type": "int64", "default": "Mean" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2345,7 +2345,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2363,7 +2363,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2372,7 +2372,7 @@
       { "name": "tensors", "type": "Tensor[]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2382,7 +2382,7 @@
       { "name": "mat2", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2401,7 +2401,7 @@
       { "name": "tensors", "type": "Tensor[]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor[]" }
+      { "type": "Tensor[]" }
     ]
   },
   {
@@ -2411,7 +2411,7 @@
       { "name": "size", "type": "int64[]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2423,7 +2423,7 @@
       { "name": "right", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2435,7 +2435,7 @@
       { "name": "right", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2467,7 +2467,7 @@
       { "name": "dim", "type": "int64", "default": 0 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2478,7 +2478,7 @@
       { "name": "dim", "type": "Dimname" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2510,7 +2510,7 @@
       { "name": "generator", "type": "Generator", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2522,7 +2522,7 @@
       { "name": "compute_mode", "type": "int64", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2531,7 +2531,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2549,7 +2549,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2560,7 +2560,7 @@
       { "name": "alpha", "type": "Scalar", "default": 1.0 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2581,7 +2581,7 @@
       { "name": "dim", "type": "int64", "default": 0 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor[]" }
+      { "type": "Tensor[]" }
     ]
   },
   {
@@ -2592,7 +2592,7 @@
       { "name": "max", "type": "Scalar", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2636,7 +2636,7 @@
       { "name": "max", "type": "Scalar", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2657,7 +2657,7 @@
       { "name": "max", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2697,7 +2697,7 @@
       { "name": "max", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2717,7 +2717,7 @@
       { "name": "min", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2757,7 +2757,7 @@
       { "name": "min", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2778,7 +2778,7 @@
       { "name": "parameter_buffers", "type": "Tensor[]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor[]" }
+      { "type": "Tensor[]" }
     ]
   },
   {
@@ -2789,7 +2789,7 @@
       { "name": "max", "type": "Scalar", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2800,7 +2800,7 @@
       { "name": "max", "type": "Tensor", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2833,7 +2833,7 @@
       { "name": "max", "type": "Scalar", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2844,7 +2844,7 @@
       { "name": "max", "type": "Tensor", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2854,7 +2854,7 @@
       { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2863,7 +2863,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2877,7 +2877,7 @@
       { "name": "stride", "type": "int64[2]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2919,7 +2919,7 @@
       { "name": "imag", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2940,7 +2940,7 @@
       { "name": "dim", "type": "int64", "default": 0 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -2951,7 +2951,7 @@
       { "name": "dim", "type": "Dimname" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3020,7 +3020,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3032,7 +3032,7 @@
       { "name": "value", "type": "Scalar", "default": 0 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3042,7 +3042,7 @@
       { "name": "memory_format", "type": "MemoryFormat", "default": "contiguous_format" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3058,7 +3058,7 @@
       { "name": "groups", "type": "int64", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3074,7 +3074,7 @@
       { "name": "groups", "type": "int64", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3090,7 +3090,7 @@
       { "name": "groups", "type": "int64", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3106,7 +3106,7 @@
       { "name": "groups", "type": "int64", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3122,7 +3122,7 @@
       { "name": "groups", "type": "int64", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3138,7 +3138,7 @@
       { "name": "groups", "type": "int64", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3155,7 +3155,7 @@
       { "name": "dilation", "type": "int64[1]", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3172,7 +3172,7 @@
       { "name": "dilation", "type": "int64[2]", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3189,7 +3189,7 @@
       { "name": "dilation", "type": "int64[3]", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3275,7 +3275,7 @@
       { "name": "non_blocking", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3284,7 +3284,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3302,7 +3302,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3340,7 +3340,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3351,7 +3351,7 @@
       { "name": "dim", "type": "int64", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3362,7 +3362,7 @@
       { "name": "dim", "type": "int64", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3376,7 +3376,7 @@
       { "name": "label_smoothing", "type": "float32", "default": 0.0 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3391,7 +3391,7 @@
       { "name": "zero_infinity", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3423,7 +3423,7 @@
       { "name": "groups", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3438,7 +3438,7 @@
       { "name": "groups", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3505,7 +3505,7 @@
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3516,7 +3516,7 @@
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3549,7 +3549,7 @@
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3587,7 +3587,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3605,7 +3605,7 @@
       { "name": "tensors", "type": "Tensor[]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor[]" }
+      { "type": "Tensor[]" }
     ]
   },
   {
@@ -3614,7 +3614,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3651,7 +3651,7 @@
       { "name": "diagonal", "type": "int64", "default": 0 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3795,7 +3795,7 @@
       { "name": "p", "type": "Scalar", "default": 2 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3805,7 +3805,7 @@
       { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3816,7 +3816,7 @@
       { "name": "rounding_mode", "type": "string", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3826,7 +3826,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3837,7 +3837,7 @@
       { "name": "rounding_mode", "type": "string", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3868,7 +3868,7 @@
       { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -3889,7 +3889,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4037,7 +4037,7 @@
       { "name": "tensor", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4059,7 +4059,7 @@
       { "name": "train", "type": "boolean", "visible": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4071,7 +4071,7 @@
       { "name": "train", "type": "boolean", "visible": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4082,7 +4082,7 @@
       { "name": "path", "type": "int64[]", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4104,7 +4104,7 @@
       { "name": "input_scale", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4129,7 +4129,7 @@
       { "name": "input_scale", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4143,7 +4143,7 @@
       { "name": "sparse", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4209,7 +4209,7 @@
       { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4224,7 +4224,7 @@
       { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4248,7 +4248,7 @@
       { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4258,7 +4258,7 @@
       { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4278,7 +4278,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4387,7 +4387,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4405,7 +4405,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4423,7 +4423,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4434,7 +4434,7 @@
       { "name": "implicit", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4444,7 +4444,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4482,7 +4482,7 @@
       { "name": "generator", "type": "Generator", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4495,7 +4495,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4509,7 +4509,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4542,7 +4542,7 @@
       { "name": "quant_max", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4555,7 +4555,7 @@
       { "name": "quant_max", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4568,7 +4568,7 @@
       { "name": "quant_max", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4604,7 +4604,7 @@
       { "name": "train", "type": "boolean" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4616,7 +4616,7 @@
       { "name": "train", "type": "boolean" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4628,7 +4628,7 @@
       { "name": "train", "type": "boolean" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4640,7 +4640,7 @@
       { "name": "train", "type": "boolean" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4651,7 +4651,7 @@
       { "name": "normalized", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4663,7 +4663,7 @@
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4687,7 +4687,7 @@
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4721,7 +4721,7 @@
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4745,7 +4745,7 @@
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4769,7 +4769,7 @@
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4793,7 +4793,7 @@
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4827,7 +4827,7 @@
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4851,7 +4851,7 @@
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4875,7 +4875,7 @@
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4899,7 +4899,7 @@
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4923,7 +4923,7 @@
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4947,7 +4947,7 @@
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4969,7 +4969,7 @@
       { "name": "value", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4979,7 +4979,7 @@
       { "name": "value", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -4991,7 +4991,7 @@
       { "name": "out_dim", "type": "Dimname" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5004,7 +5004,7 @@
       { "name": "out_dim", "type": "Dimname" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5016,7 +5016,7 @@
       { "name": "end_dim", "type": "int64", "default": -1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5029,7 +5029,7 @@
       { "name": "out_dim", "type": "Dimname" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5039,7 +5039,7 @@
       { "name": "dims", "type": "int64[]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5048,7 +5048,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5066,7 +5066,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5076,7 +5076,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5106,7 +5106,7 @@
       { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5116,7 +5116,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5135,7 +5135,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5147,7 +5147,7 @@
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5172,7 +5172,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5187,7 +5187,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5197,7 +5197,7 @@
       { "name": "fill_value", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5212,7 +5212,7 @@
       { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5245,7 +5245,7 @@
       { "name": "sparse_grad", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5257,7 +5257,7 @@
       { "name": "sparse_grad", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5334,7 +5334,7 @@
       { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5354,7 +5354,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5395,7 +5395,7 @@
       { "name": "approximate", "type": "string", "default": "none" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5416,7 +5416,7 @@
       { "name": "approximate", "type": "string", "default": "none" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5449,7 +5449,7 @@
       { "name": "generator", "type": "Generator", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5509,7 +5509,7 @@
       { "name": "dim", "type": "int64", "default": -1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5592,7 +5592,7 @@
       { "name": "align_corners", "type": "boolean" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5607,7 +5607,7 @@
       { "name": "cudnn_enabled", "type": "boolean", "visible": true, "default": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5625,7 +5625,7 @@
       { "name": "bidirectional", "type": "boolean" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" },
+      { "type": "Tensor" },
       { "name": "?", "type": "Tensor" }
     ]
   },
@@ -5644,7 +5644,7 @@
       { "name": "batch_first", "type": "boolean" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" },
+      { "type": "Tensor" },
       { "name": "?", "type": "Tensor" }
     ]
   },
@@ -5655,7 +5655,7 @@
       { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5675,7 +5675,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5698,7 +5698,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5712,7 +5712,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5722,7 +5722,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5741,7 +5741,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5751,7 +5751,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5770,7 +5770,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5792,7 +5792,7 @@
       { "name": "max_val", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5815,7 +5815,7 @@
       { "name": "max_val", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5902,7 +5902,7 @@
       { "name": "stride", "type": "int64[2]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5924,7 +5924,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -5934,7 +5934,7 @@
       { "name": "indices", "type": "Tensor[]", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6186,7 +6186,7 @@
       { "name": "accumulate", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6210,7 +6210,7 @@
       { "name": "accumulate", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6275,7 +6275,7 @@
       { "name": "index", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6338,7 +6338,7 @@
       { "name": "cudnn_enabled", "type": "boolean" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6347,7 +6347,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6429,7 +6429,7 @@
       { "name": "return_complex", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6463,7 +6463,7 @@
       { "name": "cudnn_enable", "type": "boolean", "default": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6474,7 +6474,7 @@
       { "name": "negative_slope", "type": "Scalar", "default": 0.01 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6495,7 +6495,7 @@
       { "name": "negative_slope", "type": "Scalar", "default": 0.01 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6620,7 +6620,7 @@
       { "name": "left", "type": "boolean", "default": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6693,7 +6693,7 @@
       { "name": "ind", "type": "int64", "default": 2 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6714,7 +6714,7 @@
       { "name": "dims", "type": "int64[]", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6737,7 +6737,7 @@
       { "name": "bias", "type": "Tensor", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6777,7 +6777,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6797,7 +6797,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6815,7 +6815,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6842,7 +6842,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6869,7 +6869,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6908,7 +6908,7 @@
       { "name": "generator", "type": "Generator", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6980,7 +6980,7 @@
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -6992,7 +6992,7 @@
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7092,7 +7092,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7300,7 +7300,7 @@
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7311,7 +7311,7 @@
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7351,7 +7351,7 @@
       { "name": "bidirectional", "type": "boolean" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" },
+      { "type": "Tensor" },
       { "name": "?", "type": "Tensor" },
       { "name": "?", "type": "Tensor" }
     ]
@@ -7371,7 +7371,7 @@
       { "name": "batch_first", "type": "boolean" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" },
+      { "type": "Tensor" },
       { "name": "?", "type": "Tensor" },
       { "name": "?", "type": "Tensor" }
     ]
@@ -7398,7 +7398,7 @@
       { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7418,7 +7418,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7439,7 +7439,7 @@
       { "name": "value", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7450,7 +7450,7 @@
       { "name": "value", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7461,7 +7461,7 @@
       { "name": "value", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7472,7 +7472,7 @@
       { "name": "value", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7493,7 +7493,7 @@
       { "name": "mask", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7513,7 +7513,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7532,7 +7532,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7590,7 +7590,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7624,7 +7624,7 @@
       { "name": "ceil_mode", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7639,7 +7639,7 @@
       { "name": "ceil_mode", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" },
+      { "type": "Tensor" },
       { "name": "indices", "type": "Tensor" }
     ]
   },
@@ -7655,7 +7655,7 @@
       { "name": "ceil_mode", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7670,7 +7670,7 @@
       { "name": "ceil_mode", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" },
+      { "type": "Tensor" },
       { "name": "indices", "type": "Tensor" }
     ]
   },
@@ -7701,7 +7701,7 @@
       { "name": "ceil_mode", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7775,7 +7775,7 @@
       { "name": "output_size", "type": "int64[2]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7800,7 +7800,7 @@
       { "name": "padding", "type": "int64[3]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7823,7 +7823,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7843,7 +7843,7 @@
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7855,7 +7855,7 @@
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7910,7 +7910,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -7968,7 +7968,7 @@
       { "name": "tensors", "type": "Tensor[]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor[]" }
+      { "type": "Tensor[]" }
     ]
   },
   {
@@ -7979,7 +7979,7 @@
       { "name": "indexing", "type": "string" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor[]" }
+      { "type": "Tensor[]" }
     ]
   },
   {
@@ -7988,7 +7988,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8046,7 +8046,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8075,7 +8075,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8095,7 +8095,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8114,7 +8114,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8137,7 +8137,7 @@
       { "name": "mat2", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8158,7 +8158,7 @@
       { "name": "destination", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8169,7 +8169,7 @@
       { "name": "destination", "type": "int64[]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8247,7 +8247,7 @@
       { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8257,7 +8257,7 @@
       { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor[]" }
+      { "type": "Tensor[]" }
     ]
   },
   {
@@ -8267,7 +8267,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8307,7 +8307,7 @@
       { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8317,7 +8317,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8339,7 +8339,7 @@
       { "name": "generator", "type": "Generator", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8411,7 +8411,7 @@
       { "name": "vec", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8431,7 +8431,7 @@
       { "name": "p", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8451,7 +8451,7 @@
       { "name": "p", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8499,7 +8499,7 @@
       { "name": "length", "type": "SymInt" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8511,7 +8511,7 @@
       { "name": "length", "type": "SymInt" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8523,7 +8523,7 @@
       { "name": "length", "type": "SymInt" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8545,7 +8545,7 @@
       { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8664,7 +8664,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8687,7 +8687,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8702,7 +8702,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8717,7 +8717,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8731,7 +8731,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8745,7 +8745,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8754,7 +8754,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8772,7 +8772,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor[]" }
+      { "type": "Tensor[]" }
     ]
   },
   {
@@ -8782,7 +8782,7 @@
       { "name": "p", "type": "Scalar", "default": 2 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8794,7 +8794,7 @@
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8807,7 +8807,7 @@
       { "name": "dtype", "type": "ScalarType" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8818,7 +8818,7 @@
       { "name": "dtype", "type": "ScalarType" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8831,7 +8831,7 @@
       { "name": "dtype", "type": "ScalarType" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8904,7 +8904,7 @@
       { "name": "generator", "type": "Generator", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8926,7 +8926,7 @@
       { "name": "generator", "type": "Generator", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8948,7 +8948,7 @@
       { "name": "generator", "type": "Generator", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8975,7 +8975,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -8999,7 +8999,7 @@
       { "name": "generator", "type": "Generator", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9017,7 +9017,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9036,7 +9036,7 @@
       { "name": "num_classes", "type": "int64", "default": -1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9049,7 +9049,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9086,7 +9086,7 @@
       { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9099,7 +9099,7 @@
       { "name": "value", "type": "float32", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9123,7 +9123,7 @@
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9133,7 +9133,7 @@
       { "name": "p", "type": "float32", "default": 2 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9144,7 +9144,7 @@
       { "name": "dims", "type": "int64[]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9164,7 +9164,7 @@
       { "name": "rcond", "type": "float32", "default": 1e-15 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9174,7 +9174,7 @@
       { "name": "upscale_factor", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9184,7 +9184,7 @@
       { "name": "downscale_factor", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9204,7 +9204,7 @@
       { "name": "exponent", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9224,7 +9224,7 @@
       { "name": "exponent", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9244,7 +9244,7 @@
       { "name": "exponent", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9274,7 +9274,7 @@
       { "name": "exponent", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9284,7 +9284,7 @@
       { "name": "exponent", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9295,7 +9295,7 @@
       { "name": "weight", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9305,7 +9305,7 @@
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9329,7 +9329,7 @@
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9341,7 +9341,7 @@
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9366,7 +9366,7 @@
       { "name": "dtype", "type": "ScalarType" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9378,7 +9378,7 @@
       { "name": "dtype", "type": "ScalarType" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9390,7 +9390,7 @@
       { "name": "dtype", "type": "ScalarType" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9491,7 +9491,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9505,7 +9505,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9581,7 +9581,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9596,7 +9596,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9622,7 +9622,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9638,7 +9638,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9715,7 +9715,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9801,7 +9801,7 @@
       { "name": "generator", "type": "Generator", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9813,7 +9813,7 @@
       { "name": "generator", "type": "Generator", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9824,7 +9824,7 @@
       { "name": "generator", "type": "Generator", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9879,7 +9879,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9888,7 +9888,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9908,7 +9908,7 @@
       { "name": "padding", "type": "SymInt[2]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9929,7 +9929,7 @@
       { "name": "padding", "type": "SymInt[4]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9950,7 +9950,7 @@
       { "name": "padding", "type": "SymInt[6]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9970,7 +9970,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9980,7 +9980,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -9990,7 +9990,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10000,7 +10000,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10010,7 +10010,7 @@
       { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10040,7 +10040,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10060,7 +10060,7 @@
       { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10070,7 +10070,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10082,7 +10082,7 @@
       { "name": "maxnorm", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10104,7 +10104,7 @@
       { "name": "repeats", "type": "SymInt[]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10114,7 +10114,7 @@
       { "name": "output_size", "type": "int64", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10126,7 +10126,7 @@
       { "name": "output_size", "type": "int64", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10138,7 +10138,7 @@
       { "name": "output_size", "type": "int64", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10149,7 +10149,7 @@
       { "name": "padding", "type": "SymInt[2]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10170,7 +10170,7 @@
       { "name": "padding", "type": "SymInt[4]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10191,7 +10191,7 @@
       { "name": "padding", "type": "SymInt[6]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10211,7 +10211,7 @@
       { "name": "requires_grad", "type": "boolean", "default": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10222,7 +10222,7 @@
       { "name": "shape", "type": "SymInt[]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10233,7 +10233,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10285,7 +10285,7 @@
       { "name": "batch_first", "type": "boolean" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" },
+      { "type": "Tensor" },
       { "name": "?", "type": "Tensor" }
     ]
   },
@@ -10322,7 +10322,7 @@
       { "name": "batch_first", "type": "boolean" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" },
+      { "type": "Tensor" },
       { "name": "?", "type": "Tensor" }
     ]
   },
@@ -10349,7 +10349,7 @@
       { "name": "dims", "type": "int64[1]", "default": [] }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10360,7 +10360,7 @@
       { "name": "dims", "type": "int64[]", "default": [   0,   1 ] }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10369,7 +10369,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10379,7 +10379,7 @@
       { "name": "decimals", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10407,7 +10407,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10417,7 +10417,7 @@
       { "name": "decimals", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10426,7 +10426,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10446,7 +10446,7 @@
       { "name": "alpha", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10457,7 +10457,7 @@
       { "name": "alpha", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10507,7 +10507,7 @@
       { "name": "reduce", "type": "string" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10532,7 +10532,7 @@
       { "name": "src", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10556,7 +10556,7 @@
       { "name": "value", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10581,7 +10581,7 @@
       { "name": "reduce", "type": "string" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10607,7 +10607,7 @@
       { "name": "reduce", "type": "string" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10619,7 +10619,7 @@
       { "name": "src", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10631,7 +10631,7 @@
       { "name": "value", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10644,7 +10644,7 @@
       { "name": "reduce", "type": "string" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10692,7 +10692,7 @@
       { "name": "src", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10745,7 +10745,7 @@
       { "name": "index", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10756,7 +10756,7 @@
       { "name": "index", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10822,7 +10822,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10832,7 +10832,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10842,7 +10842,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10861,7 +10861,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10870,7 +10870,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10888,7 +10888,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10897,7 +10897,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10916,7 +10916,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10935,7 +10935,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10964,7 +10964,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -10982,7 +10982,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11010,7 +11010,7 @@
       { "name": "dim", "type": "Dimname" }
     ],
     "outputs": [
-      { "name": "output", "type": "int64" }
+      { "type": "int64" }
     ]
   },
   {
@@ -11020,7 +11020,7 @@
       { "name": "dim", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "int64" }
+      { "type": "int64" }
     ]
   },
   {
@@ -11034,7 +11034,7 @@
       { "name": "step", "type": "SymInt", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11146,7 +11146,7 @@
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11158,7 +11158,7 @@
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11181,7 +11181,7 @@
       { "name": "threshold", "type": "Scalar", "default": 20 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11457,7 +11457,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11484,7 +11484,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11502,7 +11502,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11512,7 +11512,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11523,7 +11523,7 @@
       { "name": "dim", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11534,7 +11534,7 @@
       { "name": "dim", "type": "Dimname" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11544,7 +11544,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11555,7 +11555,7 @@
       { "name": "dim", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11566,7 +11566,7 @@
       { "name": "dim", "type": "Dimname" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11577,7 +11577,7 @@
       { "name": "dim", "type": "int64", "default": 0 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11597,7 +11597,7 @@
       { "name": "unbiased", "type": "boolean", "default": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11657,7 +11657,7 @@
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11772,7 +11772,7 @@
       { "name": "return_complex", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11830,7 +11830,7 @@
       { "name": "alpha", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11841,7 +11841,7 @@
       { "name": "alpha", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11863,7 +11863,7 @@
       { "name": "alpha", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11874,7 +11874,7 @@
       { "name": "alpha", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11884,7 +11884,7 @@
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -11950,7 +11950,7 @@
       { "name": "dtype", "type": "ScalarType", "default": null, "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12001,7 +12001,7 @@
       { "name": "index", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12020,7 +12020,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12038,7 +12038,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12047,7 +12047,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12065,7 +12065,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12077,7 +12077,7 @@
       { "name": "requires_grad", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12088,7 +12088,7 @@
       { "name": "dim", "type": "int64", "default": 0 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor[]" }
+      { "type": "Tensor[]" }
     ]
   },
   {
@@ -12099,7 +12099,7 @@
       { "name": "dim", "type": "int64", "default": 0 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor[]" }
+      { "type": "Tensor[]" }
     ]
   },
   {
@@ -12110,7 +12110,7 @@
       { "name": "dim", "type": "int64", "default": 0 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor[]" }
+      { "type": "Tensor[]" }
     ]
   },
   {
@@ -12146,7 +12146,7 @@
       { "name": "value", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12169,7 +12169,7 @@
       { "name": "value", "type": "Scalar" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12179,7 +12179,7 @@
       { "name": "dims", "type": "int64[]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12193,7 +12193,7 @@
       { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12206,7 +12206,7 @@
       { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12222,7 +12222,7 @@
       { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12235,7 +12235,7 @@
       { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12301,7 +12301,7 @@
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12418,7 +12418,7 @@
       { "name": "dim1", "type": "Dimname" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12429,7 +12429,7 @@
       { "name": "dim1", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12473,7 +12473,7 @@
       { "name": "diagonal", "type": "int64", "default": 0 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12509,7 +12509,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12530,7 +12530,7 @@
       { "name": "diagonal", "type": "int64", "default": 0 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12541,7 +12541,7 @@
       { "name": "diagonal", "type": "int64", "default": 0 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12616,7 +12616,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12626,7 +12626,7 @@
       { "name": "dim", "type": "Dimname" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor[]" }
+      { "type": "Tensor[]" }
     ]
   },
   {
@@ -12636,7 +12636,7 @@
       { "name": "dim", "type": "int64", "default": 0 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor[]" }
+      { "type": "Tensor[]" }
     ]
   },
   {
@@ -12649,7 +12649,7 @@
       { "name": "names", "type": "Dimname[]", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12661,7 +12661,7 @@
       { "name": "sizes", "type": "int64[]" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12673,7 +12673,7 @@
       { "name": "step", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12685,7 +12685,7 @@
       { "name": "generator", "type": "Generator", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12741,7 +12741,7 @@
       { "name": "dim", "type": "int64", "default": 0 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor[]" }
+      { "type": "Tensor[]" }
     ]
   },
   {
@@ -12764,7 +12764,7 @@
       { "name": "dim", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12775,7 +12775,7 @@
       { "name": "dim", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12809,7 +12809,7 @@
       { "name": "scales_w", "type": "float32", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12835,7 +12835,7 @@
       { "name": "scale_factors", "type": "float32[]", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12849,7 +12849,7 @@
       { "name": "scales_w", "type": "float32", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12875,7 +12875,7 @@
       { "name": "scale_factors", "type": "float32[]", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12928,7 +12928,7 @@
       { "name": "scales", "type": "float32", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12952,7 +12952,7 @@
       { "name": "scale_factors", "type": "float32[]", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12964,7 +12964,7 @@
       { "name": "scales", "type": "float32", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -12987,7 +12987,7 @@
       { "name": "scale_factors", "type": "float32[]", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13000,7 +13000,7 @@
       { "name": "scales_w", "type": "float32", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13024,7 +13024,7 @@
       { "name": "scale_factors", "type": "float32[]", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13076,7 +13076,7 @@
       { "name": "scales_w", "type": "float32", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13101,7 +13101,7 @@
       { "name": "scale_factors", "type": "float32[]", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13115,7 +13115,7 @@
       { "name": "scales_w", "type": "float32", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13141,7 +13141,7 @@
       { "name": "scale_factors", "type": "float32[]", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13194,7 +13194,7 @@
       { "name": "unbiased", "type": "boolean", "default": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13206,7 +13206,7 @@
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13218,7 +13218,7 @@
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13254,7 +13254,7 @@
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13266,7 +13266,7 @@
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13300,7 +13300,7 @@
       { "name": "unbiased", "type": "boolean", "default": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" },
+      { "type": "Tensor" },
       { "name": "?", "type": "Tensor" }
     ]
   },
@@ -13339,7 +13339,7 @@
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" },
+      { "type": "Tensor" },
       { "name": "?", "type": "Tensor" }
     ]
   },
@@ -13363,7 +13363,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13383,7 +13383,7 @@
       { "name": "size", "type": "SymInt[]", "visible": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13393,7 +13393,7 @@
       { "name": "dtype", "type": "ScalarType" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13403,7 +13403,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13412,7 +13412,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13421,7 +13421,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13439,7 +13439,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13448,7 +13448,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13577,7 +13577,7 @@
       { "name": "other", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13597,7 +13597,7 @@
       { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13610,7 +13610,7 @@
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13647,7 +13647,7 @@
       { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13657,7 +13657,7 @@
       { "name": "model" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13937,7 +13937,7 @@
       { "name": "output_zero_point", "type": "int64", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13954,7 +13954,7 @@
       { "name": "output_zero_point", "type": "int64", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13971,7 +13971,7 @@
       { "name": "output_zero_point", "type": "int64", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -13988,7 +13988,7 @@
       { "name": "output_zero_point", "type": "int64", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14005,7 +14005,7 @@
       { "name": "output_zero_point", "type": "int64", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14022,7 +14022,7 @@
       { "name": "output_zero_point", "type": "int64", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14039,7 +14039,7 @@
       { "name": "output_zero_point", "type": "int64", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14056,7 +14056,7 @@
       { "name": "output_zero_point", "type": "int64", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14069,7 +14069,7 @@
       { "name": "zero_point", "type": "int64", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14082,7 +14082,7 @@
       { "name": "zero_point", "type": "int64", "optional": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14095,7 +14095,7 @@
       { "name": "alpha", "type": "Scalar", "default": 1 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14108,7 +14108,7 @@
       { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14121,7 +14121,7 @@
       { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14138,7 +14138,7 @@
       { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14151,7 +14151,7 @@
       { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14229,7 +14229,7 @@
       { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14242,7 +14242,7 @@
       { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14296,7 +14296,7 @@
       { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14309,7 +14309,7 @@
       { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14326,7 +14326,7 @@
       { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14339,7 +14339,7 @@
       { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14513,7 +14513,7 @@
       { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14556,7 +14556,7 @@
       { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14863,7 +14863,7 @@
       { "name": "inplace", "type": "boolean", "default": false }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -14875,7 +14875,7 @@
       { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -15266,7 +15266,7 @@
       { "name": "channels_first", "type": "boolean", "default": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" },
+      { "type": "Tensor" },
       { "name": "?", "type": "Tensor" }
     ]
   },
@@ -15278,7 +15278,7 @@
       { "name": "iou_threshold", "type": "float32" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   },
   {
@@ -15293,7 +15293,7 @@
       { "name": "aligned", "type": "boolean" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "type": "Tensor" }
     ]
   }
 ]
