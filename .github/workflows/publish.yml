@@ -48,6 +48,7 @@ jobs:
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
         run: |
           case "${{ matrix.os }}" in
             macos*)
@@ -57,9 +58,6 @@ jobs:
               ;;
             ubuntu*)
               sudo snap install snapcraft --classic
-              mkdir -p ~/.private_keys
-              echo '${{ secrets.SNAPCRAFT_TOKEN }}' > ~/.private_keys/snapcraft_token.txt
-              snapcraft login --with ~/.private_keys/snapcraft_token.txt
               npx electron-builder --linux appimage --x64 --publish always
               npx electron-builder --linux snap --x64 --publish always
               ;;
