@@ -76,14 +76,16 @@ get(url).then((data) => {
     }
     const manifestFile = path.join(versionDir, packageIdentifier);
     fs.writeFileSync(manifestFile + '.yaml', [
+        '# yaml-language-server: $schema=https://aka.ms/winget-manifest.version.1.2.0.schema.json',
         'PackageIdentifier: ' + packageIdentifier,
         'PackageVersion: ' + version,
         'DefaultLocale: en-US',
         'ManifestType: version',
-        'ManifestVersion: 1.0.0',
+        'ManifestVersion: 1.2.0',
         ''
     ].join('\n'));
     fs.writeFileSync(manifestFile + '.installer.yaml', [
+        '# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.2.0.schema.json',
         'PackageIdentifier: ' + packageIdentifier,
         'PackageVersion: ' + version,
         'Platform:',
@@ -113,10 +115,11 @@ get(url).then((data) => {
         'FileExtensions:',
         extensions,
         'ManifestType: installer',
-        'ManifestVersion: 1.0.0',
+        'ManifestVersion: 1.2.0',
         ''
     ].join('\n'));
     fs.writeFileSync(manifestFile + '.locale.en-US.yaml', [
+        '# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.2.0.schema.json',
         'PackageIdentifier: ' + packageIdentifier,
         'PackageVersion: ' + version,
         'PackageName: ' + productName,
@@ -137,7 +140,7 @@ get(url).then((data) => {
         '- deep-learning',
         '- neural-network',
         'ManifestType: defaultLocale',
-        'ManifestVersion: 1.0.0',
+        'ManifestVersion: 1.2.0',
         ''
     ].join('\n'));
 }).catch((err) => {
