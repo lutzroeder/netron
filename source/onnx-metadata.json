@@ -12391,6 +12391,74 @@
     ]
   },
   {
+    "name": "GroupNormalization",
+    "module": "ai.onnx",
+    "version": 18,
+    "support_level": "common",
+    "description": "A GroupNormalization function. Carries out group normalization as described in \nthe paper https://arxiv.org/abs/1803.08494 \n\nThis operator transforms input according to\n```\ny = scale * (x - mean) / sqrt(variance + epsilon) + bias,\n```\nwhere the mean and variance are computed per instance per group of channels, and \n`scale` and `bias` should be specified for each group of channels. The number of \ngroups `num_groups` should be divisible by the number of channels so that there are \nan equal number of channels per group.\n\nWhen the number of groups is the same as the number of channels, this operator is \nequivalent to InstanceNormalization. When there is only one group, this operator \nis equivalent to LayerNormalization.\n",
+    "attributes": [
+      {
+        "name": "epsilon",
+        "type": "float32",
+        "required": false,
+        "default": 9.999999747378752e-06,
+        "description": "The epsilon value to use to avoid division by zero."
+      },
+      {
+        "name": "num_groups",
+        "type": "int64",
+        "required": true,
+        "description": "The number of groups of channels. It should be a divisor of the number of channels `C`."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T",
+        "description": "Input data tensor. Dimensions for image cases are `(N x C x H x W)`, where `N` is the batch size, `C` is the number of channels, and `H` and `W` are the height and width of the data. Statistics are computed for every group of channels over `C`, `H`, and `W`. For non-image cases, the dimensions are in the form of `(N x C x D1 x D2 ... Dn)`."
+      },
+      {
+        "name": "scale",
+        "type": "T",
+        "description": "Scale tensor of shape `(num_groups)`."
+      },
+      {
+        "name": "bias",
+        "type": "T",
+        "description": "Bias tensor of shape `(num_groups)`."
+      }
+    ],
+    "min_input": 3,
+    "max_input": 3,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T",
+        "description": "The output tensor of the same shape as `X`."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(bfloat16)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "groupnormalization",
+        "code": "x = np.random.randn(3, 4, 2, 2).astype(np.float32)\nnum_groups = 2\nscale = np.random.randn(num_groups).astype(np.float32)\nbias = np.random.randn(num_groups).astype(np.float32)\ny = _group_normalization(x, num_groups, scale, bias).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"GroupNormalization\",\n    inputs=[\"x\", \"scale\", \"bias\"],\n    outputs=[\"y\"],\n    num_groups=num_groups,\n)\n\nexpect(\n    node,\n    inputs=[x, scale, bias],\n    outputs=[y],\n    name=\"test_group_normalization_example\",\n)\n\nx = np.random.randn(3, 4, 2, 2).astype(np.float32)\nnum_groups = 2\nscale = np.random.randn(num_groups).astype(np.float32)\nbias = np.random.randn(num_groups).astype(np.float32)\nepsilon = 1e-2\ny = _group_normalization(x, num_groups, scale, bias, epsilon).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    \"GroupNormalization\",\n    inputs=[\"x\", \"scale\", \"bias\"],\n    outputs=[\"y\"],\n    epsilon=epsilon,\n    num_groups=num_groups,\n)\n\nexpect(\n    node,\n    inputs=[x, scale, bias],\n    outputs=[y],\n    name=\"test_group_normalization_epsilon\",\n)"
+      }
+    ]
+  },
+  {
     "name": "HammingWindow",
     "module": "ai.onnx",
     "version": 17,
