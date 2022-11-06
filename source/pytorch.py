@@ -6,20 +6,27 @@ import os
 class ModelFactory: # pylint: disable=too-few-public-methods
     ''' PyTorch backend model factory '''
     def open(self, model): # pylint: disable=missing-function-docstring
-        return _Model(model)
+        metadata = {}
+        metadata_files = [
+            ('pytorch-metadata.json', ''),
+            ('onnx-metadata.json', 'onnx::')
+        ]
+        path = os.path.dirname(__file__)
+        for entry in metadata_files:
+            file = os.path.join(path, entry[0])
+            with open(file, 'r', encoding='utf-8') as handle:
+                for item in json.load(handle):
+                    name = entry[1] + item['name']
+                    metadata[name] = item
+        metadata = Metadata(metadata)
+        return _Model(metadata, model)
 
 class _Model: # pylint: disable=too-few-public-methods
-    def __init__(self, model):
-        self.graph = _Graph(model)
+    def __init__(self, metadata, model):
+        self.graph = _Graph(metadata, model)
 
     def to_json(self):
         ''' Serialize model to JSON message '''
-        metadata = {}
-        metadata_file = os.path.join(os.path.dirname(__file__), 'onnx-metadata.json')
-        with open(metadata_file, 'r', encoding='utf-8') as file:
-            for item in json.load(file):
-                name = 'onnx::' + item['name']
-                metadata[name] = item
         json_model = {
             'signature': 'netron:pytorch',
             'format': 'TorchScript',
@@ -29,10 +36,12 @@ class _Model: # pylint: disable=too-few-public-methods
 
 class _Graph: # pylint: disable=too-few-public-methods
 
-    def __init__(self, graph):
+    def __init__(self, metadata, graph):
+        self.metadata = metadata
         self.value = graph
+        self.nodes = []
 
-    def to_json(self): # pylint: disable=missing-function-docstring
+    def to_json(self): # pylint: disable=missing-function-docstring,too-many-locals
         import torch # pylint: disable=import-outside-toplevel
         graph = self.value
         json_graph = {
@@ -87,9 +96,8 @@ class _Graph: # pylint: disable=too-few-public-methods
             #     continue
             # if node.kind() == 'prim::GetAttr':
             #     continue
-            # schema = node.schema() if hasattr(node, 'schema') else None
-            # if schema and schema != '(no schema)':
-            #     schema = Schema(schema)
+            schema = node.schema() if hasattr(node, 'schema') else None
+            schema = self.metadata.type(schema) if schema and schema != '(no schema)' else None
             json_node = {
                 'type': { 'name': node.kind() },
                 'inputs': [],
@@ -111,9 +119,11 @@ class _Graph: # pylint: disable=too-few-public-methods
                 else:
                     json_node['attributes'].append(json_attribute)
 
-            for input_value in node.inputs():
+            for i, input_value in enumerate(node.inputs()):
+                input_schema = schema['inputs'][i] if schema and i < len(schema['inputs']) else None
+                name = input_schema['name'] if hasattr(input_schema, 'name') else 'input'
                 json_parameter = {
-                    'name': 'x',
+                    'name': name,
                     'arguments': [ argument(input_value) ]
                 }
                 json_node['inputs'].append(json_parameter)
@@ -124,6 +134,72 @@ class _Graph: # pylint: disable=too-few-public-methods
                     'arguments': [ argument(output_value) ]
                 })
         return json_graph
+
+class Metadata: # pylint: disable=too-few-public-methods,missing-class-docstring
+
+    def __init__(self, metadata):
+        self.types = metadata
+        self.cache = set()
+
+    def type(self, schema): # pylint: disable=missing-function-docstring
+        key = schema.name if isinstance(schema, Schema) else schema.split('(', 1)[0].strip()
+        if key not in self.cache and key != 'aten::as_tensor':
+            self.cache.add(key)
+            schema = schema if isinstance(schema, Schema) else Schema(schema)
+            arguments = list(filter(lambda _: \
+                not(_.kwarg_only and hasattr(_, 'alias')), schema.arguments))
+            returns = schema.returns
+            value = self.types.get(schema.name, { 'name': schema.name, })
+            inputs = value.get('inputs', [])
+            outputs = value.get('outputs', [])
+            inputs = [ inputs[i] if i < len(inputs) else {} for i in range(len(arguments)) ]
+            outputs = [ outputs[i] if i < len(outputs) else {} for i in range(len(returns)) ]
+            value['inputs'] = inputs
+            value['outputs'] = outputs
+            for i, _ in enumerate(arguments):
+                argument = inputs[i]
+                argument['name'] = _.name
+                self._argument(argument, getattr(_, 'type'))
+                if hasattr(_, 'default'):
+                    argument['default'] = _.default
+            for i, _ in enumerate(returns):
+                argument = outputs[i]
+                if hasattr(_, 'name'):
+                    argument['name'] = _.name
+                self._argument(argument, getattr(_, 'type'))
+        return self.types[key]
+
+    def _argument(self, argument, value):
+        optional = False
+        argument_type = ''
+        while not isinstance(value, str):
+            if isinstance(value, Schema.OptionalType):
+                value = value.element_type
+                optional = True
+            elif isinstance(value, Schema.ListType):
+                size = str(value.size) if hasattr(value, 'size') else ''
+                argument_type = '[' + size + ']' + argument_type
+                value = value.element_type
+            else:
+                name = value.name
+                if name == 'int':
+                    name = 'int64'
+                elif name == 'float':
+                    name = 'float32'
+                elif name == 'bool':
+                    name = 'boolean'
+                elif name == 'str':
+                    name = 'string'
+                argument_type = name + argument_type
+                break
+        if argument_type:
+            argument['type'] = argument_type
+        else:
+            argument.pop('type', None)
+        if optional:
+            argument['optional'] = True
+        else:
+            argument.pop('optional', False)
 
 class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
     def __init__(self, value):
@@ -232,7 +308,6 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
                 if lexer.eat('='):
                     lexer.whitespace(0)
                     self.default = self._parse_value(lexer)
-            self.is_out = self.kwarg_only and hasattr(self, 'alias')
         def __str__(self):
             alias = '(' + self.alias + ')' if hasattr(self, 'alias') else ''
             name = ' ' + self.name if hasattr(self, 'name') else ''

@@ -3430,7 +3430,7 @@
     "name": "aten::cudnn_convolution_relu",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "weight", "type": "Tensor", "optional": true },
+      { "name": "weight", "type": "Tensor" },
       { "name": "bias", "type": "Tensor", "optional": true },
       { "name": "stride", "type": "int64[]" },
       { "name": "padding", "type": "int64[]" },
@@ -4659,7 +4659,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "s", "type": "int64[1]", "optional": true, "default": null },
-      { "name": "dim", "type": "int64[1]", "optional": true, "default": [   -2,   -1 ] },
+      { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
     "outputs": [
@@ -4717,7 +4717,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "s", "type": "int64[1]", "optional": true, "default": null },
-      { "name": "dim", "type": "int64[1]", "optional": true, "default": [   -2,   -1 ] },
+      { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
     "outputs": [
@@ -4765,7 +4765,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "s", "type": "int64[1]", "optional": true, "default": null },
-      { "name": "dim", "type": "int64[1]", "optional": true, "default": [   -2,   -1 ] },
+      { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
     "outputs": [
@@ -4823,7 +4823,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "s", "type": "int64[1]", "optional": true, "default": null },
-      { "name": "dim", "type": "int64[1]", "optional": true, "default": [   -2,   -1 ] },
+      { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
     "outputs": [
@@ -4871,7 +4871,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "s", "type": "int64[1]", "optional": true, "default": null },
-      { "name": "dim", "type": "int64[1]", "optional": true, "default": [   -2,   -1 ] },
+      { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
     "outputs": [
@@ -4919,7 +4919,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "s", "type": "int64[1]", "optional": true, "default": null },
-      { "name": "dim", "type": "int64[1]", "optional": true, "default": [   -2,   -1 ] },
+      { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
     "outputs": [
@@ -6770,7 +6770,7 @@
     "inputs": [
       { "name": "start", "type": "Scalar" },
       { "name": "end", "type": "Scalar" },
-      { "name": "steps", "type": "int64", "optional": true, "default": null },
+      { "name": "steps", "type": "int64", "default": null },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
       { "name": "device", "type": "Device", "optional": true, "default": null },
@@ -9497,7 +9497,7 @@
   {
     "name": "aten::rand.generator",
     "inputs": [
-      { "name": "size", "type": "SymInt[]", "optional": true, "default": null },
+      { "name": "size", "type": "SymInt[]", "default": null },
       { "name": "generator", "type": "Generator", "optional": true },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
@@ -9613,8 +9613,8 @@
   {
     "name": "aten::randint.low",
     "inputs": [
-      { "name": "low", "type": "int64", "optional": true, "default": null },
-      { "name": "high", "type": "int64", "optional": true, "default": null },
+      { "name": "low", "type": "int64", "default": null },
+      { "name": "high", "type": "int64", "default": null },
       { "name": "size", "type": "SymInt[]" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": "long" },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
@@ -9628,8 +9628,8 @@
   {
     "name": "aten::randint.low_generator",
     "inputs": [
-      { "name": "low", "type": "int64", "optional": true, "default": null },
-      { "name": "high", "type": "int64", "optional": true, "default": null },
+      { "name": "low", "type": "int64", "default": null },
+      { "name": "high", "type": "int64", "default": null },
       { "name": "size", "type": "SymInt[]" },
       { "name": "generator", "type": "Generator", "optional": true },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": "long" },
@@ -12646,7 +12646,7 @@
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname" },
       { "name": "sizes", "type": "int64[]" },
-      { "name": "names", "type": "Dimname[]", "optional": true, "default": null }
+      { "name": "names", "type": "Dimname[]", "default": null }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -13933,8 +13933,8 @@
       { "name": "mean", "type": "Tensor" },
       { "name": "var", "type": "Tensor" },
       { "name": "eps", "type": "float32" },
-      { "name": "output_scale", "type": "float32", "optional": true },
-      { "name": "output_zero_point", "type": "int64", "optional": true }
+      { "name": "output_scale", "type": "float32" },
+      { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -13950,8 +13950,8 @@
       { "name": "mean", "type": "Tensor" },
       { "name": "var", "type": "Tensor" },
       { "name": "eps", "type": "float32" },
-      { "name": "output_scale", "type": "float32", "optional": true },
-      { "name": "output_zero_point", "type": "int64", "optional": true }
+      { "name": "output_scale", "type": "float32" },
+      { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -13967,8 +13967,8 @@
       { "name": "mean", "type": "Tensor" },
       { "name": "var", "type": "Tensor" },
       { "name": "eps", "type": "float32" },
-      { "name": "output_scale", "type": "float32", "optional": true },
-      { "name": "output_zero_point", "type": "int64", "optional": true }
+      { "name": "output_scale", "type": "float32" },
+      { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -13984,8 +13984,8 @@
       { "name": "mean", "type": "Tensor" },
       { "name": "var", "type": "Tensor" },
       { "name": "eps", "type": "float32" },
-      { "name": "output_scale", "type": "float32", "optional": true },
-      { "name": "output_zero_point", "type": "int64", "optional": true }
+      { "name": "output_scale", "type": "float32" },
+      { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -14001,8 +14001,8 @@
       { "name": "mean", "type": "Tensor" },
       { "name": "var", "type": "Tensor" },
       { "name": "eps", "type": "float32" },
-      { "name": "output_scale", "type": "float32", "optional": true },
-      { "name": "output_zero_point", "type": "int64", "optional": true }
+      { "name": "output_scale", "type": "float32" },
+      { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -14018,8 +14018,8 @@
       { "name": "mean", "type": "Tensor" },
       { "name": "var", "type": "Tensor" },
       { "name": "eps", "type": "float32" },
-      { "name": "output_scale", "type": "float32", "optional": true },
-      { "name": "output_zero_point", "type": "int64", "optional": true }
+      { "name": "output_scale", "type": "float32" },
+      { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -14035,8 +14035,8 @@
       { "name": "mean", "type": "Tensor" },
       { "name": "var", "type": "Tensor" },
       { "name": "eps", "type": "float32" },
-      { "name": "output_scale", "type": "float32", "optional": true },
-      { "name": "output_zero_point", "type": "int64", "optional": true }
+      { "name": "output_scale", "type": "float32" },
+      { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -14052,8 +14052,8 @@
       { "name": "mean", "type": "Tensor" },
       { "name": "var", "type": "Tensor" },
       { "name": "eps", "type": "float32" },
-      { "name": "output_scale", "type": "float32", "optional": true },
-      { "name": "output_zero_point", "type": "int64", "optional": true }
+      { "name": "output_scale", "type": "float32" },
+      { "name": "output_zero_point", "type": "int64" }
     ],
     "outputs": [
       { "type": "Tensor" }

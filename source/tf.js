@@ -349,8 +349,8 @@ tf.ModelFactory = class {
                                     metadata.get(key).push(item);
                                 }
                             }
-                            for (const meta_graph of saved_model.meta_graphs) {
-                                for (const node of meta_graph.graph_def.node) {
+                            for (const graph of saved_model.meta_graphs) {
+                                for (const node of graph.graph_def.node) {
                                     node.__metadata__ = Array.from(metadata.get(node.op) || []);
                                 }
                             }
@@ -1032,7 +1032,8 @@ tf.Node = class {
                     const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((output) => {
                         return new tf.Argument(output.name ? output.name : '-', null, null);
                     });
-                    this._outputs.push(new tf.Parameter(output.name, outputArguments));
+                    const name = output.name ? output.name : 'output' + (this._outputs.length == 0 ? '' : this._outputs.length.toString());
+                    this._outputs.push(new tf.Parameter(name, outputArguments));
                     outputIndex += outputCount;
                 }
             }
@@ -2090,7 +2091,7 @@ tf.Utility = class {
                 }
             }
         }
-        const updatePyTorch = (node_map) => {
+        const updateTorchScript = (node_map) => {
             for (const node of node_map.values()) {
                 if (node.op === 'prim::Constant' && node.input.length === 0 && node.controlDependencies.length === 0 && node.attr && Object.keys(node.attr).length === 1 && node.attr.attr && node.attr.attr.s) {
                     const value = tf.Utility.decodeText(node.attr.attr.s);
@@ -2226,6 +2227,8 @@ tf.Utility = class {
                                     }
                                     break;
                                 }
+                                case 'SymInt[]':
+                                case 'int64[2]':
                                 case 'int64[]': {
                                     if (Array.isArray(input.list)) {
                                         const list = input.list.map((item) => parseInt(item));
@@ -2312,7 +2315,7 @@ tf.Utility = class {
                 }
             }
         };
-        updatePyTorch(node_map);
+        updateTorchScript(node_map);
         for (const input of input_map.values()) {
             context.inputs.push(input);
         }

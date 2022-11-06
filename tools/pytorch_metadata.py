@@ -118,31 +118,6 @@ def _check_schemas(schemas): # pylint: disable=unused-argument
     #                 print(schema)
     pass
 
-def _translate_type(value):
-    optional = False
-    argument_type = ''
-    while not isinstance(value, str):
-        if isinstance(value, pytorch.Schema.OptionalType):
-            value = value.element_type
-            optional = True
-        elif isinstance(value, pytorch.Schema.ListType):
-            size = str(value.size) if hasattr(value, 'size') else ''
-            value = value.element_type
-            argument_type = '[' + size + ']' + argument_type
-        else:
-            name = value.name
-            if name == 'int':
-                name = 'int64'
-            elif name == 'float':
-                name = 'float32'
-            elif name == 'bool':
-                name = 'boolean'
-            elif name == 'str':
-                name = 'string'
-            argument_type = name + argument_type
-            break
-    return argument_type, optional
-
 def _check_types(types, schemas):
     types = dict(types.items())
     for schema in schemas.values():
@@ -167,37 +142,9 @@ def _metadata():
     _check_types(types, schemas)
     _check_schemas(schemas)
     filtered_schemas = _filter_schemas(schemas, types)
+    metadata = pytorch.Metadata(types)
     for schema in filtered_schemas.values():
-        arguments = list(filter(lambda argument: not argument.is_out, schema.arguments))
-        returns = schema.returns
-        if schema.name not in types:
-            types[schema.name] = {
-                'name': schema.name,
-                'inputs': [ {} for i in range(len(arguments)) ],
-                'outputs': [ {} for i in range(len(returns)) ],
-            }
-        value = types[schema.name]
-        if schema.name == 'aten::as_tensor':
-            continue
-        if len(arguments) != len(value['inputs']) or len(returns) != len(value['outputs']):
-            raise Exception(schema.name)
-        for i, _ in enumerate(arguments):
-            argument = value['inputs'][i]
-            argument['name'] = _.name
-            argument_type, optional = _translate_type(getattr(_, 'type'))
-            argument['type'] = argument_type
-            if optional:
-                argument['optional'] = True
-            if hasattr(_, 'default'):
-                argument['default'] = _.default
-        for i, _ in enumerate(returns):
-            argument = value['outputs'][i]
-            if hasattr(_, 'name'):
-                value['outputs'][i]['name'] = _.name
-            argument_type, optional = _translate_type(getattr(_, 'type'))
-            argument['type'] = argument_type
-            if optional:
-                argument['optional'] = True
+        metadata.type(schema)
     _write_metadata(types)
 
 def main(): # pylint: disable=missing-function-docstring
