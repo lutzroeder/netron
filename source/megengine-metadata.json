@@ -3513,5 +3513,14 @@
   {
     "name": "Concat",
     "category": "Tensor"
+  },
+  {
+    "name": "GroupNorm",
+    "attributes": [
+      { "name": "affine", "type": "bool", "default": true },
+      { "name": "eps", "type": "float32", "default": 0.00001 },
+      { "name": "group", "type": "uint32", "default": 1 },
+      { "name": "format", "type": "ConvolutionFormat", "default": "NCHW" }
+    ]
   }
 ]

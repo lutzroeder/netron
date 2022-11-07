@@ -1761,6 +1761,18 @@ $root.mgb.serialization.fbs.param.LayerNorm = class LayerNorm {
     }
 };
 
+$root.mgb.serialization.fbs.param.GroupNorm = class GroupNorm {
+
+    static decode(reader, position) {
+        const $ = new $root.mgb.serialization.fbs.param.GroupNorm();
+        $.affine = reader.bool_(position, 4, true);
+        $.eps = reader.float32_(position, 6, 0.00001);
+        $.group = reader.uint32_(position, 8, 1);
+        $.format = reader.uint32_(position, 10, 0);
+        return $;
+    }
+};
+
 $root.mgb.serialization.fbs.param.Dropout = class Dropout {
 
     static decode(reader, position) {
@@ -2329,6 +2341,7 @@ $root.mgb.serialization.fbs.v2.OperatorParam = class {
             case 89: return $root.mgb.serialization.fbs.param.LSTM.decode(reader, position);
             case 90: return $root.mgb.serialization.fbs.param.Softmax.decode(reader, position);
             case 91: return $root.mgb.serialization.fbs.param.Diag.decode(reader, position);
+            case 92: return $root.mgb.serialization.fbs.param.GroupNorm.decode(reader, position);
             default: return undefined;
         }
     }
@@ -2426,6 +2439,7 @@ $root.mgb.serialization.fbs.v2.OperatorParam = class {
             case 'LSTM': return $root.mgb.serialization.fbs.param.LSTM.decodeText(reader, json);
             case 'Softmax': return $root.mgb.serialization.fbs.param.Softmax.decodeText(reader, json);
             case 'Diag': return $root.mgb.serialization.fbs.param.Diag.decodeText(reader, json);
+            case 'GroupNorm': return $root.mgb.serialization.fbs.param.GroupNorm.decodeText(reader, json);
             default: return undefined;
         }
     }
