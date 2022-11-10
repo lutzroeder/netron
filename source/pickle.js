@@ -20,7 +20,7 @@ pickle.ModelFactory = class {
     }
 
     open(context, match) {
-        return new Promise((resolve) => {
+        return Promise.resolve().then(() => {
             let format = 'Pickle';
             const obj = match;
             if (obj === null || obj === undefined) {
@@ -31,7 +31,7 @@ pickle.ModelFactory = class {
                     const type = obj[0].__class__.__module__ + "." + obj[0].__class__.__name__;
                     context.exception(new pickle.Error("Unsupported Pickle '" + type + "' array object in '" + context.identifier + "'."));
                 }
-                else {
+                else if (obj.length > 0) {
                     context.exception(new pickle.Error("Unsupported Pickle array object in '" + context.identifier + "'."));
                 }
             }
@@ -50,7 +50,7 @@ pickle.ModelFactory = class {
             else {
                 context.exception(new pickle.Error("Unsupported Pickle object in '" + context.identifier + "'."));
             }
-            resolve(new pickle.Model(obj, format));
+            return new pickle.Model(obj, format);
         });
     }
 };

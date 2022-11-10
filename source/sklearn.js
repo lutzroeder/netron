@@ -25,14 +25,17 @@ sklearn.ModelFactory = class {
             if (validate(obj, format.name)) {
                 return format.format;
             }
-            if (Array.isArray(obj) && obj.every((item) => validate(item, format.name))) {
+            if (Array.isArray(obj) && obj.length > 0 && obj.every((item) => validate(item, format.name))) {
                 return format.format + '.list';
             }
-            if ((Object(obj) === obj) && Object.entries(obj).every((entry) => validate(entry[1], format.name))) {
-                return format.format + '.map';
+            if (Object(obj) === obj) {
+                const entries = Object.entries(obj);
+                if (entries.length > 0 && entries.every((entry) => validate(entry[1], format.name))) {
+                    return format.format + '.map';
+                }
             }
         }
-        return undefined;
+        return null;
     }
 
     open(context, match) {

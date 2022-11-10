@@ -21,11 +21,11 @@ numpy.ModelFactory = class {
             if (numpy.Utility.isTensor(obj)) {
                 return { name: 'numpy.ndarray', value: obj };
             }
-            if (Array.isArray(obj) && obj.every((obj) => obj && obj.__class__ && obj.__class__.__name__ === 'Network' && (obj.__class__.__module__ === 'dnnlib.tflib.network' || obj.__class__.__module__ === 'tfutil'))) {
+            if (Array.isArray(obj) && obj.length > 0 && obj.every((obj) => obj && obj.__class__ && obj.__class__.__name__ === 'Network' && (obj.__class__.__module__ === 'dnnlib.tflib.network' || obj.__class__.__module__ === 'tfutil'))) {
                 return { name: 'dnnlib.tflib.network', value: obj };
             }
             const weights = numpy.Utility.weights(obj);
-            if (weights) {
+            if (weights && weights.size > 0) {
                 return { name: 'pickle', value: weights };
             }
         }
