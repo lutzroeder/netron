@@ -1045,7 +1045,7 @@
     "category": "Pool",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "output_size", "type": "int64[3]", "visible": false }
+      { "name": "output_size", "type": "SymInt[3]", "visible": false }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -1055,7 +1055,7 @@
     "name": "aten::adaptive_avg_pool3d.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "output_size", "type": "int64[3]" }
+      { "name": "output_size", "type": "SymInt[3]" }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -2408,7 +2408,7 @@
     "name": "aten::broadcast_to",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "size", "type": "int64[]" }
+      { "name": "size", "type": "SymInt[]" }
     ],
     "outputs": [
       { "type": "Tensor" }
