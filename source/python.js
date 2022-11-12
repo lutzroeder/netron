@@ -4126,6 +4126,7 @@ python.Execution = class {
         this.registerType('torchvision.transforms.transforms.RandomAffine', class {});
         this.registerType('torchvision.transforms.transforms.RandomCrop', class {});
         this.registerType('torchvision.transforms.transforms.RandomHorizontalFlip', class {});
+        this.registerType('torchvision.transforms.transforms.RandomRotation', class {});
         this.registerType('torchvision.transforms.transforms.Resize', class {});
         this.registerType('torchvision.transforms.transforms.Scale', class {});
         this.registerType('torchvision.transforms.transforms.ToPILImage', class {});
