@@ -54,7 +54,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "shape",
@@ -85,7 +85,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -152,7 +152,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -312,7 +312,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `variant`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `variant`."
       }
     ],
     "inputs": [
@@ -653,7 +653,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "The type of elements to be exchanged. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `bool`."
+        "description": "The type of elements to be exchanged. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `bool`."
       },
       {
         "name": "concat_dimension",
@@ -1111,7 +1111,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1187,7 +1187,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1253,7 +1253,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1307,7 +1307,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1378,7 +1378,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1438,7 +1438,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1525,7 +1525,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1590,7 +1590,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1667,7 +1667,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1743,7 +1743,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1822,7 +1822,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1866,7 +1866,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1927,7 +1927,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1992,7 +1992,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -2052,7 +2052,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -2106,7 +2106,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -2242,7 +2242,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "tolerance",
@@ -2275,7 +2275,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `bool`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `int64`, `bfloat16`, `uint16`, `float16`, `uint32`, `uint64`, `qint8`, `quint8`, `qint32`, `qint16`, `quint16`, `bool`."
       },
       {
         "name": "Tidx",
@@ -2322,7 +2322,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `bool`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `int64`, `bfloat16`, `uint16`, `float16`, `uint32`, `uint64`, `qint8`, `quint8`, `qint32`, `qint16`, `quint16`, `bool`."
       },
       {
         "name": "Tidx",
@@ -2647,7 +2647,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -2710,7 +2710,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -4302,7 +4302,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "variance_epsilon",
@@ -4357,7 +4357,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "variance_epsilon",
@@ -4919,7 +4919,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "data_format",
@@ -4956,7 +4956,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "data_format",
@@ -4988,7 +4988,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -8001,7 +8001,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -8467,7 +8467,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "The type of elements to be exchanged. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "The type of elements to be exchanged. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -9131,7 +9131,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "The type of the value being accumulated. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "The type of the value being accumulated. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "shape",
@@ -11461,7 +11461,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tidx",
@@ -11512,7 +11512,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tidx",
@@ -15649,7 +15649,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tidx",
@@ -21936,6 +21936,46 @@
     ]
   },
   {
+    "name": "InterleaveTensorsToXLATuple",
+    "summary": "An op that interleaves the indices tensor value tensor into an xla tuple.",
+    "description": "An op that interleaves the indices tensor value tensor into an xla tuple.",
+    "attributes": [
+      {
+        "name": "indices_type",
+        "type": "type",
+        "description": "{int32, int64} = DT_INT32 Must be one of the following: `int32`, `int64`.",
+        "default": {
+          "type": "type",
+          "value": 3
+        }
+      },
+      {
+        "name": "values_type",
+        "type": "type",
+        "description": "{half, bfloat16, float, int32, uint32, int64} Must be one of the following: `float16`, `bfloat16`, `float32`, `int32`, `uint32`, `int64`."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "indices",
+        "description": "A rank-1 tensor of indices, for example [1, 2, 3, 4]",
+        "typeAttr": "indices_type"
+      },
+      {
+        "name": "values",
+        "description": "A rank-1 tensor of values. For example (0.1, 0.2, 0.3, 0.5). It must have same length as indices.",
+        "typeAttr": "values_type"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "An xla tuple, for this example, the output should be (1, 0.1, 2, 0.2, 3, 0.3, 4, 0.5)",
+        "type": 21
+      }
+    ]
+  },
+  {
     "name": "Inv",
     "summary": "Computes the reciprocal of x element-wise.",
     "description": "I.e., \\\\(y = 1 / x\\\\).",
@@ -26962,7 +27002,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tidx",
@@ -32188,7 +32228,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tidx",
@@ -39706,7 +39746,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -39770,7 +39810,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -39801,7 +39841,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -39866,7 +39906,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -39921,7 +39961,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -39965,7 +40005,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40025,7 +40065,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40075,7 +40115,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40151,7 +40191,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40226,7 +40266,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40281,7 +40321,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40346,7 +40386,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40411,7 +40451,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40479,7 +40519,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40514,7 +40554,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40565,7 +40605,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40616,7 +40656,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40671,7 +40711,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40721,7 +40761,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40766,7 +40806,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40825,7 +40865,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "The type of the value being accumulated. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "The type of the value being accumulated. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "shape",
@@ -40969,7 +41009,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41003,7 +41043,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41037,7 +41077,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41071,7 +41111,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41105,7 +41145,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41330,7 +41370,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41396,7 +41436,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41460,7 +41500,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41514,7 +41554,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41584,7 +41624,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41644,7 +41684,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41718,7 +41758,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41793,7 +41833,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41872,7 +41912,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41933,7 +41973,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41994,7 +42034,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -42054,7 +42094,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -42109,7 +42149,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -45450,7 +45490,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -45499,7 +45539,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -45646,7 +45686,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -45735,7 +45775,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -45783,7 +45823,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -45831,7 +45871,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -45880,7 +45920,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `bool`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `bool`."
       },
       {
         "name": "Tindices",
@@ -45921,7 +45961,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -46018,7 +46058,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -46471,7 +46511,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -46541,7 +46581,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -46576,7 +46616,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -48544,7 +48584,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "has_known_shape",
@@ -48589,7 +48629,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -48631,7 +48671,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Treal",
@@ -48699,7 +48739,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -48744,7 +48784,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -48819,7 +48859,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -48883,7 +48923,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -48964,7 +49004,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -49034,7 +49074,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -49120,7 +49160,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -49206,7 +49246,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -49296,7 +49336,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -49367,7 +49407,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -49437,7 +49477,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -49501,7 +49541,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -49696,7 +49736,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "The type of the value being accumulated. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "The type of the value being accumulated. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "shape",
@@ -50055,7 +50095,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -50096,7 +50136,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -50137,7 +50177,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -50808,7 +50848,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -50855,7 +50895,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -51565,7 +51605,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -51743,7 +51783,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -51857,7 +51897,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -52245,6 +52285,51 @@
         "description": "Tensors whose shape matches that of `value`\nexcept along `split_dim`, where their sizes are\n`size_splits[i]`.",
         "numberAttr": "num_split",
         "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "SplitXLATupleToTensors",
+    "summary": "An op that splits an xla tuple to a tensor of indices and a tensor of values.",
+    "description": "An op that splits an xla tuple to a tensor of indices and a tensor of values.",
+    "attributes": [
+      {
+        "name": "indices_type",
+        "type": "type",
+        "description": "{int32, int64} = DT_INT32 Must be one of the following: `int32`, `int64`.",
+        "default": {
+          "type": "type",
+          "value": 3
+        }
+      },
+      {
+        "name": "values_type",
+        "type": "type",
+        "description": "{half, bfloat16, float, int32, uint32, int64} Must be one of the following: `float16`, `bfloat16`, `float32`, `int32`, `uint32`, `int64`."
+      },
+      {
+        "name": "output_shape",
+        "type": "shape",
+        "description": "Indices tensor shape. indices and value tensors must have same shape."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "description": "An xla tuple. For example (1, 0.1, 2, 0.2, 3, 0.3, 4, 0.4)",
+        "type": 21
+      }
+    ],
+    "outputs": [
+      {
+        "name": "indices",
+        "description": "A rank-1 tensor of odd elements of `input`. Such as [1, 2, 3, 4]",
+        "typeAttr": "indices_type"
+      },
+      {
+        "name": "values",
+        "description": "A rank-1 tensor of even elements of `input`. Such as [0.1, 0.2, 0.3, 0.4].",
+        "typeAttr": "values_type"
       }
     ]
   },
@@ -55323,7 +55408,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tidx",
@@ -59938,6 +60023,167 @@
     ]
   },
   {
+    "name": "UniformQuantizedConvolution",
+    "summary": "Perform quantized convolution of quantized Tensor `lhs` and quantized Tensor `rhs`. to make quantized `output`.",
+    "description": "Given quantized `lhs` and quantized `rhs`, performs quantized dot on `lhs` and `rhs` to make quantized `output`.\n\n`lhs` and `rhs` must be Tensors of same rank, and meet following shape conditions.\n- `lhs_feature` % `feature_group_count` == 0\n- `lhs_feature` % `rhs_input_feature` == 0\n- `lhs_feature` / `feature_group_count` == `rhs_input_feature`\n- `rhs_output_feature` % `feature_group_count` == 0\n- `lhs_batch` % `batch_group_count` == 0\n- `rhs_output_feature` % `batch_group_count` == 0\n\n`lhs` and `rhs` must be quantized Tensor, where data value is quantized using the formula:\n```\nquantized_data = clip(original_data / scale + zero_point, quantization_min_val, quantization_max_val)\n```\n`output` is also quantized, using the same formula.\nIf `rhs` is per-tensor quantized, `output` must be also per-tensor quantized.",
+    "attributes": [
+      {
+        "name": "Tin",
+        "type": "type",
+        "description": "The type of `lhs` and `rhs` input `Tensor`. Must be one of the following: `qint8`."
+      },
+      {
+        "name": "Tout",
+        "type": "type",
+        "description": "The type of `output` `Tensor`. Must be one of the following: `qint32`."
+      },
+      {
+        "name": "window_strides",
+        "type": "int64[]",
+        "description": "The stride of the sliding window for each spatial dimension of `lhs`.\nMust be an empty list (default) or a list of size (number of spatial dimensions).\nIf an empty list is provided, the stride for each spatial dimension is set to 1.",
+        "default": []
+      },
+      {
+        "name": "padding",
+        "type": "string",
+        "description": "string from: `\"SAME\"`, `\"VALID\"`, or `\"EXPLICIT\"`, indicating the type of padding algorithm to use."
+      },
+      {
+        "name": "explicit_padding",
+        "type": "int64[]",
+        "description": "If `padding` is `\"EXPLICIT\"`, must be set as a list indicating\nthe explicit paddings at the start and end of each `lhs` spatial dimension.\nOtherwise, this must be empty.\n\n(If used,) Must be a list of size `2 * (number of lhs spatial dimensions)`,\nwhere `(explicit_padding[2 * i], explicit_padding[2 * i + 1])` indicates\n`(start_padding, end_padding)` of `spatial_dimensions[i]`.",
+        "default": []
+      },
+      {
+        "name": "lhs_dilation",
+        "type": "int64[]",
+        "description": "The dilation factor to apply in each spatial dimension of `lhs`.\nMust be an empty list (default) or a list of size (number of `lhs` spatial dimensions).\nIf empty list, the dilation for each `lhs` spatial dimension is set to 1.",
+        "default": []
+      },
+      {
+        "name": "rhs_dilation",
+        "type": "int64[]",
+        "description": "The dilation factor to apply in each spatial dimension of `rhs`.\nMust be an empty list (default) or a list of size (number of `rhs` spatial dimensions).\nIf empty list, the dilation for each `rhs` spatial dimension is set to 1.",
+        "default": []
+      },
+      {
+        "name": "batch_group_count",
+        "type": "int64",
+        "description": "The number of batch groups. Used for grouped filters.\nMust be a divisor of `output_feature`.",
+        "default": 1
+      },
+      {
+        "name": "feature_group_count",
+        "type": "int64",
+        "description": "The number of feature groups. Used for grouped convolutions.\nMust be a divisor of both `lhs_feature` and `output_feature`.",
+        "default": 1
+      },
+      {
+        "name": "dimension_numbers",
+        "type": "string",
+        "description": "Structure of dimension information for the convolution op.\nMust be an empty string (default) or a serialized string of `tensorflow.UniformQuantizedConvolutionDimensionNumbersAttr` proto.\nIf empty string, the default is `(\"NCHW\", \"OIHW\", \"NCHW\")` (for a 2D convolution).",
+        "default": ""
+      },
+      {
+        "name": "lhs_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor the `lhs`, only per-tensor quantization is supported.\nThus, this must be set to -1.\nOther values will raise error at OpKernel construction.",
+        "default": -1
+      },
+      {
+        "name": "lhs_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in `lhs`.\nFor example, if `Tin` is `qint8`, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "lhs_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in `lhs`.\nFor example, if `Tin` is `qint8`, this must be set to 127."
+      },
+      {
+        "name": "rhs_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor the `rhs`, only per-tensor quantization\nor per-channel quantization along `kernel_output_feature_dimension` is supported.\nThus, this must be set to -1 or `dimension_numbers.kernel_output_feature_dimension`.\nOther values will raise error at OpKernel construction.",
+        "default": -1
+      },
+      {
+        "name": "rhs_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in `rhs`.\nFor example, if `Tin` is `qint8`, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "rhs_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in `rhs`.\nFor example, if `Tin` is `qint8`, this must be set to 127."
+      },
+      {
+        "name": "output_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor the `output`, only per-tensor quantization or per-channel quantization along `output_feature_dimension` is supported.\nThus, this must be set to -1 or `dimension_numbers.output_feature_dimension`.\nOther values will raise error at OpKernel construction.",
+        "default": -1
+      },
+      {
+        "name": "output_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in `output`.\nFor example, if  `Tout` is `qint8`, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "output_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in `output`.\nFor example, if `Tout` is `qint8`, this must be set to 127."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "lhs",
+        "description": "Must be a quantized tensor, rank >= 3.",
+        "typeAttr": "Tin"
+      },
+      {
+        "name": "rhs",
+        "description": "Must be a quantized tensor, same rank as `lhs`.",
+        "typeAttr": "Tin"
+      },
+      {
+        "name": "lhs_scales",
+        "description": "The float value(s) used as scale factors when quantizing the original data that `lhs` represents.\nMust be a scalar `Tensor` (`lhs` supports only per-tensor quantization).",
+        "type": 1
+      },
+      {
+        "name": "lhs_zero_points",
+        "description": "The int32 value(s) used as zero points when quantizing original data that `lhs` represents.\nSame shape condition as `lhs_scales`.",
+        "type": 3
+      },
+      {
+        "name": "rhs_scales",
+        "description": "The float value(s) used as scale factors when quantizing the original data that `rhs` represents.\nMust be a scalar `Tensor` for per-tensor quantization,\nor 1D `Tensor` of size `rhs.dim_size(kernel_output_feature_dimension)`, for per-channel quantization.",
+        "type": 1
+      },
+      {
+        "name": "rhs_zero_points",
+        "description": "The int32 value(s) used as zero points when quantizing original data that `rhs` represents.\nSame shape condition as `rhs_scales`.",
+        "type": 3
+      },
+      {
+        "name": "output_scales",
+        "description": "The float value(s) to use as scale factors when quantizing original data that `output` represents.\nMust be a scalar `Tensor` for per-tensor quantization,\nor 1D `Tensor` of size `rhs.dim_size(kernel_output_feature_dimension)`\n- which is equal to `output.dim_size(output_feature_dimension)`,\nfor per-channel quantization.\nIf `rhs` is per-tensor quantized, output must be also per-tensor quantized.\nThis means that if `rhs_scales` and `rhs_zero_points` are scalar `Tensor`s, `output_scales` and `output_zero_points` must be scalar `Tensor`s as well.",
+        "type": 1
+      },
+      {
+        "name": "output_zero_points",
+        "description": "The int32 value(s) used as zero points when quantizing original data that output represents.\nSame shape condition as `output_scales`.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "The output quantized tensor of `Tout`, same rank as `lhs` and `rhs`.",
+        "typeAttr": "Tout"
+      }
+    ]
+  },
+  {
     "name": "UniformQuantizedConvolutionHybrid",
     "summary": "Perform hybrid quantized convolution of float Tensor `lhs` and quantized Tensor `rhs`.",
     "description": "Given float `lhs` and quantized `rhs`, internally performs quantization on `lhs`,\nand then performs quantized convolution on quantized `lhs` and `rhs`.\n\nThe internal quantization on `lhs` is a quantization to `Trhs`, dynamic range,\nper-batch (per-axis along axis `dimension_numbers.input_batch_dimension`), asymmetric,\nand not narrow range (the range is [Trhs_MIN, Trhs_MAX]).\n\n`lhs` and `rhs` must be Tensors of same rank, and meet following shape conditions.\n- lhs_feature % feature_group_count == 0\n- lhs_feature % rhs_input_feature == 0\n- lhs_feature / feature_group_count == rhs_input_feature\n- rhs_output_feature % feature_group_count == 0\n- lhs_batch % batch_group_count == 0\n- rhs_output_feature % batch_group_count == 0\n\n`rhs` must be quantized Tensor, where its data value is quantized using the formula:\nquantized_data = clip(original_data / scale + zero_point, quantization_min_val, quantization_max_val).",
@@ -60762,7 +61008,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -60810,7 +61056,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -61108,7 +61354,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `bool`.",
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `bool`.",
         "default": {
           "type": "type",
           "value": 10
@@ -61805,11 +62051,13 @@
       {
         "name": "NumTables",
         "type": "int64",
+        "description": "number of tables",
         "minimum": 1
       },
       {
         "name": "NumLearningRateTags",
         "type": "int64",
+        "description": "number of learning rate tags",
         "minimum": 0,
         "default": 0
       },
