@@ -11196,6 +11196,26 @@
     ]
   },
   {
+    "name": "aten::softshrink",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "lambd", "type": "Scalar", "default": 0.5 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::softshrink.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "lambd", "type": "Scalar", "default": 0.5 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::sort",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -12907,19 +12927,6 @@
     ]
   },
   {
-    "name": "aten::upsample_bilinear2d_backward.vec",
-    "inputs": [
-      { "name": "grad_output", "type": "Tensor" },
-      { "name": "output_size", "type": "SymInt[]", "optional": true },
-      { "name": "input_size", "type": "SymInt[]" },
-      { "name": "align_corners", "type": "boolean" },
-      { "name": "scale_factors", "type": "float32[]", "optional": true }
-    ],
-    "outputs": [
-      { "type": "Tensor" }
-    ]
-  },
-  {
     "name": "aten::upsample_linear1d",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -13054,18 +13061,6 @@
     ]
   },
   {
-    "name": "aten::upsample_nearest2d_backward.vec",
-    "inputs": [
-      { "name": "grad_output", "type": "Tensor" },
-      { "name": "output_size", "type": "SymInt[]", "optional": true },
-      { "name": "input_size", "type": "SymInt[]" },
-      { "name": "scale_factors", "type": "float32[]", "optional": true }
-    ],
-    "outputs": [
-      { "type": "Tensor" }
-    ]
-  },
-  {
     "name": "aten::upsample_nearest3d",
     "category": "Layer",
     "inputs": [
@@ -13169,19 +13164,6 @@
       { "name": "scales_d", "type": "float32", "optional": true, "default": null },
       { "name": "scales_h", "type": "float32", "optional": true, "default": null },
       { "name": "scales_w", "type": "float32", "optional": true, "default": null }
-    ],
-    "outputs": [
-      { "type": "Tensor" }
-    ]
-  },
-  {
-    "name": "aten::upsample_trilinear3d_backward.vec",
-    "inputs": [
-      { "name": "grad_output", "type": "Tensor" },
-      { "name": "output_size", "type": "SymInt[]", "optional": true },
-      { "name": "input_size", "type": "SymInt[]" },
-      { "name": "align_corners", "type": "boolean" },
-      { "name": "scale_factors", "type": "float32[]", "optional": true }
     ],
     "outputs": [
       { "type": "Tensor" }
