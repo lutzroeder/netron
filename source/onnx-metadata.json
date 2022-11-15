@@ -12297,7 +12297,7 @@
     "module": "ai.onnx",
     "version": 16,
     "support_level": "common",
-    "description": "Given an `input` and a flow-field `grid`, computes the `output` using `input` values and pixel locations from `grid`.\nCurrently, only spatial (4-D) inputs are supported. For `input` with shape (N, C, H, W) and `grid` with shape (N, H_out, W_out, 2),\nthe `output` will have shape (N, C, H_out, W_out).\nFor each output location `output[N, C, H_out, W_out]`, the size-2 vector `grid[N, H_out, W_out]` specifies `input` pixel locations `x` and `y`,\nwhich are used to interpolate the output value `output[N, C, H_out, W_out]`.\n\nThe GridSample operator is often used in doing grid generator and sampler in the [Spatial Transformer Networks](https://arxiv.org/abs/1506.02025).\nSee also in [torch.nn.functional.grid_sample](https://pytorch.org/docs/master/generated/torch.nn.functional.grid_sample.html#torch-nn-functional-grid-sample).\n",
+    "description": "Given an input `X` and a flow-field `grid`, computes the output `Y` using `X` values and pixel locations from `grid`.\nCurrently, only spatial (4-D) inputs are supported. For input `X` with shape (N, C, H, W) and `grid` with shape (N, H_out, W_out, 2),\nthe output `Y` will have shape (N, C, H_out, W_out).\n\nThe tensor `X` contains values at centers of square pixels in a H by W 2-dimensional image.\nThe tensor `grid` describes normalized positions where the output `Y` is to be computed\nusing a specified interpolation method (the mode) and a padding mode (for grid positions falling outside the 2-dimensional image).\n\nElements in `grid[N, H_out, W_out]` are size-2 vectors specifying positions in the 2-dimensional space of `X`.\nThey are used to interpolate output values of `Y[N, C, H_out, W_out]`.\n\nThe GridSample operator is often used in doing grid generator and sampler in the [Spatial Transformer Networks](https://arxiv.org/abs/1506.02025).\nSee also in [torch.nn.functional.grid_sample](https://pytorch.org/docs/master/generated/torch.nn.functional.grid_sample.html#torch-nn-functional-grid-sample).\n",
     "attributes": [
       {
         "name": "align_corners",
@@ -12328,7 +12328,7 @@
       },
       {
         "name": "grid",
-        "type": "T1",
+        "type": "T2",
         "description": "Input offset, 4-D tensor of shape (N, H_out, W_out, 2), where H_out and W_out are the height and width of grid and output, Grid specifies the sampling pixel locations normalized by the input spatial dimensions. Therefore, it should have most values in the range of [-1, 1]. If grid has values outside the range of [-1, 1], the corresponding outputs will be handled as defined by padding_mode."
       }
     ],
@@ -12337,15 +12337,15 @@
     "outputs": [
       {
         "name": "Y",
-        "type": "T2",
-        "description": "4-D tensor of shape (N, C, H_out, W_out)."
+        "type": "T1",
+        "description": "4-D tensor of shape (N, C, H_out, W_out) of sampled values. For integer input types, intermediate values are computed as floating point and cast to integer at the end."
       }
     ],
     "min_output": 1,
     "max_output": 1,
     "type_constraints": [
       {
-        "description": "Constrain input types to all tensor types.",
+        "description": "Constrain input `X` and output `Y` types to all tensor types.",
         "type_param_str": "T1",
         "allowed_type_strs": [
           "tensor(uint8)",
@@ -12366,7 +12366,7 @@
         ]
       },
       {
-        "description": "Constrain output types to float tensors.",
+        "description": "Constrain grid types to float tensors.",
         "type_param_str": "T2",
         "allowed_type_strs": [
           "tensor(float16)",
