@@ -436,7 +436,8 @@ $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene.prototype.versi
 
 $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene.SceneVersion = {
     "SCENE_VERSION_INVALID": 0,
-    "SCENE_VERSION_1": 1
+    "SCENE_VERSION_1": 1,
+    "SCENE_VERSION_2": 2
 };
 
 $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Objects = class Objects {
