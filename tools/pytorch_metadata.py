@@ -134,7 +134,7 @@ def _check_types(types, schemas):
     types.pop('aten::mul.ScalarT')
     types.pop('aten::classes._nnapi.Compilation')
     if len(types) > 0:
-        print('\n'.join(list(types.keys())))
+        raise Exception('\n'.join(list(types.keys())))
 
 def _metadata():
     types = _read_metadata()

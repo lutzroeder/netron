@@ -149,7 +149,7 @@ class Metadata: # pylint: disable=too-few-public-methods,missing-class-docstring
             arguments = list(filter(lambda _: \
                 not(_.kwarg_only and hasattr(_, 'alias')), schema.arguments))
             returns = schema.returns
-            value = self.types.get(schema.name, { 'name': schema.name, })
+            value = self.types.setdefault(schema.name, { 'name': schema.name, })
             inputs = value.get('inputs', [])
             outputs = value.get('outputs', [])
             inputs = [ inputs[i] if i < len(inputs) else {} for i in range(len(arguments)) ]
