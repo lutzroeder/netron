@@ -702,7 +702,7 @@ class View {
                 for (const entry of Object.entries(data)) {
                     this.update(entry[0], entry[1]);
                 }
-                this._raise('updated');
+                this.emit('updated');
             }
         };
         electron.ipcMain.on('update', this._updateCallback);
@@ -711,10 +711,10 @@ class View {
             this._owner.closeView(this);
         });
         this._window.on('focus', () => {
-            this._raise('activated');
+            this.emit('activated');
         });
         this._window.on('blur', () => {
-            this._raise('deactivated');
+            this.emit('deactivated');
         });
         this._window.webContents.on('did-finish-load', () => {
             this._didFinishLoad = true;
@@ -815,7 +815,7 @@ class View {
         this._events[event].push(callback);
     }
 
-    _raise(event, data) {
+    emit(event, data) {
         if (this._events && this._events[event]) {
             for (const callback of this._events[event]) {
                 callback(this, data);
@@ -846,14 +846,14 @@ class ViewCollection {
         const view = new View(this);
         view.on('activated', (sender) => {
             this._activeView = sender;
-            this._raise('active-view-changed', { activeView: this._activeView });
+            this.emit('active-view-changed', { activeView: this._activeView });
         });
         view.on('updated', () => {
-            this._raise('active-view-updated', { activeView: this._activeView });
+            this.emit('active-view-updated', { activeView: this._activeView });
         });
         view.on('deactivated', () => {
             this._activeView = null;
-            this._raise('active-view-changed', { activeView: this._activeView });
+            this.emit('active-view-changed', { activeView: this._activeView });
         });
         this._views.push(view);
         this._updateActiveView();
@@ -887,7 +887,7 @@ class ViewCollection {
         this._events[event].push(callback);
     }
 
-    _raise(event, data) {
+    emit(event, data) {
         if (this._events && this._events[event]) {
             for (const callback of this._events[event]) {
                 callback(this, data);
@@ -900,7 +900,7 @@ class ViewCollection {
         const view = this._views.find(view => view.window == window) || null;
         if (view !== this._activeView) {
             this._activeView = view;
-            this._raise('active-view-changed', { activeView: this._activeView });
+            this.emit('active-view-changed', { activeView: this._activeView });
         }
     }
 }
