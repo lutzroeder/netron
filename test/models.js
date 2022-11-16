@@ -109,7 +109,7 @@ class TestHost {
     }
 
     exception(err /*, fatal */) {
-        this._raise('exception', { exception: err });
+        this.emit('exception', { exception: err });
     }
 
     on(event, callback) {
@@ -118,7 +118,7 @@ class TestHost {
         this._events[event].push(callback);
     }
 
-    _raise(event, data) {
+    emit(event, data) {
         if (this._events && this._events[event]) {
             for (const callback of this._events[event]) {
                 callback(this, data);
