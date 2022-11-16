@@ -130,7 +130,7 @@ dialog.Control = class {
         this._events[event].push(callback);
     }
 
-    _raise(event, data) {
+    emit(event, data) {
         if (this._events && this._events[event]) {
             for (const callback of this._events[event]) {
                 callback(this, data);
@@ -157,7 +157,7 @@ dialog.NodeSidebar = class extends dialog.Control {
                 showDocumentation = {};
                 showDocumentation.text = type.nodes ? '\u0192': '?';
                 showDocumentation.callback = () => {
-                    this._raise('show-documentation', null);
+                    this.emit('show-documentation', null);
                 };
             }
             this._addProperty('type', new dialog.ValueTextView(this._host, node.type.identifier || node.type.name, showDocumentation));
@@ -236,7 +236,7 @@ dialog.NodeSidebar = class extends dialog.Control {
     _addAttribute(name, attribute) {
         const item = new dialog.AttributeView(this._host, attribute);
         item.on('show-graph', (sender, graph) => {
-            this._raise('show-graph', graph);
+            this.emit('show-graph', graph);
         });
         const view = new dialog.NameValueView(this._host, name, item);
         this._attributes.push(view);
@@ -247,10 +247,10 @@ dialog.NodeSidebar = class extends dialog.Control {
         if (input.arguments.length > 0) {
             const view = new dialog.ParameterView(this._host, input);
             view.on('export-tensor', (sender, tensor) => {
-                this._raise('export-tensor', tensor);
+                this.emit('export-tensor', tensor);
             });
             view.on('error', (sender, tensor) => {
-                this._raise('error', tensor);
+                this.emit('error', tensor);
             });
             const item = new dialog.NameValueView(this._host, name, view);
             this._inputs.push(item);
@@ -329,7 +329,7 @@ dialog.SelectView = class extends dialog.Control {
         const selectElement = this._host.document.createElement('select');
         selectElement.setAttribute('class', 'sidebar-view-item-select');
         selectElement.addEventListener('change', (e) => {
-            this._raise('change', this._values[e.target.selectedIndex]);
+            this.emit('change', this._values[e.target.selectedIndex]);
         });
         this._elements.push(selectElement);
 
@@ -445,7 +445,7 @@ dialog.ValueView = class extends dialog.Control {
                     this._saveButton.className = 'sidebar-view-item-value-expander';
                     this._saveButton.innerHTML = '&#x1F4BE;';
                     this._saveButton.addEventListener('click', () => {
-                        this._raise('export-tensor', tensor);
+                        this.emit('export-tensor', tensor);
                     });
                     this._element.appendChild(this._saveButton);
                 }
@@ -453,7 +453,7 @@ dialog.ValueView = class extends dialog.Control {
         }
         catch (err) {
             contentLine.innerHTML = err.toString();
-            this._raise('error', err);
+            this.emit('error', err);
         }
         const valueLine = this._host.document.createElement('div');
         valueLine.className = 'sidebar-view-item-value-line-border';
@@ -488,7 +488,7 @@ dialog.AttributeView = class extends dialog.ValueView {
                 line.className = 'sidebar-view-item-value-line-link';
                 line.innerHTML = value.name;
                 line.addEventListener('click', () => {
-                    this._raise('show-graph', value);
+                    this.emit('show-graph', value);
                 });
                 this._element.appendChild(line);
                 break;
@@ -498,7 +498,7 @@ dialog.AttributeView = class extends dialog.ValueView {
                 line.className = 'sidebar-view-item-value-line-link';
                 line.innerHTML = value.type.name;
                 line.addEventListener('click', () => {
-                    this._raise('show-graph', value.type);
+                    this.emit('show-graph', value.type);
                 });
                 this._element.appendChild(line);
                 break;
@@ -566,10 +566,10 @@ dialog.ParameterView = class extends dialog.Control {
         for (const argument of list.arguments) {
             const item = new dialog.ArgumentView(host, argument);
             item.on('export-tensor', (sender, tensor) => {
-                this._raise('export-tensor', tensor);
+                this.emit('export-tensor', tensor);
             });
             item.on('error', (sender, tensor) => {
-                this._raise('error', tensor);
+                this.emit('error', tensor);
             });
             this._items.push(item);
             this._elements.push(item.render());
@@ -741,7 +741,7 @@ dialog.ModelSidebar = class extends dialog.Control {
         if (graphs.length > 1) {
             const graphSelector = new dialog.SelectView(this._host, model.graphs, graph);
             graphSelector.on('change', (sender, data) => {
-                this._raise('update-active-graph', data);
+                this.emit('update-active-graph', data);
             });
             this._addProperty('subgraph', graphSelector);
         }
@@ -893,7 +893,7 @@ dialog.DocumentationSidebar = class extends dialog.Control {
                         const url = e.target.href;
                         if (url.startsWith('http://') || url.startsWith('https://')) {
                             e.preventDefault();
-                            this._raise('navigate', { link: url });
+                            this.emit('navigate', { link: url });
                         }
                     }
                 });
@@ -1120,7 +1120,7 @@ dialog.FindSidebar = class extends dialog.Control {
         this._searchElement.setAttribute('style', 'width: 100%');
         this._searchElement.addEventListener('input', (e) => {
             this.update(e.target.value);
-            this._raise('search-text-changed', e.target.value);
+            this.emit('search-text-changed', e.target.value);
         });
         this._resultElement = this._host.document.createElement('ol');
         this._resultElement.addEventListener('click', (e) => {
@@ -1136,7 +1136,7 @@ dialog.FindSidebar = class extends dialog.Control {
         this._events[event].push(callback);
     }
 
-    _raise(event, data) {
+    emit(event, data) {
         if (this._events && this._events[event]) {
             for (const callback of this._events[event]) {
                 callback(this, data);
@@ -1178,7 +1178,7 @@ dialog.FindSidebar = class extends dialog.Control {
         }
 
         if (selection.length > 0) {
-            this._raise('select', selection);
+            this.emit('select', selection);
         }
     }
 
