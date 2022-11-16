@@ -362,17 +362,17 @@ grapher.Node.Header.Entry = class {
         this.content = content;
         this.tooltip = tooltip;
         this.handler = handler;
-        this.events = {};
+        this._events = {};
     }
 
     on(event, callback) {
-        this.events[event] = this.events[event] || [];
-        this.events[event].push(callback);
+        this._events[event] = this._events[event] || [];
+        this._events[event].push(callback);
     }
 
-    raise(event, data) {
-        if (this.events && this.events[event]) {
-            for (const callback of this.events[event]) {
+    emit(event, data) {
+        if (this._events && this._events[event]) {
+            for (const callback of this._events[event]) {
                 callback(this, data);
             }
         }
@@ -395,8 +395,8 @@ grapher.Node.Header.Entry = class {
         if (this.id) {
             this.element.setAttribute('id', this.id);
         }
-        if (this.events.click) {
-            this.element.addEventListener('click', () => this.raise('click'));
+        if (this._events.click) {
+            this.element.addEventListener('click', () => this.emit('click'));
         }
         if (this.tooltip) {
             const titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
@@ -418,7 +418,7 @@ grapher.Node.List = class {
 
     constructor() {
         this._items = [];
-        this.events = {};
+        this._events = {};
     }
 
     add(id, name, value, tooltip, separator) {
@@ -428,13 +428,13 @@ grapher.Node.List = class {
     }
 
     on(event, callback) {
-        this.events[event] = this.events[event] || [];
-        this.events[event].push(callback);
+        this._events[event] = this._events[event] || [];
+        this._events[event].push(callback);
     }
 
-    raise(event, data) {
-        if (this.events && this.events[event]) {
-            for (const callback of this.events[event]) {
+    emit(event, data) {
+        if (this._events && this._events[event]) {
+            for (const callback of this._events[event]) {
                 callback(this, data);
             }
         }
@@ -448,8 +448,8 @@ grapher.Node.List = class {
         const y = 0;
         this.element = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         this.element.setAttribute('class', 'node-attribute');
-        if (this.events.click) {
-            this.element.addEventListener('click', () => this.raise('click'));
+        if (this._events.click) {
+            this.element.addEventListener('click', () => this.emit('click'));
         }
         this.element.setAttribute('transform', 'translate(' + x + ',' + y + ')');
         this.background = document.createElementNS('http://www.w3.org/2000/svg', 'path');
