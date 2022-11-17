@@ -1619,11 +1619,11 @@ python.Tokenizer = class {
 
 python.Execution = class {
 
-    constructor(sources, exceptionCallback) {
+    constructor(sources) {
         const self = this;
         const execution = self;
         this._sources = sources || new Map();
-        this._exceptionCallback = exceptionCallback;
+        this._events = new Map();
         this._utf8Decoder = new TextDecoder('utf-8');
         this._unresolved = new Map();
         const dict = class extends Map {};
@@ -5455,7 +5455,7 @@ python.Execution = class {
             if (!this._unresolved.has(name)) {
                 const moduleName = name.split('.').shift();
                 if (this._registry.has(moduleName) && moduleName !== '__main__') {
-                    this._exceptionCallback(new python.Error("Unknown type name '" + name + "'."), false);
+                    this.emit('resolve', name);
                 }
                 const type = this._createType(name, class {});
                 this._unresolved.set(name, type);
@@ -5941,6 +5941,20 @@ python.Execution = class {
 
     add(name, source) {
         this._sources.set(name, source);
+    }
+
+    on(event, listener) {
+        const value = this._events.get(event) || [];
+        value.push(listener);
+        this._events.set(event, value);
+    }
+
+    emit(event, ...args) {
+        if (this._events.has(event)) {
+            for (const callback of this._events.get(event)) {
+                callback(this, ...args);
+            }
+        }
     }
 
     register(name, value) {

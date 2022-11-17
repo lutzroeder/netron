@@ -16,10 +16,9 @@ pytorch.ModelFactory = class {
         return pytorch.Metadata.open(context).then((metadata) => {
             const container = match;
             container.metadata = metadata;
-            container.exception = (error, fatal) => {
-                const message = error && error.message ? error.message : error.toString();
-                context.exception(new pytorch.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
-            };
+            container.on('resolve', (_, name) => {
+                context.exception(new pytorch.Error("Unknown type name '" + name + "' in '" + identifier + "'."), false);
+            });
             return new pytorch.Model(metadata, container);
         });
     }
@@ -885,14 +884,15 @@ pytorch.Container.Tar = class {
     constructor(entries) {
         this._entries = entries;
         this._graphs = [ this ];
+        this._events = [];
     }
 
     set metadata(value) {
         this._metadata = value;
     }
 
-    set exception(value) {
-        this._exceptionCallack = value;
+    on(event, callback) {
+        this._events.push([ event, callback ]);
     }
 
     get format() {
@@ -903,7 +903,10 @@ pytorch.Container.Tar = class {
         if (this._entries) {
             this._type = '';
             this._data = null;
-            const execution = new pytorch.Execution(null, this._exceptionCallback);
+            const execution = new pytorch.Execution();
+            for (const event of this._events) {
+                execution.on(event[0], event[1]);
+            }
             const obj = execution.invoke('torch.load', [ this._entries ]);
             const weights = pytorch.Utility.findWeights(obj);
             if (!weights) {
@@ -912,7 +915,6 @@ pytorch.Container.Tar = class {
             for (const graph of weights) {
                 graph.type = 'weights';
             }
-            this._exceptionCallback = null;
             this._entries = null;
             this._graphs = weights;
         }
@@ -933,14 +935,15 @@ pytorch.Container.Pickle = class {
     constructor(stream) {
         this._stream = stream;
         this._graphs = [];
+        this._events = [];
     }
 
     set metadata(value) {
         this._metadata = value;
     }
 
-    set exception(value) {
-        this._exceptionCallback = value;
+    on(name, callback) {
+        this._events.push([ name, callback ]);
     }
 
     get format() {
@@ -950,9 +953,11 @@ pytorch.Container.Pickle = class {
     get graphs() {
         if (this._stream) {
             const data = this._stream.length < 0x7ffff000 ? this._stream.peek() : this._stream;
-            const execution = new pytorch.Execution(null, this._exceptionCallback);
+            const execution = new pytorch.Execution();
+            for (const event of this._events) {
+                execution.on(event[0], event[1]);
+            }
             this._stream = null;
-            this._exceptionCallback = null;
             const obj = execution.invoke('torch.load', [ data ]);
             this._graphs = pytorch.Utility.find(obj);
         }
@@ -1042,14 +1047,15 @@ pytorch.Container.Zip = class {
         // https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/docs/serialization.md
         this._entries = entries;
         this._producer = '';
+        this._events = [];
     }
 
     set metadata(value) {
         this._metadata = value;
     }
 
-    set exception(value) {
-        this._exceptionCallback = value;
+    on(name, callback) {
+        this._events.push(name, callback);
     }
 
     get producer() {
@@ -1074,11 +1080,11 @@ pytorch.Container.Zip = class {
                 [ '6',  'v1.9'  ], // 3ee7637ffa50df0d9b231c7b40778ac1c390bf4a (#59714)
                 [ '7',  'v1.10' ], // 880098a7e34a20628f960daa8eab0eb1ad566c39 (#63651)
                 [ '8',  'v1.11' ], // b28e696516a7f0c7a6ead6da967590ce6c1d6698 (#71486)
-                [ '9',  'v1.11' ], // 8757e21c6a4fc00e83539aa7f9c28eb11eff53c1 (#72051)
+                // [ '9',  'v1.11' ], // 8757e21c6a4fc00e83539aa7f9c28eb11eff53c1 (#72051)
                 [ '10', 'v1.12' ]  // 4f8b986e28736b59bc46cd0873a0f36fdaa6f5b8 (#61439)
             ]);
             if (!versions.has(value)) {
-                this._exceptionCallback(new pytorch.Error("Unsupported PyTorch Zip version '" + value + "'."));
+                throw new pytorch.Error("Unsupported PyTorch Zip version '" + value + "'.");
             }
             return versions.get(value) || 'v-' + value.toString();
         }
@@ -1357,7 +1363,10 @@ pytorch.Container.Zip.Json = class extends pytorch.Container.Zip {
 
     get graphs() {
         if (!this._graphs) {
-            const execution = new pytorch.Container.Zip.Execution(null, this._exceptionCallback, this._metadata);
+            const execution = new pytorch.Container.Zip.Execution(null, this._metadata);
+            for (const event of this._events) {
+                execution.on(event[0], event[1]);
+            }
             const graph = new pytorch.Container.Zip.Json.Script(this._entries, execution, this._model);
             this._graphs = graph.data.forward ? [ graph ] : pytorch.Utility.find(graph.data);
         }
@@ -1501,7 +1510,10 @@ pytorch.Container.Zip.Pickle = class extends pytorch.Container.Zip {
 
     get graphs() {
         if (!this._graphs) {
-            const execution = new pytorch.Container.Zip.Execution(null, this._exceptionCallback, this._metadata);
+            const execution = new pytorch.Container.Zip.Execution(null, this._metadata);
+            for (const event in this._events) {
+                execution.on(event[0], event[1]);
+            }
             const graph = new pytorch.Container.Zip.Pickle.Script(this._entries, execution);
             if (graph.data && graph.data.forward) {
                 this._graphs = [ graph ];
@@ -1549,7 +1561,10 @@ pytorch.Container.Zip.Package = class extends pytorch.Container.Zip {
             this._graphs = [];
             const entries = Array.from(this._entries).filter((entry) => !entry[0].startsWith('.data/') && !entry[0].endsWith('py'));
             if (entries.length > 0) {
-                const execution = new pytorch.Container.Zip.Execution(null, this._exceptionCallback, this._metadata);
+                const execution = new pytorch.Container.Zip.Execution(null, this._metadata);
+                for (const event of this._events) {
+                    execution.on(event[0], event[1]);
+                }
                 const torch_jit_script = execution.register('torch.jit._script');
                 execution.registerType('torch.package.PackageImporter', class {
                     constructor(entries) {
@@ -1636,8 +1651,8 @@ pytorch.Container.Zip.Package = class extends pytorch.Container.Zip {
 
 pytorch.Container.Zip.Execution = class extends pytorch.Execution {
 
-    constructor(sources, exceptionCallback, metadata) {
-        super(sources, exceptionCallback);
+    constructor(sources, metadata) {
+        super(sources);
         this._metadata = metadata;
         this._types = new Map();
         for (const entry of this._metadata._types) {

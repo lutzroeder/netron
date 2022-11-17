@@ -1385,11 +1385,16 @@ view.ModelContext = class {
                                 if (stream.length > 2) {
                                     const archive = zip.Archive.open(stream, 'zlib');
                                     const data = archive ? archive.entries.get('') : stream;
+                                    const signature = [ 0x80, undefined, 0x63, 0x5F, 0x5F, 0x74, 0x6F, 0x72, 0x63, 0x68, 0x5F, 0x5F, 0x2E]; // __torch__.
+                                    const torch = signature.length <= data.length && data.peek(data.length).every((value, index) => signature[index] === undefined || signature[index] === value);
                                     unpickler = python.Unpickler.open(data, () => {
-                                        return new python.Execution(null, (error, fatal) => {
-                                            const message = error && error.message ? error.message : error.toString();
-                                            this.exception(new view.Error(message.replace(/\.$/, '') + " in '" + this.identifier + "'."), fatal);
+                                        const execution = new python.Execution();
+                                        execution.on('resolve', (_, name) => {
+                                            if (!torch || !name.startsWith('__torch__.')) {
+                                                this.exception(new view.Error("Unknown type name '" + name + "' in '" + this.identifier + "'.", false));
+                                            }
                                         });
+                                        return execution;
                                     });
                                 }
                             }
@@ -1397,9 +1402,7 @@ view.ModelContext = class {
                                 // continue regardless of error
                             }
                             if (unpickler) {
-                                unpickler.persistent_load = (saved_id) => {
-                                    return saved_id;
-                                };
+                                unpickler.persistent_load = (saved_id) => saved_id;
                                 const obj = unpickler.load();
                                 this._content.set(type, obj);
                             }
