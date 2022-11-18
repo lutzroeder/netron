@@ -42,7 +42,7 @@ install() {
     case "${OSTYPE}" in
         linux*)
             [ -x "$(command -v cmake)" ] || sudo apt install -y cmake
-            protoc_version=3.16.0
+            protoc_version=3.20.2
             protoc_dir="$(pwd)/third_party/bin/protobuf/v${protoc_version}"
             if [ ! -f "${protoc_dir}/bin/protoc" ]; then
                 rm -rf ${protoc_dir}
