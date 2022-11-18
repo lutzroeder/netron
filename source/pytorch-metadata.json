@@ -5120,6 +5120,46 @@
     ]
   },
   {
+    "name": "aten::fmod.Scalar",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::fmod.Scalar_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::fmod.Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::fmod.Tensor_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::format",
     "inputs": [
       { "name": "self", "type": "string" }
@@ -10133,7 +10173,7 @@
     "name": "aten::repeat_interleave.self_int",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "repeats", "type": "int64" },
+      { "name": "repeats", "type": "SymInt" },
       { "name": "dim", "type": "int64", "optional": true, "default": null },
       { "name": "output_size", "type": "int64", "optional": true, "default": null }
     ],
