@@ -1,5 +1,5 @@
 
-const notarize = require('electron-notarize');
+const notarize = require('@electron/notarize');
 
 exports.default = function (context) {
     if (process.platform === 'darwin' && context.electronPlatformName === 'darwin') {
