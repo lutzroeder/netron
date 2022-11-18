@@ -864,26 +864,19 @@ pytorch.Container = class {
         if (tar) {
             return tar;
         }
+        const data = pytorch.Container.data_pkl.open(context);
+        if (data) {
+            return data;
+        }
         const torch_utils = pytorch.Container.torch_utils.open(context);
         if (torch_utils) {
             return torch_utils;
         }
         return null;
     }
-};
 
-pytorch.Container.Tar = class {
-
-    static open(entries) {
-        if (entries.has('pickle')) {
-            return new pytorch.Container.Tar(entries);
-        }
-        return null;
-    }
-
-    constructor(entries) {
-        this._entries = entries;
-        this._graphs = [ this ];
+    constructor() {
+        this._metadata = null;
         this._events = [];
     }
 
@@ -893,6 +886,30 @@ pytorch.Container.Tar = class {
 
     on(event, callback) {
         this._events.push([ event, callback ]);
+    }
+
+    get format() {
+        throw new pytorch.Error('Container format not implemented.');
+    }
+
+    get graphs() {
+        throw new pytorch.Error('Container graphs not implemented.');
+    }
+};
+
+pytorch.Container.Tar = class extends pytorch.Container {
+
+    static open(entries) {
+        if (entries.has('pickle')) {
+            return new pytorch.Container.Tar(entries);
+        }
+        return null;
+    }
+
+    constructor(entries) {
+        super();
+        this._entries = entries;
+        this._graphs = [ this ];
     }
 
     get format() {
@@ -922,7 +939,7 @@ pytorch.Container.Tar = class {
     }
 };
 
-pytorch.Container.Pickle = class {
+pytorch.Container.Pickle = class extends pytorch.Container {
 
     static open(stream) {
         const signature = [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
@@ -933,17 +950,9 @@ pytorch.Container.Pickle = class {
     }
 
     constructor(stream) {
+        super();
         this._stream = stream;
         this._graphs = [];
-        this._events = [];
-    }
-
-    set metadata(value) {
-        this._metadata = value;
-    }
-
-    on(name, callback) {
-        this._events.push([ name, callback ]);
     }
 
     get format() {
@@ -965,7 +974,34 @@ pytorch.Container.Pickle = class {
     }
 };
 
-pytorch.Container.torch_utils = class {
+pytorch.Container.data_pkl = class extends pytorch.Container {
+
+    static open(context) {
+        const obj = context.open('pkl');
+        if (obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__) {
+            const name = obj.__class__.__module__ + '.' + obj.__class__.__name__;
+            if (name.startsWith('__torch__.')) {
+                return new pytorch.Container.data_pkl(obj);
+            }
+        }
+        return null;
+    }
+
+    constructor(data) {
+        super();
+        this._data = data;
+    }
+
+    get format() {
+        return 'PyTorch Pickle';
+    }
+
+    get graphs() {
+        throw new pytorch.Error("PyTorch data.pkl format not supported.");
+    }
+};
+
+pytorch.Container.torch_utils = class extends pytorch.Container {
 
     static open(context) {
         const stream = context.stream;
@@ -985,6 +1021,7 @@ pytorch.Container.torch_utils = class {
     }
 
     constructor(obj) {
+        super();
         this._obj = obj;
         this._graphs = [];
     }
@@ -1002,7 +1039,7 @@ pytorch.Container.torch_utils = class {
     }
 };
 
-pytorch.Container.Zip = class {
+pytorch.Container.Zip = class extends pytorch.Container {
 
     static open(entries) {
         if (entries.size > 0) {
@@ -1044,18 +1081,10 @@ pytorch.Container.Zip = class {
     }
 
     constructor(entries) {
+        super();
         // https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/docs/serialization.md
         this._entries = entries;
         this._producer = '';
-        this._events = [];
-    }
-
-    set metadata(value) {
-        this._metadata = value;
-    }
-
-    on(name, callback) {
-        this._events.push(name, callback);
     }
 
     get producer() {

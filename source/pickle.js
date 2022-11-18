@@ -14,7 +14,10 @@ pickle.ModelFactory = class {
         }
         const obj = context.open('pkl');
         if (obj !== undefined) {
-            return obj;
+            const name = obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : '';
+            if (!name.startsWith('__torch__.')) {
+                return obj;
+            }
         }
         return null;
     }

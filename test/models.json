@@ -4187,8 +4187,8 @@
     "type":     "pytorch",
     "target":   "data.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/9795497/data.pkl.zip[data.pkl]",
-    "format":   "Pickle",
-    "error":    "Unsupported Pickle type '__torch__.torchvision.models.alexnet.___torch_mangle_30.AlexNet' in 'data.pkl'.",
+    "format":   "PyTorch Pickle",
+    "error":    "PyTorch data.pkl format not supported in 'data.pkl'.",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
