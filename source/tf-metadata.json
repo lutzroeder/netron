@@ -184,7 +184,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `complex64`, `complex128`."
       }
     ],
     "inputs": [
@@ -2423,7 +2423,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `complex64`, `complex128`."
       }
     ],
     "inputs": [
@@ -2841,7 +2841,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `complex64`, `complex128`."
       }
     ],
     "inputs": [
@@ -14463,7 +14463,7 @@
   {
     "name": "DynamicPartition",
     "summary": "Partitions `data` into `num_partitions` tensors using indices from `partitions`.",
-    "description": "For each index tuple `js` of size `partitions.ndim`, the slice `data[js, ...]`\nbecomes part of `outputs[partitions[js]]`.  The slices with `partitions[js] = i`\nare placed in `outputs[i]` in lexicographic order of `js`, and the first\ndimension of `outputs[i]` is the number of entries in `partitions` equal to `i`.\nIn detail,\n\n```python\n    outputs[i].shape = [sum(partitions == i)] + data.shape[partitions.ndim:]\n\n    outputs[i] = pack([data[js, ...] for js if partitions[js] == i])\n```\n\n`data.shape` must start with `partitions.shape`.\n\nFor example:\n\n```python\n    # Scalar partitions.\n    partitions = 1\n    num_partitions = 2\n    data = [10, 20]\n    outputs[0] = []  # Empty with shape [0, 2]\n    outputs[1] = [[10, 20]]\n\n    # Vector partitions.\n    partitions = [0, 0, 1, 1, 0]\n    num_partitions = 2\n    data = [10, 20, 30, 40, 50]\n    outputs[0] = [10, 20, 50]\n    outputs[1] = [30, 40]\n```\n\nSee `dynamic_stitch` for an example on how to merge partitions back.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/DynamicPartition.png\" alt>\n</div>",
+    "description": "For each index tuple `js` of size `partitions.ndim`, the slice `data[js, ...]`\nbecomes part of `outputs[partitions[js]]`.  The slices with `partitions[js] = i`\nare placed in `outputs[i]` in lexicographic order of `js`, and the first\ndimension of `outputs[i]` is the number of entries in `partitions` equal to `i`.\nIn detail,\n\n```python\n    outputs[i].shape = [sum(partitions == i)] + data.shape[partitions.ndim:]\n\n    outputs[i] = pack([data[js, ...] for js if partitions[js] == i])\n```\n\n`data.shape` must start with `partitions.shape`.\n\nFor example:\n\n```python\n    # Scalar partitions.\n    partitions = 1\n    num_partitions = 2\n    data = [10, 20]\n    outputs[0] = []  # Empty with shape [0, 2]\n    outputs[1] = [[10, 20]]\n\n    # Vector partitions.\n    partitions = [0, 0, 1, 1, 0]\n    num_partitions = 2\n    data = [10, 20, 30, 40, 50]\n    outputs[0] = [10, 20, 50]\n    outputs[1] = [30, 40]\n```\n\nSee `dynamic_stitch` for an example on how to merge partitions back.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/DynamicPartition.png\" alt>\n</div>\n\n\nRaises:\n  * `InvalidArgumentError` in following cases:\n    - If partitions is not in range `[0, num_partiions)`\n    - If `partitions.shape` does not match prefix of `data.shape` argument.\n",
     "attributes": [
       {
         "name": "num_partitions",
@@ -17720,8 +17720,8 @@
   },
   {
     "name": "FakeQuantWithMinMaxArgs",
-    "summary": "Fake-quantize the 'inputs' tensor, type float to 'outputs' tensor of same type.",
-    "description": "Attributes\n\n*   `[min; max]` define the clamping range for the `inputs` data.\n*   `inputs` values are quantized into the quantization range (\n`[0; 2^num_bits - 1]` when `narrow_range` is false and `[1; 2^num_bits - 1]`\nwhen it is true) and then de-quantized and output as floats in `[min; max]`\ninterval.\n*   `num_bits` is the bitwidth of the quantization; between 2 and 16, inclusive.\n\nBefore quantization, `min` and `max` values are adjusted with the following\nlogic.\nIt is suggested to have `min <= 0 <= max`. If `0` is not in the range of values,\nthe behavior can be unexpected:\n\n*   If `0 < min < max`: `min_adj = 0` and `max_adj = max - min`.\n*   If `min < max < 0`: `min_adj = min - max` and `max_adj = 0`.\n*   If `min <= 0 <= max`: `scale = (max - min) / (2^num_bits - 1) `,\n`min_adj = scale * round(min / scale)` and `max_adj = max + min_adj - min`.\n\nQuantization is called fake since the output is still in floating point.",
+    "summary": "Fake-quantize the 'inputs' tensor, type float to 'outputs' tensor of same shape and type.",
+    "description": "\n  Quantization is called fake since the output is still in floating point.\n  The API converts inputs into values within the range [min and max] and returns\n  as output.\n\nAttributes\n\n*   `[min; max]` define the clamping range for the `inputs` data.\n*   `inputs` values are quantized into the quantization range (\n`[0; 2^num_bits - 1]` when `narrow_range` is false and `[1; 2^num_bits - 1]`\nwhen it is true) and then de-quantized and output as floats in `[min; max]`\ninterval.\n*   `num_bits` is the bitwidth of the quantization; between 2 and 16, inclusive.\n\nBefore quantization, `min` and `max` values are adjusted with the following\nlogic.\nIt is suggested to have `min <= 0 <= max`. If `0` is not in the range of values,\nthe behavior can be unexpected:\n\n*   If `0 < min < max`: `min_adj = 0` and `max_adj = max - min`.\n*   If `min < max < 0`: `min_adj = min - max` and `max_adj = 0`.\n*   If `min <= 0 <= max`: `scale = (max - min) / (2^num_bits - 1) `,\n`min_adj = scale * round(min / scale)` and `max_adj = max + min_adj - min`.\n\n\nExamples\n\n```python\n\ninp = tf.constant ([10.03, -10.23, 3])\nout = tf.quantization.fake_quant_with_min_max_args(inp, min=-5, max=5,\n                                                   num_bits=16)\nprint(out)\n\n#  Output:\n#  tf.Tensor([ 4.9999237 -5.0000763  3.0000763], shape=(3,), dtype=float32)\n```\n\nRaises:\n  * InvalidArgumentError:\n    - If num_bits are outside of range [2, 16].\n    - If min >= max.\n  * ValueError: If `inputs` are of any other type than float32.\n",
     "attributes": [
       {
         "name": "min",
@@ -37169,6 +37169,57 @@
     ]
   },
   {
+    "name": "RandomDatasetV2",
+    "summary": "Creates a Dataset that returns pseudorandom numbers.",
+    "description": "Creates a Dataset that returns a stream of uniformly distributed\npseudorandom 64-bit signed integers. It accepts a boolean attribute that\ndetermines if the random number generators are re-applied at each epoch. The\ndefault value is True which means that the seeds are applied and the same\nsequence of random numbers are generated at each epoch. If set to False, the\nseeds are not re-applied and a different sequence of random numbers are\ngenerated at each epoch.\n\nIn the TensorFlow Python API, you can instantiate this dataset via the\nclass `tf.data.experimental.RandomDatasetV2`.",
+    "attributes": [
+      {
+        "name": "rerandomize_each_iteration",
+        "type": "boolean",
+        "description": "A boolean attribute to rerandomize the sequence of random numbers generated\nat each epoch.",
+        "default": false
+      },
+      {
+        "name": "output_types",
+        "type": "type[]",
+        "minimum": 1
+      },
+      {
+        "name": "output_shapes",
+        "type": "shape[]",
+        "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
+      }
+    ],
+    "inputs": [
+      {
+        "name": "seed",
+        "description": "A scalar seed for the random number generator. If either seed or\nseed2 is set to be non-zero, the random number generator is seeded\nby the given seed.  Otherwise, a random seed is used.",
+        "type": 9
+      },
+      {
+        "name": "seed2",
+        "description": "A second scalar seed to avoid seed collision.",
+        "type": 9
+      },
+      {
+        "name": "seed_generator",
+        "description": "A resource for the random number seed generator.",
+        "type": 20
+      }
+    ],
+    "outputs": [
+      {
+        "name": "handle",
+        "type": 21
+      }
+    ]
+  },
+  {
     "name": "RandomGamma",
     "summary": "Outputs random values from the Gamma distribution(s) described by alpha.",
     "description": "This op uses the algorithm by Marsaglia et al. to acquire samples via\ntransformation-rejection from pairs of uniform and normal random variables.\nSee http://dl.acm.org/citation.cfm?id=358414",
@@ -46639,6 +46690,54 @@
       {
         "name": "output",
         "description": "Has same shape as data, except for dimension 0 which\nhas size `k`, the number of segments.",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "SegmentSumV2",
+    "summary": "Computes the sum along segments of a tensor.",
+    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\sum_j data_j\\\\) where sum is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\n\nNote that this op is currently only supported with jit_compile=True.\n</div>\n",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type",
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+      },
+      {
+        "name": "Tindices",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `int64`."
+      },
+      {
+        "name": "Tnumsegments",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `int64`.",
+        "default": {
+          "type": "type",
+          "value": 3
+        }
+      }
+    ],
+    "inputs": [
+      {
+        "name": "data",
+        "typeAttr": "T"
+      },
+      {
+        "name": "segment_ids",
+        "description": "A 1-D tensor whose size is equal to the size of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.\nThe values must be less than `num_segments`.\n\nCaution: The values are always validated to be sorted on CPU, never validated\non GPU.",
+        "typeAttr": "Tindices"
+      },
+      {
+        "name": "num_segments",
+        "typeAttr": "Tnumsegments"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Has same shape as data, except for the first `segment_ids.rank`\ndimensions, which are replaced with a single dimension which has size\n`num_segments`.",
         "typeAttr": "T"
       }
     ]
@@ -56327,7 +56426,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `complex64`, `complex128`."
       }
     ],
     "inputs": [
@@ -58338,7 +58437,7 @@
   {
     "name": "TensorScatterMax",
     "summary": "Apply a sparse update to a tensor taking the element-wise maximum.",
-    "description": "Returns a new tensor copied from `tensor` whose values are element-wise maximum between\ntensor and updates according to the indices.\n\n>>> tensor = [0, 0, 0, 0, 0, 0, 0, 0] \n>>> indices = [[1], [4], [5]]\n>>> updates = [1, -1, 1]\n>>> tf.tensor_scatter_nd_max(tensor, indices, updates).numpy()\narray([0, 1, 0, 0, 0, 1, 0, 0], dtype=int32)\n\nRefer to `tf.tensor_scatter_nd_update` for more details.",
+    "description": "Returns a new tensor copied from `tensor` whose values are element-wise maximum between\ntensor and updates according to the indices.\n\n>>> tensor = [0, 0, 0, 0, 0, 0, 0, 0]\n>>> indices = [[1], [4], [5]]\n>>> updates = [1, -1, 1]\n>>> tf.tensor_scatter_nd_max(tensor, indices, updates).numpy()\narray([0, 1, 0, 0, 0, 1, 0, 0], dtype=int32)\n\nRefer to `tf.tensor_scatter_nd_update` for more details.",
     "attributes": [
       {
         "name": "T",
@@ -58983,7 +59082,7 @@
   {
     "name": "Timestamp",
     "summary": "Provides the time since epoch in seconds.",
-    "description": "Returns the timestamp as a `float64` for seconds since the Unix epoch.\n\nNote: the timestamp is computed when the op is executed, not when it is added\nto the graph.",
+    "description": "Returns the timestamp as a `float64` for seconds since the Unix epoch.\n\nCommon usages include:\n* Logging\n* Providing a random number seed\n* Debugging graph execution\n* Generating timing information, mainly through comparison of timestamps\n\nNote: In graph mode, the timestamp is computed when the op is executed,\nnot when it is added to the graph.  In eager mode, the timestamp is computed\nwhen the op is eagerly executed.",
     "outputs": [
       {
         "name": "ts",
@@ -60733,7 +60832,7 @@
   {
     "name": "UniqueWithCountsV2",
     "summary": "Finds unique elements along an axis of a tensor.",
-    "description": "This operation either returns a tensor `y` containing unique elements\nalong the `axis` of a tensor. The returned unique elements is sorted\nin the same order as they occur along `axis` in `x`.\nThis operation also returns a tensor `idx` and a tensor `count`\nthat are the same size as the number of the elements in `x` along the\n`axis` dimension. The `idx` contains the index in the unique output `y`\nand the `count` contains the count in the unique output `y`.\nIn other words, for an `1-D` tensor `x` with `axis = None:\n\n`y[idx[i]] = x[i] for i in [0, 1,...,rank(x) - 1]`\n\nFor example:\n\n```\nx = tf.constant([1, 1, 2, 4, 4, 4, 7, 8, 8])\ny, idx, count = UniqueWithCountsV2(x, axis = [0])\ny ==> [1, 2, 4, 7, 8]\nidx ==> [0, 0, 1, 2, 2, 2, 3, 4, 4]\ncount ==> [2, 1, 3, 1, 2]\n```\n\nFor a `2-D` tensor `x` with `axis = 0`:\n\n```\nx = tf.constant([[1, 0, 0],\n                [1, 0, 0],\n                [2, 0, 0]])\ny, idx, count = UniqueWithCountsV2(x, axis=[0])\ny ==> [[1, 0, 0],\n       [2, 0, 0]]\nidx ==> [0, 0, 1]\ncount ==> [2, 1]\n```\n\nFor a `2-D` tensor `x` with `axis = 1`:\n\n```\nx = tf.constant([[1, 0, 0],\n                [1, 0, 0],\n                [2, 0, 0]])\ny, idx, count = UniqueWithCountsV2(x, axis=[1])\ny ==> [[1, 0],\n       [1, 0],\n       [2, 0]]\nidx ==> [0, 1, 1]\ncount ==> [1, 2]\n```",
+    "description": "This operation either returns a tensor `y` containing unique elements\nalong the `axis` of a tensor. The returned unique elements is sorted\nin the same order as they occur along `axis` in `x`.\nThis operation also returns a tensor `idx` and a tensor `count`\nthat are the same size as the number of the elements in `x` along the\n`axis` dimension. The `idx` contains the index in the unique output `y`\nand the `count` contains the count in the unique output `y`.\nIn other words, for an `1-D` tensor `x` with `axis = None:\n\n`y[idx[i]] = x[i] for i in [0, 1,...,rank(x) - 1]`\n\nFor example:\n\n```\nx = tf.constant([1, 1, 2, 4, 4, 4, 7, 8, 8])\ny, idx, count = tf.raw_ops.UniqueWithCountsV2(x=x, axis = [0])\ny ==> [1, 2, 4, 7, 8]\nidx ==> [0, 0, 1, 2, 2, 2, 3, 4, 4]\ncount ==> [2, 1, 3, 1, 2]\n```\n\nFor a `2-D` tensor `x` with `axis = 0`:\n\n```\nx = tf.constant([[1, 0, 0],\n                [1, 0, 0],\n                [2, 0, 0]])\ny, idx, count = tf.raw_ops.UniqueWithCountsV2(x=x, axis=[0])\ny ==> [[1, 0, 0],\n       [2, 0, 0]]\nidx ==> [0, 0, 1]\ncount ==> [2, 1]\n```\n\nFor a `2-D` tensor `x` with `axis = 1`:\n\n```\nx = tf.constant([[1, 0, 0],\n                [1, 0, 0],\n                [2, 0, 0]])\ny, idx, count = tf.raw_ops.UniqueWithCountsV2(x=x, axis=[1])\ny ==> [[1, 0],\n       [1, 0],\n       [2, 0]]\nidx ==> [0, 1, 1]\ncount ==> [1, 2]\n```",
     "attributes": [
       {
         "name": "T",
