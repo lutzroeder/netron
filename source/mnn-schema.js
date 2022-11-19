@@ -1628,7 +1628,7 @@ $root.MNN.OpType = {
     Broastcast: 259,
     SetDiff1D: 260,
     ReluGrad: 261,
-    Relu6Grad: 262,
+    Identity: 262,
     PoolGrad: 263,
     SoftmaxGrad: 264,
     Conv2DBackPropFilter: 265,
