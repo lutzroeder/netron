@@ -72,7 +72,7 @@ message.Graph = class {
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
-        const args = (data.arguments || []).map((argument) => new message.Argument(argument));
+        const args = data.arguments ? data.arguments.map((argument) => new message.Argument(argument)) : [];
         for (const parameter of data.inputs || []) {
             parameter.arguments = parameter.arguments.map((index) => args[index]).filter((argument) => !argument.initializer);
             if (parameter.arguments.filter((argument) => !argument.initializer).length > 0) {
@@ -82,7 +82,7 @@ message.Graph = class {
         for (const parameter of data.outputs || []) {
             parameter.arguments = parameter.arguments.map((index) => args[index]);
             if (parameter.arguments.filter((argument) => !argument.initializer).length > 0) {
-                this._inputs.push(new message.Parameter(parameter));
+                this._outputs.push(new message.Parameter(parameter));
             }
         }
         for (const node of data.nodes || []) {
