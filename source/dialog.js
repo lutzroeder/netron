@@ -423,6 +423,9 @@ dialog.ValueView = class extends dialog.Control {
                     this._bold('layout', layouts.get(layout));
                 }
             }
+            if (Array.isArray(tensor.stride) && tensor.stride.length > 0) {
+                this._code('stride', tensor.stride.join(','));
+            }
             if (tensor.layout !== '<' && tensor.layout !== '>' && tensor.layout !== '|' && tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo') {
                 contentLine.innerHTML = "Tensor layout '" + tensor.layout + "' is not implemented.";
             }
