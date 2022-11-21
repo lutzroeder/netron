@@ -17,7 +17,7 @@ def _test_onnx():
     file = os.path.join(test_data_dir, 'onnx', 'candy.onnx')
     onnx = __import__('onnx')
     model = onnx.load(file)
-    netron.serve(None, model, browse=True, verbosity='quiet')
+    netron.serve(None, model)
 
 def _test_onnx_list():
     folder = os.path.join(test_data_dir, 'onnx')
@@ -48,7 +48,7 @@ def _test_torchscript():
     graph = trace.graph
     torch._C._jit_pass_inline(graph)
     # https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/ir/ir.h
-    netron.serve('resnet34', graph, browse=True, verbosity='quiet')
+    netron.serve('resnet34', graph)
 
 # _test_onnx()
 # _test_torchscript()

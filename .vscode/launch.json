@@ -62,7 +62,13 @@
             "request": "launch",
             "program": "${workspaceFolder}/test/backend.py",
             "console": "integratedTerminal",
-            "justMyCode": false
+            "justMyCode": false,
+            "serverReadyAction": {
+                "action": "debugWithChrome",
+                "pattern": "Serving .*at http://localhost:([0-9]+)",
+                "uriFormat": "http://localhost:%s",
+                "webRoot": "${workspaceFolder}/source",
+            },
         },
         {
             "name": "Tools Python",
