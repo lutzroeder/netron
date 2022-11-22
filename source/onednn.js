@@ -1,9 +1,9 @@
 
-var onednngraph = onednngraph || {};
+var onednn = onednn || {};
 var json = json || require('./json');
 var base = base || require('./base');
 
-onednngraph.ModelFactory = class {
+onednn.ModelFactory = class {
 
     match(context) {
         const identifier = context.identifier;
@@ -11,84 +11,49 @@ onednngraph.ModelFactory = class {
         if (extension === 'json') {
             const obj = context.open('json');
             if (obj && obj.version && obj.graph) {
-                return 'onednngraph.json';
+                return obj;
             }
         }
         return undefined;
     }
 
     open(context, match) {
-        return onednngraph.Metadata.open(context).then((metadata) => {
-            const createModel = (metadata, symbol, version) => {
-                return new onednngraph.Model(metadata, symbol, version);
-            };
-            switch (match) {
-                case 'onednngraph.json': {
-                    let symbol = null;
-                    try {
-                        symbol = context.open('json');
-                    }
-                    catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new onednngraph.Error("Failed to load symbol entry (" + message.replace(/\.$/, '') + ').');
-                    }
-                    const version = symbol && symbol.version ? symbol.version : null;
-                    return createModel(metadata, symbol, version);
-                }
-                default: {
-                    throw new onednngraph.Error("Unsupported oneDNN Graph format '" + match + "'.");
-                }
+        return context.metadata('onednn-metadata.json').then((metadata) => {
+            if (match) {
+                const version = match && match.version ? match.version : null;
+                return new onednn.Model(metadata, match, version);
             }
+            throw new onednn.Error("Unsupported oneDNN Graph format '" + match + "'.");
         });
     }
 };
 
-onednngraph.Model = class {
+onednn.Model = class {
 
     constructor(metadata, symbol, version) {
         if (!symbol) {
-            throw new onednngraph.Error('JSON symbol data not available.');
+            throw new onednn.Error('JSON symbol data not available.');
         }
-        if (symbol) {
+        if (symbol.graph) {
             if (!Object.prototype.hasOwnProperty.call(symbol, 'graph')) {
-                throw new onednngraph.Error('JSON file does not contain an oneDNN Graph \'graph\' property.');
+                throw new onednn.Error('JSON file does not contain an oneDNN Graph \'graph\' property.');
             }
             if (!Object.prototype.hasOwnProperty.call(symbol, 'version')) {
-                throw new onednngraph.Error('JSON file does not contain an oneDNN Graph \'version\' property.');
+                throw new onednn.Error('JSON file does not contain an oneDNN Graph \'version\' property.');
             }
         }
-        this._format = 'oneDNN Graph';
+        this._format = 'oneDNN Graph' + (version ? ' v' + version : '');
         this._version = 'oneDNN' + (version ? ' v' + version : '');
-        this._license = 'Apache License 2.0';
-        this._graphs = [new onednngraph.Graph(metadata, symbol)];
+        this._runtime = 'engine: ' + symbol.engine_kind + '; fpmath: ' + symbol.fpmath_mode + ';';
+        this._graphs = [new onednn.Graph(metadata, symbol)];
     }
 
     get format() {
         return this._format;
     }
 
-    get producer() {
-        return this._producer;
-    }
-
-    get name() {
-        return this._name;
-    }
-
     get version() {
         return this._version;
-    }
-
-    get description() {
-        return this._description;
-    }
-
-    get author() {
-        return this._author;
-    }
-
-    get license() {
-        return this._license;
     }
 
     get runtime() {
@@ -100,7 +65,7 @@ onednngraph.Model = class {
     }
 };
 
-onednngraph.Graph = class {
+onednn.Graph = class {
 
     constructor(metadata, symbol) {
         this._metadata = metadata;
@@ -109,18 +74,17 @@ onednngraph.Graph = class {
         this._outputs = [];
 
         if (symbol) {
-            this._type = 'engine: ' + symbol.engine_kind + '; fpmath: ' + symbol.fpmath_mode + ';';
             const nodes = symbol.graph;
 
             const args = new Map();
             const arg = (name, type, lt) => {
                 if (!args.has(name)) {
-                    args.set(name, new onednngraph.Argument(name, type, null, lt));
+                    args.set(name, new onednn.Argument(name, type, null, lt));
                 }
                 return args.get(name);
             };
             for (const node of nodes) {
-                this._nodes.push(new onednngraph.Node(this._metadata, node, arg, symbol.engine_kind));
+                this._nodes.push(new onednn.Node(this._metadata, node, arg, symbol.engine_kind));
             }
         }
     }
@@ -146,7 +110,7 @@ onednngraph.Graph = class {
     }
 };
 
-onednngraph.Node = class {
+onednn.Node = class {
 
     constructor(metadata, node, arg, device) {
         const type = node.kind;
@@ -156,20 +120,14 @@ onednngraph.Node = class {
         this._outputs = [];
         this._type = { name: type };
         this._device = device;
-        this._description = 'oneDNN Graph OP with unique id: ' + node.id;
+        this._location = node.id;
 
         const attrs = node.attrs;
         if (attrs) {
-            for (const attributeName of Object.keys(attrs)) {
-                this._attributes.push(new onednngraph.Attribute(metadata, type, attributeName, attrs[attributeName].type, attrs[attributeName].value));
-                if (attributeName == 'backend') {
-                    if (attrs[attributeName].value == 'dnnl_backend') {
-                        this._type.category = "onednngraph-backend0";
-                    }
-                    else {
-                        // leave color of fake_backend node by default
-                    }
-                }
+            for (const pair of Object.entries(attrs)) {
+                const name = pair[0];
+                const value = pair[1];
+                this._attributes.push(new onednn.Attribute(metadata, type, name, value.type, value.value));
             }
         }
 
@@ -178,18 +136,17 @@ onednngraph.Node = class {
         for (const input of inputs) {
             if (inputIndex < inputs.length) {
                 const inputArguments = [];
-                const lt = new onednngraph.LogicalTensor(input.id, input.dtype, input.shape, input.stride, input.layout_type, input.property_type);
-                const shape = new onednngraph.TensorShape(lt.shape);
-                const type = new onednngraph.TensorType(lt.dataType, shape);
-                inputArguments.push(arg(input.id.toString(), type, lt));
+                const shape = new onednn.TensorShape(input.shape);
+                const type = new onednn.TensorType(input.dtype, shape);
+                inputArguments.push(arg(input.id.toString(), type, input.layout_type, input.property_type));
                 const inputName = (inputs.length == 1) ? 'input' : ('input' + (inputIndex)).toString();
-                this._inputs.push(new onednngraph.Parameter(inputName, inputArguments));
+                this._inputs.push(new onednn.Parameter(inputName, inputArguments));
                 inputIndex += 1;
             }
         }
         this._inputs.push(...inputs.slice(inputIndex).map((input, index) => {
             const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
-            return new onednngraph.Parameter(inputName, true, [arg(input)]);
+            return new onednn.Parameter(inputName, true, [arg(input)]);
         }));
 
         const outputs = node.outputs || [];
@@ -197,18 +154,17 @@ onednngraph.Node = class {
         for (const output of outputs) {
             if (outputIndex < outputs.length) {
                 const outputArguments = [];
-                const lt = new onednngraph.LogicalTensor(output.id, output.dtype, output.shape, output.stride, output.layout_type, output.property_type);
-                const shape = new onednngraph.TensorShape(lt.shape);
-                const type = new onednngraph.TensorType(lt.dataType, shape);
-                outputArguments.push(arg(output.id.toString(), type, lt));
+                const shape = new onednn.TensorShape(output.shape);
+                const type = new onednn.TensorType(output.dtype, shape, output.stride);
+                outputArguments.push(arg(output.id.toString(), type, output.layout_type, output.property_type));
                 const outputName = (outputs.length == 1) ? 'output' : ('output' + (outputIndex)).toString();
-                this._outputs.push(new onednngraph.Parameter(outputName, outputArguments));
+                this._outputs.push(new onednn.Parameter(outputName, outputArguments));
                 outputIndex += 1;
             }
         }
         this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
             const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
-            return new onednngraph.Parameter(outputName, true, [arg(output)]);
+            return new onednn.Parameter(outputName, true, [arg(output)]);
         }));
     }
 
@@ -232,8 +188,8 @@ onednngraph.Node = class {
         return this._attributes;
     }
 
-    get description() {
-        return this._description;
+    get location() {
+        return this._location;
     }
 
     get device() {
@@ -241,7 +197,7 @@ onednngraph.Node = class {
     }
 };
 
-onednngraph.Attribute = class {
+onednn.Attribute = class {
 
     constructor(metadata, type, name, attr_type, attr_value) {
         this._name = name;
@@ -256,7 +212,7 @@ onednngraph.Attribute = class {
                     switch (attr_value) {
                         case 1: this._value = true; break;
                         case 0: this._value = false; break;
-                        default: throw new onednngraph.Error("Unsupported attribute boolean value '" + attr_value + "'.");
+                        default: throw new onednn.Error("Unsupported attribute boolean value '" + attr_value + "'.");
                     }
                     break;
                 case 'string':
@@ -310,7 +266,7 @@ onednngraph.Attribute = class {
                     }
                     break;
                 default:
-                    throw new onednngraph.Error("Unsupported attribute type '" + schema.type + "'.");
+                    throw new onednn.Error("Unsupported attribute type '" + schema.type + "'.");
             }
         }
     }
@@ -332,7 +288,7 @@ onednngraph.Attribute = class {
     }
 };
 
-onednngraph.Parameter = class {
+onednn.Parameter = class {
 
     constructor(name, args) {
         this._name = name;
@@ -352,16 +308,17 @@ onednngraph.Parameter = class {
     }
 };
 
-onednngraph.Argument = class {
+onednn.Argument = class {
 
-    constructor(name, type, initializer, lt) {
+    constructor(name, type, initializer, layout_type, property_type) {
         if (typeof name !== 'string') {
-            throw new onednngraph.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new onednn.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;
         this._initializer = initializer || null;
-        this._lt = lt;
+        this._layout_type = layout_type;
+        this._property_type = property_type;
     }
 
     get name() {
@@ -380,16 +337,14 @@ onednngraph.Argument = class {
     }
 
     get description() {
-        const stride = this._lt.stride ? ('[' + this._lt.stride.map((stride) => stride ? stride.toString() : '?').join(',') + ']') : '';
-        const layout_type = this._lt.layout_type;
-        const property_type = this._lt.property_type;
-        return 'stride = ' + stride + ', layout_type = ' + layout_type + ', property_type = ' + property_type;
+        return 'layout_type = ' + this._layout_type + ', property_type = ' + this._property_type;
     }
 };
 
-onednngraph.TensorType = class {
+onednn.TensorType = class {
 
-    constructor(dataType, shape) {
+    constructor(dataType, shape, stride) {
+        this._stride = stride ? ('[' + stride.map((stride) => stride ? stride.toString() : '?').join(',') + ']') : '';
         this._dataType = dataType || '?';
         this._shape = shape;
     }
@@ -407,7 +362,7 @@ onednngraph.TensorType = class {
     }
 };
 
-onednngraph.TensorShape = class {
+onednn.TensorShape = class {
 
     constructor(dimensions) {
         this._dimensions = dimensions;
@@ -422,87 +377,7 @@ onednngraph.TensorShape = class {
     }
 };
 
-onednngraph.LogicalTensor = class {
-
-    constructor(id, dataType, shape, stride, layout_type, property_type) {
-        this._id = id;
-        this._shape = shape;
-        this._dataType = dataType;
-        this._stride = stride;
-        this._layout_type = layout_type;
-        this._property_type = property_type;
-    }
-
-    get id() {
-        return this._id;
-    }
-
-    get dataType() {
-        return this._dataType;
-    }
-
-    get shape() {
-        return this._shape;
-    }
-
-    get stride() {
-        return this._stride;
-    }
-
-    get layout_type() {
-        return this._layout_type;
-    }
-
-    get property_type() {
-        return this._property_type;
-    }
-};
-
-onednngraph.Metadata = class {
-
-    static open(context) {
-        if (onednngraph.Metadata._metadata) {
-            return Promise.resolve(onednngraph.Metadata._metadata);
-        }
-        return context.request('onednngraph-metadata.json', 'utf-8', null).then((data) => {
-            onednngraph.Metadata._metadata = new onednngraph.Metadata(data);
-            return onednngraph.Metadata._metadata;
-        }).catch(() => {
-            onednngraph.Metadata._metadata = new onednngraph.Metadata(null);
-            return onednngraph.Metadata._metadata;
-        });
-    }
-
-    constructor(data) {
-        this._map = new Map();
-        this._attributeCache = {};
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._map = new Map(metadata.map((item) => [item.name, item]));
-        }
-    }
-
-    type(name) {
-        return this._map.get(name);
-    }
-
-    attribute(type, name) {
-        let map = this._attributeCache[type];
-        if (!map) {
-            map = {};
-            const schema = this.type(type);
-            if (schema && schema.attributes) {
-                for (const attribute of schema.attributes) {
-                    map[attribute.name] = attribute;
-                }
-            }
-            this._attributeCache[type] = map;
-        }
-        return map[name] || null;
-    }
-};
-
-onednngraph.Error = class extends Error {
+onednn.Error = class extends Error {
 
     constructor(message) {
         super(message);
@@ -511,5 +386,5 @@ onednngraph.Error = class extends Error {
 };
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = onednngraph.ModelFactory;
+    module.exports.ModelFactory = onednn.ModelFactory;
 }
