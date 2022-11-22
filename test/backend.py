@@ -45,11 +45,10 @@ def _test_torchscript():
     # graph, _ = torch.jit._get_trace_graph(model, args) # pylint: disable=protected-access
     # torch.onnx._optimize_trace(graph, torch.onnx.OperatorExportTypes.ONNX)
     trace = torch.jit.trace(model, args, strict=True)
-    graph = trace.graph
-    torch._C._jit_pass_inline(graph)
+    torch._C._jit_pass_inline(trace.graph)
     # https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/ir/ir.h
-    netron.serve('resnet34', graph)
+    netron.serve('resnet34', trace)
 
 # _test_onnx()
-# _test_torchscript()
-_test_onnx_list()
+_test_torchscript()
+# _test_onnx_list()
