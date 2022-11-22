@@ -43,7 +43,7 @@ onednn.Model = class {
                 throw new onednn.Error('JSON file does not contain an oneDNN Graph \'version\' property.');
             }
         }
-        this._format = 'oneDNN Graph' + (version ? ' v' + version : '');
+        this._format = 'oneDNN Graph' + (version ? ' v' + version[0] : '');
         this._version = 'oneDNN' + (version ? ' v' + version : '');
         this._runtime = 'engine: ' + symbol.engine_kind + '; fpmath: ' + symbol.fpmath_mode + ';';
         this._graphs = [new onednn.Graph(metadata, symbol)];

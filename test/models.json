@@ -6493,5 +6493,12 @@
     "source":   "https://github.com/lutzroeder/netron/files/7083633/pt_face-quality_80_60_61.68M_1.4.zip[pt_face-quality_80_60_61.68M_1.4/quantized/PointsQuality_int.xmodel]",
     "format":   "xmodel",
     "link":     "https://github.com/lutzroeder/netron/issues/718"
+  },
+  {
+    "type":     "onednn",
+    "target":   "sample-graph-100001.json",
+    "source":   "https://github.com/lutzroeder/netron/files/10037438/sample-graph-100001.json.zip[sample-graph-100001.json]",
+    "format":   "oneDNN Graph v3",
+    "link":     "https://github.com/oneapi-src/oneDNN"
   }
 ]
