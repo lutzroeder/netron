@@ -10,7 +10,8 @@ onednn.ModelFactory = class {
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'json') {
             const obj = context.open('json');
-            if (obj && obj.version && obj.graph) {
+            // note: onednn graph should contains version, engine_kind, fpmath_mode along with graph body
+            if (obj && obj.version && obj.engine_kind && obj.fpmath_mode && obj.graph) {
                 return obj;
             }
         }
