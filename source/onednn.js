@@ -12,6 +12,7 @@ onednn.ModelFactory = class {
             const obj = context.open('json');
             // note: onednn graph should contains version, engine_kind, fpmath_mode along with graph body
             if (obj && obj.version && obj.engine_kind && obj.fpmath_mode && obj.graph) {
+                this._runtime = obj.engine_kind + ' ' + obj.fpmath_mode;
                 return obj;
             }
         }
@@ -36,15 +37,11 @@ onednn.Model = class {
             throw new onednn.Error('JSON symbol data not available.');
         }
         if (symbol.graph) {
-            if (!Object.prototype.hasOwnProperty.call(symbol, 'graph')) {
-                throw new onednn.Error('JSON file does not contain an oneDNN Graph \'graph\' property.');
-            }
             if (!Object.prototype.hasOwnProperty.call(symbol, 'version')) {
                 throw new onednn.Error('JSON file does not contain an oneDNN Graph \'version\' property.');
             }
         }
-        this._format = 'oneDNN Graph' + (version ? ' v' + version[0] : '');
-        this._version = 'oneDNN' + (version ? ' v' + version : '');
+        this._format = 'oneDNN Graph' + (version ? ' v' + version : '');
         this._runtime = 'engine: ' + symbol.engine_kind + '; fpmath: ' + symbol.fpmath_mode + ';';
         this._graphs = [new onednn.Graph(metadata, symbol)];
     }
@@ -128,32 +125,7 @@ onednn.Node = class {
             for (const pair of Object.entries(attrs)) {
                 const name = pair[0];
                 const value = pair[1];
-                let attr_type;
-                switch (value.type) {
-                    case 'bool':
-                        attr_type = 'boolean';
-                        break;
-                    case 's64':
-                        attr_type = 'int64';
-                        break;
-                    case 's64[]':
-                        attr_type = 'int64[]';
-                        break;
-                    case 'f32':
-                        attr_type = 'float32';
-                        break;
-                    case 'f32[]':
-                        attr_type = 'float32[]';
-                        break;
-                    case 'string':
-                        attr_type = 'string';
-                        break;
-                    default: {
-                        throw new onednn.Error("Unsupported attribute array data type '" + value.type + "'.");
-                    }
-                }
-
-                this._attributes.push(new onednn.Attribute(metadata, type, name, attr_type, value.value));
+                this._attributes.push(new onednn.Attribute(metadata, type, name, value.type, value.value));
             }
         }
 
@@ -227,8 +199,30 @@ onednn.Attribute = class {
 
     constructor(metadata, type, name, attr_type, attr_value) {
         this._name = name;
-        this._type = attr_type;
         this._value = attr_value;
+        switch (attr_type) {
+            case 'bool':
+                this._type = 'boolean';
+                break;
+            case 's64':
+                this._type = 'int64';
+                break;
+            case 's64[]':
+                this._type = 'int64[]';
+                break;
+            case 'f32':
+                this._type = 'float32';
+                break;
+            case 'f32[]':
+                this._type = 'float32[]';
+                break;
+            case 'string':
+                this._type = 'string';
+                break;
+            default: {
+                throw new onednn.Error("Unsupported attribute array data type '" + attr_type + "'.");
+            }
+        }
 
         let number;
         const schema = metadata.attribute(type, name);
