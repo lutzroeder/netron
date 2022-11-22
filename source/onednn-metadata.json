@@ -1,0 +1,339 @@
+[
+  {
+    "category": "misc",
+    "name": "End"
+  },
+  {
+    "category": "misc",
+    "name": "Wildcard"
+  },
+  {
+    "category": "shape",
+    "name": "StaticReshape"
+  },
+  {
+    "category": "pooling",
+    "name": "AvgPoolBackward"
+  },
+  {
+    "category": "pooling",
+    "name": "AvgPool"
+  },
+  {
+    "category": "pooling",
+    "name": "MaxPoolBackward"
+  },
+  {
+    "category": "pooling",
+    "name": "MaxPool"
+  },
+  {
+    "category": "normalization",
+    "name": "LayerNormBackward"
+  },
+  {
+    "category": "normalization",
+    "name": "BatchNormInference"
+  },
+  {
+    "category": "normalization",
+    "name": "BatchNormTrainingBackward"
+  },
+  {
+    "category": "normalization",
+    "name": "BatchNormForwardTraining"
+  },
+  {
+    "category": "normalization",
+    "name": "LayerNorm"
+  },
+  {
+    "category": "lower_precision",
+    "name": "DynamicDequantize"
+  },
+  {
+    "category": "lower_precision",
+    "name": "DynamicQuantize"
+  },
+  {
+    "category": "lower_precision",
+    "name": "Dequantize"
+  },
+  {
+    "category": "lower_precision",
+    "name": "Quantize"
+  },
+  {
+    "category": "lower_precision",
+    "name": "TypeCast"
+  },
+  {
+    "category": "activation",
+    "name": "ReLU"
+  },
+  {
+    "category": "activation",
+    "name": "Sigmoid"
+  },
+  {
+    "category": "activation",
+    "name": "SoftMaxBackward"
+  },
+  {
+    "category": "activation",
+    "name": "MishBackward"
+  },
+  {
+    "category": "activation",
+    "name": "GELU"
+  },
+  {
+    "category": "activation",
+    "name": "ClampBackward"
+  },
+  {
+    "category": "activation",
+    "name": "Mish"
+  },
+  {
+    "category": "activation",
+    "name": "PReLU"
+  },
+  {
+    "category": "activation",
+    "name": "SigmoidBackward"
+  },
+  {
+    "category": "activation",
+    "name": "LogSoftmax"
+  },
+  {
+    "category": "activation",
+    "name": "Clamp"
+  },
+  {
+    "category": "activation",
+    "name": "TanhBackward"
+  },
+  {
+    "category": "activation",
+    "name": "ReLUBackward"
+  },
+  {
+    "category": "activation",
+    "name": "Exp"
+  },
+  {
+    "category": "activation",
+    "name": "SoftMax"
+  },
+  {
+    "category": "activation",
+    "name": "HardSwish"
+  },
+  {
+    "category": "activation",
+    "name": "LeakyReLU"
+  },
+  {
+    "category": "activation",
+    "name": "LogSoftmaxBackward"
+  },
+  {
+    "category": "activation",
+    "name": "Tanh"
+  },
+  {
+    "category": "activation",
+    "name": "Elu"
+  },
+  {
+    "category": "activation",
+    "name": "SoftPlus"
+  },
+  {
+    "category": "activation",
+    "name": "EluBackward"
+  },
+  {
+    "category": "activation",
+    "name": "GELUBackward"
+  },
+  {
+    "category": "activation",
+    "name": "SoftPlusBackward"
+  },
+  {
+    "category": "activation",
+    "name": "PReLUBackward"
+  },
+  {
+    "category": "activation",
+    "name": "HardSwishBackward"
+  },
+  {
+    "category": "image",
+    "name": "Interpolate"
+  },
+  {
+    "category": "image",
+    "name": "InterpolateBackward"
+  },
+  {
+    "category": "reduction",
+    "name": "ReduceMax"
+  },
+  {
+    "category": "reduction",
+    "name": "ReduceL2"
+  },
+  {
+    "category": "reduction",
+    "name": "ReduceL1"
+  },
+  {
+    "category": "reduction",
+    "name": "ReduceSum"
+  },
+  {
+    "category": "reduction",
+    "name": "ReduceProd"
+  },
+  {
+    "category": "reduction",
+    "name": "ReduceMean"
+  },
+  {
+    "category": "reduction",
+    "name": "ReduceMin"
+  },
+  {
+    "category": "movement",
+    "name": "Reorder"
+  },
+  {
+    "category": "movement",
+    "name": "Concat"
+  },
+  {
+    "category": "movement",
+    "name": "StaticTranspose"
+  },
+  {
+    "category": "arithmetic",
+    "name": "Abs"
+  },
+  {
+    "category": "arithmetic",
+    "name": "Sqrt"
+  },
+  {
+    "category": "arithmetic",
+    "name": "Round"
+  },
+  {
+    "category": "arithmetic",
+    "name": "Subtract"
+  },
+  {
+    "category": "arithmetic",
+    "name": "Erf"
+  },
+  {
+    "category": "arithmetic",
+    "name": "Minimum"
+  },
+  {
+    "category": "arithmetic",
+    "name": "Reciprocal"
+  },
+  {
+    "category": "arithmetic",
+    "name": "BiasAddBackward"
+  },
+  {
+    "category": "arithmetic",
+    "name": "Divide"
+  },
+  {
+    "category": "arithmetic",
+    "name": "SquaredDifference"
+  },
+  {
+    "category": "arithmetic",
+    "name": "Multiply"
+  },
+  {
+    "category": "arithmetic",
+    "name": "AbsBackward"
+  },
+  {
+    "category": "arithmetic",
+    "name": "Square"
+  },
+  {
+    "category": "arithmetic",
+    "name": "Maximum"
+  },
+  {
+    "category": "arithmetic",
+    "name": "Add"
+  },
+  {
+    "category": "arithmetic",
+    "name": "SqrtBackward"
+  },
+  {
+    "category": "arithmetic",
+    "name": "Log"
+  },
+  {
+    "category": "arithmetic",
+    "name": "BiasAdd"
+  },
+  {
+    "category": "convolution",
+    "name": "ConvTranspose"
+  },
+  {
+    "category": "convolution",
+    "name": "Convolution",
+    "inputs": [
+      {
+        "name": "src"
+      },
+      {
+        "name": "weights"
+      },
+      {
+        "name": "bias",
+        "option": "optional"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "dst"
+      }
+    ]
+  },
+  {
+    "category": "convolution",
+    "name": "ConvTransposeBackwardData"
+  },
+  {
+    "category": "convolution",
+    "name": "ConvolutionBackwardData"
+  },
+  {
+    "category": "convolution",
+    "name": "ConvolutionBackwardWeights"
+  },
+  {
+    "category": "convolution",
+    "name": "ConvTransposeBackwardWeights"
+  },
+  {
+    "category": "matrix",
+    "name": "MatMul"
+  }
+]
