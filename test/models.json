@@ -6500,5 +6500,12 @@
     "source":   "https://github.com/lutzroeder/netron/files/10037438/sample-graph-100001.json.zip[sample-graph-100001.json]",
     "format":   "oneDNN Graph v3.0.0",
     "link":     "https://github.com/oneapi-src/oneDNN"
+  },
+  {
+    "type":     "onednn",
+    "target":   "resnet50-sample-graph.json",
+    "source":   "https://github.com/lutzroeder/netron/files/10065168/resnet50-sample-graph.json.zip[resnet50-sample-graph.json]",
+    "format":   "oneDNN Graph v3.0.0",
+    "link":     "https://github.com/oneapi-src/oneDNN"
   }
 ]
