@@ -523,7 +523,7 @@ host.BrowserHost = class {
     }
 
     _openModel(url, identifier) {
-        url = url + ((/\?/).test(url) ? '&' : '?') + 'cb=' + (new Date()).getTime();
+        url = url.startsWith('data:') ? url : url + ((/\?/).test(url) ? '&' : '?') + 'cb=' + (new Date()).getTime();
         this._view.show('welcome spinner');
         const progress = (value) => {
             this._view.progress(value);
