@@ -128,7 +128,32 @@ onednn.Node = class {
             for (const pair of Object.entries(attrs)) {
                 const name = pair[0];
                 const value = pair[1];
-                this._attributes.push(new onednn.Attribute(metadata, type, name, value.type, value.value));
+                let attr_type;
+                switch (value.type) {
+                    case 'bool':
+                        attr_type = 'boolean';
+                        break;
+                    case 's64':
+                        attr_type = 'int64';
+                        break;
+                    case 's64[]':
+                        attr_type = 'int64[]';
+                        break;
+                    case 'f32':
+                        attr_type = 'float32';
+                        break;
+                    case 'f32[]':
+                        attr_type = 'float32[]';
+                        break;
+                    case 'string':
+                        attr_type = 'string';
+                        break;
+                    default: {
+                        throw new onednn.Error("Unsupported attribute array data type '" + value.type + "'.");
+                    }
+                }
+
+                this._attributes.push(new onednn.Attribute(metadata, type, name, attr_type, value.value));
             }
         }
 
