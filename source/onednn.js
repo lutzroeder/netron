@@ -200,93 +200,73 @@ onednn.Attribute = class {
     constructor(metadata, type, name, attr_type, attr_value) {
         this._name = name;
         this._value = attr_value;
+        let number;
         switch (attr_type) {
             case 'bool':
                 this._type = 'boolean';
+                switch (attr_value) {
+                    case 1: this._value = true; break;
+                    case 0: this._value = false; break;
+                    default: throw new onednn.Error("Unsupported attribute boolean value '" + attr_value + "'.");
+                }
                 break;
             case 's64':
                 this._type = 'int64';
+                number = Number.parseInt(this._value, 10);
+                this._value = Number.isNaN(this._value - number) ? attr_value : number;
                 break;
             case 's64[]':
                 this._type = 'int64[]';
+                if (this._value.length > 2 && this._value.startsWith('[') && this._value.endsWith(']')) {
+                    let array = [];
+                    const items = this._value.substring(1, this._value.length - 1).split(',')
+                        .map((item) => item.trim())
+                        .map((item) => item.endsWith('L') ? item.substring(0, item.length - 1) : item);
+                    for (const item of items) {
+                        number = Number.parseInt(item, 10);
+                        if (Number.isNaN(item - number)) {
+                            array = null;
+                        }
+                        else if (array != null) {
+                            array.push(number);
+                        }
+                    }
+                    if (array != null) {
+                        this._value = array;
+                    }
+                }
                 break;
             case 'f32':
                 this._type = 'float32';
+                number = Number.parseFloat(this._value);
+                this._value = Number.isNaN(this._value - number) ? attr_value : number;
                 break;
             case 'f32[]':
                 this._type = 'float32[]';
+                if (this._value.length > 2 && this._value.startsWith('[') && this._value.endsWith(']')) {
+                    let array = [];
+                    const items = this._value.substring(1, this._value.length - 1).split(',')
+                        .map((item) => item.trim())
+                        .map((item) => item.endsWith('L') ? item.substring(0, item.length - 1) : item);
+                    for (const item of items) {
+                        number = Number.parseFloat(item);
+                        if (Number.isNaN(item - number)) {
+                            array = null;
+                        }
+                        else if (array != null) {
+                            array.push(number);
+                        }
+                    }
+                    if (array != null) {
+                        this._value = array;
+                    }
+                }
                 break;
             case 'string':
                 this._type = 'string';
                 break;
             default: {
                 throw new onednn.Error("Unsupported attribute array data type '" + attr_type + "'.");
-            }
-        }
-
-        let number;
-        const schema = metadata.attribute(type, name);
-        if (schema && schema.type) {
-            switch (schema.type) {
-                case 'bool':
-                    switch (attr_value) {
-                        case 1: this._value = true; break;
-                        case 0: this._value = false; break;
-                        default: throw new onednn.Error("Unsupported attribute boolean value '" + attr_value + "'.");
-                    }
-                    break;
-                case 'string':
-                    break;
-                case 's64':
-                    number = Number.parseInt(this._value, 10);
-                    this._value = Number.isNaN(this._value - number) ? attr_value : number;
-                    break;
-                case 'f32':
-                    number = Number.parseFloat(this._value);
-                    this._value = Number.isNaN(this._value - number) ? attr_value : number;
-                    break;
-                case 's64[]':
-                    if (this._value.length > 2 && this._value.startsWith('[') && this._value.endsWith(']')) {
-                        let array = [];
-                        const items = this._value.substring(1, this._value.length - 1).split(',')
-                            .map((item) => item.trim())
-                            .map((item) => item.endsWith('L') ? item.substring(0, item.length - 1) : item);
-                        for (const item of items) {
-                            number = Number.parseInt(item, 10);
-                            if (Number.isNaN(item - number)) {
-                                array = null;
-                            }
-                            else if (array != null) {
-                                array.push(number);
-                            }
-                        }
-                        if (array != null) {
-                            this._value = array;
-                        }
-                    }
-                    break;
-                case 'f32[]':
-                    if (this._value.length > 2 && this._value.startsWith('[') && this._value.endsWith(']')) {
-                        let array = [];
-                        const items = this._value.substring(1, this._value.length - 1).split(',')
-                            .map((item) => item.trim())
-                            .map((item) => item.endsWith('L') ? item.substring(0, item.length - 1) : item);
-                        for (const item of items) {
-                            number = Number.parseFloat(item);
-                            if (Number.isNaN(item - number)) {
-                                array = null;
-                            }
-                            else if (array != null) {
-                                array.push(number);
-                            }
-                        }
-                        if (array != null) {
-                            this._value = array;
-                        }
-                    }
-                    break;
-                default:
-                    throw new onednn.Error("Unsupported attribute type '" + schema.type + "'.");
             }
         }
     }
