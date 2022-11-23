@@ -10845,7 +10845,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
-      { "name": "index", "type": "int64" }
+      { "name": "index", "type": "SymInt" }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -10867,7 +10867,7 @@
       { "name": "grad_output", "type": "Tensor" },
       { "name": "input_sizes", "type": "SymInt[]" },
       { "name": "dim", "type": "int64" },
-      { "name": "index", "type": "int64" }
+      { "name": "index", "type": "SymInt" }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -10878,7 +10878,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
-      { "name": "index", "type": "int64" }
+      { "name": "index", "type": "SymInt" }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -10889,7 +10889,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
-      { "name": "index", "type": "int64" }
+      { "name": "index", "type": "SymInt" }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -10901,7 +10901,7 @@
       { "name": "self", "type": "Tensor" },
       { "name": "src", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
-      { "name": "index", "type": "int64" }
+      { "name": "index", "type": "SymInt" }
     ],
     "outputs": [
       { "type": "Tensor" }
