@@ -1,302 +1,273 @@
 [
   {
-    "category": "misc",
     "name": "End"
   },
   {
-    "category": "misc",
     "name": "Wildcard"
   },
   {
-    "category": "shape",
+    "category": "Shape",
     "name": "StaticReshape"
   },
   {
-    "category": "pooling",
+    "category": "Pool",
     "name": "AvgPoolBackward"
   },
   {
-    "category": "pooling",
+    "category": "Pool",
     "name": "AvgPool"
   },
   {
-    "category": "pooling",
+    "category": "Pool",
     "name": "MaxPoolBackward"
   },
   {
-    "category": "pooling",
+    "category": "Pool",
     "name": "MaxPool"
   },
   {
-    "category": "normalization",
+    "category": "Normalization",
     "name": "LayerNormBackward"
   },
   {
-    "category": "normalization",
+    "category": "Normalization",
     "name": "BatchNormInference"
   },
   {
-    "category": "normalization",
+    "category": "Normalization",
     "name": "BatchNormTrainingBackward"
   },
   {
-    "category": "normalization",
+    "category": "Normalization",
     "name": "BatchNormForwardTraining"
   },
   {
-    "category": "normalization",
+    "category": "Normalization",
     "name": "LayerNorm"
   },
   {
-    "category": "lower_precision",
+    "category": "Quantization",
     "name": "DynamicDequantize"
   },
   {
-    "category": "lower_precision",
+    "category": "Quantization",
     "name": "DynamicQuantize"
   },
   {
-    "category": "lower_precision",
+    "category": "Quantization",
     "name": "Dequantize"
   },
   {
-    "category": "lower_precision",
+    "category": "Quantization",
     "name": "Quantize"
   },
   {
-    "category": "lower_precision",
+    "category": "Quantization",
     "name": "TypeCast"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "ReLU"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "Sigmoid"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "SoftMaxBackward"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "MishBackward"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "GELU"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "ClampBackward"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "Mish"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "PReLU"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "SigmoidBackward"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "LogSoftmax"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "Clamp"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "TanhBackward"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "ReLUBackward"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "Exp"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "SoftMax"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "HardSwish"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "LeakyReLU"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "LogSoftmaxBackward"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "Tanh"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "Elu"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "SoftPlus"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "EluBackward"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "GELUBackward"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "SoftPlusBackward"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "PReLUBackward"
   },
   {
-    "category": "activation",
+    "category": "Activation",
     "name": "HardSwishBackward"
   },
   {
-    "category": "image",
     "name": "Interpolate"
   },
   {
-    "category": "image",
     "name": "InterpolateBackward"
   },
   {
-    "category": "reduction",
     "name": "ReduceMax"
   },
   {
-    "category": "reduction",
     "name": "ReduceL2"
   },
   {
-    "category": "reduction",
     "name": "ReduceL1"
   },
   {
-    "category": "reduction",
     "name": "ReduceSum"
   },
   {
-    "category": "reduction",
     "name": "ReduceProd"
   },
   {
-    "category": "reduction",
     "name": "ReduceMean"
   },
   {
-    "category": "reduction",
     "name": "ReduceMin"
   },
   {
-    "category": "movement",
+    "category": "Transform",
     "name": "Reorder"
   },
   {
-    "category": "movement",
+    "category": "Tensor",
     "name": "Concat"
   },
   {
-    "category": "movement",
+    "category": "Transform",
     "name": "StaticTranspose"
   },
   {
-    "category": "arithmetic",
     "name": "Abs"
   },
   {
-    "category": "arithmetic",
     "name": "Sqrt"
   },
   {
-    "category": "arithmetic",
     "name": "Round"
   },
   {
-    "category": "arithmetic",
     "name": "Subtract"
   },
   {
-    "category": "arithmetic",
     "name": "Erf"
   },
   {
-    "category": "arithmetic",
     "name": "Minimum"
   },
   {
-    "category": "arithmetic",
     "name": "Reciprocal"
   },
   {
-    "category": "arithmetic",
     "name": "BiasAddBackward"
   },
   {
-    "category": "arithmetic",
     "name": "Divide"
   },
   {
-    "category": "arithmetic",
     "name": "SquaredDifference"
   },
   {
-    "category": "arithmetic",
     "name": "Multiply"
   },
   {
-    "category": "arithmetic",
     "name": "AbsBackward"
   },
   {
-    "category": "arithmetic",
     "name": "Square"
   },
   {
-    "category": "arithmetic",
     "name": "Maximum"
   },
   {
-    "category": "arithmetic",
     "name": "Add"
   },
   {
-    "category": "arithmetic",
     "name": "SqrtBackward"
   },
   {
-    "category": "arithmetic",
     "name": "Log"
   },
   {
-    "category": "arithmetic",
     "name": "BiasAdd"
   },
   {
-    "category": "convolution",
+    "category": "Layer",
     "name": "ConvTranspose"
   },
   {
-    "category": "convolution",
+    "category": "Layer",
     "name": "Convolution",
     "inputs": [
       {
@@ -317,23 +288,23 @@
     ]
   },
   {
-    "category": "convolution",
+    "category": "Layer",
     "name": "ConvTransposeBackwardData"
   },
   {
-    "category": "convolution",
+    "category": "Layer",
     "name": "ConvolutionBackwardData"
   },
   {
-    "category": "convolution",
+    "category": "Layer",
     "name": "ConvolutionBackwardWeights"
   },
   {
-    "category": "convolution",
+    "category": "Layer",
     "name": "ConvTransposeBackwardWeights"
   },
   {
-    "category": "matrix",
+    "category": "Layer",
     "name": "MatMul"
   }
 ]

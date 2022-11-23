@@ -107,7 +107,7 @@ onednn.Node = class {
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
-        this._type = { name: type };
+        this._type = metadata.type(type) || { name: type };
         this._device = device;
         this._location = node.id;
 
@@ -208,7 +208,6 @@ onednn.Attribute = class {
                 break;
             case 's64[]':
                 this._type = 'int64[]';
-                console.log(this._value);
                 if (this._value.length > 2 && this._value.toString().startsWith('[') && this._value.toString().endsWith(']')) {
                     let array = [];
                     const items = this._value.substring(1, this._value.length - 1).split(',')
