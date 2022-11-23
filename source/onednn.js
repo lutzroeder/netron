@@ -208,7 +208,8 @@ onednn.Attribute = class {
                 break;
             case 's64[]':
                 this._type = 'int64[]';
-                if (this._value.length > 2 && this._value.startsWith('[') && this._value.endsWith(']')) {
+                console.log(this._value);
+                if (this._value.length > 2 && this._value.toString().startsWith('[') && this._value.toString().endsWith(']')) {
                     let array = [];
                     const items = this._value.substring(1, this._value.length - 1).split(',')
                         .map((item) => item.trim())
@@ -234,7 +235,7 @@ onednn.Attribute = class {
                 break;
             case 'f32[]':
                 this._type = 'float32[]';
-                if (this._value.length > 2 && this._value.startsWith('[') && this._value.endsWith(']')) {
+                if (this._value.length > 2 && this._value.toString().startsWith('[') && this._value.toString().endsWith(']')) {
                     let array = [];
                     const items = this._value.substring(1, this._value.length - 1).split(',')
                         .map((item) => item.trim())
