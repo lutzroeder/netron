@@ -163,7 +163,9 @@ host.BrowserHost = class {
             this.exception(new Error(e ? e.message : JSON.stringify(e)), true);
         });
 
-        const params = new URLSearchParams(this.window.location.search);
+        const hash = this.window.location.hash ? this.window.location.hash.replace(/^#/, '') : '';
+        const search = this.window.location.search;
+        const params = new URLSearchParams(search + (hash ? '&' + hash : ''));
 
         const versionLabel = this.document.getElementById('version');
         if (versionLabel) {
