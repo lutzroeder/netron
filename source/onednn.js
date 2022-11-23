@@ -35,11 +35,6 @@ onednn.Model = class {
         if (!symbol) {
             throw new onednn.Error('JSON symbol data not available.');
         }
-        if (symbol.graph) {
-            if (!Object.prototype.hasOwnProperty.call(symbol, 'version')) {
-                throw new onednn.Error('JSON file does not contain an oneDNN Graph \'version\' property.');
-            }
-        }
         this._format = 'oneDNN Graph' + (version ? ' v' + version : '');
         this._runtime = symbol.engine_kind + ' ' + symbol.fpmath_mode;
         this._graphs = [new onednn.Graph(metadata, symbol)];
