@@ -32,9 +32,6 @@ onednn.ModelFactory = class {
 onednn.Model = class {
 
     constructor(metadata, symbol, version) {
-        if (!symbol) {
-            throw new onednn.Error('JSON symbol data not available.');
-        }
         this._format = 'oneDNN Graph' + (version ? ' v' + version : '');
         this._runtime = symbol.engine_kind + ' ' + symbol.fpmath_mode;
         this._graphs = [new onednn.Graph(metadata, symbol)];
