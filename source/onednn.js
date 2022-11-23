@@ -12,7 +12,6 @@ onednn.ModelFactory = class {
             const obj = context.open('json');
             // note: onednn graph should contains version, engine_kind, fpmath_mode along with graph body
             if (obj && obj.version && obj.engine_kind && obj.fpmath_mode && obj.graph) {
-                this._runtime = obj.engine_kind + ' ' + obj.fpmath_mode;
                 return obj;
             }
         }
@@ -42,7 +41,7 @@ onednn.Model = class {
             }
         }
         this._format = 'oneDNN Graph' + (version ? ' v' + version : '');
-        this._runtime = 'engine: ' + symbol.engine_kind + '; fpmath: ' + symbol.fpmath_mode + ';';
+        this._runtime = symbol.engine_kind + ' ' + symbol.fpmath_mode;
         this._graphs = [new onednn.Graph(metadata, symbol)];
     }
 
