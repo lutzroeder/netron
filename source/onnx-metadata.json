@@ -837,8 +837,7 @@
         "summary": "and_broadcast",
         "code": "node = onnx.helper.make_node(\n    \"And\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"and\"],\n)\n\n# 3d vs 1d\nx = (np.random.randn(3, 4, 5) > 0).astype(bool)\ny = (np.random.randn(5) > 0).astype(bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_and_bcast3v1d\")\n\n# 3d vs 2d\nx = (np.random.randn(3, 4, 5) > 0).astype(bool)\ny = (np.random.randn(4, 5) > 0).astype(bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_and_bcast3v2d\")\n\n# 4d vs 2d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(bool)\ny = (np.random.randn(5, 6) > 0).astype(bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_and_bcast4v2d\")\n\n# 4d vs 3d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(bool)\ny = (np.random.randn(4, 5, 6) > 0).astype(bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_and_bcast4v3d\")\n\n# 4d vs 4d\nx = (np.random.randn(1, 4, 1, 6) > 0).astype(bool)\ny = (np.random.randn(3, 1, 5, 6) > 0).astype(bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_and_bcast4v4d\")"
       }
-    ],
-    "category": "Logic"
+    ]
   },
   {
     "name": "And",
@@ -894,8 +893,7 @@
         "summary": "and_broadcast",
         "code": "node = onnx.helper.make_node(\n    \"And\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"and\"],\n)\n\n# 3d vs 1d\nx = (np.random.randn(3, 4, 5) > 0).astype(bool)\ny = (np.random.randn(5) > 0).astype(bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_and_bcast3v1d\")\n\n# 3d vs 2d\nx = (np.random.randn(3, 4, 5) > 0).astype(bool)\ny = (np.random.randn(4, 5) > 0).astype(bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_and_bcast3v2d\")\n\n# 4d vs 2d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(bool)\ny = (np.random.randn(5, 6) > 0).astype(bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_and_bcast4v2d\")\n\n# 4d vs 3d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(bool)\ny = (np.random.randn(4, 5, 6) > 0).astype(bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_and_bcast4v3d\")\n\n# 4d vs 4d\nx = (np.random.randn(1, 4, 1, 6) > 0).astype(bool)\ny = (np.random.randn(3, 1, 5, 6) > 0).astype(bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_and_bcast4v4d\")"
       }
-    ],
-    "category": "Logic"
+    ]
   },
   {
     "name": "ArgMax",
@@ -8500,8 +8498,7 @@
         "summary": "equal_broadcast",
         "code": "node = onnx.helper.make_node(\n    \"Equal\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"z\"],\n)\n\nx = (np.random.randn(3, 4, 5) * 10).astype(np.int32)\ny = (np.random.randn(5) * 10).astype(np.int32)\nz = np.equal(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_equal_bcast\")"
       }
-    ],
-    "category": "Logic"
+    ]
   },
   {
     "name": "Equal",
@@ -8559,8 +8556,7 @@
         "summary": "equal_broadcast",
         "code": "node = onnx.helper.make_node(\n    \"Equal\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"z\"],\n)\n\nx = (np.random.randn(3, 4, 5) * 10).astype(np.int32)\ny = (np.random.randn(5) * 10).astype(np.int32)\nz = np.equal(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_equal_bcast\")"
       }
-    ],
-    "category": "Logic"
+    ]
   },
   {
     "name": "Equal",
@@ -8627,8 +8623,7 @@
         "summary": "equal_broadcast",
         "code": "node = onnx.helper.make_node(\n    \"Equal\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"z\"],\n)\n\nx = (np.random.randn(3, 4, 5) * 10).astype(np.int32)\ny = (np.random.randn(5) * 10).astype(np.int32)\nz = np.equal(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_equal_bcast\")"
       }
-    ],
-    "category": "Logic"
+    ]
   },
   {
     "name": "Equal",
@@ -8696,8 +8691,7 @@
         "summary": "equal_broadcast",
         "code": "node = onnx.helper.make_node(\n    \"Equal\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"z\"],\n)\n\nx = (np.random.randn(3, 4, 5) * 10).astype(np.int32)\ny = (np.random.randn(5) * 10).astype(np.int32)\nz = np.equal(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_equal_bcast\")"
       }
-    ],
-    "category": "Logic"
+    ]
   },
   {
     "name": "Erf",
@@ -11958,8 +11952,7 @@
         "summary": "greater_broadcast",
         "code": "node = onnx.helper.make_node(\n    \"GreaterOrEqual\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"greater_equal\"],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nz = np.greater_equal(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_greater_equal_bcast\")"
       }
-    ],
-    "category": "Logic"
+    ]
   },
   {
     "name": "Greater",
@@ -12025,8 +12018,7 @@
         "summary": "greater_broadcast",
         "code": "node = onnx.helper.make_node(\n    \"GreaterOrEqual\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"greater_equal\"],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nz = np.greater_equal(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_greater_equal_bcast\")"
       }
-    ],
-    "category": "Logic"
+    ]
   },
   {
     "name": "Greater",
@@ -12100,8 +12092,7 @@
         "summary": "greater_broadcast",
         "code": "node = onnx.helper.make_node(\n    \"GreaterOrEqual\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"greater_equal\"],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nz = np.greater_equal(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_greater_equal_bcast\")"
       }
-    ],
-    "category": "Logic"
+    ]
   },
   {
     "name": "Greater",
@@ -12176,8 +12167,7 @@
         "summary": "greater_broadcast",
         "code": "node = onnx.helper.make_node(\n    \"GreaterOrEqual\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"greater_equal\"],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nz = np.greater_equal(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_greater_equal_bcast\")"
       }
-    ],
-    "category": "Logic"
+    ]
   },
   {
     "name": "GreaterOrEqual",
@@ -15210,8 +15200,7 @@
         "summary": "less_broadcast",
         "code": "node = onnx.helper.make_node(\n    \"LessOrEqual\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"less_equal\"],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nz = np.less_equal(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_less_equal_bcast\")"
       }
-    ],
-    "category": "Logic"
+    ]
   },
   {
     "name": "Less",
@@ -15277,8 +15266,7 @@
         "summary": "less_broadcast",
         "code": "node = onnx.helper.make_node(\n    \"LessOrEqual\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"less_equal\"],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nz = np.less_equal(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_less_equal_bcast\")"
       }
-    ],
-    "category": "Logic"
+    ]
   },
   {
     "name": "Less",
@@ -15352,8 +15340,7 @@
         "summary": "less_broadcast",
         "code": "node = onnx.helper.make_node(\n    \"LessOrEqual\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"less_equal\"],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nz = np.less_equal(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_less_equal_bcast\")"
       }
-    ],
-    "category": "Logic"
+    ]
   },
   {
     "name": "Less",
@@ -15428,8 +15415,7 @@
         "summary": "less_broadcast",
         "code": "node = onnx.helper.make_node(\n    \"LessOrEqual\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"less_equal\"],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nz = np.less_equal(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_less_equal_bcast\")"
       }
-    ],
-    "category": "Logic"
+    ]
   },
   {
     "name": "LessOrEqual",
@@ -20490,8 +20476,7 @@
         "summary": "not",
         "code": "node = onnx.helper.make_node(\n    \"Not\",\n    inputs=[\"x\"],\n    outputs=[\"not\"],\n)\n\n# 2d\nx = (np.random.randn(3, 4) > 0).astype(bool)\nexpect(node, inputs=[x], outputs=[np.logical_not(x)], name=\"test_not_2d\")\n\n# 3d\nx = (np.random.randn(3, 4, 5) > 0).astype(bool)\nexpect(node, inputs=[x], outputs=[np.logical_not(x)], name=\"test_not_3d\")\n\n# 4d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(bool)\nexpect(node, inputs=[x], outputs=[np.logical_not(x)], name=\"test_not_4d\")"
       }
-    ],
-    "category": "Logic"
+    ]
   },
   {
     "name": "OneHot",
@@ -21402,8 +21387,7 @@
         "summary": "or_broadcast",
         "code": "node = onnx.helper.make_node(\n    \"Or\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"or\"],\n)\n\n# 3d vs 1d\nx = (np.random.randn(3, 4, 5) > 0).astype(bool)\ny = (np.random.randn(5) > 0).astype(bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_or_bcast3v1d\")\n\n# 3d vs 2d\nx = (np.random.randn(3, 4, 5) > 0).astype(bool)\ny = (np.random.randn(4, 5) > 0).astype(bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_or_bcast3v2d\")\n\n# 4d vs 2d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(bool)\ny = (np.random.randn(5, 6) > 0).astype(bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_or_bcast4v2d\")\n\n# 4d vs 3d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(bool)\ny = (np.random.randn(4, 5, 6) > 0).astype(bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_or_bcast4v3d\")\n\n# 4d vs 4d\nx = (np.random.randn(1, 4, 1, 6) > 0).astype(bool)\ny = (np.random.randn(3, 1, 5, 6) > 0).astype(bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_or_bcast4v4d\")"
       }
-    ],
-    "category": "Logic"
+    ]
   },
   {
     "name": "Or",
@@ -21459,8 +21443,7 @@
         "summary": "or_broadcast",
         "code": "node = onnx.helper.make_node(\n    \"Or\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"or\"],\n)\n\n# 3d vs 1d\nx = (np.random.randn(3, 4, 5) > 0).astype(bool)\ny = (np.random.randn(5) > 0).astype(bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_or_bcast3v1d\")\n\n# 3d vs 2d\nx = (np.random.randn(3, 4, 5) > 0).astype(bool)\ny = (np.random.randn(4, 5) > 0).astype(bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_or_bcast3v2d\")\n\n# 4d vs 2d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(bool)\ny = (np.random.randn(5, 6) > 0).astype(bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_or_bcast4v2d\")\n\n# 4d vs 3d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(bool)\ny = (np.random.randn(4, 5, 6) > 0).astype(bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_or_bcast4v3d\")\n\n# 4d vs 4d\nx = (np.random.randn(1, 4, 1, 6) > 0).astype(bool)\ny = (np.random.randn(3, 1, 5, 6) > 0).astype(bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_or_bcast4v4d\")"
       }
-    ],
-    "category": "Logic"
+    ]
   },
   {
     "name": "PRelu",
@@ -37123,8 +37106,7 @@
         "summary": "xor_broadcast",
         "code": "node = onnx.helper.make_node(\n    \"Xor\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"xor\"],\n)\n\n# 3d vs 1d\nx = (np.random.randn(3, 4, 5) > 0).astype(bool)\ny = (np.random.randn(5) > 0).astype(bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_xor_bcast3v1d\")\n\n# 3d vs 2d\nx = (np.random.randn(3, 4, 5) > 0).astype(bool)\ny = (np.random.randn(4, 5) > 0).astype(bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_xor_bcast3v2d\")\n\n# 4d vs 2d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(bool)\ny = (np.random.randn(5, 6) > 0).astype(bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_xor_bcast4v2d\")\n\n# 4d vs 3d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(bool)\ny = (np.random.randn(4, 5, 6) > 0).astype(bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_xor_bcast4v3d\")\n\n# 4d vs 4d\nx = (np.random.randn(1, 4, 1, 6) > 0).astype(bool)\ny = (np.random.randn(3, 1, 5, 6) > 0).astype(bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_xor_bcast4v4d\")"
       }
-    ],
-    "category": "Logic"
+    ]
   },
   {
     "name": "Xor",
@@ -37180,8 +37162,7 @@
         "summary": "xor_broadcast",
         "code": "node = onnx.helper.make_node(\n    \"Xor\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"xor\"],\n)\n\n# 3d vs 1d\nx = (np.random.randn(3, 4, 5) > 0).astype(bool)\ny = (np.random.randn(5) > 0).astype(bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_xor_bcast3v1d\")\n\n# 3d vs 2d\nx = (np.random.randn(3, 4, 5) > 0).astype(bool)\ny = (np.random.randn(4, 5) > 0).astype(bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_xor_bcast3v2d\")\n\n# 4d vs 2d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(bool)\ny = (np.random.randn(5, 6) > 0).astype(bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_xor_bcast4v2d\")\n\n# 4d vs 3d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(bool)\ny = (np.random.randn(4, 5, 6) > 0).astype(bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_xor_bcast4v3d\")\n\n# 4d vs 4d\nx = (np.random.randn(1, 4, 1, 6) > 0).astype(bool)\ny = (np.random.randn(3, 1, 5, 6) > 0).astype(bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_xor_bcast4v4d\")"
       }
-    ],
-    "category": "Logic"
+    ]
   },
   {
     "name": "ZipMap",
