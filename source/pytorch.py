@@ -241,7 +241,7 @@ class Metadata: # pylint: disable=too-few-public-methods,missing-class-docstring
 
     def type(self, schema): # pylint: disable=missing-function-docstring
         key = schema.name if isinstance(schema, Schema) else schema.split('(', 1)[0].strip()
-        if key not in self.cache and key != 'aten::as_tensor':
+        if key not in self.cache:
             self.cache.add(key)
             schema = schema if isinstance(schema, Schema) else Schema(schema)
             arguments = list(filter(lambda _: \

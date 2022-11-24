@@ -1885,9 +1885,53 @@
   {
     "name": "aten::as_tensor",
     "inputs": [
-      { "name": "data" },
-      { "name": "dtype", "type": "ScalarType", "optional": true },
-      { "name": "device", "type": "Device", "optional": true }
+      { "name": "data", "type": "Tensor" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor", "name": "aten" }
+    ]
+  },
+  {
+    "name": "aten::as_tensor.bool",
+    "inputs": [
+      { "name": "t", "type": "boolean" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::as_tensor.complex",
+    "inputs": [
+      { "name": "t", "type": "complex" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::as_tensor.float",
+    "inputs": [
+      { "name": "t", "type": "float32" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::as_tensor.int",
+    "inputs": [
+      { "name": "t", "type": "int64" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null }
     ],
     "outputs": [
       { "type": "Tensor" }

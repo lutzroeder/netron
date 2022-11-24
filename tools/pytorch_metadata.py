@@ -65,6 +65,15 @@ schema_source_files = [
         re.compile(r'"(_caffe2::[\w+]*\([\w"\s\[\],]*\)\s*->.*)"', re.MULTILINE))
 ]
 
+known_schema_definitions = [
+    'aten::as_tensor(Tensor(a) data, *, ScalarType? dtype=None, Device? device=None) -> Tensor(b|a)', # pylint: disable=line-too-long
+    'aten::as_tensor.bool(bool t, *, ScalarType? dtype=None, Device? device=None) -> Tensor',
+    'aten::as_tensor.complex(complex t, *, ScalarType? dtype=None, Device? device=None) -> Tensor',
+    'aten::as_tensor.float(float t, *, ScalarType? dtype=None, Device? device=None) -> Tensor',
+    'aten::as_tensor.int(int t, *, ScalarType? dtype=None, Device? device=None) -> Tensor',
+    'aten::as_tensor.list(t[] data, *, ScalarType? dtype=None, Device? device=None) -> Tensor'
+]
+
 def _parse_schemas():
     schemas = {}
     for entry in schema_source_files:
@@ -77,6 +86,9 @@ def _parse_schemas():
             if schema.name in schemas:
                 raise Exception()
             schemas[schema.name] = schema
+    for definition in known_schema_definitions:
+        schema = pytorch.Schema(definition)
+        schemas[schema.name] = schema
     return schemas
 
 def _filter_schemas(schemas, types):
