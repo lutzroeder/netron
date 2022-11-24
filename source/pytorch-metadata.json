@@ -4182,7 +4182,7 @@
     "inputs": [
       { "name": "weight", "type": "Tensor" },
       { "name": "indices", "type": "Tensor" },
-      { "name": "padding_idx", "type": "int64", "default": -1 },
+      { "name": "padding_idx", "type": "SymInt", "default": -1 },
       { "name": "scale_grad_by_freq", "type": "boolean", "default": false },
       { "name": "sparse", "type": "boolean", "default": false }
     ],
@@ -6426,6 +6426,15 @@
     ]
   },
   {
+    "name": "aten::int_repr",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::inverse",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -6540,7 +6549,7 @@
     "category": "Normalization",
     "inputs": [
       { "name": "input", "type": "Tensor" },
-      { "name": "normalized_shape", "type": "int64[]" },
+      { "name": "normalized_shape", "type": "SymInt[]" },
       { "name": "weight", "type": "Tensor", "optional": true, "default": null },
       { "name": "bias", "type": "Tensor", "optional": true, "default": null },
       { "name": "eps", "type": "float32", "default": 1e-05 },
