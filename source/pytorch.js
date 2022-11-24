@@ -1978,6 +1978,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                     for (let i = 0; i < schema.outputs.length; i++) {
                         const parameter = schema.outputs[i];
                         switch (parameter.type) {
+                            case 'Scalar':
                             case 'Tensor': {
                                 const output = this.invoke('torch.Tensor', []);
                                 output.__origin__ = type;

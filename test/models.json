@@ -4364,6 +4364,14 @@
   },
   {
     "type":     "pytorch",
+    "target":   "mask_model.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/10080302/mask_model.pt.zip[mask_model.pt]",
+    "format":   "TorchScript v1.7",
+    "error":    "Unsupported torch.add expression type in 'mask_model.pt'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
+  },
+  {
+    "type":     "pytorch",
     "target":   "mask_r_cnn.pth",
     "source":   "https://raw.githubusercontent.com/facebookresearch/kill-the-bits/master/src/models/compressed/mask_r_cnn.pth",
     "format":   "PyTorch v0.1.10",
