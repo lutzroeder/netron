@@ -6,168 +6,168 @@
     "name": "Wildcard"
   },
   {
-    "category": "Shape",
-    "name": "StaticReshape"
+    "name": "StaticReshape",
+    "category": "Shape"
   },
   {
-    "category": "Pool",
-    "name": "AvgPoolBackward"
+    "name": "AvgPoolBackward",
+    "category": "Pool"
   },
   {
-    "category": "Pool",
-    "name": "AvgPool"
+    "name": "AvgPool",
+    "category": "Pool"
   },
   {
-    "category": "Pool",
-    "name": "MaxPoolBackward"
+    "name": "MaxPoolBackward",
+    "category": "Pool"
   },
   {
-    "category": "Pool",
-    "name": "MaxPool"
+    "name": "MaxPool",
+    "category": "Pool"
   },
   {
-    "category": "Normalization",
-    "name": "LayerNormBackward"
+    "name": "LayerNormBackward",
+    "category": "Normalization"
   },
   {
-    "category": "Normalization",
-    "name": "BatchNormInference"
+    "name": "BatchNormInference",
+    "category": "Normalization"
   },
   {
-    "category": "Normalization",
-    "name": "BatchNormTrainingBackward"
+    "name": "BatchNormTrainingBackward",
+    "category": "Normalization"
   },
   {
-    "category": "Normalization",
-    "name": "BatchNormForwardTraining"
+    "name": "BatchNormForwardTraining",
+    "category": "Normalization"
   },
   {
-    "category": "Normalization",
-    "name": "LayerNorm"
+    "name": "LayerNorm",
+    "category": "Normalization"
   },
   {
-    "category": "Quantization",
-    "name": "DynamicDequantize"
+    "name": "DynamicDequantize",
+    "category": "Quantization"
   },
   {
-    "category": "Quantization",
-    "name": "DynamicQuantize"
+    "name": "DynamicQuantize",
+    "category": "Quantization"
   },
   {
-    "category": "Quantization",
-    "name": "Dequantize"
+    "name": "Dequantize",
+    "category": "Quantization"
   },
   {
-    "category": "Quantization",
-    "name": "Quantize"
+    "name": "Quantize",
+    "category": "Quantization"
   },
   {
-    "category": "Quantization",
-    "name": "TypeCast"
+    "name": "TypeCast",
+    "category": "Quantization"
   },
   {
-    "category": "Activation",
-    "name": "ReLU"
+    "name": "ReLU",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "Sigmoid"
+    "name": "Sigmoid",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "SoftMaxBackward"
+    "name": "SoftMaxBackward",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "MishBackward"
+    "name": "MishBackward",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "GELU"
+    "name": "GELU",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "ClampBackward"
+    "name": "ClampBackward",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "Mish"
+    "name": "Mish",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "PReLU"
+    "name": "PReLU",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "SigmoidBackward"
+    "name": "SigmoidBackward",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "LogSoftmax"
+    "name": "LogSoftmax",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "Clamp"
+    "name": "Clamp",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "TanhBackward"
+    "name": "TanhBackward",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "ReLUBackward"
+    "name": "ReLUBackward",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "Exp"
+    "name": "Exp",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "SoftMax"
+    "name": "SoftMax",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "HardSwish"
+    "name": "HardSwish",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "LeakyReLU"
+    "name": "LeakyReLU",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "LogSoftmaxBackward"
+    "name": "LogSoftmaxBackward",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "Tanh"
+    "name": "Tanh",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "Elu"
+    "name": "Elu",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "SoftPlus"
+    "name": "SoftPlus",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "EluBackward"
+    "name": "EluBackward",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "GELUBackward"
+    "name": "GELUBackward",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "SoftPlusBackward"
+    "name": "SoftPlusBackward",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "PReLUBackward"
+    "name": "PReLUBackward",
+    "category": "Activation"
   },
   {
-    "category": "Activation",
-    "name": "HardSwishBackward"
+    "name": "HardSwishBackward",
+    "category": "Activation"
   },
   {
     "name": "Interpolate"
@@ -197,16 +197,16 @@
     "name": "ReduceMin"
   },
   {
-    "category": "Transform",
-    "name": "Reorder"
+    "name": "Reorder",
+    "category": "Transform"
   },
   {
-    "category": "Tensor",
-    "name": "Concat"
+    "name": "Concat",
+    "category": "Tensor"
   },
   {
-    "category": "Transform",
-    "name": "StaticTranspose"
+    "name": "StaticTranspose",
+    "category": "Transform"
   },
   {
     "name": "Abs"
@@ -263,48 +263,31 @@
     "name": "BiasAdd"
   },
   {
-    "category": "Layer",
-    "name": "ConvTranspose"
+    "name": "ConvTranspose",
+    "category": "Layer"
   },
   {
-    "category": "Layer",
     "name": "Convolution",
-    "inputs": [
-      {
-        "name": "src"
-      },
-      {
-        "name": "weights"
-      },
-      {
-        "name": "bias",
-        "option": "optional"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "dst"
-      }
-    ]
+    "category": "Layer"
   },
   {
-    "category": "Layer",
-    "name": "ConvTransposeBackwardData"
+    "name": "ConvTransposeBackwardData",
+    "category": "Layer"
   },
   {
-    "category": "Layer",
-    "name": "ConvolutionBackwardData"
+    "name": "ConvolutionBackwardData",
+    "category": "Layer"
   },
   {
-    "category": "Layer",
-    "name": "ConvolutionBackwardWeights"
+    "name": "ConvolutionBackwardWeights",
+    "category": "Layer"
   },
   {
-    "category": "Layer",
-    "name": "ConvTransposeBackwardWeights"
+    "name": "ConvTransposeBackwardWeights",
+    "category": "Layer"
   },
   {
-    "category": "Layer",
-    "name": "MatMul"
+    "name": "MatMul",
+    "category": "Layer"
   }
 ]
