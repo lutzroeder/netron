@@ -38,13 +38,13 @@ def _test_torchscript():
     # model = torchvision.models.alexnet(weights=torchvision.models.AlexNet_Weights.DEFAULT)
     # model = torchvision.models.resnet34(weights=torchvision.models.ResNet34_Weights.DEFAULT)
     model = torchvision.models.resnet34()
-    file = os.path.join(test_data_dir, 'pytorch', 'resnet34-333f7ec4.pth')
-    state_dict = torch.load(file)
+    state_dict = torch.load(os.path.join(test_data_dir, 'pytorch', 'resnet34-333f7ec4.pth'))
     model.load_state_dict(state_dict)
     args = torch.zeros([1, 3, 224, 224])
+    trace = torch.jit.trace(model, args, strict=True)
     # graph, _ = torch.jit._get_trace_graph(model, args) # pylint: disable=protected-access
     # torch.onnx._optimize_trace(graph, torch.onnx.OperatorExportTypes.ONNX)
-    trace = torch.jit.trace(model, args, strict=True)
+    # trace = torch.load(os.path.join(test_data_dir, 'pytorch', 'fasterrcnn_resnet50_fpn.pt'))
     torch._C._jit_pass_inline(trace.graph)
     # https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/ir/ir.h
     netron.serve('resnet34', trace)
