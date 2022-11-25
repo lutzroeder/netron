@@ -59390,7 +59390,7 @@
   },
   {
     "name": "TruncateDiv",
-    "summary": "Returns x / y element-wise for integer types.",
+    "summary": "Returns x / y element-wise, rounded towards zero.",
     "description": "Truncation designates that negative numbers will round fractional quantities\ntoward zero. I.e. -7 / 5 = -1. This matches C semantics but it is different\nthan Python semantics. See `FloorDiv` for a division function that matches\nPython Semantics.\n\n*NOTE*: `TruncateDiv` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
     "attributes": [
       {
@@ -60056,6 +60056,115 @@
         "name": "output",
         "description": "The output quantized Tensor of Tout, whose shape is same as input.",
         "typeAttr": "Tout"
+      }
+    ]
+  },
+  {
+    "name": "UniformQuantizedAdd",
+    "summary": "Perform quantized add of quantized Tensor `lhs` and quantized Tensor `rhs` to make quantized `output`.",
+    "description": "Given quantized `lhs` and quantized `rhs`, performs quantized add on `lhs` and `rhs` to make quantized `output`.\n\n`UniformQuantizedAdd` follows Numpy broadcasting rules.\nThe two input array shapes are compared element-wise.\nStarting with the trailing dimensions, the two dimensions either have to be equal or one of them needs to be 1.\n\n`lhs` and `rhs` must be quantized Tensor, where data value is quantized using the formula:\n```\nquantized_data = clip(original_data / scale + zero_point, quantization_min_val, quantization_max_val)\n```\n`output` is also quantized, using the same formula.\n\nIf `lhs` and `output` is both per-axis quantized, the quantization axis must match.\nAlso, if `rhs` and `output` is both per-axis quantized, the quantization axis must match.\n*Match* means the axis must match when adding, regarding the broadcasting.\ni.e. For both operands `lhs` and `rhs`,\nif `operand.quantization_axis` >= 0 and `output.quantization_axis` >= 0,\n`operand.dims` - `operand.quantization_axis` must be equal to `output.dims` - `output.quantization_axis`.",
+    "attributes": [
+      {
+        "name": "lhs_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor the `lhs`, only per-tensor quantization is supported.\nThus, this must be set to -1.\nOther values will raise error at OpKernel construction.",
+        "default": -1
+      },
+      {
+        "name": "lhs_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in `lhs`.\nFor example, if `Tin` is `qint8`, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "lhs_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in `lhs`.\nFor example, if `Tin` is `qint8`, this must be set to 127."
+      },
+      {
+        "name": "rhs_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor the `rhs`, only per-tensor quantization\nor per-channel quantization along `kernel_output_feature_dimension` is supported.\nThus, this must be set to -1 or `dimension_numbers.kernel_output_feature_dimension`.\nOther values will raise error at OpKernel construction.",
+        "default": -1
+      },
+      {
+        "name": "rhs_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in `rhs`.\nFor example, if `Tin` is `qint8`, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "rhs_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in `rhs`.\nFor example, if `Tin` is `qint8`, this must be set to 127."
+      },
+      {
+        "name": "output_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor the `output`, only per-tensor quantization or per-channel quantization along `output_feature_dimension` is supported.\nThus, this must be set to -1 or `dimension_numbers.output_feature_dimension`.\nOther values will raise error at OpKernel construction.",
+        "default": -1
+      },
+      {
+        "name": "output_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in `output`.\nFor example, if  `Tout` is `qint8`, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "output_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in `output`.\nFor example, if `Tout` is `qint8`, this must be set to 127."
+      },
+      {
+        "name": "T",
+        "type": "type",
+        "description": "The type of `lhs`, `rhs`, and `output`. Must be one of the following: `qint32`."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "lhs",
+        "description": "Must be a quantized tensor.",
+        "typeAttr": "T"
+      },
+      {
+        "name": "rhs",
+        "description": "Must be a quantized tensor.",
+        "typeAttr": "T"
+      },
+      {
+        "name": "lhs_scales",
+        "description": "The float value(s) used as scale factors when quantizing the original data that `lhs` represents.",
+        "type": 1
+      },
+      {
+        "name": "lhs_zero_points",
+        "description": "The int32 value(s) used as zero points when quantizing original data that `lhs` represents.\nMust have same shape with `lhs_scales`.",
+        "type": 3
+      },
+      {
+        "name": "rhs_scales",
+        "description": "The float value(s) used as scale factors when quantizing the original data that `rhs` represents.",
+        "type": 1
+      },
+      {
+        "name": "rhs_zero_points",
+        "description": "The int32 value(s) used as zero points when quantizing original data that `rhs` represents.\nMust have same shape with `rhs_scales`.",
+        "type": 3
+      },
+      {
+        "name": "output_scales",
+        "description": "The float value(s) to use as scale factors when quantizing original data that `output` represents.",
+        "type": 1
+      },
+      {
+        "name": "output_zero_points",
+        "description": "The int32 value(s) used as zero points when quantizing original data that output represents.\nMust have same shape with `output_scales`.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "The output quantized tensor.",
+        "typeAttr": "T"
       }
     ]
   },
