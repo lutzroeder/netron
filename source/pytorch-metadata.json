@@ -8217,7 +8217,8 @@
       { "name": "padding", "type": "int64[2]", "default": 0 },
       { "name": "stride", "type": "int64[2]", "default": 1 },
       { "name": "dilation", "type": "int64[2]", "default": 1 },
-      { "name": "groups", "type": "int64", "default": 1 }
+      { "name": "groups", "type": "int64", "default": 1 },
+      { "name": "input_size", "type": "int64[]", "optional": true, "default": null }
     ],
     "outputs": [
       { "type": "Tensor" }
