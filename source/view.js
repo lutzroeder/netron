@@ -1386,7 +1386,7 @@ view.ModelContext = class {
                                     const archive = zip.Archive.open(stream, 'zlib');
                                     const data = archive ? archive.entries.get('') : stream;
                                     const signature = [ 0x80, undefined, 0x63, 0x5F, 0x5F, 0x74, 0x6F, 0x72, 0x63, 0x68, 0x5F, 0x5F, 0x2E]; // __torch__.
-                                    const torch = signature.length <= data.length && data.peek(data.length).every((value, index) => signature[index] === undefined || signature[index] === value);
+                                    const torch = signature.length <= data.length && data.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value);
                                     unpickler = python.Unpickler.open(data, () => {
                                         const execution = new python.Execution();
                                         execution.on('resolve', (_, name) => {
