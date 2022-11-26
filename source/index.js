@@ -127,7 +127,7 @@ host.BrowserHost = class {
                 };
                 const consent = () => {
                     this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept', () => {
-                        this._setCookie('consent', 'yes', 30);
+                        this._setCookie('consent', Date.now().toString(), 30);
                         telemetry();
                     });
                 };
@@ -143,7 +143,7 @@ host.BrowserHost = class {
                                 consent();
                             }
                             else {
-                                this._setCookie('consent', Date.now(), 30);
+                                this._setCookie('consent', Date.now().toString(), 30);
                                 telemetry();
                             }
                         }
@@ -531,7 +531,7 @@ host.BrowserHost = class {
             this._view.progress(value);
         };
         return this._request(url, null, null, progress).then((stream) => {
-            const context = new host.BrowserHost.BrowserContext(this, url, identifier, stream);
+            const context = new host.BrowserHost.Context(this, url, identifier, stream);
             return this._view.open(context).then(() => {
                 return identifier || context.identifier;
             }).catch((err) => {
@@ -578,7 +578,7 @@ host.BrowserHost = class {
             const encoder = new TextEncoder();
             const buffer = encoder.encode(file.content);
             const stream = new host.BrowserHost.BinaryStream(buffer);
-            const context = new host.BrowserHost.BrowserContext(this, '', identifier, stream);
+            const context = new host.BrowserHost.Context(this, '', identifier, stream);
             this._view.open(context).then(() => {
                 this.document.title = identifier;
             }).catch((error) => {
@@ -593,14 +593,18 @@ host.BrowserHost = class {
 
     _setCookie(name, value, days) {
         const date = new Date();
-        date.setTime(date.getTime() + ((typeof days !== "number" ? 365 : days) * 24 * 60 * 60 * 1000));
-        document.cookie = name + "=" + value + ";path=/;expires=" + date.toUTCString();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        this.document.cookie = name + "=" + value + ";path=/;expires=" + date.toUTCString();
     }
 
     _getCookie(name) {
-        const cookie = '; ' + document.cookie;
-        const parts = cookie.split('; ' + name + '=');
-        return parts.length < 2 ? undefined : parts.pop().split(';').shift();
+        for (const cookie of this.document.cookie.split(';')) {
+            const entry = cookie.split('=');
+            if (entry[0].trim() === name) {
+                return entry[1].trim();
+            }
+        }
+        return '';
     }
 
     _message(message, button, callback) {
@@ -909,7 +913,7 @@ host.BrowserHost.BrowserFileContext = class {
     }
 };
 
-host.BrowserHost.BrowserContext = class {
+host.BrowserHost.Context = class {
 
     constructor(host, url, identifier, stream) {
         this._host = host;
