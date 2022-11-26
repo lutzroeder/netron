@@ -364,7 +364,7 @@ host.ElectronHost = class {
         if (stat.isFile()) {
             const dirname = path.dirname(location);
             return this.request(basename, null, dirname).then((stream) => {
-                return new host.ElectronHost.ElectronContext(this, dirname, basename, stream);
+                return new host.ElectronHost.Context(this, dirname, basename, stream);
             });
         }
         else if (stat.isDirectory()) {
@@ -725,7 +725,7 @@ host.ElectronHost.FileStream = class {
     }
 };
 
-host.ElectronHost.ElectronContext = class {
+host.ElectronHost.Context = class {
 
     constructor(host, folder, identifier, stream, entries) {
         this._host = host;
