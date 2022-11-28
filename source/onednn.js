@@ -64,16 +64,18 @@ onednn.Graph = class {
 
         if (symbol) {
             const nodes = symbol.graph;
-
-            const args = new Map();
-            const arg = (name, type, lt) => {
-                if (!args.has(name)) {
-                    args.set(name, new onednn.Argument(name, type, null, lt));
-                }
-                return args.get(name);
-            };
+            const fold_list = [];
             for (const node of nodes) {
-                this._nodes.push(new onednn.Node(this._metadata, node, arg, symbol.engine_kind));
+                if (node.kind == 'Wildcard' && node.inputs.length == 0) {
+                    for (const output of node.outputs) {
+                        fold_list.push(output.id);
+                    }
+                }
+            }
+            for (const node of nodes) {
+                if (!(node.kind == 'Wildcard' && node.inputs.length == 0)) {
+                    this._nodes.push(new onednn.Node(this._metadata, node, symbol.engine_kind, fold_list));
+                }
             }
         }
     }
@@ -101,7 +103,7 @@ onednn.Graph = class {
 
 onednn.Node = class {
 
-    constructor(metadata, node, arg, device) {
+    constructor(metadata, node, device, fold_list) {
         const type = node.kind;
         this._name = node.name;
         this._attributes = [];
@@ -123,10 +125,18 @@ onednn.Node = class {
         const inputs = node.inputs || [];
         let inputIndex = 0;
         for (const input of inputs) {
-            const shape = new onednn.TensorShape(input.shape);
-            const type = new onednn.TensorType(input.dtype, shape);
-            const inputName = (inputs.length == 1) ? 'input' : ('input' + (inputIndex)).toString();
-            this._inputs.push(new onednn.Parameter(inputName, [new onednn.Argument(input.id.toString(), type)]));
+            if (fold_list.includes(input.id)) {
+                const shape = new onednn.TensorShape(input.shape);
+                const type = new onednn.TensorType(input.dtype, shape);
+                const inputName = (inputs.length == 1) ? 'input' : ('input' + (inputIndex)).toString();
+                this._inputs.push(new onednn.Parameter(inputName, [new onednn.Argument(input.id.toString(), type, new onednn.Tensor(type, input.property_type))]));
+            }
+            else {
+                const shape = new onednn.TensorShape(input.shape);
+                const type = new onednn.TensorType(input.dtype, shape);
+                const inputName = (inputs.length == 1) ? 'input' : ('input' + (inputIndex)).toString();
+                this._inputs.push(new onednn.Parameter(inputName, [new onednn.Argument(input.id.toString(), type)]));
+            }
             inputIndex += 1;
         }
 
@@ -285,12 +295,13 @@ onednn.Parameter = class {
 
 onednn.Argument = class {
 
-    constructor(name, type) {
+    constructor(name, type, initializer) {
         if (typeof name !== 'string') {
             throw new onednn.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;
+        this._initializer = initializer || null;
     }
 
     get name() {
@@ -300,12 +311,15 @@ onednn.Argument = class {
     get type() {
         return this._type;
     }
+
+    get initializer() {
+        return this._initializer;
+    }
 };
 
 onednn.TensorType = class {
 
-    constructor(dataType, shape, stride) {
-        this._stride = stride ? ('[' + stride.map((stride) => stride ? stride.toString() : '?').join(',') + ']') : '';
+    constructor(dataType, shape) {
         this._dataType = dataType || '?';
         this._shape = shape;
     }
@@ -335,6 +349,22 @@ onednn.TensorShape = class {
 
     toString() {
         return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',') + ']') : '';
+    }
+};
+
+onednn.Tensor = class {
+
+    constructor(type, property_type) {
+        this._type = type;
+        this._category = property_type;
+    }
+
+    get type() {
+        return this._type;
+    }
+
+    get category() {
+        return this._category;
     }
 };
 
