@@ -342,16 +342,14 @@ sklearn.Attribute = class {
 
 sklearn.Tensor = class {
 
-    constructor(value) {
-        if (!sklearn.Utility.isTensor(value)) {
-            const type = value.__class__.__module__ + '.' + value.__class__.__name__;
+    constructor(array) {
+        if (!sklearn.Utility.isTensor(array)) {
+            const type = array.__class__.__module__ + '.' + array.__class__.__name__;
             throw new sklearn.Error("Unsupported tensor type '" + type + "'.");
         }
-        this._type = new sklearn.TensorType(value.dtype.__name__, new sklearn.TensorShape(value.shape));
-        this._data = value.data;
-        if (this._type.dataType === 'string') {
-            this._itemsize = value.dtype.itemsize;
-        }
+        this._type = new sklearn.TensorType(array.dtype.__name__, new sklearn.TensorShape(array.shape));
+        this._byteorder = array.dtype.byteorder;
+        this._data = this._type.dataType == 'string' || this._type.dataType == 'object' ? array.tolist() : array.tobytes();
     }
 
     get type() {
@@ -363,39 +361,11 @@ sklearn.Tensor = class {
     }
 
     get layout() {
-        switch (this._type.dataType) {
-            case 'string':
-            case 'object':
-                return '|';
-            default:
-                return this._byteorder;
-        }
+        return this._type.dataType == 'string' || this._type.dataType == 'object' ? '|' : this._byteorder;
     }
 
     get values() {
-        switch (this._type.dataType) {
-            case 'string': {
-                if (this._data instanceof Uint8Array) {
-                    const data = this._data;
-                    const decoder = new TextDecoder('utf-8');
-                    const size = this._type.shape.dimensions.reduce((a, b) => a * b, 1);
-                    this._data = new Array(size);
-                    let offset = 0;
-                    for (let i = 0; i < size; i++) {
-                        const buffer = data.subarray(offset, offset + this._itemsize);
-                        const index = buffer.indexOf(0);
-                        this._data[i] = decoder.decode(index >= 0 ? buffer.subarray(0, index) : buffer);
-                        offset += this._itemsize;
-                    }
-                }
-                return this._data;
-            }
-            case 'object': {
-                return this._data;
-            }
-            default:
-                return this._data;
-        }
+        return this._data;
     }
 };
 

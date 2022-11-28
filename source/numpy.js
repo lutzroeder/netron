@@ -276,49 +276,24 @@ numpy.Tensor = class  {
 
     constructor(array) {
         this._type = new numpy.TensorType(array.dtype.__name__, new numpy.TensorShape(array.shape));
-        this._data = array.tobytes();
         this._byteorder = array.dtype.byteorder;
-        this._itemsize = array.dtype.itemsize;
+        this._data = this._type.dataType == 'string' || this._type.dataType == 'object' ? array.tolist() : array.tobytes();
     }
 
-    get type(){
+    get type() {
         return this._type;
     }
 
+    get category() {
+        return 'NumPy Array';
+    }
+
     get layout() {
-        switch (this._type.dataType) {
-            case 'string':
-            case 'object':
-                return '|';
-            default:
-                return this._byteorder;
-        }
+        return this._type.dataType == 'string' || this._type.dataType == 'object' ? '|' : this._byteorder;
     }
 
     get values() {
-        switch (this._type.dataType) {
-            case 'string': {
-                if (this._data instanceof Uint8Array) {
-                    const data = this._data;
-                    const decoder = new TextDecoder('utf-8');
-                    const size = this._type.shape.dimensions.reduce((a, b) => a * b, 1);
-                    this._data = new Array(size);
-                    let offset = 0;
-                    for (let i = 0; i < size; i++) {
-                        const buffer = data.subarray(offset, offset + this._itemsize);
-                        const index = buffer.indexOf(0);
-                        this._data[i] = decoder.decode(index >= 0 ? buffer.subarray(0, index) : buffer);
-                        offset += this._itemsize;
-                    }
-                }
-                return this._data;
-            }
-            case 'object': {
-                return this._data;
-            }
-            default:
-                return this._data;
-        }
+        return this._data;
     }
 };
 
@@ -426,16 +401,9 @@ numpy.Utility = class {
             return null;
         };
         const list = (obj, key) => {
-            const list = key === '' ? obj : obj[key];
+            let list = key === '' ? obj : obj[key];
             if (list && Array.isArray(list) && list.every((obj) => Object.entries(obj).every((entry) => numpy.Utility.isTensor(entry[1])))) {
-                const weights = new Map();
-                for (let i = 0; i < list.length; i++) {
-                    const obj = list[i];
-                    for (const entry of Object.entries(obj)) {
-                        weights.set(i.toString() + '.' + entry[0], entry[1]);
-                    }
-                }
-                return weights;
+                list = list.map((obj) => obj instanceof Map ? obj : new Map(Object.entries(obj)));
             }
             if (list && Array.isArray(list)) {
                 const weights = new Map();

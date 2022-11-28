@@ -2342,6 +2342,46 @@ python.Execution = class {
             tobytes() {
                 return this.data;
             }
+            tolist() {
+                if (this.shape.length < 0 || this.shape.length > 1) {
+                    throw new Error(JSON.stringify(this.shape));
+                }
+                const size = this.shape.reduce((a, b) => a * b, 1);
+                const list = new Array(size);
+                switch (this.dtype.kind) {
+                    case 'U': {
+                        const data = new Uint32Array(new Uint8Array(this.data).buffer);
+                        const itemsize = this.dtype.itemsize >> 2;
+                        let offset = 0;
+                        for (let i = 0; i < size; i++) {
+                            const buffer = data.subarray(offset, offset + itemsize);
+                            const index = buffer.indexOf(0);
+                            list[i] = Array.from(index >= 0 ? buffer.subarray(0, index) : buffer).map((c) => String.fromCodePoint(c)).join('');
+                            offset += itemsize;
+                        }
+                        return list;
+                    }
+                    case 'S': {
+                        const data = this.data;
+                        const itemsize = this.dtype.itemsize;
+                        const decoder = new TextDecoder('utf-8');
+                        let offset = 0;
+                        for (let i = 0; i < size; i++) {
+                            const buffer = data.subarray(offset, offset + itemsize);
+                            const index = buffer.indexOf(0);
+                            list[i] = decoder.decode(index >= 0 ? buffer.subarray(0, index) : buffer);
+                            offset += itemsize;
+                        }
+                        return list;
+                    }
+                    case 'O': {
+                        return this.data;
+                    }
+                    default: {
+                        throw new python.Error("Type kind '" + this.dtype.kind + "' not implemented.");
+                    }
+                }
+            }
             get size() {
                 return (this.shape || []).reduce((a, b) => a * b, 1);
             }

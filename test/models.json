@@ -3220,6 +3220,13 @@
   },
   {
     "type":     "numpy",
+    "target":   "datasplit.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/10099644/datasplit.pkl.zip[datasplit.pkl]",
+    "format":   "NumPy Weights",
+    "link":     "https://github.com/lutzroeder/netron/issues/711"
+  },
+  {
+    "type":     "numpy",
     "target":   "mlp.npz",
     "source":   "https://github.com/lutzroeder/netron/files/6225731/mlp.zip[mlp.npz]",
     "format":   "NumPy Zip",
