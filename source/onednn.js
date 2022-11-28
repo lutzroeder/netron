@@ -122,19 +122,21 @@ onednn.Node = class {
             }
         }
 
+        const schema = metadata.type(node.kind);
         const inputs = node.inputs || [];
         let inputIndex = 0;
         for (const input of inputs) {
+            const shape = new onednn.TensorShape(input.shape);
+            const type = new onednn.TensorType(input.dtype, shape);
+            let inputName = (inputs.length == 1) ? 'input' : ('input' + (inputIndex)).toString();
+            if (schema && schema.inputs && schema.inputs.length > 0) {
+                const inputSchema = schema.inputs.slice();
+                inputName = inputSchema[inputIndex].name;
+            }
             if (fold_list.includes(input.id)) {
-                const shape = new onednn.TensorShape(input.shape);
-                const type = new onednn.TensorType(input.dtype, shape);
-                const inputName = (inputs.length == 1) ? 'input' : ('input' + (inputIndex)).toString();
                 this._inputs.push(new onednn.Parameter(inputName, [new onednn.Argument(input.id.toString(), type, new onednn.Tensor(type, input.property_type))]));
             }
             else {
-                const shape = new onednn.TensorShape(input.shape);
-                const type = new onednn.TensorType(input.dtype, shape);
-                const inputName = (inputs.length == 1) ? 'input' : ('input' + (inputIndex)).toString();
                 this._inputs.push(new onednn.Parameter(inputName, [new onednn.Argument(input.id.toString(), type)]));
             }
             inputIndex += 1;
@@ -145,7 +147,11 @@ onednn.Node = class {
         for (const output of outputs) {
             const shape = new onednn.TensorShape(output.shape);
             const type = new onednn.TensorType(output.dtype, shape, output.stride);
-            const outputName = (outputs.length == 1) ? 'output' : ('output' + (outputIndex)).toString();
+            let outputName = (outputs.length == 1) ? 'output' : ('output' + (outputIndex)).toString();
+            if (schema && schema.outputs && schema.outputs.length > 0) {
+                const outputSchema = schema.outputs.slice();
+                outputName = outputSchema[outputIndex].name;
+            }
             this._outputs.push(new onednn.Parameter(outputName, [new onednn.Argument(output.id.toString(), type)]));
             outputIndex += 1;
         }

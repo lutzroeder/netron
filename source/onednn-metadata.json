@@ -268,7 +268,24 @@
   },
   {
     "name": "Convolution",
-    "category": "Layer"
+    "category": "Layer",
+    "inputs": [
+      {
+        "name": "src"
+      },
+      {
+        "name": "weight"
+      },
+      {
+        "name": "bias",
+        "option": "optional"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "dst"
+      }
+    ]
   },
   {
     "name": "ConvTransposeBackwardData",
