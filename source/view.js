@@ -225,14 +225,15 @@ view.View = class {
     _mouseDownHandler(e) {
         if (e.buttons === 1) {
             const document = this._host.document.documentElement;
-            document.style.cursor = 'grabbing';
             const container = this._getElementById('graph');
+            const background = this._getElementById('background');
             this._mousePosition = {
                 left: container.scrollLeft,
                 top: container.scrollTop,
                 x: e.clientX,
                 y: e.clientY
             };
+            background.setAttribute('cursor', 'grabbing')
             e.stopImmediatePropagation();
             const mouseMoveHandler = (e) => {
                 e.preventDefault();
@@ -247,7 +248,7 @@ view.View = class {
                 }
             };
             const mouseUpHandler = () => {
-                document.style.cursor = null;
+                background.setAttribute('cursor', 'default')
                 container.removeEventListener('mouseup', mouseUpHandler);
                 container.removeEventListener('mouseleave', mouseUpHandler);
                 container.removeEventListener('mousemove', mouseMoveHandler);
