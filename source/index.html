@@ -24,6 +24,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .open-file-dialog { display: none; }
 .transparent { width: 100%; height: 100%; background-color: #000000; display: none; opacity: 0; }
 .graph { display: flex; height: 100%; width: 100%; overflow: auto; outline: none; touch-action: pan-x pan-y; }
+.cursor { position: absolute; height: 100%; width: 100%;}
 .canvas { margin: auto; flex-shrink: 0; text-rendering: geometricPrecision; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .toolbar { position: absolute; top: 10px; left: 10px; padding: 0; margin: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .toolbar button:focus { outline: 0; }
@@ -164,6 +165,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 <body class="welcome spinner">
 <div id="graph" class="graph" tabindex="0">
     <svg id="canvas" class="canvas" preserveaspectratio="xMidYMid meet" width="100%" height="100%"></svg>
+    <div id="cursor" class="cursor"></div>
 </div>
 <div id="sidebar" class="sidebar"></div>
 <div id="toolbar" class="toolbar">
