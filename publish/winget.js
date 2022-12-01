@@ -63,7 +63,7 @@ const version = configuration.version;
 const productName = configuration.productName;
 const publisher = configuration.author.name;
 const packageIdentifier = publisher.replace(' ', '') + '.' + productName;
-const license = 'Copyright (c) ' + publisher;
+const copyright = 'Copyright (c) ' + publisher;
 const repository = 'https://github.com/' + configuration.repository;
 const url = repository + '/releases/download/v' + version + '/' + productName + '-Setup-' + version + '.exe';
 const extensions = configuration.build.fileAssociations.map((entry) => '- ' + entry.ext).sort().join('\n');
@@ -129,8 +129,8 @@ get(url).then((data) => {
         'PublisherUrl: ' + repository,
         'PublisherSupportUrl: ' + repository + '/issues',
         'Author: ' + publisher,
-        'License: ' + license,
-        'Copyright: ' + license,
+        'License: ' + configuration.license,
+        'Copyright: ' + copyright,
         'CopyrightUrl: ' + repository + '/blob/main/LICENSE',
         'ShortDescription: ' + configuration.description,
         'Description: ' + configuration.description,
