@@ -310,6 +310,11 @@ onednn.TensorType = class {
         switch (dataType) {
             case 'f32': this._dataType = 'float32'; break;
             case 's32': this._dataType = 'int32'; break;
+            case 'u8': this._dataType = 'uint8'; break;
+            case 's8': this._dataType = 'int8'; break;
+            case 'f16': this._dataType = 'float16'; break;
+            case 'bf16': this._dataType = 'bfloat16'; break;
+            case 'undef': this._dataType = '?'; break;
             default: throw new onednn.Error("Unsupported tensor data type '" + dataType.toString() + "'.");
         }
         this._shape = shape;
