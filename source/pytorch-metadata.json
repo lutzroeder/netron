@@ -12494,7 +12494,9 @@
   {
     "name": "aten::to_sparse",
     "inputs": [
-      { "name": "self", "type": "Tensor" }
+      { "name": "self", "type": "Tensor" },
+      { "name": "layout", "type": "Layout", "optional": true, "default": null },
+      { "name": "blocksize", "type": "int64[2]", "optional": true, "default": null }
     ],
     "outputs": [
       { "type": "Tensor" }
