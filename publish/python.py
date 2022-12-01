@@ -5,6 +5,13 @@ import os
 import re
 import sys
 import shutil
+import subprocess
+
+root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+dist_dir = os.path.join(root_dir, 'dist')
+dist_pypi_dir = os.path.join(dist_dir, 'pypi')
+source_dir = os.path.join(root_dir, 'source')
+publish_dir = os.path.join(root_dir, 'publish')
 
 def _read(path):
     with open(path, 'r', encoding='utf-8') as file:
@@ -23,12 +30,20 @@ def _update(path, regex, value):
 
 def _build():
     ''' Build dist/pypi '''
-    shutil.rmtree('./source/__pycache__', ignore_errors=True)
-    shutil.rmtree('./dist/pypi', ignore_errors=True)
-    shutil.copytree('./source/', './dist/pypi/netron/')
-    shutil.copyfile('./publish/setup.py', './dist/pypi/setup.py')
-    os.remove('./dist/pypi/netron/electron.js')
-    os.remove('./dist/pypi/netron/app.js')
+    shutil.rmtree(os.path.join(source_dir, '__pycache__'), ignore_errors=True)
+    shutil.rmtree(dist_pypi_dir, ignore_errors=True)
+    shutil.copytree(source_dir, os.path.join(dist_pypi_dir, 'netron'))
+    shutil.copyfile(os.path.join(publish_dir, 'setup.py'), os.path.join(dist_pypi_dir, 'setup.py'))
+    os.remove(os.path.join(dist_pypi_dir, 'netron', 'electron.js'))
+    os.remove(os.path.join(dist_pypi_dir, 'netron', 'app.js'))
+
+def _install():
+    ''' Install dist/pypi '''
+    args = [ 'python', '-m', 'pip', 'install', dist_pypi_dir ]
+    try:
+        subprocess.run(args, check=False)
+    except (KeyboardInterrupt, SystemExit):
+        pass
 
 def _version():
     ''' Update version '''
@@ -51,13 +66,13 @@ def _start():
     #     subprocess.run(args, env={ 'PYTHONPATH': './dist/pypi' }, check=False)
     # except (KeyboardInterrupt, SystemExit):
     #     pass
-    sys.path.insert(0, 'dist/pypi')
+    sys.path.insert(0, os.path.join(root_dir, 'dist', 'pypi'))
     __import__('netron').main()
     sys.args = []
     del sys.argv[1:]
 
 def main(): # pylint: disable=missing-function-docstring
-    table = { 'build': _build, 'version': _version, 'start': _start }
+    table = { 'build': _build, 'install': _install, 'version': _version, 'start': _start }
     sys.args = sys.argv[1:]
     while len(sys.args) > 0:
         command = sys.args.pop(0)
