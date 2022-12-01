@@ -4,9 +4,9 @@ var host = {};
 host.BrowserHost = class {
 
     constructor() {
-        this._document = window.document;
         this._window = window;
-        this._navigator = navigator;
+        this._navigator = window.navigator;
+        this._document = window.document;
         if (this._window.location.hostname.endsWith('.github.io')) {
             this._window.location.replace('https://netron.app');
         }
@@ -607,24 +607,24 @@ host.BrowserHost = class {
         return '';
     }
 
-    _message(message, button, callback) {
-        const messageText = this.document.getElementById('message');
-        if (messageText) {
-            messageText.innerText = message;
+    _message(message, action, callback) {
+        const text = this.document.getElementById('message');
+        if (text) {
+            text.innerText = message;
         }
-        const messageButton = this.document.getElementById('message-button');
-        if (messageButton) {
-            if (button && callback) {
-                messageButton.style.removeProperty('display');
-                messageButton.innerText = button;
-                messageButton.onclick = () => {
-                    messageButton.onclick = null;
+        const button = this.document.getElementById('message-button');
+        if (button) {
+            if (action && callback) {
+                button.style.removeProperty('display');
+                button.innerText = action;
+                button.onclick = () => {
+                    button.onclick = null;
                     callback();
                 };
             }
             else {
-                messageButton.style.display = 'none';
-                messageButton.onclick = null;
+                button.style.display = 'none';
+                button.onclick = null;
             }
         }
         const page = 'welcome message';
@@ -637,14 +637,13 @@ host.BrowserHost = class {
     }
 
     _about() {
-        const self = this;
-        const eventHandler = () => {
-            this.window.removeEventListener('keydown', eventHandler);
-            self.document.body.removeEventListener('click', eventHandler);
-            self._view.show('default');
+        const handler = () => {
+            this.window.removeEventListener('keydown', handler);
+            this.document.body.removeEventListener('click', handler);
+            this._view.show('default');
         };
-        this.window.addEventListener('keydown', eventHandler);
-        this.document.body.addEventListener('click', eventHandler);
+        this.window.addEventListener('keydown', handler);
+        this.document.body.addEventListener('click', handler);
         this._view.show('about');
     }
 };
