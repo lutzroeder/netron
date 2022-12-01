@@ -1436,6 +1436,9 @@ $root.tensorflow.TensorProto = class TensorProto {
                 case 17:
                     message.uint64_val = reader.array(message.uint64_val, () => reader.uint64(), tag);
                     break;
+                case 18:
+                    message.float8_val = reader.bytes();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -1501,6 +1504,9 @@ $root.tensorflow.TensorProto = class TensorProto {
                 case "uint64_val":
                     reader.array(message.uint64_val, () => reader.uint64());
                     break;
+                case "float8_val":
+                    message.float8_val = reader.bytes();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -1514,6 +1520,7 @@ $root.tensorflow.TensorProto.prototype.dtype = 0;
 $root.tensorflow.TensorProto.prototype.tensor_shape = null;
 $root.tensorflow.TensorProto.prototype.version_number = 0;
 $root.tensorflow.TensorProto.prototype.tensor_content = new Uint8Array([]);
+$root.tensorflow.TensorProto.prototype.float8_val = new Uint8Array([]);
 
 $root.tensorflow.VariantTensorDataProto = class VariantTensorDataProto {
 
@@ -1820,6 +1827,8 @@ $root.tensorflow.DataType = {
     "DT_VARIANT": 21,
     "DT_UINT32": 22,
     "DT_UINT64": 23,
+    "DT_FLOAT8_E5M2": 24,
+    "DT_FLOAT8_E4M3FN": 25,
     "DT_FLOAT_REF": 101,
     "DT_DOUBLE_REF": 102,
     "DT_INT32_REF": 103,
@@ -1842,7 +1851,9 @@ $root.tensorflow.DataType = {
     "DT_RESOURCE_REF": 120,
     "DT_VARIANT_REF": 121,
     "DT_UINT32_REF": 122,
-    "DT_UINT64_REF": 123
+    "DT_UINT64_REF": 123,
+    "DT_FLOAT8_E5M2_REF": 124,
+    "DT_FLOAT8_E4M3FN_REF": 125
 };
 
 $root.tensorflow.SerializedDType = class SerializedDType {
