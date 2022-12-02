@@ -7,7 +7,6 @@ const http = require('http');
 const https = require('https');
 const process = require('process');
 const path = require('path');
-const querystring = require('querystring');
 
 host.ElectronHost = class {
 
@@ -546,7 +545,7 @@ host.Telemetry = class {
                 delete params[param];
             }
         }
-        const body = querystring.stringify(params);
+        const body = Object.entries(params).map((entry) => encodeURIComponent(entry[0]) + '=' + encodeURIComponent(entry[1])).join('&');
         const options = {
             method: 'POST',
             host: 'www.google-analytics.com',
