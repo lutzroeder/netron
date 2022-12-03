@@ -383,7 +383,7 @@ host.ElectronHost = class {
                 }
             };
             walk(location);
-            return Promise.resolve(new host.ElectronHost.ElectronContext(this, location, basename, null, entries));
+            return Promise.resolve(new host.ElectronHost.Context(this, location, basename, null, entries));
         }
         throw new Error("Unsupported path stat '" + JSON.stringify(stat) + "'.");
     }
