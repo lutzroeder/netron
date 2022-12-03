@@ -430,6 +430,17 @@
     ]
   },
   {
+    "name": "program:batch_norm",
+    "category": "Normalization",
+    "inputs": [
+      { "name": "x" },
+      { "name": "mean" },
+      { "name": "variance" },
+      { "name": "gamma" },
+      { "name": "beta" }
+    ]
+  },
+  {
     "name": "program:linear",
     "category": "Layer",
     "inputs": [
