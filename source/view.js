@@ -44,24 +44,14 @@ view.View = class {
                 this.showDocumentation(this.activeGraph);
             });
             this._getElementById('sidebar').addEventListener('mousewheel', (e) => {
-                this._preventDefault(e);
+                if (e.shiftKey || e.ctrlKey) {
+                    e.preventDefault();
+                }
             }, { passive: true });
             this._host.document.addEventListener('keydown', () => {
                 this.clearSelection();
             });
             this._host.start();
-            const container = this._getElementById('graph');
-            container.addEventListener('scroll', (e) => this._scrollHandler(e));
-            container.addEventListener('wheel', (e) => this._wheelHandler(e), { passive: false });
-            container.addEventListener('mousedown', (e) => this._mouseDownHandler(e));
-            switch (this._host.agent) {
-                case 'safari':
-                    container.addEventListener('gesturestart', (e) => this._gestureStartHandler(e), false);
-                    break;
-                default:
-                    container.addEventListener('touchstart', (e) => this._touchStartHandler(e), { passive: true });
-                    break;
-            }
         }).catch((err) => {
             this.error(err, null, null);
         });
@@ -77,10 +67,10 @@ view.View = class {
         }
         this._host.document.body.setAttribute('class', page);
         if (page === 'default') {
-            const container = this._getElementById('graph');
-            if (container) {
-                container.focus();
-            }
+            this._activate();
+        }
+        else {
+            this._deactivate();
         }
         if (page === 'welcome') {
             const element = this._getElementById('open-file-button');
@@ -193,9 +183,38 @@ view.View = class {
         this._updateZoom(1);
     }
 
-    _preventDefault(e) {
-        if (e.shiftKey || e.ctrlKey) {
-            e.preventDefault();
+    _activate() {
+        if (!this._events) {
+            this._events = {};
+            this._events.scroll = (e) => this._scrollHandler(e);
+            this._events.wheel = (e) => this._wheelHandler(e);
+            this._events.mousedown = (e) => this._mouseDownHandler(e);
+            this._events.gesturestart = (e) => this._gestureStartHandler(e);
+            this._events.touchstart = (e) => this._touchStartHandler(e);
+        }
+        const graph = this._getElementById('graph');
+        if (graph) {
+            graph.focus();
+        }
+        graph.addEventListener('scroll', this._events.scroll);
+        graph.addEventListener('wheel', this._events.wheel, { passive: false });
+        graph.addEventListener('mousedown', this._events.mousedown);
+        if (this._host.agent === 'safari') {
+            graph.addEventListener('gesturestart', this._events.gesturestart, false);
+        }
+        else {
+            graph.addEventListener('touchstart', this._events.touchstart, { passive: true });
+        }
+    }
+
+    _deactivate() {
+        if (this._events) {
+            const graph = this._getElementById('graph');
+            graph.removeEventListener('scroll', this._events.scroll);
+            graph.removeEventListener('wheel', this._events.wheel);
+            graph.removeEventListener('mousedown', this._events.mousedown);
+            graph.removeEventListener('gesturestart', this._events.gesturestart);
+            graph.removeEventListener('touchstart', this._events.touchstart);
         }
     }
 
