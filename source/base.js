@@ -773,6 +773,121 @@ base.BinaryReader = class {
     }
 };
 
+base.Telemetry = class {
+
+    static open(window, measurement_id, client_id) {
+        return new base.Telemetry(window, measurement_id, client_id);
+    }
+
+    constructor(window, measurement_id, client_id) {
+        this._schema = new Map([
+            [ 'protocol_version', 'v' ],
+            [ 'tracking_id', 'tid' ],
+            [ 'client_id', 'cid' ],
+            [ 'language', 'ul' ],
+            [ 'screen_resolution', 'sr' ],
+            [ '_user_agent_architecture', 'uaa' ],
+            [ '_user_agent_bitness', 'uab' ],
+            [ '_user_agent_full_version_list', 'uafvl' ],
+            [ '_user_agent_mobile', 'uamb' ],
+            [ '_user_agent_model', 'uam' ],
+            [ '_user_agent_platform', 'uap' ],
+            [ '_user_agent_platform_version', 'uapv' ],
+            [ '_user_agent_wow64', 'uaw' ],
+            [ 'hit_count', '_s' ],
+            [ 'session_id', 'sid' ],
+            [ 'session_number', 'sct' ],
+            [ 'session_engaged', 'seg' ],
+            [ 'document_location', 'dl' ],
+            [ 'document_title', 'dt' ],
+            [ 'document_referrer', 'dr' ],
+            [ 'is_first_visit', '_fv' ],
+            [ 'is_session_start', '_ss' ],
+            [ 'event_name', 'en' ]
+        ]);
+        this._config = new Map();
+        this._hits = 1;
+        const navigator = window.navigator;
+        this._navigator = navigator;
+        this.set('protocol_version', 2);
+        this.set('tracking_id', measurement_id);
+        if (!client_id) {
+            const document = window.document;
+            const cookie = document.cookie ? document.cookie : '';
+            const referrer = document.referrer ? document.referrer : '';
+            let value = navigator.userAgent + cookie + referrer;
+            let length = value.length;
+            for (let i = window.history.length; i > 0; i--) {
+                value += i ^ length++;
+            }
+            let mask = 1;
+            if (value) {
+                mask = 0;
+                for (let i = value.length - 1; i >= 0; i--) {
+                    let c = value.charCodeAt(i);
+                    mask = ((mask << 6) & 0xFFFFFFF) + c + (c << 14);
+                    c = mask & 0xFE00000;
+                    mask = c !== 0 ? mask ^ (c >> 21) : mask;
+                }
+            }
+            client_id = [ Math.round(0x7FFFFFFF * Math.random()) ^ (mask & 0x7FFFFFFF), Math.round(new Date().getTime() / 1e3) ].join('.');
+            this.set('is_first_visit', 1);
+        }
+        this.set('client_id', client_id);
+        this.set('session_id', Math.floor((new Date() * 1) / 1000));
+        this.set('session_engaged', 1);
+        this.set('is_session_start', 1);
+        this.set('screen_resolution', (window.screen ? window.screen.width : 0) + 'x' + (window.screen ? window.screen.height : 0)),
+        this.set('language', ((navigator && (navigator.language || navigator.browserLanguage)) || '').toLowerCase());
+        this._promise = navigator && navigator.userAgentData && navigator.userAgentData.getHighEntropyValues ? navigator.userAgentData.getHighEntropyValues([ 'platform', 'platformVersion', 'architecture', 'model', 'uaFullVersion', 'bitness', 'fullVersionList', 'wow64' ]) : Promise.resolve();
+        this._promise.then((values) => {
+            this.set('_user_agent_architecture', values.architecture);
+            this.set('_user_agent_bitness', values.bitness);
+            this.set('_user_agent_full_version_list', encodeURIComponent(values.fullVersionList.map((h) => [h.brand, h.version].join(';')).join('|')));
+            this.set('_user_agent_mobile', values.mobile ? 1 : 0);
+            this.set('_user_agent_model', values.model);
+            this.set('_user_agent_platform', values.platform);
+            this.set('_user_agent_platform_version', values.platformVersion);
+            this.set('_user_agent_wow64', values.wow64 ? 1 : 0);
+        });
+    }
+
+    open() {
+        return this._promise;
+    }
+
+    set(name, value) {
+        const key = this._schema.get(name);
+        if (value) {
+            this._config.set(key, value);
+            this._cache = null;
+        }
+        else if (this._config.has(key)) {
+            this._config.delete(key);
+            this._cache = null;
+        }
+    }
+
+    get(name) {
+        const key = this._schema.get(name);
+        return this._config.get(key);
+    }
+
+    send(name, params) {
+        const build = (list) => list.map((entry) => entry[0] + '=' + encodeURIComponent(entry[1])).join('&');
+        this._cache = this._cache || build(Array.from(this._config));
+        params = build(Object.entries(params).map((entry) => [ ('number' === typeof entry[1] && !isNaN(entry[1]) ? 'epn.' : 'ep.') + entry[0], entry[1] ]));
+        const body = this._schema.get('event_name') + '=' + name + '&' + params;
+        const url = 'https://www.google-analytics.com/g/collect?' + this._cache + '&' + this._schema.get('hit_count') + '=' + this._hits.toString();
+        this._navigator.sendBeacon(url, body);
+        if (this._hits === 1) {
+            this.set('is_session_start');
+            this.set('is_first_visit');
+        }
+        this._hits++;
+    }
+};
+
 base.Metadata = class {
 
     get extensions() {
@@ -807,5 +922,6 @@ if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.Complex64 = base.Complex;
     module.exports.Complex128 = base.Complex;
     module.exports.BinaryReader = base.BinaryReader;
+    module.exports.Telemetry = base.Telemetry;
     module.exports.Metadata = base.Metadata;
 }

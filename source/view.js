@@ -441,7 +441,7 @@ view.View = class {
     }
 
     open(context) {
-        this._host.event('Model', 'Open', 'Size', context.stream ? context.stream.length : 0);
+        this._host.event(null, null, 'Model', 'Open', 'Size', context.stream ? context.stream.length : 0);
         this._sidebar.close();
         return this._timeout(2).then(() => {
             return this._modelFactoryService.open(context).then((model) => {
@@ -453,7 +453,10 @@ view.View = class {
                     format.push('(' + model.producer + ')');
                 }
                 if (format.length > 0) {
-                    this._host.event('Model', 'Format', format.join(' '));
+                    this._host.event(null, null, 'Model', 'Format', format.join(' '));
+                    this._host.event('model_open', {
+                        format: format.join(' ')
+                    });
                 }
                 return this._timeout(20).then(() => {
                     const graphs = Array.isArray(model.graphs) && model.graphs.length > 0 ? [ model.graphs[0] ] : [];
@@ -489,7 +492,7 @@ view.View = class {
                 const nodes = graph.nodes;
                 if (nodes.length > 2048) {
                     if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
-                        this._host.event('Graph', 'Render', 'Skip', nodes.length);
+                        this._host.event(null, null, 'Graph', 'Render', 'Skip', nodes.length);
                         this.show(null);
                         return null;
                     }
@@ -563,7 +566,7 @@ view.View = class {
 
             const groups = graph.groups;
             const nodes = graph.nodes;
-            this._host.event('Graph', 'Render', 'Size', nodes.length);
+            this._host.event(null, null, 'Graph', 'Render', 'Size', nodes.length);
 
             const options = {};
             options.nodesep = 20;
@@ -2092,11 +2095,11 @@ view.ModelFactoryService = class {
         identifier = identifier.toLowerCase().split('/').pop();
         for (const extension of this._extensions) {
             if ((typeof extension === 'string' && identifier.endsWith(extension)) || (extension instanceof RegExp && extension.exec(identifier))) {
-                this._host.event('File', 'Accept', extension, 1);
+                this._host.event(null, null, 'File', 'Accept', extension, 1);
                 return true;
             }
         }
-        this._host.event('File', 'Reject', extension, 1);
+        this._host.event(null, null, 'File', 'Reject', extension, 1);
         return false;
     }
 

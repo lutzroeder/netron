@@ -7,6 +7,7 @@ const http = require('http');
 const https = require('https');
 const process = require('process');
 const path = require('path');
+const base = require('./base');
 
 host.ElectronHost = class {
 
@@ -67,21 +68,36 @@ host.ElectronHost = class {
             else {
                 const telemetry = () => {
                     if (this._environment.packaged) {
-                        this._telemetry = new host.Telemetry('UA-54146-13', this._getConfiguration('userId'), navigator.userAgent, this.type, this.version);
+                        let user = this._getConfiguration('userId') || null;
+                        this._telemetry_ga4 = base.Telemetry.open(this._window, 'G-33PZ4MG5FQ', user);
+                        this._telemetry_ga4.open().then(() => {
+                            if (user !== this._telemetry_ga4.get('client_id')) {
+                                user = this._telemetry_ga4.get('client_id');
+                                this._setConfiguration('userId', user);
+                            }
+                            this._telemetry_ga4.send('page_view', {
+                                'app_name': this.type,
+                                'app_version': this.version,
+                            });
+                            this._telemetry_ua = new host.Telemetry('UA-54146-13', user, navigator.userAgent, this.type, this.version);
+                            resolve();
+                        });
                     }
-                    resolve();
-                };
-                const consent = () => {
-                    this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept', () => {
-                        this._setConfiguration('consent', Date.now());
-                        telemetry();
-                    });
+                    else {
+                        resolve();
+                    }
                 };
                 const time = this._getConfiguration('consent');
                 if (time && (Date.now() - time) < 30 * 24 * 60 * 60 * 1000) {
                     telemetry();
                 }
                 else {
+                    const consent = () => {
+                        this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept', () => {
+                            this._setConfiguration('consent', Date.now());
+                            telemetry();
+                        });
+                    };
                     this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 2000).then((text) => {
                         try {
                             const json = JSON.parse(text);
@@ -303,7 +319,7 @@ host.ElectronHost = class {
     }
 
     exception(error, fatal) {
-        if (this._telemetry && error && error.telemetry !== false) {
+        if ((this._telemetry_ua || this._telemetry_ga4) && error && error.telemetry !== false) {
             try {
                 const name = error.name ? error.name + ': ' : '';
                 const message = error.message ? error.message : JSON.stringify(error);
@@ -327,7 +343,17 @@ host.ElectronHost = class {
                         }
                     }
                 }
-                this._telemetry.exception(description.join(' @ '), fatal);
+                if (this._telemetry_ua) {
+                    this._telemetry_ua.exception(description.join(' @ '), fatal);
+                }
+                if (this._telemetry_ga4) {
+                    this._telemetry_ga4.send('exception', {
+                        'description': description.join(' @ '),
+                        'fatal': fatal,
+                        'app_name': this.type,
+                        'app_version': this.version,
+                    });
+                }
             }
             catch (e) {
                 // continue regardless of error
@@ -336,9 +362,21 @@ host.ElectronHost = class {
     }
 
     screen(name) {
-        if (this._telemetry) {
+        if (this._telemetry_ua) {
             try {
-                this._telemetry.screenview(name);
+                this._telemetry_ua.screenview(name);
+            }
+            catch (e) {
+                // continue regardless of error
+            }
+        }
+        if (this._telemetry_ga4) {
+            try {
+                this._telemetry_ga4.send('screen_view', {
+                    'screen_name': name,
+                    'app_name': this.type,
+                    'app_version': this.version,
+                });
             }
             catch (e) {
                 // continue regardless of error
@@ -346,10 +384,20 @@ host.ElectronHost = class {
         }
     }
 
-    event(category, action, label, value) {
-        if (this._telemetry) {
+    event(name, params, category, action, label, value) {
+        if (this._telemetry_ua && category && action && label) {
             try {
-                this._telemetry.event(category, action, label, value);
+                this._telemetry_ua.event(category, action, label, value);
+            }
+            catch (e) {
+                // continue regardless of error
+            }
+        }
+        if (this._telemetry_ga4 && name && params) {
+            try {
+                params['app_name'] = this.type,
+                params['app_version'] = this.version,
+                this._telemetry_ga4.send(name, params);
             }
             catch (e) {
                 // continue regardless of error

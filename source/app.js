@@ -51,8 +51,8 @@ class Application {
 
         electron.ipcMain.on('get-environment', (event) => {
             event.returnValue = {
-                version: electron.app.getVersion(),
                 packaged: electron.app.isPackaged,
+                version: this._package.version, // electron.app.getVersion()
                 date: this._package.date
             };
         });
@@ -61,6 +61,7 @@ class Application {
         });
         electron.ipcMain.on('set-configuration', (event, obj) => {
             this._configuration.set(obj.name, obj.value);
+            this._configuration.save();
             event.returnValue = null;
         });
         electron.ipcMain.on('drop-paths', (event, data) => {
@@ -128,9 +129,6 @@ class Application {
 
     _ready() {
         this._configuration.load();
-        if (!this._configuration.has('userId')) {
-            this._configuration.set('userId', this._uuid());
-        }
         if (this._openQueue) {
             const queue = this._openQueue;
             this._openQueue = null;
@@ -149,15 +147,6 @@ class Application {
         this._views.on('active-view-updated', () => {
             this._updateMenu();
         });
-    }
-
-    _uuid() {
-        const buffer = new Uint8Array(16);
-        require("crypto").randomFillSync(buffer);
-        buffer[6] = buffer[6] & 0x0f | 0x40;
-        buffer[8] = buffer[8] & 0x3f | 0x80;
-        const code = Array.from(buffer).map((value) => value < 0x10 ? '0' + value.toString(16) : value.toString(16)).join('');
-        return code.slice(0, 8) + '-' + code.slice(8, 12) + '-' + code.slice(12, 16) + '-' + code.slice(16, 20) + '-' + code.slice(20, 32);
     }
 
     _openFileDialog() {
@@ -907,35 +896,33 @@ class ViewCollection {
 
 class ConfigurationService {
 
-    load() {
-        this._data = { 'recents': [] };
+    constructor() {
         const dir = electron.app.getPath('userData');
         if (dir && dir.length > 0) {
-            const file = path.join(dir, 'configuration.json');
-            if (fs.existsSync(file)) {
-                const data = fs.readFileSync(file);
-                if (data) {
-                    try {
-                        this._data = JSON.parse(data);
-                    }
-                    catch (error) {
-                        // continue regardless of error
-                    }
+            this._file = path.join(dir, 'configuration.json');
+        }
+    }
+
+
+    load() {
+        this._data = { 'recents': [] };
+        if (this._file && fs.existsSync(this._file)) {
+            const data = fs.readFileSync(this._file, 'utf-8');
+            if (data) {
+                try {
+                    this._data = JSON.parse(data);
+                }
+                catch (error) {
+                    // continue regardless of error
                 }
             }
         }
     }
 
     save() {
-        if (this._data) {
+        if (this._data && this._file) {
             const data = JSON.stringify(this._data, null, 2);
-            if (data) {
-                const dir = electron.app.getPath('userData');
-                if (dir && dir.length > 0) {
-                    const file = path.join(dir, 'configuration.json');
-                    fs.writeFileSync(file, data);
-                }
-            }
+            fs.writeFileSync(this._file, data);
         }
     }
 
