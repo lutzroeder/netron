@@ -436,12 +436,13 @@ view.View = class {
         }
     }
 
-    accept(file) {
-        return this._modelFactoryService.accept(file);
+    accept(file, size) {
+        return this._modelFactoryService.accept(file, size);
     }
 
     open(context) {
-        this._host.event(null, null, 'Model', 'Open', 'Size', context.stream ? context.stream.length : 0);
+        const size = context.stream ? context.stream.length : 0;
+        this._host.event_ua('Model', 'Open', 'Size', size);
         this._sidebar.close();
         return this._timeout(2).then(() => {
             return this._modelFactoryService.open(context).then((model) => {
@@ -453,7 +454,7 @@ view.View = class {
                     format.push('(' + model.producer + ')');
                 }
                 if (format.length > 0) {
-                    this._host.event(null, null, 'Model', 'Format', format.join(' '));
+                    this._host.event_ua('Model', 'Format', format.join(' '));
                     this._host.event('model_open', {
                         format: format.join(' ')
                     });
@@ -492,7 +493,11 @@ view.View = class {
                 const nodes = graph.nodes;
                 if (nodes.length > 2048) {
                     if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
-                        this._host.event(null, null, 'Graph', 'Render', 'Skip', nodes.length);
+                        this._host.event_ua('Graph', 'Render', 'Skip', nodes.length);
+                        this._host.event('graph_view', {
+                            graph_node_count: nodes.length,
+                            graph_skip: 1 }
+                        );
                         this.show(null);
                         return null;
                     }
@@ -566,7 +571,11 @@ view.View = class {
 
             const groups = graph.groups;
             const nodes = graph.nodes;
-            this._host.event(null, null, 'Graph', 'Render', 'Size', nodes.length);
+            this._host.event_ua('Graph', 'Render', 'Size', nodes.length);
+            this._host.event('graph_view', {
+                graph_node_count: nodes.length,
+                graph_skip: 0
+            });
 
             const options = {};
             options.nodesep = 20;
@@ -2090,17 +2099,23 @@ view.ModelFactoryService = class {
         }
     }
 
-    accept(identifier) {
+    accept(identifier, size) {
         const extension = identifier.indexOf('.') === -1 ? '' : identifier.split('.').pop().toLowerCase();
         identifier = identifier.toLowerCase().split('/').pop();
+        let accept = false;
         for (const extension of this._extensions) {
             if ((typeof extension === 'string' && identifier.endsWith(extension)) || (extension instanceof RegExp && extension.exec(identifier))) {
-                this._host.event(null, null, 'File', 'Accept', extension, 1);
-                return true;
+                accept = true;
+                break;
             }
         }
-        this._host.event(null, null, 'File', 'Reject', extension, 1);
-        return false;
+        this._host.event_ua('File', accept ? 'Accept' : 'Reject', extension, 1);
+        this._host.event('model_file', {
+            file_extension: extension,
+            file_size: size || 0,
+            file_accept: accept ? 1 : 0
+        });
+        return accept;
     }
 
     _filter(context) {

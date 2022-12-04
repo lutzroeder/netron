@@ -384,7 +384,7 @@ host.ElectronHost = class {
         }
     }
 
-    event(name, params, category, action, label, value) {
+    event_ua(category, action, label, value) {
         if (this._telemetry_ua && category && action && label) {
             try {
                 this._telemetry_ua.event(category, action, label, value);
@@ -393,6 +393,9 @@ host.ElectronHost = class {
                 // continue regardless of error
             }
         }
+    }
+
+    event(name, params) {
         if (this._telemetry_ga4 && name && params) {
             try {
                 params['app_name'] = this.type,
@@ -441,7 +444,9 @@ host.ElectronHost = class {
             this._queue.push(path);
             return;
         }
-        if (path && this._view.accept(path)) {
+        const stat = fs.existsSync(path) ? fs.statSync(path) : null;
+        const size = stat && stat.isFile() ? stat.size : 0;
+        if (path && this._view.accept(path, size)) {
             this._view.show('welcome spinner');
             this._context(path).then((context) => {
                 this._view.open(context).then((model) => {

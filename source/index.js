@@ -82,19 +82,24 @@ host.BrowserHost = class {
                 }, true);
             }
             else {
-                const features = () => {
-                    const features = [ 'TextDecoder', 'TextEncoder', 'fetch', 'URLSearchParams', 'HTMLCanvasElement.prototype.toBlob' ];
-                    const supported = features.filter((feature) => {
-                        const path = feature.split('.').reverse();
-                        let item = this.window[path.pop()];
-                        while (item && path.length > 0) {
-                            item = item[path.pop()];
+                const capabilities = () => {
+                    const capabilities = [
+                        'TextDecoder', 'TextEncoder',
+                        'fetch', 'URLSearchParams',
+                        'HTMLCanvasElement.prototype.toBlob'
+                    ];
+                    const unsupported = capabilities.filter((capability) => {
+                        const path = capability.split('.').reverse();
+                        let obj = this.window[path.pop()];
+                        while (obj && path.length > 0) {
+                            obj = obj[path.pop()];
                         }
-                        return !item;
+                        return !obj;
                     });
-                    if (supported.length > 0) {
-                        for (const feature of features) {
-                            this.event('Host', 'Browser', feature, 1);
+                    if (unsupported.length > 0) {
+                        for (const capability of unsupported) {
+                            this.event_ua('Host', 'Browser', capability, 1);
+                            this.event('host_capability', { unsupported: capability });
                         }
                         this._message('Your browser is not supported.');
                     }
@@ -114,7 +119,7 @@ host.BrowserHost = class {
                             this._telemetry_ga4 = this.window.base.Telemetry.open(this._window, 'G-33PZ4MG5FQ', user || _ga());
                             this._telemetry_ga4.set('document_location', this._document.location && this._document.location.href ? this._document.location.href : '');
                             this._telemetry_ga4.set('document_title', this._document.title);
-                            this._telemetry_ga4.set('document_referer', this._document.referrer);
+                            this._telemetry_ga4.set('document_referrer', this._document.referrer);
                             this._telemetry_ga4.open().then(() => {
                                 if (user !== this._telemetry_ga4.get('client_id')) {
                                     this._setCookie('user', this._telemetry_ga4.get('client_id'), 1200);
@@ -123,7 +128,7 @@ host.BrowserHost = class {
                                     app_name: this.type,
                                     app_version: this.version,
                                 });
-                                features();
+                                capabilities();
                             });
                         };
                         this._telemetry_ua = true;
@@ -144,7 +149,7 @@ host.BrowserHost = class {
                         this.document.body.appendChild(script);
                     }
                     else {
-                        features();
+                        capabilities();
                     }
                 };
                 const consent = () => {
@@ -309,7 +314,7 @@ host.BrowserHost = class {
             openFileDialog.addEventListener('change', (e) => {
                 if (e.target && e.target.files && e.target.files.length > 0) {
                     const files = Array.from(e.target.files);
-                    const file = files.find((file) => this._view.accept(file.name));
+                    const file = files.find((file) => this._view.accept(file.name, file.size));
                     if (file) {
                         this._open(file, files);
                     }
@@ -334,7 +339,7 @@ host.BrowserHost = class {
             e.preventDefault();
             if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
                 const files = Array.from(e.dataTransfer.files);
-                const file = files.find((file) => this._view.accept(file.name));
+                const file = files.find((file) => this._view.accept(file.name, file.size));
                 if (file) {
                     this._open(file, files);
                 }
@@ -478,7 +483,7 @@ host.BrowserHost = class {
         }
     }
 
-    event(name, params, category, action, label, value) {
+    event_ua(category, action, label, value) {
         if (this._telemetry_ua && this.window.ga && category && action && label) {
             this.window.ga('send', 'event', {
                 eventCategory: category,
@@ -489,6 +494,9 @@ host.BrowserHost = class {
                 appVersion: this.version
             });
         }
+    }
+
+    event(name, params) {
         if (this._telemetry_ga4 && name && params) {
             params.app_name = this.type,
             params.app_version = this.version,

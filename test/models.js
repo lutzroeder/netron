@@ -73,7 +73,10 @@ class TestHost {
         return Promise.resolve(stream);
     }
 
-    event(/* category, action, label, value */) {
+    event_ua(/* category, action, label, value */) {
+    }
+
+    event(/* name, params */) {
     }
 
     exception(err /*, fatal */) {
