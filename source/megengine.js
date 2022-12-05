@@ -17,6 +17,12 @@ megengine.ModelFactory = class {
                     return 'megengine.mge';
                 }
             }
+            const tag = String.fromCharCode.apply(null, buffer);
+            for (const value of [ 'mgb0001', 'mgb0000a', 'MGBS', 'MGBC', 'mgbtest0' ]) {
+                if (tag.startsWith(value)) {
+                    return 'megengine.' + value;
+                }
+            }
         }
         const obj = context.open('pkl');
         if (obj && obj.__class__ && obj.__class__.__module__ === 'megengine.traced_module.traced_module' && obj.__class__.__name__ === 'TracedModule') {
@@ -51,7 +57,7 @@ megengine.ModelFactory = class {
                     });
                 }
                 default: {
-                    throw new megengine.Error("Unsupported megengine format '" + match + "'.");
+                    throw new megengine.Error("Unsupported MegEngine format '" + match.replace(/^megengine\./, '') + "'.");
                 }
             }
         });
