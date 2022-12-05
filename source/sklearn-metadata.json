@@ -1008,7 +1008,7 @@
       },
       {
         "default": null,
-        "description": "When strategy == \"constant\", fill_value is used to replace all\noccurrences of missing_values.\nIf left to the default, fill_value will be 0 when imputing numerical\ndata and \"missing_value\" for strings or object data types.\n",
+        "description": "When strategy == \"constant\", `fill_value` is used to replace all\noccurrences of missing_values. For string or object data types,\n`fill_value` must be a string.\nIf `None`, `fill_value` will be 0 when imputing numerical\ndata and \"missing_value\" for strings or object data types.\n",
         "name": "fill_value"
       },
       {
@@ -1028,6 +1028,11 @@
         "description": "If True, a :class:`MissingIndicator` transform will stack onto output\nof the imputer's transform. This allows a predictive estimator\nto account for missingness despite imputation. If a feature has no\nmissing values at fit/train time, the feature won't appear on\nthe missing indicator even if there are missing values at\ntransform/test time.\n",
         "name": "add_indicator",
         "type": "boolean"
+      },
+      {
+        "name": "keep_empty_features",
+        "default": false,
+        "description": "If True, features that consist exclusively of missing values when\n`fit` is called are returned in results when `transform` is called.\nThe imputed value is always `0` except when `strategy=\"constant\"`\nin which case `fill_value` will be used instead.\n\n.. versionadded:: 1.2\n"
       }
     ]
   },
