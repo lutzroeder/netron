@@ -209,7 +209,7 @@ openvino.Graph = class {
     _argument(layer, precision, port, map) {
         let id = layer + ':' + port.id;
         if (map) {
-            id = map[id];
+            id = map[id] || '';
         }
         let argument = this._arguments[id];
         if (!argument) {
@@ -350,7 +350,6 @@ openvino.Graph = class {
     }
 
     _const(layers, edges, back_edges, omitConstLayers) {
-        const results = [];
         back_edges = back_edges || {};
         layers = layers.slice();
         for (const layer of layers) {
@@ -387,8 +386,8 @@ openvino.Graph = class {
                 constMap.set(from, { layer: layer, counter: 0 });
             }
         }
-        for (const to of Object.keys(edges)) {
-            const from = edges[to];
+        for (const entry of Object.entries(edges)) {
+            const from = entry[1];
             if (constMap.has(from)) {
                 constMap.get(from).counter++;
             }
@@ -457,18 +456,15 @@ openvino.Graph = class {
             }
         }
 
-        while (layers.length > 0) {
-            const layer = layers.shift();
+        return layers.filter((layer) => {
             if (layer.type === 'Const' && layer.inputs.length === 0 && layer.outputs.length === 1) {
                 const from = layer.id + ':' + layer.outputs[0].id;
                 if (constMap.has(from) && constMap.get(from).delete) {
-                    continue;
+                    return false;
                 }
             }
-            results.push(layer);
-        }
-
-        return results;
+            return true;
+        });
     }
 };
 
@@ -657,9 +653,9 @@ openvino.Parameter = class {
 openvino.Argument = class {
 
     constructor(name, type, initializer) {
-        // if (typeof name !== 'string') {
-        //     throw new openvino.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
-        // }
+        if (typeof name !== 'string') {
+            throw new openvino.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+        }
         this._name = name;
         this._type = type || null;
         this._initializer = initializer || null;
