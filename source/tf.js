@@ -86,7 +86,7 @@ tf.ModelFactory = class {
                         [4 /* versions */, [[1,0],[2,0]]]
                     ];
                     const signatureMetaGraphDef = [
-                        [1 /* meta_info_def */, [[1,2],[2,[]],[3,[]],[4,2],[6,2],[7,0],[8,[]]]],
+                        [1 /* meta_info_def */, [[1,2],[2,[]],[3,[]],/* [4,2], */[6,2],[7,0],[8,[]]]],
                         [2 /* graph_def */, signatureGraphDef],
                         [3 /* saver_def */, [[1,2],[2,2],[3,2],[4,0],[5,0],[6,5],[7,0]]],
                         [4 /* collection_def */,[]],
