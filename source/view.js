@@ -244,7 +244,6 @@ view.View = class {
     _mouseDownHandler(e) {
         if (e.buttons === 1) {
             const document = this._host.document.documentElement;
-            document.style.cursor = 'grabbing';
             const container = this._getElementById('graph');
             this._mousePosition = {
                 left: container.scrollLeft,
