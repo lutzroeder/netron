@@ -476,5 +476,13 @@
   {
     "name": "program:reshape",
     "category": "Shape"
+  },
+  {
+    "name": "program:concat",
+    "category": "Tensor"
+  },
+  {
+    "name": "program:layer_norm",
+    "category": "Normalization"
   }
 ]
