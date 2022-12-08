@@ -930,7 +930,8 @@
     "attributes": [
       { "name": "padding", "type": "Padding", "default": "SAME" },
       { "name": "stride_w", "type": "int32", "default": 0 },
-      { "name": "stride_h", "type": "int32", "default": 0 }
+      { "name": "stride_h", "type": "int32", "default": 0 },
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
     ],
     "inputs": [
       { "name": "output_shape" },
