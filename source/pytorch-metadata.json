@@ -11770,8 +11770,8 @@
     "name": "aten::std.correction",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "dim", "type": "int64[1]", "optional": true },
-      { "name": "correction", "type": "int64", "optional": true },
+      { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "correction", "type": "int64", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -11783,7 +11783,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname[1]" },
-      { "name": "correction", "type": "int64", "optional": true },
+      { "name": "correction", "type": "int64", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -11795,7 +11795,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname[1]" },
-      { "name": "correction", "type": "int64", "optional": true },
+      { "name": "correction", "type": "int64", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -11806,8 +11806,8 @@
     "name": "aten::std.correction_out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "dim", "type": "int64[1]", "optional": true },
-      { "name": "correction", "type": "int64", "optional": true },
+      { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "correction", "type": "int64", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -11877,8 +11877,8 @@
     "name": "aten::std_mean.correction",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "dim", "type": "int64[1]", "optional": true },
-      { "name": "correction", "type": "int64", "optional": true },
+      { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "correction", "type": "int64", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -11891,7 +11891,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname[1]" },
-      { "name": "correction", "type": "int64", "optional": true },
+      { "name": "correction", "type": "int64", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -13331,8 +13331,8 @@
     "name": "aten::var.correction",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "dim", "type": "int64[1]", "optional": true },
-      { "name": "correction", "type": "int64", "optional": true },
+      { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "correction", "type": "int64", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -13344,7 +13344,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname[1]" },
-      { "name": "correction", "type": "int64", "default": true, "optional": true },
+      { "name": "correction", "type": "int64", "default": null, "optional": true },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -13356,7 +13356,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname[1]" },
-      { "name": "correction", "type": "int64", "optional": true },
+      { "name": "correction", "type": "int64", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -13367,8 +13367,8 @@
     "name": "aten::var.correction_out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "dim", "type": "int64[1]", "optional": true },
-      { "name": "correction", "type": "int64", "optional": true },
+      { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "correction", "type": "int64", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -13438,8 +13438,8 @@
     "name": "aten::var_mean.correction",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "dim", "type": "int64[1]", "optional": true },
-      { "name": "correction", "type": "int64", "optional": true },
+      { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "correction", "type": "int64", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -13452,7 +13452,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname[1]" },
-      { "name": "correction", "type": "int64", "optional": true },
+      { "name": "correction", "type": "int64", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
