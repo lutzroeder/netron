@@ -6842,6 +6842,9 @@ $root.tensorflow.ConfigProto.Experimental = class Experimental {
                 case 23:
                     message.coordination_config = $root.tensorflow.CoordinationServiceConfig.decode(reader, reader.uint32());
                     break;
+                case 24:
+                    message.disable_optimize_for_static_graph = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -6916,6 +6919,9 @@ $root.tensorflow.ConfigProto.Experimental = class Experimental {
                 case "coordination_config":
                     message.coordination_config = $root.tensorflow.CoordinationServiceConfig.decodeText(reader);
                     break;
+                case "disable_optimize_for_static_graph":
+                    message.disable_optimize_for_static_graph = reader.bool();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -6945,6 +6951,7 @@ $root.tensorflow.ConfigProto.Experimental.prototype.use_tfrt = false;
 $root.tensorflow.ConfigProto.Experimental.prototype.disable_functional_ops_lowering = false;
 $root.tensorflow.ConfigProto.Experimental.prototype.xla_prefer_single_graph_cluster = false;
 $root.tensorflow.ConfigProto.Experimental.prototype.coordination_config = null;
+$root.tensorflow.ConfigProto.Experimental.prototype.disable_optimize_for_static_graph = false;
 
 $root.tensorflow.ConfigProto.Experimental.MlirBridgeRollout = {
     "MLIR_BRIDGE_ROLLOUT_UNSPECIFIED": 0,
