@@ -1450,6 +1450,7 @@ $root.mindspore.schema.DepthToSpace = class DepthToSpace {
         const $ = new $root.mindspore.schema.DepthToSpace();
         $.block_size = reader.int64_(position, 4, 0);
         $.format = reader.int32_(position, 6, 0);
+        $.mode = reader.string_(position, 8, null);
         return $;
     }
 
@@ -1457,6 +1458,7 @@ $root.mindspore.schema.DepthToSpace = class DepthToSpace {
         const $ = new $root.mindspore.schema.DepthToSpace();
         $.block_size = reader.value(json.block_size, 0);
         $.format = $root.mindspore.schema.Format[json.format];
+        $.mode = reader.value(json.mode, null);
         return $;
     }
 };

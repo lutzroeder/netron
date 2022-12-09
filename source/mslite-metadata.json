@@ -887,7 +887,8 @@
     "attributes": [
       { "name": "blockSize", "type": "int32", "default": 0 },
       { "name": "format", "type": "Format", "default": "NCHW" },
-      { "name": "block_size", "type": "int64", "default": 0 }
+      { "name": "block_size", "type": "int64", "default": 0 },
+      { "name": "mode", "type": "string", "default": null }
     ],
     "inputs": [
       { "name": "input" }
