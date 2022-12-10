@@ -45,6 +45,7 @@ def _test_torchscript():
     # graph, _ = torch.jit._get_trace_graph(model, args) # pylint: disable=protected-access
     # torch.onnx._optimize_trace(graph, torch.onnx.OperatorExportTypes.ONNX)
     # trace = torch.load(os.path.join(test_data_dir, 'pytorch', 'fasterrcnn_resnet50_fpn.pt'))
+    # trace = torch.load(os.path.join(test_data_dir, 'pytorch', 'mobilenetv2-quant_full-nnapi.pt'))
     torch._C._jit_pass_inline(trace.graph)
     # https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/ir/ir.h
     netron.serve('resnet34', trace)
