@@ -163,7 +163,7 @@
             "differentialPackage": false
         },
         "snap": {
-            "plugs": [ "default", "removable-media", "personal-files" ],
+            "plugs": [ "default", "removable-media" ],
             "publish": [ { "provider": "snapStore", "channels": [ "stable" ] } ]
         }
     }
