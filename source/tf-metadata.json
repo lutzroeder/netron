@@ -62038,7 +62038,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `float16`, `bfloat16`, `float32`, `float64`, `complex64`, `complex128`."
       }
     ],
     "inputs": [
@@ -62364,7 +62364,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `float16`, `bfloat16`, `float32`, `float64`, `complex64`, `complex128`."
       }
     ],
     "inputs": [
@@ -62391,7 +62391,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `float16`, `bfloat16`, `float32`, `float64`, `complex64`, `complex128`."
       }
     ],
     "inputs": [
