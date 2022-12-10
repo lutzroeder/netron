@@ -135,7 +135,7 @@ pytorch.Graph = class {
                     if (graph.nodes) {
                         for (const node of graph.nodes) {
                             const item = {
-                                type: node.type,
+                                type: node.kind(),
                                 node: node
                             };
                             this._nodes.push(new pytorch.Node(metadata, '', item, initializers));
@@ -437,7 +437,7 @@ pytorch.Node = class {
                 module = null;
                 let match = true;
                 let count = 0;
-                for (const input of item.node.inputs) {
+                for (const input of item.node.inputs()) {
                     for (const argument of input.arguments) {
                         const parameter = initializers.get(argument.id);
                         if (parameter) {
@@ -463,7 +463,9 @@ pytorch.Node = class {
                     const params = pytorch.Graph._getParameters(module).filter((p) => p.__id__ !== 'num_batches_tracked');
                     if (params.length == count && match) {
                         module.__hide__ = true;
-                        for (const input of item.node.inputs) {
+                        const node = item.node;
+                        const inputs = node.inputs();
+                        for (const input of inputs) {
                             for (const argument of input.arguments) {
                                 const parameter = initializers.get(argument.id);
                                 if (parameter && parameter.initializer) {
@@ -478,8 +480,9 @@ pytorch.Node = class {
                 }
 
                 const node = item.node;
-                for (let inputIndex = 0; inputIndex < node.inputs.length; inputIndex++) {
-                    const input = node.inputs[inputIndex];
+                const inputs = node.inputs();
+                for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
+                    const input = inputs[inputIndex];
                     if (!input.name) {
                         input.name = inputIndex.toString();
                         if (this._type && this._type.inputs && this._type.inputs.length > inputIndex) {
@@ -491,8 +494,9 @@ pytorch.Node = class {
                     this._inputs.push(parameter);
                 }
 
-                for (let i = 0; i < node.outputs.length; i++) {
-                    const output = node.outputs[i];
+                const outputs = node.outputs();
+                for (let i = 0; i < outputs.length; i++) {
+                    const output = outputs[i];
                     if (!output.name) {
                         output.name = i === 0 ? 'output' : 'output' + i.toString();
                         if (this._type && this._type.outputs && i > this._type.outputs.length && this._type.outputs[i] && this._type.outputs[i].name) {
@@ -764,12 +768,11 @@ pytorch.Execution = class extends python.Execution {
                         return { id: output.__variable__ };
                     })
                 };
-                execution.push({
-                    type: type,
-                    attributes: [],
-                    inputs: [ input ],
-                    outputs: [ output ],
-                });
+                const node = execution.invoke('torch.Node', [ type ]);
+                node.attributes = [];
+                node.inputs().push(input);
+                node.outputs().push(output);
+                execution.push(node);
             }
         });
         this.registerType('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', class {
@@ -834,6 +837,47 @@ pytorch.Execution = class extends python.Execution {
                 this.bias = state[1];
                 this.output_min = state[2];
                 this.output_max = state[3];
+            }
+        });
+        this.registerType('torch.Node', class {
+            constructor(kind, schema) {
+                this._kind = kind;
+                this._schema = schema || null;
+                this._inputs = [];
+                this._outputs = [];
+            }
+            get schema() {
+                return this._schema;
+            }
+            kind() {
+                return this._kind;
+            }
+            inputs() {
+                return this._inputs;
+            }
+            outputs() {
+                return this._outputs;
+            }
+        });
+        this.registerType('torch.Value', class {
+            constructor(node) {
+                this._node = node;
+                this._uses = [];
+            }
+            node() {
+                return this._node;
+            }
+            uses() {
+                return this._uses;
+            }
+        });
+        this.registerType('torch.Use', class {
+            constructor(node) {
+                this._node = node;
+                this._uses = [];
+            }
+            get user() {
+                return this._node;
             }
         });
     }
@@ -1595,6 +1639,7 @@ pytorch.Container.Zip.Package = class extends pytorch.Container.Zip {
                     execution.on(event[0], event[1]);
                 }
                 const torch_jit_script = execution.register('torch.jit._script');
+                const torch_jit_trace = execution.register('torch.jit._trace');
                 execution.registerType('torch.package.PackageImporter', class {
                     constructor(entries) {
                         this._entries = entries;
@@ -1648,6 +1693,8 @@ pytorch.Container.Zip.Package = class extends pytorch.Container.Zip {
                     return execution.invoke('torch.jit._script.RecursiveScriptModule', [ script_module_id ]);
                 });
                 execution.registerType('torch.jit._script.ScriptModule', class {});
+                execution.registerType('torch.jit._trace.TracedModule', class extends torch_jit_script.ScriptModule {});
+                execution.registerType('torch.jit._trace.TopLevelTracedModule', class extends torch_jit_trace.TracedModule {});
                 execution.registerType('torch.jit._script.RecursiveScriptModule', class extends torch_jit_script.ScriptModule {
                     constructor(script_module_id) {
                         super();
@@ -1834,12 +1881,8 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                 for (const schema of schemas) {
                     const copyArgs = Array.prototype.slice.call(args);
                     const copyEvalArgs = Array.prototype.slice.call(evalArgs);
-                    const node = {
-                        type: schema.name,
-                        inputs: [],
-                        attributes: [],
-                        outputs: []
-                    };
+                    const node = this.invoke('torch.Node', [ schema.name, schema ]);
+                    node.attributes = [];
                     const referencedParameters = [];
                     let next = false;
                     const parameters = Array.prototype.slice.call(schema.inputs || []).concat(Array.prototype.slice.call(schema.attributes || []));
@@ -1853,20 +1896,23 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                             const map = new Map(parameters.map((parameter) => [ parameter.name, parameter ]));
                             while (copyArgs.length > 0) {
                                 const argument = copyArgs.shift();
-                                const value = copyEvalArgs.shift();
+                                const arg = copyEvalArgs.shift();
                                 const parameter = map.get(argument.target.value);
                                 if (!parameter) {
                                     next = true;
                                     break;
                                 }
-                                if (!pytorch.Utility.isType(value, parameter.type)) {
+                                if (!pytorch.Utility.isType(arg, parameter.type)) {
                                     if (parameter.optional) {
                                         continue;
                                     }
                                     next = true;
                                     break;
                                 }
-                                node.attributes.push({ name: parameter.name, value: value });
+                                const value = this.invoke('torch.Value', []);
+                                value.name = parameter.name; // TODO
+                                value.value = arg;
+                                node.attributes.push(value);
                             }
                             continue;
                         }
@@ -1894,7 +1940,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                 referencedParameters.push(tensor);
                                 const parameter = {};
                                 parameter.arguments = [ { id: tensor.__variable__ } ];
-                                node.inputs.push(parameter);
+                                node.inputs().push(parameter);
                             }
                         }
                         else if (parameter.type === 'Tensor[]') {
@@ -1917,7 +1963,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                     referencedParameters.push(tensor);
                                     return { id: tensor.__variable__ };
                                 });
-                                node.inputs.push(parameter);
+                                node.inputs().push(parameter);
                             }
                         }
                         else {
@@ -1948,19 +1994,23 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                                     { id: tensor.__variable__ }
                                                 ];
                                                 referencedParameters.push(tensor);
-                                                node.inputs.push(parameter);
+                                                node.inputs().push(parameter);
                                             }
                                             else {
-                                                const attribute = {};
-                                                attribute.name = /* parameter.name + '.' + */ key;
-                                                attribute.value = entry[1];
-                                                node.attributes.push(attribute);
+                                                const value = this.invoke('torch.Value', []);
+                                                value.name = /* parameter.name + '.' + */ key;
+                                                value.value = entry[1];
+                                                node.attributes.push(value);
                                             }
                                         }
                                         break;
-                                    default:
-                                        node.attributes.push({ name: parameter.name, value: argument });
+                                    default: {
+                                        const value = this.invoke('torch.Value', []);
+                                        value.name = parameter.name;
+                                        value.value = argument;
+                                        node.attributes.push(value);
                                         break;
+                                    }
                                 }
                             }
                             else {
@@ -2161,7 +2211,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                 const parameter = {};
                                 parameter.arguments = [ { id: output.__variable__ } ];
                                 result.push(output);
-                                node.outputs.push(parameter);
+                                node.outputs().push(parameter);
                                 break;
                             }
                             case 'Tensor[]': {
@@ -2171,7 +2221,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         count = node.attributes.filter((attribute) => attribute.name == 'chunks')[0].value;
                                         break;
                                     case 'torch.meshgrid':
-                                        count = node.inputs[0].arguments.length;
+                                        count = node.inputs()[0].arguments.length;
                                         break;
                                     case 'torch.unbind':
                                         count = args[0].__tuple__ || count;
@@ -2196,7 +2246,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                     parameter.arguments.push({ id: output.__variable__ });
                                 }
                                 result.push(tensors);
-                                node.outputs.push(parameter);
+                                node.outputs().push(parameter);
                                 break;
                             }
                             default: {
@@ -2211,7 +2261,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                 output.__variable__ = this.variable();
                                 parameter.arguments.push({ id: output.__variable__ });
                                 result.push(output);
-                                node.outputs.push(parameter);
+                                node.outputs().push(parameter);
                                 break;
                             }
                         }
