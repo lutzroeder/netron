@@ -32,9 +32,9 @@ update: install
 	@./tools/nnabla sync schema metadata
 	@./tools/onnx sync install schema metadata
 	@./tools/om schema
-	@./tools/rknn schema
 	@./tools/paddle sync schema
 	@./tools/pytorch sync schema metadata
+	@./tools/rknn schema
 	@./tools/sklearn sync install metadata
 	@./tools/tf sync install schema metadata
 	@./tools/uff schema
