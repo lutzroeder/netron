@@ -238,6 +238,9 @@ class Metadata: # pylint: disable=too-few-public-methods,missing-class-docstring
     def __init__(self, metadata):
         self.types = metadata
         self.cache = set()
+        self._primitives = {
+            'int': 'int64', 'float': 'float32', 'bool': 'boolean', 'str': 'string'
+        }
 
     def type(self, schema): # pylint: disable=missing-function-docstring
         key = schema.name if isinstance(schema, Schema) else schema.split('(', 1)[0].strip()
@@ -278,16 +281,11 @@ class Metadata: # pylint: disable=too-few-public-methods,missing-class-docstring
                 size = str(value.size) if hasattr(value, 'size') else ''
                 argument_type = '[' + size + ']' + argument_type
                 value = value.element_type
+            elif isinstance(value, Schema.DictType):
+                value = str(value)
             else:
                 name = value.name
-                if name == 'int':
-                    name = 'int64'
-                elif name == 'float':
-                    name = 'float32'
-                elif name == 'bool':
-                    name = 'boolean'
-                elif name == 'str':
-                    name = 'string'
+                name = self._primitives[name] if name in self._primitives else name
                 argument_type = name + argument_type
                 break
         if argument_type:
@@ -376,7 +374,7 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
             self.returns.append(Schema.Argument(lexer, True, False))
     class Argument: # pylint: disable=too-few-public-methods
         def __init__(self, lexer, is_return, kwarg_only):
-            value = Schema.Type(lexer)
+            value = Schema.Type.parse(lexer)
             lexer.whitespace(0)
             while True:
                 if lexer.eat('['):
@@ -450,12 +448,27 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
                 lexer.next()
             return value
     class Type: # pylint: disable=too-few-public-methods,missing-class-docstring
-        def __init__(self, lexer):
-            self.name = lexer.expect('id')
-            while lexer.eat('.'):
-                self.name = self.name + '.' + lexer.expect('id')
+        def __init__(self, name):
+            self.name = name
         def __str__(self):
             return self.name
+        @staticmethod
+        def parse(lexer): # pylint: disable=missing-function-docstring
+            name = lexer.expect('id')
+            while lexer.eat('.'):
+                name = name + '.' + lexer.expect('id')
+            if name == 'Dict':
+                lexer.expect('(')
+                lexer.whitespace(0)
+                key_type = Schema.Type.parse(lexer)
+                lexer.whitespace(0)
+                lexer.expect(',')
+                lexer.whitespace(0)
+                value_type = Schema.Type.parse(lexer)
+                lexer.whitespace(0)
+                lexer.expect(')')
+                return Schema.DictType(key_type, value_type)
+            return Schema.Type(name)
     class OptionalType: # pylint: disable=too-few-public-methods,missing-class-docstring
         def __init__(self, element_type):
             self.element_type = element_type
@@ -469,6 +482,16 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
         def __str__(self):
             size = self.size.__str__() if hasattr(self, 'size') else ''
             return self.element_type.__str__() + '[' + size + ']'
+    class DictType:
+        def __init__(self, key_type, value_type):
+            self._key_type = key_type
+            self._value_type = value_type
+        def __str__(self):
+            return 'Dict[' + str(self._key_type) + ', ' + str(self._value_type) + ']'
+        def getKeyType(self): # pylint: disable=invalid-name,missing-function-docstring
+            return self._key_type
+        def getValueType(self): # pylint: disable=invalid-name,,missing-function-docstring
+            return self._value_type
     class Lexer: # pylint: disable=too-few-public-methods,missing-class-docstring
         def __init__(self, buffer):
             self.buffer = buffer
