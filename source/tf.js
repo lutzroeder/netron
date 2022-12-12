@@ -333,7 +333,7 @@ tf.ModelFactory = class {
                         }
                     }
                 }
-                if (saved_model.meta_graphs.every((meta_graph) => meta_graph.graph_def.node.every((node) => node.op.startsWith('aten::') || node.op.startsWith('prim::') || node.op === 'IO Node'))) {
+                if (saved_model.meta_graphs.every((meta_graph) => meta_graph.graph_def.node.every((node) => node.op.startsWith('aten::') || node.op.startsWith('prim::') || node.op.startsWith('quantized::') || node.op === 'IO Node'))) {
                     producer = 'PyTorch';
                     const openPyTorchMetadata = (context, saved_model) => {
                         return context.request('pytorch-metadata.json', 'utf-8', null).then((data) => {
