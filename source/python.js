@@ -4270,6 +4270,17 @@ python.Execution = class {
             params.groups = groups;
             return params;
         });
+        this.registerFunction('ops.quantized.conv_transpose1d_prepack', function(weight, bias, stride, padding, output_padding, dilation, groups) {
+            const params = self.invoke('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', []);
+            params.weight = weight;
+            params.bias = bias;
+            params.stride = stride;
+            params.padding =padding;
+            params.output_padding = output_padding;
+            params.dilation = dilation;
+            params.groups = groups;
+            return params;
+        });
         this.registerFunction('ops.quantized.conv_transpose2d_prepack', function(weight, bias, stride, padding, output_padding, dilation, groups) {
             const params = self.invoke('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', []);
             params.weight = weight;
