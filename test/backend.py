@@ -46,6 +46,10 @@ def _test_torchscript():
     # torch.onnx._optimize_trace(graph, torch.onnx.OperatorExportTypes.ONNX)
     # trace = torch.load(os.path.join(test_data_dir, 'pytorch', 'fasterrcnn_resnet50_fpn.pt'))
     # trace = torch.load(os.path.join(test_data_dir, 'pytorch', 'mobilenetv2-quant_full-nnapi.pt'))
+    torch.backends.quantized.engine = 'qnnpack'
+    trace = torch.load(os.path.join(test_data_dir, 'pytorch', 'd2go.pt'))
+    # trace = torch.load(os.path.join(test_data_dir, 'pytorch', 'inception_v3_traced.pt'))
+    # trace = torch.load(os.path.join(test_data_dir, 'pytorch', 'netron_issue_920.pt'))
     torch._C._jit_pass_inline(trace.graph)
     # https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/ir/ir.h
     netron.serve('resnet34', trace)
