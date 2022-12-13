@@ -2184,7 +2184,7 @@ tf.Utility = class {
                 }
                 if (node.__metadata__) {
                     for (const metadata of node.__metadata__) {
-                        const parameters = Array.prototype.slice.call(metadata.inputs || []).concat(Array.prototype.slice.call(metadata.attributes || []));
+                        const parameters = Array.prototype.slice.call(metadata.inputs || []);
                         let match = true;
                         const inputs = Array.from(node.input);
                         if (inputs.length > parameters.length) {
