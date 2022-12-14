@@ -267,12 +267,12 @@ flatbuffers.BinaryReader = class {
         throw new flatbuffers.Error('Not implemented.');
     }
 
-    structArray(position, offset, size, decode) {
+    structArray(position, offset, decode) {
         offset = this._offset(position, offset);
         const length = offset ? this._length(position + offset) : 0;
         const list = new Array(length);
         for (let i = 0; i < length; i++) {
-            list[i] = decode(this, this._indirect(this._vector(position + offset) + i * 4));
+            list[i] = decode(this, this._vector(position + offset) + i * 8);
         }
         return list;
     }

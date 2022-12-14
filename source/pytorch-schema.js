@@ -257,7 +257,7 @@ $root.torch.jit.mobile.serialization.Function = class Function {
     static decode(reader, position) {
         const $ = new $root.torch.jit.mobile.serialization.Function();
         $.qn = reader.string_(position, 4, null);
-        $.instructions = reader.structArray(position, 6, undefined,$root.torch.jit.mobile.serialization.Instruction.decode);
+        $.instructions = reader.structArray(position, 6, $root.torch.jit.mobile.serialization.Instruction.decode);
         $.operators = reader.tableArray(position, 8, $root.torch.jit.mobile.serialization.Operator.decode);
         $.constants = reader.typedArray(position, 10, Uint32Array);
         $.type_annotations = reader.strings_(position, 12);

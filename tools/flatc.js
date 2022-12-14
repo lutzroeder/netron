@@ -961,7 +961,7 @@ flatc.Generator = class {
                         }
                         else if (fieldType instanceof flatc.Struct) {
                             const fieldType = '$root.' + field.type.parent.name + '.' + field.type.name;
-                            this._builder.add('$.' + field.name + ' = reader.structArray(position, ' + field.offset + ', ' + field.size + ',' + fieldType + '.decode);');
+                            this._builder.add('$.' + field.name + ' = reader.structArray(position, ' + field.offset + ', ' + fieldType + '.decode);');
                         }
                         else {
                             const fieldType = '$root.' + field.type.parent.name + '.' + field.type.name;

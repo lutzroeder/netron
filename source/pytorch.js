@@ -1238,9 +1238,9 @@ pytorch.Container.Mobile = class extends pytorch.Container {
     read() {
         return this._context.require('./pytorch-schema').then(() => {
             pytorch.schema = flatbuffers.get('torch').torch.jit.mobile.serialization;
-            // const stream = this._context.stream;
-            // const reader = flatbuffers.BinaryReader.open(stream);
-            // const model = pytorch.schema.Module.create(reader);
+            const stream = this._context.stream;
+            const reader = flatbuffers.BinaryReader.open(stream);
+            /* const model = */ pytorch.schema.Module.create(reader);
             delete this._context;
             throw new pytorch.Error('torch.jit.mobile.serialization.Module not supported.');
         });
