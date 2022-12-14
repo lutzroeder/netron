@@ -67,7 +67,8 @@
             "no-unused-private-class-members": "error",
             "prefer-const": [ "error", { "destructuring": "all" } ],
             "require-atomic-updates": "error",
-            "semi": [ "error", "always" ]
+            "semi": [ "error", "always" ],
+            "space-before-blocks": "error"
         },
         "globals": {
             "flatbuffers": "readonly",

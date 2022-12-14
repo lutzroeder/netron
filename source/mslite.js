@@ -159,7 +159,7 @@ mslite.Node = class {
 
         const input_num = op.inputIndex.length;
         let i = 0;
-        if (this._type && this._type.inputs){
+        if (this._type && this._type.inputs) {
             for (const input of this._type.inputs) {
                 if (i >= input_num) {
                     break;
@@ -176,7 +176,7 @@ mslite.Node = class {
 
         const output_num = op.outputIndex.length;
         i = 0;
-        if (this._type && this._type.outputs){
+        if (this._type && this._type.outputs) {
             for (const output of this._type.outputs) {
                 if (i >= output_num) {
                     break;

@@ -303,7 +303,7 @@ class HTMLElement {
 class HTMLHtmlElement extends HTMLElement {
 }
 
-class HTMLBodyElement extends HTMLElement{
+class HTMLBodyElement extends HTMLElement {
 }
 
 class CSSStyleDeclaration {

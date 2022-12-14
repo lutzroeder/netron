@@ -71,7 +71,7 @@ const extensions = configuration.build.fileAssociations.map((entry) => '- ' + en
 get(url).then((data) => {
     const sha256 = crypto.createHash('sha256').update(data).digest('hex').toUpperCase();
     const versionDir = path.join(manifestDir, publisher[0].toLowerCase(), publisher.replace(' ', ''), productName, version);
-    if (!fs.existsSync(versionDir)){
+    if (!fs.existsSync(versionDir)) {
         fs.mkdirSync(versionDir, { recursive: true });
     }
     const manifestFile = path.join(versionDir, packageIdentifier);

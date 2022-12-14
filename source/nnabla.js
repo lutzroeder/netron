@@ -58,7 +58,7 @@ nnabla.Model = class {
         this._graphs = [ new nnabla.Graph(metadata, model) ];
     }
 
-    get format(){
+    get format() {
         return this._format;
     }
 

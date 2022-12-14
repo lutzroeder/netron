@@ -133,7 +133,7 @@ sklearn.Graph = class {
                 const output = this._concat(group, name);
                 const subgroup = this._concat(group, name);
                 this._nodes.push(new sklearn.Node(this._metadata, subgroup, output, obj, inputs, [ output ]));
-                for (const transformer of obj.transformer_list){
+                for (const transformer of obj.transformer_list) {
                     outputs.push(...this._process(subgroup, transformer[0], transformer[1], [ output ]));
                 }
                 return outputs;
@@ -145,7 +145,7 @@ sklearn.Graph = class {
                 const subgroup = this._concat(group, name);
                 const outputs = [];
                 this._nodes.push(new sklearn.Node(this._metadata, subgroup, output, obj, inputs, [ output ]));
-                for (const transformer of obj.transformers){
+                for (const transformer of obj.transformers) {
                     if (transformer[1] !== 'passthrough') {
                         outputs.push(...this._process(subgroup, transformer[0], transformer[1], [ output ]));
                     }
@@ -160,7 +160,7 @@ sklearn.Graph = class {
         }
     }
 
-    _concat(parent, name){
+    _concat(parent, name) {
         return (parent === '' ?  name : `${parent}/${name}`);
     }
 
