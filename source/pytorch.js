@@ -4,6 +4,7 @@
 var pytorch = {};
 var python = require('./python');
 var base = require('./base');
+var flatbuffers = require('./flatbuffers');
 
 pytorch.ModelFactory = class {
 
@@ -15,11 +16,13 @@ pytorch.ModelFactory = class {
         const identifier = context.identifier;
         return pytorch.Metadata.open(context).then((metadata) => {
             const container = match;
-            container.metadata = metadata;
-            container.on('resolve', (_, name) => {
-                context.exception(new pytorch.Error("Unknown type name '" + name + "' in '" + identifier + "'."), false);
+            return container.read().then(() => {
+                container.metadata = metadata;
+                container.on('resolve', (_, name) => {
+                    context.exception(new pytorch.Error("Unknown type name '" + name + "' in '" + identifier + "'."), false);
+                });
+                return new pytorch.Model(metadata, container);
             });
-            return new pytorch.Model(metadata, container);
         });
     }
 };
@@ -1041,12 +1044,20 @@ pytorch.Container = class {
         if (torch_utils) {
             return torch_utils;
         }
+        const mobile = pytorch.Container.Mobile.open(context);
+        if (mobile) {
+            return mobile;
+        }
         return null;
     }
 
     constructor() {
         this._metadata = null;
         this._events = [];
+    }
+
+    read() {
+        return Promise.resolve();
     }
 
     set metadata(value) {
@@ -1204,6 +1215,42 @@ pytorch.Container.torch_utils = class extends pytorch.Container {
             this._graphs = pytorch.Utility.find(this._obj);
             this._obj = null;
         }
+        return this._graphs;
+    }
+};
+
+pytorch.Container.Mobile = class extends pytorch.Container {
+
+    static open(context) {
+        const tags = context.tags('flatbuffers');
+        if (tags.get('file_identifier') === 'PTMF') {
+            return new pytorch.Container.Mobile(context);
+        }
+        return null;
+    }
+
+    constructor(context) {
+        super();
+        this._context = context;
+        this._graphs = [];
+    }
+
+    read() {
+        return this._context.require('./pytorch-schema').then(() => {
+            pytorch.schema = flatbuffers.get('torch').torch.jit.mobile.serialization;
+            // const stream = this._context.stream;
+            // const reader = flatbuffers.BinaryReader.open(stream);
+            // const model = pytorch.schema.Module.create(reader);
+            delete this._context;
+            throw new pytorch.Error('torch.jit.mobile.serialization.Module not supported.');
+        });
+    }
+
+    get format() {
+        return 'TorchScript Mobile';
+    }
+
+    get graphs() {
         return this._graphs;
     }
 };
