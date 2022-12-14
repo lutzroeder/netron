@@ -45,6 +45,7 @@
             "default-case": "error",
             "default-case-last": "error",
             "indent": [ "error", 4, { "SwitchCase": 1 } ],
+            "keyword-spacing": "error",
             "linebreak-style": "off",
             "no-await-in-loop": "error",
             "no-console": "error",

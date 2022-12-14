@@ -219,7 +219,7 @@ circle.Graph = class {
                     }
                     else if (contentProperties instanceof circle.schema.ImageProperties) {
                         denotation = 'Image';
-                        switch(contentProperties.color_space) {
+                        switch (contentProperties.color_space) {
                             case 0: denotation += '(Unknown)'; break;
                             case 1: denotation += '(RGB)'; break;
                             case 2: denotation += '(Grayscale)'; break;

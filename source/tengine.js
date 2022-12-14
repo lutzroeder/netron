@@ -712,7 +712,7 @@ tengine.BinaryReader = class extends base.BinaryReader {
             this.seek(position);
             const size = this.uint32();
             this.seek(this.uint32());
-            for(let i = 0; i < size - 1; i++) {
+            for (let i = 0; i < size - 1; i++) {
                 content += String.fromCharCode(this._buffer[this._position++]);
             }
             this.seek(next);

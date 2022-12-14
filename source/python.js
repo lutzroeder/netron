@@ -1064,7 +1064,7 @@ python.Tokenizer = class {
     }
 
     static _isNewline(c) {
-        switch(c) {
+        switch (c) {
             case '\n':
             case '\r':
             case '\u2028': // 8232

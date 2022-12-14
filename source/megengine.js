@@ -387,7 +387,7 @@ megengine.Graph = class {
                 }
             }
         };
-        if(obj.argdef_graph_map) {
+        if (obj.argdef_graph_map) {
             const graph = Object.values(obj.argdef_graph_map)[0];
             loadGraph(obj, graph, new Map(), '', metadata, true);
             return;
@@ -409,7 +409,7 @@ megengine.Graph = class {
                 const data = tensor.data.byteLength !== 0 ? tensor.data.slice(0) : undefined;
                 const initializer = opr.type === 'Host2DeviceCopy' ? undefined : new megengine.Tensor('', type, data);
                 let quantization;
-                if(tensor.dtype.param) {
+                if (tensor.dtype.param) {
                     quantization = {scale: tensor.dtype.param.scale, zeroPoint: tensor.dtype.param.zero_point};
                 }
                 const argument = new megengine.Argument(name, type, initializer, quantization);
@@ -516,7 +516,7 @@ megengine.Argument = class {
         this._name = name;
         this._initializer = initializer;
         this._type = type;
-        if(quantization && this._type.dataType.startsWith('q')) {
+        if (quantization && this._type.dataType.startsWith('q')) {
             this._scale = quantization.scale;
             this._zeroPoint = quantization.zeroPoint;
         }
@@ -561,7 +561,7 @@ megengine.Node = class {
         this._chain = [];
         this._attributes = [];
 
-        if(item.inputs && item.outputs && item.param) {
+        if (item.inputs && item.outputs && item.param) {
             const inputSchemas = this._type && this._type.inputs ? [ ...this._type.inputs ] : [];
             for (let i = 0; i < item.inputs.length; i++) {
                 const inputOpr = allOprAndTensor.get(item.inputs[i]);

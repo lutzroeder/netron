@@ -924,7 +924,7 @@ host.BrowserHost.BrowserFileContext = class {
                 e = e || this.window.event;
                 let message = '';
                 const error = e.target.error;
-                switch(error.code) {
+                switch (error.code) {
                     case error.NOT_FOUND_ERR:
                         message = "File not found '" + file + "'.";
                         break;

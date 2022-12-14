@@ -278,7 +278,7 @@ uff.Attribute = class {
 
     constructor(metadata, name, value) {
         this._name = name;
-        switch(value.type) {
+        switch (value.type) {
             case 's': this._value = value.s; this._type = 'string'; break;
             case 's_list': this._value = value.s_list; this._type = 'string[]'; break;
             case 'd': this._value = value.d; this._type = 'float64'; break;
