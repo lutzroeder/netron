@@ -13791,6 +13791,22 @@
     ]
   },
   {
+    "name": "prepacked::conv2d_clamp_prepack",
+    "inputs": [
+      { "name": "W", "type": "Tensor" },
+      { "name": "B", "type": "Tensor", "optional": true },
+      { "name": "stride", "type": "int64[2]" },
+      { "name": "padding", "type": "int64[2]" },
+      { "name": "dilation", "type": "int64[2]" },
+      { "name": "groups", "type": "int64" },
+      { "name": "output_min", "type": "Scalar", "optional": true, "default": null },
+      { "name": "output_max", "type": "Scalar", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "__torch__.torch.classes.xnnpack.Conv2dOpContext" }
+    ]
+  },
+  {
     "name": "prepacked::conv2d_clamp_run",
     "category": "Layer",
     "inputs": [
@@ -13799,6 +13815,18 @@
     ],
     "outputs": [
       { "name": "Y", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "prepacked::linear_clamp_prepack",
+    "inputs": [
+      { "name": "W", "type": "Tensor" },
+      { "name": "B", "type": "Tensor", "optional": true, "default": null },
+      { "name": "output_min", "type": "Scalar", "optional": true, "default": null },
+      { "name": "output_max", "type": "Scalar", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "__torch__.torch.classes.xnnpack.LinearOpContext" }
     ]
   },
   {
@@ -14304,6 +14332,20 @@
     ]
   },
   {
+    "name": "quantized::conv2d_prepack",
+    "inputs": [
+      { "name": "weight", "type": "Tensor" },
+      { "name": "bias", "type": "Tensor", "optional": true },
+      { "name": "stride", "type": "int64[]" },
+      { "name": "padding", "type": "int64[]" },
+      { "name": "dilation", "type": "int64[]" },
+      { "name": "groups", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "__torch__.torch.classes.quantized.Conv2dPackedParamsBase" }
+    ]
+  },
+  {
     "name": "quantized::conv2d_relu",
     "category": "Layer",
     "inputs": [
@@ -14431,6 +14473,21 @@
     ]
   },
   {
+    "name": "quantized::conv_transpose1d_prepack",
+    "inputs": [
+      { "name": "weight", "type": "Tensor" },
+      { "name": "bias", "type": "Tensor", "optional": true },
+      { "name": "stride", "type": "int64[]" },
+      { "name": "padding", "type": "int64[]" },
+      { "name": "output_padding", "type": "int64[]" },
+      { "name": "dilation", "type": "int64[]" },
+      { "name": "groups", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "__torch__.torch.classes.quantized.Conv2dPackedParamsBase" }
+    ]
+  },
+  {
     "name": "quantized::conv_transpose2d",
     "inputs": [
       { "name": "qx", "type": "Tensor" },
@@ -14487,6 +14544,21 @@
     ],
     "outputs": [
       { "type": "int64[]" }
+    ]
+  },
+  {
+    "name": "quantized::conv_transpose2d_prepack",
+    "inputs": [
+      { "name": "weight", "type": "Tensor" },
+      { "name": "bias", "type": "Tensor", "optional": true },
+      { "name": "stride", "type": "int64[]" },
+      { "name": "padding", "type": "int64[]" },
+      { "name": "output_padding", "type": "int64[]" },
+      { "name": "dilation", "type": "int64[]" },
+      { "name": "groups", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "__torch__.torch.classes.quantized.Conv2dPackedParamsBase" }
     ]
   },
   {
