@@ -552,7 +552,7 @@ class Application {
                     { role: 'minimize' },
                     { role: 'zoom' },
                     { type: 'separator' },
-                    { role: 'front'}
+                    { role: 'front' }
                 ]
             });
         }

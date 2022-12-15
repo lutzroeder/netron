@@ -961,7 +961,7 @@ view.Graph = class extends grapher.Graph {
 
             const createCluster = (name) => {
                 if (!clusters.has(name)) {
-                    this.setNode({ name: name, rx: 5, ry: 5});
+                    this.setNode({ name: name, rx: 5, ry: 5 });
                     clusters.add(name);
                     const parent = clusterParentMap.get(name);
                     if (parent) {
@@ -1871,7 +1871,7 @@ view.ModelFactoryService = class {
             if (tags.size > 0) {
                 const formats = [
                     { name: 'OpenCV storage data', tags: [ 'opencv_storage' ] },
-                    { name: 'XHTML markup', tags: [ 'http://www.w3.org/1999/xhtml:html' ]}
+                    { name: 'XHTML markup', tags: [ 'http://www.w3.org/1999/xhtml:html' ] }
                 ];
                 for (const format of formats) {
                     if (format.tags.some((tag) => tags.has(tag))) {

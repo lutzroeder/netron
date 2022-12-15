@@ -238,7 +238,7 @@ pytorch.Graph = class {
         const type = obj.__class__.__module__ + '.' + obj.__class__.__name__;
         const schema = metadata.type(type);
 
-        let inputSchema = [ { name: 'input'} ];
+        let inputSchema = [ { name: 'input' } ];
         if (schema && schema.inputs && schema.inputs.length > 0) {
             inputSchema = schema.inputs.slice();
         }

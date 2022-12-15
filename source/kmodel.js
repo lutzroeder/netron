@@ -814,11 +814,11 @@ kmodel.Reader = class {
                         layer.output_offset = layer.int32();
                         const bias = reader.span('int32', [ layer.out_channels ]);
                         if (bias) {
-                            layer.inputs.push({ name: 'bias', arguments: [ bias ]});
+                            layer.inputs.push({ name: 'bias', arguments: [ bias ] });
                         }
                         const weights = reader.span('uint8', [ layer.out_channels, layer.inputs[0].arguments[0].shape[1] / layer.groups, layer.filter_h, layer.filter_w]);
                         if (weights) {
-                            layer.inputs.push({ name: 'weights', arguments: [ weights ]});
+                            layer.inputs.push({ name: 'weights', arguments: [ weights ] });
                         }
                     });
                     register(  0x10, 'quantized_matmul', '', (layer, reader) => {
@@ -838,7 +838,7 @@ kmodel.Reader = class {
                         layer.output_offset = reader.int32();
                         const bias = reader.span('int32', [ layer.b_cols ]);
                         if (bias) {
-                            layer.inputs.push({ name: 'bias', arguments: [ bias ]});
+                            layer.inputs.push({ name: 'bias', arguments: [ bias ] });
                         }
                     });
                     register(  0x11, 'quantized_binary', '', (layer, reader) => {

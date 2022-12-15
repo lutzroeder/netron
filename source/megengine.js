@@ -410,7 +410,7 @@ megengine.Graph = class {
                 const initializer = opr.type === 'Host2DeviceCopy' ? undefined : new megengine.Tensor('', type, data);
                 let quantization;
                 if (tensor.dtype.param) {
-                    quantization = {scale: tensor.dtype.param.scale, zeroPoint: tensor.dtype.param.zero_point};
+                    quantization = { scale: tensor.dtype.param.scale, zeroPoint: tensor.dtype.param.zero_point };
                 }
                 const argument = new megengine.Argument(name, type, initializer, quantization);
                 args.push(argument);
@@ -419,7 +419,7 @@ megengine.Graph = class {
                 const argument = new megengine.Argument(name);
                 args.push(argument);
             }
-            return {name: name, type: type, args: args};
+            return { name: name, type: type, args: args };
         };
         const getAllOprAndTensor = (oprs) => {
             const allOprAndTensor = new Map();

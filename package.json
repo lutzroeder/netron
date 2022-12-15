@@ -65,6 +65,7 @@
             "no-unmodified-loop-condition": "error",
             "no-unreachable-loop": "error",
             "no-unused-private-class-members": "error",
+            "object-curly-spacing": [ "error", "always" ],
             "prefer-const": [ "error", { "destructuring": "all" } ],
             "require-atomic-updates": "error",
             "semi": [ "error", "always" ],
