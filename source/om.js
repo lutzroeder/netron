@@ -524,7 +524,7 @@ om.Container = class {
                             const decoder = new TextDecoder('ascii');
                             const reader = new base.BinaryReader(buffer);
                             reader.uint32();
-                            for (let position = 4; position < partition.size; ) {
+                            for (let position = 4; position < partition.size;) {
                                 const length = reader.uint32();
                                 const buffer = reader.read(length);
                                 const name = decoder.decode(buffer);

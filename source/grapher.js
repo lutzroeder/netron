@@ -181,7 +181,7 @@ grapher.Graph = class {
                 const node = this.node(nodeId);
                 node.label.element.setAttribute('transform', 'translate(' + node.label.x + ',' + node.label.y + ')');
                 node.label.rectangle.setAttribute('x', - node.label.width / 2);
-                node.label.rectangle.setAttribute('y', - node.label.height / 2 );
+                node.label.rectangle.setAttribute('y', - node.label.height / 2);
                 node.label.rectangle.setAttribute('width', node.label.width);
                 node.label.rectangle.setAttribute('height', node.label.height);
             }

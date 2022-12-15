@@ -74,7 +74,7 @@ host.BrowserHost = class {
     initialize(view) {
         this._view = view;
         return new Promise((resolve /*, reject */) => {
-            const age = (new Date() - new Date(this._environment.date)) / ( 24 * 60 * 60 * 1000);
+            const age = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
             if (age > 180) {
                 this._message('Please update to the newest version.', 'Download', () => {
                     const link = this.document.getElementById('logo-github').href;

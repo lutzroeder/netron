@@ -346,6 +346,7 @@ kmodel.Reader = class {
                         layer.offset = offset;
                         offset += layer.body_size;
                     }
+                    /* eslint-disable space-in-parens */
                     register(   -1, 'DUMMY');
                     register(    0, 'INVALID');
                     register(    1, 'ADD');
@@ -571,6 +572,7 @@ kmodel.Reader = class {
                         layer.inputs[0].arguments[0].shape = shape;
                         layer.outputs[0].arguments[0].shape = shape;
                     });
+                    /* eslint-enable space-in-parens */
                     for (const layer of layers) {
                         const type = types.get(layer.type);
                         if (!type) {
@@ -640,6 +642,7 @@ kmodel.Reader = class {
                         layer.offset = offset;
                         offset += layer.body_size;
                     }
+                    /* eslint-disable space-in-parens */
                     register(  0x00, 'binary', '', (layer, reader) => {
                         layer.inputs = [
                             reader.parameter('a'),
@@ -932,6 +935,7 @@ kmodel.Reader = class {
                             layer.inputs.push({ name: 'weights', arguments: [ weights ] });
                         }
                     });
+                    /* eslint-enable space-in-parens */
                     for (const layer of layers) {
                         const type = types.get(layer.opcode);
                         if (!type) {

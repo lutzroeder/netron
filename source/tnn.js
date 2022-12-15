@@ -240,7 +240,7 @@ tnn.Node = class {
                     const kernel_w = parseInt(layer.attr['3'] || 0, 10);
                     const kernel_h = parseInt(layer.attr['4'] || kernel_w, 10);
                     const weight_data_size = resource.filter.length;
-                    this._weight(resource, 'filter', [ num_output, weight_data_size / ( num_output * kernel_w * kernel_h), kernel_w, kernel_h ]);
+                    this._weight(resource, 'filter', [ num_output, weight_data_size / (num_output * kernel_w * kernel_h), kernel_w, kernel_h ]);
                     if (resource.bias) {
                         this._weight(resource, 'bias', [ num_output ]);
                     }
@@ -258,7 +258,7 @@ tnn.Node = class {
                     const kernel_h = parseInt(layer.attr['4'] || kernel_w, 10);
                     const kernel_d = parseInt(layer.attr['5'] || kernel_w, 10);
                     const weight_data_size = resource.filter.length;
-                    this._weight(resource, 'weight', [ num_output, weight_data_size / ( num_output * kernel_w * kernel_h  * kernel_d), kernel_w, kernel_h, kernel_d ]);
+                    this._weight(resource, 'weight', [ num_output, weight_data_size / (num_output * kernel_w * kernel_h  * kernel_d), kernel_w, kernel_h, kernel_d ]);
                     if (resource.bias) {
                         this._weight(resources, 'bias', [ num_output ]);
                     }

@@ -903,7 +903,7 @@ coreml.Graph = class {
 
         const metadata = this._metadata.type(type);
         const inputParams = [];
-        for (let i = 0; i < inputs.length; ) {
+        for (let i = 0; i < inputs.length;) {
             const input = metadata && metadata.inputs && i < metadata.inputs.length ? metadata.inputs[i] : { name: i === 0 ? 'input' : i.toString() };
             const count = input.type === 'Tensor[]' ? inputs.length - i : 1;
             const args = inputs.slice(i, i + count);
@@ -914,7 +914,7 @@ coreml.Graph = class {
         inputParams.push(...initializers);
 
         const outputParams = [];
-        for (let i = 0; i < outputs.length; ) {
+        for (let i = 0; i < outputs.length;) {
             const output = metadata && metadata.outputs && i < metadata.outputs.length ? metadata.outputs[i] : { name: i === 0 ? 'output' : i.toString() };
             const count = output.type === 'Tensor[]' ? outputs.length - i : 1;
             const args = outputs.slice(i, i + count);

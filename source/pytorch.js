@@ -1438,7 +1438,7 @@ pytorch.Container.Zip.Script = class {
                                     return type.arguments.map((type, index) => defaultValue(type, name + '[' + index.toString() + ']'));
                                 }
                                 case 'List': {
-                                    return type.arguments.map((type, index) => defaultValue(type, name + '[' + index.toString() + ']' ));
+                                    return type.arguments.map((type, index) => defaultValue(type, name + '[' + index.toString() + ']'));
                                 }
                                 case 'Dict': {
                                     if (type.arguments[1].name.value === 'Tensor') {
@@ -3496,6 +3496,7 @@ pytorch.nnapi.Metadata = class {
         this._types = new Map();
         // https://developer.android.com/ndk/reference/group/neural-networks
         // https://github.com/pytorch/pytorch/commits/master/torch/backends/_nnapi/serializer.py
+        /* eslint-disable space-in-parens */
         this.register( 0, 'ADD', '', [ 'A', 'B' ], [ [ 'activation', 'int32'] ], [ 'C' ]);
         this.register( 1, 'AVERAGE_POOL_2D', 'Pool', [ 'input' ], [ [ 'padding_left', 'int32' ], [ 'padding_right', 'int32' ], [ 'padding_top', 'int32' ], [ 'padding_bottom', 'int32' ], [ 'stride_x', 'int32' ], [ 'stride_y', 'int32' ], [ 'filter_x', 'int32' ], [ 'filter_y', 'int32' ], [ 'activation', 'int32' ], [ 'nchw', 'boolean' ] ], [ 'output' ]);
         this.register( 1, 'AVERAGE_POOL_2D', 'Pool', [ 'input' ], [ [ 'padding_scheme', 'int32' ], [ 'stride_x', 'int32' ], [ 'stride_y', 'int32' ], [ 'filter_x', 'int32' ], [ 'filter_y', 'int32' ], [ 'activation', 'int32' ], [ 'nchw', 'boolean' ] ], [ 'output' ]);
@@ -3601,6 +3602,7 @@ pytorch.nnapi.Metadata = class {
         this.register(99, 'HARD_SWISH', 'Activation');
         this.register(100, 'FILL');
         this.register(101, 'RANK');
+        /* eslint-enable space-in-parens */
     }
 
     register(index, name, category, inputs, attributes, outputs) {

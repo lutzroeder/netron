@@ -98,7 +98,7 @@ tf.ModelFactory = class {
                     if (tags.size === 1 && tags.get(1) === 2) {
                         const tags = context.tags('pb+');
                         // mediapipe.BoxDetectorIndex
-                        if (match(tags, [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]],[2,false],[3,false],[4,false],[5,false]]],[2,false],[3,false]] )) {
+                        if (match(tags, [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]],[2,false],[3,false],[4,false],[5,false]]],[2,false],[3,false]])) {
                             return undefined;
                         }
                         // third_party.tensorflow.python.keras.protobuf.SavedMetadata

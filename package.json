@@ -39,7 +39,7 @@
         },
         "rules": {
             "array-callback-return": "error",
-            "brace-style": [ "error", "stroustrup"  ],
+            "brace-style": [ "error", "stroustrup" ],
             "curly": "error",
             "consistent-return": "error",
             "default-case": "error",
@@ -69,7 +69,8 @@
             "prefer-const": [ "error", { "destructuring": "all" } ],
             "require-atomic-updates": "error",
             "semi": [ "error", "always" ],
-            "space-before-blocks": "error"
+            "space-before-blocks": "error",
+            "space-in-parens": "error"
         },
         "globals": {
             "flatbuffers": "readonly",

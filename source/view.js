@@ -1608,7 +1608,7 @@ view.ModelFactoryService = class {
         this.register('./server', [ '.netron']);
         this.register('./pytorch', [ '.pt', '.pth', '.ptl', '.pt1', '.pyt', '.pyth', '.pkl', '.pickle', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.tckpt', '.bin', '.pb', '.zip', '.nn', '.torchmodel', '.torchscript', '.pytorch', '.ot', '.params', '.trt', '.ff', '.ptmf' ], [ '.model' ]);
         this.register('./onnx', [ '.onnx', '.onn', '.pb', '.onnxtxt', '.pbtxt', '.prototxt', '.txt', '.model', '.pt', '.pth', '.pkl', '.ort', '.ort.onnx', 'onnxmodel', 'ngf' ]);
-        this.register('./mxnet', [ '.json', '.params' ], [ '.mar'] );
+        this.register('./mxnet', [ '.json', '.params' ], [ '.mar']);
         this.register('./coreml', [ '.mlmodel', '.bin', 'manifest.json', 'metadata.json', 'featuredescriptions.json', '.pb' ], [ '.mlpackage' ]);
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt', '.pt', '.txt' ]);
         this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
@@ -1655,7 +1655,7 @@ view.ModelFactoryService = class {
         this.register('./hickle', [ '.h5', '.hkl' ]);
         this.register('./nnef', [ '.nnef', '.dat' ]);
         this.register('./cambricon', [ '.cambricon' ]);
-        this.register('./onednn', [ '.json'] );
+        this.register('./onednn', [ '.json']);
     }
 
     register(id, factories, containers) {

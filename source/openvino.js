@@ -479,14 +479,14 @@ openvino.Node = class {
         const type = layer.type;
         this._type = metadata.type(type) || { name: type };
         const precision = layer.precision;
-        for (let i = 0; i < inputs.length; ) {
+        for (let i = 0; i < inputs.length;) {
             const input = this._type && this._type.inputs && i < this._type.inputs.length ? this._type.inputs[i] : inputs.length === 1 ? { name: 'input' } : { name: i.toString() };
             const count = input.list ? inputs.length - i : 1;
             const list = inputs.slice(i, i + count);
             this._inputs.push(new openvino.Parameter(input.name, list));
             i += count;
         }
-        for (let i = 0; i < outputs.length; ) {
+        for (let i = 0; i < outputs.length;) {
             const output = this._type && this._type.outputs && i < this._type.outputs.length ? this._type.outputs[i] : outputs.length === 1 ? { name: 'output' } : { name: i.toString() };
             const count = output.list ? outputs.length - i : 1;
             const list = outputs.slice(i, i + count);

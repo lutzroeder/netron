@@ -1323,7 +1323,7 @@ protobuf.LongBits = class {
     zzDecode() {
         const mask = -(this.lo & 1);
         this.lo  = ((this.lo >>> 1 | this.hi << 31) ^ mask) >>> 0;
-        this.hi  = ( this.hi >>> 1                  ^ mask) >>> 0;
+        this.hi  =  (this.hi >>> 1                  ^ mask) >>> 0;
         return this;
     }
 
