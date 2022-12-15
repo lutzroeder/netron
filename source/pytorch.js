@@ -32,7 +32,10 @@ pytorch.Model = class {
     constructor(metadata, container) {
         this._format = container.format;
         this._producer = container.producer || '';
-        this._graphs = container.modules.map((module) => new pytorch.Graph(metadata, module, container));
+        this._graphs = [];
+        for (const entry of container.modules) {
+            this._graphs.push(new pytorch.Graph(metadata, entry[0], entry[1], container));
+        }
     }
 
     get format() {
@@ -46,14 +49,13 @@ pytorch.Model = class {
 
 pytorch.Graph = class {
 
-    constructor(metadata, module, container) {
+    constructor(metadata, name, module) {
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
         this._groups = true;
-        this._name = module.name || '';
-        const type = module.type;
-        switch (type) {
+        this._name = name || '';
+        switch (module.__type__) {
             case 'script': {
                 const traced = module.trace();
                 const initializers = new Map();
@@ -90,34 +92,32 @@ pytorch.Graph = class {
                         }
                     }
                 }
-                if (module.data) {
-                    const queue = [ module.data ];
-                    while (queue.length > 0) {
-                        const module = queue.shift();
-                        if (module.__class__ && module.__class__.__module__ === '__torch__.torch.classes._nnapi' && module.__class__.__name__ === 'Compilation') {
-                            continue;
-                        }
-                        for (const entry of Object.entries(module)) {
-                            const key = entry[0];
-                            if (key !== '__module__' && key !== '__name__' && key !== '__class__' && key !== '__parent__') {
-                                const obj = entry[1];
-                                if (!Array.isArray(obj) && obj === Object(obj)) {
-                                    if (pytorch.Utility.isTensor(obj)) {
-                                        const parameter = obj;
-                                        parameter.__parent__ = module;
-                                        if (!parameter.initializer && parameter.storage()) {
-                                            if (parameter.__count__ === undefined || parameter.__count__ === 1) {
-                                                initializers.set(parameter, new pytorch.Tensor(parameter.name, parameter));
-                                            }
+                const queue = [ module.data ];
+                while (queue.length > 0) {
+                    const module = queue.shift();
+                    if (module.__class__ && module.__class__.__module__ === '__torch__.torch.classes._nnapi' && module.__class__.__name__ === 'Compilation') {
+                        continue;
+                    }
+                    for (const entry of Object.entries(module)) {
+                        const key = entry[0];
+                        if (key !== '__module__' && key !== '__name__' && key !== '__class__' && key !== '__parent__') {
+                            const obj = entry[1];
+                            if (!Array.isArray(obj) && obj === Object(obj)) {
+                                if (pytorch.Utility.isTensor(obj)) {
+                                    const parameter = obj;
+                                    parameter.__parent__ = module;
+                                    if (!parameter.initializer && parameter.storage()) {
+                                        if (parameter.__count__ === undefined || parameter.__count__ === 1) {
+                                            initializers.set(parameter, new pytorch.Tensor(parameter.name, parameter));
                                         }
                                     }
-                                    else if (obj && obj.__class__) {
-                                        obj.__parent__ = module;
-                                        if (!obj.__id__) {
-                                            obj.__id__ = key;
-                                        }
-                                        queue.push(obj);
+                                }
+                                else if (obj && obj.__class__) {
+                                    obj.__parent__ = module;
+                                    if (!obj.__id__) {
+                                        obj.__id__ = key;
                                     }
+                                    queue.push(obj);
                                 }
                             }
                         }
@@ -152,7 +152,7 @@ pytorch.Graph = class {
                         if (node.kind() === 'prim::ListUnpack' &&
                             node.inputs().length === 1 &&
                             node.inputs().every((input) => input.uses().length === 1) &&
-                            node.outputs().every((output) => output.uses().length === 1 && pytorch.Utility.isTensor(output.value))) {
+                            node.outputs().every((output) => pytorch.Utility.isTensor(output.value))) {
                             continue;
                         }
                         const item = {
@@ -163,17 +163,17 @@ pytorch.Graph = class {
                     }
                 }
                 if (module) {
-                    this._loadScriptModule(metadata, container, module.data, initializers);
+                    this._loadScriptModule(metadata, module.data, initializers);
                 }
                 break;
             }
             case 'module': {
-                this._type = (module.data.__module__ && module.data.__name__) ? (module.data.__module__ + '.' + module.data.__name__) : '';
-                this._loadModule(metadata, module.data, [], []);
+                this._type = (module.__module__ && module.__name__) ? (module.__module__ + '.' + module.__name__) : '';
+                this._loadModule(metadata, module, [], []);
                 break;
             }
             case 'weights': {
-                for (const state_group of module.data) {
+                for (const state_group of module) {
                     const attributes = state_group.attributes || [];
                     const inputs = state_group.states.map((parameter) => {
                         return new pytorch.Parameter(parameter.name, true,
@@ -194,7 +194,7 @@ pytorch.Graph = class {
                 break;
             }
             default: {
-                throw new pytorch.Error("Unsupported container type '" + type + "'.");
+                throw new pytorch.Error("Unsupported container type '" + module.__type__ + "'.");
             }
         }
     }
@@ -293,7 +293,7 @@ pytorch.Graph = class {
         return [ node.name ];
     }
 
-    _loadScriptModule(metadata, container, module, initializers) {
+    _loadScriptModule(metadata, module, initializers) {
         if (module) {
             if (pytorch.Graph._getParameters(module).length > 0 && !module.__hide__) {
                 const item = { module: module };
@@ -301,7 +301,7 @@ pytorch.Graph = class {
             }
             const submodules = pytorch.Graph._getSubmodules(module);
             for (const submodule of submodules) {
-                this._loadScriptModule(metadata, container, submodule, initializers);
+                this._loadScriptModule(metadata, submodule, initializers);
             }
         }
     }
@@ -476,6 +476,12 @@ pytorch.Node = class {
                             if (pytorch.Utility.isTensor(value)) {
                                 values = [ value ];
                             }
+                            if (input.node() &&
+                                input.node().kind() === 'prim::ListConstruct' &&
+                                input.uses().length === 1 &&
+                                input.node().inputs().every((input) => pytorch.Utility.isTensor(input.value))) {
+                                values = input.node().inputs().map((input) => input.value);
+                            }
                             break;
                         }
                     }
@@ -581,7 +587,7 @@ pytorch.Node = class {
                     if (output.uses().length === 1 &&
                         output.uses()[0].user &&
                         output.uses()[0].user.kind() == 'prim::ListUnpack' &&
-                        output.uses()[0].user.outputs().every((output) => output.uses().length === 1)) {
+                        output.uses()[0].user.outputs().every((output) => pytorch.Utility.isTensor(output.value))) {
                         list = output.uses()[0].user.outputs();
                     }
                     const args = list.map((output) => {
@@ -1104,27 +1110,24 @@ pytorch.Container.Tar = class extends pytorch.Container {
     constructor(entries) {
         super();
         this._entries = entries;
-        this._graphs = [ this ];
     }
 
     read() {
-        this._type = '';
-        this._data = null;
+        const entries = this._entries;
+        delete this._entries;
         const execution = new pytorch.Execution();
         for (const event of this._events) {
             execution.on(event[0], event[1]);
         }
-        const obj = execution.invoke('torch.load', [ this._entries ]);
-        const weights = pytorch.Utility.findWeights(obj);
-        if (!weights) {
-            throw new pytorch.Error('File does not contain root module or state dictionary.');
+        const obj = execution.invoke('torch.load', [ entries ]);
+        this._modules = pytorch.Utility.findWeights(obj);
+        if (this._modules) {
+            for (const entry of this._modules) {
+                entry[1].__type__ = 'weights';
+            }
+            return Promise.resolve();
         }
-        for (const graph of weights) {
-            graph.type = 'weights';
-        }
-        this._entries = null;
-        this._modules = weights;
-        return Promise.resolve();
+        throw new pytorch.Error('File does not contain root module or state dictionary.');
     }
 
     get format() {
@@ -1149,7 +1152,6 @@ pytorch.Container.Pickle = class extends pytorch.Container {
     constructor(stream) {
         super();
         this._stream = stream;
-        this._modules = [];
     }
 
     read() {
@@ -1222,7 +1224,6 @@ pytorch.Container.torch_utils = class extends pytorch.Container {
     constructor(obj) {
         super();
         this._obj = obj;
-        this._graphs = [];
     }
 
     read() {
@@ -1253,11 +1254,11 @@ pytorch.Container.Mobile = class extends pytorch.Container {
     constructor(context) {
         super();
         this._context = context;
-        this._modules = [];
     }
 
     read() {
         return this._context.require('./pytorch-schema').then(() => {
+            this._modules = new Map();
             pytorch.schema = flatbuffers.get('torch').torch.jit.mobile.serialization;
             const stream = this._context.stream;
             const reader = flatbuffers.BinaryReader.open(stream);
@@ -1361,11 +1362,11 @@ pytorch.Container.Zip = class extends pytorch.Container {
 pytorch.Container.Zip.Script = class {
 
     constructor(entries, execution, location, name) {
+        this.__type__ = 'script';
         this._entries = entries;
         this._location = location || {};
         this._name = name || '';
         this._execution = execution;
-
         const directory = this._location.code || 'code/';
         const sources = new Map();
         for (const entry of this._entries) {
@@ -1392,19 +1393,13 @@ pytorch.Container.Zip.Script = class {
             const buffer = stream.peek();
             const constants = this._unpickle(buffer, this._storage('constants/'));
             for (let i = 0; i < constants.length; i++) {
-                const name = 'c' + i.toString();
-                const value = constants[i];
-                this._execution.builtins.CONSTANTS[name] = value;
+                this._execution.builtins.CONSTANTS['c' + i.toString()] = constants[i];
             }
         }
     }
 
     get name() {
         return this._name;
-    }
-
-    get type() {
-        return 'script';
     }
 
     get execution() {
@@ -1592,8 +1587,8 @@ pytorch.Container.Zip.Json = class extends pytorch.Container.Zip {
         for (const event of this._events) {
             execution.on(event[0], event[1]);
         }
-        const graph = new pytorch.Container.Zip.Json.Script(this._entries, execution, this._model);
-        this._modules = graph.data.forward ? [ graph ] : pytorch.Utility.find(graph.data);
+        const module = new pytorch.Container.Zip.Json.Script(this._entries, execution, this._model);
+        this._modules = module.data.forward ? new Map([ [ module.name, module ] ]) : pytorch.Utility.find(module.data);
         return Promise.resolve();
     }
 
@@ -1610,8 +1605,104 @@ pytorch.Container.Zip.Json.Script = class extends pytorch.Container.Zip.Script {
 
     constructor(entries, execution, model) {
         super(entries, execution);
-        this._model = model;
         this._name = model.mainModule.name || '';
+        this._data = model.mainModule || {};
+        const queue = [ this._data ];
+        const buffers = new Map();
+        for (const entry of entries) {
+            const name = entry[0];
+            const stream = entry[1];
+            const buffer = stream.peek();
+            buffers.set(name, buffer);
+        }
+        const tensorTypeMap = new Map([
+            [ 'FLOAT', 'Float' ],
+            [ 'FLOAT16', 'Half' ],
+            [ 'DOUBLE', 'Double' ],
+            [ 'INT8', 'Char' ],
+            [ 'INT32', 'Int' ],
+            [ 'INT64', 'Long' ]
+        ]);
+        const constants = (model.tensors || []).map((constant) => {
+            const key = constant.data.key;
+            if (!tensorTypeMap.has(constant.dataType)) {
+                throw new pytorch.Error("Unsupported tensor data type '" + constant.dataType + "'.");
+            }
+            const type = tensorTypeMap.get(constant.dataType);
+            const shape = constant.dims ? constant.dims.map((dim) => parseInt(dim, 10)) : null;
+            const storage_type = this.execution.resolve('torch.' + type + 'Storage');
+            const size = (shape || []).reduce((a, b) => a * b, 1);
+            const offset = parseInt(constant.offset, 10) || 0;
+            const storage = new storage_type([ size ]);
+            const itemsize = storage.dtype.itemsize();
+            const buffer = buffers.get(key);
+            const length = size * itemsize;
+            const data = buffer.slice(offset, offset + length);
+            storage._set_cdata(data);
+            const tensor = this.execution.invoke('torch._utils._rebuild_tensor', [ storage, 0, shape, 0 ]);
+            tensor.name = constant.data.key;
+            return tensor;
+        });
+        execution.builtins.CONSTANTS = {};
+        for (let i = 0; i < constants.length; i++) {
+            this._execution.builtins.CONSTANTS['c' + i.toString()] = constants[i];
+        }
+        const attributes = [];
+        const stream = entries.get('attributes.pkl');
+        if (stream) {
+            const buffer = stream.peek();
+            const unpickler = this.execution.invoke('pickle.Unpickler', [ buffer ]);
+            const obj = unpickler.load();
+            attributes.push(...obj);
+        }
+        while (queue.length > 0) {
+            const module = queue.shift();
+            if (!module.__class__) {
+                module.__class__ = {
+                    __module__: 'torch.nn.modules.module',
+                    __name__: 'Module'
+                };
+            }
+            if (module.name) {
+                module.__id__ = module.name;
+            }
+            if (module.submodules) {
+                for (const submodule of module.submodules) {
+                    module[submodule.name] = submodule;
+                    submodule.__parent__ = module;
+                    queue.push(submodule);
+                }
+                delete module.submodules;
+            }
+            const parameters = [];
+            if (module.parameters) {
+                parameters.push(...module.parameters);
+                delete module.parameters;
+            }
+            if (module.arguments) {
+                parameters.push(...module.arguments);
+                delete module.arguments;
+            }
+            for (const parameter of parameters) {
+                const tensor = constants[parameter.tensorId];
+                module[parameter.name] = tensor;
+                parameter.__class__ = parameter.__class__ || { __module__: 'torch', __name__: 'Tensor' };
+            }
+            for (const attribute of module.attributes || []) {
+                module[attribute.name] = attributes[attribute.id];
+            }
+            delete module.attributes;
+        }
+        const code = this._data.torchscriptArena;
+        if (code && code.key && code.key.startsWith('code/')) {
+            const file = code.key.substring('code/'.length);
+            const name = file.replace(/\.py$/, '').split('/').join('.');
+            const module = this.execution.import(name);
+            if (module.forward.__class__ === this.execution.builtins.function) {
+                this._data.forward = module.forward;
+            }
+        }
+        delete this._model;
     }
 
     get name() {
@@ -1619,111 +1710,6 @@ pytorch.Container.Zip.Json.Script = class extends pytorch.Container.Zip.Script {
     }
 
     get data() {
-        if (!this._data) {
-            this._data = this._model.mainModule || {};
-            const queue = [ this._data ];
-            const entries = new Map();
-            for (const entry of this._entries) {
-                const name = entry[0];
-                const stream = entry[1];
-                const buffer = stream.peek();
-                entries.set(name, buffer);
-            }
-            const tensorTypeMap = new Map([
-                [ 'FLOAT', 'Float' ],
-                [ 'FLOAT16', 'Half' ],
-                [ 'DOUBLE', 'Double' ],
-                [ 'INT8', 'Char' ],
-                [ 'INT32', 'Int' ],
-                [ 'INT64', 'Long' ]
-            ]);
-            const constants = this._model.tensors || [];
-            this._constants = constants.map((constant) => {
-                const key = constant.data.key;
-                if (!tensorTypeMap.has(constant.dataType)) {
-                    throw new pytorch.Error("Unsupported tensor data type '" + constant.dataType + "'.");
-                }
-                const type = tensorTypeMap.get(constant.dataType);
-                const shape = constant.dims ? constant.dims.map((dim) => parseInt(dim, 10)) : null;
-                const storage_type = this.execution.resolve('torch.' + type + 'Storage');
-                const size = (shape || []).reduce((a, b) => a * b, 1);
-                const offset = parseInt(constant.offset, 10) || 0;
-                const storage = new storage_type([ size ]);
-                const itemsize = storage.dtype.itemsize();
-                const buffer = entries.get(key);
-                const length = size * itemsize;
-                const data = buffer.slice(offset, offset + length);
-                storage._set_cdata(data);
-                const tensor = this.execution.invoke('torch._utils._rebuild_tensor', [ storage, 0, shape, 0 ]);
-                tensor.name = constant.data.key;
-                return tensor;
-            });
-            this._attributes = [];
-            const stream = this._entries.get('attributes.pkl');
-            if (stream) {
-                const buffer = stream.peek();
-                const unpickler = this.execution.invoke('pickle.Unpickler', [ buffer ]);
-                const obj = unpickler.load();
-                this._attributes.push(...obj);
-            }
-            while (queue.length > 0) {
-                const module = queue.shift();
-                if (!module.__class__) {
-                    module.__class__ = {
-                        __module__: 'torch.nn.modules.module',
-                        __name__: 'Module'
-                    };
-                }
-                if (module.name) {
-                    module.__id__ = module.name;
-                }
-                if (module.submodules) {
-                    for (const submodule of module.submodules) {
-                        module[submodule.name] = submodule;
-                        submodule.__parent__ = module;
-                        queue.push(submodule);
-                    }
-                    delete module.submodules;
-                }
-                const attributes = [];
-                if (module.attributes) {
-                    attributes.push(...module.attributes);
-                    delete module.attributes;
-                }
-                const parameters = [];
-                if (module.parameters) {
-                    parameters.push(...module.parameters);
-                    delete module.parameters;
-                }
-                if (module.arguments) {
-                    parameters.push(...module.arguments);
-                    delete module.arguments;
-                }
-                for (const parameter of parameters) {
-                    const tensor = this._constants[parameter.tensorId];
-                    module[parameter.name] = tensor;
-                    if (!parameter.__class__) {
-                        parameter.__class__ = {
-                            __module__: 'torch',
-                            __name__: 'Tensor'
-                        };
-                    }
-                }
-                for (const attribute of attributes) {
-                    module[attribute.name] = this._attributes[attribute.id];
-                }
-            }
-            const code = this._data.torchscriptArena;
-            if (code && code.key && code.key.startsWith('code/')) {
-                const file = code.key.substring('code/'.length);
-                const name = file.replace(/\.py$/, '').split('/').join('.');
-                const module = this.execution.import(name);
-                if (module.forward.__class__ === this.execution.builtins.function) {
-                    this._data.forward = module.forward;
-                }
-            }
-            delete this._model;
-        }
         return this._data;
     }
 };
@@ -1739,15 +1725,15 @@ pytorch.Container.Zip.Pickle = class extends pytorch.Container.Zip {
         for (const event in this._events) {
             execution.on(event[0], event[1]);
         }
-        const graph = new pytorch.Container.Zip.Pickle.Script(this._entries, execution);
-        if (graph.data && graph.data.forward) {
-            this._modules = [ graph ];
+        const module = new pytorch.Container.Zip.Pickle.Script(this._entries, execution);
+        if (module.data && module.data.forward) {
+            this._modules = new Map([ ['', module] ]);
         }
-        else if (graph.data && graph.data.__class__ && graph.data.__class__.__module__ == 'fastai.learner' && graph.data.__class__.__name__ == 'Learner') {
-            this._modules = pytorch.Utility.find(graph.data.model);
+        else if (module.data && module.data.__class__ && module.data.__class__.__module__ == 'fastai.learner' && module.data.__class__.__name__ == 'Learner') {
+            this._modules = pytorch.Utility.find(module.data.model);
         }
         else {
-            this._modules = pytorch.Utility.find(graph.data);
+            this._modules = pytorch.Utility.find(module.data);
         }
         return Promise.resolve();
     }
@@ -1764,16 +1750,14 @@ pytorch.Container.Zip.Pickle = class extends pytorch.Container.Zip {
 
 pytorch.Container.Zip.Pickle.Script = class extends pytorch.Container.Zip.Script {
 
-    constructor(entries, execution, location, name) {
-        super(entries, execution, location, name);
+    constructor(entries, execution, location) {
+        super(entries, execution, location);
+        const stream = this._entries.get(this._location.model || 'data.pkl');
+        const buffer = stream.peek();
+        this._data = this._unpickle(buffer, this._storage(this._location.data || 'data/'));
     }
 
     get data() {
-        if (!this._data) {
-            const stream = this._entries.get(this._location.model || 'data.pkl');
-            const buffer = stream.peek();
-            this._data = this._unpickle(buffer, this._storage(this._location.data || 'data/'));
-        }
         return this._data;
     }
 };
@@ -1782,13 +1766,13 @@ pytorch.Container.Zip.Package = class extends pytorch.Container.Zip {
 
     constructor(entries) {
         super(entries);
-        this._modules = [];
     }
 
     read() {
+        this._modules = new Map();
         const entries = Array.from(this._entries).filter((entry) => !entry[0].startsWith('.data/') && !entry[0].endsWith('py'));
         if (entries.length > 0) {
-            const execution = new pytorch.Container.Zip.Execution(null, this._metadata);
+            const execution = new python.Execution(null, this._metadata);
             for (const event of this._events) {
                 execution.on(event[0], event[1]);
             }
@@ -1843,6 +1827,8 @@ pytorch.Container.Zip.Package = class extends pytorch.Container.Zip {
                     return unpickler.load();
                 }
             });
+            execution.registerFunction('torch._C._import_ir_module_from_package', function() {});
+            execution.registerFunction('torch._C.import_ir_module', function() {});
             execution.registerFunction('torch.jit._script.unpackage_script_module', function(importer, script_module_id) {
                 // const pickle_dir_prefix = '.data/ts_code/' + script_module_id + '/';
                 // const tensor_dir_prefix = '.data/';
@@ -1868,12 +1854,9 @@ pytorch.Container.Zip.Package = class extends pytorch.Container.Zip {
             const importer = execution.invoke('torch.package.PackageImporter', [ new Map(this._entries) ]);
             for (const entry of entries) {
                 const name = entry[0];
-                const root = importer.load_pickle(name);
-                this._modules.push({
-                    name: name,
-                    type: 'module',
-                    data: root
-                });
+                const module = importer.load_pickle(name);
+                module.__type__ = 'module'; // TODO
+                this._modules.set(name, module);
             }
         }
         return Promise.resolve();
@@ -3022,15 +3005,15 @@ pytorch.Utility = class {
     static find(data) {
         const root = pytorch.Utility.findModule(data);
         if (root) {
-            for (const graph of root) {
-                graph.type = 'module';
+            for (const entry of root) {
+                entry[1].__type__ = 'module';
             }
             return root;
         }
         const weights = pytorch.Utility.findWeights(data);
         if (weights) {
-            for (const graph of weights) {
-                graph.type = 'weights';
+            for (const entry of weights) {
+                entry[1].__type__ = 'weights';
             }
             return weights;
         }
@@ -3054,13 +3037,11 @@ pytorch.Utility = class {
                 }
                 if (obj) {
                     if (obj._modules) {
-                        return [ { name: '', data: obj } ];
+                        return new Map([ ['', obj] ]);
                     }
-                    const objKeys = Object.keys(obj).filter((key) => obj[key] && obj[key]._modules);
-                    if (objKeys.length > 1) {
-                        return objKeys.map((key) => {
-                            return { name: key, data: obj[key] };
-                        });
+                    const entries = Object.entries(obj).filter((entry) => entry[0] && entry[1]._modules);
+                    if (entries.length > 1) {
+                        return new Map(entries);
                     }
                 }
             }
@@ -3110,7 +3091,7 @@ pytorch.Utility = class {
             parameter.name = 'value';
             parameter.arguments = [ argument ];
             layers.push({ states: [ parameter ] });
-            return [ { data: layers } ];
+            return new Map([ ['', layers ] ]);
         }
         return null;
     }
@@ -3132,7 +3113,7 @@ pytorch.Utility = class {
                     }
                 }
                 layers.push(layer);
-                return [ { data: layers } ];
+                return new Map([ [ '', layers ] ]);
             }
             if (obj.every((item) => item && Object.values(item).filter((value) => pytorch.Utility.isTensor(value)).length > 0)) {
                 const layers = [];
@@ -3154,7 +3135,7 @@ pytorch.Utility = class {
                     }
                     layers.push(layer);
                 }
-                return [ { data: layers } ];
+                return new Map([ [ '', layers ] ]);
             }
         }
         return null;
@@ -3299,7 +3280,7 @@ pytorch.Utility = class {
             }
         }
         if (map.size > 0) {
-            const graphs = [];
+            const modules = new Map();
             for (const entry of map) {
                 const graph_key = entry[0];
                 const layer_map = entry[1];
@@ -3345,12 +3326,9 @@ pytorch.Utility = class {
                         layer.attributes.push({ name: parameter, value: value });
                     }
                 }
-                graphs.push({
-                    name: graph_key,
-                    data: layers.values()
-                });
+                modules.set(graph_key, layers.values());
             }
-            return graphs;
+            return modules;
         }
         return null;
     }
@@ -3606,21 +3584,11 @@ pytorch.nnapi.Metadata = class {
     }
 
     register(index, name, category, inputs, attributes, outputs) {
-        inputs = inputs || [];
-        outputs = outputs || [];
-        attributes = attributes || [];
-        const type = {
-            name: name,
-            inputs: inputs.map((name) => {
-                return { name: name, type: 'Tensor' };
-            }),
-            outputs: outputs.map((name) => {
-                return { name: name, type: 'Tensor' };
-            }),
-            attributes: attributes.map((pair) => {
-                return { name: pair[0], type: pair[1] };
-            })
-        };
+        const type = {};
+        type.name = name;
+        type.inputs = (inputs || []).map((name) => ({ name: name, type: 'Tensor' })),
+        type.outputs = (outputs || []).map((name) => ({ name: name, type: 'Tensor' })),
+        type.attributes = (attributes || []).map((pair) => ({ name: pair[0], type: pair[1] }));
         if (category) {
             type.category = category;
         }
