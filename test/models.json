@@ -5091,6 +5091,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "UNet.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/5611259/UNet.pt.zip[UNet.pt]",
+    "format":   "TorchScript v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/637"
+  },
+  {
+    "type":     "pytorch",
     "target":   "v3_1_ru.pt",
     "source":   "https://github.com/lutzroeder/netron/files/9075630/v3_1_ru.pt.zip[v3_1_ru.pt]",
     "format":   "PyTorch Package v1.9",

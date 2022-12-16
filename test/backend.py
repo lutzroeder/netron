@@ -51,6 +51,7 @@ def _test_torchscript():
     # trace = torch.load(os.path.join(test_data_dir, 'pytorch', 'inception_v3_traced.pt'))
     # trace = torch.load(os.path.join(test_data_dir, 'pytorch', 'netron_issue_920.pt'))
     # trace = torch.load(os.path.join(test_data_dir, 'pytorch', 'bert-base-uncased.pt'))
+    # trace = torch.load(os.path.join(test_data_dir, 'pytorch', 'UNet.pt'))
     torch._C._jit_pass_inline(trace.graph)
     netron.serve('resnet34', trace)
 
