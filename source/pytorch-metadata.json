@@ -15122,6 +15122,9 @@
     "name": "torch.nn.modules.conv.Conv1d",
     "category": "Layer",
     "inputs": [
+      { "name": "input" },
+      { "name": "weight" },
+      { "name": "bias" },
       { "name": "output_padding", "visible": false },
       { "name": "in_channels", "visible": false },
       { "name": "out_channels", "visible": false },
@@ -15136,6 +15139,9 @@
     "name": "torch.nn.modules.conv.Conv2d",
     "category": "Layer",
     "inputs": [
+      { "name": "input" },
+      { "name": "weight" },
+      { "name": "bias" },
       { "name": "output_padding", "visible": false },
       { "name": "in_channels", "visible": false },
       { "name": "out_channels", "visible": false },
@@ -15154,6 +15160,9 @@
     "name": "torch.nn.modules.conv.ConvTranspose1d",
     "category": "Layer",
     "inputs": [
+      { "name": "input" },
+      { "name": "weight" },
+      { "name": "bias" },
       { "name": "output_padding", "visible": false },
       { "name": "in_channels", "visible": false },
       { "name": "out_channels", "visible": false },
@@ -15168,6 +15177,9 @@
     "name": "torch.nn.modules.conv.ConvTranspose2d",
     "category": "Layer",
     "inputs": [
+      { "name": "input" },
+      { "name": "weight" },
+      { "name": "bias" },
       { "name": "output_padding", "visible": false },
       { "name": "in_channels", "visible": false },
       { "name": "out_channels", "visible": false },
@@ -15313,6 +15325,7 @@
     "name": "torch.nn.modules.pooling.MaxPool2d",
     "category": "Pool",
     "inputs": [
+      { "name": "input" },
       { "name": "padding", "default": 0 },
       { "name": "dilation", "default": 1 },
       { "name": "return_indices", "default": false },
