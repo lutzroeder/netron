@@ -4705,6 +4705,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "resnet-18-at-export.pth",
+    "source":   "https://s3.amazonaws.com/modelzoo-networks/resnet-18-at-export.pth",
+    "format":   "PyTorch v0.1.10",
+    "link":     "https://github.com/szagoruyko/attention-transfer"
+  },
+  {
+    "type":     "pytorch",
     "target":   "resnet18_fbgemm_16fa66dd.pth",
     "source":   "https://download.pytorch.org/models/quantized/resnet18_fbgemm_16fa66dd.pth",
     "format":   "PyTorch v0.1.10",
@@ -4730,13 +4737,6 @@
     "source":   "https://download.pytorch.org/models/resnet18-5c106cde.pth",
     "format":   "PyTorch v0.1.1",
     "link":     "https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py"
-  },
-  {
-    "type":     "pytorch",
-    "target":   "resnet-18-at-export.pth",
-    "source":   "https://s3.amazonaws.com/modelzoo-networks/resnet-18-at-export.pth",
-    "format":   "PyTorch v0.1.10",
-    "link":     "https://github.com/szagoruyko/attention-transfer"
   },
   {
     "type":     "pytorch",
