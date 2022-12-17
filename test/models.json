@@ -4188,6 +4188,7 @@
     "target":   "cruise_cutin_vehicle_model.pt",
     "source":   "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/cruise_cutin_vehicle_model.pt",
     "format":   "TorchScript v1.0",
+    "producer": "pytorch v1.0",
     "link":     "https://github.com/ApolloAuto/apollo"
   },
   {
