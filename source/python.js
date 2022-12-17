@@ -6022,6 +6022,7 @@ python.Execution = class {
                 current = current.substring(0, index);
                 const parent = this.register(current);
                 parent[child] = value;
+                value = parent;
             }
         }
         return this._registry.get(name);
