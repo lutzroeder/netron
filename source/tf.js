@@ -2183,105 +2183,127 @@ tf.Utility = class {
                     }
                 }
                 if (node.__metadata__) {
-                    for (const metadata of node.__metadata__) {
-                        const parameters = Array.prototype.slice.call(metadata.inputs || []);
-                        let match = true;
-                        const inputs = Array.from(node.input);
-                        if (inputs.length > parameters.length) {
-                            match = false;
+                    const match = (node, schema) => {
+                        const args = schema.inputs || [];
+                        const inputs = node.input || [];
+                        if (inputs.length > args.length) {
+                            return false;
                         }
-                        while (inputs.length > 0 && match) {
-                            match = false;
-                            const input = inputs.shift();
-                            delete input.metadata;
-                            const parameter = parameters.shift();
-                            switch (parameter.type) {
+                        for (let i = 0; i < inputs.length; i++) {
+                            const input = inputs[i];
+                            const arg = args[i];
+                            switch (arg.type) {
                                 case 'Tensor': {
                                     if ((input.constant === undefined && input.list === undefined) || input.constant === null) {
-                                        input.metadata = parameter;
-                                        match = true;
-                                    }
-                                    else {
-                                        inputs.unshift(input);
-                                        match = true;
+                                        continue;
                                     }
                                     break;
                                 }
                                 case 'int64': {
-                                    const value = parseInt(input.constant);
-                                    if (input.constant !== undefined && Number.isInteger(value)) {
-                                        input.attr = new tf.proto.tensorflow.AttrValue();
-                                        input.attr.i = value;
-                                        input.attr.metadata = parameter;
-                                        match = true;
+                                    if (input.constant !== undefined && Number.isInteger(parseInt(input.constant))) {
+                                        continue;
                                     }
                                     break;
                                 }
                                 case 'float32': {
-                                    const value = parseFloat(input.constant);
-                                    if (input.constant !== undefined && !isNaN(value)) {
-                                        input.attr = new tf.proto.tensorflow.AttrValue();
-                                        input.attr.f = value;
-                                        input.attr.metadata = parameter;
-                                        match = true;
+                                    if (input.constant !== undefined && !isNaN(parseFloat(input.constant))) {
+                                        continue;
                                     }
                                     break;
                                 }
-                                case 'SymInt[]':
+                                case 'int64[]':
                                 case 'int64[2]':
-                                case 'int64[]': {
+                                case 'SymInt[]':
+                                case 'SymInt[2]': {
                                     if (Array.isArray(input.list)) {
                                         const list = input.list.map((item) => parseInt(item));
                                         if (list.every((value) => Number.isInteger(value))) {
-                                            input.attr = new tf.proto.tensorflow.AttrValue();
-                                            input.attr.list = new tf.proto.tensorflow.ListValue();
-                                            input.attr.list.i = list;
-                                            input.attr.metadata = parameter;
-                                            match = true;
+                                            continue;
                                         }
                                     }
                                     break;
                                 }
                                 case 'boolean': {
-                                    if (input.constant === 'false' || input.constant === '0') {
-                                        input.attr = new tf.proto.tensorflow.AttrValue();
-                                        input.attr.b = false;
-                                        input.attr.metadata = parameter;
-                                        match = true;
-                                    }
-                                    else if (input.constant === 'true' || input.constant === '1') {
-                                        input.attr = new tf.proto.tensorflow.AttrValue();
-                                        input.attr.b = true;
-                                        input.attr.metadata = parameter;
-                                        match = true;
+                                    if (input.constant === 'false' ||
+                                        input.constant === 'true' ||
+                                        input.constant === '0' ||
+                                        input.constant === '1') {
+                                        continue;
                                     }
                                     break;
                                 }
                                 case 'Scalar': {
-                                    const value = parseInt(input.constant);
-                                    if (input.constant !== undefined && Number.isInteger(value)) {
-                                        input.attr = new tf.proto.tensorflow.AttrValue();
-                                        input.attr.i = value;
-                                        input.attr.metadata = parameter;
-                                        match = true;
+                                    if (input.constant !== undefined && Number.isInteger(parseInt(input.constant))) {
+                                        continue;
                                     }
                                     break;
                                 }
-                                default:
+                                default: {
                                     break;
+                                }
+                            }
+                            return false;
+                        }
+                        return true;
+                    };
+                    const schema = node.__metadata__.find((schema) => match(node, schema));
+                    if (schema) {
+                        const args = schema.inputs || [];
+                        const inputs = node.input || [];
+                        for (let i = 0; i < inputs.length; i++) {
+                            const input = inputs[i];
+                            delete input.metadata;
+                            const arg = args[i];
+                            switch (arg.type) {
+                                case 'Tensor': {
+                                    input.metadata = arg;
+                                    break;
+                                }
+                                case 'int64': {
+                                    const value = parseInt(input.constant);
+                                    input.attr = new tf.proto.tensorflow.AttrValue();
+                                    input.attr.i = value;
+                                    input.attr.metadata = arg;
+                                    break;
+                                }
+                                case 'float32': {
+                                    const value = parseFloat(input.constant);
+                                    input.attr = new tf.proto.tensorflow.AttrValue();
+                                    input.attr.f = value;
+                                    input.attr.metadata = arg;
+                                    break;
+                                }
+                                case 'int64[]':
+                                case 'int64[2]':
+                                case 'SymInt[]':
+                                case 'SymInt[2]': {
+                                    const list = input.list.map((item) => parseInt(item));
+                                    input.attr = new tf.proto.tensorflow.AttrValue();
+                                    input.attr.list = new tf.proto.tensorflow.ListValue();
+                                    input.attr.list.i = list;
+                                    input.attr.metadata = arg;
+                                    break;
+                                }
+                                case 'boolean': {
+                                    input.attr = new tf.proto.tensorflow.AttrValue();
+                                    input.attr.b = input.constant === 'true' || input.constant === '1';
+                                    input.attr.metadata = arg;
+                                    break;
+                                }
+                                case 'Scalar': {
+                                    const value = parseInt(input.constant);
+                                    input.attr = new tf.proto.tensorflow.AttrValue();
+                                    input.attr.i = value;
+                                    input.attr.metadata = arg;
+                                    break;
+                                }
+                                default: {
+                                    break;
+                                }
                             }
                         }
-                        if (match) {
-                            node.metadata = Object.assign({}, metadata);
-                            node.metadata.name = node.op;
-                            break;
-                        }
-                        else {
-                            for (const input of node.input) {
-                                delete input.metadata;
-                                delete input.attr;
-                            }
-                        }
+                        node.metadata = Object.assign({}, schema);
+                        node.metadata.name = node.op;
                     }
                 }
                 node.input = node.input.filter((input, index) => {
