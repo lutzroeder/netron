@@ -83,24 +83,26 @@ host.BrowserHost = class {
             }
             else {
                 const capabilities = () => {
-                    const capabilities = [
+                    const list = [
                         'TextDecoder', 'TextEncoder',
                         'fetch', 'URLSearchParams',
                         'HTMLCanvasElement.prototype.toBlob'
                     ];
-                    const unsupported = capabilities.filter((capability) => {
+                    const capabilities = list.filter((capability) => {
                         const path = capability.split('.').reverse();
                         let obj = this.window[path.pop()];
                         while (obj && path.length > 0) {
                             obj = obj[path.pop()];
                         }
-                        return !obj;
+                        return obj;
                     });
-                    if (unsupported.length > 0) {
-                        for (const capability of unsupported) {
-                            this.event_ua('Host', 'Browser', capability, 1);
-                            this.event('host_capability', { unsupported: capability });
-                        }
+                    for (const capability of capabilities) {
+                        this.event_ua('Host', 'Browser', capability, 1);
+                    }
+                    this.event('browser_open', {
+                        browser_capabilities: capabilities.map((capability) => capability.split('.').pop()).join(',')
+                    });
+                    if (capabilities.length < list.length) {
                         this._message('Your browser is not supported.');
                     }
                     else {
@@ -415,33 +417,34 @@ host.BrowserHost = class {
         if ((this._telemetry_ua || this._telemetry_ga4) && error && error.telemetry !== false) {
             const name = error.name ? error.name + ': ' : '';
             const message = error.message ? error.message : JSON.stringify(error);
-            const description = [ name + message ];
+            const description = name + message;
+            let stack = null;
             if (error.stack) {
                 const format = (file, line, column) => {
                     return file.split('\\').join('/').split('/').pop() + ':' + line + ':' + column;
                 };
                 const match = error.stack.match(/\n {4}at (.*) \((.*):(\d*):(\d*)\)/);
                 if (match) {
-                    description.push(match[1] + ' (' + format(match[2], match[3], match[4]) + ')');
+                    stack = match[1] + ' (' + format(match[2], match[3], match[4]) + ')';
                 }
                 else {
                     const match = error.stack.match(/\n {4}at (.*):(\d*):(\d*)/);
                     if (match) {
-                        description.push('(' + format(match[1], match[2], match[3]) + ')');
+                        stack = '(' + format(match[1], match[2], match[3]) + ')';
                     }
                     else {
                         const match = error.stack.match(/\n {4}at (.*)\((.*)\)/);
                         if (match) {
-                            description.push('(' + format(match[1], match[2], match[3]) + ')');
+                            stack = '(' + format(match[1], match[2], match[3]) + ')';
                         }
                         else {
                             const match = error.stack.match(/\s*@\s*(.*):(.*):(.*)/);
                             if (match) {
-                                description.push('(' + format(match[1], match[2], match[3]) + ')');
+                                stack = '(' + format(match[1], match[2], match[3]) + ')';
                             }
                             else {
                                 const match = error.stack.match(/.*\n\s*(.*)\s*/);
-                                description.push(match ? match[1] : error.stack.split('\n').shift());
+                                stack = match ? match[1] : error.stack.split('\n').shift();
                             }
                         }
                     }
@@ -449,16 +452,19 @@ host.BrowserHost = class {
             }
             if (this._telemetry_ua && this.window.ga) {
                 this.window.ga('send', 'exception', {
-                    exDescription: description.join(' @ '),
+                    exDescription: stack ? description + ' @ ' + stack : description,
                     exFatal: fatal,
                     appName: this.type,
                     appVersion: this.version
                 });
             }
             if (this._telemetry_ga4) {
-                this._telemetry_ga4.send('exception', {
-                    description: description.join(' @ '),
-                    fatal: fatal,
+                this._telemetry_ga4.send('error', {
+                    error_name: name,
+                    error_message: message,
+                    error_context: error.context ? JSON.stringify(error.context) : '',
+                    error_stack: stack,
+                    error_fatal: fatal,
                     app_name: this.type,
                     app_version: this.version,
                 });

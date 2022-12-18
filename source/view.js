@@ -455,7 +455,8 @@ view.View = class {
                 if (format.length > 0) {
                     this._host.event_ua('Model', 'Format', format.join(' '));
                     this._host.event('model_open', {
-                        format: format.join(' ')
+                        model_format: model.format || '',
+                        model_producer: model.producer || ''
                     });
                 }
                 return this._timeout(20).then(() => {

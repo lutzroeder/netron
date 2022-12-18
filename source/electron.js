@@ -76,8 +76,8 @@ host.ElectronHost = class {
                                 this._setConfiguration('userId', user);
                             }
                             this._telemetry_ga4.send('page_view', {
-                                'app_name': this.type,
-                                'app_version': this.version,
+                                app_name: this.type,
+                                app_version: this.version,
                             });
                             this._telemetry_ua = new host.Telemetry('UA-54146-13', user, navigator.userAgent, this.type, this.version);
                             resolve();
@@ -323,35 +323,39 @@ host.ElectronHost = class {
             try {
                 const name = error.name ? error.name + ': ' : '';
                 const message = error.message ? error.message : JSON.stringify(error);
-                const description = [ name + message ];
+                const description = name + message;
+                let stack = null;
                 if (error.stack) {
                     const format = (file, line, column) => {
                         return file.split('\\').join('/').split('/').pop() + ':' + line + ':' + column;
                     };
                     const match = error.stack.match(/\n {4}at (.*) \((.*):(\d*):(\d*)\)/);
                     if (match) {
-                        description.push(match[1] + ' (' + format(match[2], match[3], match[4]) + ')');
+                        stack = match[1] + ' (' + format(match[2], match[3], match[4]) + ')';
                     }
                     else {
                         const match = error.stack.match(/\n {4}at (.*):(\d*):(\d*)/);
                         if (match) {
-                            description.push('(' + format(match[1], match[2], match[3]) + ')');
+                            stack = '(' + format(match[1], match[2], match[3]) + ')';
                         }
                         else {
                             const match = error.stack.match(/.*\n\s*(.*)\s*/);
-                            description.push(match ? match[1] : error.stack.split('\n').shift());
+                            stack = match ? match[1] : error.stack.split('\n').shift();
                         }
                     }
                 }
                 if (this._telemetry_ua) {
-                    this._telemetry_ua.exception(description.join(' @ '), fatal);
+                    this._telemetry_ua.exception(stack ? description + ' @ ' + stack : description, fatal);
                 }
                 if (this._telemetry_ga4) {
-                    this._telemetry_ga4.send('exception', {
-                        'description': description.join(' @ '),
-                        'fatal': fatal,
-                        'app_name': this.type,
-                        'app_version': this.version,
+                    this._telemetry_ga4.send('error', {
+                        app_name: this.type,
+                        app_version: this.version,
+                        error_name: name,
+                        error_message: message,
+                        error_context: error.context ? JSON.stringify(error.context) : '',
+                        error_stack: stack,
+                        error_fatal: fatal,
                     });
                 }
             }
@@ -373,9 +377,9 @@ host.ElectronHost = class {
         if (this._telemetry_ga4) {
             try {
                 this._telemetry_ga4.send('screen_view', {
-                    'screen_name': name,
-                    'app_name': this.type,
-                    'app_version': this.version,
+                    screen_name: name,
+                    app_name: this.type,
+                    app_version: this.version,
                 });
             }
             catch (e) {
@@ -398,8 +402,8 @@ host.ElectronHost = class {
     event(name, params) {
         if (this._telemetry_ga4 && name && params) {
             try {
-                params['app_name'] = this.type,
-                params['app_version'] = this.version,
+                params.app_name = this.type,
+                params.app_version = this.version,
                 this._telemetry_ga4.send(name, params);
             }
             catch (e) {
