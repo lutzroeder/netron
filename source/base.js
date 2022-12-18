@@ -841,14 +841,16 @@ base.Telemetry = class {
         this.set('language', ((navigator && (navigator.language || navigator.browserLanguage)) || '').toLowerCase());
         this._promise = navigator && navigator.userAgentData && navigator.userAgentData.getHighEntropyValues ? navigator.userAgentData.getHighEntropyValues([ 'platform', 'platformVersion', 'architecture', 'model', 'uaFullVersion', 'bitness', 'fullVersionList', 'wow64' ]) : Promise.resolve();
         this._promise.then((values) => {
-            this.set('_user_agent_architecture', values.architecture);
-            this.set('_user_agent_bitness', values.bitness);
-            this.set('_user_agent_full_version_list', encodeURIComponent(values.fullVersionList.map((h) => [h.brand, h.version].join(';')).join('|')));
-            this.set('_user_agent_mobile', values.mobile ? 1 : 0);
-            this.set('_user_agent_model', values.model);
-            this.set('_user_agent_platform', values.platform);
-            this.set('_user_agent_platform_version', values.platformVersion);
-            this.set('_user_agent_wow64', values.wow64 ? 1 : 0);
+            if (values) {
+                this.set('_user_agent_architecture', values.architecture);
+                this.set('_user_agent_bitness', values.bitness);
+                this.set('_user_agent_full_version_list', encodeURIComponent(values.fullVersionList.map((h) => [h.brand, h.version].join(';')).join('|')));
+                this.set('_user_agent_mobile', values.mobile ? 1 : 0);
+                this.set('_user_agent_model', values.model);
+                this.set('_user_agent_platform', values.platform);
+                this.set('_user_agent_platform_version', values.platformVersion);
+                this.set('_user_agent_wow64', values.wow64 ? 1 : 0);
+            }
         });
     }
 
