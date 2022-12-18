@@ -1179,13 +1179,16 @@
   },
   {
     "name": "InstanceNorm",
+    "category": "Normalization",
     "inputs": [
       { "name": "x" },
       { "name": "gamma" },
       { "name": "beta" }
     ],
     "outputs": [
-      { "name": "y" }
+      { "name": "y" },
+      { "name": "saved_mean" },
+      { "name": "saved_inv_stdev" }
     ],
     "attributes": [
       { "name": "data_format" },
