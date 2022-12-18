@@ -13510,7 +13510,7 @@
     "name": "aten::view",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "size", "type": "SymInt[]", "visible": false }
+      { "name": "size", "type": "SymInt[]" }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -15111,7 +15111,7 @@
       { "name": "bias" },
       { "name": "running_mean" },
       { "name": "running_var" },
-      { "name": "num_batches_tracked", "visible": false },
+      { "name": "num_batches_tracked" },
       { "name": "eps", "default": 1e-05 },
       { "name": "momentum", "default": 0.1 },
       { "name": "affine", "default": true },
