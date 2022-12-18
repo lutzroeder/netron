@@ -5163,6 +5163,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "yolov5n-0.5.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/10253005/yolov5n-0.5.pt.zip[yolov5n-0.5.pt]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "yolov5n.tensor.pth",
     "source":   "https://github.com/lutzroeder/netron/files/9543602/yolov5n.tensor.pth.zip[yolov5n.tensor.pth]",
     "format":   "PyTorch v1.6",

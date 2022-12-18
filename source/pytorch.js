@@ -3048,7 +3048,7 @@ pytorch.Utility = class {
                     if (obj._modules) {
                         return new Map([ ['', obj] ]);
                     }
-                    const entries = Object.entries(obj).filter((entry) => entry[0] && entry[1]._modules);
+                    const entries = Object.entries(obj).filter((entry) => entry[0] && entry[1] && entry[1]._modules);
                     if (entries.length > 1) {
                         return new Map(entries);
                     }
