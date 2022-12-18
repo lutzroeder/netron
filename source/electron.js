@@ -348,7 +348,7 @@ host.ElectronHost = class {
                     this._telemetry_ua.exception(stack ? description + ' @ ' + stack : description, fatal);
                 }
                 if (this._telemetry_ga4) {
-                    this._telemetry_ga4.send('error', {
+                    this._telemetry_ga4.send('exception', {
                         app_name: this.type,
                         app_version: this.version,
                         error_name: name,

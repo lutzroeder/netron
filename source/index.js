@@ -459,7 +459,7 @@ host.BrowserHost = class {
                 });
             }
             if (this._telemetry_ga4) {
-                this._telemetry_ga4.send('error', {
+                this._telemetry_ga4.send('exception', {
                     error_name: name,
                     error_message: message,
                     error_context: error.context ? JSON.stringify(error.context) : '',
