@@ -1788,6 +1788,13 @@
       { "name": "transpose_a", "type": "boolean", "default": false },
       { "name": "transpose_b", "type": "boolean", "default": false },
       { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
+    ],
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ],
+    "outputs": [
+      { "name": "C" }
     ]
   },
   {
