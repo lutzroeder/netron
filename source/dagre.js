@@ -15,7 +15,7 @@ dagre.layout = (graph, options) => {
         if (options.time) {
             /* eslint-disable */
             console.log(name + ': ' + duration + 'ms');
-        /* eslint-enable */
+            /* eslint-enable */
         }
         return result;
     };

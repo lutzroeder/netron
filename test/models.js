@@ -1,4 +1,3 @@
-/* eslint "no-console": off */
 
 const fs = require('fs');
 const path = require('path');
@@ -742,5 +741,7 @@ const next = () => {
 };
 
 next().catch((error) => {
+    /* eslint-disable no-console */
     console.error(error.message);
+    /* eslint-enable no-console */
 });

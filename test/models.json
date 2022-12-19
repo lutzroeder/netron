@@ -3,7 +3,7 @@
     "type":     "_",
     "target":   "boolean.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/8985631/boolean.onnx.zip[boolean.onnx]",
-    "error":    "Unsupported Pickle content in 'boolean.onnx'.",
+    "error":    "Unsupported Pickle content.",
     "link":     "https://github.com/lutzroeder/netron/issues/458"
   },
   {
@@ -24,7 +24,7 @@
     "type":     "_",
     "target":   "coreml_invalid_file.mlmodel",
     "source":   "https://github.com/lutzroeder/netron/files/3219681/coreml_invalid_file.mlmodel.zip",
-    "error":    "Archive contains no model files in 'coreml_invalid_file.mlmodel'.",
+    "error":    "Archive contains no model files.",
     "format":   "Core ML v1",
     "link":     "https://github.com/lutzroeder/netron/issues/193"
   },
@@ -32,7 +32,7 @@
     "type":     "_",
     "target":   "empty.zip",
     "source":   "https://github.com/lutzroeder/netron/files/5581087/empty.zip",
-    "error":    "Archive contains no model files in 'empty.zip'.",
+    "error":    "Archive contains no model files.",
     "link":     "https://github.com/lutzroeder/netron/issues/458"
   },
   {
@@ -52,14 +52,14 @@
     "type":     "_",
     "target":   "keras_metadata.pb",
     "source":   "https://github.com/lutzroeder/netron/files/6751650/keras_metadata.pb.zip[keras_metadata.pb]",
-    "error":    "The file 'saved_model.pb' does not exist in 'keras_metadata.pb'.",
+    "error":    "The file 'saved_model.pb' does not exist.",
     "link":     "https://github.com/lutzroeder/netron/issues/458"
   },
   {
     "type":     "_",
     "target":   "keras2onnx.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/5738366/keras2onnx.onnx.zip[keras2onnx.onnx]",
-    "error":    "File format is not onnx.ModelProto (Unexpected end of file) in 'keras2onnx.onnx'.",
+    "error":    "File format is not onnx.ModelProto (Unexpected end of file).",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
@@ -79,14 +79,14 @@
     "type":     "_",
     "target":   "gzip_invalid_archive.tar.gz",
     "source":   "https://github.com/lutzroeder/netron/files/5468427/gzip_invalid_archive.tar.gz",
-    "error":    "Unsupported file content (ff000000000000000000000000000000) for extension '.gz' in 'gzip_invalid_archive.tar.gz'.",
+    "error":    "Unsupported file content (ff000000000000000000000000000000) for extension '.gz'.",
     "link":     "https://github.com/lutzroeder/netron/issues/249"
   },
   {
     "type":     "_",
     "target":   "gzip_invalid_compression.tar.gz",
     "source":   "https://github.com/lutzroeder/netron/files/3027193/gzip_invalid_compression.tar.gz",
-    "error":    "Invalid compression method '1' in 'gzip_invalid_compression.tar.gz'.",
+    "error":    "Invalid compression method '1'.",
     "link":     "https://github.com/lutzroeder/netron/issues/249"
   },
   {
@@ -128,7 +128,7 @@
     "type":     "_",
     "target":   "random.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/7449479/random.onnx.zip[random.onnx]",
-    "error":    "Unsupported file content (746d6c20786d6c6e733d22687474703a) for extension '.onnx' in 'random.onnx'.",
+    "error":    "Unsupported file content (746d6c20786d6c6e733d22687474703a) for extension '.onnx'.",
     "link":     "https://github.com/lutzroeder/netron/issues/458"
   },
   {
@@ -163,7 +163,7 @@
     "type":     "_",
     "target":   "zip_invalid_archive.zip",
     "source":   "https://github.com/lutzroeder/netron/files/5468425/zip_invalid_archive.zip",
-    "error":    "Unsupported file content (ff000000000000000000000000000000) for extension '.zip' in 'zip_invalid_archive.zip'.",
+    "error":    "Unsupported file content (ff000000000000000000000000000000) for extension '.zip'.",
     "link":     "https://github.com/lutzroeder/netron/issues/250"
   },
   {
@@ -309,14 +309,14 @@
     "type":     "caffe",
     "target":   "caffe_invalid_file.caffemodel",
     "source":   "https://github.com/lutzroeder/netron/files/3288816/caffe_examples.zip[caffe_invalid_file.caffemodel]",
-    "error":    "File format is not caffe.NetParameter (Invalid type 4 at offset 11) in 'caffe_invalid_file.caffemodel'.",
+    "error":    "File format is not caffe.NetParameter (Invalid type 4 at offset 11).",
     "link":     "https://github.com/lutzroeder/netron/issues/276"
   },
   {
     "type":     "caffe",
     "target":   "caffe_invalid_semicolon.prototxt",
     "source":   "https://github.com/lutzroeder/netron/files/3288816/caffe_examples.zip[caffe_invalid_semicolon.prototxt]",
-    "error":    "File text format is not caffe.NetParameter (Unexpected token ';' at 7:18) in 'caffe_invalid_semicolon.prototxt'.",
+    "error":    "File text format is not caffe.NetParameter (Unexpected token ';' at 7:18).",
     "link":     "https://github.com/lutzroeder/netron/issues/276"
   },
   {
@@ -372,7 +372,7 @@
     "type":     "caffe",
     "target":   "deploy_iResNet_ROB.tpl.prototxt",
     "source":   "https://raw.githubusercontent.com/leonzfa/iResNet/master/models/model/deploy_iResNet_ROB.tpl.prototxt",
-    "error":    "File text format is not caffe.NetParameter (Couldn't parse float '$SCALE_WIDTH' at 727:47) in 'deploy_iResNet_ROB.tpl.prototxt'.",
+    "error":    "File text format is not caffe.NetParameter (Couldn't parse float '$SCALE_WIDTH' at 727:47).",
     "link":     "https://github.com/leonzfa/iResNet"
   },
   {
@@ -912,7 +912,7 @@
     "target":   "deepsort_4c4b_bgr_270_v140.cambricon",
     "source":   "https://github.com/lutzroeder/netron/files/8783170/deepsort_4c4b_bgr_270_v140.cambricon.zip[deepsort_4c4b_bgr_270_v140.cambricon]",
     "format":   "Cambricon",
-    "error":    "File contains undocumented Cambricon data in 'deepsort_4c4b_bgr_270_v140.cambricon'.",
+    "error":    "File contains undocumented Cambricon data.",
     "link":     "https://github.com/lutzroeder/netron/issues/917"
   },
   {
@@ -920,7 +920,7 @@
     "target":   "SR_face_x3_530x530.cambricon",
     "source":   "https://github.com/lutzroeder/netron/files/8783172/SR_face_x3_530x530.cambricon.zip[SR_face_x3_530x530.cambricon]",
     "format":   "Cambricon",
-    "error":    "File contains undocumented Cambricon data in 'SR_face_x3_530x530.cambricon'.",
+    "error":    "File contains undocumented Cambricon data.",
     "link":     "https://github.com/lutzroeder/netron/issues/917"
   },
   {
@@ -1654,7 +1654,7 @@
     "type":     "darknet",
     "target":   "darknet_invalid_file.cfg",
     "source":   "https://github.com/lutzroeder/netron/files/3219696/darknet_invalid_file.cfg.zip[darknet_invalid_file.cfg]",
-    "error":    "Invalid cfg 'xxxx' at line 4 in 'darknet_invalid_file.cfg'.",
+    "error":    "Invalid cfg 'xxxx' at line 4.",
     "link":     "https://github.com/lutzroeder/netron/issues/277"
   },
   {
@@ -1780,7 +1780,7 @@
     "type":     "darknet",
     "target":   "vgg_bn_ssd300.cfg",
     "source":   "https://github.com/lutzroeder/netron/files/5287397/vgg_bn_ssd300.cfg.zip[vgg_bn_ssd300.cfg]",
-    "error":    "Unexpected '[convolutional]' section. First section must be [net] or [network] in 'vgg_bn_ssd300.cfg'.",
+    "error":    "Unexpected '[convolutional]' section. First section must be [net] or [network].",
     "link":     "https://github.com/lutzroeder/netron/issues/277"
   },
   {
@@ -1942,7 +1942,7 @@
     "target":   "model_front_mibokeh_video.dlc",
     "source":   "https://github.com/lutzroeder/netron/files/8767521/model_front_mibokeh_video.dlc.zip[model_front_mibokeh_video.dlc]",
     "format":   "DLC",
-    "error":    "File format is not dlc.NetParam (Offset is outside the bounds of the DataView) in 'model_front_mibokeh_video.dlc'.",
+    "error":    "File format is not dlc.NetParam (Offset is outside the bounds of the DataView).",
     "link":     "https://github.com/lutzroeder/netron/issues/640"
   },
   {
@@ -2283,7 +2283,7 @@
     "type":     "keras",
     "target":   "snapshot_parent_0097.h5",
     "source":   "https://raw.githubusercontent.com/uber-research/deep-neuroevolution/master/visual_inspector/sample_data/mujoco/final_xy_bc/snapshots/snapshot_gen_0097/snapshot_parent_0097.h5",
-    "error":    "File format is not HDF5 Weights in 'snapshot_parent_0097.h5'.",
+    "error":    "File format is not HDF5 Weights.",
     "link":     "https://github.com/uber-research/deep-neuroevolution"
   },
   {
@@ -3208,7 +3208,7 @@
     "target":   "squeezenet_v1.0.onnx.nnef.tgz",
     "source":   "https://sfo2.digitaloceanspaces.com/nnef-public/squeezenet_v1.0.onnx.nnef.tgz",
     "format":   "NNEF v1.0",
-    "error":    "NNEF v1.0 support not implemented in 'graph.nnef'.",
+    "error":    "NNEF v1.0 support not implemented.",
     "link":     "https://github.com/lutzroeder/netron/issues/992"
   },
   {
@@ -3433,7 +3433,7 @@
     "type":     "onnx",
     "target":   "eisber_model3_invalid.pbtxt",
     "source":   "https://github.com/lutzroeder/netron/files/5011185/eisber_model3_invalid.pbtxt.zip[eisber_model3_invalid.pbtxt]",
-    "error":    "File text format is not onnx.ModelProto (Unexpected '}' instead of ':' at 6:3) in 'eisber_model3_invalid.pbtxt'.",
+    "error":    "File text format is not onnx.ModelProto (Unexpected '}' instead of ':' at 6:3).",
     "link":     "https://github.com/lutzroeder/netron/issues/139"
   },
   {
@@ -3854,7 +3854,7 @@
     "target":   "resnet50_issue_svp.om",
     "source":   "https://github.com/lutzroeder/netron/files/9892582/resnet50_issue_svp.om.zip[resnet50_issue_svp.om]",
     "format":   "DaVinci OM SVM",
-    "error":    "Unsupported DaVinci OM PICO signature in 'resnet50_issue_svp.om'.",
+    "error":    "Unsupported DaVinci OM PICO signature.",
     "link":     "https://github.com/lutzroeder/netron/issues/799"
   },
   {
@@ -4008,7 +4008,7 @@
     "type":     "paddle",
     "target":   "lite_naive_model_opt.nb.tar.gz",
     "source":   "https://github.com/lutzroeder/netron/files/7084134/lite_naive_model_opt.nb.tar.gz",
-    "error":    "Paddle Lite naive buffer format is deprecated in '__model__.nb'.",
+    "error":    "Paddle Lite naive buffer format is deprecated.",
     "format":   "Paddle Lite",
     "link":     "https://github.com/lutzroeder/netron/issues/797"
   },
@@ -4066,7 +4066,7 @@
     "target":   "batches.meta",
     "source":   "https://raw.githubusercontent.com/MadryLab/cifar10_challenge/master/cifar10_data/batches.meta",
     "format":   "Pickle",
-    "error":    "Unsupported Pickle object in 'batches.meta'.",
+    "error":    "Unsupported Pickle object.",
     "link":     "https://github.com/MadryLab/cifar10_challenge"
   },
   {
@@ -4081,7 +4081,7 @@
     "target":   "net.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/8506780/net.pkl.zip[net.pkl]",
     "format":   "Pickle",
-    "error":    "Unsupported Pickle type '__main__.LeNetConvPoolLayer' in 'net.pkl'.",
+    "error":    "Unsupported Pickle type '__main__.LeNetConvPoolLayer'.",
     "link":     "https://github.com/lutzroeder/netron/issues/901"
   },
   {
@@ -4089,7 +4089,7 @@
     "target":   "robinhood-portfolio_data_user.pkl.pkl",
     "source":   "https://raw.githubusercontent.com/omdv/robinhood-portfolio/4622dc61e0556a85ce52c4de178d01a9838acbc5/data/user.pkl",
     "format":   "Pickle",
-    "error":    "Unsupported Pickle object in 'robinhood-portfolio_data_user.pkl.pkl'.",
+    "error":    "Unsupported Pickle object.",
     "link":     "https://github.com/omdv/robinhood-portfolio/tree/4622dc61e0556a85ce52c4de178d01a9838acbc5"
   },
   {
@@ -4210,7 +4210,7 @@
     "target":   "data.pkl",
     "source":   "https://github.com/lutzroeder/netron/files/9795497/data.pkl.zip[data.pkl]",
     "format":   "PyTorch Pickle",
-    "error":    "PyTorch data.pkl format not supported in 'data.pkl'.",
+    "error":    "PyTorch data.pkl format not supported.",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
@@ -4293,7 +4293,7 @@
     "type":     "pytorch",
     "target":   "fasterrcnn_resnet50_fpn.pt",
     "source":   "https://github.com/lutzroeder/netron/files/7677467/fasterrcnn_resnet50_fpn.pt.zip[fasterrcnn_resnet50_fpn.pt]",
-    "error":    "Unsupported torch.add expression type in 'fasterrcnn_resnet50_fpn.pt'.",
+    "error":    "Unsupported torch.add expression type.",
     "link":     "https://github.com/lutzroeder/netron/issues/689"
   },
   {
@@ -4389,7 +4389,7 @@
     "target":   "mask_model.pt",
     "source":   "https://github.com/lutzroeder/netron/files/10080302/mask_model.pt.zip[mask_model.pt]",
     "format":   "TorchScript v1.7",
-    "error":    "Unsupported torch.add expression type in 'mask_model.pt'.",
+    "error":    "Unsupported torch.add expression type.",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -4513,7 +4513,7 @@
     "type":     "pytorch",
     "target":   "module_000007.pt",
     "source":   "https://github.com/lutzroeder/netron/files/9075631/module_000007.pt.zip[module_000007.pt]",
-    "error":    "ValueError: not enough values to unpack (expected 4, actual 0) in 'module_000007.pt'.",
+    "error":    "ValueError: not enough values to unpack (expected 4, actual 0).",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -4583,7 +4583,7 @@
     "type":     "pytorch",
     "target":   "netron_issue_547_1.pt",
     "source":   "https://github.com/lutzroeder/netron/files/5137393/netron_issue_547_1.zip[netron_issue_547_1.pt]",
-    "error":    "Unsupported torch.add expression type in 'netron_issue_547_1.pt'.",
+    "error":    "Unsupported torch.add expression type.",
     "link":     "https://github.com/lutzroeder/netron/issues/547"
   },
   {
@@ -4619,7 +4619,7 @@
     "target":   "opt_xx.pt",
     "source":   "https://github.com/lutzroeder/netron/files/8747908/opt_xx.pt.zip[opt_xx.pt]",
     "format":   "TorchScript v1.6",
-    "error":    "Slicing expected array in 'opt_xx.pt'.",
+    "error":    "Slicing expected array",
     "link":     "https://github.com/lutzroeder/netron/issues/913"
   },
   {
@@ -4661,7 +4661,7 @@
     "type":     "pytorch",
     "target":   "pytorch_invalid_file.pth",
     "source":   "https://github.com/lutzroeder/netron/files/3269093/pytorch_invalid_file.zip[pytorch_invalid_file.pth]",
-    "error":    "Could not find end of line in 'pytorch_invalid_file.pth'.",
+    "error":    "Could not find end of line.",
     "link":     "https://github.com/lutzroeder/netron/issues/133"
   },
   {
@@ -4694,7 +4694,7 @@
     "type":     "pytorch",
     "target":   "rcnn.pt",
     "source":   "https://github.com/lutzroeder/netron/files/9035740/rcnn.pt.zip[rcnn.pt]",
-    "error":    "AssertionError: expecting the last two dimensions of the Tensor to be H and W instead got [] in 'rcnn.pt'.",
+    "error":    "AssertionError: expecting the last two dimensions of the Tensor to be H and W instead got []",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
@@ -4842,7 +4842,7 @@
     "target":   "scriptmodule.ff",
     "source":   "https://github.com/lutzroeder/netron/files/10230651/scriptmodule.ff.zip[scriptmodule.ff]",
     "format":   "TorchScript Mobile",
-    "error":    "torch.jit.mobile.serialization.Module not supported in 'scriptmodule.ff'.",
+    "error":    "torch.jit.mobile.serialization.Module not supported.",
     "link":     "https://github.com/lutzroeder/netron/issues/1023"
   },
   {
@@ -4898,7 +4898,7 @@
     "target":   "squeezenet1_1_traced.ff",
     "source":   "https://github.com/lutzroeder/netron/files/10230684/squeezenet1_1_traced.ff.zip[squeezenet1_1_traced.ff]",
     "format":   "TorchScript Mobile",
-    "error":    "torch.jit.mobile.serialization.Module not supported in 'squeezenet1_1_traced.ff'.",
+    "error":    "torch.jit.mobile.serialization.Module not supported.",
     "link":     "https://github.com/lutzroeder/netron/issues/1023"
   },
   {
@@ -5721,7 +5721,7 @@
     "type":     "tf",
     "target":   "invalid_graph.pbtxt",
     "source":   "https://github.com/lutzroeder/netron/files/6859459/invalid_graph.pbtxt.zip[invalid_graph.pbtxt]",
-    "error":    "File text format is not tensorflow.GraphDef (Unexpected end of input at 8:1) in 'invalid_graph.pbtxt'."
+    "error":    "File text format is not tensorflow.GraphDef (Unexpected end of input at 8:1)."
   },
   {
     "type":     "tf",
@@ -6553,7 +6553,7 @@
     "type":     "weka",
     "target":   "j48model.model",
     "source":   "https://raw.githubusercontent.com/PTaati/wekaTree2python/master/j48model.model",
-    "error":    "Unsupported type 'weka.classifiers.trees.J48' in 'j48model.model'."
+    "error":    "Unsupported type 'weka.classifiers.trees.J48'."
   },
   {
     "type":     "xmodel",

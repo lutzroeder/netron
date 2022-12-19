@@ -253,8 +253,7 @@ tf.ModelFactory = class {
                     return openModel(null, 'TensorFlow Tensor Bundle v' + bundle.format.toString(), null, bundle);
                 }).catch((error) => {
                     context.exception(error, false);
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new tf.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
+                    throw error;
                 });
             };
             const openData = (context) => {

@@ -463,6 +463,11 @@ view.View = class {
                     const graphs = Array.isArray(model.graphs) && model.graphs.length > 0 ? [ model.graphs[0] ] : [];
                     return this._updateGraph(model, graphs);
                 });
+            }).catch((error) => {
+                if (error && context.identifier) {
+                    error.context = context.identifier;
+                }
+                throw error;
             });
         });
     }
@@ -778,9 +783,8 @@ view.View = class {
                 this._sidebar.open(content, 'Model Properties');
             }
             catch (error) {
-                const content = " in '" + this._model.identifier + "'.";
-                if (error && !error.message.endsWith(content) && (error.context === undefined || error.context === true)) {
-                    error.message = error.message.replace(/\.$/, '') + content;
+                if (error) {
+                    error.context = this._model.identifier;
                 }
                 this.error(error, 'Error showing model properties.', null);
             }
@@ -821,7 +825,7 @@ view.View = class {
                 });
                 nodeSidebar.on('error', (sender, error) => {
                     if (this._model) {
-                        error.message = error.message.replace(/\.$/, '') + " in '" + this._model.identifier + "'.";
+                        error.context = this._model.identifier;
                     }
                     this.error(error, null, null);
                 });
@@ -831,9 +835,8 @@ view.View = class {
                 this._sidebar.open(nodeSidebar.render(), 'Node Properties');
             }
             catch (error) {
-                const content = " in '" + this._model.identifier + "'.";
-                if (error && !error.message.endsWith(content) && (error.context === undefined || error.context === true)) {
-                    error.message = error.message.replace(/\.$/, '') + content;
+                if (error) {
+                    error.context = this._model.identifier;
                 }
                 this.error(error, 'Error showing node properties.', null);
             }
@@ -946,7 +949,9 @@ view.Graph = class extends grapher.Graph {
             for (const output of outputs) {
                 for (const argument of output.arguments) {
                     if (!argument) {
-                        throw new view.Error("Invalid null argument in '" + this.model.identifier + "'.");
+                        const error = new view.Error('Invalid null argument.');
+                        error.context = this.model.identifier;
+                        throw error;
                     }
                     if (argument.name != '') {
                         this.createArgument(argument).from(viewNode);
@@ -1043,8 +1048,9 @@ view.Node = class extends grapher.Node {
             styles.push('node-item-type-' + category.toLowerCase());
         }
         if (typeof type.name !== 'string' || !type.name.split) { // #416
-            const identifier = this.context.model && this.context.model.identifier ? this.context.model.identifier : '?';
-            throw new view.Error("Unsupported node type '" + JSON.stringify(type.name) + "' in '" + identifier + "'.");
+            const error = new view.Error("Unsupported node type '" + JSON.stringify(type.name) + "'.");
+            error.context = this.context.model && this.context.model.identifier ? this.context.model.identifier : '?';
+            throw error;
         }
         const content = this.context.view.options.names && (node.name || node.location) ? (node.name || node.location) : type.name.split('.').pop();
         const tooltip = this.context.view.options.names && (node.name || node.location) ? type.name : (node.name || node.location);
@@ -1111,8 +1117,9 @@ view.Node = class extends grapher.Node {
                             catch (error) {
                                 // continue regardless of error
                             }
-                            const identifier = this.context.view.model && this.context.view.model.identifier ? this.context.view.model.identifier : '?';
-                            throw new view.Error("Failed to render tensor of type '" + type + "' in '" + identifier + "' (" + err.message + ").");
+                            const error = new view.Error("Failed to render tensor of type '" + type + "' (" + err.message + ").");
+                            error.context = this.context.view.model && this.context.view.model.identifier ? this.context.view.model.identifier : '';
+                            throw error;
                         }
                     }
                 }
@@ -1301,7 +1308,6 @@ view.ModelContext = class {
         else {
             this._entries = new Map();
             const entry = context instanceof view.EntryContext;
-            const identifier = context.identifier;
             try {
                 const archive = zip.Archive.open(stream, 'gzip');
                 if (archive) {
@@ -1314,8 +1320,7 @@ view.ModelContext = class {
             }
             catch (error) {
                 if (!entry) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new view.ArchiveError(message.replace(/\.$/, '') + " in '" + identifier + "'.");
+                    throw error;
                 }
             }
             try {
@@ -1333,8 +1338,7 @@ view.ModelContext = class {
             }
             catch (error) {
                 if (!entry) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new view.ArchiveError(message.replace(/\.$/, '') + " in '" + identifier + "'.");
+                    throw error;
                 }
             }
         }
@@ -1357,6 +1361,9 @@ view.ModelContext = class {
     }
 
     exception(error, fatal) {
+        if (error && this.identifier) {
+            error.context = this.identifier;
+        }
         this._context.exception(error, fatal);
     }
 
@@ -1424,7 +1431,7 @@ view.ModelContext = class {
                                         const execution = new python.Execution();
                                         execution.on('resolve', (_, name) => {
                                             if (!torch || !name.startsWith('__torch__.')) {
-                                                this.exception(new view.Error("Unknown type name '" + name + "' in '" + this.identifier + "'.", false));
+                                                this.exception(new view.Error("Unknown type name '" + name + "'."));
                                             }
                                         });
                                         return execution;
@@ -1689,6 +1696,11 @@ view.ModelFactoryService = class {
                 this._unsupported(modelContext);
             });
             /* eslint-enable consistent-return */
+        }).catch((error) => {
+            if (error && context.identifier) {
+                error.context = context.identifier;
+            }
+            throw error;
         });
     }
 
@@ -1710,23 +1722,9 @@ view.ModelFactoryService = class {
                 // continue regardless of error
             }
             if (archive) {
-                throw new view.Error("Archive contains no model files in '" + identifier + "'.", true);
+                throw new view.Error("Archive contains no model files.");
             }
         }
-        const skip = () => {
-            const knownUnsupportedIdentifiers = new Set([
-                'natives_blob.bin',
-                'v8_context_snapshot.bin',
-                'snapshot_blob.bin',
-                'image_net_labels.json',
-                'package.json',
-                'models.json',
-                'LICENSE.meta',
-                'input_0.pb',
-                'output_0.pb'
-            ]);
-            return knownUnsupportedIdentifiers.has(context.identifier);
-        };
         const json = () => {
             const obj = context.open('json');
             if (obj) {
@@ -1758,11 +1756,11 @@ view.ModelFactoryService = class {
                 };
                 for (const format of formats) {
                     if (format.tags.every((tag) => match(obj, tag))) {
-                        throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
+                        throw new view.Error('Invalid file content. File contains ' + format.name + '.');
                     }
                 }
-                const content = JSON.stringify(obj).substring(0, 100).replace(/\s/, '').substr(0, 48) + '...';
-                throw new view.Error("Unsupported JSON content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip());
+                const content = JSON.stringify(obj).substring(0, 100).replace(/\s/, '').substring(0, 48) + '...';
+                throw new view.Error("Unsupported JSON content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "'.");
             }
         };
         const pbtxt = () => {
@@ -1789,14 +1787,16 @@ view.ModelFactoryService = class {
             if (tags.size > 0) {
                 for (const format of formats) {
                     if (format.tags.every((tag) => tags.has(tag))) {
-                        throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
+                        const error = new view.Error('Invalid file content. File contains ' + format.name + '.');
+                        error.context = context.identifier;
+                        throw error;
                     }
                 }
                 const entries = [];
                 entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') === -1));
                 entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') !== -1));
                 const content = entries.map((pair) => pair[1] === true ? pair[0] : pair[0] + ':' + JSON.stringify(pair[1])).join(',');
-                throw new view.Error("Unsupported Protocol Buffers text content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip());
+                throw new view.Error("Unsupported Protocol Buffers text content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "'.");
             }
         };
         const pb = () => {
@@ -1836,7 +1836,9 @@ view.ModelFactoryService = class {
                 const tags = context.tags('pb+');
                 for (const format of formats) {
                     if (match(tags, format.tags)) {
-                        throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
+                        const error = new view.Error('Invalid file content. File contains ' + format.name + '.');
+                        error.context = context.identifier;
+                        throw error;
                     }
                 }
                 const format = (tags) => {
@@ -1848,7 +1850,7 @@ view.ModelFactoryService = class {
                     return content.join(',');
                 };
                 const content = format(tags);
-                throw new view.Error("Unsupported Protocol Buffers content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip());
+                throw new view.Error("Unsupported Protocol Buffers content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "'.");
             }
         };
         const flatbuffers = () => {
@@ -1862,7 +1864,7 @@ view.ModelFactoryService = class {
                 ];
                 for (const format of formats) {
                     if (file_identifier === format.identifier) {
-                        throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
+                        throw new view.Error('Invalid file content. File contains ' + format.name + '.');
                     }
                 }
             }
@@ -1876,10 +1878,12 @@ view.ModelFactoryService = class {
                 ];
                 for (const format of formats) {
                     if (format.tags.some((tag) => tags.has(tag))) {
-                        throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
+                        const error = new view.Error('Invalid file content. File contains ' + format.name + '.');
+                        error.content = context.identifier;
+                        throw error;
                     }
                 }
-                throw new view.Error("Unsupported XML content '" + tags.keys().next().value + "' in '" + identifier + "'.", !skip());
+                throw new view.Error("Unsupported XML content '" + tags.keys().next().value + "'.");
             }
         };
         const unknown = () => {
@@ -1888,9 +1892,9 @@ view.ModelFactoryService = class {
                 const buffer = stream.peek(Math.min(16, stream.length));
                 const bytes = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
                 const content = stream.length > 268435456 ? '(' + bytes + ') [' + stream.length.toString() + ']': '(' + bytes + ')';
-                throw new view.Error("Unsupported file content " + content + " for extension '." + extension + "' in '" + identifier + "'.", !skip());
+                throw new view.Error("Unsupported file content " + content + " for extension '." + extension + "'.");
             }
-            throw new view.Error("Unsupported file directory in '" + identifier + "'.", !skip());
+            throw new view.Error("Unsupported file directory.");
         };
         json();
         pbtxt();
@@ -1908,12 +1912,6 @@ view.ModelFactoryService = class {
             if (modules.length > 0) {
                 const id = modules.shift();
                 return this._host.require(id).then((module) => {
-                    const updateErrorContext = (error, context) => {
-                        const content = " in '" + context.identifier + "'.";
-                        if (error && typeof error.message === 'string' && !error.message.endsWith(content) && (error.context === undefined || error.context === true)) {
-                            error.message = error.message.replace(/\.$/, '') + content;
-                        }
-                    };
                     if (!module.ModelFactory) {
                         throw new view.Error("Failed to load module '" + id + "'.");
                     }
@@ -1926,7 +1924,6 @@ view.ModelFactoryService = class {
                         }
                     }
                     catch (error) {
-                        updateErrorContext(error, context);
                         return Promise.reject(error);
                     }
                     success = true;
@@ -1940,7 +1937,6 @@ view.ModelFactoryService = class {
                             if (context.stream && context.stream.position !== 0) {
                                 context.stream.seek(0);
                             }
-                            updateErrorContext(error, context);
                             errors.push(error);
                             return nextModule();
                         });
@@ -1949,7 +1945,6 @@ view.ModelFactoryService = class {
                         if (context.stream && context.stream.position !== 0) {
                             context.stream.seek(0);
                         }
-                        updateErrorContext(error, context);
                         errors.push(error);
                         return nextModule();
                     }
@@ -2140,7 +2135,7 @@ view.ModelFactoryService = class {
             }
             stream.seek(0);
             if (empty) {
-                return Promise.reject(new view.Error('File has no content.', true));
+                return Promise.reject(new view.Error('File has no content.'));
             }
             /* eslint-disable no-control-regex */
             const entries = [
@@ -2171,7 +2166,7 @@ view.ModelFactoryService = class {
             const content = String.fromCharCode.apply(null, buffer);
             for (const entry of entries) {
                 if (content.match(entry.value) && (!entry.identifier || entry.identifier === context.identifier)) {
-                    return Promise.reject(new view.Error('Invalid file content. File contains ' + entry.name + '.', true));
+                    return Promise.reject(new view.Error('Invalid file content. File contains ' + entry.name + '.'));
                 }
             }
         }
@@ -2250,10 +2245,9 @@ view.Metadata = class {
 
 view.Error = class extends Error {
 
-    constructor(message, telemetry) {
+    constructor(message) {
         super(message);
         this.name = 'Error loading model.';
-        this.telemetry = telemetry;
         this.stack = undefined;
     }
 };

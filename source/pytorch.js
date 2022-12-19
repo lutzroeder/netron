@@ -13,12 +13,11 @@ pytorch.ModelFactory = class {
     }
 
     open(context, match) {
-        const identifier = context.identifier;
         return pytorch.Metadata.open(context).then((metadata) => {
             const container = match;
             container.metadata = metadata;
             container.on('resolve', (_, name) => {
-                context.exception(new pytorch.Error("Unknown type name '" + name + "' in '" + identifier + "'."), false);
+                context.exception(new pytorch.Error("Unknown type name '" + name + "'."), false);
             });
             return container.read().then(() => {
                 return new pytorch.Model(metadata, container);

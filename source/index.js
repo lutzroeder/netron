@@ -118,7 +118,7 @@ host.BrowserHost = class {
                                 return match ? match[1] : '';
                             };
                             const user = this._getCookie('user');
-                            this._telemetry_ga4 = this.window.base.Telemetry.open(this._window, 'G-33PZ4MG5FQ', user || _ga());
+                            this._telemetry_ga4 = this.window.base.Telemetry.open(this._window, 'G-848W2NVWVH', user || _ga());
                             this._telemetry_ga4.set('document_location', this._document.location && this._document.location.href ? this._document.location.href : '');
                             this._telemetry_ga4.set('document_title', this._document.title);
                             this._telemetry_ga4.set('document_referrer', this._document.referrer);
@@ -459,14 +459,15 @@ host.BrowserHost = class {
                 });
             }
             if (this._telemetry_ga4) {
+                const context = !error.context ? '' : typeof error.context === 'string' ? error.context : JSON.stringify(error.context);
                 this._telemetry_ga4.send('exception', {
-                    error_name: name,
-                    error_message: message,
-                    error_context: error.context ? JSON.stringify(error.context) : '',
-                    error_stack: stack,
-                    error_fatal: fatal,
                     app_name: this.type,
                     app_version: this.version,
+                    error_name: name,
+                    error_message: message,
+                    error_context: context,
+                    error_stack: stack,
+                    error_fatal: fatal ? true : false
                 });
             }
         }

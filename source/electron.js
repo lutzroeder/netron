@@ -69,7 +69,7 @@ host.ElectronHost = class {
                 const telemetry = () => {
                     if (this._environment.packaged) {
                         let user = this._getConfiguration('userId') || null;
-                        this._telemetry_ga4 = base.Telemetry.open(this._window, 'G-33PZ4MG5FQ', user);
+                        this._telemetry_ga4 = base.Telemetry.open(this._window, 'G-848W2NVWVH', user);
                         this._telemetry_ga4.open().then(() => {
                             if (user !== this._telemetry_ga4.get('client_id')) {
                                 user = this._telemetry_ga4.get('client_id');
@@ -348,14 +348,15 @@ host.ElectronHost = class {
                     this._telemetry_ua.exception(stack ? description + ' @ ' + stack : description, fatal);
                 }
                 if (this._telemetry_ga4) {
+                    const context = !error.context ? '' : typeof error.context === 'string' ? error.context : JSON.stringify(error.context);
                     this._telemetry_ga4.send('exception', {
                         app_name: this.type,
                         app_version: this.version,
                         error_name: name,
                         error_message: message,
-                        error_context: error.context ? JSON.stringify(error.context) : '',
+                        error_context: context,
                         error_stack: stack,
-                        error_fatal: fatal,
+                        error_fatal: fatal ? true : false
                     });
                 }
             }
