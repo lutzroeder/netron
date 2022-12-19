@@ -1,5 +1,6 @@
 
 var json = {};
+var bson = {};
 var text = require('./text');
 
 json.TextReader = class {
@@ -427,7 +428,7 @@ json.BinaryReader = class {
         const skip = (offset) => {
             position += offset;
             if (position > length) {
-                throw new json.Error('Expected ' + (position + length) + ' more bytes. The file might be corrupted. Unexpected end of file.', true);
+                throw new bson.Error('Expected ' + (position + length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
             }
         };
         const header = () => {
@@ -435,7 +436,7 @@ json.BinaryReader = class {
             skip(4);
             const size = view.getInt32(start, 4);
             if (size < 5 || start + size > length || buffer[start + size - 1] != 0x00) {
-                throw new json.Error('Invalid file size.', true);
+                throw new bson.Error('Invalid file size.');
             }
         };
         header();
@@ -469,7 +470,7 @@ json.BinaryReader = class {
                     skip(size);
                     value = utf8Decoder.decode(buffer.subarray(start, position - 1));
                     if (buffer[position - 1] != '0x00') {
-                        throw new json.Error('String missing terminal 0.', true);
+                        throw new bson.Error('String missing terminal 0.');
                     }
                     break;
                 }
@@ -489,7 +490,7 @@ json.BinaryReader = class {
                     const size = view.getInt32(start, true);
                     const subtype = buffer[start + 4];
                     if (subtype !== 0x00) {
-                        throw new json.Error("Unsupported binary subtype '" + subtype + "'.", true);
+                        throw new bson.Error("Unsupported binary subtype '" + subtype + "'.");
                     }
                     skip(size);
                     value = buffer.subarray(start + 5, position);
@@ -499,7 +500,7 @@ json.BinaryReader = class {
                     skip(1);
                     value = buffer[position - 1];
                     if (value > 1) {
-                        throw new json.Error("Invalid boolean value '" + value + "'.", true);
+                        throw new bson.Error("Invalid boolean value '" + value + "'.");
                     }
                     value = value === 1 ? true : false;
                     break;
@@ -526,12 +527,12 @@ json.BinaryReader = class {
                     break;
                 }
                 default: {
-                    throw new json.Error("Unsupported value type '" + type + "'.", true);
+                    throw new bson.Error("Unsupported value type '" + type + "'.");
                 }
             }
             if (Array.isArray(obj))  {
                 if (obj.length !== parseInt(key, 10)) {
-                    throw new json.Error("Invalid array index '" + key + "'.", true);
+                    throw new bson.Error("Invalid array index '" + key + "'.");
                 }
                 obj.push(value);
             }
@@ -540,7 +541,7 @@ json.BinaryReader = class {
                     case '__proto__':
                     case 'constructor':
                     case 'prototype':
-                        throw new json.Error("Invalid key '" + key + "' at " + position.toString() + "'.", true);
+                        throw new bson.Error("Invalid key '" + key + "' at " + position.toString() + "'.");
                     default:
                         break;
                 }
@@ -552,7 +553,7 @@ json.BinaryReader = class {
             }
         }
         if (position !== length) {
-            throw new json.Error("Unexpected data at '" + position.toString() + "'.", true);
+            throw new bson.Error("Unexpected data at '" + position.toString() + "'.");
         }
         return obj;
     }
@@ -560,9 +561,17 @@ json.BinaryReader = class {
 
 json.Error = class extends Error {
 
-    constructor(message, binary) {
+    constructor(message) {
         super(message);
-        this.name = binary ? 'BSON Error' : 'JSON Error';
+        this.name = 'JSON Error';
+    }
+};
+
+bson.Error = class extends Error {
+
+    constructor(message) {
+        super(message);
+        this.name = 'BSON Error';
     }
 };
 
