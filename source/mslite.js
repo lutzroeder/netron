@@ -21,10 +21,16 @@ mslite.ModelFactory = class {
             const stream = context.stream;
             const reader = flatbuffers.BinaryReader.open(stream);
             switch (reader.identifier) {
-                case '':
-                    throw new mslite.Error('MSL0 format is deprecated.', false);
-                case 'MSL1':
-                    throw new mslite.Error('MSL1 format is deprecated.', false);
+                case '': {
+                    const error = new mslite.Error('MSL0 format is deprecated.');
+                    error.context = context.identifier;
+                    throw error;
+                }
+                case 'MSL1': {
+                    const error = new mslite.Error('MSL1 format is deprecated.');
+                    error.context = context.identifier;
+                    throw error;
+                }
                 case 'MSL2':
                     break;
                 default:
@@ -461,10 +467,9 @@ mslite.Utility = class {
 
 mslite.Error = class extends Error {
 
-    constructor(message, context) {
+    constructor(message) {
         super(message);
         this.name = 'Error loading MindSpore Lite model.';
-        this.context = context === false ? false : true;
     }
 };
 
