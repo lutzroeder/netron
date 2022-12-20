@@ -202,7 +202,7 @@ hdf5.Variable = class {
     get value() {
         const data = this.data;
         if (data) {
-            const reader = new hdf5.BinaryReader(data);
+            const reader = data instanceof hdf5.BinaryReader ? data : new hdf5.BinaryReader(data);
             const array = this._dataspace.read(this._datatype, reader);
             return this._dataspace.decode(this._datatype, array, array, this._globalHeap);
         }
