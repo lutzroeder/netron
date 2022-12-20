@@ -164,11 +164,11 @@ keras.ModelFactory = class {
                         const moduleName = group.attributes.has('name') ? group.attributes.get('name') : group.name;
                         for (const variableGroup of group.groups.values()) {
                             if (variableGroup.attributes.size !== 0 || variableGroup.groups.size !== 0) {
-                                throw new keras.Error('Variable format is not HDF5 Weights');
+                                throw new keras.Error('Variable format is not HDF5 Weights.');
                             }
                             const variable = variableGroup.value;
                             if (!variable) {
-                                throw new keras.Error('Variable value is not HDF5 Weights');
+                                throw new keras.Error('Variable value is not HDF5 Weights.');
                             }
                             const name = moduleName ? [ moduleName, variableGroup.name ].join('/') : moduleName.name;
                             const tensor = new keras.Tensor(name, variable.shape, variable.type, null, variable.littleEndian, variable.type === 'string' ? variable.value : variable.data);
@@ -200,7 +200,7 @@ keras.ModelFactory = class {
                         weights.add(moduleName, tensor);
                         return;
                     }
-                    throw new keras.Error('Module group format is not HDF5 Weights');
+                    throw new keras.Error('Module group format is not HDF5 Weights.');
                 };
                 walk(weights_group);
                 return openModel(format, '', '', null, weights);
