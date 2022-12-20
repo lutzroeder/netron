@@ -118,9 +118,7 @@ pytorch.Graph = class {
                             }
                             else if (obj && obj.__class__) {
                                 obj.__parent__ = module;
-                                if (!obj.__id__) {
-                                    obj.__id__ = key;
-                                }
+                                obj.__name__ = obj.__name__ || key;
                                 queue.push(obj);
                             }
                         }
@@ -250,7 +248,8 @@ pytorch.Graph = class {
         }
         const group = groups.join('/');
         const name = group ? (group + '/' + key) : key;
-        const outputs = output ? [ new pytorch.Parameter('output', true, [ new pytorch.Argument(name, null, null) ]) ] : [];
+        const argument = new pytorch.Argument(name, null, null);
+        const outputs = output ? [ new pytorch.Parameter('output', true, [ argument ]) ] : [];
         const attributes = [];
         for (const entry of Object.entries(obj)) {
             const name = entry[0];
@@ -274,7 +273,7 @@ pytorch.Graph = class {
 
     _loadScriptModule(metadata, module, initializers) {
         if (module) {
-            if (pytorch.Graph._getParameters(module).length > 0 && !module.__hide__) {
+            if (pytorch.Graph._getParameters(module).size > 0 && !module.__hide__) {
                 const item = { module: module };
                 this._nodes.push(new pytorch.Node(metadata, '', item, initializers));
             }
@@ -286,14 +285,13 @@ pytorch.Graph = class {
     }
 
     static _getParameters(module) {
-        const parameters = [];
+        const parameters = new Map();
         if (module && module.__class__.__module__ && module.__class__.__name__) {
             for (const entry of Object.entries(module)) {
                 const key = entry[0];
                 const value = entry[1];
                 if (pytorch.Utility.isTensor(value)) {
-                    value.__id__ = key;
-                    parameters.push(value);
+                    parameters.set(key, value);
                 }
             }
         }
@@ -420,13 +418,14 @@ pytorch.Node = class {
             let module = item.module;
             if (module) {
                 this._type = { name: 'torch.nn.modules.module.Module' };
-                for (const tensor of pytorch.Graph._getParameters(module)) {
+                for (const entry of pytorch.Graph._getParameters(module)) {
+                    const name = entry[0];
+                    const tensor = entry[1];
                     const initializer = initializers.get(tensor) || (tensor ? new pytorch.Tensor('', tensor) : null);
-                    this._inputs.push(new pytorch.Parameter(tensor.__id__, true, [
-                        new pytorch.Argument('', null, initializer || null)
-                    ]));
+                    const argument = new pytorch.Argument('', null, initializer || null);
+                    this._inputs.push(new pytorch.Parameter(name, true, [ argument ]));
                     if (tensor.__variable__) {
-                        this._outputs.push(new pytorch.Parameter(tensor.__id__, true, [
+                        this._outputs.push(new pytorch.Parameter(name, true, [
                             new pytorch.Argument(tensor.__variable__, null, null)
                         ]));
                     }
@@ -485,8 +484,9 @@ pytorch.Node = class {
                     }
                 }
                 if (module) {
-                    const params = pytorch.Graph._getParameters(module).filter((p) => p.__id__ !== 'num_batches_tracked');
-                    if (params.length == count && match) {
+                    const parameters = pytorch.Graph._getParameters(module);
+                    parameters.delete('num_batches_tracked');
+                    if (parameters.size == count && match) {
                         module.__hide__ = true;
                     }
                     else {
@@ -577,15 +577,15 @@ pytorch.Node = class {
                 }
             }
             if (module) {
-                if (module.__id__) {
+                if (module.__name__) {
                     let current = module;
-                    this._name = current.__id__;
+                    this._name = current.__name__;
                     while (current.__parent__ != null) {
                         current = current.__parent__;
-                        if (!current.__parent__ && !current.__id__) {
+                        if (!current.__parent__ && !current.__name__) {
                             break;
                         }
-                        this._name = [ current.__id__, this._name ].join('.');
+                        this._name = [ current.__name__, this._name ].join('.');
                     }
                 }
             }
@@ -1378,15 +1378,13 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 this.serialized_model = new pytorch.nnapi.SerializedModel(serialized_model, buffers);
             }
             run(inputs, outputs) {
-                execution.variable(this.serialized_model_tensor.__variable__);
+                execution.variable(this.serialized_model_tensor);
                 this.serialized_model_tensor.__count__ = (this.serialized_model_tensor.__count__ || 0) + 1;
                 const type = new pytorch.nnapi.Graph(this.serialized_model);
                 const node = execution._graph.create(type);
                 for (const tensor of inputs) {
                     const value = execution.variable(tensor);
                     node.addInput(value);
-                    // [ { id: this.serialized_model_tensor.__variable__ } ] //,
-                    // this.parameter_buffers.map((buffer) => { return { id: buffer.__variable__ }; })
                 }
                 for (const tensor of outputs) {
                     execution.variable(tensor, node);
@@ -2061,8 +2059,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                         const output = this.invoke('torch.Tensor', []);
                         output.resize_([]);
                         output.__origin__ = schema.name;
-                        /* const value = */ this.variable(output, node);
-                        // value.arguments = [ { id: output.__variable__ } ];
+                        this.variable(output, node);
                         result.push(output);
                         break;
                     }
@@ -2641,7 +2638,7 @@ pytorch.jit.ScriptModuleDeserializer = class {
             const module = queue.shift();
             module.__class__ = module.__class__ || { __module__: 'torch.nn.modules.module', __name__: 'Module' };
             if (module.name) {
-                module.__id__ = module.name;
+                module.__name__ = module.name;
             }
             if (module.submodules) {
                 for (const submodule of module.submodules) {
