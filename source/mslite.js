@@ -22,14 +22,10 @@ mslite.ModelFactory = class {
             const reader = flatbuffers.BinaryReader.open(stream);
             switch (reader.identifier) {
                 case '': {
-                    const error = new mslite.Error('MSL0 format is deprecated.');
-                    error.context = context.identifier;
-                    throw error;
+                    throw new mslite.Error('MSL0 format is deprecated.');
                 }
                 case 'MSL1': {
-                    const error = new mslite.Error('MSL1 format is deprecated.');
-                    error.context = context.identifier;
-                    throw error;
+                    throw new mslite.Error('MSL1 format is deprecated.');
                 }
                 case 'MSL2':
                     break;

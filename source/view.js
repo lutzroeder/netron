@@ -1049,7 +1049,9 @@ view.Node = class extends grapher.Node {
         }
         if (typeof type.name !== 'string' || !type.name.split) { // #416
             const error = new view.Error("Unsupported node type '" + JSON.stringify(type.name) + "'.");
-            error.context = this.context.model && this.context.model.identifier ? this.context.model.identifier : '?';
+            if (this.context.model && this.context.model.identifier) {
+                error.context = this.context.model.identifier;
+            }
             throw error;
         }
         const content = this.context.view.options.names && (node.name || node.location) ? (node.name || node.location) : type.name.split('.').pop();
@@ -1118,7 +1120,9 @@ view.Node = class extends grapher.Node {
                                 // continue regardless of error
                             }
                             const error = new view.Error("Failed to render tensor of type '" + type + "' (" + err.message + ").");
-                            error.context = this.context.view.model && this.context.view.model.identifier ? this.context.view.model.identifier : '';
+                            if (this.context.view.model && this.context.view.model.identifier) {
+                                error.context = this.context.view.model.identifier;
+                            }
                             throw error;
                         }
                     }
@@ -2248,7 +2252,6 @@ view.Error = class extends Error {
     constructor(message) {
         super(message);
         this.name = 'Error loading model.';
-        this.stack = undefined;
     }
 };
 

@@ -763,7 +763,6 @@ zip.Error = class extends Error {
     constructor(message) {
         super(message);
         this.name = 'Zip Error';
-        this.stack = undefined;
     }
 };
 

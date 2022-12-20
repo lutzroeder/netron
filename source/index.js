@@ -414,11 +414,12 @@ host.BrowserHost = class {
     }
 
     exception(error, fatal) {
-        if ((this._telemetry_ua || this._telemetry_ga4) && error && error.telemetry !== false) {
+        if ((this._telemetry_ua || this._telemetry_ga4) && error) {
             const name = error.name ? error.name + ': ' : '';
             const message = error.message ? error.message : JSON.stringify(error);
             const description = name + message;
-            let stack = null;
+            let context = '';
+            let stack = '';
             if (error.stack) {
                 const format = (file, line, column) => {
                     return file.split('\\').join('/').split('/').pop() + ':' + line + ':' + column;
@@ -444,11 +445,16 @@ host.BrowserHost = class {
                             }
                             else {
                                 const match = error.stack.match(/.*\n\s*(.*)\s*/);
-                                stack = match ? match[1] : error.stack.split('\n').shift();
+                                if (match) {
+                                    stack = match[1];
+                                }
                             }
                         }
                     }
                 }
+            }
+            if (error.context) {
+                context = typeof error.context === 'string' ? error.context : JSON.stringify(error.context);
             }
             if (this._telemetry_ua && this.window.ga) {
                 this.window.ga('send', 'exception', {
@@ -459,7 +465,6 @@ host.BrowserHost = class {
                 });
             }
             if (this._telemetry_ga4) {
-                const context = !error.context ? '' : typeof error.context === 'string' ? error.context : JSON.stringify(error.context);
                 this._telemetry_ga4.send('exception', {
                     app_name: this.type,
                     app_version: this.version,

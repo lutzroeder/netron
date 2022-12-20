@@ -494,7 +494,6 @@ dlc.Error = class extends Error {
     constructor(message) {
         super(message);
         this.name = 'Error loading DLC model.';
-        this.stack = undefined;
     }
 };
 
