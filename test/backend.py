@@ -35,9 +35,10 @@ def _test_onnx_iterate():
 def _test_torchscript_transformer():
     torch = __import__('torch')
     model = torch.nn.Transformer(nhead=16, num_encoder_layers=12)
-    trace = torch.jit.trace(model, (torch.rand(10, 32, 512), torch.rand(20, 32, 512)))
-    torch._C._jit_pass_inline(trace.graph) # pylint: disable=protected-access
-    netron.serve('transformer', trace)
+    module = torch.jit.trace(model, (torch.rand(10, 32, 512), torch.rand(20, 32, 512)))
+    # module = torch.jit.script(model)
+    torch._C._jit_pass_inline(module.graph) # pylint: disable=protected-access
+    netron.serve('transformer', module)
 
 def _test_torchscript_resnet34():
     torch = __import__('torch')

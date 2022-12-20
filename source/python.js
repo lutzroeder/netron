@@ -4202,10 +4202,13 @@ python.Execution = class {
             return tensor.dtype.scalar_type();
         });
         this.registerFunction('ops.prim.is_quantized', function(tensor) {
-            return tensor && tensor.__quantized__ === true;
+            return tensor.is_quantized;
         });
         this.registerFunction('ops.prim.is_cuda', function(/* tensor */) {
             return false;
+        });
+        this.registerFunction('ops.prim.is_nested', function(tensor) {
+            return tensor.is_nested;
         });
         this.registerFunction('ops.prim.unchecked_unwrap_optional', function(value) {
             return value;
@@ -5209,7 +5212,12 @@ python.Execution = class {
                 }
                 throw new python.Error("Unsupported indices in layout'" + this._indices.__str__() + "'.");
             }
-
+            get is_quantized() {
+                return this.__quantized__ === true;
+            }
+            get is_nested() {
+                return this.__nested__ === true;
+            }
             size() {
                 return this._shape;
             }

@@ -4987,6 +4987,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "test.8bit.pth",
+    "source":   "https://github.com/lutzroeder/netron/files/5238524/test.8bit.pth.zip[test.8bit.pth]",
+    "format":   "TorchScript v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/546"
+  },
+  {
+    "type":     "pytorch",
     "target":   "traced_fft.pt",
     "source":   "https://github.com/lutzroeder/netron/files/5172197/traced_fft.zip[traced_fft.pt]",
     "format":   "TorchScript v1.3",
@@ -5022,10 +5029,18 @@
   },
   {
     "type":     "pytorch",
-    "target":   "test.8bit.pth",
-    "source":   "https://github.com/lutzroeder/netron/files/5238524/test.8bit.pth.zip[test.8bit.pth]",
+    "target":   "transformer.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/10271969/transformer.pt.zip[transformer.pt]",
     "format":   "TorchScript v1.6",
-    "link":     "https://github.com/lutzroeder/netron/issues/546"
+    "error":    "AssertionError: was expecting embedding dimension of 512, but got ?",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "transformer_traced.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/10271968/transformer_traced.pt.zip[transformer_traced.pt]",
+    "format":   "TorchScript v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
     "type":     "pytorch",

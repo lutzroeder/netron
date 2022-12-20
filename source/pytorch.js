@@ -1210,6 +1210,9 @@ pytorch.Execution = class extends python.Execution {
                 const qualified_name = this.data && this.data.__class__ && this.data.__class__.__module__ && this.data.__class__.__name__ ? this.data.__class__.__module__ + '.' + this.data.__class__.__name__ : '';
                 return execution.invoke('torch.ClassType', [ qualified_name ]);
             }
+            get qualified_name() {
+                return this._type().qualified_name();
+            }
             get code_with_constants() {
                 const const_map = {};
                 const_map.const_mapping = new Map(Object.entries(execution.builtins.CONSTANTS));
@@ -1517,6 +1520,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 this._kind = kind;
                 this._inputs = [];
                 this._outputs = [];
+                this._blocks = [];
             }
             kind() {
                 return this._kind;
@@ -1526,6 +1530,9 @@ pytorch.jit.Execution = class extends pytorch.Execution {
             }
             outputs() {
                 return this._outputs;
+            }
+            blocks() {
+                return this._blocks;
             }
             addInput(value) {
                 const use = execution.invoke('torch.Use', [ this ]);
@@ -1537,6 +1544,11 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 const value = execution.invoke('torch.Value', [ this ]);
                 this._outputs.push(value);
                 return value;
+            }
+            addBlock() {
+                const block = execution.invoke('torch.Block' [ this._graph, this ]);
+                this._blocks.push(block);
+                return block;
             }
         });
         this.registerType('torch.Value', class {
@@ -2094,7 +2106,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
             if (type.startsWith('torch.')) {
                 overloads = this._types.get('aten::' + type.substring(6));
             }
-            else if (type.startsWith('ops.')) {
+            else if (type.startsWith('ops.') && !type.startsWith('ops.prim.')) {
                 const path = type.split('.');
                 if (path.length === 3) {
                     overloads = this._types.get(path[1] + '::' + path[2]);
