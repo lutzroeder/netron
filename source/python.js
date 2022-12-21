@@ -1626,7 +1626,25 @@ python.Execution = class {
         this._events = new Map();
         this._utf8Decoder = new TextDecoder('utf-8');
         this._unresolved = new Map();
-        const dict = class extends Map {};
+        const dict = class extends Map {
+            constructor(items) {
+                super();
+                if (items) {
+                    for (const pair of items) {
+                        this.__setitem__(pair[0], pair[1]);
+                    }
+                }
+            }
+            __contains__(key) {
+                return this.has(key);
+            }
+            __setitem__(key, value) {
+                this.set(key, value);
+            }
+            __getitem__(key) {
+                return this.get(key);
+            }
+        };
         this._modules = new dict();
         this._registry = new Map();
         const module = class {
@@ -1761,19 +1779,7 @@ python.Execution = class {
                 }
             }
         });
-        this.registerType('collections.OrderedDict', class extends Map {
-            constructor(items) {
-                super();
-                if (items) {
-                    for (const pair of items) {
-                        this.__setitem__(pair[0], pair[1]);
-                    }
-                }
-            }
-            __setitem__(key, value) {
-                this.set(key, value);
-            }
-        });
+        this.registerType('collections.OrderedDict', class extends dict {});
         this.registerType('cuml.common.array_descriptor.CumlArrayDescriptorMeta', class {});
         this.registerType('cuml.ensemble.randomforestclassifier.RandomForestClassifier', class {});
         this.registerType('cuml.raft.common.handle.Handle', class {
@@ -3866,6 +3872,13 @@ python.Execution = class {
         this.registerType('torch.nn.intrinsic.qat.modules.conv_fused.ConvReLU2d', class {});
         this.registerType('torch.nn.intrinsic.quantized.modules.conv_relu.ConvReLU2d', class {});
         this.registerType('torch.nn.intrinsic.quantized.modules.linear_relu.LinearReLU', class {});
+        this.registerType('torch.nn.modules.module.Module', class {
+            constructor() {
+                this._modules = execution.invoke('collections.OrderedDict', []);
+                this._parameters = execution.invoke('collections.OrderedDict', []);
+                this._buffers = execution.invoke('collections.OrderedDict', []);
+            }
+        });
         this.registerType('torch.nn.modules.activation.CELU', class {});
         this.registerType('torch.nn.modules.activation.ELU', class {});
         this.registerType('torch.nn.modules.activation.GELU', class {});
@@ -3896,17 +3909,19 @@ python.Execution = class {
         this.registerType('torch.nn.modules.batchnorm.BatchNorm3d', class {});
         this.registerType('torch.nn.modules.batchnorm.LazyBatchNorm1d', class {});
         this.registerType('torch.nn.modules.batchnorm.SyncBatchNorm', class {});
-        this.registerType('torch.nn.modules.container.ModuleDict', class {});
-        this.registerType('torch.nn.modules.container.ModuleList', class {});
-        this.registerType('torch.nn.modules.container.ParameterDict', class {});
-        this.registerType('torch.nn.modules.container.ParameterList', class {});
-        this.registerType('torch.nn.modules.container.Sequential', class {});
-        this.registerType('torch.nn.modules.conv.Conv1d', class {});
-        this.registerType('torch.nn.modules.conv.Conv2d', class {});
-        this.registerType('torch.nn.modules.conv.Conv3d', class {});
-        this.registerType('torch.nn.modules.conv.ConvTranspose1d', class {});
-        this.registerType('torch.nn.modules.conv.ConvTranspose2d', class {});
-        this.registerType('torch.nn.modules.conv.ConvTranspose3d', class {});
+        this.registerType('torch.nn.modules.container.ModuleDict', class extends torch.nn.modules.module.Module {});
+        this.registerType('torch.nn.modules.container.ModuleList', class extends torch.nn.modules.module.Module {});
+        this.registerType('torch.nn.modules.container.ParameterDict', class extends torch.nn.modules.module.Module {});
+        this.registerType('torch.nn.modules.container.ParameterList', class extends torch.nn.modules.module.Module {});
+        this.registerType('torch.nn.modules.container.Sequential', class extends torch.nn.modules.module.Module {});
+        this.registerType('torch.nn.modules.conv._ConvNd', class extends torch.nn.modules.module.Module {});
+        this.registerType('torch.nn.modules.conv.Conv1d', class extends torch.nn.modules.conv._ConvNd {});
+        this.registerType('torch.nn.modules.conv.Conv2d', class extends torch.nn.modules.conv._ConvNd {});
+        this.registerType('torch.nn.modules.conv.Conv3d', class extends torch.nn.modules.conv._ConvNd {});
+        this.registerType('torch.nn.modules.conv._ConvTransposeNd', class extends torch.nn.modules.module.Module {});
+        this.registerType('torch.nn.modules.conv.ConvTranspose1d', class extends torch.nn.modules.conv._ConvTransposeNd {});
+        this.registerType('torch.nn.modules.conv.ConvTranspose2d', class extends torch.nn.modules.conv._ConvTransposeNd {});
+        this.registerType('torch.nn.modules.conv.ConvTranspose3d', class extends torch.nn.modules.conv._ConvTransposeNd {});
         this.registerType('torch.nn.modules.distance.CosineSimilarity', class {});
         this.registerType('torch.nn.modules.dropout.AlphaDropout', class {});
         this.registerType('torch.nn.modules.dropout.Dropout', class {});
@@ -3937,7 +3952,6 @@ python.Execution = class {
         this.registerType('torch.nn.modules.loss.NLLLoss2d', class {});
         this.registerType('torch.nn.modules.loss.SmoothL1Loss', class {});
         this.registerType('torch.nn.modules.module._IncompatibleKeys', class {});
-        this.registerType('torch.nn.modules.module.Module', class {});
         this.registerType('torch.nn.modules.module.PatchForward', class {});
         this.registerType('torch.nn.modules.normalization.CrossMapLRN2d', class {});
         this.registerType('torch.nn.modules.normalization.GroupNorm', class {});
@@ -5912,13 +5926,6 @@ python.Execution = class {
                             const typing = this._typing[expression.value];
                             if (type(typing)) {
                                 return typing;
-                            }
-                            const torch = this._registry.get('torch');
-                            if (torch) {
-                                const value = torch[expression.value]; // TODO
-                                if (type(value)) {
-                                    return value;
-                                }
                             }
                         }
                         return value;
