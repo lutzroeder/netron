@@ -1164,14 +1164,15 @@ pytorch.Execution = class extends python.Execution {
             }
         });
         this.registerFunction('torch.jit.load', function(file, map_location, extra_files) {
-            const cu = execution.invoke('torch._C.CompilationUnit', []);
+            const cu = execution.invoke('torch.jit.CompilationUnit', []);
+            cu.execution = execution;
             const cpp_module = execution.invoke('torch._C.import_ir_module', [ cu, file, map_location, extra_files ]);
             return execution.invoke('torch.jit._script.RecursiveScriptModule', [ cpp_module ]);
         });
         this.registerFunction('torch._C.import_ir_module', function(cu, file, map_location, extra_files) {
             const reader = file;
             const device = null;
-            const deserializer = new pytorch.jit.ScriptModuleDeserializer(execution, reader);
+            const deserializer = new pytorch.jit.ScriptModuleDeserializer(cu, reader);
             return deserializer.deserialize(device, extra_files);
         });
         this.registerFunction('torch._C._import_ir_module_from_package', function(/* cu, reader, storage_context, map_location, ts_id */) {
@@ -1200,15 +1201,73 @@ pytorch.Execution = class extends python.Execution {
                 return this._qualified_name;
             }
         });
-        this.registerType('torch.ScriptObject', class {});
-        this.registerType('torch.ScriptModule', class extends torch.ScriptObject {
+        this.registerType('torch.ScriptMethod', class {
+            constructor(owner, fn) {
+                this._function = fn;
+            }
+            __call__(/* args, kwargs */) {
+                throw new pytorch.Error();
+            }
+            graph() {
+                return this._function.graph();
+            }
+            get schema() {
+                // return this.function().getSchema();
+                throw new pytorch.Error();
+            }
+            get name() {
+                return this._function.name();
+            }
+            get code() {
+                throw new pytorch.Error();
+            }
+            get code_with_constants() {
+                throw new pytorch.Error();
+            }
+            get owner() {
+                throw new pytorch.Error();
+            }
+        });
+        this.registerType('torch.ScriptObject', class {
             constructor(obj) {
-                super(obj);
                 this.data = obj;
             }
             _type() {
                 const qualified_name = this.data && this.data.__class__ && this.data.__class__.__module__ && this.data.__class__.__name__ ? this.data.__class__.__module__ + '.' + this.data.__class__.__name__ : '';
                 return execution.invoke('torch.ClassType', [ qualified_name ]);
+                // .def("_type", [](Module& m) { return m.type(); })
+            }
+            _get_method(/* name */) {
+                throw new pytorch.Error();
+            }
+            _has_method(/* name */) {
+                throw new pytorch.Error();
+            }
+            _method_names(/* name */) {
+                throw new pytorch.Error();
+            }
+            setattr(/* name, value */) {
+                throw new pytorch.Error();
+            }
+            getattr(/* name, value */) {
+                throw new pytorch.Error();
+            }
+            hasattr(/* name */) {
+                throw new pytorch.Error();
+            }
+            __getattr__(/* name */) {
+                throw new pytorch.Error();
+            }
+            __setattr__(/* name, value */) {
+                throw new pytorch.Error();
+            }
+            _properties() {
+                throw new pytorch.Error();
+            }
+        });
+        this.registerType('torch.ScriptModule', class extends torch.ScriptObject {
+            constructor(obj) {
+                super(obj);
             }
             get qualified_name() {
                 return this._type().qualified_name();
@@ -1326,7 +1385,26 @@ pytorch.Execution = class extends python.Execution {
                 return this._graph;
             }
         });
-        this.registerType('torch.jit.CompilationUnit', class {});
+        this.registerType('torch.jit.CompilationUnit', class {
+            constructor() {
+                this._functions = [];
+            }
+            register_function(fn) {
+                this._functions.push(fn);
+            }
+            define(prefix, properties, propResolvers, definitions /*, defResolvers, self, shouldMangle, operator_set_version */) {
+                const functions = [];
+                for (const def of definitions) {
+                    const name = def.name;
+                    const qualified_name = prefix ? prefix + '.' + name : name;
+                    const graph = this._execution.invoke('torch.Graph', []);
+                    const fn = new pytorch.jit.GraphFunction(qualified_name, graph, null);
+                    this.register_function(fn);
+                    functions.push(fn);
+                }
+                return functions;
+            }
+        });
         this.registerType('torch.jit._script.ScriptModule', class extends torch.nn.modules.module.Module {
             constructor(/* obj */) {
                 super();
@@ -1344,9 +1422,11 @@ pytorch.Execution = class extends python.Execution {
                 return this._c.data;
             }
             get graph() {
+                // return this._c._get_method("forward").graph;
                 return this._c.graph;
             }
             get code_with_constants() {
+                // return this.forward.code_with_constants;
                 return this._c.code_with_constants;
             }
         });
@@ -2535,18 +2615,32 @@ pytorch.jit.Execution = class extends pytorch.Execution {
     }
 };
 
+pytorch.jit.SourceImporter = class {
+
+    constructor(cu, constant_table, source_loader, version) {
+        this._cu = cu;
+        this._constant_table = constant_table;
+        this._source_loader = source_loader;
+        this._version = version;
+    }
+};
+
 pytorch.jit.ScriptModuleDeserializer = class {
 
-    constructor(execution, reader, pickle_dir_prefix, tensor_dir_prefix) {
-        this._execution = execution;
+    constructor(cu, reader, pickle_dir_prefix, tensor_dir_prefix) {
+        this._compilation_unit = cu;
         this._reader = reader;
-        this._pickle_dir_prefix = pickle_dir_prefix;
-        this._tensor_dir_prefix = tensor_dir_prefix;
         this._code_prefix = (!pickle_dir_prefix && !tensor_dir_prefix) ? 'code/' : '.data/ts_code/code/';
+        this._pickle_dir_prefix = pickle_dir_prefix || '';
+        this._tensor_dir_prefix = tensor_dir_prefix || '';
+        this._source_importer = new pytorch.jit.SourceImporter(
+            this._compilation_unit, this._constants_table,
+            null, // (qualifier) => findSourceInArchiveFromQualifier(this._reader, this._code_prefix, qualifier),
+            reader.version());
     }
 
     deserialize() {
-        const execution = this._execution;
+        const execution = this._compilation_unit.execution;
         const reader = this._reader;
         const code_prefix = this._code_prefix;
         const sources = new Map();
@@ -2562,7 +2656,7 @@ pytorch.jit.ScriptModuleDeserializer = class {
                 sources.set(file, buffer);
             }
         }
-        const torch = this._execution.import('torch');
+        const torch = execution.import('torch');
         execution.builtins.torch = torch;
         execution.builtins.Tensor = torch.Tensor;
         execution.builtins.ops = torch.ops;
@@ -2596,7 +2690,7 @@ pytorch.jit.ScriptModuleDeserializer = class {
     }
 
     LEGACY_deserialize() {
-        const execution = this._execution;
+        const execution = this._compilation_unit.execution;
         const reader = this._reader;
         const stream = reader.getRecord('model.json');
         const buffer = stream.peek();
@@ -2693,7 +2787,7 @@ pytorch.jit.ScriptModuleDeserializer = class {
 
     _unpickle(data, read_record) {
         const loaded_storages = new Map();
-        const execution = this._execution;
+        const execution = this._compilation_unit.execution;
         const unpickler = execution.invoke('pickle.Unpickler', [ data ]);
         unpickler.persistent_load = (saved_id) => {
             const typename = saved_id[0];
