@@ -798,15 +798,15 @@ pytorch.TensorShape = class {
 pytorch.Container = class {
 
     static open(context) {
-        const zip = pytorch.Container.Zip.open(context.entries('zip'));
+        const zip = pytorch.Container.Zip.open(context);
         if (zip) {
             return zip;
         }
-        const pickle = pytorch.Container.Pickle.open(context.stream);
+        const pickle = pytorch.Container.Pickle.open(context);
         if (pickle) {
             return pickle;
         }
-        const tar = pytorch.Container.Tar.open(context.entries('tar'));
+        const tar = pytorch.Container.Tar.open(context);
         if (tar) {
             return tar;
         }
@@ -853,7 +853,8 @@ pytorch.Container = class {
 
 pytorch.Container.Tar = class extends pytorch.Container {
 
-    static open(entries) {
+    static open(context) {
+        const entries = context.entries('tar');
         if (entries.has('pickle')) {
             return new pytorch.Container.Tar(entries);
         }
@@ -891,7 +892,8 @@ pytorch.Container.Tar = class extends pytorch.Container {
 
 pytorch.Container.Pickle = class extends pytorch.Container {
 
-    static open(stream) {
+    static open(context) {
+        const stream = context.stream;
         const signature = [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
         if (stream && signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) {
             return new pytorch.Container.Pickle(stream);
@@ -1015,7 +1017,8 @@ pytorch.Container.Mobile = class extends pytorch.Container {
                 execution.on(event[0], event[1]);
             }
             const stream = this._context.stream;
-            const module = execution.invoke('torch.jit.jit_module_from_flatbuffer', [ stream ]);
+            const torch = execution.__import__('torch');
+            const module = torch.jit.jit_module_from_flatbuffer(stream);
             if (!module) {
                 throw new pytorch.Error('torch.jit.mobile.serialization.Module not supported.');
             }
@@ -1034,7 +1037,8 @@ pytorch.Container.Mobile = class extends pytorch.Container {
 
 pytorch.Container.Zip = class extends pytorch.Container {
 
-    static open(entries) {
+    static open(context) {
+        const entries = context.entries('zip');
         if (entries.size > 0) {
             const reader = new pytorch.jit.StreamReader(entries);
             if (reader.hasRecord('model.json')) {
@@ -1058,6 +1062,10 @@ pytorch.Container.Zip = class extends pytorch.Container {
             if (reader.hasRecord('.data/version')) {
                 return new pytorch.Container.Package(reader);
             }
+            const tags = context.tags('flatbuffers');
+            if (tags.get('file_identifier') === 'PTMF') {
+                return new pytorch.Container.Mobile(context);
+            }
         }
         return null;
     }
@@ -1071,7 +1079,9 @@ pytorch.Container.Zip = class extends pytorch.Container {
             this._format = this._reader.hasRecord('attributes.pkl') ? 'TorchScript v1.1' : 'TorchScript v1.0';
         }
         else {
-            this._format = (this._reader.hasRecord('constants.pkl') ? 'TorchScript' : 'PyTorch') + ' ' + pytorch.Utility.version(reader.version());
+            const name = this._reader.hasRecord('constants.pkl') ? 'TorchScript' : 'PyTorch';
+            const version = pytorch.Utility.version(reader.version());
+            this._format = name + ' ' + version;
         }
     }
 
@@ -1080,7 +1090,8 @@ pytorch.Container.Zip = class extends pytorch.Container {
         for (const event in this._events) {
             execution.on(event[0], event[1]);
         }
-        const module = execution.invoke('torch.jit.load', [ this._reader ]);
+        const torch = execution.__import__('torch');
+        const module = torch.jit.load(this._reader);
         if (module.data && module.data.forward) {
             this._modules = new Map([ ['', module] ]);
         }
@@ -1164,10 +1175,10 @@ pytorch.Execution = class extends python.Execution {
             }
         });
         this.registerFunction('torch.jit.load', function(file, map_location, extra_files) {
-            const cu = execution.invoke('torch.jit.CompilationUnit', []);
+            const cu = new torch.jit.CompilationUnit();
             cu.execution = execution;
-            const cpp_module = execution.invoke('torch._C.import_ir_module', [ cu, file, map_location, extra_files ]);
-            return execution.invoke('torch.jit._script.RecursiveScriptModule', [ cpp_module ]);
+            const cpp_module = torch._C.import_ir_module(cu, file, map_location, extra_files);
+            return new torch.jit._script.RecursiveScriptModule(cpp_module);
         });
         this.registerFunction('torch._C.import_ir_module', function(cu, file, map_location, extra_files) {
             const reader = file;
@@ -1182,13 +1193,15 @@ pytorch.Execution = class extends python.Execution {
             // const deserializer = new pytorch.jit.ScriptModuleDeserializer(execution, importer._reader, '.data/ts_code/' + script_module_id + '/', '.data/');
             // const module = deserializer.deserialize();
             // return module.data;
-            return execution.invoke('torch.jit._script.RecursiveScriptModule', []);
+            return new torch.jit._script.RecursiveScriptModule();
         });
         this.registerFunction('torch.jit.jit_module_from_flatbuffer', function(f) {
             const stream = f;
             const reader = flatbuffers.BinaryReader.open(stream);
-            /* const model = */ pytorch.schema.Module.create(reader);
+            /* const module = */ pytorch.schema.Module.create(reader);
             // parse_and_initialize_jit_module
+            //   const mobilem = parse_and_initialize_mobile_module_for_jit(data, jit_files, jit_constants);
+            //   const m = jitModuleFromSourceAndConstants(mobilem._ivalue(), jit_files, jit_constants, mobilem.bytecode_version());
             return null;
         });
         this.registerType('torch.Type', class {});
@@ -1199,6 +1212,12 @@ pytorch.Execution = class extends python.Execution {
             }
             qualified_name() {
                 return this._qualified_name;
+            }
+        });
+        this.registerType('torch.ScriptFunction', class {
+            constructor(name, graph /*, function_creator */) {
+                this._name = name;
+                this._graph = graph;
             }
         });
         this.registerType('torch.ScriptMethod', class {
@@ -1234,8 +1253,7 @@ pytorch.Execution = class extends python.Execution {
             }
             _type() {
                 const qualified_name = this.data && this.data.__class__ && this.data.__class__.__module__ && this.data.__class__.__name__ ? this.data.__class__.__module__ + '.' + this.data.__class__.__name__ : '';
-                return execution.invoke('torch.ClassType', [ qualified_name ]);
-                // .def("_type", [](Module& m) { return m.type(); })
+                return new torch.ClassType(qualified_name);
             }
             _get_method(/* name */) {
                 throw new pytorch.Error();
@@ -1387,22 +1405,19 @@ pytorch.Execution = class extends python.Execution {
         });
         this.registerType('torch.jit.CompilationUnit', class {
             constructor() {
-                this._functions = [];
+                this._functions = new Map();
             }
             register_function(fn) {
-                this._functions.push(fn);
+                this._functions.set(fn.name, fn);
             }
             define(prefix, properties, propResolvers, definitions /*, defResolvers, self, shouldMangle, operator_set_version */) {
-                const functions = [];
                 for (const def of definitions) {
                     const name = def.name;
                     const qualified_name = prefix ? prefix + '.' + name : name;
-                    const graph = this._execution.invoke('torch.Graph', []);
-                    const fn = new pytorch.jit.GraphFunction(qualified_name, graph, null);
+                    const graph = new torch.Graph();
+                    const fn = new torch.ScriptFunction(qualified_name, graph, null);
                     this.register_function(fn);
-                    functions.push(fn);
                 }
-                return functions;
             }
         });
         this.registerType('torch.jit._script.ScriptModule', class extends torch.nn.modules.module.Module {
