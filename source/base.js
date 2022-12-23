@@ -786,6 +786,7 @@ base.Telemetry = class {
             [ 'client_id', 'cid' ],
             [ 'language', 'ul' ],
             [ 'screen_resolution', 'sr' ],
+            [ '_page_id', '_p'],
             [ '_user_agent_architecture', 'uaa' ],
             [ '_user_agent_bitness', 'uab' ],
             [ '_user_agent_full_version_list', 'uafvl' ],
@@ -803,6 +804,7 @@ base.Telemetry = class {
             [ 'document_referrer', 'dr' ],
             [ 'is_first_visit', '_fv' ],
             [ 'is_session_start', '_ss' ],
+            [ 'is_external_event', '_ee' ],
             [ 'event_name', 'en' ]
         ]);
         this._config = new Map();
@@ -811,6 +813,7 @@ base.Telemetry = class {
         this._navigator = navigator;
         this.set('protocol_version', 2);
         this.set('tracking_id', measurement_id);
+        this.set('_page_id', Math.floor(Math.random() * 2147483648));
         if (!client_id) {
             const document = window.document;
             const cookie = document.cookie ? document.cookie : '';
@@ -834,11 +837,12 @@ base.Telemetry = class {
             this.set('is_first_visit', 1);
         }
         this.set('client_id', client_id);
-        this.set('session_id', Math.floor((new Date() * 1) / 1000));
-        this.set('session_engaged', 1);
-        this.set('is_session_start', 1);
-        this.set('screen_resolution', (window.screen ? window.screen.width : 0) + 'x' + (window.screen ? window.screen.height : 0)),
         this.set('language', ((navigator && (navigator.language || navigator.browserLanguage)) || '').toLowerCase());
+        this.set('screen_resolution', (window.screen ? window.screen.width : 0) + 'x' + (window.screen ? window.screen.height : 0)),
+        this.set('session_id', Math.floor((new Date() * 1) / 1000));
+        this.set('session_engaged', 0);
+        this.set('is_session_start', 1);
+        this.set('is_external_event', 1);
         this._promise = navigator && navigator.userAgentData && navigator.userAgentData.getHighEntropyValues ? navigator.userAgentData.getHighEntropyValues([ 'platform', 'platformVersion', 'architecture', 'model', 'uaFullVersion', 'bitness', 'fullVersionList', 'wow64' ]) : Promise.resolve();
         this._promise.then((values) => {
             if (values) {
@@ -860,7 +864,7 @@ base.Telemetry = class {
 
     set(name, value) {
         const key = this._schema.get(name);
-        if (value) {
+        if (value !== undefined && value !== null) {
             this._config.set(key, value);
             this._cache = null;
         }

@@ -68,13 +68,13 @@ host.ElectronHost = class {
             else {
                 const telemetry = () => {
                     if (this._environment.packaged) {
-                        let user = this._getConfiguration('userId') || null;
+                        const user = this._getConfiguration('userId') || null;
+                        const session_number = parseInt(this._getConfiguration('session') || 0, 10) + 1;
                         this._telemetry_ga4 = base.Telemetry.open(this._window, 'G-848W2NVWVH', user);
                         this._telemetry_ga4.open().then(() => {
-                            if (user !== this._telemetry_ga4.get('client_id')) {
-                                user = this._telemetry_ga4.get('client_id');
-                                this._setConfiguration('userId', user);
-                            }
+                            this._telemetry_ga4.set('session_number', session_number);
+                            this._setConfiguration('userId', this._telemetry_ga4.get('client_id'));
+                            this._setConfiguration('session', session_number);
                             this._telemetry_ga4.send('page_view', {
                                 app_name: this.type,
                                 app_version: this.version,
@@ -459,6 +459,9 @@ host.ElectronHost = class {
         if (path && this._view.accept(path, size)) {
             this._view.show('welcome spinner');
             this._context(path).then((context) => {
+                if (this._telemetry_ga4) {
+                    this._telemetry_ga4.set('session_engaged', 1);
+                }
                 this._view.open(context).then((model) => {
                     this._view.show(null);
                     const options = Object.assign({}, this._view.options);
