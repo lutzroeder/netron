@@ -3805,7 +3805,13 @@
     "format":   "ONNX Text v7",
     "link":     "https://github.com/lutzroeder/netron/issues/884"
   },
-
+  {
+    "type":     "onnx",
+    "target":   "transformer.onnx.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/10291185/transformer.onnx.zip",
+    "format":   "ONNX v7",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
   {
     "type":     "onnx",
     "target":   "yolov3.onnx.zip",
