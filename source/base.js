@@ -775,11 +775,7 @@ base.BinaryReader = class {
 
 base.Telemetry = class {
 
-    static open(window, measurement_id, client_id) {
-        return new base.Telemetry(window, measurement_id, client_id);
-    }
-
-    constructor(window, measurement_id, client_id) {
+    constructor(window, measurement_id, client_id, session) {
         this._schema = new Map([
             [ 'protocol_version', 'v' ],
             [ 'tracking_id', 'tid' ],
@@ -799,67 +795,70 @@ base.Telemetry = class {
             [ 'session_id', 'sid' ],
             [ 'session_number', 'sct' ],
             [ 'session_engaged', 'seg' ],
-            [ 'document_location', 'dl' ],
-            [ 'document_title', 'dt' ],
-            [ 'document_referrer', 'dr' ],
+            [ 'engagement_time_msec', '_et' ],
+            [ 'page_location', 'dl' ],
+            [ 'page_title', 'dt' ],
+            [ 'page_referrer', 'dr' ],
             [ 'is_first_visit', '_fv' ],
             [ 'is_session_start', '_ss' ],
             [ 'is_external_event', '_ee' ],
+            [ 'is_new_to_site', '_nsi' ],
             [ 'event_name', 'en' ]
         ]);
         this._config = new Map();
-        this._hits = 1;
-        const navigator = window.navigator;
-        this._navigator = navigator;
+        this._client_id = client_id ? client_id.replace(/^GA1\.1\./, '') : null;
+        this._session = session && typeof session === 'string' ? session.replace(/^GS1\.1\./, '').split('.') : null;
+        this._session = Array.isArray(this._session) && this._session.length >= 7 ? this._session : [ '0', '0', '0', '0', '0', '0', '0' ];
+        this._session[0] = Math.floor((new Date() * 1) / 1000);
+        this._session[1] = parseInt(this._session[1], 10) + 1;
+        this._metadata = {};
+        this._navigator = window.navigator;
+        const navigator = this._navigator;
         this.set('protocol_version', 2);
         this.set('tracking_id', measurement_id);
+        this._config.set('gtm', '2oebu0');
         this.set('_page_id', Math.floor(Math.random() * 2147483648));
-        if (!client_id) {
-            const document = window.document;
-            const cookie = document.cookie ? document.cookie : '';
-            const referrer = document.referrer ? document.referrer : '';
-            let value = navigator.userAgent + cookie + referrer;
-            let length = value.length;
-            for (let i = window.history.length; i > 0; i--) {
-                value += i ^ length++;
-            }
-            let mask = 1;
-            if (value) {
-                mask = 0;
-                for (let i = value.length - 1; i >= 0; i--) {
-                    let c = value.charCodeAt(i);
-                    mask = ((mask << 6) & 0xFFFFFFF) + c + (c << 14);
-                    c = mask & 0xFE00000;
-                    mask = c !== 0 ? mask ^ (c >> 21) : mask;
-                }
-            }
-            client_id = [ Math.round(0x7FFFFFFF * Math.random()) ^ (mask & 0x7FFFFFFF), Math.round(new Date().getTime() / 1e3) ].join('.');
-            this.set('is_first_visit', 1);
+        if (client_id && client_id.indexOf('.') !== 1) {
+            this.set('client_id', client_id);
         }
-        this.set('client_id', client_id);
+        else {
+            const random = String(Math.round(0x7FFFFFFF * Math.random()));
+            const time = new Date(Date.now()).getTime();
+            const value = [ random, Math.round(time / 1e3) ].join('.');
+            this.set('client_id', value);
+        }
         this.set('language', ((navigator && (navigator.language || navigator.browserLanguage)) || '').toLowerCase());
         this.set('screen_resolution', (window.screen ? window.screen.width : 0) + 'x' + (window.screen ? window.screen.height : 0)),
-        this.set('session_id', Math.floor((new Date() * 1) / 1000));
-        this.set('session_engaged', 0);
-        this.set('is_session_start', 1);
-        this.set('is_external_event', 1);
         this._promise = navigator && navigator.userAgentData && navigator.userAgentData.getHighEntropyValues ? navigator.userAgentData.getHighEntropyValues([ 'platform', 'platformVersion', 'architecture', 'model', 'uaFullVersion', 'bitness', 'fullVersionList', 'wow64' ]) : Promise.resolve();
         this._promise.then((values) => {
             if (values) {
                 this.set('_user_agent_architecture', values.architecture);
                 this.set('_user_agent_bitness', values.bitness);
-                this.set('_user_agent_full_version_list', encodeURIComponent(values.fullVersionList.map((h) => [h.brand, h.version].join(';')).join('|')));
+                this.set('_user_agent_full_version_list', values.fullVersionList.map((h) => encodeURIComponent(h.brand || '') + ';' + encodeURIComponent(h.version || '')).join('|'));
                 this.set('_user_agent_mobile', values.mobile ? 1 : 0);
                 this.set('_user_agent_model', values.model);
                 this.set('_user_agent_platform', values.platform);
                 this.set('_user_agent_platform_version', values.platformVersion);
                 this.set('_user_agent_wow64', values.wow64 ? 1 : 0);
             }
+            this.set('hit_count', 1);
+            this.set('session_id', this._session[0]);
+            this.set('session_number', this._session[1]);
+            this.set('session_engaged', 0);
+            if (!client_id) {
+                this._metadata.is_first_visit = 1;
+                this._metadata.is_new_to_site = 1;
+            }
+            this._metadata.is_session_start = 1;
         });
     }
 
     open() {
         return this._promise;
+    }
+
+    get session() {
+        return this._session.join('.');
     }
 
     set(name, value) {
@@ -880,17 +879,17 @@ base.Telemetry = class {
     }
 
     send(name, params) {
-        const build = (list) => list.map((entry) => entry[0] + '=' + encodeURIComponent(entry[1])).join('&');
+        params = Object.assign({ event_name: name }, this._metadata, /* { debug_mode: true },*/ params);
+        this._metadata = {};
+        const build = (entires) => entires.map((entry) => entry[0] + '=' + encodeURIComponent(entry[1])).join('&');
         this._cache = this._cache || build(Array.from(this._config));
-        params = build(Object.entries(params).map((entry) => [ ('number' === typeof entry[1] && !isNaN(entry[1]) ? 'epn.' : 'ep.') + entry[0], entry[1] ]));
-        const body = this._schema.get('event_name') + '=' + name + '&' + params;
-        const url = 'https://www.google-analytics.com/g/collect?' + this._cache + '&' + this._schema.get('hit_count') + '=' + this._hits.toString();
+        const key = (name, value) => this._schema.get(name) || ('number' === typeof value && !isNaN(value) ? 'epn.' : 'ep.') + name;
+        const body = build(Object.entries(params).map((entry) => [ key(entry[0], entry[1]), entry[1] ]));
+        const url = 'https://analytics.google.com/g/collect?' + this._cache;
         this._navigator.sendBeacon(url, body);
-        if (this._hits === 1) {
-            this.set('is_session_start');
-            this.set('is_first_visit');
-        }
-        this._hits++;
+        this._session[2] = this.get('session_engaged') || '0';
+        this._session[3] = Math.floor((new Date() * 1) / 1000);
+        this.set('hit_count', this.get('hit_count') + 1);
     }
 };
 

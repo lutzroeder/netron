@@ -68,18 +68,24 @@ host.ElectronHost = class {
             else {
                 const telemetry = () => {
                     if (this._environment.packaged) {
-                        const user = this._getConfiguration('userId') || null;
-                        const session_number = parseInt(this._getConfiguration('session') || 0, 10) + 1;
-                        this._telemetry_ga4 = base.Telemetry.open(this._window, 'G-848W2NVWVH', user);
+                        const measurement_id = '848W2NVWVH';
+                        const user = this._getConfiguration('user') || null;
+                        const session = this._getConfiguration('session') || null;
+                        this._telemetry_ga4 = new base.Telemetry(this._window, 'G-' + measurement_id, user, session);
                         this._telemetry_ga4.open().then(() => {
-                            this._telemetry_ga4.set('session_number', session_number);
-                            this._setConfiguration('userId', this._telemetry_ga4.get('client_id'));
-                            this._setConfiguration('session', session_number);
                             this._telemetry_ga4.send('page_view', {
+                                is_external_event: 1,
                                 app_name: this.type,
                                 app_version: this.version,
                             });
-                            this._telemetry_ua = new host.Telemetry('UA-54146-13', user, navigator.userAgent, this.type, this.version);
+                            this._telemetry_ga4.send('scroll', {
+                                percent_scrolled: 90,
+                                app_name: this.type,
+                                app_version: this.version
+                            });
+                            this._setConfiguration('user', this._telemetry_ga4.get('client_id'));
+                            this._setConfiguration('session', this._telemetry_ga4.session);
+                            this._telemetry_ua = new host.Telemetry('UA-54146-13', this._telemetry_ga4.get('client_id'), navigator.userAgent, this.type, this.version);
                             resolve();
                         });
                     }

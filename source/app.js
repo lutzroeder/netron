@@ -269,9 +269,9 @@ class Application {
         const promise = autoUpdater.checkForUpdates();
         if (promise) {
             promise.catch((error) => {
-                /* eslint-disable */
+                /* eslint-disable no-console */
                 console.log(error.message);
-                /* eslint-enable */
+                /* eslint-enable no-console */
             });
         }
     }

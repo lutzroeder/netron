@@ -112,50 +112,55 @@ host.BrowserHost = class {
                 const telemetry = () => {
                     if (this._environment.version && this._environment.version !== '0.0.0') {
                         const ga4 = () => {
-                            const _ga = () => {
-                                const value = this._getCookie('_ga');
-                                const match = /.*\..*\.([0-9]*\.[0-9]*)/.exec(value);
-                                return match ? match[1] : '';
-                            };
-                            const user = this._getCookie('user') || _ga();
-                            const session_number = parseInt(this._getCookie('session') || 0, 10) + 1;
-                            this._telemetry_ga4 = this.window.base.Telemetry.open(this._window, 'G-848W2NVWVH', user);
+                            const base = this.window.base;
+                            const measurement_id = '848W2NVWVH';
+                            const user = this._getCookie('_ga');
+                            const session = this._getCookie('_ga' + measurement_id);
+                            this._telemetry_ga4 = new base.Telemetry(this._window, 'G-' + measurement_id, user, session);
                             this._telemetry_ga4.open().then(() => {
-                                this._telemetry_ga4.set('session_number', session_number);
                                 if (this._document.location && this._document.location.href) {
-                                    this._telemetry_ga4.set('document_location', this._document.location.href);
+                                    this._telemetry_ga4.set('page_location', this._document.location.href);
                                 }
                                 if (this._document.title) {
-                                    this._telemetry_ga4.set('document_title', this._document.title);
+                                    this._telemetry_ga4.set('page_title', this._document.title);
                                 }
                                 if (this._document.referrer) {
-                                    this._telemetry_ga4.set('document_referrer', this._document.referrer);
+                                    this._telemetry_ga4.set('page_referrer', this._document.referrer);
                                 }
-                                this._setCookie('user', this._telemetry_ga4.get('client_id'), 1200);
-                                this._setCookie('session', session_number.toString());
                                 this._telemetry_ga4.send('page_view', {
+                                    is_external_event: 1,
                                     app_name: this.type,
                                     app_version: this.version,
                                 });
-                                capabilities();
+                                this._telemetry_ga4.send('scroll', {
+                                    percent_scrolled: 90,
+                                    app_name: this.type,
+                                    app_version: this.version
+                                });
+                                this._setCookie('_ga', 'GA1.1.' + this._telemetry_ga4.get('client_id'), 1200);
+                                this._setCookie('_ga' + measurement_id, 'GS1.1.' + this._telemetry_ga4.session, 1200);
+                                ua();
                             });
                         };
-                        this._telemetry_ua = true;
-                        const script = this.document.createElement('script');
-                        script.setAttribute('type', 'text/javascript');
-                        script.setAttribute('src', 'https://www.google-analytics.com/analytics.js');
-                        script.onload = () => {
-                            if (this.window.ga) {
-                                this.window.ga.l = 1 * new Date();
-                                this.window.ga('create', 'UA-54146-13', 'auto');
-                                this.window.ga('set', 'anonymizeIp', true);
-                            }
-                            ga4();
+                        const ua = () => {
+                            this._telemetry_ua = true;
+                            const script = this.document.createElement('script');
+                            script.setAttribute('type', 'text/javascript');
+                            script.setAttribute('src', 'https://www.google-analytics.com/analytics.js');
+                            script.onload = () => {
+                                if (this.window.ga) {
+                                    this.window.ga.l = 1 * new Date();
+                                    this.window.ga('create', 'UA-54146-13', 'auto');
+                                    this.window.ga('set', 'anonymizeIp', true);
+                                }
+                                capabilities();
+                            };
+                            script.onerror = () => {
+                                capabilities();
+                            };
+                            this.document.body.appendChild(script);
                         };
-                        script.onerror = () => {
-                            ga4();
-                        };
-                        this.document.body.appendChild(script);
+                        ga4();
                     }
                     else {
                         capabilities();
