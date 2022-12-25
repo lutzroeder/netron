@@ -1127,12 +1127,12 @@ pytorch.Execution = class extends python.Execution {
         this.register('torch.jit._trace');
         this.registerType('torch.package.PackageImporter', class {
             constructor(reader) {
-                this._reader = reader;
+                this.zip_reader = reader;
             }
             load_pickle(name) {
-                const stream = this._reader.getRecord(name);
+                const stream = this.zip_reader.getRecord(name);
                 const loaded_reduces = new Map();
-                const loaded_storages = new Map();
+                this.storage_context = new torch._C.DeserializationStorageContext();
                 const unpickler = execution.invoke('pickle.Unpickler', [ stream ]);
                 unpickler.persistent_load = (saved_id) => {
                     const typename = saved_id.shift();
@@ -1142,14 +1142,14 @@ pytorch.Execution = class extends python.Execution {
                             const key = saved_id[1];
                             /* const location = saved_id[2]; */
                             const size = saved_id[3];
-                            if (!loaded_storages.has(key)) {
+                            if (!this.storage_context.has_storage(key)) {
                                 const storage = new storage_type(size);
-                                const stream = this._reader.getRecord('.data/' + key + '.storage');
+                                const stream = this.zip_reader.getRecord('.data/' + key + '.storage');
                                 const buffer = stream.peek();
                                 storage._set_cdata(buffer);
-                                loaded_storages.set(key, storage);
+                                this.storage_context.add_storage(key, storage);
                             }
-                            return loaded_storages.get(key);
+                            return this.storage_context.get_storage(key);
                         }
                         case 'reduce_package': {
                             if (saved_id.left === 2) {
@@ -1171,7 +1171,9 @@ pytorch.Execution = class extends python.Execution {
                         }
                     }
                 };
-                return unpickler.load();
+                const obj = unpickler.load();
+                this.storage_context = null;
+                return obj;
             }
         });
         this.registerFunction('torch.jit.load', function(file, map_location, extra_files) {
@@ -1180,20 +1182,36 @@ pytorch.Execution = class extends python.Execution {
             const cpp_module = torch._C.import_ir_module(cu, file, map_location, extra_files);
             return new torch.jit._script.RecursiveScriptModule(cpp_module);
         });
-        this.registerFunction('torch._C.import_ir_module', function(cu, file, map_location, extra_files) {
-            const reader = file;
-            const device = null;
-            const deserializer = new pytorch.jit.ScriptModuleDeserializer(cu, reader);
-            return deserializer.deserialize(device, extra_files);
+        this.registerFunction('torch._C.import_ir_module', function(cu, reader) {
+            switch (arguments.length) {
+                case 4: {
+                    const reader = arguments[1];
+                    const device = arguments[2];
+                    const extra_files = arguments[3];
+                    const deserializer = new pytorch.jit.ScriptModuleDeserializer(cu, reader);
+                    return deserializer.deserialize(device, extra_files);
+                }
+                case 5: {
+                    const storage_context = arguments[2];
+                    const device = arguments[3];
+                    const ts_id = arguments[4];
+                    const deserializer = new pytorch.jit.ScriptModuleDeserializer(cu, reader, '.data/ts_code/' + ts_id + '/', '.data/', storage_context);
+                    return deserializer.deserialize(device, null);
+                }
+                default: {
+                    throw new pytorch.Error("Invalid 'torch._C.import_ir_module' signature.");
+                }
+            }
+
         });
-        this.registerFunction('torch._C._import_ir_module_from_package', function(/* cu, reader, storage_context, map_location, ts_id */) {
-            throw new pytorch.Error('torch._C._import_ir_module_from_package not implemented.');
+        this.registerFunction('torch._C._import_ir_module_from_package', function(cu, reader, storage_context, map_location, ts_id) {
+            return torch._C.import_ir_module(cu, reader, storage_context, null, ts_id);
         });
-        this.registerFunction('torch.jit._script.unpackage_script_module', function(/* importer, script_module_id */) {
-            // const deserializer = new pytorch.jit.ScriptModuleDeserializer(execution, importer._reader, '.data/ts_code/' + script_module_id + '/', '.data/');
-            // const module = deserializer.deserialize();
-            // return module.data;
-            return new torch.jit._script.RecursiveScriptModule();
+        this.registerFunction('torch.jit._script.unpackage_script_module', function(importer, script_module_id) {
+            const cu = new torch.jit.CompilationUnit();
+            cu.execution = execution;
+            const cpp_module = torch._C._import_ir_module_from_package(cu, importer.zip_reader, importer.storage_context, importer.last_map_location, script_module_id);
+            return new torch.jit._script.RecursiveScriptModule(cpp_module);
         });
         this.registerFunction('torch.jit.jit_module_from_flatbuffer', function(f) {
             const stream = f;
@@ -1203,6 +1221,17 @@ pytorch.Execution = class extends python.Execution {
             //   const mobilem = parse_and_initialize_mobile_module_for_jit(data, jit_files, jit_constants);
             //   const m = jitModuleFromSourceAndConstants(mobilem._ivalue(), jit_files, jit_constants, mobilem.bytecode_version());
             return null;
+        });
+        this.registerType('torch._C.DeserializationStorageContext', class extends Map {
+            has_storage(name) {
+                return this.has(name);
+            }
+            get_storage(name) {
+                return this.get(name);
+            }
+            add_storage(name, storage) {
+                return this.set(name, storage);
+            }
         });
         this.registerType('torch.Type', class {});
         this.registerType('torch.ClassType', class extends torch.Type {
@@ -2642,9 +2671,10 @@ pytorch.jit.SourceImporter = class {
 
 pytorch.jit.ScriptModuleDeserializer = class {
 
-    constructor(cu, reader, pickle_dir_prefix, tensor_dir_prefix) {
+    constructor(cu, reader, pickle_dir_prefix, tensor_dir_prefix, storage_context) {
         this._compilation_unit = cu;
         this._reader = reader;
+        this._storage_context = storage_context;
         this._code_prefix = (!pickle_dir_prefix && !tensor_dir_prefix) ? 'code/' : '.data/ts_code/code/';
         this._pickle_dir_prefix = pickle_dir_prefix || '';
         this._tensor_dir_prefix = tensor_dir_prefix || '';
@@ -2658,17 +2688,12 @@ pytorch.jit.ScriptModuleDeserializer = class {
         const execution = this._compilation_unit.execution;
         const reader = this._reader;
         const code_prefix = this._code_prefix;
-        const sources = new Map();
         for (const name of reader.getAllRecords()) {
             if (name.startsWith(code_prefix) && name.endsWith('.py')) {
                 const file = name.substring(code_prefix.length);
-                if (sources.has(file)) {
-                    throw new pytorch.Error("Duplicate source file '" + file + "'.");
-                }
                 const stream = reader.getRecord(name);
                 const buffer = stream.peek();
                 execution.add(file, buffer);
-                sources.set(file, buffer);
             }
         }
         const torch = execution.import('torch');
@@ -2684,7 +2709,7 @@ pytorch.jit.ScriptModuleDeserializer = class {
                 const tensor_dir = 'constants/';
                 const stream = reader.getRecord(tensor_dir + name);
                 return stream.peek();
-            });
+            }, this._storage_context);
             for (let i = 0; i < constants.length; i++) {
                 execution.builtins.CONSTANTS['c' + i.toString()] = constants[i];
             }
@@ -2700,7 +2725,7 @@ pytorch.jit.ScriptModuleDeserializer = class {
         const data = this._unpickle(buffer, (name) => {
             const stream = reader.getRecord(tensor_dir_prefix + name);
             return stream.peek();
-        });
+        }, this._storage_context);
         return execution.invoke('torch.ScriptModule', [ data ]);
     }
 
@@ -2800,46 +2825,27 @@ pytorch.jit.ScriptModuleDeserializer = class {
         return execution.invoke('torch.ScriptModule', [ data ]);
     }
 
-    _unpickle(data, read_record) {
-        const loaded_storages = new Map();
+    _unpickle(data, read_record, storage_context) {
         const execution = this._compilation_unit.execution;
         const unpickler = execution.invoke('pickle.Unpickler', [ data ]);
         unpickler.persistent_load = (saved_id) => {
             const typename = saved_id[0];
-            switch (typename) {
-                case 'storage': {
-                    const storage_type = saved_id[1];
-                    const root_key = saved_id[2];
-                    // const location = saved_id[3];
-                    const size = saved_id[4];
-                    if (!loaded_storages.has(root_key)) {
-                        const storage = new storage_type(size);
-                        const storage_ptr = read_record(root_key);
-                        storage._set_cdata(storage_ptr);
-                        loaded_storages.set(root_key, storage);
-                    }
-                    const storage = loaded_storages.get(root_key);
-                    const view_metadata = saved_id[5];
-                    if (view_metadata) {
-                        const view_key = view_metadata.shift();
-                        view_metadata.shift(); // view_offset
-                        view_metadata.shift(); // view_size
-                        let view = null;
-                        if (loaded_storages.has(view_key)) {
-                            view = loaded_storages.get(root_key);
-                        }
-                        else {
-                            view = null; // storage.slice(view_offset, view_offset + view_size);
-                            loaded_storages.set(view_key, view);
-                        }
-                        return view;
-                    }
-                    return storage;
-                }
-                default: {
-                    throw new pytorch.Error("Unsupported persistent load type '" + typename + "'.");
-                }
+            if (typename !== 'storage') {
+                throw new pytorch.Error("Unsupported persistent load type '" + typename + "'.");
             }
+            const storage_type = saved_id[1];
+            const key = saved_id[2];
+            const size = saved_id[4];
+            if (storage_context && storage_context.has_storage(key)) {
+                return storage_context.get_storage(key);
+            }
+            const storage = new storage_type(size);
+            const storage_ptr = read_record(key);
+            storage._set_cdata(storage_ptr);
+            if (storage_context) {
+                storage_context.add_storage(key);
+            }
+            return storage;
         };
         return unpickler.load();
     }
@@ -2912,7 +2918,8 @@ pytorch.Container.Package = class extends pytorch.Container {
                     execution.add(name, buffer);
                 }
             }
-            const importer = execution.invoke('torch.package.PackageImporter', [ this._reader ]);
+            const torch = execution.__import__('torch');
+            const importer = new torch.package.PackageImporter(this._reader);
             for (const name of pickles) {
                 const module = importer.load_pickle(name);
                 this._modules.set(name, module);
