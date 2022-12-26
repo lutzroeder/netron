@@ -779,10 +779,11 @@ base.Telemetry = class {
         this._schema = new Map([
             [ 'protocol_version', 'v' ],
             [ 'tracking_id', 'tid' ],
+            [ 'hash_info', 'gtm' ],
+            [ '_page_id', '_p'],
             [ 'client_id', 'cid' ],
             [ 'language', 'ul' ],
             [ 'screen_resolution', 'sr' ],
-            [ '_page_id', '_p'],
             [ '_user_agent_architecture', 'uaa' ],
             [ '_user_agent_bitness', 'uab' ],
             [ '_user_agent_full_version_list', 'uafvl' ],
@@ -800,37 +801,43 @@ base.Telemetry = class {
             [ 'page_title', 'dt' ],
             [ 'page_referrer', 'dr' ],
             [ 'is_first_visit', '_fv' ],
-            [ 'is_session_start', '_ss' ],
             [ 'is_external_event', '_ee' ],
             [ 'is_new_to_site', '_nsi' ],
+            [ 'is_session_start', '_ss' ],
             [ 'event_name', 'en' ]
         ]);
         this._config = new Map();
+        this._metadata = {};
         this._client_id = client_id ? client_id.replace(/^GA1\.1\./, '') : null;
         this._session = session && typeof session === 'string' ? session.replace(/^GS1\.1\./, '').split('.') : null;
         this._session = Array.isArray(this._session) && this._session.length >= 7 ? this._session : [ '0', '0', '0', '0', '0', '0', '0' ];
-        this._session[0] = Math.floor((new Date() * 1) / 1000);
+        this._session[0] = Date.now();
         this._session[1] = parseInt(this._session[1], 10) + 1;
-        this._metadata = {};
+        this._engagement_time_msec = 0;
         this._navigator = window.navigator;
         const navigator = this._navigator;
         this.set('protocol_version', 2);
         this.set('tracking_id', measurement_id);
-        this._config.set('gtm', '2oebu0');
+        this.set('hash_info', '2oebu0');
         this.set('_page_id', Math.floor(Math.random() * 2147483648));
         if (client_id && client_id.indexOf('.') !== 1) {
             this.set('client_id', client_id);
         }
         else {
             const random = String(Math.round(0x7FFFFFFF * Math.random()));
-            const time = new Date(Date.now()).getTime();
+            const time = Date.now();
             const value = [ random, Math.round(time / 1e3) ].join('.');
             this.set('client_id', value);
+            this._metadata.is_first_visit = 1;
+            this._metadata.is_new_to_site = 1;
         }
         this.set('language', ((navigator && (navigator.language || navigator.browserLanguage)) || '').toLowerCase());
-        this.set('screen_resolution', (window.screen ? window.screen.width : 0) + 'x' + (window.screen ? window.screen.height : 0)),
-        this._promise = navigator && navigator.userAgentData && navigator.userAgentData.getHighEntropyValues ? navigator.userAgentData.getHighEntropyValues([ 'platform', 'platformVersion', 'architecture', 'model', 'uaFullVersion', 'bitness', 'fullVersionList', 'wow64' ]) : Promise.resolve();
-        this._promise.then((values) => {
+        this.set('screen_resolution', (window.screen ? window.screen.width : 0) + 'x' + (window.screen ? window.screen.height : 0));
+    }
+
+    start() {
+        const promise = navigator && navigator.userAgentData && navigator.userAgentData.getHighEntropyValues ? navigator.userAgentData.getHighEntropyValues([ 'platform', 'platformVersion', 'architecture', 'model', 'uaFullVersion', 'bitness', 'fullVersionList', 'wow64' ]) : Promise.resolve();
+        return promise.then((values) => {
             if (values) {
                 this.set('_user_agent_architecture', values.architecture);
                 this.set('_user_agent_bitness', values.bitness);
@@ -845,16 +852,14 @@ base.Telemetry = class {
             this.set('session_id', this._session[0]);
             this.set('session_number', this._session[1]);
             this.set('session_engaged', 0);
-            if (!client_id) {
-                this._metadata.is_first_visit = 1;
-                this._metadata.is_new_to_site = 1;
-            }
             this._metadata.is_session_start = 1;
+            window.addEventListener('focus', () => this._update(true, undefined, undefined));
+            window.addEventListener('blur', () => this._update(false, undefined, undefined));
+            window.addEventListener('pageshow', () => this._update(undefined, true, undefined));
+            window.addEventListener('pagehide', () => this._update(undefined, false, undefined));
+            window.addEventListener('visibilitychange', () => this._update(undefined, undefined, window.document.visibilityState !== 'hidden'));
+            window.addEventListener('beforeunload', () => this._update() && this.send('user_engagement', {}));
         });
-    }
-
-    open() {
-        return this._promise;
     }
 
     get session() {
@@ -881,6 +886,7 @@ base.Telemetry = class {
     send(name, params) {
         params = Object.assign({ event_name: name }, this._metadata, /* { debug_mode: true },*/ params);
         this._metadata = {};
+        this._update() && (params.engagement_time_msec = this._engagement_time_msec) && (this._engagement_time_msec = 0);
         const build = (entires) => entires.map((entry) => entry[0] + '=' + encodeURIComponent(entry[1])).join('&');
         this._cache = this._cache || build(Array.from(this._config));
         const key = (name, value) => this._schema.get(name) || ('number' === typeof value && !isNaN(value) ? 'epn.' : 'ep.') + name;
@@ -888,8 +894,22 @@ base.Telemetry = class {
         const url = 'https://analytics.google.com/g/collect?' + this._cache;
         this._navigator.sendBeacon(url, body);
         this._session[2] = this.get('session_engaged') || '0';
-        this._session[3] = Math.floor((new Date() * 1) / 1000);
         this.set('hit_count', this.get('hit_count') + 1);
+    }
+
+    _update(focused, page, visible) {
+        this._focused = focused === true || focused === false ? focused : this._focused;
+        this._page = page === true || page === false ? page : this._page;
+        this._visible = visible === true || visible === false ? visible : this._visible;
+        const time = Date.now();
+        if (this._start_time) {
+            this._engagement_time_msec += (time - this._start_time);
+            this._start_time = 0;
+        }
+        if (this._focused !== false && this._page !== false && this._visible !== false) {
+            this._start_time = time;
+        }
+        return this._engagement_time_msec > 20;
     }
 };
 

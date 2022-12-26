@@ -117,7 +117,7 @@ host.BrowserHost = class {
                             const user = this._getCookie('_ga');
                             const session = this._getCookie('_ga' + measurement_id);
                             this._telemetry_ga4 = new base.Telemetry(this._window, 'G-' + measurement_id, user, session);
-                            this._telemetry_ga4.open().then(() => {
+                            this._telemetry_ga4.start().then(() => {
                                 if (this._document.location && this._document.location.href) {
                                     this._telemetry_ga4.set('page_location', this._document.location.href);
                                 }
