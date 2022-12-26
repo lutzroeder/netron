@@ -853,6 +853,7 @@ base.Telemetry = class {
             this.set('session_number', this._session[1]);
             this.set('session_engaged', 0);
             this._metadata.is_session_start = 1;
+            this._metadata.is_external_event = 1;
             window.addEventListener('focus', () => this._update(true, undefined, undefined));
             window.addEventListener('blur', () => this._update(false, undefined, undefined));
             window.addEventListener('pageshow', () => this._update(undefined, true, undefined));
@@ -870,12 +871,11 @@ base.Telemetry = class {
         const key = this._schema.get(name);
         if (value !== undefined && value !== null) {
             this._config.set(key, value);
-            this._cache = null;
         }
         else if (this._config.has(key)) {
             this._config.delete(key);
-            this._cache = null;
         }
+        this._cache = null;
     }
 
     get(name) {

@@ -74,7 +74,6 @@ host.ElectronHost = class {
                         this._telemetry_ga4 = new base.Telemetry(this._window, 'G-' + measurement_id, user, session);
                         this._telemetry_ga4.start().then(() => {
                             this._telemetry_ga4.send('page_view', {
-                                is_external_event: 1,
                                 app_name: this.type,
                                 app_version: this.version,
                             });

@@ -118,17 +118,10 @@ host.BrowserHost = class {
                             const session = this._getCookie('_ga' + measurement_id);
                             this._telemetry_ga4 = new base.Telemetry(this._window, 'G-' + measurement_id, user, session);
                             this._telemetry_ga4.start().then(() => {
-                                if (this._document.location && this._document.location.href) {
-                                    this._telemetry_ga4.set('page_location', this._document.location.href);
-                                }
-                                if (this._document.title) {
-                                    this._telemetry_ga4.set('page_title', this._document.title);
-                                }
-                                if (this._document.referrer) {
-                                    this._telemetry_ga4.set('page_referrer', this._document.referrer);
-                                }
+                                this._telemetry_ga4.set('page_location', this._document.location && this._document.location.href ? this._document.location.href : null);
+                                this._telemetry_ga4.set('page_title', this._document.title ? this._document.title : null);
+                                this._telemetry_ga4.set('page_referrer', this._document.referrer ? this._document.referrer : null);
                                 this._telemetry_ga4.send('page_view', {
-                                    is_external_event: 1,
                                     app_name: this.type,
                                     app_version: this.version,
                                 });
