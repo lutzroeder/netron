@@ -135,7 +135,14 @@ host.ElectronHost = class {
                 this._openPath(path);
             }
         }
-
+        if (this._environment.titlebar && this._environment.platform === 'darwin') {
+            this.document.getElementById('titlebar').style.display = 'block';
+        }
+        this._window.addEventListener('focus', () => this._document.body.classList.add('active'));
+        this._window.addEventListener('blur', () => this._document.body.classList.remove('active'));
+        if (this._document.hasFocus()) {
+            this._document.body.classList.add('active');
+        }
         electron.ipcRenderer.on('export', (_, data) => {
             this._view.export(data.file);
         });
@@ -473,6 +480,7 @@ host.ElectronHost = class {
                     if (model) {
                         options.path = path;
                     }
+                    this._title(path);
                     this._update(options);
                 }).catch((error) => {
                     const options = Object.assign({}, this._view.options);
@@ -539,6 +547,31 @@ host.ElectronHost = class {
 
     _setConfiguration(name, value) {
         electron.ipcRenderer.sendSync('set-configuration', { name: name, value: value });
+    }
+
+    _minimizePath(path) {
+        if (this._environment.platform !== 'win32' && this._environment.homedir) {
+            if (path.startsWith(this._environment.homedir)) {
+                return '~' + path.substring(this._environment.homedir);
+            }
+        }
+        return path;
+    }
+
+    _title(path) {
+        const element = this._document.getElementById('titlebar-content-text');
+        if (element) {
+            element.setAttribute('title', path);
+            element.innerHTML = '';
+            if (path) {
+                path = this._minimizePath(path).split(this._environment.separator || '/').slice(-4).filter((item) => item);
+                for (let i = 0; i < path.length; i++) {
+                    const span = this.document.createElement('span');
+                    span.innerHTML = ' ' + path[i] + ' ' + (i !== path.length - 1 ? '<svg class="titlebar-icon" aria-hidden="true"><use xlink:href="#icon-arrow-right"></use></svg>' : '');
+                    element.appendChild(span);
+                }
+            }
+        }
     }
 
     _update(data) {

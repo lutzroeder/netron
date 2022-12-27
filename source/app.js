@@ -12,7 +12,7 @@ class Application {
 
     constructor() {
 
-        this._views = new ViewCollection();
+        this._views = new ViewCollection(this);
         this._configuration = new ConfigurationService();
         this._menu = new MenuService();
         this._openQueue = [];
@@ -43,18 +43,12 @@ class Application {
                 }
             }
         });
-
         electron.ipcMain.on('open-file-dialog', (event) => {
             this._openFileDialog();
             event.returnValue = null;
         });
-
         electron.ipcMain.on('get-environment', (event) => {
-            event.returnValue = {
-                packaged: electron.app.isPackaged,
-                version: this._package.version, // electron.app.getVersion()
-                date: this._package.date
-            };
+            event.returnValue = this.environment;
         });
         electron.ipcMain.on('get-configuration', (event, obj) => {
             event.returnValue = this._configuration.has(obj.name) ? this._configuration.get(obj.name) : undefined;
@@ -106,6 +100,19 @@ class Application {
 
         this._parseCommandLine(process.argv);
         this._checkForUpdates();
+    }
+
+    get environment() {
+        this._environment = this._environment || {
+            packaged: electron.app.isPackaged,
+            version: this._package.version,
+            date: this._package.date,
+            platform: process.platform,
+            separator: path.sep,
+            homedir: os.homedir(),
+            titlebar: false
+        };
+        return this._environment;
     }
 
     _parseCommandLine(argv) {
@@ -674,6 +681,9 @@ class View {
                 nodeIntegration: true
             }
         };
+        if (owner.application.environment.titlebar && process.platform === 'darwin') {
+            options.titleBarStyle = 'hiddenInset';
+        }
         if (this._owner.count > 0 && View._position && View._position.length == 2) {
             options.x = View._position[0] + 30;
             options.y = View._position[1] + 30;
@@ -815,8 +825,13 @@ class View {
 
 class ViewCollection {
 
-    constructor() {
+    constructor(application) {
         this._views = [];
+        this._application = application;
+    }
+
+    get application() {
+        return this._application;
     }
 
     get views() {

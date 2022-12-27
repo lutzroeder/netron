@@ -65,7 +65,12 @@ view.View = class {
         if (this._sidebar) {
             this._sidebar.close();
         }
-        this._host.document.body.setAttribute('class', page);
+        for (const value of Array.from(this._host.document.body.classList).filter((_) => _ !== 'active')) {
+            this._host.document.body.classList.remove(value);
+        }
+        for (const value of page.split(' ')) {
+            this._host.document.body.classList.add(value);
+        }
         if (page === 'default') {
             this._activate();
         }
