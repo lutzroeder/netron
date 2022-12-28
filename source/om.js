@@ -98,10 +98,10 @@ om.Node = class {
                     this._controlDependencies.push(new om.Argument(name));
                     continue;
                 }
-                const parameterName = 'input' + (i === 0 ? '' : i.toString());
+                const parameterName = this._type.inputs && i < this._type.inputs.length ? this._type.inputs[i].name : 'input' + (i === 0 ? '' : i.toString());
                 const inputNode = graph.op.find(node => node.name === name);
                 const desc = op.input_desc[i];
-                const format = desc.layout;
+                const layout = desc.layout;
 
                 if (inputNode && inputNode.type === 'Const' && inputNode.attr && inputNode.attr.value && inputNode.attr) {
                     let shape = null;
@@ -130,7 +130,7 @@ om.Node = class {
                         data = value.data;
                     }
                     const dataType = desc && desc.dtype ? om.Utility.dtype(value.desc.dtype) : '?';
-                    const tensorType = new om.TensorType(dataType, shape, format, value.desc.layout);
+                    const tensorType = new om.TensorType(dataType, shape, layout, value.desc.layout);
                     const tensor = new om.Tensor('Constant', tensorType, data);
                     const argument = new om.Argument(name, null, tensor);
                     this._inputs.push(new om.Parameter(parameterName, true, [ argument ]));
@@ -138,7 +138,7 @@ om.Node = class {
                 else {
                     const dataType = desc && desc.dtype ? om.Utility.dtype(desc.dtype) : '?';
                     const shape = desc.shape ? desc.shape.dim : undefined;
-                    const tensorType = new om.TensorType(dataType, shape, format, null);
+                    const tensorType = new om.TensorType(dataType, shape, layout, null);
                     const identifier = src_index === '0' ? name : name + ':' + src_index;
                     const argument = new om.Argument(identifier, tensorType, null);
                     this._inputs.push(new om.Parameter(parameterName, true, [ argument ]));
@@ -157,8 +157,7 @@ om.Node = class {
                 const tensorType = new om.TensorType(dataType, shape, format);
                 const identifier = i === 0 ? this._name : this._name + ':' + i;
                 const argument = new om.Argument(identifier, tensorType, null);
-                // modify
-                const outputName = 'output' + (i === 0 ? '' : i.toString());
+                const outputName = this._type.outputs && i < this._type.outputs.length ? this._type.outputs[i].name : 'output' + (i === 0 ? '' : i.toString());
                 this._outputs.push(new om.Parameter(outputName, true, [ argument ]));
             }
         }
@@ -304,6 +303,16 @@ om.Attribute = class {
                 this._value = value.list_list_int.list_list_i.map((list) => list.list_i);
                 break;
             }
+            case 't': {
+                const desc = value.t.desc;
+                const dataType = desc && desc.dtype ? om.Utility.dtype(desc.dtype) : '?';
+                const shape = desc.shape ? desc.shape.dim : undefined;
+                const layout = desc.layout;
+                const type = new om.TensorType(dataType, shape, layout, null);
+                this._value = new om.Tensor('Constant', type, value.t.bytes);
+                this._type = 'tensor';
+                break;
+            }
             case undefined: {
                 this._value = null;
                 break;
@@ -382,8 +391,8 @@ om.Argument = class {
 om.Tensor = class {
 
     constructor(category, type, value) {
-        this._type = type;
         this._category = category;
+        this._type = type;
         this._data = value;
     }
 
