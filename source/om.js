@@ -565,7 +565,7 @@ om.Container = class {
                 });
             }
             case 'PICO': {
-                this.format = 'DaVinci OM SVM';
+                this.format = 'DaVinci OM SVP';
                 reader.uint32(); // reserved
                 this.size = reader.uint32();
                 const param_size = reader.uint32();
@@ -578,8 +578,7 @@ om.Container = class {
                 this.param = reader.read(param_size);
                 const buffer = reader.read(tfm_offset - reader.position);
                 this.model = new svp.ModelDef(buffer);
-                // return Promise.resolve();
-                return Promise.reject(new om.Error('Unsupported DaVinci OM ' + this.signature + ' signature.'));
+                return Promise.resolve();
             }
             default: {
                 return Promise.reject(new om.Error('Unsupported DaVinci OM ' + this.signature + ' signature.'));
@@ -638,9 +637,9 @@ svp.ModelDef = class ModelDef {
                 case 0x0111: {
                     const op = new svp.OpDef(value);
                     for (const item of this.graph) {
-                        if (op.seg_id == item.id) {
+                        if (op.seg_id === item.id) {
                             let out_num;
-                            if (op.output_index) {
+                            if (typeof (op.output_index) == 'number') {
                                 out_num = op.output_index + 1;
                             }
                             else {
@@ -648,9 +647,9 @@ svp.ModelDef = class ModelDef {
                                 out_num = input_num.length > 0 ? Math.max(...input_num) + 1 : 1;
                             }
                             const out_types = [];
-                            if (op.data_flow != null && op.data_flow != '') {
+                            if (op.data_flow != null && op.data_flow !== '') {
                                 const data = op.data_flow;
-                                if (data.indexOf('o[{t') != -1) {
+                                if (data.indexOf('o[{t') !== -1) {
                                     const outs = data.substring(data.indexOf('o[{t')).split(',');
                                     for (const out of outs) {
                                         const startIndex = out.indexOf("\"");
@@ -673,7 +672,7 @@ svp.ModelDef = class ModelDef {
 
                             let curr_op = null;
                             for (const op_item of item.op) {
-                                if (op_item.id == op.id) {
+                                if (op_item.id === op.id) {
                                     curr_op = op_item;
                                     break;
                                 }
@@ -730,7 +729,7 @@ svp.GraphDef = class {
             const tag = reader.uint16();
             switch (tag & 0x1fff) {
                 case 0x0051: input.id = reader.value(tag); break;
-                case 0x0058: input.name = reader.value(tag, 'string'); break;
+                case 0x0058: input.name = reader.value(tag, 'string').trim(); break;
                 case 0x005a: input.shape_vector = reader.value(tag, 'uint32[]'); break;
                 default: reader.value(tag); break;
             }
@@ -745,7 +744,7 @@ svp.GraphDef = class {
             const tag = reader.uint16();
             switch (tag & 0x1fff) {
                 case 0x0061: output.id = reader.value(tag); break;
-                case 0x0066: output.name = reader.value(tag, 'string'); break;
+                case 0x0066: output.name = reader.value(tag, 'string').trim(); break;
                 case 0x0069: output.shape_vector = reader.value(tag, 'uint32[]'); break;
                 case 0x0110: output.layer_num = reader.value(tag); break;
                 default: reader.value(tag); break;
@@ -772,23 +771,26 @@ svp.OpDef = class {
                 case 0x0112: this.id = reader.value(tag); break;
                 case 0x0119: this.attr.output_m2m_flag = reader.attribute(tag, 'i'); break;
                 case 0x0121: this.attr.batch_flag = reader.attribute(tag, 'i'); break;
-                case 0x0124: this.attr.dequant_scale = reader.attribute(tag, 'i'); break;
-                case 0x0126: this.attr.output_address = reader.attribute(tag, 'i'); break;
-                case 0x0125: this.attr.dequant_offset = reader.attribute(tag, 'i'); break;
-                case 0x0127: this.attr.first_inst_addr = reader.attribute(tag, 'i'); break;
-                case 0x0128: this.attr.last_inst_addr = reader.attribute(tag, 'i'); break;
+                case 0x0124: this.attr.dequant_scale =  reader.attribute(tag, 'hex'); break;
+                case 0x0126: this.attr.output_address =  reader.attribute(tag, 'hex'); break;
+                case 0x0125: this.attr.dequant_offset =  reader.attribute(tag, 'hex'); break;
+                case 0x0127: this.attr.first_inst_addr =  reader.attribute(tag, 'hex'); break;
+                case 0x0128: this.attr.last_inst_addr = reader.attribute(tag, 'hex'); break;
                 case 0x013B: this.attr.is_fusion_layer = reader.attribute(tag, 'i'); break;
                 case 0x013C: this.input = reader.value(tag, 'string').split(','); break;
-                case 0x014B: this.seg_id = reader.value(tag); break;
                 case 0x0150: this.attr.is_not_last_merge_layer = reader.attribute(tag, 'i'); break;
                 case 0x0151: this.attr.is_dump_avavilable = reader.attribute(tag, 'i'); break;
-                case 0x0153: this.attr.debug_dump_offset = reader.attribute(tag, 'i'); break;
+                case 0x0153: this.attr.debug_dump_offset = reader.attribute(tag, 'hex'); break;
                 case 0x0152: this.type = reader.value(tag, 'string'); break;
                 case 0x0154: this.output_shape_vector = reader.value(tag, 'uint32[]'); break;
                 case 0x0155: this.input_index = reader.value(tag, 'string'); break;
                 case 0x015B: this.output_index = reader.value(tag, 'string'); break;
-                case 0x0156: this.attr.trap_inst_pc = reader.attribute(tag, 'i'); break;
+                case 0x0156: this.attr.trap_inst_pc = reader.attribute(tag, 'hex'); break;
                 case 0x0157: this.attr.profile_layer_id = reader.attribute(tag, 'i'); break;
+                case 0x014B:
+                    this.seg_id = reader.value(tag);
+                    this.attr.seg_id = new svp.AttrDef(this.seg_id, 'i');
+                    break;
                 case 0xA15A:
                     this.data_flow = reader.value(tag, 'string');
                     this.attr.data_flow = new svp.AttrDef(this.data_flow.replace('i[{t', 'input[{type').replace(',f[{t', '\tforward[{type').replace(',o[{t', '\toutput[{type').replace(',{[t', ',{type'), 's');
@@ -808,12 +810,15 @@ svp.AttrDef = class {
         switch (type) {
             case 's': this.s = item; break;
             case 'i': this.i = item; break;
+            case 'hex':
+                this.s = '0x' + item.toString(16);
+                break;
             default: throw new svp.Error("Unsupported attribute type '" + type + "'.");
         }
     }
 
     get value() {
-        if (this.s !== undefined) {
+        if (this.s !== undefined || this.hex !== undefined) {
             return 's';
         }
         if (this.i !== undefined) {
@@ -849,7 +854,7 @@ svp.BinaryReader = class extends base.BinaryReader {
         while (!match && this.position < this.length) {
             const current = this.uint16();
             value = this.value(current);
-            match = current == tag;
+            match = current === tag;
         }
         this.seek(0);
         return match && type ? this._cast(value, type) : value;
@@ -864,6 +869,9 @@ svp.BinaryReader = class extends base.BinaryReader {
         switch (type) {
             case 'string': {
                 svp.BinaryReader._decoder = svp.BinaryReader._decoder || new TextDecoder('utf-8');
+                if (value.constructor === Number) {
+                    return value.toString;
+                }
                 return svp.BinaryReader._decoder.decode(value).replace(/\0.*$/g, '');
             }
             case 'uint32[]': {
