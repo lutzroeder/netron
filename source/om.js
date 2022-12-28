@@ -640,7 +640,7 @@ svp.ModelDef = class ModelDef {
                     for (const item of this.graph) {
                         if (op.seg_id === item.id) {
                             let out_num;
-                            if (op.output_index) {
+                            if (typeof (op.output_index) == 'number') {
                                 out_num = op.output_index + 1;
                             }
                             else {
