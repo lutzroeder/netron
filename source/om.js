@@ -565,7 +565,7 @@ om.Container = class {
                 });
             }
             case 'PICO': {
-                this.format = 'DaVinci OM SVM';
+                this.format = 'DaVinci OM SVP'; // SVP = Smart Vision PICO
                 reader.uint32(); // reserved
                 this.size = reader.uint32();
                 const param_size = reader.uint32();
@@ -578,8 +578,7 @@ om.Container = class {
                 this.param = reader.read(param_size);
                 const buffer = reader.read(tfm_offset - reader.position);
                 this.model = new svp.ModelDef(buffer);
-                // return Promise.resolve();
-                return Promise.reject(new om.Error('Unsupported DaVinci OM ' + this.signature + ' signature.'));
+                return Promise.resolve();
             }
             default: {
                 return Promise.reject(new om.Error('Unsupported DaVinci OM ' + this.signature + ' signature.'));
@@ -638,9 +637,9 @@ svp.ModelDef = class ModelDef {
                 case 0x0111: {
                     const op = new svp.OpDef(value);
                     for (const item of this.graph) {
-                        if (op.seg_id == item.id) {
+                        if (op.attr && op.attr.seg_id && op.attr.seg_id.i === item.id) {
                             let out_num;
-                            if (op.output_index) {
+                            if (typeof op.output_index == 'number') {
                                 out_num = op.output_index + 1;
                             }
                             else {
@@ -648,9 +647,9 @@ svp.ModelDef = class ModelDef {
                                 out_num = input_num.length > 0 ? Math.max(...input_num) + 1 : 1;
                             }
                             const out_types = [];
-                            if (op.data_flow != null && op.data_flow != '') {
+                            if (op.data_flow && op.data_flow !== '') {
                                 const data = op.data_flow;
-                                if (data.indexOf('o[{t') != -1) {
+                                if (data.indexOf('o[{t') !== -1) {
                                     const outs = data.substring(data.indexOf('o[{t')).split(',');
                                     for (const out of outs) {
                                         const startIndex = out.indexOf("\"");
@@ -673,7 +672,7 @@ svp.ModelDef = class ModelDef {
 
                             let curr_op = null;
                             for (const op_item of item.op) {
-                                if (op_item.id == op.id) {
+                                if (op_item.id === op.id) {
                                     curr_op = op_item;
                                     break;
                                 }
@@ -711,47 +710,45 @@ svp.GraphDef = class {
         this.op = [];
         this.attr = {};
         const reader = new svp.BinaryReader(buffer);
+        const input = (buffer) => {
+            const input = {};
+            const reader = new svp.BinaryReader(buffer);
+            while (reader.position < reader.length) {
+                const tag = reader.uint16();
+                switch (tag & 0x1fff) {
+                    case 0x0051: input.id = reader.value(tag); break;
+                    case 0x0058: input.name = reader.value(tag, 'string').trim(); break;
+                    case 0x005a: input.shape_vector = reader.value(tag, 'uint32[]'); break;
+                    default: reader.value(tag); break;
+                }
+            }
+            return input;
+        };
+        const output = (buffer) => {
+            const output = {};
+            const reader = new svp.BinaryReader(buffer);
+            while (reader.position < reader.length) {
+                const tag = reader.uint16();
+                switch (tag & 0x1fff) {
+                    case 0x0061: output.id = reader.value(tag); break;
+                    case 0x0066: output.name = reader.value(tag, 'string').trim(); break;
+                    case 0x0069: output.shape_vector = reader.value(tag, 'uint32[]'); break;
+                    case 0x0110: output.layer_num = reader.value(tag); break;
+                    default: reader.value(tag); break;
+                }
+            }
+            return output;
+        };
         while (reader.position < reader.length) {
             const tag = reader.uint16();
             const value = reader.value(tag);
             switch (tag & 0x1fff) {
                 case 0x0041: this.id = value; break;
-                case 0x0050: this.input.push(this._input(value)); break;
-                case 0x0060: this.output.push(this._output(value)); break;
+                case 0x0050: this.input.push(input(value)); break;
+                case 0x0060: this.output.push(output(value)); break;
                 default: break;
             }
         }
-    }
-
-    _input(buffer) {
-        const input = {};
-        const reader = new svp.BinaryReader(buffer);
-        while (reader.position < reader.length) {
-            const tag = reader.uint16();
-            switch (tag & 0x1fff) {
-                case 0x0051: input.id = reader.value(tag); break;
-                case 0x0058: input.name = reader.value(tag, 'string'); break;
-                case 0x005a: input.shape_vector = reader.value(tag, 'uint32[]'); break;
-                default: reader.value(tag); break;
-            }
-        }
-        return input;
-    }
-
-    _output(buffer) {
-        const output = {};
-        const reader = new svp.BinaryReader(buffer);
-        while (reader.position < reader.length) {
-            const tag = reader.uint16();
-            switch (tag & 0x1fff) {
-                case 0x0061: output.id = reader.value(tag); break;
-                case 0x0066: output.name = reader.value(tag, 'string'); break;
-                case 0x0069: output.shape_vector = reader.value(tag, 'uint32[]'); break;
-                case 0x0110: output.layer_num = reader.value(tag); break;
-                default: reader.value(tag); break;
-            }
-        }
-        return output;
     }
 };
 
@@ -779,7 +776,7 @@ svp.OpDef = class {
                 case 0x0128: this.attr.last_inst_addr = reader.attribute(tag, 'i'); break;
                 case 0x013B: this.attr.is_fusion_layer = reader.attribute(tag, 'i'); break;
                 case 0x013C: this.input = reader.value(tag, 'string').split(','); break;
-                case 0x014B: this.seg_id = reader.value(tag); break;
+                case 0x014B: this.attr.seg_id = reader.attribute(tag, 'i'); break;
                 case 0x0150: this.attr.is_not_last_merge_layer = reader.attribute(tag, 'i'); break;
                 case 0x0151: this.attr.is_dump_avavilable = reader.attribute(tag, 'i'); break;
                 case 0x0153: this.attr.debug_dump_offset = reader.attribute(tag, 'i'); break;
@@ -825,10 +822,6 @@ svp.AttrDef = class {
 
 svp.BinaryReader = class extends base.BinaryReader {
 
-    constructor(buffer) {
-        super(buffer);
-    }
-
     value(tag, type) {
         let value;
         switch (tag >> 13) {
@@ -849,7 +842,7 @@ svp.BinaryReader = class extends base.BinaryReader {
         while (!match && this.position < this.length) {
             const current = this.uint16();
             value = this.value(current);
-            match = current == tag;
+            match = current === tag;
         }
         this.seek(0);
         return match && type ? this._cast(value, type) : value;

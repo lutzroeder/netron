@@ -3859,8 +3859,7 @@
     "type":     "om",
     "target":   "resnet50_issue_svp.om",
     "source":   "https://github.com/lutzroeder/netron/files/9892582/resnet50_issue_svp.om.zip[resnet50_issue_svp.om]",
-    "format":   "DaVinci OM SVM",
-    "error":    "Unsupported DaVinci OM PICO signature.",
+    "format":   "DaVinci OM SVP",
     "link":     "https://github.com/lutzroeder/netron/issues/799"
   },
   {

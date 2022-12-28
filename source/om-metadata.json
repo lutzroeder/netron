@@ -829,6 +829,16 @@
     ]
   },
   {
+    "name": "Fc",
+    "category": "Layer",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
     "name": "Fill",
     "inputs": [
       { "name": "dims" },
@@ -1676,6 +1686,16 @@
     ]
   },
   {
+    "name": "PoolingAve",
+    "category": "Pool",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
     "name": "PoolingD",
     "category": "Pool",
     "inputs": [
@@ -1693,6 +1713,16 @@
       { "name": "stride" },
       { "name": "ceil_mode" },
       { "name": "data_mode" }
+    ]
+  },
+  {
+    "name": "PoolingMax",
+    "category": "Pool",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
     ]
   },
   {
