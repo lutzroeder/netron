@@ -16,7 +16,7 @@
 <link rel="fluid-icon" type="image/png" href="icon.png">
 <script type="text/javascript" src="index.js"></script>
 <style>
-html { touch-action: none; overflow: hidden; width: 100%; height: 100%; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; -webkit-text-rendering: optimizeLegibility; -moz-text-rendering: optimizeLegibility; -ms-text-rendering: optimizeLegibility; -o-text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-font-smoothing: antialiased; -ms-font-smoothing: antialiased; -o-font-smoothing: antialiased; -webkit-app-region: drag; }
+html { touch-action: none; overflow: hidden; width: 100%; height: 100%; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; -webkit-text-rendering: optimizeLegibility; -moz-text-rendering: optimizeLegibility; -ms-text-rendering: optimizeLegibility; -o-text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-font-smoothing: antialiased; -ms-font-smoothing: antialiased; -o-font-smoothing: antialiased; }
 body { touch-action: none; overflow: hidden; width: 100%; height: 100%; margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"; font-size: 12px; text-rendering: geometricPrecision; }
 button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"; }
 .center { position: absolute; margin: auto; top: 0; right: 0; bottom: 0; left: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
@@ -25,7 +25,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .transparent { width: 100%; height: 100%; background-color: #000000; display: none; opacity: 0; }
 .graph { display: flex; height: 100%; width: 100%; overflow: auto; outline: none; touch-action: pan-x pan-y; }
 .canvas { margin: auto; flex-shrink: 0; text-rendering: geometricPrecision; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
-.toolbar { position: absolute; top: 10px; left: 10px; padding: 0; margin: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.toolbar { position: absolute; bottom: 10px; left: 10px; padding: 0; margin: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .toolbar button:focus { outline: 0; }
 .toolbar-button { float: left; background: None; border-radius: 6px; border: 0; margin: 0; margin-right: 1px; padding: 0; fill: None; stroke: #777; cursor: pointer; width: 24px; height: 24px; }
 .toolbar-back-button { float: left; background: #777; border-top-left-radius: 6px; border-bottom-left-radius: 6px; border: 0px solid; border-color: #777; margin: 2px 0 2px 8px; padding: 0 8px 0 8px; cursor: pointer; height: 20px; color: #ffffff; font-size: 11px; line-height: 0; transition: 0.1s; }
@@ -35,10 +35,6 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .toolbar-icon .border { stroke: #fff; }
 .toolbar-icon .stroke { stroke: #808080; }
 .toolbar-icon:hover .stroke { stroke: #000000; }
-.dropdown { display: none; position: absolute; min-width: 225px; z-index: 1; border-radius: 4px; background-color: #f6f6f6; border: 1px solid rgba(0,0,0,.15); padding-top: 2px; padding-bottom: 2px; margin-left: 2px; overflow: hidden; }
-.dropdown button { display: block; border: none; border-radius: 0; background-color: transparent; color: black; width: 100%; text-align: left; padding: 4px 12px 5px 12px; white-space: no-wrap; font-size: 12px; }
-.dropdown button:hover { color: #ffffff; background-color: #2e6bd2; }
-.dropdown .separator { margin-top: 2px; margin-bottom: 2px; border-top: 1px; border-bottom: 0; border-style: solid; border-color: #e5e5e5; }
 .about { background-color: #ffffff; }
 .about { overflow: hidden; }
 .about .logo { background-color: #ececec; color: #242424; width: 320px; height: 170px; padding: 40px; opacity: 1.0; border-radius: 5px; border: 0.5px solid #cccccc; box-shadow: 0 0 30px #ddd; }
@@ -67,6 +63,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .about .toolbar { display: block; opacity: 1; }
 .about .transparent { display: block; opacity: 0.5; }
 .welcome { background-color: #ececec; color: #242424; }
+.welcome .menu-button { display: none; }
 .welcome .logo { width: 582px; height: 128px; }
 .welcome .logo-text { top: -57px; width: 582px; transition: 0.1s; }
 .welcome .logo-name { top: -170px; width: 582px; transition: 0.1s; }
@@ -78,9 +75,9 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .welcome .logo-glyph { fill: #444444; }
 .welcome .logo-message { display: none; }
 .welcome .logo-github { display: none; }
-.welcome button { font-size: 12px; font-weight: bold; line-height: 1.25; text-align: center; vertical-align: middle; min-width: 60px; height: 32px; border-radius: 16px; transition: 0.1s; user-select: none; -webkit-user-select: none; -moz-user-select: none; color: #444444; background-color: #ececec; border: 1px solid #444444; }
-.welcome button:hover { color: #ececec; background-color: #444444; cursor: pointer; transition: 0.2s; }
-.welcome button:focus { outline: 0; }
+.welcome .logo button { font-size: 12px; font-weight: bold; line-height: 1.25; text-align: center; vertical-align: middle; min-width: 60px; height: 32px; border-radius: 16px; transition: 0.1s; user-select: none; -webkit-user-select: none; -moz-user-select: none; color: #444444; background-color: #ececec; border: 1px solid #444444; }
+.welcome .logo button:hover { color: #ececec; background-color: #444444; cursor: pointer; transition: 0.2s; }
+.welcome .logo button:focus { outline: 0; }
 .welcome .open-file-button { top: 133px; left: -150px; width: 125px; opacity: 1; margin: 0 auto 0 auto; }
 .welcome .github-button { width: 125px; top: 133px; left: 150px; opacity: 1; margin: 0 auto 0 auto; }
 .welcome .message-button { top: 160px; left: 0px; width: 125px; display: none; opacity: 0; margin: 0 auto 0 auto; }
@@ -89,11 +86,21 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .welcome .progress-bar { height: 100%; width: 0%; background-color: #444444; }
 .welcome .graph { display: none; opacity: 0; }
 .welcome.spinner .logo-spinner { display: block; -webkit-animation: orbit 0.5s infinite linear; animation: orbit 0.5s infinite linear; cursor: wait; }
-.titlebar { display: none; height: 32px; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2; -webkit-app-region: drag; }
-.titlebar-content { display: block; color: #aaaaaa; padding: 0 142px; height: 100%; text-align: center; font-size: 14px; line-height: 32px; transition: all .25s ease-in-out; user-select: none; }
+.titlebar { color: #aaaaaa; display: none; height: 32px; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2; -webkit-app-region: drag; }
+.titlebar-content { display: block; padding: 0 142px; height: 100%; text-align: center; font-size: 14px; line-height: 32px; transition: all .25s ease-in-out; user-select: none; }
 .titlebar-content-text { display: block; direction: rtl; overflow: hidden; text-overflow: clip; white-space: nowrap; }
-.titlebar-content .active { color: #464646; transition: all .25s ease-in-out; }
+.active .titlebar { color: #464646; transition: all 0.05s ease-in-out; }
 .titlebar-icon { width: 1em; height: 1em; vertical-align: -0.15em; fill: currentColor; overflow: hidden; }
+.titlebar-window { display: flex; align-items: center; flex-direction: row-reverse; height: 100%; position: absolute; top: 0; right: 0; width: 138px; }
+.titlebar-button { display: flex; justify-content: center; align-items: center; width: 46px; height: 32px; -webkit-app-region: no-drag; }
+.titlebar-button:hover { color: #000000; background-color: rgba(0, 0, 0, 0.15); }
+.titlebar-button-close:hover { color: #ffffff; background-color: #b43029; }
+.menu-button { display: flex; justify-content: center; align-items: center; color: #aaaaaa; font-size: 16px; height: 32px; width: 32px; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2; -webkit-app-region: no-drag; -webkit-app-region: no-drag; user-select: none; }
+.menu-button:hover { color: #000000; }
+.menu-dropdown { display: none; position: absolute; left: 0; top: 0; min-width: 225px; z-index: 4; border-radius: 4px; background-color: #f6f6f6; border: 1px solid rgba(0,0,0,.15); padding-top: 2px; padding-bottom: 2px; margin-left: 16px; margin-top: 32px; overflow: hidden; }
+.menu-dropdown button { display: block; border: none; border-radius: 0; background-color: transparent; color: black; width: 100%; text-align: left; padding: 4px 12px 5px 12px; white-space: no-wrap; font-size: 12px; }
+.menu-dropdown button:hover { color: #ffffff; background-color: #2e6bd2; }
+.menu-dropdown .separator { margin-top: 2px; margin-bottom: 2px; border-top: 1px; border-bottom: 0; border-style: solid; border-color: #e5e5e5; }
 @-webkit-keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 @keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 .welcome.spinner .logo-spinner-stroke { stroke: #ececec; }
@@ -136,17 +143,20 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .toolbar-icon .border { stroke: #1d1d1d; }
 .toolbar-icon .stroke { stroke: #aaaaaa; }
 .toolbar-icon:hover .stroke { stroke: #dfdfdf; }
-.dropdown { background-color: #373737; border-color: #000000; }
-.dropdown button { color: #ffffff; }
-.dropdown button:hover { color: #ffffff; background-color: #1d59d1; }
-.dropdown .separator { border-color: #5a5a5a; }
 .toolbar-back-button { background: #aaaaaa; border-color: #aaaaaa; color: #333333; }
 .toolbar-back-button:hover { background: #dfdfdf; border-color: #dfdfdf; }
 .toolbar-name-button { background: #404040; border-color: #aaaaaa; color: #cccccc; }
 .toolbar-name-button:hover { color: #dfdfdf; }
-.titlebar-content { color: #949494; }
-.active .titlebar-content { color: #c4c4c4; }
-.titlebar-control { /* background-color: #000000; */ height: 100%; position: absolute; top: 0; right: 0; width: 138px; display: flex; align-items: center; flex-direction: row-reverse; }
+.titlebar { color: #949494; }
+.active .titlebar { color: #c4c4c4; }
+.titlebar-button:hover { color: #ffffff; background-color: rgba(0, 0, 0, 0.15); }
+.titlebar-button-close:hover { color: #ffffff; background-color: #b43029; }
+.menu-button { color: #aaaaaa; }
+.menu-button:hover { color: #ffffff; }
+.menu-dropdown { background-color: #373737; border-color: #000000; }
+.menu-dropdown button { color: #ffffff; }
+.menu-dropdown button:hover { color: #ffffff; background-color: #1d59d1; }
+.menu-dropdown .separator { border-color: #5a5a5a; }
 }
 @media all and (max-width: 640px) {
 .welcome .logo { width: 240px; }
@@ -175,16 +185,22 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 </div>
 <div id="sidebar" class="sidebar"></div>
 <div id="toolbar" class="toolbar">
-    <button id="menu-button" class="toolbar-button" title="Menu">
+    <button id="sidebar-button" class="toolbar-button" title="Model Properties">
         <svg class="toolbar-icon" viewbox="0 0 100 100">
             <rect class="border" x="12" y="12" width="76" height="76" rx="16" ry="16" stroke-width="8"></rect>
-            <line class="border" x1="30" y1="37" x2="70" y2="37" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
-            <line class="border" x1="30" y1="50" x2="70" y2="50" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
-            <line class="border" x1="30" y1="63" x2="70" y2="63" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="28" y1="37" x2="32" y2="37" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="28" y1="50" x2="32" y2="50" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="28" y1="63" x2="32" y2="63" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="40" y1="37" x2="70" y2="37" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="40" y1="50" x2="70" y2="50" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="40" y1="63" x2="70" y2="63" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
             <rect class="stroke" x="12" y="12" width="76" height="76" rx="16" ry="16" stroke-width="4"></rect>
-            <line class="stroke" x1="30" y1="37" x2="70" y2="37" stroke-width="4" stroke-linecap="round"></line>
-            <line class="stroke" x1="30" y1="50" x2="70" y2="50" stroke-width="4" stroke-linecap="round"></line>
-            <line class="stroke" x1="30" y1="63" x2="70" y2="63" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="28" y1="37" x2="32" y2="37" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="28" y1="50" x2="32" y2="50" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="28" y1="63" x2="32" y2="63" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="40" y1="37" x2="70" y2="37" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="40" y1="50" x2="70" y2="50" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="40" y1="63" x2="70" y2="63" stroke-width="4" stroke-linecap="round"></line>
         </svg>
     </button>
     <button id="zoom-in-button" class="toolbar-button" title="Zoom In">
@@ -214,7 +230,6 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     </button>
     <button id="name-button" class="toolbar-name-button" title="Name">
     </button>
-    <div id="menu-dropdown" class="dropdown"></div>
 </div>
 <div id="transparent" class="transparent"></div>
 <div class="center logo">
@@ -381,7 +396,26 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     <div id="titlebar-content" class="titlebar-content">
         <span id="titlebar-content-text" class="titlebar-content-text"></span>
     </div>
-    <div id="titlebar-control" class="titlebar-control"></div>
+    <div id="titlebar-window" class="titlebar-window">
+        <div id="titlebar-close" class="titlebar-button titlebar-button-close">
+            <svg class="titlebar-icon" aria-hidden="true">
+                <path d="M 0,0 0,0.7 4.3,5 0,9.3 0,10 0.7,10 5,5.7 9.3,10 10,10 10,9.3 5.7,5 10,0.7 10,0 9.3,0 5,4.3 0.7,0 Z"></path>
+            </svg>
+        </div>
+        <div id="titlebar-toggle" class="titlebar-button">
+            <svg class="titlebar-icon" aria-hidden="true">
+                <!-- <path d="M 0,0 0,10 10,10 10,0 Z M 1,1 9,1 9,9 1,9 Z"></path> -->
+                <path d="m 2,1e-5 0,2 -2,0 0,8 8,0 0,-2 2,0 0,-8 z m 1,1 6,0 0,6 -1,0 0,-5 -5,0 z m -2,2 6,0 0,6 -6,0 z"></path>
+            </svg>
+        </div>
+        <div id="titlebar-minimize" class="titlebar-button">
+            <svg class="titlebar-icon" aria-hidden="true">
+                <path d="M 0,5 10,5 10,6 0,6 Z"></path>
+            </svg>
+        </div>
+    </div>
 </div>
+<div id="menu-button" class="menu-button">&#9776;</div>
+<div id="menu-dropdown" class="menu-dropdown"></div>
 </body>
 </html>

@@ -135,11 +135,20 @@ host.ElectronHost = class {
                 this._openPath(path);
             }
         }
-        if (this._environment.titlebar && this._environment.platform === 'darwin') {
+        if (this._environment.titlebar) {
             this.document.getElementById('titlebar').style.display = 'block';
         }
-        this._window.addEventListener('focus', () => this._document.body.classList.add('active'));
-        this._window.addEventListener('blur', () => this._document.body.classList.remove('active'));
+        if (!this._environment.titlebar || this._environment.platform === 'darwin') {
+            this.document.getElementById('menu-button').style.display = 'none';
+            this.document.getElementById('titlebar-window').style.display = 'none';
+        }
+
+        this._window.addEventListener('focus', () => {
+            this._document.body.classList.add('active');
+        });
+        this._window.addEventListener('blur', () => {
+            this._document.body.classList.remove('active');
+        });
         if (this._document.hasFocus()) {
             this._document.body.classList.add('active');
         }
@@ -172,18 +181,22 @@ host.ElectronHost = class {
             this._view.resetZoom();
         });
         electron.ipcRenderer.on('show-properties', () => {
-            this.document.getElementById('menu-button').click();
+            this.document.getElementById('sidebar-button').click();
         });
         electron.ipcRenderer.on('find', () => {
             this._view.find();
         });
-        const menuButton = this.document.getElementById('menu-button');
-        if (menuButton) {
-            menuButton.setAttribute('title', 'Model Properties');
-            menuButton.addEventListener('click', () => {
-                this._view.showModelProperties();
-            });
-        }
+
+        this.document.getElementById('titlebar-close').addEventListener('click', () => {
+            electron.ipcRenderer.sendSync('window-close', {});
+        });
+        this.document.getElementById('titlebar-toggle').addEventListener('click', () => {
+            electron.ipcRenderer.sendSync('window-toggle', {});
+        });
+        this.document.getElementById('titlebar-minimize').addEventListener('click', () => {
+            electron.ipcRenderer.sendSync('window-minimize', {});
+        });
+
         const openFileButton = this.document.getElementById('open-file-button');
         if (openFileButton) {
             openFileButton.style.opacity = 1;

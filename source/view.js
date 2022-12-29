@@ -31,6 +31,9 @@ view.View = class {
             this._sidebar = new dialog.Sidebar(this._host, id);
             this._searchText = '';
             this._modelFactoryService = new view.ModelFactoryService(this._host);
+            this._getElementById('sidebar-button').addEventListener('click', () => {
+                this.showModelProperties();
+            });
             this._getElementById('zoom-in-button').addEventListener('click', () => {
                 this.zoomIn();
             });

@@ -14,7 +14,7 @@ class Application {
 
         this._views = new ViewCollection(this);
         this._configuration = new ConfigurationService();
-        this._menu = new MenuService();
+        this._menu = new MenuService(this);
         this._openQueue = [];
 
         const packageFile = path.join(path.dirname(__dirname), 'package.json');
@@ -76,6 +76,27 @@ class Application {
         electron.ipcMain.on('show-save-dialog', (event, options) => {
             const owner = event.sender.getOwnerBrowserWindow();
             event.returnValue = electron.dialog.showSaveDialogSync(owner, options);
+        });
+        electron.ipcMain.on('window-close', (event) => {
+            event.sender.getOwnerBrowserWindow().close();
+            event.returnValue = null;
+        });
+        electron.ipcMain.on('window-toggle', (event) => {
+            const window = event.sender.getOwnerBrowserWindow();
+            if (window.isFullScreen()) {
+                window.setFullScreen(false);
+            }
+            else if (window.isMaximized()) {
+                window.unmaximize();
+            }
+            else {
+                window.maximize();
+            }
+            event.returnValue = null;
+        });
+        electron.ipcMain.on('window-minimize', (event) => {
+            event.sender.getOwnerBrowserWindow().minimize();
+            event.returnValue = null;
         });
 
         electron.app.on('will-finish-launching', () => {
@@ -681,8 +702,8 @@ class View {
                 nodeIntegration: true
             }
         };
-        if (owner.application.environment.titlebar && process.platform === 'darwin') {
-            options.titleBarStyle = 'hiddenInset';
+        if (owner.application.environment.titlebar) {
+            options.titleBarStyle = process.platform === 'darwin' ? 'hiddenInset' : 'hidden';
         }
         if (this._owner.count > 0 && View._position && View._position.length == 2) {
             options.x = View._position[0] + 30;
@@ -957,6 +978,10 @@ class ConfigurationService {
 
 class MenuService {
 
+    constructor(application) {
+        this._application = application;
+    }
+
     build(menuTemplate, commandTable, windows) {
         this._menuTemplate = menuTemplate;
         this._commandTable = commandTable;
@@ -985,11 +1010,12 @@ class MenuService {
     }
 
     _rebuild(windows) {
-        this._menu = electron.Menu.buildFromTemplate(this._menuTemplate);
         if (process.platform === 'darwin') {
+            this._menu = electron.Menu.buildFromTemplate(this._menuTemplate);
             electron.Menu.setApplicationMenu(this._menu);
         }
-        else {
+        else if (!this._application.environment.titlebar) {
+            this._menu = electron.Menu.buildFromTemplate(this._menuTemplate);
             for (const window of windows) {
                 window.setMenu(this._menu);
             }
@@ -999,14 +1025,16 @@ class MenuService {
     _updateLabel(context) {
         let rebuild = false;
         for (const entry of this._commandTable.entries()) {
-            const menuItem = this._menu.getMenuItemById(entry[0]);
-            const command = entry[1];
-            if (command && command.label) {
-                const label = command.label(context);
-                if (label !== menuItem.label) {
-                    if (this._itemTable.has(entry[0])) {
-                        this._itemTable.get(entry[0]).label = label;
-                        rebuild = true;
+            if (this._menu) {
+                const menuItem = this._menu.getMenuItemById(entry[0]);
+                const command = entry[1];
+                if (command && command.label) {
+                    const label = command.label(context);
+                    if (label !== menuItem.label) {
+                        if (this._itemTable.has(entry[0])) {
+                            this._itemTable.get(entry[0]).label = label;
+                            rebuild = true;
+                        }
                     }
                 }
             }
@@ -1016,10 +1044,12 @@ class MenuService {
 
     _updateEnabled(context) {
         for (const entry of this._commandTable.entries()) {
-            const menuItem = this._menu.getMenuItemById(entry[0]);
-            const command = entry[1];
-            if (menuItem && command.enabled) {
-                menuItem.enabled = command.enabled(context);
+            if (this._menu) {
+                const menuItem = this._menu.getMenuItemById(entry[0]);
+                const command = entry[1];
+                if (menuItem && command.enabled) {
+                    menuItem.enabled = command.enabled(context);
+                }
             }
         }
     }
