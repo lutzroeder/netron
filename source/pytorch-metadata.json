@@ -5213,16 +5213,6 @@
     ]
   },
   {
-    "name": "aten::frobenius_norm",
-    "category": "Normalization",
-    "inputs": [
-      { "name": "self", "type": "Tensor" }
-    ],
-    "outputs": [
-      { "type": "Tensor" }
-    ]
-  },
-  {
     "name": "aten::frobenius_norm.dim",
     "category": "Normalization",
     "inputs": [
