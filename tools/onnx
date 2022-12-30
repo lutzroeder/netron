@@ -82,6 +82,7 @@ install() {
     esac
     venv
     ${python} -m pip install --quiet --upgrade ${protobuf}
+    ${python} -m pip install --quiet --upgrade numpy==1.23.4
     ${python} -m pip install --quiet "./third_party/source/onnx"
     deactivate
 }
