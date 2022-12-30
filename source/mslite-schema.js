@@ -388,6 +388,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 211: return $root.mindspore.schema.GroupNormFusion.decode(reader, position);
             case 212: return $root.mindspore.schema.Log1p.decode(reader, position);
             case 213: return $root.mindspore.schema.TensorScatterAdd.decode(reader, position);
+            case 214: return $root.mindspore.schema.ScatterElements.decode(reader, position);
             default: return undefined;
         }
     }
@@ -607,6 +608,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'GroupNormFusion': return $root.mindspore.schema.GroupNormFusion.decodeText(reader, json);
             case 'Log1p': return $root.mindspore.schema.Log1p.decodeText(reader, json);
             case 'TensorScatterAdd': return $root.mindspore.schema.TensorScatterAdd.decodeText(reader, json);
+            case 'ScatterElements': return $root.mindspore.schema.ScatterElements.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -4229,6 +4231,21 @@ $root.mindspore.schema.TensorScatterAdd = class TensorScatterAdd {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.TensorScatterAdd();
+        return $;
+    }
+};
+
+$root.mindspore.schema.ScatterElements = class ScatterElements {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.ScatterElements();
+        $.axis = reader.int64_(position, 4, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.ScatterElements();
+        $.axis = reader.value(json.axis, 0);
         return $;
     }
 };
