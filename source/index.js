@@ -278,7 +278,7 @@ host.BrowserHost = class {
         this._menu.add({});
         this._menu.add({
             label: 'About ' + this.document.title,
-            click: () => this._about()
+            click: () => this._view.about()
         });
 
         if (this._meta.file) {
@@ -331,7 +331,6 @@ host.BrowserHost = class {
         const githubButton = this.document.getElementById('github-button');
         const githubLink = this.document.getElementById('logo-github');
         if (githubButton && githubLink) {
-            githubButton.style.opacity = 1;
             githubButton.addEventListener('click', () => {
                 this.openURL(githubLink.href);
             });
@@ -712,17 +711,6 @@ host.BrowserHost = class {
         else {
             this._document.body.setAttribute('class', page);
         }
-    }
-
-    _about() {
-        const handler = () => {
-            this.window.removeEventListener('keydown', handler);
-            this.document.body.removeEventListener('click', handler);
-            this._view.show('default');
-        };
-        this.window.addEventListener('keydown', handler);
-        this.document.body.addEventListener('click', handler);
-        this._view.show('about');
     }
 };
 

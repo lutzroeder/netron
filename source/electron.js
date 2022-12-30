@@ -186,6 +186,9 @@ host.ElectronHost = class {
         electron.ipcRenderer.on('find', () => {
             this._view.find();
         });
+        electron.ipcRenderer.on('about', () => {
+            this._view.about();
+        });
 
         this.document.getElementById('titlebar-close').addEventListener('click', () => {
             electron.ipcRenderer.sendSync('window-close', {});
@@ -199,7 +202,6 @@ host.ElectronHost = class {
 
         const openFileButton = this.document.getElementById('open-file-button');
         if (openFileButton) {
-            openFileButton.style.opacity = 1;
             openFileButton.addEventListener('click', () => {
                 electron.ipcRenderer.send('open-file-dialog', {});
             });
@@ -208,7 +210,6 @@ host.ElectronHost = class {
         const githubLink = this.document.getElementById('logo-github');
         if (githubButton && githubLink) {
             githubButton.innerText = 'Download';
-            githubButton.style.opacity = 1;
             githubButton.addEventListener('click', () => {
                 this.openURL(githubLink.href);
             });

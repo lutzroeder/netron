@@ -22,7 +22,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .center { position: absolute; margin: auto; top: 0; right: 0; bottom: 0; left: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .select { user-select: text; -webkit-user-select: text; -moz-user-select: text; }
 .open-file-dialog { display: none; }
-.transparent { width: 100%; height: 100%; background-color: #000000; display: none; opacity: 0; }
+.transparent { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #000000; display: none; opacity: 0; }
 .graph { display: flex; height: 100%; width: 100%; overflow: auto; outline: none; touch-action: pan-x pan-y; }
 .canvas { margin: auto; flex-shrink: 0; text-rendering: geometricPrecision; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .toolbar { position: absolute; bottom: 10px; left: 10px; padding: 0; margin: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
@@ -37,20 +37,20 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .toolbar-icon:hover .stroke { stroke: #000000; }
 .about { background-color: #ffffff; }
 .about { overflow: hidden; }
-.about .logo { background-color: #ececec; color: #242424; width: 320px; height: 170px; padding: 40px; opacity: 1.0; border-radius: 5px; border: 0.5px solid #cccccc; box-shadow: 0 0 30px #ddd; }
-.about.desktop .logo { border: None; border-radius: 0px; }
+.about .logo { background-color: #ffffff; color: #666666; width: 320px; height: 200px; padding: 40px; border-radius: 8px; border: 1px solid rgba(0, 0, 0, 0.1); box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1); opacity: 1.0; transition: 0.1s; }
+.about.desktop .logo { background-color: #ececec; border: None; border-radius: 0px; }
 .about.desktop .graph { display: none; opacity: 0; }
 .about.desktop .transparent { display: none; opacity: 0; }
 .about.desktop .toolbar { display: none; opacity: 0; }
 .about .logo-name { opacity: 0; }
 .about .logo-text { top: -130px; width: 320px; }
 .about .logo-icon { left: 136px; top: -108px; width: 60px; height: 60px; }
-.about .logo-stroke { stroke: #242424; }
-.about .logo-fill { fill: #242424; }
-.about .logo-border { stroke: #242424; }
-.about .logo-glyph { fill: #242424; }
-.about .logo-message { top: 112px; padding-left: 40px; padding-right: 40px; }
-.about a { text-decoration: none; color: #242424; }
+.about .logo-stroke { stroke: #1a1a1a; }
+.about .logo-fill { fill: #1a1a1a; }
+.about .logo-border { stroke: #1a1a1a; }
+.about .logo-glyph { fill: #1a1a1a; }
+.about .logo-message { top: 132px; padding-left: 40px; padding-right: 40px; }
+.about a { text-decoration: none; color: #666666; }
 .about a:visited { color: inherit; }
 .about a:hover { color: #242424; }
 .about .logo-github { top: 130px; width: 24px; height: 24px; }
@@ -58,11 +58,12 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .about .github-button { display: none; }
 .about .message { display: none; }
 .about .message-button { display: none; }
-.about .graph { display: flex; opacity: 1; }
+.about .graph { display: flex; opacity: 0.5; }
 .about .progress { display: none; }
-.about .toolbar { display: block; opacity: 1; }
-.about .transparent { display: block; opacity: 0.5; }
-.welcome { background-color: #ececec; color: #242424; }
+.about .toolbar { display: block; opacity: 0; }
+.about .menu-button { display: block; opacity: 0; }
+.about .transparent { display: block; opacity: 0.04; }
+.welcome { background-color: #ececec; color: #242424; transition: 0.1s; }
 .welcome .menu-button { display: none; }
 .welcome .logo { width: 582px; height: 128px; }
 .welcome .logo-text { top: -57px; width: 582px; transition: 0.1s; }
@@ -75,9 +76,9 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .welcome .logo-glyph { fill: #444444; }
 .welcome .logo-message { display: none; }
 .welcome .logo-github { display: none; }
-.welcome .logo button { font-size: 12px; font-weight: bold; line-height: 1.25; text-align: center; vertical-align: middle; min-width: 60px; height: 32px; border-radius: 16px; transition: 0.1s; user-select: none; -webkit-user-select: none; -moz-user-select: none; color: #444444; background-color: #ececec; border: 1px solid #444444; }
-.welcome .logo button:hover { color: #ececec; background-color: #444444; cursor: pointer; transition: 0.2s; }
-.welcome .logo button:focus { outline: 0; }
+.welcome .logo-button { font-size: 12px; font-weight: bold; line-height: 1.25; text-align: center; vertical-align: middle; min-width: 60px; height: 32px; border-radius: 16px; transition: 0.1s; user-select: none; -webkit-user-select: none; -moz-user-select: none; color: #444444; background-color: #ececec; border: 1px solid #444444; }
+.welcome .logo-button:hover { color: #ececec; background-color: #444444; cursor: pointer; transition: 0.2s; }
+.welcome .logo-button:focus { outline: 0; }
 .welcome .open-file-button { top: 133px; left: -150px; width: 125px; opacity: 1; margin: 0 auto 0 auto; }
 .welcome .github-button { width: 125px; top: 133px; left: 150px; opacity: 1; margin: 0 auto 0 auto; }
 .welcome .message-button { top: 160px; left: 0px; width: 125px; display: none; opacity: 0; margin: 0 auto 0 auto; }
@@ -114,7 +115,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .welcome.message .message { opacity: 1; display: block; }
 .welcome.spinner .graph { display: flex; opacity: 0; }
 .welcome .toolbar { display: none; }
-.default { background-color: #ffffff; }
+.default { background-color: #ffffff; transition: 0.1s; }
 .default .logo { display: none; }
 .default .graph { display: flex; opacity: 1; }
 .default .toolbar { display: table; }
@@ -123,21 +124,23 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .default { background-color: #404040; }
 .graph { background-color: #404040; }
 .about { background-color: #404040; }
-.about .logo { background-color: #2d2d2d; color: #dfdfdf; border-color: #000000; box-shadow: 0 0 30px #333; }
-.about a { color: #dfdfdf; }
+.about .logo { background-color: #404040; color: #c6c6c6; border: 1px solid rgba(0, 0, 0, 0.05); box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.05); opacity: 1; }
+.about.desktop .logo { background-color: #2d2d2d; }
+.about a { color: #c6c6c6; }
 .about a:hover { color: #ffffff; }
-.about .logo-stroke { stroke: #dfdfdf; }
-.about .logo-fill { fill: #dfdfdf; }
-.about .logo-border { stroke: #dfdfdf; }
-.about .logo-glyph { fill: #dfdfdf; }
+.about .logo-stroke { stroke: #c6c6c6; }
+.about .logo-fill { fill: #c6c6c6; }
+.about .logo-border { stroke: #c6c6c6; }
+.about .logo-glyph { fill: #c6c6c6; }
+.about .transparent { display: block; opacity: 0.6; }
 .welcome { background-color: #1e1e1e; color: #888888; }
 .welcome .logo-stroke { stroke: #888888; }
 .welcome .logo-fill { fill: #888888; }
 .welcome .logo-border { stroke: #000000; }
 .welcome .logo-glyph { fill: #888888; }
 .welcome .logo-spinner-stroke { stroke: #ffffff; }
-.welcome .logo button { color: #888888; background-color: #1e1e1e; border-color: #888888; }
-.welcome .logo button:hover { color: #1e1e1e; background-color: #888888; }
+.welcome .logo-button { color: #888888; background-color: #1e1e1e; border-color: #888888; }
+.welcome .logo-button:hover { color: #1e1e1e; background-color: #888888; }
 .welcome .message { color: #888888; display: none; opacity: 0; }
 .welcome .progress-bar { background-color: #888888; }
 .toolbar-icon .border { stroke: #1d1d1d; }
@@ -376,8 +379,8 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     </a>
     <span id="message" class="center message"></span>
     <button id="message-button" class="center message-button">Accept</button>
-    <button id="open-file-button" class="center open-file-button" tabindex="0">Open Model&hellip;</button>
-    <button id="github-button" class="center github-button">GitHub</button>
+    <button id="open-file-button" class="center logo-button open-file-button" tabindex="0">Open Model&hellip;</button>
+    <button id="github-button" class="center logo-button github-button">GitHub</button>
     <div class="center progress">
         <div id="progress-bar" class="progress-bar"></div>
     </div>

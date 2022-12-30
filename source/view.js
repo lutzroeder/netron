@@ -68,12 +68,8 @@ view.View = class {
         if (this._sidebar) {
             this._sidebar.close();
         }
-        for (const value of Array.from(this._host.document.body.classList).filter((_) => _ !== 'active')) {
-            this._host.document.body.classList.remove(value);
-        }
-        for (const value of page.split(' ')) {
-            this._host.document.body.classList.add(value);
-        }
+        this._host.document.body.classList.remove(...Array.from(this._host.document.body.classList).filter((_) => _ !== 'active'));
+        this._host.document.body.classList.add(...page.split(' '));
         if (page === 'default') {
             this._activate();
         }
@@ -863,6 +859,17 @@ view.View = class {
             const title = type.type === 'function' ? 'Function' : 'Documentation';
             this._sidebar.push(documentationSidebar.render(), title);
         }
+    }
+
+    about() {
+        const handler = () => {
+            this._host.window.removeEventListener('keydown', handler);
+            this._host.document.body.removeEventListener('click', handler);
+            this.show('default');
+        };
+        this._host.window.addEventListener('keydown', handler);
+        this._host.document.body.addEventListener('click', handler);
+        this.show('about');
     }
 };
 

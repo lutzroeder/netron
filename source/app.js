@@ -310,7 +310,7 @@ class Application {
             show: false,
             backgroundColor: electron.nativeTheme.shouldUseDarkColors ? '#2d2d2d' : '#e6e6e6',
             width: 400,
-            height: 250,
+            height: 280,
             center: true,
             minimizable: false,
             maximizable: false,
@@ -419,7 +419,7 @@ class Application {
                 submenu: [
                     {
                         label: 'About ' + electron.app.name,
-                        click: () => this._about()
+                        click: () => /* this.execute('about', null) */ this._about()
                     },
                     { type: 'separator' },
                     { role: 'hide' },
