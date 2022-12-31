@@ -23,8 +23,13 @@ const items = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8'));
 class TestHost {
 
     constructor() {
+        this._window = new Window();
         this._document = new HTMLDocument();
         this._sourceDir = path.join(__dirname, '..', 'source');
+    }
+
+    get window() {
+        return this._window;
     }
 
     get document() {
@@ -192,6 +197,15 @@ class TestContext {
 
     exception(error, fatal) {
         this._host.exception(error, fatal);
+    }
+}
+
+class Window {
+
+    addEventListener(/* event, callback */) {
+    }
+
+    removeEventListener(/* event, callback */) {
     }
 }
 

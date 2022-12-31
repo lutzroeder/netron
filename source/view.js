@@ -54,6 +54,80 @@ view.View = class {
             this._host.document.addEventListener('keydown', () => {
                 this.clearSelection();
             });
+            this._menu = new view.Dropdown(this._host, 'menu-button', 'menu-dropdown');
+            this._menu.add({
+                label: 'Properties...',
+                accelerator: 'CmdOrCtrl+Enter',
+                click: () => this.showModelProperties()
+            });
+            this._menu.add({});
+            this._menu.add({
+                label: 'Find...',
+                accelerator: 'CmdOrCtrl+F',
+                click: () => this.find()
+            });
+            this._menu.add({});
+            this._menu.add({
+                label: () => this.options.attributes ? 'Hide Attributes' : 'Show Attributes',
+                accelerator: 'CmdOrCtrl+D',
+                click: () => this.toggle('attributes')
+            });
+            this._menu.add({
+                label: () => this.options.initializers ? 'Hide Initializers' : 'Show Initializers',
+                accelerator: 'CmdOrCtrl+I',
+                click: () => this.toggle('initializers')
+            });
+            this._menu.add({
+                label: () => this.options.names ? 'Hide Names' : 'Show Names',
+                accelerator: 'CmdOrCtrl+U',
+                click: () => this.toggle('names')
+            });
+            this._menu.add({
+                label: () => this.options.direction === 'vertical' ? 'Show Horizontal' : 'Show Vertical',
+                accelerator: 'CmdOrCtrl+K',
+                click: () => this.toggle('direction')
+            });
+            this._menu.add({
+                label: () => this.options.mousewheel === 'scroll' ? 'Mouse Wheel: Zoom' : 'Mouse Wheel: Scroll',
+                accelerator: 'CmdOrCtrl+M',
+                click: () => this.toggle('mousewheel')
+            });
+            this._menu.add({});
+            this._menu.add({
+                label: 'Zoom In',
+                accelerator: 'Shift+Up',
+                click: () => this.zoomIn()
+            });
+            this._menu.add({
+                label: 'Zoom Out',
+                accelerator: 'Shift+Down',
+                click: () => this.zoomOut()
+            });
+            this._menu.add({
+                label: 'Actual Size',
+                accelerator: 'Shift+Backspace',
+                click: () => this.resetZoom()
+            });
+            this._menu.add({});
+            this._menu.add({
+                label: 'Export as PNG',
+                accelerator: 'CmdOrCtrl+Shift+E',
+                click: () => this.export(this._host.document.title + '.png')
+            });
+            this._menu.add({
+                label: 'Export as SVG',
+                accelerator: 'CmdOrCtrl+Alt+E',
+                click: () => this.export(this._host.document.title + '.svg')
+            });
+            this._menu.add({});
+            this._menu.add({
+                label: 'About ' + this._host.document.title,
+                click: () => this.about()
+            });
+            this._getElementById('menu-button').addEventListener('click', (e) => {
+                this._menu.toggle();
+                e.preventDefault();
+            });
             this._host.start();
         }).catch((err) => {
             this.error(err, null, null);
@@ -870,6 +944,137 @@ view.View = class {
         this._host.window.addEventListener('keydown', handler);
         this._host.document.body.addEventListener('click', handler);
         this.show('about');
+    }
+};
+
+view.Dropdown = class {
+
+    constructor(host, button, dropdown) {
+        this._host = host;
+        this._dropdown = this._host.document.getElementById(dropdown);
+        this._button = this._host.document.getElementById(button);
+        this._items = [];
+        this._darwin = this._host.environment('platform') === 'darwin';
+        this._acceleratorMap = {};
+        this._host.window.addEventListener('keydown', (e) => {
+            let code = e.keyCode;
+            code |= ((e.ctrlKey && !this._darwin) || (e.metaKey && this._darwin)) ? 0x0400 : 0;
+            code |= e.altKey ? 0x0200 : 0;
+            code |= e.shiftKey ? 0x0100 : 0;
+            if (code == 0x001b) { // Escape
+                this.close();
+                return;
+            }
+            const item = this._acceleratorMap[code.toString()];
+            if (item) {
+                item.click();
+                e.preventDefault();
+            }
+        });
+        this._host.document.body.addEventListener('click', (e) => {
+            if (!this._button.contains(e.target)) {
+                this.close();
+            }
+        });
+    }
+
+    add(item) {
+        const accelerator = item.accelerator;
+        if (accelerator) {
+            let cmdOrCtrl = false;
+            let alt = false;
+            let shift = false;
+            let key = '';
+            for (const part of item.accelerator.split('+')) {
+                switch (part) {
+                    case 'CmdOrCtrl': cmdOrCtrl = true; break;
+                    case 'Alt': alt = true; break;
+                    case 'Shift': shift = true; break;
+                    default: key = part; break;
+                }
+            }
+            if (key !== '') {
+                item.accelerator = {};
+                item.accelerator.text = '';
+                if (this._darwin) {
+                    item.accelerator.text += alt ? '&#x2325;' : '';
+                    item.accelerator.text += shift ? '&#x21e7;' : '';
+                    item.accelerator.text += cmdOrCtrl ? '&#x2318;' : '';
+                    const keyTable = { 'Enter': '&#x23ce;', 'Up': '&#x2191;', 'Down': '&#x2193;', 'Backspace': '&#x232B;' };
+                    item.accelerator.text += keyTable[key] ? keyTable[key] : key;
+                }
+                else {
+                    const list = [];
+                    if (cmdOrCtrl) {
+                        list.push('Ctrl');
+                    }
+                    if (alt) {
+                        list.push('Alt');
+                    }
+                    if (shift) {
+                        list.push('Shift');
+                    }
+                    list.push(key);
+                    item.accelerator.text = list.join('+');
+                }
+                let code = 0;
+                switch (key) {
+                    case 'Backspace': code = 0x08; break;
+                    case 'Enter': code = 0x0D; break;
+                    case 'Up': code = 0x26; break;
+                    case 'Down': code = 0x28; break;
+                    default: code = key.charCodeAt(0); break;
+                }
+                code |= cmdOrCtrl ? 0x0400 : 0;
+                code |= alt ? 0x0200 : 0;
+                code |= shift ? 0x0100 : 0;
+                this._acceleratorMap[code.toString()] = item;
+            }
+        }
+        this._items.push(item);
+    }
+
+    toggle() {
+
+        if (this._dropdown.style.display === 'block') {
+            this.close();
+            return;
+        }
+
+        while (this._dropdown.lastChild) {
+            this._dropdown.removeChild(this._dropdown.lastChild);
+        }
+
+        for (const item of this._items) {
+            if (Object.keys(item).length > 0) {
+                const button = this._host.document.createElement('button');
+                button.innerText = (typeof item.label == 'function') ? item.label() : item.label;
+                button.addEventListener('click', () => {
+                    this.close();
+                    setTimeout(() => {
+                        item.click();
+                    }, 10);
+                });
+                this._dropdown.appendChild(button);
+                if (item.accelerator) {
+                    const accelerator = this._host.document.createElement('span');
+                    accelerator.style.float = 'right';
+                    accelerator.innerHTML = item.accelerator.text;
+                    button.appendChild(accelerator);
+                }
+            }
+            else {
+                const separator = this._host.document.createElement('div');
+                separator.setAttribute('class', 'separator');
+                this._dropdown.appendChild(separator);
+            }
+        }
+
+        this._dropdown.style.display = 'block';
+    }
+
+    close() {
+        this._dropdown.style.display = 'none';
     }
 };
 
