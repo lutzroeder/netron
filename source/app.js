@@ -14,7 +14,7 @@ class Application {
 
         this._views = new ViewCollection(this);
         this._configuration = new ConfigurationService();
-        this._menu = new MenuService(this);
+        this._menu = new MenuService(this._views);
         this._openQueue = [];
 
         const packageFile = path.join(path.dirname(__dirname), 'package.json');
@@ -34,12 +34,10 @@ class Application {
             process.chdir(workingDirectory);
             const open = this._parseCommandLine(commandLine);
             process.chdir(currentDirectory);
-            if (!open) {
-                if (this._views.count > 0) {
-                    const view = this._views.item(0);
-                    if (view) {
-                        view.restore();
-                    }
+            if (!open && !this._views.empty) {
+                const view = this._views.first();
+                if (view) {
+                    view.restore();
                 }
             }
         });
@@ -76,27 +74,6 @@ class Application {
         electron.ipcMain.on('show-save-dialog', (event, options) => {
             const owner = event.sender.getOwnerBrowserWindow();
             event.returnValue = electron.dialog.showSaveDialogSync(owner, options);
-        });
-        electron.ipcMain.on('window-close', (event) => {
-            event.sender.getOwnerBrowserWindow().close();
-            event.returnValue = null;
-        });
-        electron.ipcMain.on('window-toggle', (event) => {
-            const window = event.sender.getOwnerBrowserWindow();
-            if (window.isFullScreen()) {
-                window.setFullScreen(false);
-            }
-            else if (window.isMaximized()) {
-                window.unmaximize();
-            }
-            else {
-                window.maximize();
-            }
-            event.returnValue = null;
-        });
-        electron.ipcMain.on('window-minimize', (event) => {
-            event.sender.getOwnerBrowserWindow().minimize();
-            event.returnValue = null;
         });
 
         electron.app.on('will-finish-launching', () => {
@@ -165,15 +142,15 @@ class Application {
                 this._openPath(file);
             }
         }
-        if (this._views.count == 0) {
+        if (this._views.empty) {
             this._views.openView();
         }
         this._resetMenu();
         this._views.on('active-view-changed', () => {
-            this._updateMenu();
+            this._menu.update();
         });
         this._views.on('active-view-updated', () => {
-            this._updateMenu();
+            this._menu.update();
         });
     }
 
@@ -199,11 +176,12 @@ class Application {
         if (path && path.length > 0 && fs.existsSync(path)) {
             const stat = fs.statSync(path);
             if (stat.isFile() || stat.isDirectory()) {
+                const views = Array.from(this._views.views);
                 // find existing view for this file
-                let view = this._views.find(path);
+                let view = views.find(view => view.match(path));
                 // find empty welcome window
                 if (view == null) {
-                    view = this._views.find(null);
+                    view = views.find(view => view.match(null));
                 }
                 // create new window
                 if (view == null) {
@@ -226,7 +204,8 @@ class Application {
     }
 
     _dropPaths(sender, paths) {
-        let view = this._views.from(sender);
+        const window = sender.getOwnerBrowserWindow();
+        let view = this._views.get(window);
         for (const path of paths) {
             if (view) {
                 this._loadPath(path, view);
@@ -276,7 +255,7 @@ class Application {
         if (view) {
             view.execute(command, data || {});
         }
-        this._updateMenu();
+        this._menu.update();
     }
 
     _reload() {
@@ -371,15 +350,6 @@ class Application {
         else {
             dialog.show();
         }
-    }
-
-    _updateMenu() {
-        const window = electron.BrowserWindow.getFocusedWindow();
-        this._menu.update({
-            window: window,
-            webContents: window ? window.webContents : null,
-            view: this._views.activeView
-        }, this._views.views.map((view) => view.window));
     }
 
     _resetMenu() {
@@ -611,61 +581,61 @@ class Application {
 
         const commandTable = new Map();
         commandTable.set('file.export', {
-            enabled: (context) => context.view && context.view.path ? true : false
+            enabled: (view) => view && view.path ? true : false
         });
         commandTable.set('edit.cut', {
-            enabled: (context) => context.view && context.view.path ? true : false
+            enabled: (view) => view && view.path ? true : false
         });
         commandTable.set('edit.copy', {
-            enabled: (context) => context.view && context.view.path ? true : false
+            enabled: (view) => view && view.path ? true : false
         });
         commandTable.set('edit.paste', {
-            enabled: (context) => context.view && context.view.path ? true : false
+            enabled: (view) => view && view.path ? true : false
         });
         commandTable.set('edit.select-all', {
-            enabled: (context) => context.view && context.view.path ? true : false
+            enabled: (view) => view && view.path ? true : false
         });
         commandTable.set('edit.find', {
-            enabled: (context) => context.view && context.view.path ? true : false
+            enabled: (view) => view && view.path ? true : false
         });
         commandTable.set('view.toggle-attributes', {
-            enabled: (context) => context.view && context.view.path ? true : false,
-            label: (context) => !context.view || context.view.get('attributes') ? 'Hide &Attributes' : 'Show &Attributes'
+            enabled: (view) => view && view.path ? true : false,
+            label: (view) => !view || view.get('attributes') ? 'Hide &Attributes' : 'Show &Attributes'
         });
         commandTable.set('view.toggle-initializers', {
-            enabled: (context) => context.view && context.view.path ? true : false,
-            label: (context) => !context.view || context.view.get('initializers') ? 'Hide &Initializers' : 'Show &Initializers'
+            enabled: (view) => view && view.path ? true : false,
+            label: (view) => !view || view.get('initializers') ? 'Hide &Initializers' : 'Show &Initializers'
         });
         commandTable.set('view.toggle-names', {
-            enabled: (context) => context.view && context.view.path ? true : false,
-            label: (context) => !context.view || context.view.get('names') ? 'Hide &Names' : 'Show &Names'
+            enabled: (view) => view && view.path ? true : false,
+            label: (view) => !view || view.get('names') ? 'Hide &Names' : 'Show &Names'
         });
         commandTable.set('view.toggle-direction', {
-            enabled: (context) => context.view && context.view.path ? true : false,
-            label: (context) => !context.view || context.view.get('direction') === 'vertical' ? 'Show &Horizontal' : 'Show &Vertical'
+            enabled: (view) => view && view.path ? true : false,
+            label: (view) => !view || view.get('direction') === 'vertical' ? 'Show &Horizontal' : 'Show &Vertical'
         });
         commandTable.set('view.toggle-mousewheel', {
-            enabled: (context) => context.view && context.view.path ? true : false,
-            label: (context) => !context.view || context.view.get('mousewheel') === 'scroll' ? '&Mouse Wheel: Zoom' : '&Mouse Wheel: Scroll'
+            enabled: (view) => view && view.path ? true : false,
+            label: (view) => !view || view.get('mousewheel') === 'scroll' ? '&Mouse Wheel: Zoom' : '&Mouse Wheel: Scroll'
         });
         commandTable.set('view.reload', {
-            enabled: (context) => context.view && context.view.path ? true : false
+            enabled: (view) => view && view.path ? true : false
         });
         commandTable.set('view.reset-zoom', {
-            enabled: (context) => context.view && context.view.path ? true : false
+            enabled: (view) => view && view.path ? true : false
         });
         commandTable.set('view.zoom-in', {
-            enabled: (context) => context.view && context.view.path ? true : false
+            enabled: (view) => view && view.path ? true : false
         });
         commandTable.set('view.zoom-out', {
-            enabled: (context) => context.view && context.view.path ? true : false
+            enabled: (view) => view && view.path ? true : false
         });
         commandTable.set('view.show-properties', {
-            enabled: (context) => context.view && context.view.path ? true : false
+            enabled: (view) => view && view.path ? true : false
         });
 
-        this._menu.build(menuTemplate, commandTable, this._views.views.map((view) => view.window));
-        this._updateMenu();
+        this._menu.build(menuTemplate, commandTable);
+        this._menu.update();
     }
 
     static minimizePath(file) {
@@ -705,7 +675,7 @@ class View {
         if (owner.application.environment.titlebar) {
             options.titleBarStyle = process.platform === 'darwin' ? 'hiddenInset' : 'hidden';
         }
-        if (this._owner.count > 0 && View._position && View._position.length == 2) {
+        if (!this._owner.empty && View._position && View._position.length == 2) {
             options.x = View._position[0] + 30;
             options.y = View._position[1] + 30;
             if (options.x + options.width > size.width) {
@@ -717,25 +687,15 @@ class View {
         }
         this._window = new electron.BrowserWindow(options);
         View._position = this._window.getPosition();
-        this._updateCallback = (event, data) => {
-            if (event.sender == this._window.webContents) {
-                for (const entry of Object.entries(data)) {
-                    this.update(entry[0], entry[1]);
-                }
-                this.emit('updated');
-            }
-        };
-        electron.ipcMain.on('update', this._updateCallback);
-        this._window.on('closed', () => {
-            electron.ipcMain.removeListener('update', this._updateCallback);
-            this._owner.closeView(this);
-        });
-        this._window.on('focus', () => {
-            this.emit('activated');
-        });
-        this._window.on('blur', () => {
-            this.emit('deactivated');
-        });
+        this._window.on('close', () => this._owner.closeView(this));
+        this._window.on('focus', () => this.emit('activated'));
+        this._window.on('blur', () => this.emit('deactivated'));
+        this._window.on('minimize', () => this._state());
+        this._window.on('restore', () => this._state());
+        this._window.on('maximize', () => this._state());
+        this._window.on('unmaximize', () => this._state());
+        this._window.on('enter-full-screen', () => this._state());
+        this._window.on('leave-full-screen', () => this._state());
         this._window.webContents.on('did-finish-load', () => {
             this._didFinishLoad = true;
         });
@@ -795,14 +755,9 @@ class View {
 
     match(path) {
         if (this._openPath) {
-            if (path === null) {
-                return false;
-            }
-            if (path === this._openPath) {
-                return true;
-            }
+            return this._openPath === path;
         }
-        return this._path == path;
+        return this._path === path;
     }
 
     execute(command, data) {
@@ -811,18 +766,28 @@ class View {
         }
     }
 
-    update(name, value) {
-        if (name === 'path') {
-            if (value) {
-                this._path = value;
-                const title = Application.minimizePath(this._path);
-                this._window.setTitle(process.platform !== 'darwin' ? title + ' - ' + electron.app.name : title);
-                this._window.focus();
+    update(data) {
+        for (const entry of Object.entries(data)) {
+            const name = entry[0];
+            const value = entry[1];
+            switch (name) {
+                case 'path': {
+                    if (value) {
+                        this._path = value;
+                        const path = Application.minimizePath(this._path);
+                        const title = process.platform !== 'darwin' ? path + ' - ' + electron.app.name : path;
+                        this._window.setTitle(title);
+                        this._window.focus();
+                    }
+                    delete this._openPath;
+                    break;
+                }
+                default: {
+                    this._properties.set(name, value);
+                }
             }
-            this._openPath = null;
-            return;
         }
-        this._properties.set(name, value);
+        this.emit('updated');
     }
 
     get(name) {
@@ -842,13 +807,51 @@ class View {
             }
         }
     }
+
+    _state() {
+        this.execute('window-state', {
+            minimized: this._window.isMinimized(),
+            maximized: this._window.isMaximized(),
+            fullscreen: this._window.isFullScreen()
+        });
+    }
 }
 
 class ViewCollection {
 
     constructor(application) {
-        this._views = [];
         this._application = application;
+        this._views = new Map();
+        electron.ipcMain.on('update', (event, data) => {
+            const window = event.sender.getOwnerBrowserWindow();
+            const view = this.get(window);
+            if (view) {
+                view.update(data);
+            }
+        });
+        electron.ipcMain.on('window-close', (event) => {
+            const window = event.sender.getOwnerBrowserWindow();
+            window.close();
+            event.returnValue = null;
+        });
+        electron.ipcMain.on('window-toggle', (event) => {
+            const window = event.sender.getOwnerBrowserWindow();
+            if (window.isFullScreen()) {
+                window.setFullScreen(false);
+            }
+            else if (window.isMaximized()) {
+                window.unmaximize();
+            }
+            else {
+                window.maximize();
+            }
+            event.returnValue = null;
+        });
+        electron.ipcMain.on('window-minimize', (event) => {
+            const window = event.sender.getOwnerBrowserWindow();
+            window.minimize();
+            event.returnValue = null;
+        });
     }
 
     get application() {
@@ -856,21 +859,21 @@ class ViewCollection {
     }
 
     get views() {
-        return this._views;
+        return this._views.values();
     }
 
-    get count() {
-        return this._views.length;
+    get empty() {
+        return this._views.size === 0;
     }
 
-    item(index) {
-        return this._views[index];
+    get(window) {
+        return this._views.get(window);
     }
 
     openView() {
         const view = new View(this);
-        view.on('activated', (sender) => {
-            this._activeView = sender;
+        view.on('activated', (view) => {
+            this._activeView = view;
             this.emit('active-view-changed', { activeView: this._activeView });
         });
         view.on('updated', () => {
@@ -880,26 +883,18 @@ class ViewCollection {
             this._activeView = null;
             this.emit('active-view-changed', { activeView: this._activeView });
         });
-        this._views.push(view);
+        this._views.set(view.window, view);
         this._updateActiveView();
         return view;
     }
 
     closeView(view) {
-        for (let i = this._views.length - 1; i >= 0; i--) {
-            if (this._views[i] == view) {
-                this._views.splice(i, 1);
-            }
-        }
+        this._views.delete(view.window);
         this._updateActiveView();
     }
 
-    find(path) {
-        return this._views.find(view => view.match(path));
-    }
-
-    from(contents) {
-        return this._views.find(view => view && view.window && view.window.webContents && view.window.webContents == contents);
+    first() {
+        return this.empty ? null : this._views.values().next().value;
     }
 
     get activeView() {
@@ -922,7 +917,7 @@ class ViewCollection {
 
     _updateActiveView() {
         const window = electron.BrowserWindow.getFocusedWindow();
-        const view = this._views.find(view => view.window == window) || null;
+        const view = window ? this._views.get(window) : null;
         if (view !== this._activeView) {
             this._activeView = view;
             this.emit('active-view-changed', { activeView: this._activeView });
@@ -978,11 +973,11 @@ class ConfigurationService {
 
 class MenuService {
 
-    constructor(application) {
-        this._application = application;
+    constructor(views) {
+        this._views = views;
     }
 
-    build(menuTemplate, commandTable, windows) {
+    build(menuTemplate, commandTable) {
         this._menuTemplate = menuTemplate;
         this._commandTable = commandTable;
         this._itemTable = new Map();
@@ -996,40 +991,41 @@ class MenuService {
                 }
             }
         }
-        this._rebuild(windows);
+        this._rebuild();
     }
 
-    update(context, windows) {
+    update() {
         if (!this._menu && !this._commandTable) {
             return;
         }
-        if (this._updateLabel(context)) {
-            this._rebuild(windows);
+        const view = this._views.activeView;
+        if (this._updateLabel(view)) {
+            this._rebuild();
         }
-        this._updateEnabled(context);
+        this._updateEnabled(view);
     }
 
-    _rebuild(windows) {
+    _rebuild() {
         if (process.platform === 'darwin') {
             this._menu = electron.Menu.buildFromTemplate(this._menuTemplate);
             electron.Menu.setApplicationMenu(this._menu);
         }
-        else if (!this._application.environment.titlebar) {
+        else if (!this._views.application.environment.titlebar) {
             this._menu = electron.Menu.buildFromTemplate(this._menuTemplate);
-            for (const window of windows) {
-                window.setMenu(this._menu);
+            for (const view of this._views.views) {
+                view.window.setMenu(this._menu);
             }
         }
     }
 
-    _updateLabel(context) {
+    _updateLabel(view) {
         let rebuild = false;
         for (const entry of this._commandTable.entries()) {
             if (this._menu) {
                 const menuItem = this._menu.getMenuItemById(entry[0]);
                 const command = entry[1];
                 if (command && command.label) {
-                    const label = command.label(context);
+                    const label = command.label(view);
                     if (label !== menuItem.label) {
                         if (this._itemTable.has(entry[0])) {
                             this._itemTable.get(entry[0]).label = label;
@@ -1042,13 +1038,13 @@ class MenuService {
         return rebuild;
     }
 
-    _updateEnabled(context) {
+    _updateEnabled(view) {
         for (const entry of this._commandTable.entries()) {
             if (this._menu) {
                 const menuItem = this._menu.getMenuItemById(entry[0]);
                 const command = entry[1];
                 if (menuItem && command.enabled) {
-                    menuItem.enabled = command.enabled(context);
+                    menuItem.enabled = command.enabled(view);
                 }
             }
         }
