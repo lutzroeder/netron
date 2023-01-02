@@ -280,7 +280,7 @@ nnabla.Attribute = class {
         const attribute = metadata.attribute(type, name);
         this._description = attribute.description;
         switch (attribute.type) {
-            case "Shape":
+            case "shape":
                 this._type = "int64[]";
                 this._value = value.dim;
                 break;

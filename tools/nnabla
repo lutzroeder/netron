@@ -20,6 +20,7 @@ venv() {
 
 clean() {
     echo "nnabla clean"
+    rm -rf "./third_party/env/nnabla"
     rm -rf "./third_party/source/nnabla"
 }
 
@@ -30,13 +31,14 @@ sync() {
     curl --silent --location --output "./third_party/source/nnabla/build-tools/code_generator/solvers.yaml" "https://github.com/sony/nnabla/blob/master/build-tools/code_generator/solvers.yaml?raw=true"
     mkdir -p "./third_party/source/nnabla/src/nbla/proto"
     curl --silent --location --output "./third_party/source/nnabla/src/nbla/proto/nnabla.proto.tmpl" "https://github.com/sony/nnabla/blob/master/src/nbla/proto/nnabla.proto.tmpl?raw=true"
-    echo 'package nnabla;' | cat - ./third_party/source/nnabla/src/nbla/proto/nnabla.proto.tmpl > ./third_party/source/nnabla/src/nbla/proto/nnabla.proto.tmpl.temp && mv ./third_party/source/nnabla/src/nbla/proto/nnabla.proto.tmpl.temp ./third_party/source/nnabla/src/nbla/proto/nnabla.proto.tmpl
+    echo 'package nnabla;' | cat - ./third_party/source/nnabla/src/nbla/proto/nnabla.proto.tmpl > ./third_party/source/nnabla/src/nbla/proto/nnabla.proto.tmpl.temp
+    mv ./third_party/source/nnabla/src/nbla/proto/nnabla.proto.tmpl.temp ./third_party/source/nnabla/src/nbla/proto/nnabla.proto.tmpl
 }
 
 install() {
     echo "nnabla install"
     venv
-    ${python} -m pip install --quiet --upgrade six mako pyyaml
+    ${python} -m pip install --quiet --upgrade mako pyyaml
     deactivate
 }
 
@@ -44,7 +46,6 @@ schema() {
     echo "nnabla schema"
     venv
     ${python} -m pip --quiet install pyyaml mako
-    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     ${python} ./tools/nnabla_script.py schema
     deactivate
     [[ $(grep -U $'\x0D' ./source/nnabla-proto.js) ]] && crlf=1
@@ -58,7 +59,6 @@ metadata() {
     echo "nnabla metadata"
     venv
     ${python} -m pip --quiet install pyyaml mako
-    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     if [[ $(grep -U $'\x0D' ./source/nnabla-metadata.json) ]]; then crlf=1; else crlf=; fi
     ${python} ./tools/nnabla_script.py metadata
     deactivate
