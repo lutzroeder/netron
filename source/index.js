@@ -24,7 +24,8 @@ host.BrowserHost = class {
             'type': this._meta.type ? this._meta.type[0] : 'Browser',
             'version': this._meta.version ? this._meta.version[0] : null,
             'date': this._meta.date ? new Date(this._meta.date[0].split(' ').join('T') + 'Z') : new Date(),
-            'platform': /(Mac|iPhone|iPod|iPad)/i.test(this._navigator.platform) ? 'darwin' : undefined
+            'platform': /(Mac|iPhone|iPod|iPad)/i.test(this._navigator.platform) ? 'darwin' : undefined,
+            'menu': true
         };
         this.window.require = (id) => {
             const name = id.startsWith('./') ? id.substring(2) : id;

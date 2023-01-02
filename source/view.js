@@ -54,92 +54,94 @@ view.View = class {
             this._host.document.addEventListener('keydown', () => {
                 this.clearSelection();
             });
-            this._menu = new view.Dropdown(this._host, 'menu-button', 'menu-dropdown');
-            this._menu.add({
-                label: 'Properties...',
-                accelerator: 'CmdOrCtrl+Enter',
-                click: () => this.showModelProperties(),
-                enabled: () => this.activeGraph
-            });
-            this._menu.add({});
-            this._menu.add({
-                label: 'Find...',
-                accelerator: 'CmdOrCtrl+F',
-                click: () => this.find(),
-                enabled: () => this.activeGraph
-            });
-            this._menu.add({});
-            this._menu.add({
-                label: () => this.options.attributes ? 'Hide Attributes' : 'Show Attributes',
-                accelerator: 'CmdOrCtrl+D',
-                click: () => this.toggle('attributes'),
-                enabled: () => this.activeGraph
-            });
-            this._menu.add({
-                label: () => this.options.initializers ? 'Hide Initializers' : 'Show Initializers',
-                accelerator: 'CmdOrCtrl+I',
-                click: () => this.toggle('initializers'),
-                enabled: () => this.activeGraph
-            });
-            this._menu.add({
-                label: () => this.options.names ? 'Hide Names' : 'Show Names',
-                accelerator: 'CmdOrCtrl+U',
-                click: () => this.toggle('names'),
-                enabled: () => this.activeGraph
-            });
-            this._menu.add({
-                label: () => this.options.direction === 'vertical' ? 'Show Horizontal' : 'Show Vertical',
-                accelerator: 'CmdOrCtrl+K',
-                click: () => this.toggle('direction'),
-                enabled: () => this.activeGraph
-            });
-            this._menu.add({
-                label: () => this.options.mousewheel === 'scroll' ? 'Mouse Wheel: Zoom' : 'Mouse Wheel: Scroll',
-                accelerator: 'CmdOrCtrl+M',
-                click: () => this.toggle('mousewheel'),
-                enabled: () => this.activeGraph
-            });
-            this._menu.add({});
-            this._menu.add({
-                label: 'Zoom In',
-                accelerator: 'Shift+Up',
-                click: () => this.zoomIn(),
-                enabled: () => this.activeGraph
-            });
-            this._menu.add({
-                label: 'Zoom Out',
-                accelerator: 'Shift+Down',
-                click: () => this.zoomOut(),
-                enabled: () => this.activeGraph
-            });
-            this._menu.add({
-                label: 'Actual Size',
-                accelerator: 'Shift+Backspace',
-                click: () => this.resetZoom(),
-                enabled: () => this.activeGraph
-            });
-            this._menu.add({});
-            this._menu.add({
-                label: 'Export as PNG',
-                accelerator: 'CmdOrCtrl+Shift+E',
-                click: () => this.export(this._host.document.title + '.png'),
-                enabled: () => this.activeGraph
-            });
-            this._menu.add({
-                label: 'Export as SVG',
-                accelerator: 'CmdOrCtrl+Alt+E',
-                click: () => this.export(this._host.document.title + '.svg'),
-                enabled: () => this.activeGraph
-            });
-            this._menu.add({});
-            this._menu.add({
-                label: 'About ' + this._host.document.title,
-                click: () => this.about()
-            });
-            this._getElementById('menu-button').addEventListener('click', (e) => {
-                this._menu.toggle();
-                e.preventDefault();
-            });
+            if (this._host.environment('menu')) {
+                this._menu = new view.Dropdown(this._host, 'menu-button', 'menu-dropdown');
+                this._menu.add({
+                    label: 'Properties...',
+                    accelerator: 'CmdOrCtrl+Enter',
+                    click: () => this.showModelProperties(),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({});
+                this._menu.add({
+                    label: 'Find...',
+                    accelerator: 'CmdOrCtrl+F',
+                    click: () => this.find(),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({});
+                this._menu.add({
+                    label: () => this.options.attributes ? 'Hide Attributes' : 'Show Attributes',
+                    accelerator: 'CmdOrCtrl+D',
+                    click: () => this.toggle('attributes'),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({
+                    label: () => this.options.initializers ? 'Hide Initializers' : 'Show Initializers',
+                    accelerator: 'CmdOrCtrl+I',
+                    click: () => this.toggle('initializers'),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({
+                    label: () => this.options.names ? 'Hide Names' : 'Show Names',
+                    accelerator: 'CmdOrCtrl+U',
+                    click: () => this.toggle('names'),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({
+                    label: () => this.options.direction === 'vertical' ? 'Show Horizontal' : 'Show Vertical',
+                    accelerator: 'CmdOrCtrl+K',
+                    click: () => this.toggle('direction'),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({
+                    label: () => this.options.mousewheel === 'scroll' ? 'Mouse Wheel: Zoom' : 'Mouse Wheel: Scroll',
+                    accelerator: 'CmdOrCtrl+M',
+                    click: () => this.toggle('mousewheel'),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({});
+                this._menu.add({
+                    label: 'Zoom In',
+                    accelerator: 'Shift+Up',
+                    click: () => this.zoomIn(),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({
+                    label: 'Zoom Out',
+                    accelerator: 'Shift+Down',
+                    click: () => this.zoomOut(),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({
+                    label: 'Actual Size',
+                    accelerator: 'Shift+Backspace',
+                    click: () => this.resetZoom(),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({});
+                this._menu.add({
+                    label: 'Export as PNG',
+                    accelerator: 'CmdOrCtrl+Shift+E',
+                    click: () => this.export(this._host.document.title + '.png'),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({
+                    label: 'Export as SVG',
+                    accelerator: 'CmdOrCtrl+Alt+E',
+                    click: () => this.export(this._host.document.title + '.svg'),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({});
+                this._menu.add({
+                    label: 'About ' + this._host.document.title,
+                    click: () => this.about()
+                });
+                this._getElementById('menu-button').addEventListener('click', (e) => {
+                    this._menu.toggle();
+                    e.preventDefault();
+                });
+            }
             this._host.start();
         }).catch((err) => {
             this.error(err, null, null);

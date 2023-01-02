@@ -29,6 +29,7 @@ host.ElectronHost = class {
             }
         });
         this._environment = electron.ipcRenderer.sendSync('get-environment', {});
+        this._environment.menu = this._environment.titlebar && this._environment.platform !== 'darwin';
         this._queue = [];
     }
 
@@ -61,7 +62,7 @@ host.ElectronHost = class {
             const age = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
             if (age > 180) {
                 this._message('Please update to the newest version.', 'Download', () => {
-                    const link = this.document.getElementById('logo-github').href;
+                    const link = this._element('logo-github').href;
                     this.openURL(link);
                 }, true);
             }
@@ -135,13 +136,6 @@ host.ElectronHost = class {
                 this._openPath(path);
             }
         }
-        if (this._environment.titlebar) {
-            this.document.getElementById('titlebar').style.display = 'block';
-        }
-        if (!this._environment.titlebar || this._environment.platform === 'darwin') {
-            this.document.getElementById('menu-button').style.display = 'none';
-            this.document.getElementById('titlebar-window').style.display = 'none';
-        }
 
         this._window.addEventListener('focus', () => {
             this._document.body.classList.add('active');
@@ -172,16 +166,16 @@ host.ElectronHost = class {
             this._update(Object.assign({}, this._view.options));
         });
         electron.ipcRenderer.on('zoom-in', () => {
-            this.document.getElementById('zoom-in-button').click();
+            this._element('zoom-in-button').click();
         });
         electron.ipcRenderer.on('zoom-out', () => {
-            this.document.getElementById('zoom-out-button').click();
+            this._element('zoom-out-button').click();
         });
         electron.ipcRenderer.on('reset-zoom', () => {
             this._view.resetZoom();
         });
         electron.ipcRenderer.on('show-properties', () => {
-            this.document.getElementById('sidebar-button').click();
+            this._element('sidebar-button').click();
         });
         electron.ipcRenderer.on('find', () => {
             this._view.find();
@@ -190,24 +184,30 @@ host.ElectronHost = class {
             this._view.about();
         });
 
-        this.document.getElementById('titlebar-close').addEventListener('click', () => {
+        this._element('titlebar-close').addEventListener('click', () => {
             electron.ipcRenderer.sendSync('window-close', {});
         });
-        this.document.getElementById('titlebar-toggle').addEventListener('click', () => {
+        this._element('titlebar-toggle').addEventListener('click', () => {
             electron.ipcRenderer.sendSync('window-toggle', {});
         });
-        this.document.getElementById('titlebar-minimize').addEventListener('click', () => {
+        this._element('titlebar-minimize').addEventListener('click', () => {
             electron.ipcRenderer.sendSync('window-minimize', {});
         });
+        electron.ipcRenderer.on('window-state', (_, data) => {
+            this._element('titlebar').style.display = this._environment.titlebar ? 'block' : 'none';
+            this._element('menu-button').style.opacity = this._environment.menu ? 1 : 0;
+            this._element('titlebar-window').style.opacity = this._environment.titlebar && this._environment.platform !== 'darwin' && !data.fullscreen ? 1 : 0;
+        });
+        electron.ipcRenderer.sendSync('update-window-state', {});
 
-        const openFileButton = this.document.getElementById('open-file-button');
+        const openFileButton = this._element('open-file-button');
         if (openFileButton) {
             openFileButton.addEventListener('click', () => {
                 electron.ipcRenderer.send('open-file-dialog', {});
             });
         }
-        const githubButton = this.document.getElementById('github-button');
-        const githubLink = this.document.getElementById('logo-github');
+        const githubButton = this._element('github-button');
+        const githubLink = this._element('logo-github');
         if (githubButton && githubLink) {
             githubButton.innerText = 'Download';
             githubButton.addEventListener('click', () => {
@@ -573,7 +573,7 @@ host.ElectronHost = class {
     }
 
     _title(path) {
-        const element = this._document.getElementById('titlebar-content-text');
+        const element = this._element('titlebar-content-text');
         if (element) {
             element.setAttribute('title', path);
             element.innerHTML = '';
@@ -588,16 +588,20 @@ host.ElectronHost = class {
         }
     }
 
+    _element(id) {
+        return this.document.getElementById(id);
+    }
+
     _update(data) {
-        electron.ipcRenderer.send('update', data);
+        electron.ipcRenderer.send('window-update', data);
     }
 
     _message(message, action, callback, modal) {
-        const messageText = this.document.getElementById('message');
+        const messageText = this._element('message');
         if (messageText) {
             messageText.innerText = message;
         }
-        const messageButton = this.document.getElementById('message-button');
+        const messageButton = this._element('message-button');
         if (messageButton) {
             if (action && callback) {
                 messageButton.style.removeProperty('display');

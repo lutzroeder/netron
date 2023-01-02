@@ -690,12 +690,12 @@ class View {
         this._window.on('close', () => this._owner.closeView(this));
         this._window.on('focus', () => this.emit('activated'));
         this._window.on('blur', () => this.emit('deactivated'));
-        this._window.on('minimize', () => this._state());
-        this._window.on('restore', () => this._state());
-        this._window.on('maximize', () => this._state());
-        this._window.on('unmaximize', () => this._state());
-        this._window.on('enter-full-screen', () => this._state());
-        this._window.on('leave-full-screen', () => this._state());
+        this._window.on('minimize', () => this.state());
+        this._window.on('restore', () => this.state());
+        this._window.on('maximize', () => this.state());
+        this._window.on('unmaximize', () => this.state());
+        this._window.on('enter-full-screen', () => this.state());
+        this._window.on('leave-full-screen', () => this.state());
         this._window.webContents.on('did-finish-load', () => {
             this._didFinishLoad = true;
         });
@@ -808,7 +808,7 @@ class View {
         }
     }
 
-    _state() {
+    state() {
         this.execute('window-state', {
             minimized: this._window.isMinimized(),
             maximized: this._window.isMaximized(),
@@ -822,13 +822,6 @@ class ViewCollection {
     constructor(application) {
         this._application = application;
         this._views = new Map();
-        electron.ipcMain.on('update', (event, data) => {
-            const window = event.sender.getOwnerBrowserWindow();
-            const view = this.get(window);
-            if (view) {
-                view.update(data);
-            }
-        });
         electron.ipcMain.on('window-close', (event) => {
             const window = event.sender.getOwnerBrowserWindow();
             window.close();
@@ -850,6 +843,20 @@ class ViewCollection {
         electron.ipcMain.on('window-minimize', (event) => {
             const window = event.sender.getOwnerBrowserWindow();
             window.minimize();
+            event.returnValue = null;
+        });
+        electron.ipcMain.on('window-update', (event, data) => {
+            const window = event.sender.getOwnerBrowserWindow();
+            if (this._views.has(window)) {
+                this._views.get(window).update(data);
+            }
+            event.returnValue = null;
+        });
+        electron.ipcMain.on('update-window-state', (event) => {
+            const window = event.sender.getOwnerBrowserWindow();
+            if (this._views.has(window)) {
+                this._views.get(window).state();
+            }
             event.returnValue = null;
         });
     }
