@@ -4941,21 +4941,22 @@ python.Execution = class {
             }
         });
         this.registerType('torch.dtype', class {
-            constructor(data) {
-                this._type = data.type;
-                this._data = data;
+            constructor(scalar_type, name, itemsize) {
+                this._scalar_type = scalar_type;
+                this._name = name;
+                this._itemsize = itemsize;
             }
             scalar_type() {
-                return this._type;
+                return this._scalar_type;
             }
             itemsize() {
-                return this._data.itemsize;
+                return this._itemsize;
             }
             __reduce__() {
-                return this._data.name;
+                return this._name;
             }
             __str__() {
-                return 'torch.' + this._data.name;
+                return 'torch.' + this._name;
             }
             toString() {
                 return this.__str__();
@@ -5338,23 +5339,23 @@ python.Execution = class {
         this.register('torch.optim').Adam = this.register('torch.optim.adam').Adam;
         this.register('torch.nn').ReLU = this.register('torch.nn.modules.activation').ReLU;
         this.register('sklearn.utils').Bunch = this.register('sklearn.utils._bunch').Bunch;
-        torch.uint8 = torch.ByteStorage.dtype = new torch.dtype({ type: 0, name: 'uint8', itemsize: 1 });
-        torch.int8 = torch.CharStorage.dtype = new torch.dtype({ type: 1, name: 'int8', itemsize: 1 });
-        torch.int16 = torch.ShortStorage.dtype = new torch.dtype({ type: 2, name: 'int16', itemsize: 2 });
-        torch.int32 = torch.IntStorage.dtype = new torch.dtype({ type: 3, name: 'int32', itemsize: 4 });
-        torch.int64 = torch.LongStorage.dtype = new torch.dtype({ type: 4, name: 'int64', itemsize: 8 });
-        torch.float16 = torch.HalfStorage.dtype = new torch.dtype({ type: 5, name: 'float16', itemsize: 2 });
-        torch.float32 = torch.FloatStorage.dtype = new torch.dtype({ type: 6, name: 'float32', itemsize: 4 });
-        torch.float64 = torch.DoubleStorage.dtype = new torch.dtype({ type: 7, name: 'float64', itemsize: 8 });
-        torch.complex32 = torch.ComplexHalfStorage.dtype = new torch.dtype({ type: 8, name: 'complex32', itemsize: 4 });
-        torch.complex64 = torch.ComplexFloatStorage.dtype = new torch.dtype({ type: 9, name: 'complex64', itemsize: 8 });
-        torch.complex128 = torch.ComplexDoubleStorage.dtype = new torch.dtype({ type: 10, name: 'complex128', itemsize: 16 });
-        torch.bool = torch.BoolStorage.dtype = new torch.dtype({ type: 11, name: 'boolean', itemsize: 1 });
-        torch.qint8 = torch.QInt8Storage.dtype = new torch.dtype({ type: 12, name: 'qint8', itemsize: 1 });
-        torch.quint8 = torch.QUInt8Storage.dtype = new torch.dtype({ type: 13, name: 'quint8', itemsize: 1 });
-        torch.qint32 = torch.QInt32Storage.dtype = new torch.dtype({ type: 14, name: 'qint32', itemsize: 4 });
-        torch.bfloat16 = torch.BFloat16Storage.dtype = new torch.dtype({ type: 15, name: 'bfloat16', itemsize: 2 });
-        torch.quint4x2 = new torch.dtype({ type: 16, name: 'quint4x2' });
+        torch.uint8 = torch.ByteStorage.dtype = new torch.dtype(0, 'uint8', 1);
+        torch.int8 = torch.CharStorage.dtype = new torch.dtype(1, 'int8', 1);
+        torch.int16 = torch.ShortStorage.dtype = new torch.dtype(2, 'int16', 2);
+        torch.int32 = torch.IntStorage.dtype = new torch.dtype(3, 'int32', 4);
+        torch.int64 = torch.LongStorage.dtype = new torch.dtype(4, 'int64', 8);
+        torch.float16 = torch.HalfStorage.dtype = new torch.dtype(5, 'float16', 2);
+        torch.float32 = torch.FloatStorage.dtype = new torch.dtype(6, 'float32', 4);
+        torch.float64 = torch.DoubleStorage.dtype = new torch.dtype(7, 'float64', 8);
+        torch.complex32 = torch.ComplexHalfStorage.dtype = new torch.dtype(8, 'complex32', 4);
+        torch.complex64 = torch.ComplexFloatStorage.dtype = new torch.dtype(9, 'complex64', 8);
+        torch.complex128 = torch.ComplexDoubleStorage.dtype = new torch.dtype(10, 'complex128', 16);
+        torch.bool = torch.BoolStorage.dtype = new torch.dtype(11, 'boolean', 1);
+        torch.qint8 = torch.QInt8Storage.dtype = new torch.dtype(12, 'qint8', 1);
+        torch.quint8 = torch.QUInt8Storage.dtype = new torch.dtype(13, 'quint8', 1);
+        torch.qint32 = torch.QInt32Storage.dtype = new torch.dtype(14, 'qint32', 4);
+        torch.bfloat16 = torch.BFloat16Storage.dtype = new torch.dtype(15, 'bfloat16', 2);
+        torch.quint4x2 = new torch.dtype(16, 'quint4x2');
         torch.strided = new torch.layout('torch.strided');
         torch.sparse_coo = new torch.layout('torch.sparse_coo');
         torch.sparse_csr = new torch.layout('torch.sparse_csr');

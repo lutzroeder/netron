@@ -1011,7 +1011,6 @@ pytorch.Container.Mobile = class extends pytorch.Container {
     read() {
         return this._context.require('./pytorch-schema').then(() => {
             this._modules = new Map();
-            pytorch.schema = flatbuffers.get('torch').torch.jit.mobile.serialization;
             const execution = new pytorch.jit.Execution(null, this._metadata);
             for (const event in this._events) {
                 execution.on(event[0], event[1]);
@@ -1019,9 +1018,7 @@ pytorch.Container.Mobile = class extends pytorch.Container {
             const stream = this._context.stream;
             const torch = execution.__import__('torch');
             const module = torch.jit.jit_module_from_flatbuffer(stream);
-            if (!module) {
-                throw new pytorch.Error('torch.jit.mobile.serialization.Module not supported.');
-            }
+            this._modules = new Map([ ['', module] ]);
             delete this._context;
         });
     }
@@ -1214,13 +1211,18 @@ pytorch.Execution = class extends python.Execution {
             return new torch.jit._script.RecursiveScriptModule(cpp_module);
         });
         this.registerFunction('torch.jit.jit_module_from_flatbuffer', function(f) {
+            pytorch.schema = flatbuffers.get('torch');
+            const cu = new torch.jit.CompilationUnit();
+            cu.execution = execution;
             const stream = f;
             const reader = flatbuffers.BinaryReader.open(stream);
-            /* const module = */ pytorch.schema.Module.create(reader);
+            const module = pytorch.schema.torch.jit.mobile.serialization.Module.create(reader);
+            const loader = new pytorch.jit.FlatBuffersLoader(cu);
+            loader.parseModule(module);
             // parse_and_initialize_jit_module
             //   const mobilem = parse_and_initialize_mobile_module_for_jit(data, jit_files, jit_constants);
             //   const m = jitModuleFromSourceAndConstants(mobilem._ivalue(), jit_files, jit_constants, mobilem.bytecode_version());
-            return null;
+            throw new pytorch.Error('torch.jit.mobile.serialization.Module not supported.');
         });
         this.registerType('torch._C.DeserializationStorageContext', class extends Map {
             has_storage(name) {
@@ -2851,6 +2853,84 @@ pytorch.jit.ScriptModuleDeserializer = class {
     }
 };
 
+pytorch.jit.FlatBuffersLoader = class {
+
+    constructor(cu) {
+        this._cu = cu;
+        const torch = cu.execution.__import__('torch');
+        const dtypes = Array.from(new Set(Object.values(torch).filter((obj) => obj instanceof torch.dtype)));
+        this._dtypes = new Map(dtypes.map((dtype) => [ dtype.scalar_type(), dtype ]));
+        const schema = pytorch.schema.torch.jit.mobile.serialization;
+        this._ivalue_parsers = new Map();
+        this._ivalue_parsers.set(schema.Int, (ivalue) => ivalue.val.int_val);
+        this._ivalue_parsers.set(schema.Bool, (ivalue) => ivalue.val.bool_val);
+        this._ivalue_parsers.set(schema.Double, (ivalue) => ivalue.val.double_val);
+        this._ivalue_parsers.set(schema.TensorMetadata, (ivalue) => this.parseTensor(ivalue));
+        this._ivalue_parsers.set(schema.Object, (ivalue) => this.parseObject(ivalue));
+    }
+
+    parseModule(module) {
+        this._module = module;
+        this._all_functions = new Map();
+        this._all_ivalues = new Array(module.ivalues.length);
+        this._all_types = new Array(module.object_types.length);
+        const mobile_ivalue_size = module.mobile_ivalue_size ? module.mobile_ivalue_size : module.ivalues.length;
+        for (let i = 0; i < mobile_ivalue_size; i++) {
+            this.parseAndPopulate(i, module.ivalues[i]);
+        }
+        /* const module_ivalue = */ this._all_ivalues[module.state_obj];
+        // m.set_min_operator_version(module.operator_version);
+        // m.set_bytecode_version(module.bytecode_version);
+        // return m;
+    }
+
+    parseAndPopulate(i, ivalue) {
+        if (ivalue.val instanceof pytorch.schema.torch.jit.mobile.serialization.Function) {
+            this._all_functions.set(i, this.parseFunction(ivalue.val));
+        }
+        else {
+            this._all_ivalues[i] = this.parseIValue(ivalue);
+        }
+    }
+
+    parseFunction(/* val */) {
+        return null;
+    }
+
+    parseIValue(ivalue) {
+        if (ivalue.val) {
+            const callback = this._ivalue_parsers.get(ivalue.val.constructor);
+            return callback(ivalue);
+        }
+        return null;
+    }
+
+    parseTensor(ivalue) {
+        return this.parseTensorFromMetadata(ivalue.val);
+    }
+
+    parseTensorFromMetadata(metadata) {
+        if (metadata.quantized_schema) {
+            throw new pytorch.Error('Quantized schema not implemented.');
+        }
+        const index = metadata.storage_location_index;
+        const data = this._module.storage_data[index].data;
+        const dtype = this._dtypes.get(metadata.scalar_type);
+        const size = data.length / dtype.itemsize();
+        const storage = this._cu.execution.invoke('torch.storage._TypedStorage', [ size, dtype ]);
+        storage._set_cdata(data);
+        const tensor = this._cu.execution.invoke('torch.Tensor', []);
+        const shape = Array.from(metadata.sizes);
+        const stride = Array.from(metadata.strides);
+        tensor.__setstate__([ storage, metadata.storage_offset, shape, stride ]);
+        return tensor;
+    }
+
+    parseObject(/* ivalue */) {
+        return null;
+    }
+};
+
 pytorch.jit.StreamReader = class {
 
     constructor(entries) {
@@ -2951,17 +3031,6 @@ pytorch.Layout = {
 };
 
 pytorch.Utility = class {
-
-    static getScalarType(scalarType) {
-        if (!pytorch.Utility._scalarTypes) {
-            pytorch.Utility._scalarTypes = [
-            ];
-        }
-        if (scalarType < pytorch.Utility._scalarTypes.length) {
-            return pytorch.Utility._scalarTypes[scalarType];
-        }
-        throw new pytorch.Error("Unsupported scalar type '" + scalarType + "'.");
-    }
 
     static target(expression) {
         if (expression.type == 'id') {
