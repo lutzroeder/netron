@@ -673,7 +673,9 @@ class View {
             }
         };
         if (owner.application.environment.titlebar) {
-            options.titleBarStyle = process.platform === 'darwin' ? 'hiddenInset' : 'hidden';
+            options.frame = false;
+            options.thickFrame = true;
+            options.titleBarStyle = 'hiddenInset';
         }
         if (!this._owner.empty && View._position && View._position.length == 2) {
             options.x = View._position[0] + 30;

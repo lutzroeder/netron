@@ -196,7 +196,10 @@ host.ElectronHost = class {
         electron.ipcRenderer.on('window-state', (_, data) => {
             this._element('titlebar').style.display = this._environment.titlebar ? 'block' : 'none';
             this._element('menu-button').style.opacity = this._environment.menu ? 1 : 0;
-            this._element('titlebar-window').style.opacity = this._environment.titlebar && this._environment.platform !== 'darwin' && !data.fullscreen ? 1 : 0;
+            this._element('titlebar-control-box').style.opacity = this._environment.titlebar && this._environment.platform !== 'darwin' && !data.fullscreen ? 1 : 0;
+            this._element('titlebar-maximize').style.opacity = data.maximized ? 0 : 1;
+            this._element('titlebar-restore').style.opacity = data.maximized ? 1 : 0;
+            this._element('titlebar-toggle').setAttribute('title', data.maximized ? 'Restore' : 'Maximize');
         });
         electron.ipcRenderer.sendSync('update-window-state', {});
 

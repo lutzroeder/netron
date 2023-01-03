@@ -91,8 +91,8 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .titlebar-content { display: block; padding: 0 142px; height: 100%; text-align: center; font-size: 14px; line-height: 32px; transition: all .25s ease-in-out; user-select: none; }
 .titlebar-content-text { display: block; direction: rtl; overflow: hidden; text-overflow: clip; white-space: nowrap; }
 .active .titlebar { color: #464646; transition: all 0.05s ease-in-out; }
+.titlebar-control-box { display: flex; align-items: center; flex-direction: row-reverse; height: 100%; position: absolute; top: 0; right: 0; width: 138px; }
 .titlebar-icon { width: 1em; height: 1em; vertical-align: -0.15em; fill: currentColor; overflow: hidden; }
-.titlebar-window { display: flex; align-items: center; flex-direction: row-reverse; height: 100%; position: absolute; top: 0; right: 0; width: 138px; }
 .titlebar-button { display: flex; justify-content: center; align-items: center; width: 46px; height: 32px; -webkit-app-region: no-drag; }
 .titlebar-button:hover { color: #000000; background-color: rgba(0, 0, 0, 0.15); }
 .titlebar-button-close:hover { color: #ffffff; background-color: #b43029; }
@@ -399,19 +399,21 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     <div id="titlebar-content" class="titlebar-content">
         <span id="titlebar-content-text" class="titlebar-content-text"></span>
     </div>
-    <div id="titlebar-window" class="titlebar-window">
-        <div id="titlebar-close" class="titlebar-button titlebar-button-close">
+    <div id="titlebar-control-box" class="titlebar-control-box">
+        <div id="titlebar-close" class="titlebar-button titlebar-button-close" title="Close">
             <svg class="titlebar-icon" aria-hidden="true">
                 <path d="M 0,0 0,0.7 4.3,5 0,9.3 0,10 0.7,10 5,5.7 9.3,10 10,10 10,9.3 5.7,5 10,0.7 10,0 9.3,0 5,4.3 0.7,0 Z"></path>
             </svg>
         </div>
-        <div id="titlebar-toggle" class="titlebar-button">
-            <svg class="titlebar-icon" aria-hidden="true">
-                <!-- <path d="M 0,0 0,10 10,10 10,0 Z M 1,1 9,1 9,9 1,9 Z"></path> -->
+        <div id="titlebar-toggle" class="titlebar-button" title="Maximize">
+            <svg id="titlebar-maximize" class="titlebar-icon" aria-hidden="true" style="position: absolute;">
+                <path d="M 0,0 0,10 10,10 10,0 Z M 1,1 9,1 9,9 1,9 Z"></path>
+            </svg>
+            <svg id="titlebar-restore" class="titlebar-icon" aria-hidden="true" style="position: absolute;">
                 <path d="m 2,1e-5 0,2 -2,0 0,8 8,0 0,-2 2,0 0,-8 z m 1,1 6,0 0,6 -1,0 0,-5 -5,0 z m -2,2 6,0 0,6 -6,0 z"></path>
             </svg>
         </div>
-        <div id="titlebar-minimize" class="titlebar-button">
+        <div id="titlebar-minimize" class="titlebar-button" title="Minimize">
             <svg class="titlebar-icon" aria-hidden="true">
                 <path d="M 0,5 10,5 10,6 0,6 Z"></path>
             </svg>
