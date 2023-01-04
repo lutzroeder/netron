@@ -4699,6 +4699,30 @@
     ]
   },
   {
+    "name": "aten::fft_fft",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "n", "type": "int64", "optional": true, "default": null },
+      { "name": "dim", "type": "int64", "default": -1 },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::fft_fft.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "n", "type": "int64", "optional": true, "default": null },
+      { "name": "dim", "type": "int64", "default": -1 },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::fft_fft2",
     "inputs": [
       { "name": "self", "type": "Tensor" },
