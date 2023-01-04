@@ -833,7 +833,7 @@ svp.BinaryReader = class extends base.BinaryReader {
             case 6: value = this.read(this.uint32()); break;
             default: throw new svp.Error("Unsupported value identifier '" + tag + "'.");
         }
-        return type ? this._cast(value, type) : value;
+        return type ? this._cast(value, type, tag) : value;
     }
 
     find(tag, type) {
@@ -845,7 +845,7 @@ svp.BinaryReader = class extends base.BinaryReader {
             match = current === tag;
         }
         this.seek(0);
-        return match && type ? this._cast(value, type) : value;
+        return match && type ? this._cast(value, type, tag) : value;
     }
 
     attribute(tag, type) {
@@ -853,11 +853,14 @@ svp.BinaryReader = class extends base.BinaryReader {
         return new svp.AttrDef(value, type);
     }
 
-    _cast(value, type) {
+    _cast(value, type, tag) {
         switch (type) {
             case 'string': {
-                svp.BinaryReader._decoder = svp.BinaryReader._decoder || new TextDecoder('utf-8');
-                return svp.BinaryReader._decoder.decode(value).replace(/\0.*$/g, '');
+                if (value instanceof Uint8Array) {
+                    svp.BinaryReader._decoder = svp.BinaryReader._decoder || new TextDecoder('utf-8');
+                    return svp.BinaryReader._decoder.decode(value).replace(/\0.*$/g, '');
+                }
+                throw new om.Error("Invalid 'string' tag '" + tag.toString(16) + "'.");
             }
             case 'uint32[]': {
                 const reader = new base.BinaryReader(value);
@@ -867,8 +870,9 @@ svp.BinaryReader = class extends base.BinaryReader {
                 }
                 return value;
             }
-            default:
+            default: {
                 return value;
+            }
         }
     }
 };
