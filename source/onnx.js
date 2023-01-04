@@ -1154,8 +1154,9 @@ onnx.GraphMetadata = class {
         if (!this._attributes.has(key)) {
             this._attributes.set(key, null);
             const metadata = this.type(type, domain);
-            if (metadata && metadata.attributes && metadata.attributes.length > 0) {
+            if (metadata && Array.isArray(metadata.attributes) && metadata.attributes.length > 0) {
                 for (const attribute of metadata.attributes) {
+                    const key = domain + ':' + type + ':' + attribute.name;
                     this._attributes.set(key, attribute);
                 }
             }

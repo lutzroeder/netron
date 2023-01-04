@@ -3499,6 +3499,13 @@
   },
   {
     "type":     "onnx",
+    "target":   "issue_1029.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/10344328/issue_1029.onnx.zip[issue_1029.onnx]",
+    "format":   "ONNX v8",
+    "link":     "https://github.com/lutzroeder/netron/issues/1029"
+  },
+  {
+    "type":     "onnx",
     "target":   "Kmeans.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/2592495/Kmeans.onnx.zip[Kmeans.onnx]",
     "format":   "ONNX v3",
