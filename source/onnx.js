@@ -1156,7 +1156,9 @@ onnx.GraphMetadata = class {
             const metadata = this.type(type, domain);
             if (metadata && metadata.attributes && metadata.attributes.length > 0) {
                 for (const attribute of metadata.attributes) {
-                    this._attributes.set(key, attribute);
+                    if (name === attribute.name) {
+                        this._attributes.set(key, attribute);
+                    }
                 }
             }
         }
