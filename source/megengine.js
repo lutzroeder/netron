@@ -395,10 +395,13 @@ megengine.Graph = class {
         const extraInfoNameset = new Set();
         const getExtraInfo = (opr) => {
             let name = opr.name;
+            let repeatIdx = 0;
             while (extraInfoNameset.has(name)) {
                 for (const id of opr.inputs) {
                     name = name + '[' + id + ']';
                 }
+                name += repeatIdx;
+                repeatIdx += 1;
             }
             extraInfoNameset.add(name);
             const type = opr.type.replace(/V(\d+)$/, '');
