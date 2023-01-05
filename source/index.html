@@ -61,7 +61,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .about .graph { display: flex; opacity: 0.5; }
 .about .progress { display: none; }
 .about .toolbar { display: block; opacity: 0; }
-.about .menu-button { display: block; opacity: 0; }
+.about .menu-button { display: none; opacity: 0; }
 .about .transparent { display: block; opacity: 0.04; }
 .welcome { background-color: #ececec; color: #242424; transition: 0.1s; }
 .welcome .menu-button { display: none; }
@@ -98,10 +98,11 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .titlebar-button-close:hover { color: #ffffff; background-color: #b43029; }
 .menu-button { display: flex; justify-content: center; align-items: center; color: #aaaaaa; font-size: 16px; height: 32px; width: 32px; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2; -webkit-app-region: no-drag; -webkit-app-region: no-drag; user-select: none; }
 .menu-button:hover { color: #000000; }
-.menu-dropdown { display: none; position: absolute; left: 0; top: 0; min-width: 225px; z-index: 4; border-radius: 4px; background-color: #f6f6f6; border: 1px solid rgba(0,0,0,.15); padding-top: 2px; padding-bottom: 2px; margin-left: 16px; margin-top: 32px; overflow: hidden; }
+.menu-dropdown { display: block; position: absolute; left: -225px; width: 225px; top: 0; height: 100%; z-index: 2; background-color: rgba(235, 235, 235, 0.97); border-right: 1px solid rgba(255, 255, 255, 0.5); padding-top: 40px; padding-bottom: 2px; margin-left: 0; margin-top: 0; overflow: hidden; transition: 0.1s; }
 .menu-dropdown button { display: block; border: none; border-radius: 0; background-color: transparent; color: black; width: 100%; text-align: left; padding: 4px 12px 5px 12px; white-space: no-wrap; font-size: 12px; }
 .menu-dropdown button:hover { color: #ffffff; background-color: #2e6bd2; }
 .menu-dropdown .separator { margin-top: 2px; margin-bottom: 2px; border-top: 1px; border-bottom: 0; border-style: solid; border-color: #e5e5e5; }
+.menu-dropdown .shortcut { float: right; }
 @-webkit-keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 @keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 .welcome.spinner .logo-spinner-stroke { stroke: #ececec; }
@@ -156,9 +157,10 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .titlebar-button-close:hover { color: #ffffff; background-color: #b43029; }
 .menu-button { color: #aaaaaa; }
 .menu-button:hover { color: #ffffff; }
-.menu-dropdown { background-color: #373737; border-color: #000000; }
+.menu-dropdown { background-color: rgba(43, 43, 43, 0.90); border-color: rgba(0, 0, 0, 0); }
 .menu-dropdown button { color: #ffffff; }
 .menu-dropdown button:hover { color: #ffffff; background-color: #1d59d1; }
+.menu-dropdown .shortcut { color: #888888; }
 .menu-dropdown .separator { border-color: #5a5a5a; }
 }
 @media all and (max-width: 640px) {
@@ -420,7 +422,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
         </div>
     </div>
 </div>
-<div id="menu-button" class="menu-button">&#9776;</div>
 <div id="menu-dropdown" class="menu-dropdown"></div>
+<div id="menu-button" class="menu-button">&#9776;</div>
 </body>
 </html>

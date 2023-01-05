@@ -1050,7 +1050,7 @@ view.Dropdown = class {
 
     toggle() {
 
-        if (this._dropdown.style.display === 'block') {
+        if (this._dropdown.style.opacity >= 1) {
             this.close();
             return;
         }
@@ -1072,7 +1072,7 @@ view.Dropdown = class {
                 this._dropdown.appendChild(button);
                 if (item.accelerator) {
                     const accelerator = this._host.document.createElement('span');
-                    accelerator.style.float = 'right';
+                    accelerator.setAttribute('class', 'shortcut');
                     accelerator.innerHTML = item.accelerator.text;
                     button.appendChild(accelerator);
                 }
@@ -1084,11 +1084,13 @@ view.Dropdown = class {
             }
         }
 
-        this._dropdown.style.display = 'block';
+        this._dropdown.style.opacity = 1.0;
+        this._dropdown.style.left = '0px';
     }
 
     close() {
-        this._dropdown.style.display = 'none';
+        this._dropdown.style.opacity = 0;
+        this._dropdown.style.left = '-200px';
     }
 };
 

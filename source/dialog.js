@@ -56,7 +56,8 @@ dialog.Sidebar = class {
     _hide() {
         const sidebar = this._getElementById('sidebar');
         if (sidebar) {
-            sidebar.style.width = '0px';
+            sidebar.style.right = 'calc(0px - min(calc(100% * 0.6), 500px))';
+            sidebar.style.opacity = 0;
         }
         const container = this._getElementById('graph');
         if (container) {
@@ -113,6 +114,8 @@ dialog.Sidebar = class {
                 content.appendChild(item.content);
             }
             sidebar.style.width = 'min(calc(100% * 0.6), 500px)';
+            sidebar.style.right = 0;
+            sidebar.style.opacity = 1;
             this._host.document.addEventListener('keydown', this._closeSidebarKeyDownHandler);
         }
         const container = this._getElementById('graph');
