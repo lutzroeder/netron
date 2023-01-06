@@ -1018,7 +1018,12 @@ pytorch.Container.Mobile = class extends pytorch.Container {
             const stream = this._context.stream;
             const torch = execution.__import__('torch');
             const module = torch.jit.jit_module_from_flatbuffer(stream);
-            this._modules = new Map([ ['', module] ]);
+            if (module && module.forward) {
+                this._modules = new Map([ ['', module] ]);
+            }
+            else {
+                this._modules = pytorch.Utility.find(module);
+            }
             delete this._context;
         });
     }
@@ -1218,11 +1223,12 @@ pytorch.Execution = class extends python.Execution {
             const reader = flatbuffers.BinaryReader.open(stream);
             const module = pytorch.schema.torch.jit.mobile.serialization.Module.create(reader);
             const loader = new pytorch.jit.FlatBuffersLoader(cu);
-            loader.parseModule(module);
+            /* const m = */ loader.parseModule(module);
             // parse_and_initialize_jit_module
             //   const mobilem = parse_and_initialize_mobile_module_for_jit(data, jit_files, jit_constants);
             //   const m = jitModuleFromSourceAndConstants(mobilem._ivalue(), jit_files, jit_constants, mobilem.bytecode_version());
             throw new pytorch.Error('torch.jit.mobile.serialization.Module not supported.');
+            // return m;
         });
         this.registerType('torch._C.DeserializationStorageContext', class extends Map {
             has_storage(name) {
@@ -2878,10 +2884,11 @@ pytorch.jit.FlatBuffersLoader = class {
         for (let i = 0; i < mobile_ivalue_size; i++) {
             this.parseAndPopulate(i, module.ivalues[i]);
         }
-        /* const module_ivalue = */ this._all_ivalues[module.state_obj];
+        const module_ivalue = this._all_ivalues[module.state_obj];
         // m.set_min_operator_version(module.operator_version);
         // m.set_bytecode_version(module.bytecode_version);
         // return m;
+        return module_ivalue;
     }
 
     parseAndPopulate(i, ivalue) {
@@ -2926,8 +2933,26 @@ pytorch.jit.FlatBuffersLoader = class {
         return tensor;
     }
 
-    parseObject(/* ivalue */) {
-        return null;
+    parseObject(ivalue) {
+        const object = ivalue.val;
+        const obj_type = this._module.object_types[object.type_index];
+        const TypeType = pytorch.schema.torch.jit.mobile.serialization.TypeType;
+        switch (obj_type.type) {
+            case TypeType.CLASS_WITH_FIELD: {
+                const obj = {};
+                for (let i = 0; i < object.attrs.length; i++) {
+                    const attr_name = obj_type.attr_names[i];
+                    const val = this._all_ivalues[object.attrs[i]];
+                    obj[attr_name] = val;
+                }
+                return obj;
+            }
+            case TypeType.CUSTOM_CLASS:
+            case TypeType.CLASS_WITH_SETSTATE:
+            default: {
+                throw new pytorch.Error("Unknown object type type '" + obj_type.type + "'.");
+            }
+        }
     }
 };
 
