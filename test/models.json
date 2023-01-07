@@ -4853,8 +4853,7 @@
     "type":     "pytorch",
     "target":   "scriptmodule.ff",
     "source":   "https://github.com/lutzroeder/netron/files/10230651/scriptmodule.ff.zip[scriptmodule.ff]",
-    "format":   "TorchScript Mobile",
-    "error":    "torch.jit.mobile.serialization.Module not supported.",
+    "format":   "PyTorch Mobile v1.11",
     "link":     "https://github.com/lutzroeder/netron/issues/1023"
   },
   {
@@ -4909,8 +4908,7 @@
     "type":     "pytorch",
     "target":   "squeezenet1_1_traced.ff",
     "source":   "https://github.com/lutzroeder/netron/files/10230684/squeezenet1_1_traced.ff.zip[squeezenet1_1_traced.ff]",
-    "format":   "TorchScript Mobile",
-    "error":    "torch.jit.mobile.serialization.Module not supported.",
+    "format":   "PyTorch Mobile v1.11",
     "link":     "https://github.com/lutzroeder/netron/issues/1023"
   },
   {

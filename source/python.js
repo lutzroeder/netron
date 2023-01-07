@@ -3847,6 +3847,27 @@ python.Execution = class {
         this.registerFunction('theano.tensor.type.values_eq_approx_remove_nan', function() {
             throw new python.Error('Function not implemented.');
         });
+        this.registerType('torch.nn.modules.module.Module', class {
+            constructor() {
+                this._modules = execution.invoke('collections.OrderedDict', []);
+                this._parameters = execution.invoke('collections.OrderedDict', []);
+                this._buffers = execution.invoke('collections.OrderedDict', []);
+            }
+            __setattr__(name, value) {
+                if (value instanceof torch.nn.modules.module.Module) {
+                    this._modules.set(name, value);
+                }
+                this[name] = value;
+            }
+            __getattr__(name) {
+                if (this._modules.has(name)) {
+                    return this._modules.get(name);
+                }
+                return this[name];
+            }
+        });
+        torch.nn.Module = torch.nn.modules.module.Module;
+        torch.nn.modules.Module = torch.nn.modules.module.Module;
         this.registerType('torch.ao.quantization.observer._PartialWrapper', class {});
         this.registerType('torch.ao.quantization.observer.HistogramObserver', class {});
         this.registerType('torch.ao.quantization.observer.MovingAverageMinMaxObserver', class {});
@@ -3872,61 +3893,57 @@ python.Execution = class {
         this.registerType('torch.nn.intrinsic.qat.modules.conv_fused.ConvReLU2d', class {});
         this.registerType('torch.nn.intrinsic.quantized.modules.conv_relu.ConvReLU2d', class {});
         this.registerType('torch.nn.intrinsic.quantized.modules.linear_relu.LinearReLU', class {});
-        this.registerType('torch.nn.modules.module.Module', class {
-            constructor() {
-                this._modules = execution.invoke('collections.OrderedDict', []);
-                this._parameters = execution.invoke('collections.OrderedDict', []);
-                this._buffers = execution.invoke('collections.OrderedDict', []);
-            }
-        });
-        this.registerType('torch.nn.modules.activation.CELU', class {});
-        this.registerType('torch.nn.modules.activation.ELU', class {});
-        this.registerType('torch.nn.modules.activation.GELU', class {});
-        this.registerType('torch.nn.modules.activation.GLU', class {});
-        this.registerType('torch.nn.modules.activation.Hardtanh', class {});
-        this.registerType('torch.nn.modules.activation.Hardswish', class {});
-        this.registerType('torch.nn.modules.activation.Hardsigmoid', class {});
-        this.registerType('torch.nn.modules.activation.LeakyReLU', class {});
-        this.registerType('torch.nn.modules.activation.LogSigmoid', class {});
-        this.registerType('torch.nn.modules.activation.LogSoftmax', class {});
-        this.registerType('torch.nn.modules.activation.Mish', class {});
-        this.registerType('torch.nn.modules.activation.MultiheadAttention', class {});
-        this.registerType('torch.nn.modules.activation.ReLU', class {});
-        this.registerType('torch.nn.modules.activation.ReLU6', class {});
-        this.registerType('torch.nn.modules.activation.PReLU', class {});
-        this.registerType('torch.nn.modules.activation.RReLU', class {});
-        this.registerType('torch.nn.modules.activation.SELU', class {});
-        this.registerType('torch.nn.modules.activation.Sigmoid', class {});
-        this.registerType('torch.nn.modules.activation.SiLU', class {});
-        this.registerType('torch.nn.modules.activation.Softmax', class {});
-        this.registerType('torch.nn.modules.activation.Softmax2d', class {});
-        this.registerType('torch.nn.modules.activation.Softplus', class {});
-        this.registerType('torch.nn.modules.activation.Tanh', class {});
-        this.registerType('torch.nn.modules.activation.Tanhshrink', class {});
-        this.registerType('torch.nn.modules.activation.Threshold', class {});
-        this.registerType('torch.nn.modules.batchnorm.BatchNorm1d', class {});
-        this.registerType('torch.nn.modules.batchnorm.BatchNorm2d', class {});
-        this.registerType('torch.nn.modules.batchnorm.BatchNorm3d', class {});
+        this.registerType('torch.nn.modules.activation.CELU', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.ELU', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.GELU', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.GLU', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.Hardtanh', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.Hardswish', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.Hardsigmoid', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.LeakyReLU', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.LogSigmoid', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.LogSoftmax', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.Mish', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.MultiheadAttention', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.ReLU', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.ReLU6', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.PReLU', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.RReLU', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.SELU', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.Sigmoid', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.SiLU', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.Softmax', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.Softmax2d', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.Softplus', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.Tanh', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.Tanhshrink', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.Threshold', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.batchnorm._NormBase', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.batchnorm._BatchNorm', class extends torch.nn.modules.batchnorm._NormBase {});
+        this.registerType('torch.nn.modules.batchnorm.BatchNorm1d', class extends torch.nn.modules.batchnorm._BatchNorm {});
+        this.registerType('torch.nn.modules.batchnorm.BatchNorm2d', class extends torch.nn.modules.batchnorm._BatchNorm {});
+        this.registerType('torch.nn.modules.batchnorm.BatchNorm3d', class extends torch.nn.modules.batchnorm._BatchNorm {});
         this.registerType('torch.nn.modules.batchnorm.LazyBatchNorm1d', class {});
         this.registerType('torch.nn.modules.batchnorm.SyncBatchNorm', class {});
-        this.registerType('torch.nn.modules.container.ModuleDict', class extends torch.nn.modules.module.Module {});
-        this.registerType('torch.nn.modules.container.ModuleList', class extends torch.nn.modules.module.Module {});
-        this.registerType('torch.nn.modules.container.ParameterDict', class extends torch.nn.modules.module.Module {});
-        this.registerType('torch.nn.modules.container.ParameterList', class extends torch.nn.modules.module.Module {});
-        this.registerType('torch.nn.modules.container.Sequential', class extends torch.nn.modules.module.Module {});
-        this.registerType('torch.nn.modules.conv._ConvNd', class extends torch.nn.modules.module.Module {});
+        this.registerType('torch.nn.modules.container.ModuleDict', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.container.ModuleList', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.container.ParameterDict', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.container.ParameterList', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.container.Sequential', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.conv._ConvNd', class extends torch.nn.Module {});
         this.registerType('torch.nn.modules.conv.Conv1d', class extends torch.nn.modules.conv._ConvNd {});
         this.registerType('torch.nn.modules.conv.Conv2d', class extends torch.nn.modules.conv._ConvNd {});
         this.registerType('torch.nn.modules.conv.Conv3d', class extends torch.nn.modules.conv._ConvNd {});
-        this.registerType('torch.nn.modules.conv._ConvTransposeNd', class extends torch.nn.modules.module.Module {});
+        this.registerType('torch.nn.modules.conv._ConvTransposeNd', class extends torch.nn.Module {});
         this.registerType('torch.nn.modules.conv.ConvTranspose1d', class extends torch.nn.modules.conv._ConvTransposeNd {});
         this.registerType('torch.nn.modules.conv.ConvTranspose2d', class extends torch.nn.modules.conv._ConvTransposeNd {});
         this.registerType('torch.nn.modules.conv.ConvTranspose3d', class extends torch.nn.modules.conv._ConvTransposeNd {});
         this.registerType('torch.nn.modules.distance.CosineSimilarity', class {});
-        this.registerType('torch.nn.modules.dropout.AlphaDropout', class {});
-        this.registerType('torch.nn.modules.dropout.Dropout', class {});
-        this.registerType('torch.nn.modules.dropout.Dropout2d', class {});
-        this.registerType('torch.nn.modules.dropout.Dropout3d', class {});
+        this.registerType('torch.nn.modules.dropout._DropoutNd', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.dropout.AlphaDropout', class extends torch.nn.modules.dropout._DropoutNd {});
+        this.registerType('torch.nn.modules.dropout.Dropout', class extends torch.nn.modules.dropout._DropoutNd {});
+        this.registerType('torch.nn.modules.dropout.Dropout2d', class extends torch.nn.modules.dropout._DropoutNd {});
+        this.registerType('torch.nn.modules.dropout.Dropout3d', class extends torch.nn.modules.dropout._DropoutNd {});
         this.registerType('torch.nn.modules.fold.Fold', class {});
         this.registerType('torch.nn.modules.fold.Unfold', class {});
         this.registerType('torch.nn.modules.flatten.Flatten', class {});
