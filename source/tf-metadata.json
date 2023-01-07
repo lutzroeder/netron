@@ -14374,6 +14374,30 @@
     ]
   },
   {
+    "name": "DistributedSave",
+    "attributes": [
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
+      }
+    ],
+    "inputs": [
+      {
+        "name": "dataset",
+        "type": 21
+      },
+      {
+        "name": "directory",
+        "type": 7
+      },
+      {
+        "name": "address",
+        "type": 7
+      }
+    ]
+  },
+  {
     "name": "Div",
     "summary": "Returns x / y element-wise.",
     "description": "*NOTE*: `Div` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
@@ -56209,6 +56233,47 @@
     ]
   },
   {
+    "name": "TPUPartitionedInputV2",
+    "summary": "An op that groups a list of partitioned inputs together. Supports ND sharding.",
+    "attributes": [
+      {
+        "name": "N",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "T",
+        "type": "type"
+      },
+      {
+        "name": "partition_dims",
+        "type": "int64[]",
+        "description": "A list of integers describing how each dimension is partitioned. Emptiness\nindicates the inputs are replicated."
+      },
+      {
+        "name": "is_packed",
+        "type": "boolean",
+        "description": "Indicates whether the input is a packed resource.",
+        "default": false
+      }
+    ],
+    "inputs": [
+      {
+        "name": "inputs",
+        "description": "A list of partitioned inputs which must have the same shape.",
+        "numberAttr": "N",
+        "typeAttr": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "A handle which represents the full shape of partitioned tensors.",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
     "name": "TPUPartitionedOutput",
     "summary": "An op that demultiplexes a tensor to be sharded by XLA to a list of partitioned",
     "description": "outputs outside the XLA computation.",
@@ -56240,6 +56305,42 @@
       {
         "name": "output",
         "description": "A list of partitioned inputs which must have the same shape.",
+        "numberAttr": "num_splits",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "TPUPartitionedOutputV2",
+    "summary": "An op that demultiplexes a tensor to be sharded by XLA to a list of partitioned",
+    "description": "outputs outside the XLA computation. Supports ND sharding.",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type"
+      },
+      {
+        "name": "num_splits",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "partition_dims",
+        "type": "int64[]",
+        "description": "A list of integers describing how each dimension is partitioned. Emptiness\nindicates the inputs are replicated."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "inputs",
+        "description": "A tensor which represents the full shape of partitioned tensors.",
+        "typeAttr": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "A list of partitioned outputs which have the same shape.",
         "numberAttr": "num_splits",
         "typeAttr": "T"
       }
