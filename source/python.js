@@ -1675,11 +1675,11 @@ python.Execution = class {
         const math = this.register('math');
         math.inf = Infinity;
         const numpy = this.register('numpy');
-        this.register('pickle');
+        const pickle = this.register('pickle');
         this.register('sklearn');
         const torch = this.register('torch');
-        const torch_storage = this.register('torch.storage');
-        const torch_nn_parameter = this.register('torch.nn.parameter');
+        this.register('torch.storage');
+        this.register('torch.nn.parameter');
         this.register('torch.ops');
         this.register('torch.ops.torchvision');
         this.register('torch.ops.torchaudio');
@@ -2045,6 +2045,7 @@ python.Execution = class {
         this.registerType('fastai.vision.models.unet.ResizeToOrig', class {});
         this.registerType('fastai.vision.models.unet.UnetBlock', class {});
         this.registerType('fastcore.basics.fastuple', class {});
+        this.registerType('fastcore.basics.GetAttr', class {});
         this.registerType('fastcore.dispatch._TypeDict', class {});
         this.registerType('fastcore.dispatch.TypeDispatch', class {});
         this.registerType('fastcore.foundation.L', class {});
@@ -2805,8 +2806,12 @@ python.Execution = class {
                             const cls = stack.pop();
                             // TODO resolved
                             // cls.__new__(cls, args)
-                            stack.push(execution.invoke(cls, args));
+                            const obj = execution.invoke(cls, args);
+                            stack.push(obj);
                             break;
+                        }
+                        case OpCode.NEWOBJ_EX: {
+                            throw new python.Error("Unpickle 'NEWOBJ_EX' not implemented.");
                         }
                         case OpCode.BINGET:
                             stack.push(memo.get(reader.byte()));
@@ -3096,12 +3101,12 @@ python.Execution = class {
         });
         this.registerType('spacy._ml.PrecomputableAffine', class {
             __setstate__(state) {
-                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
+                Object.assign(this, new pickle.Unpickler(state).load());
             }
         });
         this.registerType('spacy.syntax._parser_model.ParserModel', class {
             __setstate__(state) {
-                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
+                Object.assign(this, new pickle.Unpickler(state).load());
             }
         });
         this.registerType('theano.compile.function_module._constructor_Function', class {});
@@ -3216,52 +3221,52 @@ python.Execution = class {
         });
         this.registerType('thinc.neural._classes.affine.Affine', class {
             __setstate__(state) {
-                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
+                Object.assign(this, new pickle.Unpickler(state).load());
             }
         });
         this.registerType('thinc.neural._classes.convolution.ExtractWindow', class {
             __setstate__(state) {
-                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
+                Object.assign(this, new pickle.Unpickler(state).load());
             }
         });
         this.registerType('thinc.neural._classes.feature_extracter.FeatureExtracter', class {
             __setstate__(state) {
-                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
+                Object.assign(this, new pickle.Unpickler(state).load());
             }
         });
         this.registerType('thinc.neural._classes.feed_forward.FeedForward', class {
             __setstate__(state) {
-                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
+                Object.assign(this, new pickle.Unpickler(state).load());
             }
         });
         this.registerType('thinc.neural._classes.function_layer.FunctionLayer', class {
             __setstate__(state) {
-                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
+                Object.assign(this, new pickle.Unpickler(state).load());
             }
         });
         this.registerType('thinc.neural._classes.hash_embed.HashEmbed', class {
             __setstate__(state) {
-                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
+                Object.assign(this, new pickle.Unpickler(state).load());
             }
         });
         this.registerType('thinc.neural._classes.layernorm.LayerNorm', class {
             __setstate__(state) {
-                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
+                Object.assign(this, new pickle.Unpickler(state).load());
             }
         });
         this.registerType('thinc.neural._classes.maxout.Maxout', class {
             __setstate__(state) {
-                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
+                Object.assign(this, new pickle.Unpickler(state).load());
             }
         });
         this.registerType('thinc.neural._classes.resnet.Residual', class {
             __setstate__(state) {
-                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
+                Object.assign(this, new pickle.Unpickler(state).load());
             }
         });
         this.registerType('thinc.neural._classes.softmax.Softmax', class {
             __setstate__(state) {
-                Object.assign(this, execution.invoke('pickle.Unpickler', [ state ]).load());
+                Object.assign(this, new pickle.Unpickler(state).load());
             }
         });
         this.registerType('thinc.neural.mem.Memory', class {
@@ -3946,48 +3951,54 @@ python.Execution = class {
         this.registerType('torch.nn.modules.dropout.Dropout3d', class extends torch.nn.modules.dropout._DropoutNd {});
         this.registerType('torch.nn.modules.fold.Fold', class {});
         this.registerType('torch.nn.modules.fold.Unfold', class {});
-        this.registerType('torch.nn.modules.flatten.Flatten', class {});
-        this.registerType('torch.nn.modules.flatten.Unflatten', class {});
+        this.registerType('torch.nn.modules.flatten.Flatten', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.flatten.Unflatten', class extends torch.nn.Module {});
         this.registerType('torch.nn.modules.instancenorm.InstanceNorm1d', class {});
         this.registerType('torch.nn.modules.instancenorm.InstanceNorm2d', class {});
         this.registerType('torch.nn.modules.instancenorm.InstanceNorm3d', class {});
         this.registerType('torch.nn.modules.linear._LinearWithBias', class {});
-        this.registerType('torch.nn.modules.linear.Bilinear', class {});
-        this.registerType('torch.nn.modules.linear.Identity', class {});
-        this.registerType('torch.nn.modules.linear.LazyLinear', class {});
-        this.registerType('torch.nn.modules.linear.Linear', class {});
-        this.registerType('torch.nn.modules.linear.NonDynamicallyQuantizableLinear', class {});
-        this.registerType('torch.nn.modules.loss.BCELoss', class {});
-        this.registerType('torch.nn.modules.loss.BCEWithLogitsLoss', class {});
-        this.registerType('torch.nn.modules.loss.CrossEntropyLoss', class {});
-        this.registerType('torch.nn.modules.loss.CTCLoss', class {});
-        this.registerType('torch.nn.modules.loss.KLDivLoss', class {});
-        this.registerType('torch.nn.modules.loss.L1Loss', class {});
-        this.registerType('torch.nn.modules.loss.MarginRankingLoss', class {});
-        this.registerType('torch.nn.modules.loss.MSELoss', class {});
-        this.registerType('torch.nn.modules.loss.NLLLoss', class {});
-        this.registerType('torch.nn.modules.loss.NLLLoss2d', class {});
+        this.registerType('torch.nn.modules.linear.Bilinear', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.linear.Identity', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.linear.LazyLinear', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.linear.Linear', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.linear.NonDynamicallyQuantizableLinear', class extends torch.nn.modules.linear.Linear {});
+        this.registerType('torch.nn.modules.loss._Loss', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.loss._WeightedLoss', class extends torch.nn.modules.loss._Loss {});
+        this.registerType('torch.nn.modules.loss.BCELoss', class extends torch.nn.modules.loss._Loss {});
+        this.registerType('torch.nn.modules.loss.BCEWithLogitsLoss', class extends torch.nn.modules.loss._Loss {});
+        this.registerType('torch.nn.modules.loss.CrossEntropyLoss', class extends torch.nn.modules.loss._Loss {});
+        this.registerType('torch.nn.modules.loss.CTCLoss', class extends torch.nn.modules.loss._Loss {});
+        this.registerType('torch.nn.modules.loss.KLDivLoss', class extends torch.nn.modules.loss._Loss {});
+        this.registerType('torch.nn.modules.loss.L1Loss', class extends torch.nn.modules.loss._Loss {});
+        this.registerType('torch.nn.modules.loss.MarginRankingLoss', class extends torch.nn.modules.loss._Loss {});
+        this.registerType('torch.nn.modules.loss.MSELoss', class extends torch.nn.modules.loss._Loss {});
+        this.registerType('torch.nn.modules.loss.NLLLoss', class extends torch.nn.modules.loss._WeightedLoss {});
+        this.registerType('torch.nn.modules.loss.NLLLoss2d', class extends torch.nn.modules.loss.NLLLoss {});
         this.registerType('torch.nn.modules.loss.SmoothL1Loss', class {});
         this.registerType('torch.nn.modules.module._IncompatibleKeys', class {});
         this.registerType('torch.nn.modules.module.PatchForward', class {});
         this.registerType('torch.nn.modules.normalization.CrossMapLRN2d', class {});
-        this.registerType('torch.nn.modules.normalization.GroupNorm', class {});
-        this.registerType('torch.nn.modules.normalization.LayerNorm', class {});
+        this.registerType('torch.nn.modules.normalization.GroupNorm', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.normalization.LayerNorm', class extends torch.nn.Module {});
         this.registerType('torch.nn.modules.normalization.LocalResponseNorm', class {});
-        this.registerType('torch.nn.modules.padding.ReflectionPad1d', class {});
-        this.registerType('torch.nn.modules.padding.ReflectionPad2d', class {});
-        this.registerType('torch.nn.modules.padding.ReplicationPad1d', class {});
-        this.registerType('torch.nn.modules.padding.ReplicationPad2d', class {});
-        this.registerType('torch.nn.modules.padding.ReplicationPad3d', class {});
+        this.registerType('torch.nn.modules.padding._ReflectionPadNd', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.padding.ReflectionPad1d', class extends torch.nn.modules.padding._ReflectionPadNd {});
+        this.registerType('torch.nn.modules.padding.ReflectionPad2d', class extends torch.nn.modules.padding._ReflectionPadNd {});
+        this.registerType('torch.nn.modules.padding.ReflectionPad3d', class extends torch.nn.modules.padding._ReflectionPadNd {});
+        this.registerType('torch.nn.modules.padding._ReplicationPadNd', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.padding.ReplicationPad1d', class extends torch.nn.modules.padding._ReplicationPadNd {});
+        this.registerType('torch.nn.modules.padding.ReplicationPad2d', class extends torch.nn.modules.padding._ReplicationPadNd {});
+        this.registerType('torch.nn.modules.padding.ReplicationPad3d', class extends torch.nn.modules.padding._ReplicationPadNd {});
         this.registerType('torch.nn.modules.padding.ZeroPad2d', class {});
         this.registerType('torch.nn.modules.padding.ConstantPad1d', class {});
         this.registerType('torch.nn.modules.padding.ConstantPad2d', class {});
         this.registerType('torch.nn.modules.padding.ConstantPad3d', class {});
         this.registerType('torch.nn.modules.pixelshuffle.PixelShuffle', class {});
         this.registerType('torch.nn.modules.pixelshuffle.PixelUnshuffle', class {});
-        this.registerType('torch.nn.modules.pooling.AdaptiveAvgPool1d', class {});
-        this.registerType('torch.nn.modules.pooling.AdaptiveAvgPool2d', class {});
-        this.registerType('torch.nn.modules.pooling.AdaptiveAvgPool3d', class {});
+        this.registerType('torch.nn.modules.pooling._AdaptiveAvgPoolNd', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.pooling.AdaptiveAvgPool1d', class extends torch.nn.modules.pooling._AdaptiveAvgPoolNd {});
+        this.registerType('torch.nn.modules.pooling.AdaptiveAvgPool2d', class extends torch.nn.modules.pooling._AdaptiveAvgPoolNd {});
+        this.registerType('torch.nn.modules.pooling.AdaptiveAvgPool3d', class extends torch.nn.modules.pooling._AdaptiveAvgPoolNd {});
         this.registerType('torch.nn.modules.pooling.AdaptiveMaxPool1d', class {});
         this.registerType('torch.nn.modules.pooling.AdaptiveMaxPool2d', class {});
         this.registerType('torch.nn.modules.pooling.AdaptiveMaxPool3d', class {});
@@ -4605,7 +4616,7 @@ python.Execution = class {
             return value instanceof torch.layout ? value : null;
         });
         this.registerFunction('torch.storage._load_from_bytes', function(b) {
-            return execution.invoke('torch.load', [ b ]);
+            return torch.load(b);
         });
         this.registerFunction('torch.jit._pickle.build_boollist', function(data) {
             return data;
@@ -4710,76 +4721,110 @@ python.Execution = class {
                 unpickler.persistent_load = (saved_id) => deserialized_objects[saved_id];
                 return unpickler.load();
             };
+            const _legacy_load = () => {
+                const unpickler = execution.invoke('pickle.Unpickler', [ f ]);
+                unpickler.load(); // magic_number
+                const protocol_version = unpickler.load();
+                if (protocol_version != 1001) {
+                    throw new python.Error("Unsupported protocol version '" + protocol_version + "'.");
+                }
+                const sys_info = unpickler.load();
+                if (sys_info.protocol_version != 1001) {
+                    throw new python.Error("Unsupported protocol version '" + sys_info.protocol_version + "'.");
+                }
+                if (sys_info.little_endian === false) {
+                    throw new python.Error("Unsupported big-endian storage data.");
+                }
+                const module_source_map = new Map();
+                const deserialized_objects = new Map();
+                unpickler.persistent_load = (saved_id) => {
+                    const typename = saved_id[0];
+                    switch (typename) {
+                        case 'module': {
+                            const module = saved_id[1];
+                            const source = saved_id[3];
+                            module_source_map.set(module, source);
+                            return saved_id[1];
+                        }
+                        case 'storage': {
+                            const storage_type = saved_id[1];
+                            const root_key = saved_id[2];
+                            /// const location = saved_id[3];
+                            const size = saved_id[4];
+                            const view_metadata = saved_id[5];
+                            if (!deserialized_objects.has(root_key)) {
+                                const obj = new storage_type(size);
+                                deserialized_objects.set(root_key, obj);
+                            }
+                            if (view_metadata) {
+                                const view_key = view_metadata.shift();
+                                view_metadata.shift(); // view_offset
+                                view_metadata.shift(); // view_size
+                                if (!deserialized_objects.has(view_key)) {
+                                    const view = null; // storage.slice(view_offset, view_offset + view_size);
+                                    deserialized_objects.set(view_key, view);
+                                }
+                                return deserialized_objects.get(view_key);
+                            }
+                            return deserialized_objects.get(root_key);
+                        }
+                        default: {
+                            throw new python.Error("Unsupported persistent load type '" + typename + "'.");
+                        }
+                    }
+                };
+                const obj = unpickler.load();
+                const deserialized_storage_keys = unpickler.load();
+                for (const deserialized_storage_key of deserialized_storage_keys) {
+                    const storage = deserialized_objects.get(deserialized_storage_key);
+                    storage._set_from_file(unpickler);
+                }
+                if (!obj) {
+                    throw new python.Error('File format is not PyTorch.');
+                }
+                if (obj === 'None') {
+                    throw new python.Error("File contains 'None' root object.");
+                }
+                return obj;
+            };
+            const _load = (entries) => {
+                if (f.has('constant.pkl')) {
+                    throw python.Error("TorchScript 'torch.load' not supported.");
+                }
+                const loaded_storages = new Map();
+                const persistent_load = (saved_id) => {
+                    const typename = saved_id[0];
+                    if (typename !== 'storage') {
+                        throw new python.Error("Unsupported persistent load type '" + typename + "'.");
+                    }
+                    const storage_type = saved_id[1];
+                    const key = saved_id[2];
+                    const numel = saved_id[4];
+                    if (!loaded_storages.has(key)) {
+                        const storage = new storage_type(numel);
+                        const name = 'data/' + key;
+                        const stream = entries.get(name);
+                        storage._set_cdata(stream);
+                        loaded_storages.set(key, storage);
+                    }
+                    return loaded_storages.get(key);
+                };
+                const data_file = entries.get('data.pkl');
+                const unpickler = execution.invoke('pickle.Unpickler', [ data_file ]);
+                unpickler.persistent_load = persistent_load;
+                const result = unpickler.load();
+                return result;
+            };
             if (f instanceof Map) {
                 if (f.has('pickle')) {
                     return legacy_load(f);
                 }
+                if (f.has('data.pkl')) {
+                    return _load(f);
+                }
                 throw new python.Error("Unsupported 'torch.load' input '" + JSON.stringify(Array.from(f.keys())) + "'.");
             }
-            const unpickler = execution.invoke('pickle.Unpickler', [ f ]);
-            unpickler.load(); // magic_number
-            const protocol_version = unpickler.load();
-            if (protocol_version != 1001) {
-                throw new python.Error("Unsupported protocol version '" + protocol_version + "'.");
-            }
-            const sys_info = unpickler.load();
-            if (sys_info.protocol_version != 1001) {
-                throw new python.Error("Unsupported protocol version '" + sys_info.protocol_version + "'.");
-            }
-            if (sys_info.little_endian === false) {
-                throw new python.Error("Unsupported big-endian storage data.");
-            }
-            const module_source_map = new Map();
-            const deserialized_objects = new Map();
-            unpickler.persistent_load = (saved_id) => {
-                const typename = saved_id[0];
-                switch (typename) {
-                    case 'module': {
-                        const module = saved_id[1];
-                        const source = saved_id[3];
-                        module_source_map.set(module, source);
-                        return saved_id[1];
-                    }
-                    case 'storage': {
-                        const storage_type = saved_id[1];
-                        const root_key = saved_id[2];
-                        /// const location = saved_id[3];
-                        const size = saved_id[4];
-                        const view_metadata = saved_id[5];
-                        if (!deserialized_objects.has(root_key)) {
-                            const obj = new storage_type(size);
-                            deserialized_objects.set(root_key, obj);
-                        }
-                        if (view_metadata) {
-                            const view_key = view_metadata.shift();
-                            view_metadata.shift(); // view_offset
-                            view_metadata.shift(); // view_size
-                            if (!deserialized_objects.has(view_key)) {
-                                const view = null; // storage.slice(view_offset, view_offset + view_size);
-                                deserialized_objects.set(view_key, view);
-                            }
-                            return deserialized_objects.get(view_key);
-                        }
-                        return deserialized_objects.get(root_key);
-                    }
-                    default: {
-                        throw new python.Error("Unsupported persistent load type '" + typename + "'.");
-                    }
-                }
-            };
-            const obj = unpickler.load();
-            const deserialized_storage_keys = unpickler.load();
-            for (const deserialized_storage_key of deserialized_storage_keys) {
-                const storage = deserialized_objects.get(deserialized_storage_key);
-                storage._set_from_file(unpickler);
-            }
-            if (!obj) {
-                throw new python.Error('File format is not PyTorch.');
-            }
-            if (obj === 'None') {
-                throw new python.Error("File contains 'None' root object.");
-            }
-            return obj;
+            return _legacy_load(f);
         });
         this.registerFunction('torch.lt', function(left, right) {
             if (typeof left === 'number' && typeof right === 'number') {
@@ -5055,7 +5100,7 @@ python.Execution = class {
                 return storage;
             }
         });
-        this.registerType('torch.storage._UntypedStorage', class extends torch_storage._StorageBase {
+        this.registerType('torch.storage._UntypedStorage', class extends torch.storage._StorageBase {
             constructor() {
                 super();
                 throw new python.Error('_UntypedStorage not implemented.');
@@ -5116,88 +5161,88 @@ python.Execution = class {
                 return storage;
             }
         });
-        this.registerType('torch.storage._LegacyStorage', class extends torch_storage._TypedStorage {
+        this.registerType('torch.storage._LegacyStorage', class extends torch.storage._TypedStorage {
             constructor() {
                 super();
                 throw new python.Error('_LegacyStorage not implemented.');
             }
         });
-        this.registerType('torch.BoolStorage', class extends torch_storage._StorageBase {
+        this.registerType('torch.BoolStorage', class extends torch.storage._StorageBase {
             constructor(size) {
                 super(size, torch.bool);
             }
         });
-        this.registerType('torch.ByteStorage', class extends torch_storage._StorageBase {
+        this.registerType('torch.ByteStorage', class extends torch.storage._StorageBase {
             constructor(size) {
                 super(size, torch.uint8);
             }
         });
-        this.registerType('torch.CharStorage', class extends torch_storage._StorageBase {
+        this.registerType('torch.CharStorage', class extends torch.storage._StorageBase {
             constructor(size) {
                 super(size, torch.int8);
             }
         });
-        this.registerType('torch.ShortStorage', class extends torch_storage._StorageBase {
+        this.registerType('torch.ShortStorage', class extends torch.storage._StorageBase {
             constructor(size) {
                 super(size, torch.int16);
             }
         });
-        this.registerType('torch.IntStorage', class extends torch_storage._StorageBase {
+        this.registerType('torch.IntStorage', class extends torch.storage._StorageBase {
             constructor(size) {
                 super(size, torch.int32);
             }
         });
-        this.registerType('torch.LongStorage', class extends torch_storage._StorageBase {
+        this.registerType('torch.LongStorage', class extends torch.storage._StorageBase {
             constructor(size) {
                 super(size, torch.int64);
             }
         });
-        this.registerType('torch.HalfStorage', class extends torch_storage._StorageBase {
+        this.registerType('torch.HalfStorage', class extends torch.storage._StorageBase {
             constructor(size) {
                 super(size, torch.float16);
             }
         });
-        this.registerType('torch.FloatStorage', class extends torch_storage._StorageBase {
+        this.registerType('torch.FloatStorage', class extends torch.storage._StorageBase {
             constructor(size) {
                 super(size, torch.float32);
             }
         });
-        this.registerType('torch.DoubleStorage', class extends torch_storage._StorageBase {
+        this.registerType('torch.DoubleStorage', class extends torch.storage._StorageBase {
             constructor(size) {
                 super(size, torch.float64);
             }
         });
-        this.registerType('torch.ComplexHalfStorage', class extends torch_storage._StorageBase {
+        this.registerType('torch.ComplexHalfStorage', class extends torch.storage._StorageBase {
             constructor(size) {
                 super(size, torch.complex32);
             }
         });
-        this.registerType('torch.ComplexFloatStorage', class extends torch_storage._StorageBase {
+        this.registerType('torch.ComplexFloatStorage', class extends torch.storage._StorageBase {
             constructor(size) {
                 super(size, torch.complex64);
             }
         });
-        this.registerType('torch.ComplexDoubleStorage', class extends torch_storage._StorageBase {
+        this.registerType('torch.ComplexDoubleStorage', class extends torch.storage._StorageBase {
             constructor(size) {
                 super(size, torch.complex128);
             }
         });
-        this.registerType('torch.QInt8Storage', class extends torch_storage._StorageBase {
+        this.registerType('torch.QInt8Storage', class extends torch.storage._StorageBase {
             constructor(size) {
                 super(size, torch.qint8);
             }
         });
-        this.registerType('torch.QUInt8Storage', class extends torch_storage._StorageBase {
+        this.registerType('torch.QUInt8Storage', class extends torch.storage._StorageBase {
             constructor(size) {
                 super(size, torch.quint8);
             }
         });
-        this.registerType('torch.QInt32Storage', class extends torch_storage._StorageBase {
+        this.registerType('torch.QInt32Storage', class extends torch.storage._StorageBase {
             constructor(size) {
                 super(size, torch.qint32);
             }
         });
-        this.registerType('torch.BFloat16Storage', class extends torch_storage._StorageBase {
+        this.registerType('torch.BFloat16Storage', class extends torch.storage._StorageBase {
             constructor(size) {
                 super(size, torch.bfloat16);
             }
@@ -5284,7 +5329,7 @@ python.Execution = class {
             __int__() {
                 const storage = this.storage();
                 if (storage && storage.dtype.__reduce__() === 'int64' && storage.data.length === 8) {
-                    const buffer = storage.data;
+                    const buffer = storage.data.peek ? storage.data.peek() : storage.data;
                     const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
                     return view.getInt64(0, true);
                 }
@@ -5294,7 +5339,7 @@ python.Execution = class {
                 const storage = this.storage();
                 if (storage && storage.dtype.__reduce__() === 'float32') {
                     if (storage.size() !== undefined && storage.data.length === 4) {
-                        const buffer = storage.data;
+                        const buffer = storage.data.peek ? storage.data.peek() : storage.data;
                         const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
                         return view.getFloat32(0, true);
                     }
@@ -5330,7 +5375,7 @@ python.Execution = class {
                 }
             }
         });
-        this.registerType('torch.nn.parameter.UninitializedParameter', class extends torch_nn_parameter.Parameter {
+        this.registerType('torch.nn.parameter.UninitializedParameter', class extends torch.nn.parameter.Parameter {
             constructor(requires_grad /*, device, dtype */) {
                 super(undefined, requires_grad);
             }

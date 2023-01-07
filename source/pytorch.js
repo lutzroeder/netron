@@ -203,12 +203,12 @@ pytorch.Graph = class {
     }
 
     _createNode(metadata, groups, key, obj, args, output) {
-        const type = obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : '?';
-        const schema = metadata.type(type);
-        let inputSchema = [ { name: 'input' } ];
-        if (schema && schema.inputs && schema.inputs.length > 0) {
-            inputSchema = schema.inputs.slice();
+        let type = obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : '?';
+        if (type === 'torch.jit._script.RecursiveScriptModule' && obj._c && obj._c.qualified_name) {
+            type = obj._c.qualified_name;
         }
+        const schema = metadata.type(type);
+        const inputSchema = schema && schema.inputs && schema.inputs.length > 0 ? schema.inputs.slice() : [ { name: 'input' } ];
         const inputName = inputSchema.shift().name;
         const inputs = [];
         if (args.length > 0) {
@@ -873,7 +873,8 @@ pytorch.Container.Tar = class extends pytorch.Container {
         for (const event of this._events) {
             execution.on(event[0], event[1]);
         }
-        const obj = execution.invoke('torch.load', [ entries ]);
+        const torch = execution.__import__('torch');
+        const obj = torch.load(entries);
         this._modules = pytorch.Utility.findWeights(obj);
         if (this._modules) {
             return Promise.resolve();
@@ -913,7 +914,8 @@ pytorch.Container.Pickle = class extends pytorch.Container {
         for (const event of this._events) {
             execution.on(event[0], event[1]);
         }
-        const obj = execution.invoke('torch.load', [ data ]);
+        const torch = execution.__import__('torch');
+        const obj = torch.load(data);
         this._modules = pytorch.Utility.find(obj);
         return Promise.resolve();
     }
@@ -1077,12 +1079,13 @@ pytorch.Container.Zip = class extends pytorch.Container {
         super();
         // https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/docs/serialization.md
         this._reader = reader;
+        this._torchscript = model || this._reader.hasRecord('constants.pkl');
         if (model) {
             this._producer = model && model.producerName ? model.producerName + (model.producerVersion ? ' v' + model.producerVersion : '') : '';
             this._format = this._reader.hasRecord('attributes.pkl') ? 'TorchScript v1.1' : 'TorchScript v1.0';
         }
         else {
-            const name = this._reader.hasRecord('constants.pkl') ? 'TorchScript' : 'PyTorch';
+            const name = this._torchscript ? 'TorchScript' : 'PyTorch';
             const version = pytorch.Utility.version(reader.version());
             this._format = name + ' ' + version;
         }
@@ -1094,16 +1097,21 @@ pytorch.Container.Zip = class extends pytorch.Container {
             execution.on(event[0], event[1]);
         }
         const torch = execution.__import__('torch');
-        const module = torch.jit.load(this._reader);
-        if (module.data && module.data.forward) {
-            this._modules = new Map([ ['', module] ]);
-        }
-        else if (module.data && module.data.__class__ && module.data.__class__.__module__ == 'fastai.learner' && module.data.__class__.__name__ == 'Learner') {
-            this._modules = pytorch.Utility.find(module.data.model);
+        if (this._torchscript) {
+            const module = torch.jit.load(this._reader);
+            if (module.data && module.data.forward) {
+                this._modules = new Map([ [ '', module ] ]);
+            }
+            else {
+                this._modules = pytorch.Utility.find(module.data);
+            }
         }
         else {
-            this._modules = pytorch.Utility.find(module.data);
+            const entries = new Map(this._reader.getAllRecords().map((key) => [ key, this._reader.getRecord(key) ]));
+            const module = torch.load(entries);
+            this._modules = pytorch.Utility.find(module);
         }
+        delete this._reader;
         return Promise.resolve();
     }
 
@@ -1269,6 +1277,15 @@ pytorch.Execution = class extends python.Execution {
             addMethod(/* name, fn */) {
                 // TODO
             }
+            addAttribute(/* name */) {
+                // TODO
+            }
+            hasAttribute(/* name */) {
+                // TODO
+            }
+            hasConstant(/* name */) {
+                // TODO
+            }
         });
         this.registerType('torch.ScriptFunction', class {
             constructor(name, graph /*, function_creator */) {
@@ -1341,6 +1358,9 @@ pytorch.Execution = class extends python.Execution {
             __getattr__(name) {
                 return this[name];
             }
+            hasattr(name) {
+                return this._type.hasAttribute(name) || this._type.hasConstant(name);
+            }
             _properties() {
                 throw new pytorch.Error();
             }
@@ -1350,7 +1370,7 @@ pytorch.Execution = class extends python.Execution {
                 super(obj);
             }
             get qualified_name() {
-                return this._type().qualified_name();
+                return this._type.qualified_name();
             }
             get code_with_constants() {
                 const const_map = {};
@@ -1513,12 +1533,17 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.jit._script.RecursiveScriptModule', class extends torch.jit._script.ScriptModule {
             constructor(cpp_module) {
                 super();
+                this._initializing = true;
                 this._c = cpp_module;
             }
             static _construct(cpp_module, init_fn) {
                 const script_module = new torch.jit._script.RecursiveScriptModule(cpp_module);
                 init_fn(script_module);
+                torch.jit._script.RecursiveScriptModule._finalize_scriptmodule(script_module);
                 return script_module;
+            }
+            static _finalize_scriptmodule() {
+                this._initializing = false;
             }
             get data() {
                 return this._c.data;
@@ -1530,6 +1555,35 @@ pytorch.Execution = class extends python.Execution {
             get code_with_constants() {
                 // return this.forward.code_with_constants;
                 return this._c.code_with_constants;
+            }
+            __setattr__(name, value) {
+                if (this._initializing) {
+                    super.__setattr__(name, value);
+                }
+                else if (this._modules.has(name)) {
+                    this._modules.set(name, value);
+                }
+                else if (this._c.hasattr(name)) {
+                    this._c.setattr(name, value);
+                }
+                else {
+                    // TODO
+                }
+            }
+            __getattr__(name) {
+                if (this._initializing) {
+                    return super.__getattr__(name);
+                }
+                if (this._modules.has(name)) {
+                    return this._modules.get(name);
+                }
+                if (this._c.hasattr(name)) {
+                    return this._c.getattr(name);
+                }
+                if (this._c._has_method(name)) {
+                    // TODO
+                }
+                return super.__getattr__(name);
             }
         });
         torch.jit.ScriptModule = torch.jit._script.ScriptModule;
@@ -1559,7 +1613,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
             init(serialized_model_tensor, parameter_buffers) {
                 this.serialized_model_tensor = serialized_model_tensor;
                 this.parameter_buffers = parameter_buffers;
-                const buffers = parameter_buffers.map((buffer) => buffer.__source__.storage().data);
+                const buffers = parameter_buffers.map((buffer) => buffer.__source__.storage());
                 const serialized_model = serialized_model_tensor.storage().data;
                 this.serialized_model = new pytorch.nnapi.SerializedModel(serialized_model, buffers);
             }
@@ -2726,6 +2780,10 @@ pytorch.jit.SourceImporter = class {
         this._source_loader = source_loader;
         this._version = version;
     }
+
+    loadType(/* name */) {
+        // TODO;
+    }
 };
 
 pytorch.jit.ScriptModuleDeserializer = class {
@@ -2764,11 +2822,12 @@ pytorch.jit.ScriptModuleDeserializer = class {
         if (reader.hasRecord('constants.pkl')) {
             const stream = reader.getRecord('constants.pkl');
             const buffer = stream.peek();
-            const constants = this._unpickle(buffer, (name) => {
+            const read_record = (name) => {
                 const tensor_dir = 'constants/';
                 const stream = reader.getRecord(tensor_dir + name);
-                return stream.peek();
-            }, this._storage_context);
+                return stream.length <= 0x40000 ? stream.peek() : stream;
+            };
+            const constants = this._unpickle(buffer, read_record, this._storage_context);
             for (let i = 0; i < constants.length; i++) {
                 execution.builtins.CONSTANTS['c' + i.toString()] = constants[i];
             }
@@ -2781,10 +2840,11 @@ pytorch.jit.ScriptModuleDeserializer = class {
         const tensor_dir_prefix = this._tensor_dir_prefix || 'data/';
         const stream = reader.getRecord(pickle_dir_prefix + 'data.pkl');
         const buffer = stream.peek();
-        const data = this._unpickle(buffer, (name) => {
+        const read_record = (name) => {
             const stream = reader.getRecord(tensor_dir_prefix + name);
-            return stream.peek();
-        }, this._storage_context);
+            return stream.length <= 0x40000 ? stream.peek() : stream;
+        };
+        const data = this._unpickle(buffer, read_record, this._storage_context);
         return execution.invoke('torch.ScriptModule', [ data ]);
     }
 
@@ -2886,7 +2946,13 @@ pytorch.jit.ScriptModuleDeserializer = class {
 
     _unpickle(data, read_record, storage_context) {
         const execution = this._compilation_unit.execution;
-        const unpickler = execution.invoke('pickle.Unpickler', [ data ]);
+        const pickle = execution.__import__('pickle');
+        const Unpickler = class extends pickle.Unpickler {
+            find_class(module, name) {
+                return super.find_class(module, name);
+            }
+        };
+        const unpickler = new Unpickler(data);
         unpickler.persistent_load = (saved_id) => {
             const typename = saved_id[0];
             if (typename !== 'storage') {
@@ -3034,7 +3100,7 @@ pytorch.jit.FlatBuffersLoader = class {
             if (obj_type.type === pytorch.mobile.serialization.TypeType.CLASS_WITH_FIELD) {
                 for (let i = 0; i < object.attrs.length; i++) {
                     // const val = this._all_ivalues[object.attrs[i]];
-                    // cls.addAttribute(obj_type.attr_names[i], val.type(c10::DynamicType));
+                    cls.addAttribute(obj_type.attr_names[i] /*, null val.type(c10::DynamicType) */);
                 }
             }
         }
@@ -3709,8 +3775,9 @@ pytorch.nnapi.SerializedModel = class {
                     const number = reader.uint32();
                     const offset = reader.uint32();
                     const operand_length = reader.uint32();
-                    const buffer = buffers[number];
-                    operand.data = buffer.slice(offset, operand_length);
+                    const storage = buffers[number];
+                    const data = storage.data && storage.data.peek ? storage.data.peek() : storage.data;
+                    operand.data = data.slice(offset, operand_length);
                     break;
                 }
                 case 3: { // numbered memory

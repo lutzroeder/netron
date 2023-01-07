@@ -5127,7 +5127,6 @@
     "target":   "v3_1_ru.pt",
     "source":   "https://github.com/lutzroeder/netron/files/9075630/v3_1_ru.pt.zip[v3_1_ru.pt]",
     "format":   "PyTorch Package v1.9",
-    "error":    "Invalid string length",
     "link":     "https://github.com/lutzroeder/netron/issues/928"
   },
   {
