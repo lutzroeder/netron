@@ -4671,6 +4671,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "pyg_model.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/10369483/pyg_model.zip[pyg_model.pt]",
+    "error":    "Cannot read properties of undefined (reading 'length')",
+    "link":     "https://github.com/lutzroeder/netron/issues/546"
+  },
+  {
+    "type":     "pytorch",
     "target":   "pytorch_invalid_file.pth",
     "source":   "https://github.com/lutzroeder/netron/files/3269093/pytorch_invalid_file.zip[pytorch_invalid_file.pth]",
     "error":    "Could not find end of line.",

@@ -1287,6 +1287,12 @@ pytorch.Execution = class extends python.Execution {
                 // TODO
             }
         });
+        this.registerType('torch.TupleType', class extends torch.Type {
+            constructor(/* elements, name, schema */) {
+                super();
+                // TODO
+            }
+        });
         this.registerType('torch.ScriptFunction', class {
             constructor(name, graph /*, function_creator */) {
                 this._name = name;

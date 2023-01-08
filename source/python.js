@@ -4252,6 +4252,9 @@ python.Execution = class {
         this.registerFunction('ops.prim.is_nested', function(tensor) {
             return tensor.is_nested;
         });
+        this.registerFunction('ops.prim.is_sparse', function(tensor) {
+            return tensor.is_sparse;
+        });
         this.registerFunction('ops.prim.unchecked_unwrap_optional', function(value) {
             return value;
         });
@@ -5294,6 +5297,9 @@ python.Execution = class {
             }
             get is_nested() {
                 return this.__nested__ === true;
+            }
+            get is_sparse() {
+                return this.layout !== torch.strided;
             }
             size() {
                 return this._shape;
