@@ -3862,7 +3862,9 @@ python.Execution = class {
                 if (value instanceof torch.nn.modules.module.Module) {
                     this._modules.set(name, value);
                 }
-                this[name] = value;
+                else {
+                    this[name] = value;
+                }
             }
             __getattr__(name) {
                 if (this._modules.has(name)) {
@@ -5465,8 +5467,8 @@ python.Execution = class {
         if (buffer) {
             const debug = this.debug(file);
             const code = this._utf8Decoder.decode(buffer);
-            const reader = new python.Parser(code, file, debug);
-            const program = reader.parse();
+            const parser = new python.Parser(code, file, debug);
+            const program = parser.parse();
             if (!program) {
                 throw new python.Error("Module '" + file + "' parse error.");
             }
