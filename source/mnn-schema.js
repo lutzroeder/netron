@@ -56,6 +56,7 @@ $root.MNN.Blob = class Blob {
         $.int64s = reader.int64s_(position, 16);
         $.float32s = reader.typedArray(position, 18, Float32Array);
         $.strings = reader.strings_(position, 20);
+        $.external = reader.int64s_(position, 22);
         return $;
     }
 };
@@ -220,6 +221,7 @@ $root.MNN.Convolution2D = class Convolution2D {
         $.quanParameter = reader.table(position, 10, $root.MNN.IDSTQuan.decode);
         $.symmetricQuan = reader.table(position, 12, $root.MNN.QuantizedFloatParam.decode);
         $.sparseParameter = reader.table(position, 14, $root.MNN.SparseCommon.decode);
+        $.external = reader.int64s_(position, 16);
         return $;
     }
 };
@@ -231,6 +233,7 @@ $root.MNN.Convolution3D = class Convolution3D {
         $.common = reader.table(position, 4, $root.MNN.Convolution3DCommon.decode);
         $.weight = reader.typedArray(position, 6, Float32Array);
         $.bias = reader.typedArray(position, 8, Float32Array);
+        $.external = reader.int64s_(position, 10);
         return $;
     }
 };
@@ -437,6 +440,7 @@ $root.MNN.Scale = class Scale {
         $.channels = reader.int32_(position, 4, 0);
         $.scaleData = reader.typedArray(position, 6, Float32Array);
         $.biasData = reader.typedArray(position, 8, Float32Array);
+        $.external = reader.int64s_(position, 10);
         return $;
     }
 };
@@ -1104,6 +1108,7 @@ $root.MNN.LayerNorm = class LayerNorm {
         $.gamma = reader.typedArray(position, 8, Float32Array);
         $.beta = reader.typedArray(position, 10, Float32Array);
         $.group = reader.int32_(position, 12, 1);
+        $.external = reader.int64s_(position, 14);
         return $;
     }
 };
@@ -1478,7 +1483,7 @@ $root.MNN.OpType = {
     AsString: 3,
     InstanceNorm: 4,
     BatchToSpaceND: 5,
-    Bias: 6,
+    Copy: 6,
     BinaryOp: 7,
     Bnll: 8,
     Cast: 9,
@@ -1727,11 +1732,11 @@ $root.MNN.LoopParam = class LoopParam {
         $.tensorNumber = reader.int32_(position, 4, 0);
         $.outputIndexes = reader.typedArray(position, 6, Int32Array);
         $.inputIndexes = reader.typedArray(position, 8, Int32Array);
-        $.midTensors = reader.tableArray(position, 10, $root.MNN.TensorDescribe.decode);
+        $.extraTensorInfos = reader.tableArray(position, 10, $root.MNN.TensorDescribe.decode);
         $.parallel = reader.bool_(position, 12, true);
         $.loopNumber = reader.int32_(position, 14, 0);
         $.commands = reader.tableArray(position, 16, $root.MNN.RegionCommand.decode);
-        $.initCommand = reader.table(position, 18, $root.MNN.RegionCommand.decode);
+        $.initCommand = reader.tableArray(position, 18, $root.MNN.RegionCommand.decode);
         return $;
     }
 };

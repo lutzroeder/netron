@@ -101,7 +101,7 @@ om.Node = class {
                 const parameterName = this._type.inputs && i < this._type.inputs.length ? this._type.inputs[i].name : 'input' + (i === 0 ? '' : i.toString());
                 const inputNode = graph.op.find(node => node.name === name);
                 const desc = op.input_desc[i];
-                const format = desc.layout;
+                const layout = desc.layout;
                 if (inputNode && inputNode.type === 'Const' && inputNode.attr && inputNode.attr.value && inputNode.attr) {
                     let shape = null;
                     const value = inputNode.attr.value.t;
@@ -129,7 +129,7 @@ om.Node = class {
                         data = value.data;
                     }
                     const dataType = desc && desc.dtype ? om.Utility.dtype(value.desc.dtype) : '?';
-                    const tensorType = new om.TensorType(dataType, shape, format, value.desc.layout);
+                    const tensorType = new om.TensorType(dataType, shape, layout, value.desc.layout);
                     const tensor = new om.Tensor('Constant', tensorType, data);
                     const argument = new om.Argument(name, null, tensor);
                     this._inputs.push(new om.Parameter(parameterName, true, [ argument ]));
@@ -137,7 +137,7 @@ om.Node = class {
                 else {
                     const dataType = desc && desc.dtype ? om.Utility.dtype(desc.dtype) : '?';
                     const shape = desc.shape ? desc.shape.dim : undefined;
-                    const tensorType = new om.TensorType(dataType, shape, format, null);
+                    const tensorType = new om.TensorType(dataType, shape, layout, null);
                     const identifier = src_index === '0' ? name : name + ':' + src_index;
                     const argument = new om.Argument(identifier, tensorType, null);
                     this._inputs.push(new om.Parameter(parameterName, true, [ argument ]));
@@ -302,6 +302,16 @@ om.Attribute = class {
                 this._value = value.list_list_int.list_list_i.map((list) => list.list_i);
                 break;
             }
+            case 't': {
+                const desc = value.t.desc;
+                const dataType = desc && desc.dtype ? om.Utility.dtype(desc.dtype) : '?';
+                const shape = desc.shape ? desc.shape.dim : undefined;
+                const layout = desc.layout;
+                const type = new om.TensorType(dataType, shape, layout, null);
+                this._value = new om.Tensor('Constant', type, value.t.bytes);
+                this._type = 'tensor';
+                break;
+            }
             case undefined: {
                 this._value = null;
                 break;
@@ -380,8 +390,8 @@ om.Argument = class {
 om.Tensor = class {
 
     constructor(category, type, value) {
-        this._type = type;
         this._category = category;
+        this._type = type;
         this._data = value;
     }
 
@@ -524,7 +534,7 @@ om.Container = class {
                             const decoder = new TextDecoder('ascii');
                             const reader = new base.BinaryReader(buffer);
                             reader.uint32();
-                            for (let position = 4; position < partition.size; ) {
+                            for (let position = 4; position < partition.size;) {
                                 const length = reader.uint32();
                                 const buffer = reader.read(length);
                                 const name = decoder.decode(buffer);
@@ -555,7 +565,7 @@ om.Container = class {
                 });
             }
             case 'PICO': {
-                this.format = 'DaVinci OM SVM';
+                this.format = 'DaVinci OM SVP'; // SVP = Smart Vision PICO
                 reader.uint32(); // reserved
                 this.size = reader.uint32();
                 const param_size = reader.uint32();
@@ -568,8 +578,7 @@ om.Container = class {
                 this.param = reader.read(param_size);
                 const buffer = reader.read(tfm_offset - reader.position);
                 this.model = new svp.ModelDef(buffer);
-                // return Promise.resolve();
-                return Promise.reject(new om.Error('Unsupported DaVinci OM ' + this.signature + ' signature.'));
+                return Promise.resolve();
             }
             default: {
                 return Promise.reject(new om.Error('Unsupported DaVinci OM ' + this.signature + ' signature.'));
@@ -628,9 +637,9 @@ svp.ModelDef = class ModelDef {
                 case 0x0111: {
                     const op = new svp.OpDef(value);
                     for (const item of this.graph) {
-                        if (op.seg_id == item.id) {
+                        if (op.attr && op.attr.seg_id && op.attr.seg_id.i === item.id) {
                             let out_num;
-                            if (op.output_index) {
+                            if (typeof op.output_index == 'number') {
                                 out_num = op.output_index + 1;
                             }
                             else {
@@ -638,9 +647,9 @@ svp.ModelDef = class ModelDef {
                                 out_num = input_num.length > 0 ? Math.max(...input_num) + 1 : 1;
                             }
                             const out_types = [];
-                            if (op.data_flow != null && op.data_flow != '') {
+                            if (op.data_flow && op.data_flow !== '') {
                                 const data = op.data_flow;
-                                if (data.indexOf('o[{t') != -1) {
+                                if (data.indexOf('o[{t') !== -1) {
                                     const outs = data.substring(data.indexOf('o[{t')).split(',');
                                     for (const out of outs) {
                                         const startIndex = out.indexOf("\"");
@@ -663,7 +672,7 @@ svp.ModelDef = class ModelDef {
 
                             let curr_op = null;
                             for (const op_item of item.op) {
-                                if (op_item.id == op.id) {
+                                if (op_item.id === op.id) {
                                     curr_op = op_item;
                                     break;
                                 }
@@ -701,47 +710,45 @@ svp.GraphDef = class {
         this.op = [];
         this.attr = {};
         const reader = new svp.BinaryReader(buffer);
+        const input = (buffer) => {
+            const input = {};
+            const reader = new svp.BinaryReader(buffer);
+            while (reader.position < reader.length) {
+                const tag = reader.uint16();
+                switch (tag & 0x1fff) {
+                    case 0x0051: input.id = reader.value(tag); break;
+                    case 0x0058: input.name = reader.value(tag, 'string').trim(); break;
+                    case 0x005a: input.shape_vector = reader.value(tag, 'uint32[]'); break;
+                    default: reader.value(tag); break;
+                }
+            }
+            return input;
+        };
+        const output = (buffer) => {
+            const output = {};
+            const reader = new svp.BinaryReader(buffer);
+            while (reader.position < reader.length) {
+                const tag = reader.uint16();
+                switch (tag & 0x1fff) {
+                    case 0x0061: output.id = reader.value(tag); break;
+                    case 0x0066: output.name = reader.value(tag, 'string').trim(); break;
+                    case 0x0069: output.shape_vector = reader.value(tag, 'uint32[]'); break;
+                    case 0x0110: output.layer_num = reader.value(tag); break;
+                    default: reader.value(tag); break;
+                }
+            }
+            return output;
+        };
         while (reader.position < reader.length) {
             const tag = reader.uint16();
             const value = reader.value(tag);
             switch (tag & 0x1fff) {
                 case 0x0041: this.id = value; break;
-                case 0x0050: this.input.push(this._input(value)); break;
-                case 0x0060: this.output.push(this._output(value)); break;
+                case 0x0050: this.input.push(input(value)); break;
+                case 0x0060: this.output.push(output(value)); break;
                 default: break;
             }
         }
-    }
-
-    _input(buffer) {
-        const input = {};
-        const reader = new svp.BinaryReader(buffer);
-        while (reader.position < reader.length) {
-            const tag = reader.uint16();
-            switch (tag & 0x1fff) {
-                case 0x0051: input.id = reader.value(tag); break;
-                case 0x0058: input.name = reader.value(tag, 'string'); break;
-                case 0x005a: input.shape_vector = reader.value(tag, 'uint32[]'); break;
-                default: reader.value(tag); break;
-            }
-        }
-        return input;
-    }
-
-    _output(buffer) {
-        const output = {};
-        const reader = new svp.BinaryReader(buffer);
-        while (reader.position < reader.length) {
-            const tag = reader.uint16();
-            switch (tag & 0x1fff) {
-                case 0x0061: output.id = reader.value(tag); break;
-                case 0x0066: output.name = reader.value(tag, 'string'); break;
-                case 0x0069: output.shape_vector = reader.value(tag, 'uint32[]'); break;
-                case 0x0110: output.layer_num = reader.value(tag); break;
-                default: reader.value(tag); break;
-            }
-        }
-        return output;
     }
 };
 
@@ -769,7 +776,7 @@ svp.OpDef = class {
                 case 0x0128: this.attr.last_inst_addr = reader.attribute(tag, 'i'); break;
                 case 0x013B: this.attr.is_fusion_layer = reader.attribute(tag, 'i'); break;
                 case 0x013C: this.input = reader.value(tag, 'string').split(','); break;
-                case 0x014B: this.seg_id = reader.value(tag); break;
+                case 0x014B: this.attr.seg_id = reader.attribute(tag, 'i'); break;
                 case 0x0150: this.attr.is_not_last_merge_layer = reader.attribute(tag, 'i'); break;
                 case 0x0151: this.attr.is_dump_avavilable = reader.attribute(tag, 'i'); break;
                 case 0x0153: this.attr.debug_dump_offset = reader.attribute(tag, 'i'); break;
@@ -815,10 +822,6 @@ svp.AttrDef = class {
 
 svp.BinaryReader = class extends base.BinaryReader {
 
-    constructor(buffer) {
-        super(buffer);
-    }
-
     value(tag, type) {
         let value;
         switch (tag >> 13) {
@@ -830,7 +833,7 @@ svp.BinaryReader = class extends base.BinaryReader {
             case 6: value = this.read(this.uint32()); break;
             default: throw new svp.Error("Unsupported value identifier '" + tag + "'.");
         }
-        return type ? this._cast(value, type) : value;
+        return type ? this._cast(value, type, tag) : value;
     }
 
     find(tag, type) {
@@ -839,10 +842,10 @@ svp.BinaryReader = class extends base.BinaryReader {
         while (!match && this.position < this.length) {
             const current = this.uint16();
             value = this.value(current);
-            match = current == tag;
+            match = current === tag;
         }
         this.seek(0);
-        return match && type ? this._cast(value, type) : value;
+        return match && type ? this._cast(value, type, tag) : value;
     }
 
     attribute(tag, type) {
@@ -850,11 +853,14 @@ svp.BinaryReader = class extends base.BinaryReader {
         return new svp.AttrDef(value, type);
     }
 
-    _cast(value, type) {
+    _cast(value, type, tag) {
         switch (type) {
             case 'string': {
-                svp.BinaryReader._decoder = svp.BinaryReader._decoder || new TextDecoder('utf-8');
-                return svp.BinaryReader._decoder.decode(value).replace(/\0.*$/g, '');
+                if (value instanceof Uint8Array) {
+                    svp.BinaryReader._decoder = svp.BinaryReader._decoder || new TextDecoder('utf-8');
+                    return svp.BinaryReader._decoder.decode(value).replace(/\0.*$/g, '');
+                }
+                throw new om.Error("Invalid 'string' tag '" + tag.toString(16) + "'.");
             }
             case 'uint32[]': {
                 const reader = new base.BinaryReader(value);
@@ -864,8 +870,9 @@ svp.BinaryReader = class extends base.BinaryReader {
                 }
                 return value;
             }
-            default:
+            default: {
                 return value;
+            }
         }
     }
 };

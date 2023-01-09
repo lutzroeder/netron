@@ -58,7 +58,7 @@ nnabla.Model = class {
         this._graphs = [ new nnabla.Graph(metadata, model) ];
     }
 
-    get format(){
+    get format() {
         return this._format;
     }
 
@@ -117,7 +117,7 @@ nnabla.Graph = class {
             });
             const func_type = metadata.type(func.type);
             const inputs = [];
-            for (let index = 0; index < func.input.length; ) {
+            for (let index = 0; index < func.input.length;) {
                 const input = func_type.inputs && index < func_type.inputs.length ? func_type.inputs[index] : { name: index.toString() };
                 const count = input.list ? func.input.length - index : 1;
                 const args = func.input.slice(index, index + count).map((input) => arg(input));
@@ -125,7 +125,7 @@ nnabla.Graph = class {
                 index += count;
             }
             const outputs = [];
-            for (let index = 0; index < func.output.length; ) {
+            for (let index = 0; index < func.output.length;) {
                 const output = func_type.outputs && index < func_type.outputs.length ? func_type.outputs[index] : { name: index.toString() };
                 const count = output.list ? func.output.length - index : 1;
                 const args = func.output.slice(index, index + count).map((output) => arg(output));
@@ -280,7 +280,7 @@ nnabla.Attribute = class {
         const attribute = metadata.attribute(type, name);
         this._description = attribute.description;
         switch (attribute.type) {
-            case "Shape":
+            case "shape":
                 this._type = "int64[]";
                 this._value = value.dim;
                 break;

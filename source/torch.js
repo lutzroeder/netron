@@ -9,11 +9,10 @@ torch.ModelFactory = class {
 
     open(context, match) {
         return context.metadata('torch-metadata.json').then((metadata) => {
-            const identifier = context.identifier;
             const reader = match;
             reader.callback = (name) => {
                 if (name && name != 'nn.JointTrainModule' && !name.startsWith('nn.MSDNet_') && !name.startsWith('onmt.')) {
-                    context.exception(new torch.Error("Unsupported type '" + name + "' in '" + identifier + "'."), false);
+                    context.exception(new torch.Error("Unsupported type '" + name + "'."));
                 }
                 return null;
             };

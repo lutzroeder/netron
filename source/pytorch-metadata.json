@@ -4699,6 +4699,30 @@
     ]
   },
   {
+    "name": "aten::fft_fft",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "n", "type": "int64", "optional": true, "default": null },
+      { "name": "dim", "type": "int64", "default": -1 },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::fft_fft.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "n", "type": "int64", "optional": true, "default": null },
+      { "name": "dim", "type": "int64", "default": -1 },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::fft_fft2",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -5210,16 +5234,6 @@
     ],
     "outputs": [
       { "type": "string" }
-    ]
-  },
-  {
-    "name": "aten::frobenius_norm",
-    "category": "Normalization",
-    "inputs": [
-      { "name": "self", "type": "Tensor" }
-    ],
-    "outputs": [
-      { "type": "Tensor" }
     ]
   },
   {
@@ -13510,7 +13524,7 @@
     "name": "aten::view",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "size", "type": "SymInt[]", "visible": false }
+      { "name": "size", "type": "SymInt[]" }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -13791,6 +13805,22 @@
     ]
   },
   {
+    "name": "prepacked::conv2d_clamp_prepack",
+    "inputs": [
+      { "name": "W", "type": "Tensor" },
+      { "name": "B", "type": "Tensor", "optional": true },
+      { "name": "stride", "type": "int64[2]" },
+      { "name": "padding", "type": "int64[2]" },
+      { "name": "dilation", "type": "int64[2]" },
+      { "name": "groups", "type": "int64" },
+      { "name": "output_min", "type": "Scalar", "optional": true, "default": null },
+      { "name": "output_max", "type": "Scalar", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "__torch__.torch.classes.xnnpack.Conv2dOpContext" }
+    ]
+  },
+  {
     "name": "prepacked::conv2d_clamp_run",
     "category": "Layer",
     "inputs": [
@@ -13799,6 +13829,18 @@
     ],
     "outputs": [
       { "name": "Y", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "prepacked::linear_clamp_prepack",
+    "inputs": [
+      { "name": "W", "type": "Tensor" },
+      { "name": "B", "type": "Tensor", "optional": true, "default": null },
+      { "name": "output_min", "type": "Scalar", "optional": true, "default": null },
+      { "name": "output_max", "type": "Scalar", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "__torch__.torch.classes.xnnpack.LinearOpContext" }
     ]
   },
   {
@@ -14304,6 +14346,20 @@
     ]
   },
   {
+    "name": "quantized::conv2d_prepack",
+    "inputs": [
+      { "name": "weight", "type": "Tensor" },
+      { "name": "bias", "type": "Tensor", "optional": true },
+      { "name": "stride", "type": "int64[]" },
+      { "name": "padding", "type": "int64[]" },
+      { "name": "dilation", "type": "int64[]" },
+      { "name": "groups", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "__torch__.torch.classes.quantized.Conv2dPackedParamsBase" }
+    ]
+  },
+  {
     "name": "quantized::conv2d_relu",
     "category": "Layer",
     "inputs": [
@@ -14431,6 +14487,21 @@
     ]
   },
   {
+    "name": "quantized::conv_transpose1d_prepack",
+    "inputs": [
+      { "name": "weight", "type": "Tensor" },
+      { "name": "bias", "type": "Tensor", "optional": true },
+      { "name": "stride", "type": "int64[]" },
+      { "name": "padding", "type": "int64[]" },
+      { "name": "output_padding", "type": "int64[]" },
+      { "name": "dilation", "type": "int64[]" },
+      { "name": "groups", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "__torch__.torch.classes.quantized.Conv2dPackedParamsBase" }
+    ]
+  },
+  {
     "name": "quantized::conv_transpose2d",
     "inputs": [
       { "name": "qx", "type": "Tensor" },
@@ -14487,6 +14558,21 @@
     ],
     "outputs": [
       { "type": "int64[]" }
+    ]
+  },
+  {
+    "name": "quantized::conv_transpose2d_prepack",
+    "inputs": [
+      { "name": "weight", "type": "Tensor" },
+      { "name": "bias", "type": "Tensor", "optional": true },
+      { "name": "stride", "type": "int64[]" },
+      { "name": "padding", "type": "int64[]" },
+      { "name": "output_padding", "type": "int64[]" },
+      { "name": "dilation", "type": "int64[]" },
+      { "name": "groups", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "__torch__.torch.classes.quantized.Conv2dPackedParamsBase" }
     ]
   },
   {
@@ -15039,7 +15125,7 @@
       { "name": "bias" },
       { "name": "running_mean" },
       { "name": "running_var" },
-      { "name": "num_batches_tracked", "visible": false },
+      { "name": "num_batches_tracked" },
       { "name": "eps", "default": 1e-05 },
       { "name": "momentum", "default": 0.1 },
       { "name": "affine", "default": true },
@@ -15050,6 +15136,9 @@
     "name": "torch.nn.modules.conv.Conv1d",
     "category": "Layer",
     "inputs": [
+      { "name": "input" },
+      { "name": "weight" },
+      { "name": "bias" },
       { "name": "output_padding", "visible": false },
       { "name": "in_channels", "visible": false },
       { "name": "out_channels", "visible": false },
@@ -15064,6 +15153,9 @@
     "name": "torch.nn.modules.conv.Conv2d",
     "category": "Layer",
     "inputs": [
+      { "name": "input" },
+      { "name": "weight" },
+      { "name": "bias" },
       { "name": "output_padding", "visible": false },
       { "name": "in_channels", "visible": false },
       { "name": "out_channels", "visible": false },
@@ -15082,6 +15174,9 @@
     "name": "torch.nn.modules.conv.ConvTranspose1d",
     "category": "Layer",
     "inputs": [
+      { "name": "input" },
+      { "name": "weight" },
+      { "name": "bias" },
       { "name": "output_padding", "visible": false },
       { "name": "in_channels", "visible": false },
       { "name": "out_channels", "visible": false },
@@ -15096,6 +15191,9 @@
     "name": "torch.nn.modules.conv.ConvTranspose2d",
     "category": "Layer",
     "inputs": [
+      { "name": "input" },
+      { "name": "weight" },
+      { "name": "bias" },
       { "name": "output_padding", "visible": false },
       { "name": "in_channels", "visible": false },
       { "name": "out_channels", "visible": false },
@@ -15241,6 +15339,7 @@
     "name": "torch.nn.modules.pooling.MaxPool2d",
     "category": "Pool",
     "inputs": [
+      { "name": "input" },
       { "name": "padding", "default": 0 },
       { "name": "dilation", "default": 1 },
       { "name": "return_indices", "default": false },

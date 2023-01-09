@@ -160,6 +160,7 @@ class _HTTPServerThread(threading.Thread):
 def _open(data):
     registry = dict([
         ('onnx.onnx_ml_pb2.ModelProto', '.onnx'),
+        ('torch.jit._script.ScriptModule', '.pytorch'),
         ('torch.Graph', '.pytorch'),
         ('torch._C.Graph', '.pytorch'),
         ('torch.nn.modules.module.Module', '.pytorch')

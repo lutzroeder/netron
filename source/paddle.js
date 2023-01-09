@@ -832,7 +832,7 @@ paddle.NaiveBuffer = class {
             const decoder = new TextDecoder();
             const opt_version = reader.read(16);
             const version = decoder.decode(opt_version.slice(0, opt_version.indexOf(0x00)));
-            this._format = 'Paddle Lite' + (version ? ' ' + version : '');
+            this._format = 'Paddle Lite' + (version && version.match(/^v\d+\.\d+.\d+$/) ? ' ' + version : '');
             const topo_size = reader.uint64();
             const openProgramDesc = (buffer) => {
                 const reader = flatbuffers.BinaryReader.open(buffer);

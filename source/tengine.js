@@ -400,6 +400,7 @@ tengine.Reader = class {
                 }
                 return null;
             };
+            /* eslint-disable space-in-parens */
             register( 0, 0, 'Accuracy', []);
             register( 1, 0, 'BatchNormalization', [ 'f', 'f', 'i' ]);
             register( 2, 0, 'BilinearResize', [ 'f', 'f', 'i' ]);
@@ -505,6 +506,7 @@ tengine.Reader = class {
             register(101, 0, 'L2Normalization', []);
             register(102, 0, 'PackModel', ['i','i']);
             register(103, 0, 'Num', []);
+            /* eslint-enable space-in-parens */
 
             const buffer = this._stream.peek();
             const reader = new tengine.BinaryReader(buffer);
@@ -712,7 +714,7 @@ tengine.BinaryReader = class extends base.BinaryReader {
             this.seek(position);
             const size = this.uint32();
             this.seek(this.uint32());
-            for(let i = 0; i < size - 1; i++) {
+            for (let i = 0; i < size - 1; i++) {
                 content += String.fromCharCode(this._buffer[this._position++]);
             }
             this.seek(next);

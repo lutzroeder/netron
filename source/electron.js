@@ -29,6 +29,7 @@ host.ElectronHost = class {
             }
         });
         this._environment = electron.ipcRenderer.sendSync('get-environment', {});
+        this._environment.menu = this._environment.titlebar && this._environment.platform !== 'darwin';
         this._queue = [];
     }
 
@@ -58,28 +59,33 @@ host.ElectronHost = class {
             this._openPath(data.path);
         });
         return new Promise((resolve /*, reject */) => {
-            const age = (new Date() - new Date(this._environment.date)) / ( 24 * 60 * 60 * 1000);
+            const age = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
             if (age > 180) {
                 this._message('Please update to the newest version.', 'Download', () => {
-                    const link = this.document.getElementById('logo-github').href;
+                    const link = this._element('logo-github').href;
                     this.openURL(link);
                 }, true);
             }
             else {
                 const telemetry = () => {
                     if (this._environment.packaged) {
-                        let user = this._getConfiguration('userId') || null;
-                        this._telemetry_ga4 = base.Telemetry.open(this._window, 'G-33PZ4MG5FQ', user);
-                        this._telemetry_ga4.open().then(() => {
-                            if (user !== this._telemetry_ga4.get('client_id')) {
-                                user = this._telemetry_ga4.get('client_id');
-                                this._setConfiguration('userId', user);
-                            }
+                        const measurement_id = '848W2NVWVH';
+                        const user = this._getConfiguration('user') || null;
+                        const session = this._getConfiguration('session') || null;
+                        this._telemetry_ga4 = new base.Telemetry(this._window, 'G-' + measurement_id, user, session);
+                        this._telemetry_ga4.start().then(() => {
                             this._telemetry_ga4.send('page_view', {
-                                'app_name': this.type,
-                                'app_version': this.version,
+                                app_name: this.type,
+                                app_version: this.version,
                             });
-                            this._telemetry_ua = new host.Telemetry('UA-54146-13', user, navigator.userAgent, this.type, this.version);
+                            this._telemetry_ga4.send('scroll', {
+                                percent_scrolled: 90,
+                                app_name: this.type,
+                                app_version: this.version
+                            });
+                            this._setConfiguration('user', this._telemetry_ga4.get('client_id'));
+                            this._setConfiguration('session', this._telemetry_ga4.session);
+                            this._telemetry_ua = new host.Telemetry('UA-54146-13', this._telemetry_ga4.get('client_id'), navigator.userAgent, this.type, this.version);
                             resolve();
                         });
                     }
@@ -131,6 +137,15 @@ host.ElectronHost = class {
             }
         }
 
+        this._window.addEventListener('focus', () => {
+            this._document.body.classList.add('active');
+        });
+        this._window.addEventListener('blur', () => {
+            this._document.body.classList.remove('active');
+        });
+        if (this._document.hasFocus()) {
+            this._document.body.classList.add('active');
+        }
         electron.ipcRenderer.on('export', (_, data) => {
             this._view.export(data.file);
         });
@@ -151,39 +166,59 @@ host.ElectronHost = class {
             this._update(Object.assign({}, this._view.options));
         });
         electron.ipcRenderer.on('zoom-in', () => {
-            this.document.getElementById('zoom-in-button').click();
+            this._element('zoom-in-button').click();
         });
         electron.ipcRenderer.on('zoom-out', () => {
-            this.document.getElementById('zoom-out-button').click();
+            this._element('zoom-out-button').click();
         });
         electron.ipcRenderer.on('reset-zoom', () => {
             this._view.resetZoom();
         });
         electron.ipcRenderer.on('show-properties', () => {
-            this.document.getElementById('menu-button').click();
+            this._element('sidebar-button').click();
         });
         electron.ipcRenderer.on('find', () => {
             this._view.find();
         });
-        const menuButton = this.document.getElementById('menu-button');
-        if (menuButton) {
-            menuButton.setAttribute('title', 'Model Properties');
-            menuButton.addEventListener('click', () => {
-                this._view.showModelProperties();
-            });
-        }
-        const openFileButton = this.document.getElementById('open-file-button');
+        electron.ipcRenderer.on('about', () => {
+            this._view.about();
+        });
+
+        this._element('titlebar-close').addEventListener('click', () => {
+            electron.ipcRenderer.sendSync('window-close', {});
+        });
+        this._element('titlebar-toggle').addEventListener('click', () => {
+            electron.ipcRenderer.sendSync('window-toggle', {});
+        });
+        this._element('titlebar-minimize').addEventListener('click', () => {
+            electron.ipcRenderer.sendSync('window-minimize', {});
+        });
+        electron.ipcRenderer.on('window-state', (_, data) => {
+            if (this._environment.titlebar) {
+                this._element('graph').style.marginTop = '32px';
+                this._element('graph').style.height = 'calc(100% - 32px)';
+                this._element('sidebar-title').style.marginTop = '24px';
+                this._element('sidebar-closebutton').style.marginTop = '24px';
+            }
+            this._element('titlebar').style.display = this._environment.titlebar ? 'block' : 'none';
+            this._element('menu-button').style.opacity = this._environment.menu ? 1 : 0;
+            this._element('titlebar-control-box').style.opacity = this._environment.titlebar && this._environment.platform !== 'darwin' && !data.fullscreen ? 1 : 0;
+            this._element('titlebar-maximize').style.opacity = data.maximized ? 0 : 1;
+            this._element('titlebar-restore').style.opacity = data.maximized ? 1 : 0;
+            this._element('titlebar-toggle').setAttribute('title', data.maximized ? 'Restore' : 'Maximize');
+        });
+        electron.ipcRenderer.sendSync('update-window-state', {});
+
+        const openFileButton = this._element('open-file-button');
         if (openFileButton) {
-            openFileButton.style.opacity = 1;
             openFileButton.addEventListener('click', () => {
                 electron.ipcRenderer.send('open-file-dialog', {});
             });
         }
-        const githubButton = this.document.getElementById('github-button');
-        const githubLink = this.document.getElementById('logo-github');
+        const githubButton = this._element('github-button');
+        const githubLink = this._element('logo-github');
         if (githubButton && githubLink) {
             githubButton.innerText = 'Download';
-            githubButton.style.opacity = 1;
             githubButton.addEventListener('click', () => {
                 this.openURL(githubLink.href);
             });
@@ -319,39 +354,49 @@ host.ElectronHost = class {
     }
 
     exception(error, fatal) {
-        if ((this._telemetry_ua || this._telemetry_ga4) && error && error.telemetry !== false) {
+        if ((this._telemetry_ua || this._telemetry_ga4) && error) {
             try {
                 const name = error.name ? error.name + ': ' : '';
                 const message = error.message ? error.message : JSON.stringify(error);
-                const description = [ name + message ];
+                const description = name + message;
+                let context = '';
+                let stack = '';
                 if (error.stack) {
                     const format = (file, line, column) => {
                         return file.split('\\').join('/').split('/').pop() + ':' + line + ':' + column;
                     };
                     const match = error.stack.match(/\n {4}at (.*) \((.*):(\d*):(\d*)\)/);
                     if (match) {
-                        description.push(match[1] + ' (' + format(match[2], match[3], match[4]) + ')');
+                        stack = match[1] + ' (' + format(match[2], match[3], match[4]) + ')';
                     }
                     else {
                         const match = error.stack.match(/\n {4}at (.*):(\d*):(\d*)/);
                         if (match) {
-                            description.push('(' + format(match[1], match[2], match[3]) + ')');
+                            stack = '(' + format(match[1], match[2], match[3]) + ')';
                         }
                         else {
                             const match = error.stack.match(/.*\n\s*(.*)\s*/);
-                            description.push(match ? match[1] : error.stack.split('\n').shift());
+                            if (match) {
+                                stack = match[1];
+                            }
                         }
                     }
                 }
+                if (error.context) {
+                    context = typeof error.context === 'string' ? error.context : JSON.stringify(error.context);
+                }
                 if (this._telemetry_ua) {
-                    this._telemetry_ua.exception(description.join(' @ '), fatal);
+                    this._telemetry_ua.exception(stack ? description + ' @ ' + stack : description, fatal);
                 }
                 if (this._telemetry_ga4) {
                     this._telemetry_ga4.send('exception', {
-                        'description': description.join(' @ '),
-                        'fatal': fatal,
-                        'app_name': this.type,
-                        'app_version': this.version,
+                        app_name: this.type,
+                        app_version: this.version,
+                        error_name: name,
+                        error_message: message,
+                        error_context: context,
+                        error_stack: stack,
+                        error_fatal: fatal ? true : false
                     });
                 }
             }
@@ -373,9 +418,9 @@ host.ElectronHost = class {
         if (this._telemetry_ga4) {
             try {
                 this._telemetry_ga4.send('screen_view', {
-                    'screen_name': name,
-                    'app_name': this.type,
-                    'app_version': this.version,
+                    screen_name: name,
+                    app_name: this.type,
+                    app_version: this.version,
                 });
             }
             catch (e) {
@@ -398,8 +443,8 @@ host.ElectronHost = class {
     event(name, params) {
         if (this._telemetry_ga4 && name && params) {
             try {
-                params['app_name'] = this.type,
-                params['app_version'] = this.version,
+                params.app_name = this.type,
+                params.app_version = this.version,
                 this._telemetry_ga4.send(name, params);
             }
             catch (e) {
@@ -449,12 +494,16 @@ host.ElectronHost = class {
         if (path && this._view.accept(path, size)) {
             this._view.show('welcome spinner');
             this._context(path).then((context) => {
+                if (this._telemetry_ga4) {
+                    this._telemetry_ga4.set('session_engaged', 1);
+                }
                 this._view.open(context).then((model) => {
                     this._view.show(null);
                     const options = Object.assign({}, this._view.options);
                     if (model) {
                         options.path = path;
                     }
+                    this._title(path);
                     this._update(options);
                 }).catch((error) => {
                     const options = Object.assign({}, this._view.options);
@@ -523,16 +572,45 @@ host.ElectronHost = class {
         electron.ipcRenderer.sendSync('set-configuration', { name: name, value: value });
     }
 
+    _minimizePath(path) {
+        if (this._environment.platform !== 'win32' && this._environment.homedir) {
+            if (path.startsWith(this._environment.homedir)) {
+                return '~' + path.substring(this._environment.homedir);
+            }
+        }
+        return path;
+    }
+
+    _title(path) {
+        const element = this._element('titlebar-content-text');
+        if (element) {
+            element.setAttribute('title', path);
+            element.innerHTML = '';
+            if (path) {
+                path = this._minimizePath(path).split(this._environment.separator || '/').slice(-4).filter((item) => item);
+                for (let i = 0; i < path.length; i++) {
+                    const span = this.document.createElement('span');
+                    span.innerHTML = ' ' + path[i] + ' ' + (i !== path.length - 1 ? '<svg class="titlebar-icon" aria-hidden="true"><use xlink:href="#icon-arrow-right"></use></svg>' : '');
+                    element.appendChild(span);
+                }
+            }
+        }
+    }
+
+    _element(id) {
+        return this.document.getElementById(id);
+    }
+
     _update(data) {
-        electron.ipcRenderer.send('update', data);
+        electron.ipcRenderer.send('window-update', data);
     }
 
     _message(message, action, callback, modal) {
-        const messageText = this.document.getElementById('message');
+        const messageText = this._element('message');
         if (messageText) {
             messageText.innerText = message;
         }
-        const messageButton = this.document.getElementById('message-button');
+        const messageButton = this._element('message-button');
         if (messageButton) {
             if (action && callback) {
                 messageButton.style.removeProperty('display');

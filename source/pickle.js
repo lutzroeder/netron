@@ -47,11 +47,11 @@ pickle.ModelFactory = class {
                     format = formats.get(type);
                 }
                 else {
-                    context.exception(new pickle.Error("Unsupported Pickle type '" + type +  "' in '" + context.identifier + "'."));
+                    context.exception(new pickle.Error("Unsupported Pickle type '" + type +  "'."));
                 }
             }
             else {
-                context.exception(new pickle.Error("Unsupported Pickle object in '" + context.identifier + "'."));
+                context.exception(new pickle.Error('Unsupported Pickle object.'));
             }
             return new pickle.Model(obj, format);
         });

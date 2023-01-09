@@ -319,7 +319,7 @@ rknn.Node = class {
                     }
                 }
                 node.input = node.input || [];
-                for (let i = 0; i < node.input.length; ) {
+                for (let i = 0; i < node.input.length;) {
                     const input = this._type && this._type.inputs && i < this._type.inputs.length ? this._type.inputs[i] : { name: i === 0 ? 'input' : i.toString() };
                     const count = input.list ? node.input.length - i : 1;
                     const list = node.input.slice(i, i + count).map((input) => {
@@ -335,7 +335,7 @@ rknn.Node = class {
                     i += count;
                 }
                 node.output = node.output || [];
-                for (let i = 0; i < node.output.length; ) {
+                for (let i = 0; i < node.output.length;) {
                     const output = this._metadata && this._metadata.outputs && i < this._metadata.outputs.length ? this._metadata.outputs[i] : { name: i === 0 ? 'output' : i.toString() };
                     const count = output.list ? node.output.length - i : 1;
                     const list = node.output.slice(i, i + count).map((output) => {

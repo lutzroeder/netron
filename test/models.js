@@ -1,4 +1,3 @@
-/* eslint "no-console": off */
 
 const fs = require('fs');
 const path = require('path');
@@ -24,8 +23,13 @@ const items = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8'));
 class TestHost {
 
     constructor() {
+        this._window = new Window();
         this._document = new HTMLDocument();
         this._sourceDir = path.join(__dirname, '..', 'source');
+    }
+
+    get window() {
+        return this._window;
     }
 
     get document() {
@@ -196,6 +200,15 @@ class TestContext {
     }
 }
 
+class Window {
+
+    addEventListener(/* event, callback */) {
+    }
+
+    removeEventListener(/* event, callback */) {
+    }
+}
+
 class HTMLDocument {
 
     constructor() {
@@ -303,7 +316,7 @@ class HTMLElement {
 class HTMLHtmlElement extends HTMLElement {
 }
 
-class HTMLBodyElement extends HTMLElement{
+class HTMLBodyElement extends HTMLElement {
 }
 
 class CSSStyleDeclaration {
@@ -742,5 +755,7 @@ const next = () => {
 };
 
 next().catch((error) => {
+    /* eslint-disable no-console */
     console.error(error.message);
+    /* eslint-enable no-console */
 });

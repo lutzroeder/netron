@@ -24,6 +24,8 @@ host.BrowserHost = class {
             'type': this._meta.type ? this._meta.type[0] : 'Browser',
             'version': this._meta.version ? this._meta.version[0] : null,
             'date': this._meta.date ? new Date(this._meta.date[0].split(' ').join('T') + 'Z') : new Date(),
+            'platform': /(Mac|iPhone|iPod|iPad)/i.test(this._navigator.platform) ? 'darwin' : undefined,
+            'menu': true
         };
         this.window.require = (id) => {
             const name = id.startsWith('./') ? id.substring(2) : id;
@@ -74,7 +76,7 @@ host.BrowserHost = class {
     initialize(view) {
         this._view = view;
         return new Promise((resolve /*, reject */) => {
-            const age = (new Date() - new Date(this._environment.date)) / ( 24 * 60 * 60 * 1000);
+            const age = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
             if (age > 180) {
                 this._message('Please update to the newest version.', 'Download', () => {
                     const link = this.document.getElementById('logo-github').href;
@@ -83,24 +85,26 @@ host.BrowserHost = class {
             }
             else {
                 const capabilities = () => {
-                    const capabilities = [
+                    const list = [
                         'TextDecoder', 'TextEncoder',
                         'fetch', 'URLSearchParams',
                         'HTMLCanvasElement.prototype.toBlob'
                     ];
-                    const unsupported = capabilities.filter((capability) => {
+                    const capabilities = list.filter((capability) => {
                         const path = capability.split('.').reverse();
                         let obj = this.window[path.pop()];
                         while (obj && path.length > 0) {
                             obj = obj[path.pop()];
                         }
-                        return !obj;
+                        return obj;
                     });
-                    if (unsupported.length > 0) {
-                        for (const capability of unsupported) {
-                            this.event_ua('Host', 'Browser', capability, 1);
-                            this.event('host_capability', { unsupported: capability });
-                        }
+                    for (const capability of capabilities) {
+                        this.event_ua('Host', 'Browser', capability, 1);
+                    }
+                    this.event('browser_open', {
+                        browser_capabilities: capabilities.map((capability) => capability.split('.').pop()).join(',')
+                    });
+                    if (capabilities.length < list.length) {
                         this._message('Your browser is not supported.');
                     }
                     else {
@@ -110,43 +114,48 @@ host.BrowserHost = class {
                 const telemetry = () => {
                     if (this._environment.version && this._environment.version !== '0.0.0') {
                         const ga4 = () => {
-                            const _ga = () => {
-                                const value = this._getCookie('_ga');
-                                const match = /.*\..*\.([0-9]*\.[0-9]*)/.exec(value);
-                                return match ? match[1] : '';
-                            };
-                            const user = this._getCookie('user');
-                            this._telemetry_ga4 = this.window.base.Telemetry.open(this._window, 'G-33PZ4MG5FQ', user || _ga());
-                            this._telemetry_ga4.set('document_location', this._document.location && this._document.location.href ? this._document.location.href : '');
-                            this._telemetry_ga4.set('document_title', this._document.title);
-                            this._telemetry_ga4.set('document_referrer', this._document.referrer);
-                            this._telemetry_ga4.open().then(() => {
-                                if (user !== this._telemetry_ga4.get('client_id')) {
-                                    this._setCookie('user', this._telemetry_ga4.get('client_id'), 1200);
-                                }
+                            const base = this.window.base;
+                            const measurement_id = '848W2NVWVH';
+                            const user = this._getCookie('_ga');
+                            const session = this._getCookie('_ga' + measurement_id);
+                            this._telemetry_ga4 = new base.Telemetry(this._window, 'G-' + measurement_id, user, session);
+                            this._telemetry_ga4.start().then(() => {
+                                this._telemetry_ga4.set('page_location', this._document.location && this._document.location.href ? this._document.location.href : null);
+                                this._telemetry_ga4.set('page_title', this._document.title ? this._document.title : null);
+                                this._telemetry_ga4.set('page_referrer', this._document.referrer ? this._document.referrer : null);
                                 this._telemetry_ga4.send('page_view', {
                                     app_name: this.type,
                                     app_version: this.version,
                                 });
-                                capabilities();
+                                this._telemetry_ga4.send('scroll', {
+                                    percent_scrolled: 90,
+                                    app_name: this.type,
+                                    app_version: this.version
+                                });
+                                this._setCookie('_ga', 'GA1.1.' + this._telemetry_ga4.get('client_id'), 1200);
+                                this._setCookie('_ga' + measurement_id, 'GS1.1.' + this._telemetry_ga4.session, 1200);
+                                ua();
                             });
                         };
-                        this._telemetry_ua = true;
-                        const script = this.document.createElement('script');
-                        script.setAttribute('type', 'text/javascript');
-                        script.setAttribute('src', 'https://www.google-analytics.com/analytics.js');
-                        script.onload = () => {
-                            if (this.window.ga) {
-                                this.window.ga.l = 1 * new Date();
-                                this.window.ga('create', 'UA-54146-13', 'auto');
-                                this.window.ga('set', 'anonymizeIp', true);
-                            }
-                            ga4();
+                        const ua = () => {
+                            this._telemetry_ua = true;
+                            const script = this.document.createElement('script');
+                            script.setAttribute('type', 'text/javascript');
+                            script.setAttribute('src', 'https://www.google-analytics.com/analytics.js');
+                            script.onload = () => {
+                                if (this.window.ga) {
+                                    this.window.ga.l = 1 * new Date();
+                                    this.window.ga('create', 'UA-54146-13', 'auto');
+                                    this.window.ga('set', 'anonymizeIp', true);
+                                }
+                                capabilities();
+                            };
+                            script.onerror = () => {
+                                capabilities();
+                            };
+                            this.document.body.appendChild(script);
                         };
-                        script.onerror = () => {
-                            ga4();
-                        };
-                        this.document.body.appendChild(script);
+                        ga4();
                     }
                     else {
                         capabilities();
@@ -199,81 +208,6 @@ host.BrowserHost = class {
             versionLabel.innerText = this.version;
         }
 
-        this._menu = new host.Dropdown(this, 'menu-button', 'menu-dropdown');
-        this._menu.add({
-            label: 'Properties...',
-            accelerator: 'CmdOrCtrl+Enter',
-            click: () => this._view.showModelProperties()
-        });
-        this._menu.add({});
-        this._menu.add({
-            label: 'Find...',
-            accelerator: 'CmdOrCtrl+F',
-            click: () => this._view.find()
-        });
-        this._menu.add({});
-        this._menu.add({
-            label: () => this._view.options.attributes ? 'Hide Attributes' : 'Show Attributes',
-            accelerator: 'CmdOrCtrl+D',
-            click: () => this._view.toggle('attributes')
-        });
-        this._menu.add({
-            label: () => this._view.options.initializers ? 'Hide Initializers' : 'Show Initializers',
-            accelerator: 'CmdOrCtrl+I',
-            click: () => this._view.toggle('initializers')
-        });
-        this._menu.add({
-            label: () => this._view.options.names ? 'Hide Names' : 'Show Names',
-            accelerator: 'CmdOrCtrl+U',
-            click: () => this._view.toggle('names')
-        });
-        this._menu.add({
-            label: () => this._view.options.direction === 'vertical' ? 'Show Horizontal' : 'Show Vertical',
-            accelerator: 'CmdOrCtrl+K',
-            click: () => this._view.toggle('direction')
-        });
-        this._menu.add({
-            label: () => this._view.options.mousewheel === 'scroll' ? 'Mouse Wheel: Zoom' : 'Mouse Wheel: Scroll',
-            accelerator: 'CmdOrCtrl+M',
-            click: () => this._view.toggle('mousewheel')
-        });
-        this._menu.add({});
-        this._menu.add({
-            label: 'Zoom In',
-            accelerator: 'Shift+Up',
-            click: () => this.document.getElementById('zoom-in-button').click()
-        });
-        this._menu.add({
-            label: 'Zoom Out',
-            accelerator: 'Shift+Down',
-            click: () => this.document.getElementById('zoom-out-button').click()
-        });
-        this._menu.add({
-            label: 'Actual Size',
-            accelerator: 'Shift+Backspace',
-            click: () => this._view.resetZoom()
-        });
-        this._menu.add({});
-        this._menu.add({
-            label: 'Export as PNG',
-            accelerator: 'CmdOrCtrl+Shift+E',
-            click: () => this._view.export(document.title + '.png')
-        });
-        this._menu.add({
-            label: 'Export as SVG',
-            accelerator: 'CmdOrCtrl+Alt+E',
-            click: () => this._view.export(document.title + '.svg')
-        });
-        this.document.getElementById('menu-button').addEventListener('click', (e) => {
-            this._menu.toggle();
-            e.preventDefault();
-        });
-        this._menu.add({});
-        this._menu.add({
-            label: 'About ' + this.document.title,
-            click: () => this._about()
-        });
-
         if (this._meta.file) {
             const url = this._meta.file[0];
             if (this._view.accept(url)) {
@@ -324,7 +258,6 @@ host.BrowserHost = class {
         const githubButton = this.document.getElementById('github-button');
         const githubLink = this.document.getElementById('logo-github');
         if (githubButton && githubLink) {
-            githubButton.style.opacity = 1;
             githubButton.addEventListener('click', () => {
                 this.openURL(githubLink.href);
             });
@@ -412,44 +345,51 @@ host.BrowserHost = class {
     }
 
     exception(error, fatal) {
-        if ((this._telemetry_ua || this._telemetry_ga4) && error && error.telemetry !== false) {
+        if ((this._telemetry_ua || this._telemetry_ga4) && error) {
             const name = error.name ? error.name + ': ' : '';
             const message = error.message ? error.message : JSON.stringify(error);
-            const description = [ name + message ];
+            const description = name + message;
+            let context = '';
+            let stack = '';
             if (error.stack) {
                 const format = (file, line, column) => {
                     return file.split('\\').join('/').split('/').pop() + ':' + line + ':' + column;
                 };
                 const match = error.stack.match(/\n {4}at (.*) \((.*):(\d*):(\d*)\)/);
                 if (match) {
-                    description.push(match[1] + ' (' + format(match[2], match[3], match[4]) + ')');
+                    stack = match[1] + ' (' + format(match[2], match[3], match[4]) + ')';
                 }
                 else {
                     const match = error.stack.match(/\n {4}at (.*):(\d*):(\d*)/);
                     if (match) {
-                        description.push('(' + format(match[1], match[2], match[3]) + ')');
+                        stack = '(' + format(match[1], match[2], match[3]) + ')';
                     }
                     else {
                         const match = error.stack.match(/\n {4}at (.*)\((.*)\)/);
                         if (match) {
-                            description.push('(' + format(match[1], match[2], match[3]) + ')');
+                            stack = '(' + format(match[1], match[2], match[3]) + ')';
                         }
                         else {
                             const match = error.stack.match(/\s*@\s*(.*):(.*):(.*)/);
                             if (match) {
-                                description.push('(' + format(match[1], match[2], match[3]) + ')');
+                                stack = '(' + format(match[1], match[2], match[3]) + ')';
                             }
                             else {
                                 const match = error.stack.match(/.*\n\s*(.*)\s*/);
-                                description.push(match ? match[1] : error.stack.split('\n').shift());
+                                if (match) {
+                                    stack = match[1];
+                                }
                             }
                         }
                     }
                 }
             }
+            if (error.context) {
+                context = typeof error.context === 'string' ? error.context : JSON.stringify(error.context);
+            }
             if (this._telemetry_ua && this.window.ga) {
                 this.window.ga('send', 'exception', {
-                    exDescription: description.join(' @ '),
+                    exDescription: stack ? description + ' @ ' + stack : description,
                     exFatal: fatal,
                     appName: this.type,
                     appVersion: this.version
@@ -457,10 +397,13 @@ host.BrowserHost = class {
             }
             if (this._telemetry_ga4) {
                 this._telemetry_ga4.send('exception', {
-                    description: description.join(' @ '),
-                    fatal: fatal,
                     app_name: this.type,
                     app_version: this.version,
+                    error_name: name,
+                    error_message: message,
+                    error_context: context,
+                    error_stack: stack,
+                    error_fatal: fatal ? true : false
                 });
             }
         }
@@ -584,6 +527,9 @@ host.BrowserHost = class {
         };
         return this._request(url, null, null, progress).then((stream) => {
             const context = new host.BrowserHost.Context(this, url, identifier, stream);
+            if (this._telemetry_ga4) {
+                this._telemetry_ga4.set('session_engaged', 1);
+            }
             return this._view.open(context).then(() => {
                 return identifier || context.identifier;
             }).catch((err) => {
@@ -601,6 +547,9 @@ host.BrowserHost = class {
         this._view.show('welcome spinner');
         const context = new host.BrowserHost.BrowserFileContext(this, file, files);
         context.open().then(() => {
+            if (this._telemetry_ga4) {
+                this._telemetry_ga4.set('session_engaged', 1);
+            }
             return this._view.open(context).then((model) => {
                 this._view.show(null);
                 this.document.title = files[0].name;
@@ -631,6 +580,9 @@ host.BrowserHost = class {
             const buffer = encoder.encode(file.content);
             const stream = new host.BrowserHost.BinaryStream(buffer);
             const context = new host.BrowserHost.Context(this, '', identifier, stream);
+            if (this._telemetry_ga4) {
+                this._telemetry_ga4.set('session_engaged', 1);
+            }
             this._view.open(context).then(() => {
                 this.document.title = identifier;
             }).catch((error) => {
@@ -686,148 +638,6 @@ host.BrowserHost = class {
         else {
             this._document.body.setAttribute('class', page);
         }
-    }
-
-    _about() {
-        const handler = () => {
-            this.window.removeEventListener('keydown', handler);
-            this.document.body.removeEventListener('click', handler);
-            this._view.show('default');
-        };
-        this.window.addEventListener('keydown', handler);
-        this.document.body.addEventListener('click', handler);
-        this._view.show('about');
-    }
-};
-
-host.Dropdown = class {
-
-    constructor(host, button, dropdown) {
-        this._host = host;
-        this._dropdown = this._host.document.getElementById(dropdown);
-        this._button = this._host.document.getElementById(button);
-        this._items = [];
-        this._apple = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
-        this._acceleratorMap = {};
-        this._host.window.addEventListener('keydown', (e) => {
-            let code = e.keyCode;
-            code |= ((e.ctrlKey && !this._apple) || (e.metaKey && this._apple)) ? 0x0400 : 0;
-            code |= e.altKey ? 0x0200 : 0;
-            code |= e.shiftKey ? 0x0100 : 0;
-            if (code == 0x001b) { // Escape
-                this.close();
-                return;
-            }
-            const item = this._acceleratorMap[code.toString()];
-            if (item) {
-                item.click();
-                e.preventDefault();
-            }
-        });
-        this._host.document.body.addEventListener('click', (e) => {
-            if (!this._button.contains(e.target)) {
-                this.close();
-            }
-        });
-    }
-
-    add(item) {
-        const accelerator = item.accelerator;
-        if (accelerator) {
-            let cmdOrCtrl = false;
-            let alt = false;
-            let shift = false;
-            let key = '';
-            for (const part of item.accelerator.split('+')) {
-                switch (part) {
-                    case 'CmdOrCtrl': cmdOrCtrl = true; break;
-                    case 'Alt': alt = true; break;
-                    case 'Shift': shift = true; break;
-                    default: key = part; break;
-                }
-            }
-            if (key !== '') {
-                item.accelerator = {};
-                item.accelerator.text = '';
-                if (this._apple) {
-                    item.accelerator.text += alt ? '&#x2325;' : '';
-                    item.accelerator.text += shift ? '&#x21e7;' : '';
-                    item.accelerator.text += cmdOrCtrl ? '&#x2318;' : '';
-                    const keyTable = { 'Enter': '&#x23ce;', 'Up': '&#x2191;', 'Down': '&#x2193;', 'Backspace': '&#x232B;' };
-                    item.accelerator.text += keyTable[key] ? keyTable[key] : key;
-                }
-                else {
-                    const list = [];
-                    if (cmdOrCtrl) {
-                        list.push('Ctrl');
-                    }
-                    if (alt) {
-                        list.push('Alt');
-                    }
-                    if (shift) {
-                        list.push('Shift');
-                    }
-                    list.push(key);
-                    item.accelerator.text = list.join('+');
-                }
-                let code = 0;
-                switch (key) {
-                    case 'Backspace': code = 0x08; break;
-                    case 'Enter': code = 0x0D; break;
-                    case 'Up': code = 0x26; break;
-                    case 'Down': code = 0x28; break;
-                    default: code = key.charCodeAt(0); break;
-                }
-                code |= cmdOrCtrl ? 0x0400 : 0;
-                code |= alt ? 0x0200 : 0;
-                code |= shift ? 0x0100 : 0;
-                this._acceleratorMap[code.toString()] = item;
-            }
-        }
-        this._items.push(item);
-    }
-
-    toggle() {
-
-        if (this._dropdown.style.display === 'block') {
-            this.close();
-            return;
-        }
-
-        while (this._dropdown.lastChild) {
-            this._dropdown.removeChild(this._dropdown.lastChild);
-        }
-
-        for (const item of this._items) {
-            if (Object.keys(item).length > 0) {
-                const button = this._host.document.createElement('button');
-                button.innerText = (typeof item.label == 'function') ? item.label() : item.label;
-                button.addEventListener('click', () => {
-                    this.close();
-                    setTimeout(() => {
-                        item.click();
-                    }, 10);
-                });
-                this._dropdown.appendChild(button);
-                if (item.accelerator) {
-                    const accelerator = this._host.document.createElement('span');
-                    accelerator.style.float = 'right';
-                    accelerator.innerHTML = item.accelerator.text;
-                    button.appendChild(accelerator);
-                }
-            }
-            else {
-                const separator = this._host.document.createElement('div');
-                separator.setAttribute('class', 'separator');
-                this._dropdown.appendChild(separator);
-            }
-        }
-
-        this._dropdown.style.display = 'block';
-    }
-
-    close() {
-        this._dropdown.style.display = 'none';
     }
 };
 
@@ -924,7 +734,7 @@ host.BrowserHost.BrowserFileContext = class {
                 e = e || this.window.event;
                 let message = '';
                 const error = e.target.error;
-                switch(error.code) {
+                switch (error.code) {
                     case error.NOT_FOUND_ERR:
                         message = "File not found '" + file + "'.";
                         break;

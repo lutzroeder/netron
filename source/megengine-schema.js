@@ -2342,6 +2342,7 @@ $root.mgb.serialization.fbs.v2.OperatorParam = class {
             case 90: return $root.mgb.serialization.fbs.param.Softmax.decode(reader, position);
             case 91: return $root.mgb.serialization.fbs.param.Diag.decode(reader, position);
             case 92: return $root.mgb.serialization.fbs.param.GroupNorm.decode(reader, position);
+            case 93: return $root.mgb.serialization.fbs.param.Fill.decode(reader, position);
             default: return undefined;
         }
     }
@@ -2440,6 +2441,7 @@ $root.mgb.serialization.fbs.v2.OperatorParam = class {
             case 'Softmax': return $root.mgb.serialization.fbs.param.Softmax.decodeText(reader, json);
             case 'Diag': return $root.mgb.serialization.fbs.param.Diag.decodeText(reader, json);
             case 'GroupNorm': return $root.mgb.serialization.fbs.param.GroupNorm.decodeText(reader, json);
+            case 'Fill': return $root.mgb.serialization.fbs.param.Fill.decodeText(reader, json);
             default: return undefined;
         }
     }

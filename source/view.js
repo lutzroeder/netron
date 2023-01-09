@@ -31,6 +31,9 @@ view.View = class {
             this._sidebar = new dialog.Sidebar(this._host, id);
             this._searchText = '';
             this._modelFactoryService = new view.ModelFactoryService(this._host);
+            this._getElementById('sidebar-button').addEventListener('click', () => {
+                this.showModelProperties();
+            });
             this._getElementById('zoom-in-button').addEventListener('click', () => {
                 this.zoomIn();
             });
@@ -51,6 +54,94 @@ view.View = class {
             this._host.document.addEventListener('keydown', () => {
                 this.clearSelection();
             });
+            if (this._host.environment('menu')) {
+                this._menu = new view.Dropdown(this._host, 'menu-button', 'menu-dropdown');
+                this._menu.add({
+                    label: 'Properties...',
+                    accelerator: 'CmdOrCtrl+Enter',
+                    click: () => this.showModelProperties(),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({});
+                this._menu.add({
+                    label: 'Find...',
+                    accelerator: 'CmdOrCtrl+F',
+                    click: () => this.find(),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({});
+                this._menu.add({
+                    label: () => this.options.attributes ? 'Hide Attributes' : 'Show Attributes',
+                    accelerator: 'CmdOrCtrl+D',
+                    click: () => this.toggle('attributes'),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({
+                    label: () => this.options.initializers ? 'Hide Initializers' : 'Show Initializers',
+                    accelerator: 'CmdOrCtrl+I',
+                    click: () => this.toggle('initializers'),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({
+                    label: () => this.options.names ? 'Hide Names' : 'Show Names',
+                    accelerator: 'CmdOrCtrl+U',
+                    click: () => this.toggle('names'),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({
+                    label: () => this.options.direction === 'vertical' ? 'Show Horizontal' : 'Show Vertical',
+                    accelerator: 'CmdOrCtrl+K',
+                    click: () => this.toggle('direction'),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({
+                    label: () => this.options.mousewheel === 'scroll' ? 'Mouse Wheel: Zoom' : 'Mouse Wheel: Scroll',
+                    accelerator: 'CmdOrCtrl+M',
+                    click: () => this.toggle('mousewheel'),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({});
+                this._menu.add({
+                    label: 'Zoom In',
+                    accelerator: 'Shift+Up',
+                    click: () => this.zoomIn(),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({
+                    label: 'Zoom Out',
+                    accelerator: 'Shift+Down',
+                    click: () => this.zoomOut(),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({
+                    label: 'Actual Size',
+                    accelerator: 'Shift+Backspace',
+                    click: () => this.resetZoom(),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({});
+                this._menu.add({
+                    label: 'Export as PNG',
+                    accelerator: 'CmdOrCtrl+Shift+E',
+                    click: () => this.export(this._host.document.title + '.png'),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({
+                    label: 'Export as SVG',
+                    accelerator: 'CmdOrCtrl+Alt+E',
+                    click: () => this.export(this._host.document.title + '.svg'),
+                    enabled: () => this.activeGraph
+                });
+                this._menu.add({});
+                this._menu.add({
+                    label: 'About ' + this._host.document.title,
+                    click: () => this.about()
+                });
+                this._getElementById('menu-button').addEventListener('click', (e) => {
+                    this._menu.toggle();
+                    e.preventDefault();
+                });
+            }
             this._host.start();
         }).catch((err) => {
             this.error(err, null, null);
@@ -65,7 +156,8 @@ view.View = class {
         if (this._sidebar) {
             this._sidebar.close();
         }
-        this._host.document.body.setAttribute('class', page);
+        this._host.document.body.classList.remove(...Array.from(this._host.document.body.classList).filter((_) => _ !== 'active'));
+        this._host.document.body.classList.add(...page.split(' '));
         if (page === 'default') {
             this._activate();
         }
@@ -455,13 +547,19 @@ view.View = class {
                 if (format.length > 0) {
                     this._host.event_ua('Model', 'Format', format.join(' '));
                     this._host.event('model_open', {
-                        format: format.join(' ')
+                        model_format: model.format || '',
+                        model_producer: model.producer || ''
                     });
                 }
                 return this._timeout(20).then(() => {
                     const graphs = Array.isArray(model.graphs) && model.graphs.length > 0 ? [ model.graphs[0] ] : [];
                     return this._updateGraph(model, graphs);
                 });
+            }).catch((error) => {
+                if (error && context.identifier) {
+                    error.context = context.identifier;
+                }
+                throw error;
             });
         });
     }
@@ -777,9 +875,8 @@ view.View = class {
                 this._sidebar.open(content, 'Model Properties');
             }
             catch (error) {
-                const content = " in '" + this._model.identifier + "'.";
-                if (error && !error.message.endsWith(content) && (error.context === undefined || error.context === true)) {
-                    error.message = error.message.replace(/\.$/, '') + content;
+                if (error) {
+                    error.context = this._model.identifier;
                 }
                 this.error(error, 'Error showing model properties.', null);
             }
@@ -820,7 +917,7 @@ view.View = class {
                 });
                 nodeSidebar.on('error', (sender, error) => {
                     if (this._model) {
-                        error.message = error.message.replace(/\.$/, '') + " in '" + this._model.identifier + "'.";
+                        error.context = this._model.identifier;
                     }
                     this.error(error, null, null);
                 });
@@ -830,9 +927,8 @@ view.View = class {
                 this._sidebar.open(nodeSidebar.render(), 'Node Properties');
             }
             catch (error) {
-                const content = " in '" + this._model.identifier + "'.";
-                if (error && !error.message.endsWith(content) && (error.context === undefined || error.context === true)) {
-                    error.message = error.message.replace(/\.$/, '') + content;
+                if (error) {
+                    error.context = this._model.identifier;
                 }
                 this.error(error, 'Error showing node properties.', null);
             }
@@ -851,6 +947,150 @@ view.View = class {
             const title = type.type === 'function' ? 'Function' : 'Documentation';
             this._sidebar.push(documentationSidebar.render(), title);
         }
+    }
+
+    about() {
+        const handler = () => {
+            this._host.window.removeEventListener('keydown', handler);
+            this._host.document.body.removeEventListener('click', handler);
+            this.show('default');
+        };
+        this._host.window.addEventListener('keydown', handler);
+        this._host.document.body.addEventListener('click', handler);
+        this.show('about');
+    }
+};
+
+view.Dropdown = class {
+
+    constructor(host, button, dropdown) {
+        this._host = host;
+        this._dropdown = this._host.document.getElementById(dropdown);
+        this._button = this._host.document.getElementById(button);
+        this._items = [];
+        this._darwin = this._host.environment('platform') === 'darwin';
+        this._accelerators = new Map();
+        this._host.window.addEventListener('keydown', (e) => {
+            let code = e.keyCode;
+            code |= ((e.ctrlKey && !this._darwin) || (e.metaKey && this._darwin)) ? 0x0400 : 0;
+            code |= e.altKey ? 0x0200 : 0;
+            code |= e.shiftKey ? 0x0100 : 0;
+            if (code == 0x001b) { // Escape
+                this.close();
+                return;
+            }
+            const item = this._accelerators.get(code.toString());
+            if (item && (!item.enabled || item.enabled())) {
+                item.click();
+                e.preventDefault();
+            }
+        });
+        this._host.document.body.addEventListener('click', (e) => {
+            if (!this._button.contains(e.target)) {
+                this.close();
+            }
+        });
+    }
+
+    add(item) {
+        const accelerator = item.accelerator;
+        if (accelerator) {
+            let cmdOrCtrl = false;
+            let alt = false;
+            let shift = false;
+            let key = '';
+            for (const part of item.accelerator.split('+')) {
+                switch (part) {
+                    case 'CmdOrCtrl': cmdOrCtrl = true; break;
+                    case 'Alt': alt = true; break;
+                    case 'Shift': shift = true; break;
+                    default: key = part; break;
+                }
+            }
+            if (key !== '') {
+                item.accelerator = {};
+                item.accelerator.text = '';
+                if (this._darwin) {
+                    item.accelerator.text += alt ? '&#x2325;' : '';
+                    item.accelerator.text += shift ? '&#x21e7;' : '';
+                    item.accelerator.text += cmdOrCtrl ? '&#x2318;' : '';
+                    const keyTable = { 'Enter': '&#x23ce;', 'Up': '&#x2191;', 'Down': '&#x2193;', 'Backspace': '&#x232B;' };
+                    item.accelerator.text += keyTable[key] ? keyTable[key] : key;
+                }
+                else {
+                    const list = [];
+                    if (cmdOrCtrl) {
+                        list.push('Ctrl');
+                    }
+                    if (alt) {
+                        list.push('Alt');
+                    }
+                    if (shift) {
+                        list.push('Shift');
+                    }
+                    list.push(key);
+                    item.accelerator.text = list.join('+');
+                }
+                let code = 0;
+                switch (key) {
+                    case 'Backspace': code = 0x08; break;
+                    case 'Enter': code = 0x0D; break;
+                    case 'Up': code = 0x26; break;
+                    case 'Down': code = 0x28; break;
+                    default: code = key.charCodeAt(0); break;
+                }
+                code |= cmdOrCtrl ? 0x0400 : 0;
+                code |= alt ? 0x0200 : 0;
+                code |= shift ? 0x0100 : 0;
+                this._accelerators.set(code.toString(), item);
+            }
+        }
+        this._items.push(item);
+    }
+
+    toggle() {
+
+        if (this._dropdown.style.opacity >= 1) {
+            this.close();
+            return;
+        }
+
+        while (this._dropdown.lastChild) {
+            this._dropdown.removeChild(this._dropdown.lastChild);
+        }
+
+        for (const item of this._items) {
+            if (Object.keys(item).length > 0) {
+                const button = this._host.document.createElement('button');
+                button.innerText = (typeof item.label == 'function') ? item.label() : item.label;
+                button.addEventListener('click', () => {
+                    this.close();
+                    setTimeout(() => {
+                        item.click();
+                    }, 10);
+                });
+                this._dropdown.appendChild(button);
+                if (item.accelerator) {
+                    const accelerator = this._host.document.createElement('span');
+                    accelerator.setAttribute('class', 'shortcut');
+                    accelerator.innerHTML = item.accelerator.text;
+                    button.appendChild(accelerator);
+                }
+            }
+            else {
+                const separator = this._host.document.createElement('div');
+                separator.setAttribute('class', 'separator');
+                this._dropdown.appendChild(separator);
+            }
+        }
+
+        this._dropdown.style.opacity = 1.0;
+        this._dropdown.style.left = '0px';
+    }
+
+    close() {
+        this._dropdown.style.opacity = 0;
+        this._dropdown.style.left = '-200px';
     }
 };
 
@@ -945,7 +1185,9 @@ view.Graph = class extends grapher.Graph {
             for (const output of outputs) {
                 for (const argument of output.arguments) {
                     if (!argument) {
-                        throw new view.Error("Invalid null argument in '" + this.model.identifier + "'.");
+                        const error = new view.Error('Invalid null argument.');
+                        error.context = this.model.identifier;
+                        throw error;
                     }
                     if (argument.name != '') {
                         this.createArgument(argument).from(viewNode);
@@ -961,7 +1203,7 @@ view.Graph = class extends grapher.Graph {
 
             const createCluster = (name) => {
                 if (!clusters.has(name)) {
-                    this.setNode({ name: name, rx: 5, ry: 5});
+                    this.setNode({ name: name, rx: 5, ry: 5 });
                     clusters.add(name);
                     const parent = clusterParentMap.get(name);
                     if (parent) {
@@ -1042,8 +1284,11 @@ view.Node = class extends grapher.Node {
             styles.push('node-item-type-' + category.toLowerCase());
         }
         if (typeof type.name !== 'string' || !type.name.split) { // #416
-            const identifier = this.context.model && this.context.model.identifier ? this.context.model.identifier : '?';
-            throw new view.Error("Unsupported node type '" + JSON.stringify(type.name) + "' in '" + identifier + "'.");
+            const error = new view.Error("Unsupported node type '" + JSON.stringify(type.name) + "'.");
+            if (this.context.model && this.context.model.identifier) {
+                error.context = this.context.model.identifier;
+            }
+            throw error;
         }
         const content = this.context.view.options.names && (node.name || node.location) ? (node.name || node.location) : type.name.split('.').pop();
         const tooltip = this.context.view.options.names && (node.name || node.location) ? type.name : (node.name || node.location);
@@ -1110,8 +1355,11 @@ view.Node = class extends grapher.Node {
                             catch (error) {
                                 // continue regardless of error
                             }
-                            const identifier = this.context.view.model && this.context.view.model.identifier ? this.context.view.model.identifier : '?';
-                            throw new view.Error("Failed to render tensor of type '" + type + "' in '" + identifier + "' (" + err.message + ").");
+                            const error = new view.Error("Failed to render tensor of type '" + type + "' (" + err.message + ").");
+                            if (this.context.view.model && this.context.view.model.identifier) {
+                                error.context = this.context.view.model.identifier;
+                            }
+                            throw error;
                         }
                     }
                 }
@@ -1300,7 +1548,6 @@ view.ModelContext = class {
         else {
             this._entries = new Map();
             const entry = context instanceof view.EntryContext;
-            const identifier = context.identifier;
             try {
                 const archive = zip.Archive.open(stream, 'gzip');
                 if (archive) {
@@ -1313,8 +1560,7 @@ view.ModelContext = class {
             }
             catch (error) {
                 if (!entry) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new view.ArchiveError(message.replace(/\.$/, '') + " in '" + identifier + "'.");
+                    throw error;
                 }
             }
             try {
@@ -1332,8 +1578,7 @@ view.ModelContext = class {
             }
             catch (error) {
                 if (!entry) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new view.ArchiveError(message.replace(/\.$/, '') + " in '" + identifier + "'.");
+                    throw error;
                 }
             }
         }
@@ -1356,6 +1601,9 @@ view.ModelContext = class {
     }
 
     exception(error, fatal) {
+        if (error && this.identifier) {
+            error.context = this.identifier;
+        }
         this._context.exception(error, fatal);
     }
 
@@ -1423,7 +1671,7 @@ view.ModelContext = class {
                                         const execution = new python.Execution();
                                         execution.on('resolve', (_, name) => {
                                             if (!torch || !name.startsWith('__torch__.')) {
-                                                this.exception(new view.Error("Unknown type name '" + name + "' in '" + this.identifier + "'.", false));
+                                                this.exception(new view.Error("Unknown type name '" + name + "'."));
                                             }
                                         });
                                         return execution;
@@ -1606,9 +1854,9 @@ view.ModelFactoryService = class {
         this._extensions = new Set([ '.zip', '.tar', '.tar.gz', '.tgz', '.gz' ]);
         this._factories = [];
         this.register('./server', [ '.netron']);
-        this.register('./pytorch', [ '.pt', '.pth', '.ptl', '.pt1', '.pyt', '.pyth', '.pkl', '.pickle', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.tckpt', '.bin', '.pb', '.zip', '.nn', '.torchmodel', '.torchscript', '.pytorch', '.ot', '.params', '.trt' ], [ '.model' ]);
+        this.register('./pytorch', [ '.pt', '.pth', '.ptl', '.pt1', '.pyt', '.pyth', '.pkl', '.pickle', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.tckpt', '.bin', '.pb', '.zip', '.nn', '.torchmodel', '.torchscript', '.pytorch', '.ot', '.params', '.trt', '.ff', '.ptmf' ], [ '.model' ]);
         this.register('./onnx', [ '.onnx', '.onn', '.pb', '.onnxtxt', '.pbtxt', '.prototxt', '.txt', '.model', '.pt', '.pth', '.pkl', '.ort', '.ort.onnx', 'onnxmodel', 'ngf' ]);
-        this.register('./mxnet', [ '.json', '.params' ], [ '.mar'] );
+        this.register('./mxnet', [ '.json', '.params' ], [ '.mar']);
         this.register('./coreml', [ '.mlmodel', '.bin', 'manifest.json', 'metadata.json', 'featuredescriptions.json', '.pb' ], [ '.mlpackage' ]);
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt', '.pt', '.txt' ]);
         this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
@@ -1655,7 +1903,7 @@ view.ModelFactoryService = class {
         this.register('./hickle', [ '.h5', '.hkl' ]);
         this.register('./nnef', [ '.nnef', '.dat' ]);
         this.register('./cambricon', [ '.cambricon' ]);
-        this.register('./onednn', [ '.json'] );
+        this.register('./onednn', [ '.json']);
     }
 
     register(id, factories, containers) {
@@ -1688,6 +1936,11 @@ view.ModelFactoryService = class {
                 this._unsupported(modelContext);
             });
             /* eslint-enable consistent-return */
+        }).catch((error) => {
+            if (error && context.identifier) {
+                error.context = context.identifier;
+            }
+            throw error;
         });
     }
 
@@ -1709,23 +1962,9 @@ view.ModelFactoryService = class {
                 // continue regardless of error
             }
             if (archive) {
-                throw new view.Error("Archive contains no model files in '" + identifier + "'.", true);
+                throw new view.Error("Archive contains no model files.");
             }
         }
-        const skip = () => {
-            const knownUnsupportedIdentifiers = new Set([
-                'natives_blob.bin',
-                'v8_context_snapshot.bin',
-                'snapshot_blob.bin',
-                'image_net_labels.json',
-                'package.json',
-                'models.json',
-                'LICENSE.meta',
-                'input_0.pb',
-                'output_0.pb'
-            ]);
-            return knownUnsupportedIdentifiers.has(context.identifier);
-        };
         const json = () => {
             const obj = context.open('json');
             if (obj) {
@@ -1757,11 +1996,11 @@ view.ModelFactoryService = class {
                 };
                 for (const format of formats) {
                     if (format.tags.every((tag) => match(obj, tag))) {
-                        throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
+                        throw new view.Error('Invalid file content. File contains ' + format.name + '.');
                     }
                 }
-                const content = JSON.stringify(obj).substring(0, 100).replace(/\s/, '').substr(0, 48) + '...';
-                throw new view.Error("Unsupported JSON content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip());
+                const content = JSON.stringify(obj).substring(0, 100).replace(/\s/, '').substring(0, 48) + '...';
+                throw new view.Error("Unsupported JSON content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "'.");
             }
         };
         const pbtxt = () => {
@@ -1788,14 +2027,16 @@ view.ModelFactoryService = class {
             if (tags.size > 0) {
                 for (const format of formats) {
                     if (format.tags.every((tag) => tags.has(tag))) {
-                        throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
+                        const error = new view.Error('Invalid file content. File contains ' + format.name + '.');
+                        error.context = context.identifier;
+                        throw error;
                     }
                 }
                 const entries = [];
                 entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') === -1));
                 entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') !== -1));
                 const content = entries.map((pair) => pair[1] === true ? pair[0] : pair[0] + ':' + JSON.stringify(pair[1])).join(',');
-                throw new view.Error("Unsupported Protocol Buffers text content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip());
+                throw new view.Error("Unsupported Protocol Buffers text content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "'.");
             }
         };
         const pb = () => {
@@ -1835,7 +2076,9 @@ view.ModelFactoryService = class {
                 const tags = context.tags('pb+');
                 for (const format of formats) {
                     if (match(tags, format.tags)) {
-                        throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
+                        const error = new view.Error('Invalid file content. File contains ' + format.name + '.');
+                        error.context = context.identifier;
+                        throw error;
                     }
                 }
                 const format = (tags) => {
@@ -1847,7 +2090,7 @@ view.ModelFactoryService = class {
                     return content.join(',');
                 };
                 const content = format(tags);
-                throw new view.Error("Unsupported Protocol Buffers content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip());
+                throw new view.Error("Unsupported Protocol Buffers content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "'.");
             }
         };
         const flatbuffers = () => {
@@ -1857,12 +2100,11 @@ view.ModelFactoryService = class {
                 const formats = [
                     { name: 'onnxruntime.experimental.fbs.InferenceSession data', identifier: 'ORTM' },
                     { name: 'tflite.Model data', identifier: 'TFL3' },
-                    { name: 'torch.jit.mobile.serialization.Module data', identifier: 'PTMF' }, // https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/serialization/mobile_bytecode.fbs
                     { name: 'FlatBuffers ENNC data', identifier: 'ENNC' },
                 ];
                 for (const format of formats) {
                     if (file_identifier === format.identifier) {
-                        throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
+                        throw new view.Error('Invalid file content. File contains ' + format.name + '.');
                     }
                 }
             }
@@ -1872,14 +2114,16 @@ view.ModelFactoryService = class {
             if (tags.size > 0) {
                 const formats = [
                     { name: 'OpenCV storage data', tags: [ 'opencv_storage' ] },
-                    { name: 'XHTML markup', tags: [ 'http://www.w3.org/1999/xhtml:html' ]}
+                    { name: 'XHTML markup', tags: [ 'http://www.w3.org/1999/xhtml:html' ] }
                 ];
                 for (const format of formats) {
                     if (format.tags.some((tag) => tags.has(tag))) {
-                        throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
+                        const error = new view.Error('Invalid file content. File contains ' + format.name + '.');
+                        error.content = context.identifier;
+                        throw error;
                     }
                 }
-                throw new view.Error("Unsupported XML content '" + tags.keys().next().value + "' in '" + identifier + "'.", !skip());
+                throw new view.Error("Unsupported XML content '" + tags.keys().next().value + "'.");
             }
         };
         const unknown = () => {
@@ -1888,9 +2132,9 @@ view.ModelFactoryService = class {
                 const buffer = stream.peek(Math.min(16, stream.length));
                 const bytes = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
                 const content = stream.length > 268435456 ? '(' + bytes + ') [' + stream.length.toString() + ']': '(' + bytes + ')';
-                throw new view.Error("Unsupported file content " + content + " for extension '." + extension + "' in '" + identifier + "'.", !skip());
+                throw new view.Error("Unsupported file content " + content + " for extension '." + extension + "'.");
             }
-            throw new view.Error("Unsupported file directory in '" + identifier + "'.", !skip());
+            throw new view.Error("Unsupported file directory.");
         };
         json();
         pbtxt();
@@ -1908,12 +2152,6 @@ view.ModelFactoryService = class {
             if (modules.length > 0) {
                 const id = modules.shift();
                 return this._host.require(id).then((module) => {
-                    const updateErrorContext = (error, context) => {
-                        const content = " in '" + context.identifier + "'.";
-                        if (error && typeof error.message === 'string' && !error.message.endsWith(content) && (error.context === undefined || error.context === true)) {
-                            error.message = error.message.replace(/\.$/, '') + content;
-                        }
-                    };
                     if (!module.ModelFactory) {
                         throw new view.Error("Failed to load module '" + id + "'.");
                     }
@@ -1926,7 +2164,6 @@ view.ModelFactoryService = class {
                         }
                     }
                     catch (error) {
-                        updateErrorContext(error, context);
                         return Promise.reject(error);
                     }
                     success = true;
@@ -1940,7 +2177,6 @@ view.ModelFactoryService = class {
                             if (context.stream && context.stream.position !== 0) {
                                 context.stream.seek(0);
                             }
-                            updateErrorContext(error, context);
                             errors.push(error);
                             return nextModule();
                         });
@@ -1949,7 +2185,6 @@ view.ModelFactoryService = class {
                         if (context.stream && context.stream.position !== 0) {
                             context.stream.seek(0);
                         }
-                        updateErrorContext(error, context);
                         errors.push(error);
                         return nextModule();
                     }
@@ -2140,7 +2375,7 @@ view.ModelFactoryService = class {
             }
             stream.seek(0);
             if (empty) {
-                return Promise.reject(new view.Error('File has no content.', true));
+                return Promise.reject(new view.Error('File has no content.'));
             }
             /* eslint-disable no-control-regex */
             const entries = [
@@ -2171,7 +2406,7 @@ view.ModelFactoryService = class {
             const content = String.fromCharCode.apply(null, buffer);
             for (const entry of entries) {
                 if (content.match(entry.value) && (!entry.identifier || entry.identifier === context.identifier)) {
-                    return Promise.reject(new view.Error('Invalid file content. File contains ' + entry.name + '.', true));
+                    return Promise.reject(new view.Error('Invalid file content. File contains ' + entry.name + '.'));
                 }
             }
         }
@@ -2250,11 +2485,9 @@ view.Metadata = class {
 
 view.Error = class extends Error {
 
-    constructor(message, telemetry) {
+    constructor(message) {
         super(message);
         this.name = 'Error loading model.';
-        this.telemetry = telemetry;
-        this.stack = undefined;
     }
 };
 

@@ -592,14 +592,14 @@ acuity.Inference = class {
                     begin[i] = 0;
                 }
             }
-            if (inputs[0].length == end.length){
+            if (inputs[0].length == end.length) {
                 for (let i = 0; i < end.length; i++) {
                     if (end[i] == -1 || end[i] > input_shape[i]) {
                         end[i] = input_shape[i];
                     }
                 }
             }
-            else if (inputs[0].length < end.length){
+            else if (inputs[0].length < end.length) {
                 if (params.slice_new_axis_mask) {
                     const len = (params.slice_new_axis_mask >>> 0).toString(2).length;
                     for (let i = 0; i < len; i++) {

@@ -712,7 +712,7 @@ protoc.Parser = class {
         }
         const obj = new protoc.Enum(parent, token);
         this._ifBlock(obj, (token) => {
-            switch(token) {
+            switch (token) {
                 case "option":
                     this._parseOption(obj, token);
                     this._tokenizer.expect(";");

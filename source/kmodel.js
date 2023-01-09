@@ -346,6 +346,7 @@ kmodel.Reader = class {
                         layer.offset = offset;
                         offset += layer.body_size;
                     }
+                    /* eslint-disable space-in-parens */
                     register(   -1, 'DUMMY');
                     register(    0, 'INVALID');
                     register(    1, 'ADD');
@@ -571,6 +572,7 @@ kmodel.Reader = class {
                         layer.inputs[0].arguments[0].shape = shape;
                         layer.outputs[0].arguments[0].shape = shape;
                     });
+                    /* eslint-enable space-in-parens */
                     for (const layer of layers) {
                         const type = types.get(layer.type);
                         if (!type) {
@@ -640,6 +642,7 @@ kmodel.Reader = class {
                         layer.offset = offset;
                         offset += layer.body_size;
                     }
+                    /* eslint-disable space-in-parens */
                     register(  0x00, 'binary', '', (layer, reader) => {
                         layer.inputs = [
                             reader.parameter('a'),
@@ -814,11 +817,11 @@ kmodel.Reader = class {
                         layer.output_offset = layer.int32();
                         const bias = reader.span('int32', [ layer.out_channels ]);
                         if (bias) {
-                            layer.inputs.push({ name: 'bias', arguments: [ bias ]});
+                            layer.inputs.push({ name: 'bias', arguments: [ bias ] });
                         }
                         const weights = reader.span('uint8', [ layer.out_channels, layer.inputs[0].arguments[0].shape[1] / layer.groups, layer.filter_h, layer.filter_w]);
                         if (weights) {
-                            layer.inputs.push({ name: 'weights', arguments: [ weights ]});
+                            layer.inputs.push({ name: 'weights', arguments: [ weights ] });
                         }
                     });
                     register(  0x10, 'quantized_matmul', '', (layer, reader) => {
@@ -838,7 +841,7 @@ kmodel.Reader = class {
                         layer.output_offset = reader.int32();
                         const bias = reader.span('int32', [ layer.b_cols ]);
                         if (bias) {
-                            layer.inputs.push({ name: 'bias', arguments: [ bias ]});
+                            layer.inputs.push({ name: 'bias', arguments: [ bias ] });
                         }
                     });
                     register(  0x11, 'quantized_binary', '', (layer, reader) => {
@@ -932,6 +935,7 @@ kmodel.Reader = class {
                             layer.inputs.push({ name: 'weights', arguments: [ weights ] });
                         }
                     });
+                    /* eslint-enable space-in-parens */
                     for (const layer of layers) {
                         const type = types.get(layer.opcode);
                         if (!type) {

@@ -4,7 +4,6 @@ import json
 import sys
 import os
 import yaml # pylint: disable=import-error
-import mako # pylint: disable=import-error
 import mako.template # pylint: disable=import-error
 
 def _write(path, content):
@@ -14,14 +13,6 @@ def _write(path, content):
 def _read_yaml(path):
     with open(path, 'r', encoding='utf-8') as file:
         return yaml.safe_load(file)
-
-def _generate_from_template(template_path, **kwargs):
-    path = template_path.replace('.tmpl', '')
-    template = mako.template.Template(text=None, filename=template_path, preprocessor=None)
-    content = template.render(**kwargs)
-    content = content.replace('\r\n', '\n')
-    content = content.replace('\r', '\n')
-    _write(path, content)
 
 def _metadata():
     def parse_functions(function_info):
@@ -41,13 +32,8 @@ def _metadata():
                         'description': input_value['doc'].strip()
                     })
                 for arg_name, arg_value in function_value.get('arguments', {}).items():
-                    function.setdefault('attributes', []).append({
-                        'name': arg_name,
-                        'type': arg_value['type'],
-                        'required': 'default' not in arg_value,
-                        'default': _try_eval_default(arg_value.get('default', None)),
-                        'description': arg_value['doc'].strip()
-                    })
+                    attribute = _attribute(arg_name, arg_value)
+                    function.setdefault('attributes', []).append(attribute)
                 for output_name, output_value in function_value.get('outputs', {}).items():
                     function.setdefault('outputs', []).append({
                         'name': output_name,
@@ -76,9 +62,6 @@ def _metadata():
                     inp.pop('option', None)
                 if not inp['list']:
                     inp.pop('list', None)
-            for attribute in function.get('attributes', []):
-                if attribute['required']:
-                    attribute.pop('default', None)
             for output in function.get('outputs', []):
                 if not output['list']:
                     output.pop('list', None)
@@ -99,29 +82,56 @@ def _schema():
     functions = _read_yaml(yaml_functions_path)
     function_info = {k: v for _, category in functions.items() for k, v in category.items()}
     solver_info = _read_yaml(yaml_solvers_path)
-    _generate_from_template(tmpl_file, function_info=function_info, solver_info=solver_info)
+    path = tmpl_file.replace('.tmpl', '')
+    template = mako.template.Template(text=None, filename=tmpl_file, preprocessor=None)
+    content = template.render(function_info=function_info, solver_info=solver_info)
+    content = content.replace('\r\n', '\n').replace('\r', '\n')
+    _write(path, content)
 
-def _try_eval_default(value):
-    if value and isinstance(value, str) and not value.startswith(('(', '[')):
-        if value is None or value == 'None':
-            value = None
-        elif value == 'True':
-            value = True
-        elif value == 'False':
-            value = False
-        elif value == 'list()':
-            value = []
-        elif len(value) > 2 and value[0] == "'" and value[-1] == "'":
-            value = value[1:-1]
-        else:
-            try:
-                value = int(value)
-            except ValueError:
-                try:
-                    value = float(value)
-                except ValueError:
-                    pass
-    return value
+def _attribute(name, value): # pylint: disable=too-many-branches
+    attribute = {}
+    attribute['name'] = name
+    default = 'default' in value
+    if not default:
+        attribute['required'] = True
+    if value['type'] == 'float':
+        attribute['type'] = 'float32'
+        if default:
+            attribute['default'] = float(value['default'])
+    elif value['type'] == 'double':
+        attribute['type'] = 'float64'
+        if default:
+            attribute['default'] = float(value['default'])
+    elif value['type'] == 'bool':
+        attribute['type'] = 'boolean'
+        if default:
+            _ = value['default']
+            if isinstance(_, bool):
+                attribute['default'] = _
+            elif _ == 'True':
+                attribute['default'] = True
+            elif _ == 'False':
+                attribute['default'] = False
+    elif value['type'] == 'string':
+        attribute['type'] = 'string'
+        if default:
+            _ = value['default']
+            attribute['default'] = _.strip("'")
+    elif value['type'] == 'int64':
+        attribute['type'] = 'int64'
+        if default:
+            _ = value['default']
+            attribute['default'] = int(_) if isinstance(_, str) and not _.startswith('len') else _
+    elif value['type'] == 'repeated int64':
+        attribute['type'] = 'int64[]'
+    elif value['type'] == 'repeated float':
+        attribute['type'] = 'float32[]'
+    elif value['type'] == 'Shape':
+        attribute['type'] = 'shape'
+    if default and 'default' not in attribute:
+        attribute['default'] = value['default']
+    attribute['description'] = value['doc'].strip()
+    return attribute
 
 def main(): # pylint: disable=missing-function-docstring
     table = { 'metadata': _metadata, 'schema': _schema }

@@ -202,7 +202,7 @@ hdf5.Variable = class {
     get value() {
         const data = this.data;
         if (data) {
-            const reader = new hdf5.BinaryReader(data);
+            const reader = data instanceof hdf5.BinaryReader ? data : new hdf5.BinaryReader(data);
             const array = this._dataspace.read(this._datatype, reader);
             return this._dataspace.decode(this._datatype, array, array, this._globalHeap);
         }
@@ -356,7 +356,7 @@ hdf5.Reader = class {
         const s = (value & 0x8000) >> 15;
         const e = (value & 0x7C00) >> 10;
         const f = value & 0x03FF;
-        if(e == 0) {
+        if (e == 0) {
             return (s ? -1 : 1) * Math.pow(2, -14) * (f / Math.pow(2, 10));
         }
         else if (e == 0x1F) {
@@ -759,7 +759,7 @@ hdf5.DataObjectHeader = class {
     }
 
     _readMessage(reader, type, size, flags) {
-        switch(type) {
+        switch (type) {
             case 0x0000: // NIL
                 return false;
             case 0x0001: // Dataspace

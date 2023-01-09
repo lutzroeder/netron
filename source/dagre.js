@@ -15,7 +15,7 @@ dagre.layout = (graph, options) => {
         if (options.time) {
             /* eslint-disable */
             console.log(name + ': ' + duration + 'ms');
-        /* eslint-enable */
+            /* eslint-enable */
         }
         return result;
     };
@@ -542,7 +542,7 @@ dagre.layout = (graph, options) => {
                     exchangeEdges(t, g, e, f);
                 }
             };
-            switch(g.options.ranker) {
+            switch (g.options.ranker) {
                 case 'tight-tree':
                     longestPath(g);
                     feasibleTree(g);

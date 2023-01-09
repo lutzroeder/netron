@@ -8,7 +8,6 @@
 <meta name="date" content="">
 <title>Netron</title>
 <link rel="stylesheet" type="text/css" href="grapher.css">
-<link rel="stylesheet" type="text/css" href="dialog.css">
 <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" type="image/png" href="icon.png">
@@ -22,39 +21,35 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .center { position: absolute; margin: auto; top: 0; right: 0; bottom: 0; left: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .select { user-select: text; -webkit-user-select: text; -moz-user-select: text; }
 .open-file-dialog { display: none; }
-.transparent { width: 100%; height: 100%; background-color: #000000; display: none; opacity: 0; }
+.transparent { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #000000; display: none; opacity: 0; }
 .graph { display: flex; height: 100%; width: 100%; overflow: auto; outline: none; touch-action: pan-x pan-y; }
 .canvas { margin: auto; flex-shrink: 0; text-rendering: geometricPrecision; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
-.toolbar { position: absolute; top: 10px; left: 10px; padding: 0; margin: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.toolbar { position: absolute; bottom: 10px; left: 10px; padding: 0; margin: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .toolbar button:focus { outline: 0; }
 .toolbar-button { float: left; background: None; border-radius: 6px; border: 0; margin: 0; margin-right: 1px; padding: 0; fill: None; stroke: #777; cursor: pointer; width: 24px; height: 24px; }
 .toolbar-back-button { float: left; background: #777; border-top-left-radius: 6px; border-bottom-left-radius: 6px; border: 0px solid; border-color: #777; margin: 2px 0 2px 8px; padding: 0 8px 0 8px; cursor: pointer; height: 20px; color: #ffffff; font-size: 11px; line-height: 0; transition: 0.1s; }
 .toolbar-back-button:hover { background: #000000; border-color: #000000; }
 .toolbar-name-button { float: left; background: rgba(255, 255, 255, 0.95); border-top-right-radius: 6px; border-bottom-right-radius: 6px; border: 1px solid #777; color: #777; border-left: 1px; border-left-color: #ffffff; margin: 2px 0 2px 0; padding: 0 12px 0 6px; cursor: pointer; width: auto; height: 20px; font-size: 11px; line-height: 0; transition: 0.1s; }
 .toolbar-name-button:hover { color: #000000; }
-.icon .border { stroke: #fff; }
-.icon .stroke { stroke: #808080; }
-.icon:hover .stroke { stroke: #000000; }
-.dropdown { display: none; position: absolute; min-width: 225px; z-index: 1; border-radius: 4px; background-color: #f6f6f6; border: 1px solid rgba(0,0,0,.15); padding-top: 2px; padding-bottom: 2px; margin-left: 2px; overflow: hidden; }
-.dropdown button { display: block; border: none; border-radius: 0; background-color: transparent; color: black; width: 100%; text-align: left; padding: 4px 12px 5px 12px; white-space: no-wrap; font-size: 12px; }
-.dropdown button:hover { color: #ffffff; background-color: #2e6bd2; }
-.dropdown .separator { margin-top: 2px; margin-bottom: 2px; border-top: 1px; border-bottom: 0; border-style: solid; border-color: #e5e5e5; }
+.toolbar-icon .border { stroke: #fff; }
+.toolbar-icon .stroke { stroke: #808080; }
+.toolbar-icon:hover .stroke { stroke: #000000; }
 .about { background-color: #ffffff; }
 .about { overflow: hidden; }
-.about .logo { background-color: #ececec; color: #242424; width: 320px; height: 170px; padding: 40px; opacity: 1.0; border-radius: 5px; border: 0.5px solid #cccccc; box-shadow: 0 0 30px #ddd; }
-.about.desktop .logo { border: None; border-radius: 0px; }
+.about .logo { background-color: #ffffff; color: #666666; width: 320px; height: 200px; padding: 40px; border-radius: 8px; border: 1px solid rgba(0, 0, 0, 0.1); box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1); opacity: 1.0; transition: 0.1s; }
+.about.desktop .logo { background-color: #ececec; border: None; border-radius: 0px; }
 .about.desktop .graph { display: none; opacity: 0; }
 .about.desktop .transparent { display: none; opacity: 0; }
 .about.desktop .toolbar { display: none; opacity: 0; }
 .about .logo-name { opacity: 0; }
 .about .logo-text { top: -130px; width: 320px; }
 .about .logo-icon { left: 136px; top: -108px; width: 60px; height: 60px; }
-.about .logo-stroke { stroke: #242424; }
-.about .logo-fill { fill: #242424; }
-.about .logo-border { stroke: #242424; }
-.about .logo-glyph { fill: #242424; }
-.about .logo-message { top: 112px; padding-left: 40px; padding-right: 40px; }
-.about a { text-decoration: none; color: #242424; }
+.about .logo-stroke { stroke: #1a1a1a; }
+.about .logo-fill { fill: #1a1a1a; }
+.about .logo-border { stroke: #1a1a1a; }
+.about .logo-glyph { fill: #1a1a1a; }
+.about .logo-message { top: 132px; padding-left: 40px; padding-right: 40px; }
+.about a { text-decoration: none; color: #666666; }
 .about a:visited { color: inherit; }
 .about a:hover { color: #242424; }
 .about .logo-github { top: 130px; width: 24px; height: 24px; }
@@ -62,11 +57,14 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .about .github-button { display: none; }
 .about .message { display: none; }
 .about .message-button { display: none; }
-.about .graph { display: flex; opacity: 1; }
+.about .graph { display: flex; opacity: 0.5; }
 .about .progress { display: none; }
-.about .toolbar { display: block; opacity: 1; }
-.about .transparent { display: block; opacity: 0.5; }
-.welcome { background-color: #ececec; color: #242424; }
+.about .toolbar { display: block; opacity: 0; }
+.about .menu-button { display: none; opacity: 0; }
+.about .transparent { display: block; opacity: 0.04; }
+.welcome body { background-color: #ececec; }
+.welcome { background-color: #ececec; color: #242424; transition: 0.1s; }
+.welcome .menu-button { display: none; }
 .welcome .logo { width: 582px; height: 128px; }
 .welcome .logo-text { top: -57px; width: 582px; transition: 0.1s; }
 .welcome .logo-name { top: -170px; width: 582px; transition: 0.1s; }
@@ -78,9 +76,9 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .welcome .logo-glyph { fill: #444444; }
 .welcome .logo-message { display: none; }
 .welcome .logo-github { display: none; }
-.welcome button { font-size: 12px; font-weight: bold; line-height: 1.25; text-align: center; vertical-align: middle; min-width: 60px; height: 32px; border-radius: 16px; transition: 0.1s; user-select: none; -webkit-user-select: none; -moz-user-select: none; color: #444444; background-color: #ececec; border: 1px solid #444444; }
-.welcome button:hover { color: #ececec; background-color: #444444; cursor: pointer; transition: 0.2s; }
-.welcome button:focus { outline: 0; }
+.welcome .logo-button { font-size: 12px; font-weight: bold; line-height: 1.25; text-align: center; vertical-align: middle; min-width: 60px; height: 32px; border-radius: 16px; transition: 0.1s; user-select: none; -webkit-user-select: none; -moz-user-select: none; color: #444444; background-color: #ececec; border: 1px solid #444444; }
+.welcome .logo-button:hover { color: #ececec; background-color: #444444; cursor: pointer; transition: 0.2s; }
+.welcome .logo-button:focus { outline: 0; }
 .welcome .open-file-button { top: 133px; left: -150px; width: 125px; opacity: 1; margin: 0 auto 0 auto; }
 .welcome .github-button { width: 125px; top: 133px; left: 150px; opacity: 1; margin: 0 auto 0 auto; }
 .welcome .message-button { top: 160px; left: 0px; width: 125px; display: none; opacity: 0; margin: 0 auto 0 auto; }
@@ -89,6 +87,22 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .welcome .progress-bar { height: 100%; width: 0%; background-color: #444444; }
 .welcome .graph { display: none; opacity: 0; }
 .welcome.spinner .logo-spinner { display: block; -webkit-animation: orbit 0.5s infinite linear; animation: orbit 0.5s infinite linear; cursor: wait; }
+.titlebar { color: #aaaaaa; display: none; height: 32px; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2; -webkit-app-region: drag; }
+.titlebar-content { display: block; padding: 0 142px; height: 100%; text-align: center; font-size: 14px; line-height: 32px; transition: all .25s ease-in-out; user-select: none; }
+.titlebar-content-text { display: block; direction: rtl; overflow: hidden; text-overflow: clip; white-space: nowrap; }
+.active .titlebar { color: #464646; transition: all 0.05s ease-in-out; }
+.titlebar-control-box { display: flex; align-items: center; flex-direction: row-reverse; height: 100%; position: absolute; top: 0; right: 0; width: 138px; }
+.titlebar-icon { width: 1em; height: 1em; vertical-align: -0.15em; fill: currentColor; overflow: hidden; }
+.titlebar-button { display: flex; justify-content: center; align-items: center; width: 46px; height: 32px; -webkit-app-region: no-drag; }
+.titlebar-button:hover { color: #000000; background-color: rgba(0, 0, 0, 0.15); }
+.titlebar-button-close:hover { color: #ffffff; background-color: #b43029; }
+.menu-button { display: flex; justify-content: center; align-items: center; color: #aaaaaa; font-size: 16px; height: 32px; width: 32px; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2; -webkit-app-region: no-drag; -webkit-app-region: no-drag; user-select: none; }
+.menu-button:hover { color: #000000; }
+.menu-dropdown { display: block; position: absolute; left: -225px; width: 225px; top: 0; height: 100%; z-index: 2; background-color: rgba(235, 235, 235, 0.97); border-right: 1px solid rgba(255, 255, 255, 0.5); padding-top: 40px; padding-bottom: 2px; margin-left: 0; margin-top: 0; overflow: hidden; transition: 0.1s; }
+.menu-dropdown button { display: block; border: none; border-radius: 0; background-color: transparent; color: black; width: 100%; text-align: left; padding: 4px 12px 5px 12px; white-space: no-wrap; font-size: 12px; }
+.menu-dropdown button:hover { color: #ffffff; background-color: #2e6bd2; }
+.menu-dropdown .separator { margin-top: 2px; margin-bottom: 2px; border-top: 1px; border-bottom: 0; border-style: solid; border-color: #e5e5e5; }
+.menu-dropdown .shortcut { float: right; }
 @-webkit-keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 @keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 .welcome.spinner .logo-spinner-stroke { stroke: #ececec; }
@@ -111,34 +125,45 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .default { background-color: #404040; }
 .graph { background-color: #404040; }
 .about { background-color: #404040; }
-.about .logo { background-color: #2d2d2d; color: #dfdfdf; border-color: #000000; box-shadow: 0 0 30px #333; }
-.about a { color: #dfdfdf; }
+.about .logo { background-color: #404040; color: #c6c6c6; border: 1px solid rgba(0, 0, 0, 0.05); box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.05); opacity: 1; }
+.about.desktop .logo { background-color: #2d2d2d; }
+.about a { color: #c6c6c6; }
 .about a:hover { color: #ffffff; }
-.about .logo-stroke { stroke: #dfdfdf; }
-.about .logo-fill { fill: #dfdfdf; }
-.about .logo-border { stroke: #dfdfdf; }
-.about .logo-glyph { fill: #dfdfdf; }
+.about .logo-stroke { stroke: #c6c6c6; }
+.about .logo-fill { fill: #c6c6c6; }
+.about .logo-border { stroke: #c6c6c6; }
+.about .logo-glyph { fill: #c6c6c6; }
+.about .transparent { display: block; opacity: 0.6; }
 .welcome { background-color: #1e1e1e; color: #888888; }
 .welcome .logo-stroke { stroke: #888888; }
 .welcome .logo-fill { fill: #888888; }
 .welcome .logo-border { stroke: #000000; }
 .welcome .logo-glyph { fill: #888888; }
 .welcome .logo-spinner-stroke { stroke: #ffffff; }
-.welcome .logo button { color: #888888; background-color: #1e1e1e; border-color: #888888; }
-.welcome .logo button:hover { color: #1e1e1e; background-color: #888888; }
+.welcome .logo-button { color: #888888; background-color: #1e1e1e; border-color: #888888; }
+.welcome .logo-button:hover { color: #1e1e1e; background-color: #888888; }
 .welcome .message { color: #888888; display: none; opacity: 0; }
 .welcome .progress-bar { background-color: #888888; }
-.icon .border { stroke: #1d1d1d; }
-.icon .stroke { stroke: #aaaaaa; }
-.icon:hover .stroke { stroke: #dfdfdf; }
-.dropdown { background-color: #373737; border-color: #000000; }
-.dropdown button { color: #ffffff; }
-.dropdown button:hover { color: #ffffff; background-color: #1d59d1; }
-.dropdown .separator { border-color: #5a5a5a; }
+.toolbar-icon .border { stroke: #1d1d1d; }
+.toolbar-icon .stroke { stroke: #aaaaaa; }
+.toolbar-icon:hover .stroke { stroke: #dfdfdf; }
 .toolbar-back-button { background: #aaaaaa; border-color: #aaaaaa; color: #333333; }
 .toolbar-back-button:hover { background: #dfdfdf; border-color: #dfdfdf; }
 .toolbar-name-button { background: #404040; border-color: #aaaaaa; color: #cccccc; }
 .toolbar-name-button:hover { color: #dfdfdf; }
+.titlebar { color: #949494; }
+.welcome body { background-color: #1e1e1e; }
+.default body { background-color: #404040; }
+.active .titlebar { color: #c4c4c4; }
+.titlebar-button:hover { color: #ffffff; background-color: rgba(0, 0, 0, 0.15); }
+.titlebar-button-close:hover { color: #ffffff; background-color: #b43029; }
+.menu-button { color: #aaaaaa; }
+.menu-button:hover { color: #ffffff; }
+.menu-dropdown { background-color: rgba(43, 43, 43, 0.90); border-color: rgba(0, 0, 0, 0); }
+.menu-dropdown button { color: #ffffff; }
+.menu-dropdown button:hover { color: #ffffff; background-color: #1d59d1; }
+.menu-dropdown .shortcut { color: #888888; }
+.menu-dropdown .separator { border-color: #5a5a5a; }
 }
 @media all and (max-width: 640px) {
 .welcome .logo { width: 240px; }
@@ -159,28 +184,118 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .toolbar-back-button { margin-top: 6px; margin-bottom: 6px; }
 .toolbar-name-button { margin-top: 6px; margin-bottom: 6px; }
 }
+.sidebar { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif; font-size: 12px; height: 100%; right: -100%; position: fixed; transition: 0.2s; z-index: 1; top: 0; background-color: #ececec; color: #242424; overflow: hidden; border-left: 1px solid rgba(255, 255, 255, 0.5); opacity: 0; }
+.sidebar-title { font-weight: bold; font-size: 12px; letter-spacing: 0.5px; height: 20px; margin: 0; padding: 20px; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.sidebar-closebutton { padding: 8px 8px 8px 32px; text-decoration: none; font-size: 25px; color: #777777; opacity: 1.0; display: block; transition: 0.2s; position: absolute; top: 0; right: 15px; margin-left: 50px; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.sidebar-closebutton:hover { color: #242424; }
+.sidebar-content { padding-left: 20px; padding-right: 20px; margin-bottom: 20px; overflow-y: auto; height: calc(100vh - 60px); }
+.sidebar-view-title { font-weight: bold; font-size: 11px; line-height: 1.25; border-bottom: 1px solid #ececec; padding-bottom: 0.3em; margin-top: 0; margin-bottom: 16px; color: #333; user-select: none; -webkit-user-select: none; -moz-user-select: none; cursor: default; }
+.sidebar-view-title-button { display: inline-block; color: #888; text-align: center; vertical-align: middle; font-weight: bold; width: 12px; height: 12px; font-size: 10px; line-height: 12px; border-radius: 50%; transform: translateY(-1px); padding: 1px; background: transparent; border: 1px solid #aaa; text-decoration: none; cursor: pointer; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.sidebar-view-title-button:hover { color: #333; border: 1px solid #333; }
+.sidebar-view-header { font-weight: bold; font-size: 11px; text-transform: uppercase; line-height: 1.25; margin-top: 16px; margin-bottom: 16px; border-bottom: 1px solid #ececec; display: block; user-select: none; -webkit-user-select: none; -moz-user-select: none; cursor: default; }
+.sidebar-view-item { margin-bottom: 0px; display: block; }
+.sidebar-view-item-name { float: left; font-size: 11px; min-width: 95px; max-width: 95px; padding-right: 5px; padding-top: 7px; display: block; }
+.sidebar-view-item-name input { color: #777; font-family: inherit; font-size: inherit; color: inherit; background-color: inherit; width: 100%; text-align: right; margin: 0; padding: 0; border: 0; outline: none; text-overflow: ellipsis; }
+.sidebar-view-item-value-list { margin: 0; margin-left: 105px; overflow: hidden; display: block; padding: 0; }
+.sidebar-view-item-value { font-size: 11px; background-color: #fcfcfc; border-radius: 2px; border: 1px solid #fcfcfc; margin-top: 3px; margin-bottom: 3px; overflow: auto; }
+.sidebar-view-item-value-dark { background-color: #f8f8f8; border: 1px solid #f8f8f8; }
+.sidebar-view-item-value b { font-weight: bold; }
+.sidebar-view-item-value code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; overflow: auto; white-space: pre-wrap; word-wrap: break-word; }
+.sidebar-view-item-value pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; margin: 0; overflow: auto; white-space: pre; word-wrap: normal; display: block; }
+.sidebar-view-item-value-line { padding: 4px 6px 4px 6px; }
+.sidebar-view-item-value-line-link { padding: 4px 6px 4px 6px; cursor: default; }
+.sidebar-view-item-value-line-link:hover { text-decoration: underline; }
+.sidebar-view-item-value-line-border { padding: 4px 6px 4px 6px; border-top: 1px solid rgba(27, 31, 35, 0.05); }
+.sidebar-view-item-value-line-content { white-space: pre; word-wrap: normal; overflow: auto; display: block; }
+.sidebar-view-item-value-expander { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; float: right; color: #aaa; cursor: pointer; user-select: none; -webkit-user-select: none; -moz-user-select: none; padding: 4px 6px 4px 6px; }
+.sidebar-view-item-value-expander:hover { color: #000; }
+.sidebar-view-item-select {
+    font-family: inherit; font-size: 12px;
+    background-color: #fcfcfc; border: #fcfcfc; color: #333;
+    border-radius: 2px; width: 100%; height: 23px; padding: 3px 12px 3px 7px;
+    margin-top: 3px; margin-bottom: 3px; box-sizing: border-box; outline: none;
+    -moz-box-sizing: border-box; -webkit-appearance: none; -moz-appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #333 50%), linear-gradient(135deg, #333 50%, transparent 50%);
+    background-position: calc(100% - 12px) calc(10px), calc(100% - 7px) calc(10px);
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+}
+.sidebar-view-separator { margin-bottom: 20px; }
+.sidebar-view-find input[type=text] { font-family: inherit; font-size: 13px; padding: 4px 6px 4px 6px; background: #fff; border-radius: 4px; border: 1px solid #ccc; outline: 0; }
+.sidebar-view-find ol { list-style-type: none; overflow-y: auto; margin: 8px 0 20px 0; padding: 0; }
+.sidebar-view-find li { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 12px; margin: 0; padding: 5px 8px 5px 8px; outline: 0; white-space: nowrap; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.sidebar-view-find li:not(:first-child) { border-top: 1px solid #f0f0f0; }
+.sidebar-view-find li:hover { background: #eee; }
+.sidebar-view-documentation { font-size: 13px; line-height: 1.5; margin: 0; }
+.sidebar-view-documentation h1 { font-weight: bold; font-size: 13px; line-height: 1.25; border-bottom: 1px solid #e8e8e8; padding-bottom: 0.3em; margin-top: 0; margin-bottom: 16px; }
+.sidebar-view-documentation h2 { font-weight: bold; font-size: 11px; line-height: 1.25; margin-top: 20px; margin-bottom: 16px; text-transform: uppercase; border: 0; }
+.sidebar-view-documentation h3 { font-weight: bold; font-size: 11px; line-height: 1.25; }
+.sidebar-view-documentation p { margin-top: 4px; margin-bottom: 4px; margin-left: 0px; }
+.sidebar-view-documentation a { color: #237; }
+.sidebar-view-documentation code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 12px; background-color: rgba(27, 31, 35, 0.05); padding: 0.2em 0.4em; margin: 0; border-radius: 3px; }
+.sidebar-view-documentation pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 12px; padding: 16px; overflow: auto; line-height: 1.45; background-color: rgba(27, 31, 35, 0.05); border-radius: 3px; }
+.sidebar-view-documentation pre code { font-size: 13px; padding: 16px; line-height: 1.45; background-color: transparent; padding: 0; border-radius: 0; }
+.sidebar-view-documentation tt { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-weight: bold; font-size: 90%; background-color: rgba(27, 31, 35, 0.05); border-radius: 3px; padding: 0.2em 0.4em; margin: 0; }
+.sidebar-view-documentation dl dt { font-size: 13px; font-weight: bold; padding: 0; margin-top: 16px; margin-left: 0px; }
+.sidebar-view-documentation dd { padding: 0 16px; margin-left: 0; margin-bottom: 16px; }
+.sidebar-view-documentation ul { margin-top: 6px; margin-bottom: 6px; padding-left: 20px; }
+.sidebar-view-documentation blockquote { margin-left: 15px; margin-right: 15px; }
+@media (prefers-color-scheme: dark) {
+    .sidebar html { color: #dfdfdf; }
+    .sidebar { background-color: #2d2d2d; color: #dfdfdf; border-left: 1px solid rgba(0, 0, 0, 0); }
+    .sidebar-closebutton { padding: 8px 8px 8px 32px; text-decoration: none; font-size: 25px; color: #777777; opacity: 1.0; display: block; transition: 0.2s; position: absolute; top: 0; right: 15px; margin-left: 50px; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+    .sidebar-closebutton:hover { color: #ffffff; }
+    .sidebar-view-item-value { background-color: #383838; border-color: #383838; }
+    .sidebar-view-item-value-dark { background-color: #3e3e3e; border-color: #3e3e3e; }
+    .sidebar-view-item-value-line-border { border-color: rgba(0, 0, 0, 0.09); }
+    .sidebar-view-item-select { background-color: #383838; border: #383838; color: #dfdfdf; background-image: linear-gradient(45deg, transparent 50%, #aaa 50%), linear-gradient(135deg, #aaa 50%, transparent 50%); }
+    .sidebar-view-title { border-bottom-color: #2d2d2d; color: #dfdfdf; }
+    .sidebar-view-title-button { color: #888888; border-color: #888888; }
+    .sidebar-view-title-button:hover { color: #dfdfdf; border-color: #dfdfdf; }
+    .sidebar-view-header { border-bottom-color: #2d2d2d; color: #dfdfdf; }
+    .sidebar-view-documentation h1 { border-bottom: 1px solid #424242; color: #dfdfdf; }
+    .sidebar-view-documentation h2 { color: #dfdfdf; }
+    .sidebar-view-documentation p { color: #aaaaaa; }
+    .sidebar-view-documentation a { color: #6688aa; }
+    .sidebar-view-documentation tt { background-color:#1e1e1e; }
+    .sidebar-view-documentation code { background-color: #1e1e1e; }
+    .sidebar-view-documentation pre { background-color: #1e1e1e; }
+    .sidebar-view-find input[type=text] { background: #383838; color: #dfdfdf; border-color: #424242; }
+    .sidebar-view-find li:not(:first-child) { border-top: 1px solid #2a2a2a; }
+    .sidebar-view-find li:hover { background: #383838; }
+}
 </style>
 </head>
 <body class="welcome spinner">
 <div id="graph" class="graph" tabindex="0">
     <svg id="canvas" class="canvas" preserveaspectratio="xMidYMid meet" width="100%" height="100%"></svg>
 </div>
-<div id="sidebar" class="sidebar"></div>
+<div id="sidebar" class="sidebar">
+    <h1 id="sidebar-title" class="sidebar-title"></h1>
+    <a id="sidebar-closebutton" class="sidebar-closebutton" href="javascript:void(0)">&times;</a>
+    <div id="sidebar-content" class="sidebar-content"></div>
+</div>
 <div id="toolbar" class="toolbar">
-    <button id="menu-button" class="toolbar-button" title="Menu">
-        <svg class="icon" viewbox="0 0 100 100">
+    <button id="sidebar-button" class="toolbar-button" title="Model Properties">
+        <svg class="toolbar-icon" viewbox="0 0 100 100">
             <rect class="border" x="12" y="12" width="76" height="76" rx="16" ry="16" stroke-width="8"></rect>
-            <line class="border" x1="30" y1="37" x2="70" y2="37" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
-            <line class="border" x1="30" y1="50" x2="70" y2="50" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
-            <line class="border" x1="30" y1="63" x2="70" y2="63" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="28" y1="37" x2="32" y2="37" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="28" y1="50" x2="32" y2="50" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="28" y1="63" x2="32" y2="63" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="40" y1="37" x2="70" y2="37" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="40" y1="50" x2="70" y2="50" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
+            <line class="border" x1="40" y1="63" x2="70" y2="63" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
             <rect class="stroke" x="12" y="12" width="76" height="76" rx="16" ry="16" stroke-width="4"></rect>
-            <line class="stroke" x1="30" y1="37" x2="70" y2="37" stroke-width="4" stroke-linecap="round"></line>
-            <line class="stroke" x1="30" y1="50" x2="70" y2="50" stroke-width="4" stroke-linecap="round"></line>
-            <line class="stroke" x1="30" y1="63" x2="70" y2="63" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="28" y1="37" x2="32" y2="37" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="28" y1="50" x2="32" y2="50" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="28" y1="63" x2="32" y2="63" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="40" y1="37" x2="70" y2="37" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="40" y1="50" x2="70" y2="50" stroke-width="4" stroke-linecap="round"></line>
+            <line class="stroke" x1="40" y1="63" x2="70" y2="63" stroke-width="4" stroke-linecap="round"></line>
         </svg>
     </button>
     <button id="zoom-in-button" class="toolbar-button" title="Zoom In">
-        <svg class="icon" viewbox="0 0 100 100">
+        <svg class="toolbar-icon" viewbox="0 0 100 100">
             <circle class="border" cx="50" cy="50" r="35" stroke-width="8" stroke="#fff"></circle>
             <line class="border" x1="50" y1="38" x2="50" y2="62" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
             <line class="border" x1="38" y1="50" x2="62" y2="50" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
@@ -192,7 +307,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
         </svg>
     </button>
     <button id="zoom-out-button" class="toolbar-button" title="Zoom Out">
-        <svg class="icon" viewbox="0 0 100 100">
+        <svg class="toolbar-icon" viewbox="0 0 100 100">
             <circle class="border" cx="50" cy="50" r="35" stroke-width="8" stroke="#fff"></circle>
             <line class="border" x1="38" y1="50" x2="62" y2="50" stroke-width="8" stroke-linecap="round" stroke="#fff"></line>
             <line class="border" x1="78" y1="78" x2="82" y2="82" stroke-width="12" stroke-linecap="square" stroke="#fff"></line>
@@ -206,7 +321,6 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     </button>
     <button id="name-button" class="toolbar-name-button" title="Name">
     </button>
-    <div id="menu-dropdown" class="dropdown"></div>
 </div>
 <div id="transparent" class="transparent"></div>
 <div class="center logo">
@@ -352,9 +466,9 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
         </svg>
     </a>
     <span id="message" class="center message"></span>
-    <button id="message-button" class="center message-button">Accept</button>
-    <button id="open-file-button" class="center open-file-button" tabindex="0">Open Model&hellip;</button>
-    <button id="github-button" class="center github-button">GitHub</button>
+    <button id="message-button" class="center logo-button message-button">Accept</button>
+    <button id="open-file-button" class="center logo-button open-file-button" tabindex="0">Open Model&hellip;</button>
+    <button id="github-button" class="center logo-button github-button">GitHub</button>
     <div class="center progress">
         <div id="progress-bar" class="progress-bar"></div>
     </div>
@@ -364,5 +478,37 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
     <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
 </div>
+<div id="titlebar" class="titlebar">
+    <svg style="position: absolute; width: 0px; height: 0px; overflow: hidden;" aria-hidden="true">
+        <symbol id="icon-arrow-right" viewBox="0 0 1024 1024">
+            <path d="M698.75712 565.02272l-191.488 225.4848a81.73568 81.73568 0 0 1-62.48448 28.89728 81.89952 81.89952 0 0 1-62.40256-134.94272l146.432-172.4416-146.432-172.4416a81.92 81.92 0 0 1 124.88704-106.06592l191.488 225.4848a81.87904 81.87904 0 0 1 0 106.02496z"></path>
+        </symbol>
+    </svg>
+    <div id="titlebar-content" class="titlebar-content">
+        <span id="titlebar-content-text" class="titlebar-content-text"></span>
+    </div>
+    <div id="titlebar-control-box" class="titlebar-control-box">
+        <div id="titlebar-close" class="titlebar-button titlebar-button-close" title="Close">
+            <svg class="titlebar-icon" aria-hidden="true">
+                <path d="M 0,0 0,0.7 4.3,5 0,9.3 0,10 0.7,10 5,5.7 9.3,10 10,10 10,9.3 5.7,5 10,0.7 10,0 9.3,0 5,4.3 0.7,0 Z"></path>
+            </svg>
+        </div>
+        <div id="titlebar-toggle" class="titlebar-button" title="Maximize">
+            <svg id="titlebar-maximize" class="titlebar-icon" aria-hidden="true" style="position: absolute;">
+                <path d="M 0,0 0,10 10,10 10,0 Z M 1,1 9,1 9,9 1,9 Z"></path>
+            </svg>
+            <svg id="titlebar-restore" class="titlebar-icon" aria-hidden="true" style="position: absolute;">
+                <path d="m 2,1e-5 0,2 -2,0 0,8 8,0 0,-2 2,0 0,-8 z m 1,1 6,0 0,6 -1,0 0,-5 -5,0 z m -2,2 6,0 0,6 -6,0 z"></path>
+            </svg>
+        </div>
+        <div id="titlebar-minimize" class="titlebar-button" title="Minimize">
+            <svg class="titlebar-icon" aria-hidden="true">
+                <path d="M 0,5 10,5 10,6 0,6 Z"></path>
+            </svg>
+        </div>
+    </div>
+</div>
+<div id="menu-dropdown" class="menu-dropdown"></div>
+<div id="menu-button" class="menu-button">&#9776;</div>
 </body>
 </html>

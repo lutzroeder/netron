@@ -557,7 +557,7 @@ mxnet.Node = class {
                                 if (argument.attrs && argument.attrs.__dtype__ && argument.attrs.__shape__) {
                                     try {
                                         dataType = parseInt(argument.attrs.__dtype__);
-                                        shape = JSON.parse('[' + argument.attrs.__shape__.replace('(', '').replace(')', '').split(' ').join('').split(',').map((dimension => dimension || '"?"' )).join(',') + ']');
+                                        shape = JSON.parse('[' + argument.attrs.__shape__.replace('(', '').replace(')', '').split(' ').join('').split(',').map((dimension => dimension || '"?"')).join(',') + ']');
                                     }
                                     catch (err) {
                                         // continue regardless of error

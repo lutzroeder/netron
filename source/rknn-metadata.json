@@ -165,6 +165,15 @@
     ]
   },
   {
+    "name": "ConvTranspose",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ]
+  },
+  {
     "name": "ConvRelu",
     "category": "Layer",
     "inputs": [
@@ -283,6 +292,14 @@
   },
   {
     "name": "Sigmoid",
+    "category": "Activation"
+  },
+  {
+    "name": "LeakyRelu",
+    "category": "Activation"
+  },
+  {
+    "name": "HardSigmoid",
     "category": "Activation"
   },
   {

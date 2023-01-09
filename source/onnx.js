@@ -46,7 +46,7 @@ onnx.ModelFactory = class {
                     return true;
                 };
                 // mediapipe.BoxDetectorIndex
-                if (match(tags, [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]],[2,false],[3,false],[4,false],[5,false]]],[2,false],[3,false]] )) {
+                if (match(tags, [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]],[2,false],[3,false],[4,false],[5,false]]],[2,false],[3,false]])) {
                     return undefined;
                 }
                 // third_party.tensorflow.python.keras.protobuf.SavedMetadata
@@ -1154,8 +1154,9 @@ onnx.GraphMetadata = class {
         if (!this._attributes.has(key)) {
             this._attributes.set(key, null);
             const metadata = this.type(type, domain);
-            if (metadata && metadata.attributes && metadata.attributes.length > 0) {
+            if (metadata && Array.isArray(metadata.attributes) && metadata.attributes.length > 0) {
                 for (const attribute of metadata.attributes) {
+                    const key = domain + ':' + type + ':' + attribute.name;
                     this._attributes.set(key, attribute);
                 }
             }
@@ -1541,7 +1542,7 @@ onnx.GraphContext = class {
             const schema = this._context.metadata.type(node.op_type, node.domain);
             const inputs = [];
             node.input = node.input || [];
-            for (let i = 0; i < node.input.length; ) {
+            for (let i = 0; i < node.input.length;) {
                 const input = schema && schema.inputs && i < schema.inputs.length ? schema.inputs[i] : { name: i.toString() };
                 const count = input.list ? node.input.length - i : 1;
                 const list = node.input.slice(i, i + count).map((input) => this.argument(input.name));
@@ -1550,7 +1551,7 @@ onnx.GraphContext = class {
             }
             const outputs = [];
             node.output = node.output || [];
-            for (let i = 0; i < node.output.length; ) {
+            for (let i = 0; i < node.output.length;) {
                 const output = schema && schema.outputs && i < schema.outputs.length ? schema.outputs[i] : { name: i.toString() };
                 const count = output.list ? node.output.length - i : 1;
                 const list = node.output.slice(i, i + count).map((output) => this.argument(output.name));

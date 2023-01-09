@@ -24,7 +24,6 @@
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Base axis of Affine operation. Dimensions up to base_axis is treated as sample dimension."
       }
@@ -74,35 +73,30 @@
       {
         "name": "num_layers",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Number of layers in the network. If set to 1, only the weights for the first layer will be invoked. Default is 1."
       },
       {
         "name": "nonlinearity",
         "type": "string",
-        "required": false,
         "default": "tanh",
         "description": "Type of nonlinearity applied to input sequcne. Must be either tanh or relu. Default is tanh."
       },
       {
         "name": "dropout",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.0,
         "description": "Dropout ratio applied to parameters. Default is 0.0."
       },
       {
         "name": "bidirectional",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If True, bidirectional computation will be performed in each layer. Default is False."
       },
       {
         "name": "training",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "Backpropagation will be performed only when it is true. Default is True."
       }
@@ -162,28 +156,24 @@
       {
         "name": "num_layers",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Number of layers in the network. If set to 1, only the weights for the first layer will be invoked. Default is 1."
       },
       {
         "name": "dropout",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.0,
         "description": "Dropout ratio applied to parameters. Default is 0.0."
       },
       {
         "name": "bidirectional",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If True, bidirecitonal computation will be performed in each layer. Default is False."
       },
       {
         "name": "training",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "Backpropagation will be performed only when it is True. Default is True."
       }
@@ -243,28 +233,24 @@
       {
         "name": "num_layers",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Number of layers in the network. If set to 1, only the weights for the first layer will be invoked. Default is 1."
       },
       {
         "name": "dropout",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.0,
         "description": "Dropout ratio applied to parameters. Default is 0.0."
       },
       {
         "name": "bidirectional",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If True, bidirecitonal computation will be performed in each layer. Default is False."
       },
       {
         "name": "training",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "Backpropagation will be performed only when it is True. Default is True."
       }
@@ -308,42 +294,36 @@
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "base axis :math:`B`."
       },
       {
         "name": "pad",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(0,) * (len(x.shape) - (base_axis+1))",
         "description": "Padding sizes for dimensions."
       },
       {
         "name": "stride",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1,) * (len(x.shape) - (base_axis+1))",
         "description": "Stride sizes for dimensions."
       },
       {
         "name": "dilation",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1,) * (len(x.shape) - (base_axis+1))",
         "description": "Dilation sizes for dimensions."
       },
       {
         "name": "group",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Number of groups of channels. This makes the connection across channels sparser, by grouping connections along the mapping direction."
       },
       {
         "name": "channel_last",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If True, the last dimension is considered as channel dimension, a.k.a NHWC order."
       }
@@ -412,92 +392,79 @@
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "`base_axis` in :meth:`~nnabla.functions.convolution`. Note that the batch normalization `axes` is determined by this and `channel_last` option."
       },
       {
         "name": "pad",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(0,) * (len(x.shape) - (base_axis+1))",
         "description": "`pad_width` in :meth:`~nnabla.functions.pad`.\nIf `len(pad) == (len(x.shape) - (base_axis+1))`, considered as `pad` in :meth:`~nnabla.functions.convolution`."
       },
       {
         "name": "stride",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1,) * (len(x.shape) - (base_axis+1))",
         "description": "`stride` in :meth:`~nnabla.functions.convolution`."
       },
       {
         "name": "dilation",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1,) * (len(x.shape) - (base_axis+1))",
         "description": "`dilation` in :meth:`~nnabla.functions.convolution`."
       },
       {
         "name": "group",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "`group` in :meth:`~nnabla.functions.convolution`."
       },
       {
         "name": "channel_last",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "`channel_last` in :meth:`~nnabla.functions.convolution`.group"
       },
       {
         "name": "decay_rate",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.9,
         "description": "`decay_rate` in :meth:`~nnabla.functions.batch_normalization`."
       },
       {
         "name": "eps",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1e-05,
         "description": "`eps` in :meth:`~nnabla.functions.batch_normalization`."
       },
       {
         "name": "batch_stat",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "`batch_stat` in :meth:`~nnabla.functions.batch_normalization`."
       },
       {
         "name": "nonlinearity",
         "type": "string",
-        "required": false,
         "default": "relu",
         "description": "Activation type as string. The following is a list of available activation types\nand optional parameters specified as a vector of float by `nonlinearity_args`.\n\n=============== ===============================\nActivation type Arguments (`nonlinearity_args`)\n=============== ===============================\nidentity        No argument\nrelu            No argument\nsigmoid         No argument\ntanh            No argument\nleaky_relu      [alpha] (see LeakyReLU doc)\nelu             [alpha] (see ELU doc)\nrelu6           No argument\n=============== ==============================="
       },
       {
         "name": "nonlinearity_args",
-        "type": "repeated float",
-        "required": false,
-        "default": [],
+        "type": "float32[]",
+        "default": "list()",
         "description": "Optional arguments of nonlinearity as a vector of float.\nSee the description of the `nonlinearity` argument."
       },
       {
         "name": "pad_mode",
         "type": "string",
-        "required": false,
         "default": "constant",
         "description": "`mode` in :meth:`~nnabla.functions.pad`."
       },
       {
         "name": "constant_value",
-        "type": "float",
-        "required": false,
-        "default": 0,
+        "type": "float32",
+        "default": 0.0,
         "description": "`constant_value` in :meth:`~nnabla.functions.pad`."
       }
     ],
@@ -535,35 +502,30 @@
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "base axis :math:`B`."
       },
       {
         "name": "pad",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(0,) * (len(x.shape) - (base_axis+1))",
         "description": "Padding sizes for dimensions."
       },
       {
         "name": "stride",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1,) * (len(x.shape) - (base_axis+1))",
         "description": "Stride sizes for dimensions."
       },
       {
         "name": "dilation",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1,) * (len(x.shape) - (base_axis+1))",
         "description": "Dilation sizes for dimensions."
       },
       {
         "name": "multiplier",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Number of output feature maps per input feature map."
       }
@@ -602,49 +564,42 @@
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "base axis :math:`B`."
       },
       {
         "name": "pad",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(0,) * (len(x.shape) - (base_axis+1))",
         "description": "Padding sizes for dimensions."
       },
       {
         "name": "stride",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1,) * (len(x.shape) - (base_axis+1))",
         "description": "Stride sizes for dimensions."
       },
       {
         "name": "dilation",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1,) * (len(x.shape) - (base_axis+1))",
         "description": "Dilation sizes for dimensions."
       },
       {
         "name": "group",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Number of groups of channels. This makes the connection across channels sparser, by grouping connections along the mapping direction."
       },
       {
         "name": "channel_last",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If True, the last dimension is considered as channel dimension, a.k.a NHWC order."
       },
       {
         "name": "output_padding",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(0,) * (len(x.shape) - (base_axis+1))",
         "description": "Additional size added to the output shape."
       }
@@ -683,35 +638,30 @@
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "base axis :math:`B`."
       },
       {
         "name": "pad",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(0,) * (len(x.shape) - (base_axis+1))",
         "description": "Padding sizes for dimensions."
       },
       {
         "name": "stride",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1,) * (len(x.shape) - (base_axis+1))",
         "description": "Stride sizes for dimensions."
       },
       {
         "name": "dilation",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1,) * (len(x.shape) - (base_axis+1))",
         "description": "Dilation sizes for dimensions."
       },
       {
         "name": "divisor",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Number of input feature maps per output feature map."
       }
@@ -761,49 +711,42 @@
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "base axis :math:`B`."
       },
       {
         "name": "pad",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(0,) * (len(x.shape) - (base_axis+1))",
         "description": "Padding sizes for dimensions."
       },
       {
         "name": "stride",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1,) * (len(x.shape) - (base_axis+1))",
         "description": "Stride sizes for dimensions."
       },
       {
         "name": "dilation",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1,) * (len(x.shape) - (base_axis+1))",
         "description": "Dilation sizes for dimensions."
       },
       {
         "name": "group",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Number of groups of channels. This makes the connection across channels sparser, by grouping connections along the mapping direction."
       },
       {
         "name": "deformable_group",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Number of deformable groups of channels."
       },
       {
         "name": "channel_last",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If True, the last dimension is considered as channel dimension, a.k.a NHWC order."
       }
@@ -859,35 +802,31 @@
     "attributes": [
       {
         "name": "kernel",
-        "type": "Shape",
         "required": true,
+        "type": "shape",
         "description": "Kernel sizes for each spatial axis."
       },
       {
         "name": "stride",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "kernel",
         "description": "Subsampling factors for each spatial axis."
       },
       {
         "name": "ignore_border",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "If false, kernels covering borders are also considered for the output."
       },
       {
         "name": "pad",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(0,) * len(kernel)",
         "description": "Border padding values for each spatial axis. Padding will be added both sides of the dimension."
       },
       {
         "name": "channel_last",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If True, the last dimension is considered as channel dimension, a.k.a NHWC order."
       }
@@ -914,42 +853,37 @@
     "attributes": [
       {
         "name": "kernel",
-        "type": "Shape",
         "required": true,
+        "type": "shape",
         "description": "Kernel sizes for each spatial axis."
       },
       {
         "name": "stride",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "kernel",
         "description": "Subsampling factors for each spatial axis."
       },
       {
         "name": "ignore_border",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "If false, kernels covering borders are also considered for the output."
       },
       {
         "name": "pad",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(0,) * len(kernel)",
         "description": "Border padding values for each spatial axis. Padding will be added both sides of the dimension."
       },
       {
         "name": "channel_last",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If True, the last dimension is considered as channel dimension, a.k.a NHWC order."
       },
       {
         "name": "including_pad",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "If true, border padding values are considered for the output."
       }
@@ -995,35 +929,31 @@
     "attributes": [
       {
         "name": "kernel",
-        "type": "Shape",
         "required": true,
+        "type": "shape",
         "description": "Kernel sizes for each spatial axis."
       },
       {
         "name": "stride",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "kernel",
         "description": "Subsampling factors for each spatial axis."
       },
       {
         "name": "ignore_border",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "If false, kernels covering borders are also considered for the output."
       },
       {
         "name": "pad",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(0,) * len(kernel)",
         "description": "Border padding values for each spatial axis. Padding will be added both sides of the dimension."
       },
       {
         "name": "channel_last",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If True, the last dimension is considered as channel dimension, a.k.a NHWC order."
       }
@@ -1050,14 +980,13 @@
     "attributes": [
       {
         "name": "kernel",
-        "type": "Shape",
         "required": true,
+        "type": "shape",
         "description": "Kernel sizes for each spatial axis."
       },
       {
         "name": "channel_last",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If True, the last dimension is considered as channel dimension, a.k.a NHWC order."
       }
@@ -1113,28 +1042,25 @@
     "attributes": [
       {
         "name": "output_size",
-        "type": "Shape",
         "required": true,
+        "type": "shape",
         "description": "the height and width of the output feature maps."
       },
       {
         "name": "spatial_scale",
-        "type": "repeated float",
-        "required": false,
+        "type": "float32[]",
         "default": "(1.0, 1.0)",
         "description": "Scaling factor from box to input coordinates, as (x, y)."
       },
       {
         "name": "sampling_ratio",
         "type": "int64",
-        "required": false,
         "default": -1,
         "description": "The number of sampling points used for interpolation. Computed as `ceil((y2 - y1) / output_size[0])` for height and likewise for width if `sampling_ratio <= 0`."
       },
       {
         "name": "channel_last",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If True, the last dimension is considered as channel dimension, a.k.a NHWC order."
       }
@@ -1218,8 +1144,7 @@
     "attributes": [
       {
         "name": "inplace",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "This option is obsolete and ignored. Output is never in-placed with input."
       }
@@ -1246,15 +1171,13 @@
     "attributes": [
       {
         "name": "alpha",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.1,
         "description": "The slope value multiplied to negative numbers. :math:`\\alpha` in the definition."
       },
       {
         "name": "inplace",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "This option is obsolete and ignored. Output is never in-placed with input."
       }
@@ -1282,7 +1205,6 @@
       {
         "name": "axis",
         "type": "int64",
-        "required": false,
         "default": "len(x.shape) - 1",
         "description": "Axis normalization is taken."
       }
@@ -1310,7 +1232,6 @@
       {
         "name": "axis",
         "type": "int64",
-        "required": false,
         "default": "len(x.shape) - 1",
         "description": "Axis normalization is taken."
       }
@@ -1337,8 +1258,7 @@
     "attributes": [
       {
         "name": "alpha",
-        "type": "double",
-        "required": false,
+        "type": "float64",
         "default": 1.0,
         "description": "Coefficient for negative outputs. :math:`\\alpha` in definition"
       }
@@ -1365,15 +1285,13 @@
     "attributes": [
       {
         "name": "scale",
-        "type": "double",
-        "required": false,
+        "type": "float64",
         "default": 1.05070098735548,
         "description": "The coefficient :math:`\\lambda` in the definition."
       },
       {
         "name": "alpha",
-        "type": "double",
-        "required": false,
+        "type": "float64",
         "default": 1.673263242354377,
         "description": "The coefficient :math:`\\alpha` in the definition."
       }
@@ -1401,7 +1319,6 @@
       {
         "name": "axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "The ReLU activations of positive inputs and negative inputs are concatenated at axis."
       }
@@ -1428,15 +1345,13 @@
     "attributes": [
       {
         "name": "alpha",
-        "type": "double",
-        "required": false,
+        "type": "float64",
         "default": 1.0,
         "description": "Coefficient for negative outputs. :math:`\\alpha` in definition."
       },
       {
         "name": "axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "The ELU activations of positive inputs and negative inputs are concatenated at axis."
       }
@@ -1469,7 +1384,6 @@
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Dimensions up to base_axis is treated as sample dimension."
       }
@@ -1610,8 +1524,7 @@
     "attributes": [
       {
         "name": "beta",
-        "type": "double",
-        "required": false,
+        "type": "float64",
         "default": 1.0,
         "description": "the `beta` value for SoftPlus formulation"
       }
@@ -1721,36 +1634,31 @@
     "attributes": [
       {
         "name": "axes",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "(1,)",
         "description": "Axes mean and variance are taken."
       },
       {
         "name": "decay_rate",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.9,
         "description": "Decay rate of running mean and variance."
       },
       {
         "name": "eps",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1e-05,
         "description": "Tiny value to avoid zero division by std."
       },
       {
         "name": "batch_stat",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "Use mini-batch statistics rather than running ones."
       },
       {
         "name": "nonlinearity",
         "type": "string",
-        "required": false,
         "default": "relu",
         "description": "Activation chosen from ('relu')."
       }
@@ -1801,43 +1709,37 @@
     "attributes": [
       {
         "name": "axes",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "(1,)",
         "description": "Axes mean and variance are taken."
       },
       {
         "name": "decay_rate",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.9,
         "description": "Decay rate of running mean and variance."
       },
       {
         "name": "eps",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1e-05,
         "description": "Tiny value to avoid zero division by std."
       },
       {
         "name": "batch_stat",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "Use mini-batch statistics rather than running ones."
       },
       {
         "name": "no_scale",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If `True`, the scale term is omitted."
       },
       {
         "name": "no_bias",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If `True`, the bias term is omitted."
       }
@@ -1877,42 +1779,36 @@
       {
         "name": "num_groups",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "A number of groups. The channel dim of 'x' must be integer multiple of `num_groups`."
       },
       {
         "name": "channel_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Channel axis."
       },
       {
         "name": "batch_axis",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "(0,)",
         "description": "Axes mean and variance are taken."
       },
       {
         "name": "eps",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1e-05,
         "description": "Tiny value to avoid zero division by std."
       },
       {
         "name": "no_scale",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If `True`, the scale term is omitted."
       },
       {
         "name": "no_bias",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If `True`, the bias term is omitted."
       }
@@ -1952,35 +1848,30 @@
       {
         "name": "channel_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Channel axis."
       },
       {
         "name": "batch_axis",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "(0,)",
         "description": "Axes mean and variance are taken."
       },
       {
         "name": "eps",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1e-05,
         "description": "Tiny value to avoid zero division by std."
       },
       {
         "name": "no_scale",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If `True`, the scale term is omitted."
       },
       {
         "name": "no_bias",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If `True`, the bias term is omitted."
       }
@@ -2019,29 +1910,25 @@
     "attributes": [
       {
         "name": "batch_axis",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "(0,)",
         "description": "Axes mean and variance are taken."
       },
       {
         "name": "eps",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1e-05,
         "description": "Tiny value to avoid zero division by std."
       },
       {
         "name": "no_scale",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If `True`, the scale term is omitted."
       },
       {
         "name": "no_bias",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If `True`, the bias term is omitted."
       }
@@ -2068,22 +1955,19 @@
     "attributes": [
       {
         "name": "p",
-        "type": "float",
-        "required": false,
-        "default": 2,
+        "type": "float32",
+        "default": 2.0,
         "description": "Order of the norm."
       },
       {
         "name": "axes",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "range(x.ndim)",
         "description": "Axes to be reduced. If empty list is given, all dimensions are reduced."
       },
       {
         "name": "eps",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1e-12,
         "description": "Epsilon for the normalization. This `eps` is added before taking the p-th root in the norm computation."
       }
@@ -2130,42 +2014,36 @@
     "attributes": [
       {
         "name": "comm",
-        "type": "Communicator",
         "required": true,
         "description": "The communicator"
       },
       {
         "name": "group",
         "type": "string",
-        "required": false,
         "default": "world",
         "description": "The name of the communicator group"
       },
       {
         "name": "axes",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "(1,)",
         "description": "Axes mean and variance are taken."
       },
       {
         "name": "decay_rate",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.9,
         "description": "Decay rate of running mean and variance."
       },
       {
         "name": "eps",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1e-05,
         "description": "Tiny value to avoid zero division by std."
       },
       {
         "name": "batch_stat",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "Use mini-batch statistics rather than running ones."
       }
@@ -2204,29 +2082,25 @@
     "attributes": [
       {
         "name": "axes",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "(1,)",
         "description": "Axes mean and variance are taken."
       },
       {
         "name": "eps",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1e-05,
         "description": "Tiny value to avoid zero division by std."
       },
       {
         "name": "no_scale",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If `True`, the scale term is omitted."
       },
       {
         "name": "no_bias",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If `True`, the bias term is omitted."
       }
@@ -2259,14 +2133,12 @@
       {
         "name": "dim",
         "type": "int64",
-        "required": false,
         "default": 0,
         "description": "Output dimension. For the other dimensions, the norms are computed."
       },
       {
         "name": "eps",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1e-12,
         "description": "Epsilon for the normalization. This `eps` is added before taking the sqrt in the norm computation."
       }
@@ -2294,14 +2166,12 @@
       {
         "name": "channel_axis",
         "type": "int64",
-        "required": false,
         "default": 0,
         "description": "An axis for output channel. Default value is 0 which assumes the weights of convolution."
       },
       {
         "name": "eps",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1e-05,
         "description": "Tiny value to avoid zero division by std."
       }
@@ -2334,35 +2204,30 @@
       {
         "name": "dim",
         "type": "int64",
-        "required": false,
         "default": 0,
         "description": "Output dimension. Default is 0. If the dimension is not 0, then the specified dimension becomes the most-left dimension by transposing."
       },
       {
         "name": "itr",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Number of power iterations. Default is 1."
       },
       {
         "name": "eps",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1e-12,
         "description": "Epsilon for the normalization. This `eps` is added before taking the sqrt in the norm computation."
       },
       {
         "name": "test",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "When in `True`, `u` will not be updated. Default is `False`."
       },
       {
         "name": "output_u",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Output original `u` or not. `u` is updated when `test == False` but you can get original `u` as output with this option. Default is `False`."
       }
@@ -2400,14 +2265,12 @@
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Base axis of Mean Subtraction operation. Dimensions up to base_axis is treated as sample dimension."
       },
       {
         "name": "update_running_mean",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "Update running mean during forward execution."
       }
@@ -2463,15 +2326,13 @@
     "attributes": [
       {
         "name": "clip_norm",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1.0,
         "description": "Clip to the norm of input to `clip_norm` in the backward pass."
       },
       {
         "name": "axes",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "range(x.ndim)",
         "description": "Axes to be reduced. If empty list is given, all dimensions are reduced to scalar. This is used in the forward pass."
       }
@@ -2498,15 +2359,13 @@
     "attributes": [
       {
         "name": "axes",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "range(x.ndim)",
         "description": "Axes to be reduced. If empty list is given, all dimensions are reduced to scalar."
       },
       {
         "name": "keep_dims",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Flag whether the reduced axis is kept."
       }
@@ -2533,21 +2392,18 @@
       {
         "name": "axis",
         "type": "int64",
-        "required": false,
         "default": 0,
         "description": "Axis along which cumulative sum is to be calculated"
       },
       {
         "name": "exclusive",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If True, perform exclusive cumsum"
       },
       {
         "name": "reverse",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If True, perform cumsum in reverse direction"
       }
@@ -2573,15 +2429,13 @@
     "attributes": [
       {
         "name": "axes",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "range(x.ndim)",
         "description": "Axes to be reduced."
       },
       {
         "name": "keep_dims",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Flag whether the reduced axis is kept."
       }
@@ -2607,29 +2461,25 @@
     "attributes": [
       {
         "name": "axes",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "range(x.ndim)",
         "description": "Axes to be reduced."
       },
       {
         "name": "keep_dims",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Flag whether the reduced axis is kept."
       },
       {
         "name": "with_index",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Return values and indices."
       },
       {
         "name": "only_index",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Return only indices."
       }
@@ -2655,29 +2505,25 @@
     "attributes": [
       {
         "name": "axes",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "range(x.ndim)",
         "description": "Axes to be reduced."
       },
       {
         "name": "keep_dims",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Flag whether the reduced axis is kept."
       },
       {
         "name": "with_index",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Return values and indices."
       },
       {
         "name": "only_index",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Return only indices."
       }
@@ -2703,22 +2549,19 @@
     "attributes": [
       {
         "name": "p",
-        "type": "float",
-        "required": false,
-        "default": 2,
+        "type": "float32",
+        "default": 2.0,
         "description": "Order of the norm."
       },
       {
         "name": "axes",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "range(x.ndim)",
         "description": "Axes to be reduced. If empty list is given, all dimensions are reduced to scalar."
       },
       {
         "name": "keep_dims",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Flag whether the reduced axis is kept."
       }
@@ -2744,15 +2587,13 @@
     "attributes": [
       {
         "name": "axes",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "range(x.ndim)",
         "description": "Axes to be reduced."
       },
       {
         "name": "keep_dims",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Flag whether the reduced axis is kept."
       }
@@ -2779,21 +2620,18 @@
       {
         "name": "axis",
         "type": "int64",
-        "required": false,
         "default": 0,
         "description": "Axis along which cumulative product is to be calculated"
       },
       {
         "name": "exclusive",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If True, perform exclusive cumprod"
       },
       {
         "name": "reverse",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If True, perform cumprod in reverse direction"
       }
@@ -2860,8 +2698,7 @@
     "attributes": [
       {
         "name": "inplace",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "This option is obsolete and ignored. Output is never in-placed with input."
       }
@@ -2911,8 +2748,7 @@
     "attributes": [
       {
         "name": "inplace",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "This option is obsolete and ignored. Output is never in-placed with input."
       }
@@ -2943,8 +2779,7 @@
     "attributes": [
       {
         "name": "inplace",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "This option is obsolete and ignored. Output is never in-placed with input."
       }
@@ -2975,8 +2810,7 @@
     "attributes": [
       {
         "name": "inplace",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "This option is obsolete and ignored. Output is never in-placed with input."
       }
@@ -3026,8 +2860,7 @@
     "attributes": [
       {
         "name": "inplace",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "This option is obsolete and ignored. Output is never in-placed with input."
       }
@@ -3058,8 +2891,7 @@
     "attributes": [
       {
         "name": "inplace",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "This option is obsolete and ignored. Output is never in-placed with input."
       }
@@ -3085,15 +2917,13 @@
     "attributes": [
       {
         "name": "val",
-        "type": "double",
-        "required": false,
-        "default": 1,
+        "type": "float64",
+        "default": 1.0,
         "description": "Value of the scalar"
       },
       {
         "name": "inplace",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "This option is obsolete and ignored. Output is never in-placed with input."
       }
@@ -3119,15 +2949,13 @@
     "attributes": [
       {
         "name": "val",
-        "type": "double",
-        "required": false,
-        "default": 1,
+        "type": "float64",
+        "default": 1.0,
         "description": "Value of the scalar"
       },
       {
         "name": "inplace",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "This option is obsolete and ignored. Output is never in-placed with input."
       }
@@ -3153,15 +2981,13 @@
     "attributes": [
       {
         "name": "val",
-        "type": "double",
-        "required": false,
-        "default": 1,
+        "type": "float64",
+        "default": 1.0,
         "description": "Value of the scalar"
       },
       {
         "name": "inplace",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "This option is obsolete and ignored. Output is never in-placed with input."
       }
@@ -3187,9 +3013,8 @@
     "attributes": [
       {
         "name": "val",
-        "type": "double",
-        "required": false,
-        "default": 1,
+        "type": "float64",
+        "default": 1.0,
         "description": "Value of the scalar"
       }
     ],
@@ -3214,9 +3039,8 @@
     "attributes": [
       {
         "name": "val",
-        "type": "double",
-        "required": false,
-        "default": 1,
+        "type": "float64",
+        "default": 1.0,
         "description": "Value of the scalar"
       }
     ],
@@ -3241,9 +3065,8 @@
     "attributes": [
       {
         "name": "val",
-        "type": "double",
-        "required": false,
-        "default": 1,
+        "type": "float64",
+        "default": 1.0,
         "description": "Value of the scalar"
       }
     ],
@@ -3268,8 +3091,7 @@
     "attributes": [
       {
         "name": "alpha",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1.0,
         "description": "Value in case of :math:`x = 0`."
       }
@@ -3344,8 +3166,7 @@
     "attributes": [
       {
         "name": "val",
-        "type": "double",
-        "required": false,
+        "type": "float64",
         "default": 1.0,
         "description": "Value of the scalar"
       }
@@ -3372,8 +3193,7 @@
     "attributes": [
       {
         "name": "val",
-        "type": "double",
-        "required": false,
+        "type": "float64",
         "default": 1.0,
         "description": "Value of the scalar"
       }
@@ -3621,8 +3441,7 @@
     "attributes": [
       {
         "name": "right",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": ":If True, given a value v, the function returns index i such that sorted_sequence[i-1] <= v < sorted_sequence[i] (index of closest upper bound of v). By default, this is false so the function returns index i such that a[i-1] < v <= a[i] (index of closest lower bound of v)"
       }
@@ -3649,8 +3468,8 @@
     "attributes": [
       {
         "name": "val",
-        "type": "bool",
         "required": true,
+        "type": "boolean",
         "description": "No Description"
       }
     ],
@@ -3676,8 +3495,8 @@
     "attributes": [
       {
         "name": "val",
-        "type": "bool",
         "required": true,
+        "type": "boolean",
         "description": "No Description"
       }
     ],
@@ -3703,8 +3522,8 @@
     "attributes": [
       {
         "name": "val",
-        "type": "bool",
         "required": true,
+        "type": "boolean",
         "description": "No Description"
       }
     ],
@@ -3730,9 +3549,8 @@
     "attributes": [
       {
         "name": "val",
-        "type": "double",
-        "required": false,
-        "default": 1,
+        "type": "float64",
+        "default": 1.0,
         "description": "Value of the scalar"
       }
     ],
@@ -3758,9 +3576,8 @@
     "attributes": [
       {
         "name": "val",
-        "type": "double",
-        "required": false,
-        "default": 1,
+        "type": "float64",
+        "default": 1.0,
         "description": "Value of the scalar"
       }
     ],
@@ -3786,9 +3603,8 @@
     "attributes": [
       {
         "name": "val",
-        "type": "double",
-        "required": false,
-        "default": 1,
+        "type": "float64",
+        "default": 1.0,
         "description": "Value of the scalar"
       }
     ],
@@ -3814,9 +3630,8 @@
     "attributes": [
       {
         "name": "val",
-        "type": "double",
-        "required": false,
-        "default": 1,
+        "type": "float64",
+        "default": 1.0,
         "description": "Value of the scalar"
       }
     ],
@@ -3842,9 +3657,8 @@
     "attributes": [
       {
         "name": "val",
-        "type": "double",
-        "required": false,
-        "default": 1,
+        "type": "float64",
+        "default": 1.0,
         "description": "Value of the scalar"
       }
     ],
@@ -3870,9 +3684,8 @@
     "attributes": [
       {
         "name": "val",
-        "type": "double",
-        "required": false,
-        "default": 1,
+        "type": "float64",
+        "default": 1.0,
         "description": "Value of the scalar"
       }
     ],
@@ -3955,9 +3768,8 @@
     "attributes": [
       {
         "name": "val",
-        "type": "double",
-        "required": false,
-        "default": 0,
+        "type": "float64",
+        "default": 0.0,
         "description": "Value of the scalar"
       }
     ],
@@ -3983,9 +3795,8 @@
     "attributes": [
       {
         "name": "val",
-        "type": "double",
-        "required": false,
-        "default": 0,
+        "type": "float64",
+        "default": 0.0,
         "description": "Value of the scalar"
       }
     ],
@@ -4033,15 +3844,13 @@
     "attributes": [
       {
         "name": "val",
-        "type": "float",
-        "required": false,
-        "default": 0,
+        "type": "float32",
+        "default": 0.0,
         "description": "Constant value."
       },
       {
         "name": "shape",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "[]",
         "description": "Shape of the output array."
       }
@@ -4060,21 +3869,20 @@
     "attributes": [
       {
         "name": "start",
-        "type": "float",
         "required": true,
+        "type": "float32",
         "description": "Start value."
       },
       {
         "name": "stop",
-        "type": "float",
         "required": true,
+        "type": "float32",
         "description": "End value."
       },
       {
         "name": "step",
-        "type": "float",
-        "required": false,
-        "default": 1,
+        "type": "float32",
+        "default": 1.0,
         "description": "Step value."
       }
     ],
@@ -4092,20 +3900,20 @@
     "attributes": [
       {
         "name": "start",
-        "type": "float",
         "required": true,
+        "type": "float32",
         "description": "Start value."
       },
       {
         "name": "stop",
-        "type": "float",
         "required": true,
+        "type": "float32",
         "description": "End value."
       },
       {
         "name": "num",
-        "type": "int64",
         "required": true,
+        "type": "int64",
         "description": "Size of the constructed vector/tensor."
       }
     ],
@@ -4207,15 +4015,13 @@
     "attributes": [
       {
         "name": "transpose_a",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Transpose the last two axes of ``a`` in matrix multiplication."
       },
       {
         "name": "transpose_b",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Transpose the last two axes of ``b`` in matrix multiplication."
       }
@@ -4536,7 +4342,6 @@
       {
         "name": "axis",
         "type": "int64",
-        "required": false,
         "default": "len(x[0].shape) - 1",
         "description": "Axis"
       }
@@ -4564,7 +4369,6 @@
       {
         "name": "axis",
         "type": "int64",
-        "required": false,
         "default": 0,
         "description": "Axis"
       }
@@ -4594,7 +4398,6 @@
       {
         "name": "axis",
         "type": "int64",
-        "required": false,
         "default": 0,
         "description": "The axis on which to concatenate arrays. Axis indices take on values 0, 1, 2, and so on from the left. For example, to stack four (3,28,28) inputs on the second axis, specify 1. In this case, the output size will be (3,4,28,28)."
       }
@@ -4621,22 +4424,19 @@
     "attributes": [
       {
         "name": "start",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "(0,) * len(x.shape)",
         "description": "Start indices for each axis"
       },
       {
         "name": "stop",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "tuple(x.shape)",
         "description": "Stop indices for each axis"
       },
       {
         "name": "step",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "(1,) * len(x.shape)",
         "description": "Step indices for each axis"
       }
@@ -4663,22 +4463,20 @@
     "attributes": [
       {
         "name": "pad_width",
-        "type": "repeated int64",
         "required": true,
+        "type": "int64[]",
         "description": "Iterable of *before* and *after* pad values."
       },
       {
         "name": "mode",
         "type": "string",
-        "required": false,
         "default": "constant",
         "description": "Padding mode string."
       },
       {
         "name": "constant_value",
-        "type": "float",
-        "required": false,
-        "default": 0,
+        "type": "float32",
+        "default": 0.0,
         "description": "Fill value if mode is `constant`."
       }
     ],
@@ -4704,8 +4502,8 @@
     "attributes": [
       {
         "name": "axes",
-        "type": "repeated int64",
         "required": true,
+        "type": "int64[]",
         "description": "Source axis indices for each axis."
       }
     ],
@@ -4731,8 +4529,8 @@
     "attributes": [
       {
         "name": "shape",
-        "type": "Shape",
         "required": true,
+        "type": "shape",
         "description": "Shape broadcasted to. The size must be the same in axis where ``x``'s shape is not 1."
       }
     ],
@@ -4764,7 +4562,6 @@
       {
         "name": "axis",
         "type": "int64",
-        "required": false,
         "default": -1,
         "description": "Target axis to start broadcasting. If this is not set, broadcast will try to fit y to x starting from the last dimension"
       }
@@ -4791,8 +4588,8 @@
     "attributes": [
       {
         "name": "reps",
-        "type": "repeated int64",
         "required": true,
+        "type": "int64[]",
         "description": "The number of repetitions of `x` along each axis."
       }
     ],
@@ -4818,8 +4615,8 @@
     "attributes": [
       {
         "name": "shape",
-        "type": "Shape",
         "required": true,
+        "type": "shape",
         "description": "Number of classes. Note that it must be exactly the same as the number of classes included in label data. Passing incorrect numbers might cause an unexpected error and currently this function doesn't check if the input is valid or not. Also, when nd-labels are given, dimensions must match. See the example above."
       }
     ],
@@ -4845,8 +4642,7 @@
     "attributes": [
       {
         "name": "axes",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "[len(x.shape) - 1]",
         "description": "The index of the dimension to reverse the order of the elements. Axis indices take on values 0, 1, 2, and so on from the left. For example, to flip a 32 (W) by 24 (H) 100 RGB image (100,3,24,32) vertically and horizontally, specify (2,3)."
       }
@@ -4873,15 +4669,13 @@
     "attributes": [
       {
         "name": "shifts",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "(0,) * len(x.shape)",
         "description": "The amount to shift elements. For example, to shift image data to the right by 2 pixels and up 3 pixels, specify (-3,2)."
       },
       {
         "name": "border_mode",
         "type": "string",
-        "required": false,
         "default": "nearest",
         "description": "Specify how to process the ends of arrays whose values will be undetermined as a result of shifting. nearest: The data at the ends of the original      array is copied and used. reflect: Original data reflected      at the ends of the original array is used."
       }
@@ -4909,28 +4703,24 @@
       {
         "name": "axis",
         "type": "int64",
-        "required": false,
         "default": -1,
         "description": "Axis along which to sort."
       },
       {
         "name": "reverse",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Sort in descending order."
       },
       {
         "name": "with_index",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Return sorted values and index."
       },
       {
         "name": "only_index",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Return only the sort index."
       }
@@ -4958,14 +4748,13 @@
     "attributes": [
       {
         "name": "shape",
-        "type": "Shape",
         "required": true,
+        "type": "shape",
         "description": "Dimensions for each axis. ``-1`` can be specified only in one shape dimension. The value is calculated from the size of the array and remaining dimensions."
       },
       {
         "name": "inplace",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "The output array is shared with the input array if True."
       }
@@ -4993,14 +4782,12 @@
       {
         "name": "start",
         "type": "int64",
-        "required": false,
         "default": 0,
         "description": "If start axis is omitted, the slice starts from axis 0."
       },
       {
         "name": "end",
         "type": "int64",
-        "required": false,
         "default": 0,
         "description": "The end axis, if specified, is exclusive (and the returned value will not include."
       }
@@ -5066,8 +4853,7 @@
     "attributes": [
       {
         "name": "ij_indexing",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If set true (Matrix ('ij') indexing ), the broadcasting dimensions are swapped. Default is False (Cartesian ('xy') indexing )."
       }
@@ -5152,8 +4938,7 @@
     "attributes": [
       {
         "name": "upper",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If true, will return an upper triangular matrix. Otherwise will return a lower triangular matrix."
       }
@@ -5210,14 +4995,12 @@
       {
         "name": "axis",
         "type": "int64",
-        "required": false,
         "default": 0,
         "description": "Axis in `x` to gather from. `axis` must be greater than or equal to `batch_dims`."
       },
       {
         "name": "batch_dims",
         "type": "int64",
-        "required": false,
         "default": 0,
         "description": "The number of batch dimensions."
       }
@@ -5303,15 +5086,13 @@
     "attributes": [
       {
         "name": "shape",
-        "type": "repeated int64",
-        "required": false,
-        "default": null,
+        "type": "int64[]",
+        "default": "None",
         "description": "Shape of output variable."
       },
       {
         "name": "add",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Add the input data to the same destination specified by the indices."
       }
@@ -5349,7 +5130,6 @@
       {
         "name": "axis",
         "type": "int64",
-        "required": false,
         "default": 0,
         "description": "Axis along which to index. The axis must not exceed the inputs' dimension."
       }
@@ -5411,9 +5191,8 @@
     "attributes": [
       {
         "name": "value",
-        "type": "float",
-        "required": false,
-        "default": 0,
+        "type": "float32",
+        "default": 0.0,
         "description": "Value to fill."
       }
     ],
@@ -5444,8 +5223,7 @@
     "attributes": [
       {
         "name": "batch_first",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "`padded_sequence` is of (:math:`T`, :math:`B`, :math:`*`) shape if False,\notherwise (:math:`B`, :math:`T`, :math:`*`)."
       }
@@ -5482,22 +5260,19 @@
     "attributes": [
       {
         "name": "batch_first",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "`padded_sequence` is of (:math:`T`, :math:`B`, :math:`*`) shape if False,\notherwise (:math:`B`, :math:`T`, :math:`*`)."
       },
       {
         "name": "padding_value",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.0,
         "description": "Padding value."
       },
       {
         "name": "total_length",
         "type": "int64",
-        "required": false,
         "default": -1,
         "description": "If not None, the outputs are padded up to the `total_length`.\nIf the `total_length` is less than the max length in the `sequences`,\nthe error is thrown."
       }
@@ -5529,41 +5304,37 @@
     "attributes": [
       {
         "name": "output_size",
-        "type": "repeated int64",
         "required": true,
+        "type": "int64[]",
         "description": "Output size."
       },
       {
         "name": "mode",
-        "type": "string",
         "required": true,
+        "type": "string",
         "description": "Interpolation mode chosen from ('nearest'|'linear')."
       },
       {
         "name": "align_corners",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "If true, the corner pixels of input and output arrays are aligned, such that the output corner pixels have the same values with the input corner pixels. The default is ``None``, and it becomes `True` if mode is 'linear', otherwise `False`."
       },
       {
         "name": "half_pixel",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If true, in the coordinate transformation, 0.5 is added to the output coordinate and 0.5 is subtracted from the input coordinate after scaling."
       },
       {
         "name": "half_pixel_for_nn",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "This is a special argument to support the backward-compatibility of the nearest neighbor interpolation. Default is `False`. When in ``True``, the implementation of nearest neighbor interpolation is the old one."
       },
       {
         "name": "channel_last",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If True, the last dimension is considered as channel dimension, a.k.a NHWC order."
       }
@@ -5589,14 +5360,13 @@
     "attributes": [
       {
         "name": "signal_ndim",
-        "type": "int64",
         "required": true,
+        "type": "int64",
         "description": "The number of dimensions for each signal. It must be 1, 2, or 3."
       },
       {
         "name": "normalized",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Use unitary normalization. If `True`, the normalization constant :math:`\\sqrt{\\frac{1}{\\prod_{i=1}^{d} N_i}}` is multiplied."
       }
@@ -5622,14 +5392,13 @@
     "attributes": [
       {
         "name": "signal_ndim",
-        "type": "int64",
         "required": true,
+        "type": "int64",
         "description": "The number of dimensions for each signal. It must be 1, 2, or 3."
       },
       {
         "name": "normalized",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Use unitary normalization. If `True`, the normalization constant :math:`\\frac{1}{\\prod_{i=1}^{d} N_i}` becomes :math:`\\sqrt{\\frac{1}{\\prod_{i=1}^{d} N_i}}`."
       }
@@ -5655,47 +5424,43 @@
     "attributes": [
       {
         "name": "window_size",
-        "type": "int64",
         "required": true,
+        "type": "int64",
         "description": "Size of STFT analysis window."
       },
       {
         "name": "stride",
-        "type": "int64",
         "required": true,
+        "type": "int64",
         "description": "Number of samples that we shift the window, also called `hop size`."
       },
       {
         "name": "fft_size",
-        "type": "int64",
         "required": true,
+        "type": "int64",
         "description": "Size of the FFT, the output will have `fft_size // 2+ 1` frequency bins."
       },
       {
         "name": "window_type",
         "type": "string",
-        "required": false,
         "default": "hanning",
         "description": "Analysis window, can be either `hanning`, `hamming` or `rectangular`."
       },
       {
         "name": "center",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "If `True`, then the signal `x` is padded by half the FFT size using reflection padding."
       },
       {
         "name": "pad_mode",
         "type": "string",
-        "required": false,
         "default": "reflect",
         "description": "Padding mode, which can be `'constant'` or `'reflect'`. `'constant'` pads with `0`."
       },
       {
         "name": "as_istft_backward",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If `True`, then forward execution behaves as backward execution of ISTFT, treating input `x` as output gradient of ISTFT and outputs `y_r` and `y_i` as inputs gradient of ISTFT. This option is only used in nn.grad operator."
       }
@@ -5731,47 +5496,43 @@
     "attributes": [
       {
         "name": "window_size",
-        "type": "int64",
         "required": true,
+        "type": "int64",
         "description": "Size of STFT analysis window."
       },
       {
         "name": "stride",
-        "type": "int64",
         "required": true,
+        "type": "int64",
         "description": "Number of samples that we shift the window, also called `hop size`."
       },
       {
         "name": "fft_size",
-        "type": "int64",
         "required": true,
+        "type": "int64",
         "description": "Size of the FFT, the output will have `fft_size // 2+ 1` frequency bins."
       },
       {
         "name": "window_type",
         "type": "string",
-        "required": false,
         "default": "hanning",
         "description": "Analysis window, can be either `hanning`, `hamming` or `rectangular`."
       },
       {
         "name": "center",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "If `True`, then the signal `x` is padded by half the FFT size using reflection padding."
       },
       {
         "name": "pad_mode",
         "type": "string",
-        "required": false,
         "default": "reflect",
         "description": "Padding mode corresponding to STFT `pad_mode`, which can be `'constant'` or `'reflect'`. `'constant'` pads with `0`. This option is ignored for the normal use of ISTFT. You need to set the same `pad_mode` only when `as_stft_backward == True`."
       },
       {
         "name": "as_stft_backward",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If `True`, then forward execution behaves as backward execution of STFT, treating inputs `y_r` and `y_i` as outputs gradient of STFT and output `x` as input gradient of STFT. This option is only used in nn.grad operator."
       }
@@ -5797,15 +5558,13 @@
     "attributes": [
       {
         "name": "p",
-        "type": "double",
-        "required": false,
+        "type": "float64",
         "default": 0.5,
         "description": ":math:`p` in definition."
       },
       {
         "name": "seed",
         "type": "int64",
-        "required": false,
         "default": -1,
         "description": "Random seed. When -1, seed is sampled from global random number generator."
       }
@@ -5831,42 +5590,37 @@
     "attributes": [
       {
         "name": "k",
-        "type": "int64",
         "required": true,
+        "type": "int64",
         "description": "Number of largest data values to propagate."
       },
       {
         "name": "abs",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Determine largest data values by magnitude."
       },
       {
         "name": "reduce",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "Reduce feature size to one dimension of size `k`."
       },
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "First dimension of the sample shape."
       },
       {
         "name": "largest",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "Whether to select the `k` largest or smallest values."
       },
       {
         "name": "with_index",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Return top-k values and indices."
       }
@@ -5897,21 +5651,19 @@
     "attributes": [
       {
         "name": "k",
-        "type": "int64",
         "required": true,
+        "type": "int64",
         "description": "Number of largest gradients to propagate."
       },
       {
         "name": "abs",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Determine largest gradients by magnitude."
       },
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "First dimension of the sample shape."
       }
@@ -5930,29 +5682,25 @@
     "attributes": [
       {
         "name": "low",
-        "type": "float",
-        "required": false,
-        "default": 0,
+        "type": "float32",
+        "default": 0.0,
         "description": ":math:`low` in definition."
       },
       {
         "name": "high",
-        "type": "float",
-        "required": false,
-        "default": 1,
+        "type": "float32",
+        "default": 1.0,
         "description": ":math:`high` in definition."
       },
       {
         "name": "shape",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "[]",
         "description": "Shape of returned variable."
       },
       {
         "name": "seed",
         "type": "int64",
-        "required": false,
         "default": -1,
         "description": "Random seed. When -1, seed is sampled from global random number generator."
       }
@@ -5972,28 +5720,24 @@
       {
         "name": "low",
         "type": "int64",
-        "required": false,
         "default": 0,
         "description": ":math:`low` in definition."
       },
       {
         "name": "high",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": ":math:`high` in definition."
       },
       {
         "name": "shape",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "[]",
         "description": "Shape of returned variable."
       },
       {
         "name": "seed",
         "type": "int64",
-        "required": false,
         "default": -1,
         "description": "Random seed. When -1, seed is sampled from global random number generator."
       }
@@ -6012,29 +5756,25 @@
     "attributes": [
       {
         "name": "mu",
-        "type": "float",
-        "required": false,
-        "default": 0,
+        "type": "float32",
+        "default": 0.0,
         "description": ":math:`\\mu` in definition."
       },
       {
         "name": "sigma",
-        "type": "float",
-        "required": false,
-        "default": 1,
+        "type": "float32",
+        "default": 1.0,
         "description": ":math:`\\sigma` in definition."
       },
       {
         "name": "shape",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "[]",
         "description": "Shape of returned variable."
       },
       {
         "name": "seed",
         "type": "int64",
-        "required": false,
         "default": -1,
         "description": "Random seed. When -1, seed is sampled from global random number generator."
       }
@@ -6054,28 +5794,24 @@
       {
         "name": "n",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": ":math:`n` in definition, the number of trials."
       },
       {
         "name": "p",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.5,
         "description": ":math:`p` in definition, probability of success."
       },
       {
         "name": "shape",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "[]",
         "description": "Shape of returned variable."
       },
       {
         "name": "seed",
         "type": "int64",
-        "required": false,
         "default": -1,
         "description": "Random seed. When -1, seed is sampled from global random number generator."
       }
@@ -6094,29 +5830,25 @@
     "attributes": [
       {
         "name": "alpha",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.5,
         "description": ":math:`\\alpha`, scale parameter."
       },
       {
         "name": "beta",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.5,
         "description": ":math:`\\beta`, scale parameter."
       },
       {
         "name": "shape",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "[]",
         "description": "Shape of returned variable."
       },
       {
         "name": "seed",
         "type": "int64",
-        "required": false,
         "default": -1,
         "description": "Random seed. When -1, seed is sampled from global random number generator."
       }
@@ -6135,29 +5867,25 @@
     "attributes": [
       {
         "name": "k",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.5,
         "description": "k, scale parameter."
       },
       {
         "name": "theta",
-        "type": "float",
-        "required": false,
-        "default": 1,
+        "type": "float32",
+        "default": 1.0,
         "description": ":math:`\\theta`, scale parameter."
       },
       {
         "name": "shape",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "[]",
         "description": "Shape of returned variable."
       },
       {
         "name": "seed",
         "type": "int64",
-        "required": false,
         "default": -1,
         "description": "Random seed. When -1, seed is sampled from global random number generator."
       }
@@ -6188,22 +5916,19 @@
     "attributes": [
       {
         "name": "shape",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "[]",
         "description": "Number and shape of generated samples."
       },
       {
         "name": "replace",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "Whether sampling is with or without replacement."
       },
       {
         "name": "seed",
         "type": "int64",
-        "required": false,
         "default": -1,
         "description": "Random seed."
       }
@@ -6229,22 +5954,19 @@
     "attributes": [
       {
         "name": "shape",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "x.shape",
         "description": "The data size to extract. For example, to randomly extract a portion of the image (3,48,48) from a 3,64,64 image, specify (3,48,48)."
       },
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "No Description"
       },
       {
         "name": "seed",
         "type": "int64",
-        "required": false,
         "default": -1,
         "description": "Random seed. When -1, seed is sampled from global random number generator."
       }
@@ -6270,22 +5992,19 @@
     "attributes": [
       {
         "name": "axes",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "[len(x.shape) - 1]",
         "description": "The index of the axis to reverse the order of the elements. Axis indices take on values 0, 1, 2, and so on from the left. For example, to flip a 32 (W) by 24 (H) 100 RGB images (100, 3,24,32) vertically and horizontally at random, specify (2,3)."
       },
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "No Description"
       },
       {
         "name": "seed",
         "type": "int64",
-        "required": false,
         "default": -1,
         "description": "Random seed. When -1, seed is sampled from global random number generator."
       }
@@ -6311,36 +6030,31 @@
     "attributes": [
       {
         "name": "shifts",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "(0,) * len(x.shape)",
         "description": "Max absolute amount to shift elements. For example, to shift image data horizontally by :math:`\\pm 2` pixels and vertically by :math:`\\pm 3` pixels, specify (3,2)."
       },
       {
         "name": "border_mode",
         "type": "string",
-        "required": false,
         "default": "nearest",
         "description": "Specify how to process the ends of arrays whose values will be undetermined as a result of shifting. nearest: The data at the ends of the   original array is copied and used. reflect: Original data reflected at   the ends of the original array is used. constant: Constant value is used."
       },
       {
         "name": "constant_value",
-        "type": "float",
-        "required": false,
-        "default": 0,
+        "type": "float32",
+        "default": 0.0,
         "description": "Value used for outside of the original array if border_mode='constant'."
       },
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "No Description"
       },
       {
         "name": "seed",
         "type": "int64",
-        "required": false,
         "default": -1,
         "description": "Random seed. When -1, seed is sampled from global random number generator."
       }
@@ -6366,78 +6080,67 @@
     "attributes": [
       {
         "name": "prob",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.5,
         "description": "Probability to erase."
       },
       {
         "name": "area_ratios",
-        "type": "repeated float",
-        "required": false,
+        "type": "float32[]",
         "default": "(0.02, 0.4)",
         "description": "Low and high of the area ratio range."
       },
       {
         "name": "aspect_ratios",
-        "type": "repeated float",
-        "required": false,
+        "type": "float32[]",
         "default": "(0.3, 3.3333)",
         "description": "Low and high of the aspect ratios range."
       },
       {
         "name": "replacements",
-        "type": "repeated float",
-        "required": false,
+        "type": "float32[]",
         "default": "(0.0, 255.0)",
         "description": "Low and high of the replacement value range."
       },
       {
         "name": "n",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Max number of patches to be erased."
       },
       {
         "name": "share",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "Use a same bounding box randomly picked over the feature dimension when being True. Default is True."
       },
       {
         "name": "inplace",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "This option is obsolete and ignored. Output is never in-placed with input."
       },
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Dimensions up to base_axis is treated as sample dimension."
       },
       {
         "name": "seed",
         "type": "int64",
-        "required": false,
         "default": -1,
         "description": "Random seed. When -1, seed is sampled from global random number generator."
       },
       {
         "name": "channel_last",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If True, the last dimension is considered as channel dimension, a.k.a NHWC order."
       },
       {
         "name": "ste_fine_grained",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "Straight Through Estimator is fine-grained or not. Default is True."
       }
@@ -6463,113 +6166,97 @@
     "attributes": [
       {
         "name": "shape",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "x.shape",
         "description": "The output image data size."
       },
       {
         "name": "pad",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(0, 0)",
         "description": "Border padding values for each spatial axis. Padding will be added both sides of the dimension."
       },
       {
         "name": "min_scale",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1.0,
         "description": "The minimum scale ratio when randomly scaling the image. For example, to scale down to 0.8 times the size of the original image, specify \"0.8\". To not apply random scaling, set both min_scale and max_scale to \"1.0\"."
       },
       {
         "name": "max_scale",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1.0,
         "description": "The maximum scale ratio when randomly scaling the image. For example, to scale down to 2 times the size of the original image, specify \"2.0\"."
       },
       {
         "name": "angle",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.0,
         "description": "The rotation angle range in radians when randomly rotating the image. The image is randomly rotated in the -Angle to +Angle range. For example, to rotate in a +-15 degree range, specify \"0.26\" (15 degrees/360 degrees * 2PI). To not apply random rotation, specify \"0.0\"."
       },
       {
         "name": "aspect_ratio",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1.0,
         "description": "The aspect ratio range when randomly deforming the image. For example, to deform aspect ratio of image from 1:1.3 to 1.3:1, specify \"1.3\". To not apply random deforming, specify \"1.0\"."
       },
       {
         "name": "distortion",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.0,
         "description": "The distortion range when randomly distorting the image. To not apply distortion, specify \"0.0\"."
       },
       {
         "name": "flip_lr",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Whether to randomly flip the image horizontally at 50% probability."
       },
       {
         "name": "flip_ud",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Whether to randomly flip the image vertically at 50% probability."
       },
       {
         "name": "brightness",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.0,
         "description": "The absolute range of values to randomly add to the brightness. A random value in the -Brightness to +Brightness range is added to the brightness. For example, to vary the brightness in the -0.05 to +0.05 range, specify \"0.05\". To not apply random addition to brightness, specify \"0.0\"."
       },
       {
         "name": "brightness_each",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Whether to apply the random addition to brightness (as specified by brightness) to each color channel. True: brightness is added based on a different random number for each channel. False: brightness is added based on a random number common to all channels."
       },
       {
         "name": "contrast",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1.0,
         "description": "The range in which to randomly vary the image contrast. The contrast is varied in the 1/Contrast times to Contrast times range. The output brightness is equal to (input - contrast_center) * contrast + contrast_center. For example, to vary the contrast in the 0.91 times to 1.1 times range, specify \"1.1\". To not apply random contrast variation, specify \"1.0\"."
       },
       {
         "name": "contrast_center",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.0,
         "description": "Intensity center used for applying contrast."
       },
       {
         "name": "contrast_each",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Whether to apply the random contrast variation (as specified by contrast) to each color channel. True: contrast is varied based on a different random number for each channel. False: contrast is varied based on a random number common to all channels."
       },
       {
         "name": "noise",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.0,
         "description": "Sigma of normal random number to be added."
       },
       {
         "name": "seed",
         "type": "int64",
-        "required": false,
         "default": -1,
         "description": "Random seed. When -1, seed is sampled from global random number generator."
       }
@@ -6647,7 +6334,6 @@
       {
         "name": "axis",
         "type": "int64",
-        "required": false,
         "default": "len(x.shape) - 1",
         "description": "Axis normalization is taken."
       }
@@ -6679,7 +6365,6 @@
       {
         "name": "axis",
         "type": "int64",
-        "required": false,
         "default": "len(x.shape) - 1",
         "description": "Axis normalization is taken."
       }
@@ -6756,8 +6441,7 @@
     "attributes": [
       {
         "name": "delta",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1.0,
         "description": "Delta"
       }
@@ -6788,8 +6472,8 @@
     "attributes": [
       {
         "name": "epsilon",
-        "type": "float",
         "required": true,
+        "type": "float32",
         "description": "Insensitive parameter."
       }
     ],
@@ -6820,7 +6504,6 @@
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Dimensions up to base_axis is treated as sample dimension."
       }
@@ -6846,14 +6529,13 @@
     "attributes": [
       {
         "name": "size",
-        "type": "repeated int64",
         "required": true,
+        "type": "int64[]",
         "description": "The grid size of (:math:`H \\times W`) for 2D and (:math:`D \\times H \\times W`) for 3D."
       },
       {
         "name": "align_corners",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If `True`, the top-left and bottom-right pixels correspond to (-1, -1) and (1, 1) respectively since a pixel is located on the corner of a grid, and the target grid is normalized in [-1, 1].\nIf `False`, the normalized target grid in [-1, 1] is scaled by `size - 1 / size` according to the respective spatial size (e.g., :math:`H` and :math:`W`) before the transformation since a pixel is located on a center of a cell in a grid."
       }
@@ -6885,28 +6567,24 @@
       {
         "name": "mode",
         "type": "string",
-        "required": false,
         "default": "linear",
         "description": "Interpolation mode, linear or nearest."
       },
       {
         "name": "padding_mode",
         "type": "string",
-        "required": false,
         "default": "zero",
         "description": "Padding mode when the grid value is outside [-1, 1]. If this is \"zero\", 0 is used for padding. \"reflect\" uses the values reflected at the ends of the original input data like the mirror. \"repeat\" used the values at the ends of the original input data."
       },
       {
         "name": "align_corners",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "The target grid normalized in [-1, 1] is scaled by `size - 1 / size` according to the respective spatial size (e.g., :math:`H` and :math:`W`) before the transformation if this is `False`. If this is `True`, the top-left and bottom-right pixels correspond to (-1, -1) and (1, 1) respectively."
       },
       {
         "name": "channel_last",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If True, the last dimension is considered as channel dimension, a.k.a NHWC order."
       }
@@ -7008,14 +6686,12 @@
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Dimensions up to base_axis is treated as sample dimension."
       },
       {
         "name": "quantize_zero_to",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1.0,
         "description": "Input value at zero is quantized to this value."
       }
@@ -7058,42 +6734,36 @@
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Dimensions up to base_axis is treated as sample dimension."
       },
       {
         "name": "pad",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(0,) * (len(x.shape) - (base_axis+1))",
         "description": "Padding sizes for dimensions."
       },
       {
         "name": "stride",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1,) * (len(x.shape) - (base_axis+1))",
         "description": "Stride sizes for dimensions."
       },
       {
         "name": "dilation",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1,) * (len(x.shape) - (base_axis+1))",
         "description": "Dilation sizes for dimensions."
       },
       {
         "name": "group",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Number of groups of channels. This makes the connection across channels sparser, by grouping connections along the mapping direction."
       },
       {
         "name": "quantize_zero_to",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1.0,
         "description": "Input value at zero is quantized to this value."
       }
@@ -7141,14 +6811,12 @@
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Dimensions up to base_axis is treated as sample dimension."
       },
       {
         "name": "quantize_zero_to",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1.0,
         "description": "Input value at zero is quantized to this value."
       }
@@ -7196,42 +6864,36 @@
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Dimensions up to base_axis is treated as sample dimension."
       },
       {
         "name": "pad",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(0,) * (len(x.shape) - (base_axis+1))",
         "description": "Padding sizes for dimensions."
       },
       {
         "name": "stride",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1,) * (len(x.shape) - (base_axis+1))",
         "description": "Stride sizes for dimensions."
       },
       {
         "name": "dilation",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1,) * (len(x.shape) - (base_axis+1))",
         "description": "Dilation sizes for dimensions."
       },
       {
         "name": "group",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Number of groups of channels. This makes the connection across channels sparser, by grouping connections along the mapping direction."
       },
       {
         "name": "quantize_zero_to",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1.0,
         "description": "Input value at zero is quantized to this value."
       }
@@ -7274,35 +6936,30 @@
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Dimensions up to base_axis is treated as sample dimension."
       },
       {
         "name": "num_bits",
         "type": "int64",
-        "required": false,
         "default": 4,
         "description": "Number of bits per weight. Needs to be >= 2 as two bits are used to code `zero` and sign of weight."
       },
       {
         "name": "inq_iterations",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "()",
         "description": "List which specifies after how many forward passes we fix 50% of the learnable weights. If we have done as many iterations as specified in the last element of `inq_iterations`, then all weights are fixed."
       },
       {
         "name": "selection_algorithm",
         "type": "string",
-        "required": false,
         "default": "largest_abs",
         "description": "Chooses algorithm that we use for selecting the weights to fix (\"largest_abs\" ... fix weights with largest absolute value, \"random\" ... fix weights randomly)"
       },
       {
         "name": "seed",
         "type": "int64",
-        "required": false,
         "default": -1,
         "description": "Random seed. When -1, seed is sampled from global random number generator."
       }
@@ -7345,63 +7002,54 @@
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Dimensions up to base_axis is treated as sample dimension."
       },
       {
         "name": "pad",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(0,) * (len(x.shape) - (base_axis+1))",
         "description": "Padding sizes for dimensions."
       },
       {
         "name": "stride",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1,) * (len(x.shape) - (base_axis+1))",
         "description": "Stride sizes for dimensions."
       },
       {
         "name": "dilation",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1,) * (len(x.shape) - (base_axis+1))",
         "description": "Dilation sizes for dimensions."
       },
       {
         "name": "group",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Number of groups of channels. This makes the connection across channels sparser, by grouping connections along the mapping direction."
       },
       {
         "name": "num_bits",
         "type": "int64",
-        "required": false,
         "default": 4,
         "description": "Number of bits per weight. Needs to be >= 2 as two bits are used to code `zero` and sign of weight."
       },
       {
         "name": "inq_iterations",
-        "type": "repeated int64",
-        "required": false,
+        "type": "int64[]",
         "default": "()",
         "description": "List which specifies after how many forward passes we fix 50% of the learnable weights. If we have done as many iterations as specified in the last element of `inq_iterations`, then all weights are fixed."
       },
       {
         "name": "selection_algorithm",
         "type": "string",
-        "required": false,
         "default": "largest_abs",
         "description": "Chooses algorithm that we use for selecting the weights to fix (\"largest_abs\" ... fix weights with largest absolute value, \"random\" ... fix weights randomly)"
       },
       {
         "name": "seed",
         "type": "int64",
-        "required": false,
         "default": -1,
         "description": "Random seed. When -1, seed is sampled from global random number generator."
       }
@@ -7427,29 +7075,25 @@
     "attributes": [
       {
         "name": "sign",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "Indicate the signed number or the unsigned number. Default is true."
       },
       {
         "name": "n",
         "type": "int64",
-        "required": false,
         "default": 8,
         "description": "Bit width used. Note that `sign` consumes one bit. :math:`n-1` is used for number representation in `signed` case."
       },
       {
         "name": "delta",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.0625,
         "description": "Step size."
       },
       {
         "name": "ste_fine_grained",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "Straight Through Estimator is fine-grained or not."
       }
@@ -7495,36 +7139,31 @@
     "attributes": [
       {
         "name": "decay",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.999,
         "description": "Decay rate for the exponential moving average."
       },
       {
         "name": "x_min_max",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Use the min and max of x to compute quantization ranges."
       },
       {
         "name": "ema",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "Use the exponential moving average for the min and max quantization ranges."
       },
       {
         "name": "ste_fine_grained",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "Straight Through Estimator is fine-grained or not."
       },
       {
         "name": "eps",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.01,
         "description": "Epsilon, or small value to ensure :math:`qr_{max} - qr_{min}` must be greater than the epsilon."
       }
@@ -7550,36 +7189,31 @@
     "attributes": [
       {
         "name": "sign",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "Indicate the signed number or the unsigned number. Default is true."
       },
       {
         "name": "with_zero",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "Indicate using zero as a quantized value. Default is true. Note that `zero` consumes one bit."
       },
       {
         "name": "n",
         "type": "int64",
-        "required": false,
         "default": 8,
         "description": "Bit width used, Note that `sign` consumes one bit. :math:`n-1` is used for number representation in `signed` case. Default is 8."
       },
       {
         "name": "m",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": ":math:`2^m` is the upper bound of the dynamic range and :math:`-2^m` is the lower bound, :math:`m \\in \\mathcal{Z}`. Default is 1."
       },
       {
         "name": "ste_fine_grained",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "Straight Through Estimator is fine-grained or not."
       }
@@ -7605,8 +7239,7 @@
     "attributes": [
       {
         "name": "rate",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.9,
         "description": "Sparse rate, or pruning rate."
       }
@@ -7643,21 +7276,18 @@
       {
         "name": "round_mode",
         "type": "string",
-        "required": false,
         "default": "HALF_AWAY_FROM_ZERO",
         "description": "Rounding mode. HALF_AWAY_FROM_ZERO or HALF_TO_EVEN."
       },
       {
         "name": "narrow_range",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If true, this function does not use the minimum quantized value. For example, if `dtype` is int8 (the range is in [-128, 127]), the output range is corrected in [-127, 127]."
       },
       {
         "name": "dtype",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Data type for the output. The int value is compatible to the enumtype for the data type defined in `the numpy <https://github.com/numpy/numpy/blob/master/numpy/core/include/numpy/ndarraytypes.h>`_."
       }
@@ -7717,14 +7347,12 @@
       {
         "name": "axis",
         "type": "int64",
-        "required": false,
         "default": "len(x.shape) - 1",
         "description": "Axis on which the top N error is calculated."
       },
       {
         "name": "n",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "top N"
       }
@@ -7779,7 +7407,6 @@
       {
         "name": "axis",
         "type": "int64",
-        "required": false,
         "default": "len(x.shape) - 1",
         "description": "Axis on which the confusion matrix is calculated."
       }
@@ -7811,14 +7438,12 @@
       {
         "name": "base_axis",
         "type": "int64",
-        "required": false,
         "default": 1,
         "description": "Dimensions up to base_axis is treated as sample dimension."
       },
       {
         "name": "eps",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 1.0,
         "description": "Noise norm (l2) factor."
       }
@@ -7863,8 +7488,7 @@
     "attributes": [
       {
         "name": "one_input_grad",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "Set grads of inputs as one during backward. It is useful to set false if you want to set external gradients to the input variables."
       }
@@ -7890,22 +7514,19 @@
     "attributes": [
       {
         "name": "thresh",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.5,
         "description": "Detection score threshold."
       },
       {
         "name": "nms",
-        "type": "float",
-        "required": false,
+        "type": "float32",
         "default": 0.45,
         "description": "IoU threshold for Non-maximum suppression (NMS)."
       },
       {
         "name": "nms_per_class",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "If true, NMS is applied for each class."
       }
@@ -7936,35 +7557,31 @@
     "attributes": [
       {
         "name": "kernel",
-        "type": "Shape",
         "required": true,
+        "type": "shape",
         "description": "Kernel sizes for each spatial axis."
       },
       {
         "name": "stride",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "kernel",
         "description": "Subsampling factors for each spatial axis."
       },
       {
         "name": "ignore_border",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": true,
         "description": "If false, kernels covering borders are also considered for the output."
       },
       {
         "name": "pad",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(0,) * len(kernel)",
         "description": "Border padding values for each spatial axis. Padding will be added both sides of the dimension."
       },
       {
         "name": "channel_last",
-        "type": "bool",
-        "required": false,
+        "type": "boolean",
         "default": false,
         "description": "If True, the last dimension is considered as channel dimension, a.k.a. NHWC order."
       }
@@ -7996,36 +7613,31 @@
     "attributes": [
       {
         "name": "patch",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1, 1)",
         "description": "A tuple with height and width of the correlation patch. A single integer expands to identical height and width."
       },
       {
         "name": "shift",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(0, 0)",
         "description": "A tuple of maximum vertical and horizontal displacement of patches from `x2` that are correlated with a single patch from `x1`. A single integer expands to identical vertical and horizontal displacement."
       },
       {
         "name": "patch_step",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1, 1)",
         "description": "A tuple of vertical and horizontal increments for advancing the position of the correlation patch within the input image shape. A single integer expands to identical vertical and horizontal increments."
       },
       {
         "name": "shift_step",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(1, 1)",
         "description": "A tuple of vertical and horizontal increments for advancing the relative offset position within the shift range. A single integer expands to identical vertical and horizontal increments."
       },
       {
         "name": "padding",
-        "type": "Shape",
-        "required": false,
+        "type": "shape",
         "default": "(0, 0, 0, 0)",
         "description": "A tuple of top, bottom, left and right padding extent. A tuple of two values yields identical top/bottom and left/right padding from the first and second tuple value. A single integer expands to indential padding extent for all sides."
       }

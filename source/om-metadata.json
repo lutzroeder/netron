@@ -829,6 +829,16 @@
     ]
   },
   {
+    "name": "Fc",
+    "category": "Layer",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
     "name": "Fill",
     "inputs": [
       { "name": "dims" },
@@ -1179,13 +1189,16 @@
   },
   {
     "name": "InstanceNorm",
+    "category": "Normalization",
     "inputs": [
       { "name": "x" },
       { "name": "gamma" },
       { "name": "beta" }
     ],
     "outputs": [
-      { "name": "y" }
+      { "name": "y" },
+      { "name": "saved_mean" },
+      { "name": "saved_inv_stdev" }
     ],
     "attributes": [
       { "name": "data_format" },
@@ -1673,6 +1686,16 @@
     ]
   },
   {
+    "name": "PoolingAve",
+    "category": "Pool",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
     "name": "PoolingD",
     "category": "Pool",
     "inputs": [
@@ -1690,6 +1713,16 @@
       { "name": "stride" },
       { "name": "ceil_mode" },
       { "name": "data_mode" }
+    ]
+  },
+  {
+    "name": "PoolingMax",
+    "category": "Pool",
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "y" }
     ]
   },
   {
