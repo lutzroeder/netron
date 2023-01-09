@@ -19,7 +19,7 @@ dialog.Sidebar = class {
         };
     }
 
-    _getElementById(id) {
+    _element(id) {
         return this._host.document.getElementById(id + this._id);
     }
 
@@ -54,12 +54,12 @@ dialog.Sidebar = class {
     }
 
     _hide() {
-        const sidebar = this._getElementById('sidebar');
+        const sidebar = this._element('sidebar');
         if (sidebar) {
             sidebar.style.right = 'calc(0px - min(calc(100% * 0.6), 500px))';
             sidebar.style.opacity = 0;
         }
-        const container = this._getElementById('graph');
+        const container = this._element('graph');
         if (container) {
             container.style.width = '100%';
             container.focus();
@@ -67,50 +67,35 @@ dialog.Sidebar = class {
     }
 
     _deactivate() {
-        const sidebar = this._getElementById('sidebar');
+        const sidebar = this._element('sidebar');
         if (sidebar) {
-            const closeButton = this._getElementById('sidebar-closebutton');
-            if (closeButton) {
-                closeButton.removeEventListener('click', this._closeSidebarHandler);
-                closeButton.style.color = '#f8f8f8';
-            }
-
+            const closeButton = this._element('sidebar-closebutton');
+            closeButton.removeEventListener('click', this._closeSidebarHandler);
             this._host.document.removeEventListener('keydown', this._closeSidebarKeyDownHandler);
         }
     }
 
     _activate(item) {
-        const sidebar = this._getElementById('sidebar');
+        const sidebar = this._element('sidebar');
         if (sidebar) {
-            sidebar.innerHTML = '';
 
-            const title = this._host.document.createElement('h1');
-            title.classList.add('sidebar-title');
+            const title = this._element('sidebar-title');
             title.innerHTML = item.title ? item.title.toUpperCase() : '';
-            sidebar.appendChild(title);
-
-            const closeButton = this._host.document.createElement('a');
-            closeButton.classList.add('sidebar-closebutton');
-            closeButton.setAttribute('id', 'sidebar-closebutton');
-            closeButton.setAttribute('href', 'javascript:void(0)');
-            closeButton.innerHTML = '&times;';
+            const closeButton = this._element('sidebar-closebutton');
             closeButton.addEventListener('click', this._closeSidebarHandler);
-            sidebar.appendChild(closeButton);
-
-            const content = this._host.document.createElement('div');
-            content.classList.add('sidebar-content');
-            content.setAttribute('id', 'sidebar-content');
-            sidebar.appendChild(content);
+            const content = this._element('sidebar-content');
 
             if (typeof item.content == 'string') {
                 content.innerHTML = item.content;
             }
             else if (item.content instanceof Array) {
+                content.innerHTML = '';
                 for (const element of item.content) {
                     content.appendChild(element);
                 }
             }
             else {
+                content.innerHTML = '';
                 content.appendChild(item.content);
             }
             sidebar.style.width = 'min(calc(100% * 0.6), 500px)';
@@ -118,7 +103,7 @@ dialog.Sidebar = class {
             sidebar.style.opacity = 1;
             this._host.document.addEventListener('keydown', this._closeSidebarKeyDownHandler);
         }
-        const container = this._getElementById('graph');
+        const container = this._element('graph');
         if (container) {
             container.style.width = 'max(40vw, calc(100vw - 500px))';
         }

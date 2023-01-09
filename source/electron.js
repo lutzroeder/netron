@@ -194,6 +194,12 @@ host.ElectronHost = class {
             electron.ipcRenderer.sendSync('window-minimize', {});
         });
         electron.ipcRenderer.on('window-state', (_, data) => {
+            if (this._environment.titlebar) {
+                this._element('graph').style.marginTop = '32px';
+                this._element('graph').style.height = 'calc(100% - 32px)';
+                this._element('sidebar-title').style.marginTop = '24px';
+                this._element('sidebar-closebutton').style.marginTop = '24px';
+            }
             this._element('titlebar').style.display = this._environment.titlebar ? 'block' : 'none';
             this._element('menu-button').style.opacity = this._environment.menu ? 1 : 0;
             this._element('titlebar-control-box').style.opacity = this._environment.titlebar && this._environment.platform !== 'darwin' && !data.fullscreen ? 1 : 0;
