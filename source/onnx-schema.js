@@ -174,15 +174,6 @@ $root.onnxruntime.fbs.TypeInfoValue = class {
             default: return undefined;
         }
     }
-
-    static decodeText(reader, json, type) {
-        switch (type) {
-            case 'TensorTypeAndShape': return $root.onnxruntime.fbs.TensorTypeAndShape.decodeText(reader, json);
-            case 'SequenceType': return $root.onnxruntime.fbs.SequenceType.decodeText(reader, json);
-            case 'MapType': return $root.onnxruntime.fbs.MapType.decodeText(reader, json);
-            default: return undefined;
-        }
-    }
 };
 
 $root.onnxruntime.fbs.TypeInfo = class TypeInfo {

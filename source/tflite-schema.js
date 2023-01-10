@@ -2892,16 +2892,6 @@ $root.tflite.ContentProperties = class {
             default: return undefined;
         }
     }
-
-    static decodeText(reader, json, type) {
-        switch (type) {
-            case 'FeatureProperties': return $root.tflite.FeatureProperties.decodeText(reader, json);
-            case 'ImageProperties': return $root.tflite.ImageProperties.decodeText(reader, json);
-            case 'BoundingBoxProperties': return $root.tflite.BoundingBoxProperties.decodeText(reader, json);
-            case 'AudioProperties': return $root.tflite.AudioProperties.decodeText(reader, json);
-            default: return undefined;
-        }
-    }
 };
 
 $root.tflite.ValueRange = class ValueRange {
@@ -2998,18 +2988,6 @@ $root.tflite.ProcessUnitOptions = class {
             case 4: return $root.tflite.BertTokenizerOptions.decode(reader, position);
             case 5: return $root.tflite.SentencePieceTokenizerOptions.decode(reader, position);
             case 6: return $root.tflite.RegexTokenizerOptions.decode(reader, position);
-            default: return undefined;
-        }
-    }
-
-    static decodeText(reader, json, type) {
-        switch (type) {
-            case 'NormalizationOptions': return $root.tflite.NormalizationOptions.decodeText(reader, json);
-            case 'ScoreCalibrationOptions': return $root.tflite.ScoreCalibrationOptions.decodeText(reader, json);
-            case 'ScoreThresholdingOptions': return $root.tflite.ScoreThresholdingOptions.decodeText(reader, json);
-            case 'BertTokenizerOptions': return $root.tflite.BertTokenizerOptions.decodeText(reader, json);
-            case 'SentencePieceTokenizerOptions': return $root.tflite.SentencePieceTokenizerOptions.decodeText(reader, json);
-            case 'RegexTokenizerOptions': return $root.tflite.RegexTokenizerOptions.decodeText(reader, json);
             default: return undefined;
         }
     }

@@ -264,7 +264,7 @@ flatbuffers.BinaryReader = class {
     }
 
     unionArray(/* position, offset, decode */) {
-        throw new flatbuffers.Error('Not implemented.');
+        return new flatbuffers.Error('Not implemented.');
     }
 
     structArray(position, offset, decode) {
