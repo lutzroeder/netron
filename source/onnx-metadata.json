@@ -12385,7 +12385,7 @@
     "module": "ai.onnx",
     "version": 18,
     "support_level": "common",
-    "description": "A GroupNormalization function. Carries out group normalization as described in \nthe paper https://arxiv.org/abs/1803.08494 \n\nThis operator transforms input according to\n```\ny = scale * (x - mean) / sqrt(variance + epsilon) + bias,\n```\nwhere the mean and variance are computed per instance per group of channels, and \n`scale` and `bias` should be specified for each group of channels. The number of \ngroups `num_groups` should be divisible by the number of channels so that there are \nan equal number of channels per group.\n\nWhen the number of groups is the same as the number of channels, this operator is \nequivalent to InstanceNormalization. When there is only one group, this operator \nis equivalent to LayerNormalization.\n",
+    "description": "A GroupNormalization function. Carries out group normalization as described in\nthe paper https://arxiv.org/abs/1803.08494\n\nThis operator transforms input according to\n```\ny = scale * (x - mean) / sqrt(variance + epsilon) + bias,\n```\nwhere the mean and variance are computed per instance per group of channels, and\n`scale` and `bias` should be specified for each group of channels. The number of\ngroups `num_groups` should be divisible by the number of channels so that there are\nan equal number of channels per group.\n\nWhen the number of groups is the same as the number of channels, this operator is\nequivalent to InstanceNormalization. When there is only one group, this operator\nis equivalent to LayerNormalization.\n",
     "attributes": [
       {
         "name": "epsilon",
