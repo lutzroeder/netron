@@ -9,16 +9,20 @@ megengine.ModelFactory = class {
     match(context) {
         const stream = context.stream;
         if (stream && stream.length >= 12) {
-            const buffer = stream.peek(12);
-            const size = buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24);
-            if (size === (stream.length - 4)) {
-                const reader = flatbuffers.BinaryReader.open(buffer.slice(4, 12));
-                if (reader.identifier === 'mgv2') {
-                    return 'megengine.mge';
+            let buffer = stream.peek(12);
+            const tag = String.fromCharCode.apply(null, buffer);
+            const position = tag.startsWith('mgbtest0') ? 12 : 0;
+            if (stream.length > (position + 12)) {
+                buffer = stream.peek(24).slice(position, position + 12);
+                const size = buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24);
+                if (size === (stream.length - position - 4)) {
+                    const reader = flatbuffers.BinaryReader.open(buffer.slice(4, 12));
+                    if (reader.identifier === 'mgv2') {
+                        return 'megengine.mge';
+                    }
                 }
             }
-            const tag = String.fromCharCode.apply(null, buffer);
-            for (const value of [ 'mgb0001', 'mgb0000a', 'MGBS', 'MGBC', 'mgbtest0' ]) {
+            for (const value of [ 'mgb0001', 'mgb0000a', 'MGBS', 'MGBC' ]) {
                 if (tag.startsWith(value)) {
                     return 'megengine.' + value;
                 }
@@ -42,9 +46,11 @@ megengine.ModelFactory = class {
                     return context.require('./megengine-schema').then(() => {
                         megengine.schema = flatbuffers.get('megengine').mgb.serialization.fbs;
                         let model = null;
-
                         const stream = context.stream;
                         try {
+                            const buffer = stream.peek(12);
+                            const tag = String.fromCharCode.apply(null, buffer);
+                            stream.skip(tag.startsWith('mgbtest0') ? 12 : 0);
                             stream.skip(4);
                             const reader = flatbuffers.BinaryReader.open(stream);
                             model = megengine.schema.v2.Model.create(reader);
