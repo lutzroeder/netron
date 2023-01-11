@@ -432,7 +432,7 @@ base.Uint64.zero = new base.Uint64(0, 0);
 base.Uint64.one = new base.Uint64(1, 0);
 base.Uint64.max = new base.Uint64(-1, -1);
 
-base.Complex = class Complex {
+base.Complex64 = class Complex {
 
     constructor(real, imaginary) {
         this.real = real;
@@ -440,7 +440,23 @@ base.Complex = class Complex {
     }
 
     static create(real, imaginary) {
-        return new base.Complex(real, imaginary);
+        return new base.Complex64(real, imaginary);
+    }
+
+    toString(/* radix */) {
+        return this.real + ' + ' + this.imaginary + 'i';
+    }
+};
+
+base.Complex128 = class Complex {
+
+    constructor(real, imaginary) {
+        this.real = real;
+        this.imaginary = imaginary;
+    }
+
+    static create(real, imaginary) {
+        return new base.Complex128(real, imaginary);
     }
 
     toString(/* radix */) {
@@ -601,7 +617,7 @@ DataView.prototype.getUintBits = DataView.prototype.getUintBits || function(offs
 DataView.prototype.getComplex64 = DataView.prototype.getComplex64 || function(byteOffset, littleEndian) {
     const real = littleEndian ? this.getFloat32(byteOffset, littleEndian) : this.getFloat32(byteOffset + 4, littleEndian);
     const imaginary = littleEndian ? this.getFloat32(byteOffset + 4, littleEndian) : this.getFloat32(byteOffset, littleEndian);
-    return base.Complex.create(real, imaginary);
+    return base.Complex64.create(real, imaginary);
 };
 
 DataView.prototype.setComplex64 = DataView.prototype.setComplex64 || function(byteOffset, value, littleEndian) {
@@ -618,7 +634,7 @@ DataView.prototype.setComplex64 = DataView.prototype.setComplex64 || function(by
 DataView.prototype.getComplex128 = DataView.prototype.getComplex128 || function(byteOffset, littleEndian) {
     const real = littleEndian ? this.getFloat64(byteOffset, littleEndian) : this.getFloat64(byteOffset + 8, littleEndian);
     const imaginary = littleEndian ? this.getFloat64(byteOffset + 8, littleEndian) : this.getFloat64(byteOffset, littleEndian);
-    return base.Complex.create(real, imaginary);
+    return base.Complex128.create(real, imaginary);
 };
 
 DataView.prototype.setComplex128 = DataView.prototype.setComplex128 || function(byteOffset, value, littleEndian) {
@@ -944,8 +960,8 @@ if (typeof window !== 'undefined' && typeof window.Long != 'undefined') {
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.Int64 = base.Int64;
     module.exports.Uint64 = base.Uint64;
-    module.exports.Complex64 = base.Complex;
-    module.exports.Complex128 = base.Complex;
+    module.exports.Complex64 = base.Complex64;
+    module.exports.Complex128 = base.Complex128;
     module.exports.BinaryReader = base.BinaryReader;
     module.exports.Telemetry = base.Telemetry;
     module.exports.Metadata = base.Metadata;
