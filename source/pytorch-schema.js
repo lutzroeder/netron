@@ -301,28 +301,6 @@ $root.torch.jit.mobile.serialization.IValueUnion = class {
             default: return undefined;
         }
     }
-
-    static decodeText(reader, json, type) {
-        switch (type) {
-            case 'Int': return $root.torch.jit.mobile.serialization.Int.decodeText(reader, json);
-            case 'Bool': return $root.torch.jit.mobile.serialization.Bool.decodeText(reader, json);
-            case 'Double': return $root.torch.jit.mobile.serialization.Double.decodeText(reader, json);
-            case 'ComplexDouble': return $root.torch.jit.mobile.serialization.ComplexDouble.decodeText(reader, json);
-            case 'TensorMetadata': return $root.torch.jit.mobile.serialization.TensorMetadata.decodeText(reader, json);
-            case 'String': return $root.torch.jit.mobile.serialization.String.decodeText(reader, json);
-            case 'List': return $root.torch.jit.mobile.serialization.List.decodeText(reader, json);
-            case 'Tuple': return $root.torch.jit.mobile.serialization.Tuple.decodeText(reader, json);
-            case 'Dict': return $root.torch.jit.mobile.serialization.Dict.decodeText(reader, json);
-            case 'Object': return $root.torch.jit.mobile.serialization.Object.decodeText(reader, json);
-            case 'IntList': return $root.torch.jit.mobile.serialization.IntList.decodeText(reader, json);
-            case 'DoubleList': return $root.torch.jit.mobile.serialization.DoubleList.decodeText(reader, json);
-            case 'BoolList': return $root.torch.jit.mobile.serialization.BoolList.decodeText(reader, json);
-            case 'Device': return $root.torch.jit.mobile.serialization.Device.decodeText(reader, json);
-            case 'EnumValue': return $root.torch.jit.mobile.serialization.EnumValue.decodeText(reader, json);
-            case 'Function': return $root.torch.jit.mobile.serialization.Function.decodeText(reader, json);
-            default: return undefined;
-        }
-    }
 };
 
 $root.torch.jit.mobile.serialization.IValue = class IValue {

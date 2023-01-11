@@ -19,8 +19,9 @@ flatc.Object = class {
         if (!this.resolved) {
             for (const key of this.metadata.keys()) {
                 switch (key) {
-                    case 'force_align':
+                    case 'bit_flags':
                     case 'deprecated':
+                    case 'force_align':
                     case 'key':
                     case 'required':
                         break;
@@ -83,7 +84,8 @@ flatc.Namespace = class extends flatc.Object {
             const parents = this.name.split('.');
             while (parents.length > 1) {
                 parents.pop();
-                const namespace = this.parent.find(parents.join('.') + '.' + namespaceName, flatc.Namespace);
+                const parentNamespaceName = parents.join('.') + (namespaceName ? '.' + namespaceName : '');
+                const namespace = this.parent.find(parentNamespaceName, flatc.Namespace);
                 if (namespace) {
                     if (namespace.children.has(typeName)) {
                         return namespace.children.get(typeName);
@@ -196,10 +198,20 @@ flatc.Struct = class extends flatc.Type {
             let offset = 0;
             for (const field of this.fields.values()) {
                 field.resolve();
-                if (field.type instanceof flatc.PrimitiveType && field.type !== 'string') {
-                    const size = field.type.size;
+                const fieldType = field.type instanceof flatc.Enum ? field.type.base : field.type;
+                if (field.repeated) {
+                    if (field.length === undefined) {
+                        const name = this.parent.name + '.' + this.name;
+                        throw new flatc.Error("Struct '" + name + "' may contain only scalar or struct fields.");
+                    }
+                    const size = fieldType.size;
                     field.offset = (offset % size != 0) ? (Math.floor(offset / size) + 1) * size : offset;
-                    offset = field.offset + field.type.size;
+                    offset = field.offset + (field.length * size);
+                }
+                else if (fieldType instanceof flatc.PrimitiveType && field.type !== 'string') {
+                    const size = fieldType.size;
+                    field.offset = (offset % size != 0) ? (Math.floor(offset / size) + 1) * size : offset;
+                    offset = field.offset + size;
                 }
                 else if (field.type instanceof flatc.Struct) {
                     field.type.resolve();
@@ -208,7 +220,7 @@ flatc.Struct = class extends flatc.Type {
                     offset += field.type.size;
                 }
                 else {
-                    throw flatc.Error('Structs may contain only scalar or struct fields.');
+                    throw new flatc.Error('Structs may contain only scalar or struct fields.');
                 }
             }
             this.size = offset;
@@ -230,6 +242,7 @@ flatc.Field = class extends flatc.Object {
             if (this.type instanceof flatc.TypeReference) {
                 if (this.type.repeated) {
                     this.repeated = true;
+                    this.length = this.type.length;
                 }
                 this.type = this.type.resolve(this);
                 if (this.defaultValue === undefined) {
@@ -292,9 +305,10 @@ flatc.PrimitiveType = class extends flatc.Type {
 
 flatc.TypeReference = class {
 
-    constructor(name, repeated) {
+    constructor(name, repeated, length) {
         this.name = name;
         this.repeated = repeated;
+        this.length = length;
     }
 
     resolve(context) {
@@ -453,8 +467,12 @@ flatc.Parser = class {
         if (token.type === '[') {
             const identifier = this._tokenizer.read();
             if (identifier.type === 'id') {
+                let length = undefined;
+                if (this._tokenizer.eat(':')) {
+                    length = this._parseScalar(); // array length
+                }
                 this._tokenizer.expect(']');
-                return new flatc.TypeReference(identifier.token, true);
+                return new flatc.TypeReference(identifier.token, true, length);
             }
         }
         throw new flatc.Error("Expected type instead of '" + token.token + "'" + this._tokenizer.location());
@@ -957,7 +975,7 @@ flatc.Generator = class {
                         }
                         else if (fieldType instanceof flatc.Union) {
                             const unionType = '$root.' + field.type.parent.name + '.' + field.type.name;
-                            this._builder.add('$.' + field.name + ' = reader.unionArray(position, ' + field.offset + ', ' + ',' + unionType + '.decode);');
+                            this._builder.add('$.' + field.name + ' = reader.unionArray(position, ' + field.offset + ', ' + unionType + '.decode);');
                         }
                         else if (fieldType instanceof flatc.Struct) {
                             const fieldType = '$root.' + field.type.parent.name + '.' + field.type.name;
@@ -1065,13 +1083,16 @@ flatc.Generator = class {
                 this._builder.add('const $ = new ' + typeReference + '();');
                 for (const field of type.fields.values()) {
                     if (field.repeated) {
-                        throw new flatc.Error("Struct '" + typeName + "' may contain only scalar or struct fields.");
+                        if (field.length === undefined) {
+                            throw new flatc.Error("Struct '" + typeName + "' may contain only scalar or struct fields.");
+                        }
+                        this._builder.add('$.' + field.name + ' = undefined; // not implemented');
                     }
                     else if (field.type instanceof flatc.PrimitiveType) {
                         this._builder.add('$.' + field.name + ' = reader.' + field.type.name + '(position + ' + field.offset + ');');
                     }
                     else if (field.type instanceof flatc.Enum) {
-                        throw new flatc.Error('Not implemented.');
+                        this._builder.add('$.' + field.name + ' = reader.' + field.type.base.name + '(position + ' + field.offset + ');');
                     }
                     else if (field.type instanceof flatc.Struct) {
                         const fieldType = '$root.' + field.type.parent.name + '.' + field.type.name;
@@ -1140,20 +1161,22 @@ flatc.Generator = class {
             this._builder.outdent();
             this._builder.add('}');
 
-            this._builder.add('');
-            this._builder.add(type.values.size !== 0 ? 'static decodeText(reader, json, type) {' : 'static decodeText(/* reader, json, type */) {');
-            this._builder.indent();
-                this._builder.add('switch (type) {');
+            if (this._text) {
+                this._builder.add('');
+                this._builder.add(type.values.size !== 0 ? 'static decodeText(reader, json, type) {' : 'static decodeText(/* reader, json, type */) {');
                 this._builder.indent();
-                    for (const pair of type.values) {
-                        const valueType = '$root.' + pair[1].parent.name + '.' + pair[1].name;
-                        this._builder.add('case \'' + pair[1].name + '\': return ' + valueType + '.decodeText(reader, json);');
-                    }
-                    this._builder.add('default: return undefined;');
+                    this._builder.add('switch (type) {');
+                    this._builder.indent();
+                        for (const pair of type.values) {
+                            const valueType = '$root.' + pair[1].parent.name + '.' + pair[1].name;
+                            this._builder.add('case \'' + pair[1].name + '\': return ' + valueType + '.decodeText(reader, json);');
+                        }
+                        this._builder.add('default: return undefined;');
+                    this._builder.outdent();
+                    this._builder.add('}');
                 this._builder.outdent();
                 this._builder.add('}');
-            this._builder.outdent();
-            this._builder.add('}');
+            }
 
         this._builder.outdent();
         this._builder.add('};');

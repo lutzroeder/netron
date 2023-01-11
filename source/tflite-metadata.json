@@ -951,7 +951,8 @@
       { "name": "cell_clip", "type": "float32", "default": 0 },
       { "name": "proj_clip", "type": "float32", "default": 0 },
       { "name": "time_major", "type": "boolean", "default": false },
-      { "name": "asymmetric_quantize_inputs", "type": "boolean", "default": false }
+      { "name": "asymmetric_quantize_inputs", "type": "boolean", "default": false },
+      { "name": "diagonal_recurrent_tensors", "type": "boolean", "default": false }
     ],
     "inputs": [
       { "name": "input", "type": "T", "description": "Input tensor." },

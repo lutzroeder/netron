@@ -48,13 +48,6 @@ $root.mgb.serialization.fbs.DTypeParam = class {
             default: return undefined;
         }
     }
-
-    static decodeText(reader, json, type) {
-        switch (type) {
-            case 'LinearQuantizationParam': return $root.mgb.serialization.fbs.LinearQuantizationParam.decodeText(reader, json);
-            default: return undefined;
-        }
-    }
 };
 
 $root.mgb.serialization.fbs.DType = class DType {
@@ -2037,8 +2030,8 @@ $root.mgb.serialization.fbs.param.PersistentDTypeScalar = class PersistentDTypeS
 
     static decode(reader, position) {
         const $ = new $root.mgb.serialization.fbs.param.PersistentDTypeScalar();
-        $.dtype = reader.int8_(position, 4, 0);
-        $.storage = reader.uint8_(position, 6, 0);
+        $.dtype = reader.int8(position + 0);
+        $.storage = undefined; // not implemented
         return $;
     }
 };
@@ -2047,9 +2040,9 @@ $root.mgb.serialization.fbs.param.MGBAddUpdate = class MGBAddUpdate {
 
     static decode(reader, position) {
         const $ = new $root.mgb.serialization.fbs.param.MGBAddUpdate();
-        $.alpha = reader.table(position, 4, $root.mgb.serialization.fbs.param.PersistentDTypeScalar.decode);
-        $.beta = reader.table(position, 6, $root.mgb.serialization.fbs.param.PersistentDTypeScalar.decode);
-        $.bias = reader.table(position, 8, $root.mgb.serialization.fbs.param.PersistentDTypeScalar.decode);
+        $.alpha = reader.struct(position, 4, $root.mgb.serialization.fbs.param.PersistentDTypeScalar.decode);
+        $.beta = reader.struct(position, 6, $root.mgb.serialization.fbs.param.PersistentDTypeScalar.decode);
+        $.bias = reader.struct(position, 8, $root.mgb.serialization.fbs.param.PersistentDTypeScalar.decode);
         return $;
     }
 };
@@ -2084,8 +2077,8 @@ $root.mgb.serialization.fbs.param.AxisDesc = class AxisDesc {
 
     static decode(reader, position) {
         const $ = new $root.mgb.serialization.fbs.param.AxisDesc();
-        $.method = reader.int8_(position, 4, 0);
-        $.axis = reader.int32_(position, 6, 0);
+        $.method = reader.int8(position + 0);
+        $.axis = reader.int32(position + 4);
         return $;
     }
 };
@@ -2094,7 +2087,7 @@ $root.mgb.serialization.fbs.param.AxisAddRemove = class AxisAddRemove {
 
     static decode(reader, position) {
         const $ = new $root.mgb.serialization.fbs.param.AxisAddRemove();
-        $.desc = reader.tableArray(position, 4, $root.mgb.serialization.fbs.param.AxisDesc.decode);
+        $.desc = reader.structArray(position, 4, $root.mgb.serialization.fbs.param.AxisDesc.decode);
         return $;
     }
 };
@@ -2114,11 +2107,11 @@ $root.mgb.serialization.fbs.param.IndexDescMaskItem = class IndexDescMaskItem {
 
     static decode(reader, position) {
         const $ = new $root.mgb.serialization.fbs.param.IndexDescMaskItem();
-        $.axis = reader.int8_(position, 4, 0);
-        $.begin = reader.bool_(position, 6, false);
-        $.end = reader.bool_(position, 8, false);
-        $.step = reader.bool_(position, 10, false);
-        $.idx = reader.bool_(position, 12, false);
+        $.axis = reader.int8(position + 0);
+        $.begin = reader.bool(position + 1);
+        $.end = reader.bool(position + 2);
+        $.step = reader.bool(position + 3);
+        $.idx = reader.bool(position + 4);
         return $;
     }
 };
@@ -2127,7 +2120,7 @@ $root.mgb.serialization.fbs.param.IndexDescMaskDump = class IndexDescMaskDump {
 
     static decode(reader, position) {
         const $ = new $root.mgb.serialization.fbs.param.IndexDescMaskDump();
-        $.items = reader.tableArray(position, 4, $root.mgb.serialization.fbs.param.IndexDescMaskItem.decode);
+        $.items = reader.structArray(position, 4, $root.mgb.serialization.fbs.param.IndexDescMaskItem.decode);
         return $;
     }
 };
@@ -2193,15 +2186,6 @@ $root.mgb.serialization.fbs.v2.TensorFormat = class {
             case 1: return $root.mgb.serialization.fbs.v2.DefaultTensorFormat.decode(reader, position);
             case 2: return $root.mgb.serialization.fbs.v2.Image2DPackedTensorFormat.decode(reader, position);
             case 3: return $root.mgb.serialization.fbs.v2.LowbitsAlignedTensorFormat.decode(reader, position);
-            default: return undefined;
-        }
-    }
-
-    static decodeText(reader, json, type) {
-        switch (type) {
-            case 'DefaultTensorFormat': return $root.mgb.serialization.fbs.v2.DefaultTensorFormat.decodeText(reader, json);
-            case 'Image2DPackedTensorFormat': return $root.mgb.serialization.fbs.v2.Image2DPackedTensorFormat.decodeText(reader, json);
-            case 'LowbitsAlignedTensorFormat': return $root.mgb.serialization.fbs.v2.LowbitsAlignedTensorFormat.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -2346,105 +2330,6 @@ $root.mgb.serialization.fbs.v2.OperatorParam = class {
             default: return undefined;
         }
     }
-
-    static decodeText(reader, json, type) {
-        switch (type) {
-            case 'Empty': return $root.mgb.serialization.fbs.param.Empty.decodeText(reader, json);
-            case 'Axis': return $root.mgb.serialization.fbs.param.Axis.decodeText(reader, json);
-            case 'Convolution': return $root.mgb.serialization.fbs.param.Convolution.decodeText(reader, json);
-            case 'MaskPropagate': return $root.mgb.serialization.fbs.param.MaskPropagate.decodeText(reader, json);
-            case 'ConvPooling': return $root.mgb.serialization.fbs.param.ConvPooling.decodeText(reader, json);
-            case 'ConvBias': return $root.mgb.serialization.fbs.param.ConvBias.decodeText(reader, json);
-            case 'SeparableConv': return $root.mgb.serialization.fbs.param.SeparableConv.decodeText(reader, json);
-            case 'Images2Neibs': return $root.mgb.serialization.fbs.param.Images2Neibs.decodeText(reader, json);
-            case 'Pooling': return $root.mgb.serialization.fbs.param.Pooling.decodeText(reader, json);
-            case 'LRN': return $root.mgb.serialization.fbs.param.LRN.decodeText(reader, json);
-            case 'BN': return $root.mgb.serialization.fbs.param.BN.decodeText(reader, json);
-            case 'ROIPooling': return $root.mgb.serialization.fbs.param.ROIPooling.decodeText(reader, json);
-            case 'WarpPerspective': return $root.mgb.serialization.fbs.param.WarpPerspective.decodeText(reader, json);
-            case 'SpatialTfGridGenerator': return $root.mgb.serialization.fbs.param.SpatialTfGridGenerator.decodeText(reader, json);
-            case 'SpatialTfSampler': return $root.mgb.serialization.fbs.param.SpatialTfSampler.decodeText(reader, json);
-            case 'MGBAddUpdate': return $root.mgb.serialization.fbs.param.MGBAddUpdate.decodeText(reader, json);
-            case 'Elemwise': return $root.mgb.serialization.fbs.param.Elemwise.decodeText(reader, json);
-            case 'ElemwiseMultiType': return $root.mgb.serialization.fbs.param.ElemwiseMultiType.decodeText(reader, json);
-            case 'PowC': return $root.mgb.serialization.fbs.param.PowC.decodeText(reader, json);
-            case 'MatrixMul': return $root.mgb.serialization.fbs.param.MatrixMul.decodeText(reader, json);
-            case 'DeprecatedParam': return $root.mgb.serialization.fbs.v2.DeprecatedParam.decodeText(reader, json);
-            case 'SVD': return $root.mgb.serialization.fbs.param.SVD.decodeText(reader, json);
-            case 'Reduce': return $root.mgb.serialization.fbs.param.Reduce.decodeText(reader, json);
-            case 'Cumsum': return $root.mgb.serialization.fbs.param.Cumsum.decodeText(reader, json);
-            case 'CondTake': return $root.mgb.serialization.fbs.param.CondTake.decodeText(reader, json);
-            case 'Argsort': return $root.mgb.serialization.fbs.param.Argsort.decodeText(reader, json);
-            case 'IndexingRemap': return $root.mgb.serialization.fbs.param.IndexingRemap.decodeText(reader, json);
-            case 'MGBSleep': return $root.mgb.serialization.fbs.param.MGBSleep.decodeText(reader, json);
-            case 'Linspace': return $root.mgb.serialization.fbs.param.Linspace.decodeText(reader, json);
-            case 'LinspaceFull': return $root.mgb.serialization.fbs.param.LinspaceFull.decodeText(reader, json);
-            case 'Eye': return $root.mgb.serialization.fbs.param.Eye.decodeText(reader, json);
-            case 'UniformRNG': return $root.mgb.serialization.fbs.param.UniformRNG.decodeText(reader, json);
-            case 'GaussianRNG': return $root.mgb.serialization.fbs.param.GaussianRNG.decodeText(reader, json);
-            case 'Flip': return $root.mgb.serialization.fbs.param.Flip.decodeText(reader, json);
-            case 'Rotate': return $root.mgb.serialization.fbs.param.Rotate.decodeText(reader, json);
-            case 'ROICopy': return $root.mgb.serialization.fbs.param.ROICopy.decodeText(reader, json);
-            case 'CvtColor': return $root.mgb.serialization.fbs.param.CvtColor.decodeText(reader, json);
-            case 'WarpAffine': return $root.mgb.serialization.fbs.param.WarpAffine.decodeText(reader, json);
-            case 'GaussianBlur': return $root.mgb.serialization.fbs.param.GaussianBlur.decodeText(reader, json);
-            case 'Resize': return $root.mgb.serialization.fbs.param.Resize.decodeText(reader, json);
-            case 'Convolution3D': return $root.mgb.serialization.fbs.param.Convolution3D.decodeText(reader, json);
-            case 'Conv3DBias': return $root.mgb.serialization.fbs.param.Conv3DBias.decodeText(reader, json);
-            case 'SeparableConv3D': return $root.mgb.serialization.fbs.param.SeparableConv3D.decodeText(reader, json);
-            case 'TopK': return $root.mgb.serialization.fbs.param.TopK.decodeText(reader, json);
-            case 'RelayoutFormat': return $root.mgb.serialization.fbs.param.RelayoutFormat.decodeText(reader, json);
-            case 'SeparableFilter': return $root.mgb.serialization.fbs.param.SeparableFilter.decodeText(reader, json);
-            case 'LocalShare': return $root.mgb.serialization.fbs.param.LocalShare.decodeText(reader, json);
-            case 'ROIAlign': return $root.mgb.serialization.fbs.param.ROIAlign.decodeText(reader, json);
-            case 'DeformablePSROIPooling': return $root.mgb.serialization.fbs.param.DeformablePSROIPooling.decodeText(reader, json);
-            case 'BatchConvBias': return $root.mgb.serialization.fbs.param.BatchConvBias.decodeText(reader, json);
-            // case 'DType': return $root.mgb.serialization.fbs.param.DType.decodeText(reader, json);
-            case 'PersistentOutputStorage': return $root.mgb.serialization.fbs.param.PersistentOutputStorage.decodeText(reader, json);
-            case 'OptionalAxis': return $root.mgb.serialization.fbs.param.OptionalAxis.decodeText(reader, json);
-            case 'OptionalAxisV1': return $root.mgb.serialization.fbs.param.OptionalAxisV1.decodeText(reader, json);
-            case 'ExecutionPolicy': return $root.mgb.serialization.fbs.param.ExecutionPolicy.decodeText(reader, json);
-            case 'AssertEqual': return $root.mgb.serialization.fbs.param.AssertEqual.decodeText(reader, json);
-            case 'FpgaConv': return $root.mgb.serialization.fbs.param.FpgaConv.decodeText(reader, json);
-            case 'CollectiveComm': return $root.mgb.serialization.fbs.param.CollectiveComm.decodeText(reader, json);
-            case 'CondExecPred': return $root.mgb.serialization.fbs.param.CondExecPred.decodeText(reader, json);
-            case 'CondExecPredLogical': return $root.mgb.serialization.fbs.param.CondExecPredLogical.decodeText(reader, json);
-            case 'CondExecMark': return $root.mgb.serialization.fbs.param.CondExecMark.decodeText(reader, json);
-            case 'CondExecMerge': return $root.mgb.serialization.fbs.param.CondExecMerge.decodeText(reader, json);
-            case 'Host2DeviceCopy': return $root.mgb.serialization.fbs.param.Host2DeviceCopy.decodeText(reader, json);
-            case 'Dimshuffle': return $root.mgb.serialization.fbs.param.Dimshuffle.decodeText(reader, json);
-            case 'AxisAddRemove': return $root.mgb.serialization.fbs.param.AxisAddRemove.decodeText(reader, json);
-            case 'IndexDescMaskDump': return $root.mgb.serialization.fbs.param.IndexDescMaskDump.decodeText(reader, json);
-            // case 'DType': return $root.mgb.serialization.fbs.DType.decodeText(reader, json);
-            case 'Remap': return $root.mgb.serialization.fbs.param.Remap.decodeText(reader, json);
-            case 'NMSKeep': return $root.mgb.serialization.fbs.param.NMSKeep.decodeText(reader, json);
-            case 'AdaptivePooling': return $root.mgb.serialization.fbs.param.AdaptivePooling.decodeText(reader, json);
-            case 'NvOf': return $root.mgb.serialization.fbs.param.NvOf.decodeText(reader, json);
-            case 'DctChannelSelect': return $root.mgb.serialization.fbs.param.DctChannelSelect.decodeText(reader, json);
-            case 'FakeQuant': return $root.mgb.serialization.fbs.param.FakeQuant.decodeText(reader, json);
-            case 'TQT': return $root.mgb.serialization.fbs.param.TQT.decodeText(reader, json);
-            case 'Correlation': return $root.mgb.serialization.fbs.param.Correlation.decodeText(reader, json);
-            case 'LSQ': return $root.mgb.serialization.fbs.param.LSQ.decodeText(reader, json);
-            case 'GammaRNG': return $root.mgb.serialization.fbs.param.GammaRNG.decodeText(reader, json);
-            case 'PoissonRNG': return $root.mgb.serialization.fbs.param.PoissonRNG.decodeText(reader, json);
-            case 'PermutationRNG': return $root.mgb.serialization.fbs.param.PermutationRNG.decodeText(reader, json);
-            case 'BetaRNG': return $root.mgb.serialization.fbs.param.BetaRNG.decodeText(reader, json);
-            case 'SlidingWindowTranspose': return $root.mgb.serialization.fbs.param.SlidingWindowTranspose.decodeText(reader, json);
-            case 'Padding': return $root.mgb.serialization.fbs.param.Padding.decodeText(reader, json);
-            case 'ShuffleRNG': return $root.mgb.serialization.fbs.param.ShuffleRNG.decodeText(reader, json);
-            case 'CheckNonFinite': return $root.mgb.serialization.fbs.param.CheckNonFinite.decodeText(reader, json);
-            case 'LayerNorm': return $root.mgb.serialization.fbs.param.LayerNorm.decodeText(reader, json);
-            case 'Dropout': return $root.mgb.serialization.fbs.param.Dropout.decodeText(reader, json);
-            case 'RNNCell': return $root.mgb.serialization.fbs.param.RNNCell.decodeText(reader, json);
-            case 'RNN': return $root.mgb.serialization.fbs.param.RNN.decodeText(reader, json);
-            case 'LSTM': return $root.mgb.serialization.fbs.param.LSTM.decodeText(reader, json);
-            case 'Softmax': return $root.mgb.serialization.fbs.param.Softmax.decodeText(reader, json);
-            case 'Diag': return $root.mgb.serialization.fbs.param.Diag.decodeText(reader, json);
-            case 'GroupNorm': return $root.mgb.serialization.fbs.param.GroupNorm.decodeText(reader, json);
-            case 'Fill': return $root.mgb.serialization.fbs.param.Fill.decodeText(reader, json);
-            default: return undefined;
-        }
-    }
 };
 
 $root.mgb.serialization.fbs.v2.Operator = class Operator {
@@ -2455,7 +2340,7 @@ $root.mgb.serialization.fbs.v2.Operator = class Operator {
         $.type_id = reader.uint64_(position, 6, 0);
         $.name = reader.string_(position, 8, null);
         $.param = reader.union(position, 10, $root.mgb.serialization.fbs.v2.OperatorParam.decode);
-        // $.additional_params = reader.unionArray(position, 14, ,$root.mgb.serialization.fbs.v2.OperatorParam.decode);
+        $.additional_params = reader.unionArray(position, 14, $root.mgb.serialization.fbs.v2.OperatorParam.decode);
         $.inputs = reader.typedArray(position, 18, Uint32Array);
         $.outputs = reader.typedArray(position, 20, Uint32Array);
         $.comp_node = reader.tableArray(position, 22, $root.mgb.serialization.fbs.v2.CompNode.decode);
@@ -2516,7 +2401,7 @@ $root.mgb.serialization.fbs.v2.OutputAlias = class OutputAlias {
 $root.mgb.serialization.fbs.v2.Model = class Model {
 
     static identifier(reader) {
-        return reader.identifier === 'mgv2';
+        return reader.identifier === 'mge2';
     }
 
     static create(reader) {
