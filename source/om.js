@@ -782,8 +782,8 @@ svp.OpDef = class {
                 case 0x0153: this.attr.debug_dump_offset = reader.attribute(tag, 'i'); break;
                 case 0x0152: this.type = reader.value(tag, 'string'); break;
                 case 0x0154: this.output_shape_vector = reader.value(tag, 'uint32[]'); break;
-                case 0x0155: this.input_index = reader.value(tag, 'string'); break;
-                case 0x015B: this.output_index = reader.value(tag, 'string'); break;
+                case 0x0155: this.input_index = reader.value(tag); break;
+                case 0x015B: this.output_index = reader.value(tag); break;
                 case 0x0156: this.attr.trap_inst_pc = reader.attribute(tag, 'i'); break;
                 case 0x0157: this.attr.profile_layer_id = reader.attribute(tag, 'i'); break;
                 case 0xA15A:
