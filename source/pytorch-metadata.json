@@ -6606,6 +6606,15 @@
     ]
   },
   {
+    "name": "aten::lift_fresh",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::linalg_cross",
     "inputs": [
       { "name": "self", "type": "Tensor" },
