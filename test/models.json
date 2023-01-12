@@ -2184,6 +2184,13 @@
   },
   {
     "type":     "keras",
+    "target":   "model_hydra.h5",
+    "source":   "https://github.com/lutzroeder/netron/files/10398337/model_hydra.h5.zip[model_hydra.h5]",
+    "format":   "Keras v2.11.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1035"
+  },
+  {
+    "type":     "keras",
     "target":   "NASNetMobile.h5.zip",
     "source":   "https://github.com/lutzroeder/netron/files/6098153/NASNetMobile.h5.zip",
     "format":   "Keras v2.4.0",

@@ -94,7 +94,7 @@ keras.ModelFactory = class {
                                         const weight = layer_weights.group(weight_name);
                                         if (weight && weight.value) {
                                             const variable = weight.value;
-                                            const tensor = new keras.Tensor(weight_name, variable.shape, variable.type, null, variable.littleEndian, variable.data);
+                                            const tensor = new keras.Tensor(weight_name, variable.shape, variable.type, null, variable.littleEndian ? '<' : '>', variable.data);
                                             weights.add(layer_name, tensor);
                                         }
                                     }
@@ -127,7 +127,8 @@ keras.ModelFactory = class {
                                         const components = weight_name.split('/');
                                         components.pop();
                                         const name = (components.length == 0 || components[0] !== layer_name) ? [ layer_name ].concat(components).join('/') : components.join('/');
-                                        const tensor = new keras.Tensor(weight_name, variable.shape, variable.type, null, variable.littleEndian, variable.data);
+                                        const layout = variable.littleEndian ? '<' : '>';
+                                        const tensor = new keras.Tensor(weight_name, variable.shape, variable.type, null, layout, variable.data);
                                         weights.add(name, tensor);
                                     }
                                 }
@@ -154,7 +155,8 @@ keras.ModelFactory = class {
                 if (groups.every((group) => group.attributes.size === 0 && group.groups.length == 0 && group.value !== null)) {
                     for (const group of groups) {
                         const variable = group.value;
-                        const tensor = new keras.Tensor(group.name, variable.shape, variable.type, null, variable.littleEndian, variable.type === 'string' ? variable.value : variable.data);
+                        const layout = variable.littleEndian ? '<' : '>';
+                        const tensor = new keras.Tensor(group.name, variable.shape, variable.type, null, layout, variable.type === 'string' ? variable.value : variable.data);
                         weights.add('', tensor);
                     }
                     return openModel(format, '', '', null, weights);
@@ -171,7 +173,8 @@ keras.ModelFactory = class {
                                 throw new keras.Error('Variable value is not HDF5 Weights.');
                             }
                             const name = moduleName ? [ moduleName, variableGroup.name ].join('/') : moduleName.name;
-                            const tensor = new keras.Tensor(name, variable.shape, variable.type, null, variable.littleEndian, variable.type === 'string' ? variable.value : variable.data);
+                            const layout = variable.littleEndian ? '<' : '>';
+                            const tensor = new keras.Tensor(name, variable.shape, variable.type, null, layout, variable.type === 'string' ? variable.value : variable.data);
                             weights.add(moduleName, tensor);
                         }
                     }
@@ -196,7 +199,8 @@ keras.ModelFactory = class {
                             parts.pop();
                             moduleName = parts.join('/');
                         }
-                        const tensor = new keras.Tensor(variableName, variable.shape, variable.type, null, variable.littleEndian, variable.type === 'string' ? variable.value : variable.data);
+                        const layout = variable.littleEndian ? '<' : '>';
+                        const tensor = new keras.Tensor(variableName, variable.shape, variable.type, null, layout, variable.type === 'string' ? variable.value : variable.data);
                         weights.add(moduleName, tensor);
                         return;
                     }
@@ -240,7 +244,7 @@ keras.ModelFactory = class {
                                     const buffer = layer_weights[weight_name];
                                     const unpickler = execution.invoke('pickle.Unpickler', [ buffer ]);
                                     const variable = unpickler.load();
-                                    const tensor = new keras.Tensor(weight_name, variable.shape, variable.dtype.__name__, null, true, variable.data);
+                                    const tensor = new keras.Tensor(weight_name, variable.shape, variable.dtype.__name__, null, '<', variable.data);
                                     weights.add(layer_name, tensor);
                                 }
                             }
@@ -327,6 +331,9 @@ keras.Graph = class {
             const is_connection = (item) => {
                 return Array.isArray(item) && (item.length === 3 || item.length === 4) && typeof item[0] === 'string' && typeof item[1] === 'number'  && typeof item[2] === 'number';
             };
+            const is_constant = (item) => {
+                return Array.isArray(item) && (item.length === 3 || item.length === 4) && item[0] === '_CONSTANT_VALUE' && item[1] === -1;
+            };
             switch (config.class_name) {
                 case 'AllCNN':
                 case 'Sequential': {
@@ -401,14 +408,17 @@ keras.Graph = class {
                             return { name: name };
                         };
                         const read_value = (input_data) => {
-                            const array_size = (value) => {
-                                if (value.every((item) => Array.isArray(item) && item.length > 2 && item[0] === '_CONSTANT_VALUE' && item[1] === -1)) {
+                            if (!Array.isArray(input_data)) {
+                                return { shape: [], value: [ input_data ] };
+                            }
+                            const shape = (value) => {
+                                if (value.every((item) => is_constant(item))) {
                                     for (let i = 0; i < value.length; i++) {
                                         value[i] = value[i][2];
                                     }
                                 }
                                 else if (value.every((item) => Array.isArray(item))) {
-                                    const dims = value.map((item) => array_size(item));
+                                    const dims = value.map((item) => shape(item));
                                     const dim = dims[0];
                                     for (let i = 1; i < dims.length; i++) {
                                         if (dim.length === dims[i].length) {
@@ -421,16 +431,23 @@ keras.Graph = class {
                                 }
                                 return [ value.length ];
                             };
-                            if (Array.isArray(input_data)) {
-                                const shape = array_size(input_data);
-                                return { shape: shape, value: input_data };
-                            }
-                            return { value: input_data };
+                            const flatten = (input) => input.reduce((a, b) => a.concat(Array.isArray(b) ? flatten(b) : b), []);
+                            return { shape: shape(input_data), value: flatten(input_data) };
                         };
                         for (const layer of config.layers) {
                             if (layer.inbound_nodes) {
                                 for (const inbound_node of layer.inbound_nodes) {
-                                    if (is_connection(inbound_node)) {
+                                    if (is_constant(inbound_node)) {
+                                        layer.inputs.push(read_value(inbound_node[2]));
+                                        const args = inbound_node[3] || {};
+                                        layer.args = {};
+                                        for (const entry of Object.entries(args)) {
+                                            const key = entry[0];
+                                            const value = entry[1];
+                                            layer.args[key] = is_connection(value) ? read_connection(value) : read_value(value);
+                                        }
+                                    }
+                                    else if (is_connection(inbound_node)) {
                                         layer.inputs.push(read_connection(inbound_node));
                                         const args = inbound_node[3] || {};
                                         layer.args = {};
@@ -761,8 +778,8 @@ keras.Node = class {
                 if (input.name) {
                     return new keras.Argument(input.name, null, initializers[input.name]);
                 }
-                if (input.value) {
-                    const tensor = new keras.Tensor('', input.shape, config.dtype || '?', null, undefined, input.value);
+                if (input.value !== undefined) {
+                    const tensor = new keras.Tensor('', input.shape, config.dtype || '?', null, '|', input.value);
                     return new keras.Argument('', null, tensor);
                 }
                 throw new keras.Error("Invalid argument '" + JSON.stringify(input.name) + "'.");
@@ -802,7 +819,7 @@ keras.Node = class {
                         this._inputs.push(parameter);
                     }
                     else {
-                        const tensor = new keras.Tensor('', value.shape, config.dtype || '?', null, undefined, value.value);
+                        const tensor = new keras.Tensor('', value.shape, config.dtype || '?', null, '|', value.value);
                         const argument = new keras.Argument('', null, tensor);
                         const parameter = new keras.Parameter(name, true, [ argument ]);
                         this._inputs.push(parameter);
@@ -929,11 +946,11 @@ keras.Attribute = class {
 
 keras.Tensor = class {
 
-    constructor(name, shape, type, quantization, littleEndian, data) {
+    constructor(name, shape, type, quantization, layout, data) {
         this._name = name;
         this._type = new keras.TensorType(type, new keras.TensorShape(shape));
         this._quantization = quantization;
-        this._littleEndian = littleEndian;
+        this._layout = layout;
         this._data = data;
     }
 
@@ -946,7 +963,7 @@ keras.Tensor = class {
     }
 
     get layout() {
-        return this._littleEndian ? '<' : '>';
+        return this._layout;
     }
 
     get quantization() {
@@ -959,7 +976,10 @@ keras.Tensor = class {
     }
 
     get values() {
-        if (Array.isArray(this._data) || this._data === null) {
+        if (this._layout === '|') {
+            return this._data;
+        }
+        if (this._data === null) {
             return null;
         }
         return this._data instanceof Uint8Array ? this._data : this._data.peek();
@@ -997,7 +1017,7 @@ keras.TensorShape = class {
     }
 
     toString() {
-        return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
+        return this._dimensions && this._dimensions.length > 0 ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
     }
 };
 
@@ -1185,7 +1205,7 @@ tfjs.Container = class {
                 const size = weight.shape.reduce((a, b) => a * b, 1);
                 const length = itemsize * size;
                 const data = buffer ? buffer.slice(offset, offset + length) : null;
-                this._weights.add(weight.identifier, new keras.Tensor(weight.name, weight.shape, dtype, weight.quantization, true, data));
+                this._weights.add(weight.identifier, new keras.Tensor(weight.name, weight.shape, dtype, weight.quantization, '<', data));
                 offset += length;
             }
         }
