@@ -63,7 +63,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .about .menu-button { display: none; opacity: 0; }
 .about .transparent { display: block; opacity: 0.04; }
 .welcome body { background-color: #ececec; }
-.welcome { background-color: #ececec; color: #242424; transition: 0.1s; }
+.welcome { background-color: #ececec; color: #242424; }
 .welcome .menu-button { display: none; }
 .welcome .logo { width: 582px; height: 128px; }
 .welcome .logo-text { top: -57px; width: 582px; transition: 0.1s; }
@@ -89,7 +89,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .welcome.spinner .logo-spinner { display: block; -webkit-animation: orbit 0.5s infinite linear; animation: orbit 0.5s infinite linear; cursor: wait; }
 .titlebar { color: #aaaaaa; display: none; height: 32px; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2; -webkit-app-region: drag; }
 .titlebar-content { display: block; padding: 0 142px; height: 100%; text-align: center; font-size: 14px; line-height: 32px; transition: all .25s ease-in-out; user-select: none; }
-.titlebar-content-text { display: block; direction: rtl; overflow: hidden; text-overflow: clip; white-space: nowrap; }
+.titlebar-content-text { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .active .titlebar { color: #464646; transition: all 0.05s ease-in-out; }
 .titlebar-control-box { display: flex; align-items: center; flex-direction: row-reverse; height: 100%; position: absolute; top: 0; right: 0; width: 138px; }
 .titlebar-icon { width: 1em; height: 1em; vertical-align: -0.15em; fill: currentColor; overflow: hidden; }

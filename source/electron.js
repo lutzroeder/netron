@@ -575,7 +575,7 @@ host.ElectronHost = class {
     _minimizePath(path) {
         if (this._environment.platform !== 'win32' && this._environment.homedir) {
             if (path.startsWith(this._environment.homedir)) {
-                return '~' + path.substring(this._environment.homedir);
+                return '~' + path.substring(this._environment.homedir.length);
             }
         }
         return path;
@@ -584,10 +584,9 @@ host.ElectronHost = class {
     _title(path) {
         const element = this._element('titlebar-content-text');
         if (element) {
-            element.setAttribute('title', path);
             element.innerHTML = '';
             if (path) {
-                path = this._minimizePath(path).split(this._environment.separator || '/').slice(-4).filter((item) => item);
+                path = this._minimizePath(path).split(this._environment.separator || '/');
                 for (let i = 0; i < path.length; i++) {
                     const span = this.document.createElement('span');
                     span.innerHTML = ' ' + path[i] + ' ' + (i !== path.length - 1 ? '<svg class="titlebar-icon" aria-hidden="true"><use xlink:href="#icon-arrow-right"></use></svg>' : '');
