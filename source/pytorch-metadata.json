@@ -12519,7 +12519,8 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
-      { "name": "blocksize", "type": "int64[2]", "optional": true, "default": null }
+      { "name": "blocksize", "type": "int64[2]", "optional": true, "default": null },
+      { "name": "dense_dim", "type": "int64", "optional": true, "default": null }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -12539,7 +12540,8 @@
     "name": "aten::to_sparse_bsc",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "blocksize", "type": "int64[2]" }
+      { "name": "blocksize", "type": "int64[2]" },
+      { "name": "dense_dim", "type": "int64", "optional": true, "default": null }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -12549,7 +12551,8 @@
     "name": "aten::to_sparse_bsr",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "blocksize", "type": "int64[2]" }
+      { "name": "blocksize", "type": "int64[2]" },
+      { "name": "dense_dim", "type": "int64", "optional": true, "default": null }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -12558,7 +12561,8 @@
   {
     "name": "aten::to_sparse_csc",
     "inputs": [
-      { "name": "self", "type": "Tensor" }
+      { "name": "self", "type": "Tensor" },
+      { "name": "dense_dim", "type": "int64", "optional": true, "default": null }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -12567,7 +12571,8 @@
   {
     "name": "aten::to_sparse_csr",
     "inputs": [
-      { "name": "self", "type": "Tensor" }
+      { "name": "self", "type": "Tensor" },
+      { "name": "dense_dim", "type": "int64", "optional": true, "default": null }
     ],
     "outputs": [
       { "type": "Tensor" }
