@@ -56,20 +56,19 @@ json.TextReader = class {
                     break;
             }
         }
-        return new json.TextReader(data);
+        return new json.TextReader(decoder);
     }
 
-    constructor(data) {
-        this._data = data;
+    constructor(decoder) {
+        this._decoder = decoder;
         this._escape = { '"': '"', '\\': '\\', '/': '/', b: '\b', f: '\f', n: '\n', r: '\r', t: '\t' };
     }
 
     read() {
-        const decoder = text.Decoder.open(this._data);
         const stack = [];
-        this._decoder = decoder;
+        this._decoder.position = 0;
         this._position = 0;
-        this._char = decoder.decode();
+        this._char = this._decoder.decode();
         this._whitespace();
         let obj = undefined;
         let first = true;
