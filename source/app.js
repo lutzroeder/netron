@@ -108,7 +108,7 @@ class Application {
             platform: process.platform,
             separator: path.sep,
             homedir: os.homedir(),
-            titlebar: false
+            titlebar: process.platform === 'darwin'
         };
         return this._environment;
     }
