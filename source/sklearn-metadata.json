@@ -1878,6 +1878,11 @@
         "name": "sparse_output",
         "default": true,
         "description": "Will return sparse matrix if set True else will return an array.\n\n.. versionadded:: 1.2\n`sparse` was renamed to `sparse_output`\n"
+      },
+      {
+        "name": "feature_name_combiner",
+        "default": "\"concat\"",
+        "description": "Callable with signature `def callable(input_feature, category)` that returns a\nstring. This is used to create feature names to be returned by\n:meth:`get_feature_names_out`.\n\n`\"concat\"` concatenates encoded feature name and category with\n`feature + \"_\" + str(category)`.E.g. feature X with values 1, 6, 7 create\nfeature names `X_1, X_6, X_7`.\n\n.. versionadded:: 1.3\n"
       }
     ]
   },
