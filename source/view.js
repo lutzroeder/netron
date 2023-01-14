@@ -199,15 +199,15 @@ view.View = class {
         if (this._graph) {
             this.clearSelection();
             const graphElement = this._getElementById('canvas');
-            const view = new view.FindSidebar(this._host, graphElement, this._graph);
-            view.on('search-text-changed', (sender, text) => {
+            const content = new view.FindSidebar(this._host, graphElement, this._graph);
+            content.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
             });
-            view.on('select', (sender, selection) => {
+            content.on('select', (sender, selection) => {
                 this.select(selection);
             });
-            this._sidebar.open(view.content, 'Find');
-            view.focus(this._searchText);
+            this._sidebar.open(content.content, 'Find');
+            content.focus(this._searchText);
         }
     }
 
@@ -2316,9 +2316,9 @@ view.ModelSidebar = class extends view.Control {
     }
 
     addArgument(name, argument) {
-        const view = new view.ParameterView(this._host, argument);
-        view.toggle();
-        const item = new view.NameValueView(this._host, name, view);
+        const value = new view.ParameterView(this._host, argument);
+        value.toggle();
+        const item = new view.NameValueView(this._host, name, value);
         this._elements.push(item.render());
     }
 };
