@@ -6,8 +6,8 @@
         "email": "lutzroeder@users.noreply.github.com",
         "url": "https://www.lutzroeder.com"
     },
-    "version": "6.4.0",
-    "date": "2023-01-09 03:29:10",
+    "version": "6.4.1",
+    "date": "2023-01-14 03:37:28",
     "description": "Visualizer for neural network, deep learning, and machine learning models",
     "license": "MIT",
     "repository": "lutzroeder/netron",
