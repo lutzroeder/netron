@@ -39,7 +39,7 @@ host.BrowserHost = class {
             return Promise.all(ids.map((id) => this.require(id)));
         };
         require([ 'base', 'text', 'flatbuffers', 'flexbuffers', 'zip',  'tar', 'python', 'dagre' ]).then(() => {
-            return require([ 'json', 'xml', 'protobuf', 'hdf5', 'grapher', 'dialog' ]).then(() => {
+            return require([ 'json', 'xml', 'protobuf', 'hdf5', 'grapher' ]).then(() => {
                 return require([ 'view' ]).then(() => {
                     this.window.__view__ = new this.window.view.View(this);
                 });

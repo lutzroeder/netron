@@ -6,7 +6,6 @@ const process = require('process');
 const base = require('../source/base');
 const protobuf = require('../source/protobuf');
 const flatbuffers = require('../source/flatbuffers');
-const dialog = require('../source/dialog');
 const view = require('../source/view');
 const zip = require('../source/zip');
 const tar = require('../source/tar');
@@ -617,14 +616,14 @@ const loadModel = (target, item) => {
                 if (!type || typeof type.name != 'string') {
                     throw new Error("Invalid node type '" + JSON.stringify(node.type) + "'.");
                 }
-                dialog.DocumentationSidebar.formatDocumentation(type);
+                view.Documentation.format(type);
                 node.name.toString();
                 node.description;
                 node.attributes.slice();
                 for (const attribute of node.attributes) {
                     attribute.name.toString();
                     attribute.name.length;
-                    let value = new dialog.Formatter(attribute.value, attribute.type).toString();
+                    let value = new view.Formatter(attribute.value, attribute.type).toString();
                     if (value && value.length > 1000) {
                         value = value.substring(0, 1000) + '...';
                     }
@@ -642,7 +641,7 @@ const loadModel = (target, item) => {
                         }
                         if (argument.initializer) {
                             argument.initializer.type.toString();
-                            const tensor = new dialog.Tensor(argument.initializer);
+                            const tensor = new view.Tensor(argument.initializer);
                             if (tensor.layout !== '<' && tensor.layout !== '>' && tensor.layout !== '|' && tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo') {
                                 throw new Error("Tensor layout '" + tensor.layout + "' is not implemented.");
                             }
