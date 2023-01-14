@@ -1219,6 +1219,45 @@ pytorch.Execution = class extends python.Execution {
         this.registerFunction('torch._C._import_ir_module_from_package', function(cu, reader, storage_context, map_location, ts_id) {
             return torch._C.import_ir_module(cu, reader, storage_context, null, ts_id);
         });
+        this.registerFunction('torch._C._jit_pass_inline', function(graph) {
+            const tryToGraphFunction = (node) => {
+                if (node.kind() === 'prim::CallFunction') {
+                    // TODO
+                }
+                if (node.kind() === 'prim::CallMethod') {
+                    const name = null; // node.s(attr::name);
+                    const class_type = node.input(0).type();
+                    if (class_type) {
+                        const fn = class_type.getMethod(name);
+                        return tryToGraphFunction(fn);
+                    }
+                }
+                return null;
+            };
+            const inlineCallTo = (/* to_replace, callee, use_graph */) => {
+                // TODO
+            };
+            const inlineCalls = (block) => {
+                for (const cur of block.nodes()) {
+                    switch (cur.kind()) {
+                        case 'prim::CallFunction': {
+                            throw new pytorch.Error();
+                        }
+                        case 'prim::CallMethod': {
+                            const graphFunction = tryToGraphFunction(cur);
+                            inlineCallTo(cur, graphFunction, true);
+                            break;
+                        }
+                        default: {
+                            for (const b of block.nodes()) {
+                                inlineCalls(b);
+                            }
+                        }
+                    }
+                }
+            };
+            inlineCalls(graph.blocks());
+        });
         this.registerFunction('torch.jit._script.unpackage_script_module', function(importer, script_module_id) {
             const cu = new torch.jit.CompilationUnit();
             cu.execution = execution;
