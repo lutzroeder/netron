@@ -196,7 +196,8 @@ host.BrowserHost = class {
 
     start() {
         this.window.addEventListener('error', (e) => {
-            this.exception(new Error(e ? e.message : JSON.stringify(e)), true);
+            const error = e instanceof Error ? e : new Error(e ? e.message : JSON.stringify(e));
+            this.exception(error, true);
         });
 
         const hash = this.window.location.hash ? this.window.location.hash.replace(/^#/, '') : '';
