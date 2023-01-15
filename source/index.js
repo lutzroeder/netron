@@ -23,7 +23,7 @@ host.BrowserHost = class {
         this._environment = {
             'type': this._meta.type ? this._meta.type[0] : 'Browser',
             'version': this._meta.version ? this._meta.version[0] : null,
-            'date': this._meta.date ? new Date(this._meta.date[0].split(' ').join('T') + 'Z') : new Date(),
+            'date': Array.isArray(this._meta.date) && this._meta.date.length > 0 && this._meta.date[0] ? new Date(this._meta.date[0].split(' ').join('T') + 'Z') : new Date(),
             'platform': /(Mac|iPhone|iPod|iPad)/i.test(this._navigator.platform) ? 'darwin' : undefined,
             'menu': true
         };
@@ -75,123 +75,125 @@ host.BrowserHost = class {
 
     initialize(view) {
         this._view = view;
-        return new Promise((resolve /*, reject */) => {
-            const age = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
-            if (age > 180) {
-                this._message('Please update to the newest version.', 'Download', () => {
-                    const link = this.document.getElementById('logo-github').href;
-                    this.openURL(link);
-                }, true);
-            }
-            else {
-                const capabilities = () => {
-                    const list = [
-                        'TextDecoder', 'TextEncoder',
-                        'fetch', 'URLSearchParams',
-                        'HTMLCanvasElement.prototype.toBlob'
-                    ];
-                    const capabilities = list.filter((capability) => {
-                        const path = capability.split('.').reverse();
-                        let obj = this.window[path.pop()];
-                        while (obj && path.length > 0) {
-                            obj = obj[path.pop()];
-                        }
-                        return obj;
-                    });
-                    for (const capability of capabilities) {
-                        this.event_ua('Host', 'Browser', capability, 1);
-                    }
-                    this.event('browser_open', {
-                        browser_capabilities: capabilities.map((capability) => capability.split('.').pop()).join(',')
-                    });
-                    if (capabilities.length < list.length) {
-                        this._message('Your browser is not supported.');
-                    }
-                    else {
-                        resolve();
-                    }
-                };
-                const telemetry = () => {
-                    if (this._environment.version && this._environment.version !== '0.0.0') {
-                        const ga4 = () => {
-                            const base = this.window.base;
-                            const measurement_id = '848W2NVWVH';
-                            const user = this._getCookie('_ga');
-                            const session = this._getCookie('_ga' + measurement_id);
-                            this._telemetry_ga4 = new base.Telemetry(this._window, 'G-' + measurement_id, user, session);
-                            this._telemetry_ga4.start().then(() => {
-                                this._telemetry_ga4.set('page_location', this._document.location && this._document.location.href ? this._document.location.href : null);
-                                this._telemetry_ga4.set('page_title', this._document.title ? this._document.title : null);
-                                this._telemetry_ga4.set('page_referrer', this._document.referrer ? this._document.referrer : null);
-                                this._telemetry_ga4.send('page_view', {
-                                    app_name: this.type,
-                                    app_version: this.version,
-                                });
-                                this._telemetry_ga4.send('scroll', {
-                                    percent_scrolled: 90,
-                                    app_name: this.type,
-                                    app_version: this.version
-                                });
-                                this._setCookie('_ga', 'GA1.1.' + this._telemetry_ga4.get('client_id'), 1200);
-                                this._setCookie('_ga' + measurement_id, 'GS1.1.' + this._telemetry_ga4.session, 1200);
-                                ua();
-                            });
-                        };
-                        const ua = () => {
-                            this._telemetry_ua = true;
-                            const script = this.document.createElement('script');
-                            script.setAttribute('type', 'text/javascript');
-                            script.setAttribute('src', 'https://www.google-analytics.com/analytics.js');
-                            script.onload = () => {
-                                if (this.window.ga) {
-                                    this.window.ga.l = 1 * new Date();
-                                    this.window.ga('create', 'UA-54146-13', 'auto');
-                                    this.window.ga('set', 'anonymizeIp', true);
-                                }
-                                capabilities();
-                            };
-                            script.onerror = () => {
-                                capabilities();
-                            };
-                            this.document.body.appendChild(script);
-                        };
-                        ga4();
-                    }
-                    else {
-                        capabilities();
-                    }
-                };
-                const consent = () => {
-                    this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept', () => {
-                        this._setCookie('consent', Date.now().toString(), 30);
-                        telemetry();
-                    });
-                };
-                if (this._getCookie('consent')) {
-                    telemetry();
+        return this._age().then(() => this._consent()).then(() => this._telemetry()).then(() => this._capabilities());
+    }
+
+    _age() {
+        const age = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
+        if (age <= 180) {
+            return Promise.resolve();
+        }
+        const callback = () => {
+            const link = this.document.getElementById('logo-github').href;
+            this.openURL(link);
+        };
+        this._message('Please update to the newest version.', 'Download', callback, true);
+        return new Promise(() => {});
+    }
+
+    _consent() {
+        if (this._getCookie('consent')) {
+            return Promise.resolve();
+        }
+        const consent = () => {
+            return new Promise((resolve) => {
+                this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept', () => {
+                    this._setCookie('consent', Date.now().toString(), 30);
+                    resolve();
+                });
+            });
+        };
+        return this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', null, 2000).then((text) => {
+            try {
+                const json = JSON.parse(text);
+                const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
+                if (json && json.country && countries.indexOf(json.country) === -1) {
+                    this._setCookie('consent', Date.now().toString(), 30);
+                    return Promise.resolve();
                 }
-                else {
-                    this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', null, 2000).then((text) => {
-                        try {
-                            const json = JSON.parse(text);
-                            const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
-                            if (json && json.country && countries.indexOf(json.country) >= 0) {
-                                consent();
-                            }
-                            else {
-                                this._setCookie('consent', Date.now().toString(), 30);
-                                telemetry();
-                            }
-                        }
-                        catch (err) {
-                            consent();
-                        }
-                    }).catch(() => {
-                        consent();
-                    });
-                }
+                return consent();
             }
+            catch (err) {
+                return consent();
+            }
+        }).catch(() => {
+            return consent();
         });
+    }
+
+    _telemetry() {
+        if (this._environment.version && this._environment.version !== '0.0.0') {
+            const ga4 = () => {
+                const base = this.window.base;
+                const measurement_id = '848W2NVWVH';
+                const user = this._getCookie('_ga').replace(/^(GA1\.\d\.)*/, '');
+                const session = this._getCookie('_ga' + measurement_id);
+                this._telemetry_ga4 = new base.Telemetry(this._window, 'G-' + measurement_id, user, session);
+                return this._telemetry_ga4.start().then(() => {
+                    this._telemetry_ga4.set('page_location', this._document.location && this._document.location.href ? this._document.location.href : null);
+                    this._telemetry_ga4.set('page_title', this._document.title ? this._document.title : null);
+                    this._telemetry_ga4.set('page_referrer', this._document.referrer ? this._document.referrer : null);
+                    this._telemetry_ga4.send('page_view', {
+                        app_name: this.type,
+                        app_version: this.version,
+                    });
+                    this._telemetry_ga4.send('scroll', {
+                        percent_scrolled: 90,
+                        app_name: this.type,
+                        app_version: this.version
+                    });
+                    this._setCookie('_ga', 'GA1.1.' + this._telemetry_ga4.get('client_id'), 1200);
+                    this._setCookie('_ga' + measurement_id, 'GS1.1.' + this._telemetry_ga4.session, 1200);
+                    ua();
+                });
+            };
+            const ua = () => {
+                return new Promise((resolve) => {
+                    this._telemetry_ua = true;
+                    const script = this.document.createElement('script');
+                    script.setAttribute('type', 'text/javascript');
+                    script.setAttribute('src', 'https://www.google-analytics.com/analytics.js');
+                    script.onload = () => {
+                        if (this.window.ga) {
+                            this.window.ga.l = 1 * new Date();
+                            this.window.ga('create', 'UA-54146-13', 'auto');
+                            this.window.ga('set', 'anonymizeIp', true);
+                        }
+                        resolve();
+                    };
+                    script.onerror = () => {
+                        resolve();
+                    };
+                    this.document.body.appendChild(script);
+                });
+            };
+            return ga4().then(() => ua());
+        }
+        return Promise.resolve();
+    }
+
+    _capabilities() {
+        const list = [
+            'TextDecoder', 'TextEncoder',
+            'fetch', 'URLSearchParams',
+            'HTMLCanvasElement.prototype.toBlob'
+        ];
+        const capabilities = list.filter((capability) => {
+            const path = capability.split('.').reverse();
+            let obj = this.window[path.pop()];
+            while (obj && path.length > 0) {
+                obj = obj[path.pop()];
+            }
+            return obj;
+        });
+        this.event('browser_open', {
+            browser_capabilities: capabilities.map((capability) => capability.split('.').pop()).join(',')
+        });
+        if (capabilities.length < list.length) {
+            this._message('Your browser is not supported.');
+            return new Promise(() => {});
+        }
+        return Promise.resolve();
     }
 
     start() {
@@ -407,23 +409,6 @@ host.BrowserHost = class {
                     error_fatal: fatal ? true : false
                 });
             }
-        }
-    }
-
-    screen(name) {
-        if (this._telemetry_ua && this.window.ga) {
-            this.window.ga('send', 'screenview', {
-                screenName: name,
-                appName: this.type,
-                appVersion: this.version
-            });
-        }
-        if (this._telemetry_ga4) {
-            this._telemetry_ga4.send('screen_view', {
-                screen_name: name,
-                app_name: this.type,
-                app_version: this.version,
-            });
         }
     }
 

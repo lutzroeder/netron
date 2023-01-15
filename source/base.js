@@ -824,7 +824,6 @@ base.Telemetry = class {
         ]);
         this._config = new Map();
         this._metadata = {};
-        this._client_id = client_id ? client_id.replace(/^GA1\.1\./, '') : null;
         this._session = session && typeof session === 'string' ? session.replace(/^GS1\.1\./, '').split('.') : null;
         this._session = Array.isArray(this._session) && this._session.length >= 7 ? this._session : [ '0', '0', '0', '0', '0', '0', '0' ];
         this._session[0] = Date.now();
@@ -836,6 +835,7 @@ base.Telemetry = class {
         this.set('tracking_id', measurement_id);
         this.set('hash_info', '2oebu0');
         this.set('_page_id', Math.floor(Math.random() * 2147483648));
+        client_id = client_id ? client_id.replace(/^(GA1\.\d\.)*/, '') : null;
         if (client_id && client_id.indexOf('.') !== 1) {
             this.set('client_id', client_id);
         }

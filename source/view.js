@@ -151,7 +151,9 @@ view.View = class {
         if (!page) {
             page = (!this._model && !this.activeGraph) ? 'welcome' : 'default';
         }
-        this._host.screen(page);
+        this._host.event('screen_view', {
+            screen_name: page,
+        });
         if (this._sidebar) {
             this._sidebar.close();
         }
@@ -531,8 +533,6 @@ view.View = class {
     }
 
     open(context) {
-        const size = context.stream ? context.stream.length : 0;
-        this._host.event_ua('Model', 'Open', 'Size', size);
         this._sidebar.close();
         return this._timeout(2).then(() => {
             return this._modelFactoryService.open(context).then((model) => {
@@ -589,7 +589,6 @@ view.View = class {
                 const nodes = graph.nodes;
                 if (nodes.length > 2048) {
                     if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
-                        this._host.event_ua('Graph', 'Render', 'Skip', nodes.length);
                         this._host.event('graph_view', {
                             graph_node_count: nodes.length,
                             graph_skip: 1 }
@@ -667,7 +666,6 @@ view.View = class {
 
             const groups = graph.groups;
             const nodes = graph.nodes;
-            this._host.event_ua('Graph', 'Render', 'Size', nodes.length);
             this._host.event('graph_view', {
                 graph_node_count: nodes.length,
                 graph_skip: 0
@@ -4928,7 +4926,6 @@ view.ModelFactoryService = class {
                 break;
             }
         }
-        this._host.event_ua('File', accept ? 'Accept' : 'Reject', extension, 1);
         this._host.event('model_file', {
             file_extension: extension,
             file_size: size || 0,

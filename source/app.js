@@ -105,6 +105,7 @@ class Application {
             packaged: electron.app.isPackaged,
             version: this._package.version,
             date: this._package.date,
+            repository: this._package.repository,
             platform: process.platform,
             separator: path.sep,
             homedir: os.homedir(),
@@ -558,7 +559,7 @@ class Application {
         const helpSubmenu = [
             {
                 label: '&Search Feature Requests',
-                click: () => electron.shell.openExternal('https://www.github.com/' + this._package.repository + '/issues')
+                click: () => electron.shell.openExternal('https://www.github.com/' + this._package.repository + '/issues?q=is:open+is:issue+label:feature')
             },
             {
                 label: 'Report &Issues',

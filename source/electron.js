@@ -58,73 +58,75 @@ host.ElectronHost = class {
         electron.ipcRenderer.on('open', (_, data) => {
             this._openPath(data.path);
         });
-        return new Promise((resolve /*, reject */) => {
-            const age = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
-            if (age > 180) {
-                this._message('Please update to the newest version.', 'Download', () => {
-                    const link = this._element('logo-github').href;
-                    this.openURL(link);
-                }, true);
-            }
-            else {
-                const telemetry = () => {
-                    if (this._environment.packaged) {
-                        const measurement_id = '848W2NVWVH';
-                        const user = this._getConfiguration('user') || null;
-                        const session = this._getConfiguration('session') || null;
-                        this._telemetry_ga4 = new base.Telemetry(this._window, 'G-' + measurement_id, user, session);
-                        this._telemetry_ga4.start().then(() => {
-                            this._telemetry_ga4.send('page_view', {
-                                app_name: this.type,
-                                app_version: this.version,
-                            });
-                            this._telemetry_ga4.send('scroll', {
-                                percent_scrolled: 90,
-                                app_name: this.type,
-                                app_version: this.version
-                            });
-                            this._setConfiguration('user', this._telemetry_ga4.get('client_id'));
-                            this._setConfiguration('session', this._telemetry_ga4.session);
-                            this._telemetry_ua = new host.Telemetry('UA-54146-13', this._telemetry_ga4.get('client_id'), navigator.userAgent, this.type, this.version);
-                            resolve();
-                        });
-                    }
-                    else {
-                        resolve();
-                    }
-                };
-                const time = this._getConfiguration('consent');
-                if (time && (Date.now() - time) < 30 * 24 * 60 * 60 * 1000) {
-                    telemetry();
+        return this._age().then(() => this._consent()).then(() => this._telemetry());
+    }
+
+    _age() {
+        const age = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
+        if (age <= 180) {
+            return Promise.resolve();
+        }
+        const callback = () => {
+            const link = this._element('logo-github').href;
+            this.openURL(link);
+        };
+        this._message('Please update to the newest version.', 'Download', callback, true);
+        return new Promise(() => {});
+    }
+
+    _consent() {
+        const time = this._getConfiguration('consent');
+        if (time && (Date.now() - time) < 30 * 24 * 60 * 60 * 1000) {
+            return Promise.resolve();
+        }
+        const consent = () => {
+            return new Promise((resolve /*, reject */) => {
+                this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept', () => {
+                    this._setConfiguration('consent', Date.now());
+                    resolve();
+                });
+            });
+        };
+        return this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 2000).then((text) => {
+            try {
+                const json = JSON.parse(text);
+                const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
+                if (json && json.country && countries.indexOf(json.country) === -1) {
+                    this._setConfiguration('consent', Date.now());
+                    return Promise.resolve();
                 }
-                else {
-                    const consent = () => {
-                        this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept', () => {
-                            this._setConfiguration('consent', Date.now());
-                            telemetry();
-                        });
-                    };
-                    this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 2000).then((text) => {
-                        try {
-                            const json = JSON.parse(text);
-                            const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
-                            if (json && json.country && countries.indexOf(json.country) >= 0) {
-                                consent();
-                            }
-                            else {
-                                this._setConfiguration('consent', Date.now());
-                                telemetry();
-                            }
-                        }
-                        catch (err) {
-                            consent();
-                        }
-                    }).catch(() => {
-                        consent();
-                    });
-                }
+                return consent();
             }
+            catch (err) {
+                return consent();
+            }
+        }).catch(() => {
+            return consent();
         });
+    }
+
+    _telemetry() {
+        if (this._environment.packaged) {
+            const measurement_id = '848W2NVWVH';
+            const user = this._getConfiguration('user') || null;
+            const session = this._getConfiguration('session') || null;
+            this._telemetry_ga4 = new base.Telemetry(this._window, 'G-' + measurement_id, user && user.indexOf('.') !== -1 ? user : null, session);
+            this._telemetry_ga4.start().then(() => {
+                this._telemetry_ga4.send('page_view', {
+                    app_name: this.type,
+                    app_version: this.version,
+                });
+                this._telemetry_ga4.send('scroll', {
+                    percent_scrolled: 90,
+                    app_name: this.type,
+                    app_version: this.version
+                });
+                this._setConfiguration('user', this._telemetry_ga4.get('client_id'));
+                this._setConfiguration('session', this._telemetry_ga4.session);
+                this._telemetry_ua = new host.Telemetry('UA-54146-13', this._telemetry_ga4.get('client_id'), navigator.userAgent, this.type, this.version);
+            });
+        }
+        return Promise.resolve();
     }
 
     start() {
@@ -247,11 +249,15 @@ host.ElectronHost = class {
     }
 
     error(message, detail) {
-        electron.ipcRenderer.sendSync('show-message-box', {
+        const options = {
             type: 'error',
             message: message,
             detail: detail,
-        });
+            buttons: [ 'Report', 'Cancel' ]
+        };
+        if (electron.ipcRenderer.sendSync('show-message-box', options) === 0) {
+            this.openURL('https://www.github.com/' + this.environment('repository') + '/issues');
+        }
     }
 
     confirm(message, detail) {
@@ -399,29 +405,6 @@ host.ElectronHost = class {
                         error_fatal: fatal ? true : false
                     });
                 }
-            }
-            catch (e) {
-                // continue regardless of error
-            }
-        }
-    }
-
-    screen(name) {
-        if (this._telemetry_ua) {
-            try {
-                this._telemetry_ua.screenview(name);
-            }
-            catch (e) {
-                // continue regardless of error
-            }
-        }
-        if (this._telemetry_ga4) {
-            try {
-                this._telemetry_ga4.send('screen_view', {
-                    screen_name: name,
-                    app_name: this.type,
-                    app_version: this.version,
-                });
             }
             catch (e) {
                 // continue regardless of error
