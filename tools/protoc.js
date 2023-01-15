@@ -483,22 +483,20 @@ protoc.Parser = class {
 
     _parseImport() {
         let token = this._tokenizer.peek();
-        let whichImports;
-        switch (token) {
-            case "weak":
-                whichImports = this._weakImports;
-                this._tokenizer.next();
-                break;
-            case "public":
-                this._tokenizer.next();
-                // eslint-disable-line no-fallthrough
-            default:
-                whichImports = this._imports;
-                break;
+        if (token === 'weak') {
+            this._tokenizer.next();
+            token = this._readString();
+            this._tokenizer.expect(";");
+            this._weakImports.push(token);
         }
-        token = this._readString();
-        this._tokenizer.expect(";");
-        whichImports.push(token);
+        else {
+            if (token === 'public') {
+                this._tokenizer.next();
+            }
+            token = this._readString();
+            this._tokenizer.expect(";");
+            this._imports.push(token);
+        }
     }
 
     _parseSyntax() {
