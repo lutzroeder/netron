@@ -142,9 +142,8 @@ host.BrowserHost = class {
                         app_name: this.type,
                         app_version: this.version
                     });
-                    this._setCookie('_ga', 'GA1.1.' + this._telemetry_ga4.get('client_id'), 1200);
+                    this._setCookie('_ga', 'GA1.2.' + this._telemetry_ga4.get('client_id'), 1200);
                     this._setCookie('_ga' + measurement_id, 'GS1.1.' + this._telemetry_ga4.session, 1200);
-                    ua();
                 });
             };
             const ua = () => {
