@@ -857,7 +857,7 @@ base.Telemetry = class {
             if (values) {
                 this.set('_user_agent_architecture', values.architecture);
                 this.set('_user_agent_bitness', values.bitness);
-                this.set('_user_agent_full_version_list', values.fullVersionList.map((h) => encodeURIComponent(h.brand || '') + ';' + encodeURIComponent(h.version || '')).join('|'));
+                this.set('_user_agent_full_version_list', Array.isArray(values.fullVersionList) ? values.fullVersionList.map((h) => encodeURIComponent(h.brand || '') + ';' + encodeURIComponent(h.version || '')).join('|') : '');
                 this.set('_user_agent_mobile', values.mobile ? 1 : 0);
                 this.set('_user_agent_model', values.model);
                 this.set('_user_agent_platform', values.platform);
