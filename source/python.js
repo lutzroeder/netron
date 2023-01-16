@@ -2811,7 +2811,15 @@ python.Execution = class {
                             break;
                         }
                         case OpCode.NEWOBJ_EX: {
-                            throw new python.Error("Unpickle 'NEWOBJ_EX' not implemented.");
+                            const kwargs = stack.pop();
+                            const args = stack.pop();
+                            const cls = stack.pop();
+                            if (Object.entries(kwargs).length > 0) {
+                                throw new python.Error("Unpickle 'NEWOBJ_EX' not implemented.");
+                            }
+                            const obj = execution.invoke(cls, args);
+                            stack.push(obj);
+                            break;
                         }
                         case OpCode.BINGET:
                             stack.push(memo.get(reader.byte()));
