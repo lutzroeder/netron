@@ -73,7 +73,7 @@ host.BrowserHost = class {
         return 'any';
     }
 
-    initialize(view) {
+    view(view) {
         this._view = view;
         return this._age().then(() => this._consent()).then(() => this._telemetry()).then(() => this._capabilities());
     }

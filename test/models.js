@@ -35,7 +35,7 @@ class TestHost {
         return this._document;
     }
 
-    initialize(/* view */) {
+    view(/* view */) {
         return Promise.resolve();
     }
 

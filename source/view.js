@@ -23,7 +23,7 @@ view.View = class {
             direction: 'vertical',
             mousewheel: 'scroll'
         };
-        this._host.initialize(this).then(() => {
+        this._host.view(this).then(() => {
             this._model = null;
             this._graphs = [];
             this._selection = [];

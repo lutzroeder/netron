@@ -53,7 +53,7 @@ host.ElectronHost = class {
         return 'any';
     }
 
-    initialize(view) {
+    view(view) {
         this._view = view;
         electron.ipcRenderer.on('open', (_, data) => {
             this._openPath(data.path);
