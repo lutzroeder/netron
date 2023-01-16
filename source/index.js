@@ -92,7 +92,7 @@ host.BrowserHost = class {
     }
 
     _consent() {
-        if (this._getCookie('consent')) {
+        if (this._getCookie('consent') || this._getCookie('_ga')) {
             return Promise.resolve();
         }
         const consent = () => {
@@ -581,9 +581,12 @@ host.BrowserHost = class {
     }
 
     _setCookie(name, value, days) {
+        this.document.cookie = name + '=; Max-Age=0';
+        const location = this.window.location;
+        const domain = location && location.hostname && location.hostname.indexOf('.') !== -1 ? ';domain=.' + location.hostname.split('.').slice(-2).join('.') : '';
         const date = new Date();
         date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        this.document.cookie = name + "=" + value + ";path=/;expires=" + date.toUTCString();
+        this.document.cookie = name + "=" + value + domain + ";path=/;expires=" + date.toUTCString();
     }
 
     _getCookie(name) {
