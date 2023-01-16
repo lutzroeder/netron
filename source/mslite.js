@@ -52,13 +52,9 @@ mslite.Model = class {
 
     constructor(metadata, model) {
         this._name = model.name || '';
-        this._format = model.version || '';
         this._graphs = [];
-        const format = 'MindSpore Lite ';
-        if (this._format.startsWith(format)) {
-            const version = this._format.substring(format.length).replace(/^v/, '');
-            this._format = format + 'v' + version;
-        }
+        const version = model.version ? model.version.match(/^.*(\d\.\d\.\d)$/) : null;
+        this._format = 'MindSpore Lite' + (version ? ' v' + version[1] : '');
         const subgraphs = model.subGraph;
         if (Array.isArray(subgraphs)) {
             for (const subgraph of subgraphs) {
