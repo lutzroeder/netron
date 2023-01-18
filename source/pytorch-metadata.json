@@ -11727,6 +11727,16 @@
     ]
   },
   {
+    "name": "aten::squeeze.dims",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64[]" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::squeeze_",
     "category": "Transform",
     "inputs": [
@@ -11753,6 +11763,16 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::squeeze_.dims",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64[]" }
     ],
     "outputs": [
       { "type": "Tensor" }
