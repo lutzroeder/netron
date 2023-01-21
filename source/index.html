@@ -99,11 +99,11 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .titlebar-button-close:hover { color: #ffffff; background-color: #b43029; }
 .menu-button { display: flex; justify-content: center; align-items: center; color: #aaaaaa; font-size: 16px; height: 32px; width: 32px; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2; -webkit-app-region: no-drag; -webkit-app-region: no-drag; user-select: none; }
 .menu-button:hover { color: #000000; }
-.menu-dropdown { display: block; position: absolute; left: -225px; width: 225px; top: 0; height: 100%; z-index: 2; background-color: rgba(235, 235, 235, 0.97); border-right: 1px solid rgba(255, 255, 255, 0.5); padding-top: 40px; padding-bottom: 2px; margin-left: 0; margin-top: 0; overflow: hidden; transition: 0.1s; }
-.menu-dropdown button { display: block; border: none; border-radius: 0; background-color: transparent; color: black; width: 100%; text-align: left; padding: 4px 12px 5px 12px; white-space: no-wrap; font-size: 12px; }
-.menu-dropdown button:hover { color: #ffffff; background-color: #2e6bd2; }
-.menu-dropdown .separator { margin-top: 2px; margin-bottom: 2px; border-top: 1px; border-bottom: 0; border-style: solid; border-color: #e5e5e5; }
-.menu-dropdown .shortcut { float: right; }
+.menu { display: block; position: absolute; left: -225px; width: 225px; top: 0; height: 100%; z-index: 2; background-color: rgba(235, 235, 235, 0.97); border-right: 1px solid rgba(255, 255, 255, 0.5); padding-top: 40px; padding-bottom: 2px; margin-left: 0; margin-top: 0; overflow: hidden; transition: 0.1s; }
+.menu button { display: block; border: none; border-radius: 0; background-color: transparent; color: black; width: 100%; text-align: left; padding: 4px 12px 5px 12px; white-space: no-wrap; font-size: 12px; }
+.menu button:hover { color: #ffffff; background-color: #2e6bd2; }
+.menu .separator { margin-top: 2px; margin-bottom: 2px; border-top: 1px; border-bottom: 0; border-style: solid; border-color: #e5e5e5; }
+.menu .shortcut { float: right; }
 @-webkit-keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 @keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 .welcome.spinner .logo-spinner-stroke { stroke: #ececec; }
@@ -160,11 +160,11 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .titlebar-button-close:hover { color: #ffffff; background-color: #b43029; }
 .menu-button { color: #aaaaaa; }
 .menu-button:hover { color: #ffffff; }
-.menu-dropdown { background-color: rgba(43, 43, 43, 0.90); border-color: rgba(0, 0, 0, 0); }
-.menu-dropdown button { color: #ffffff; }
-.menu-dropdown button:hover { color: #ffffff; background-color: #1d59d1; }
-.menu-dropdown .shortcut { color: #888888; }
-.menu-dropdown .separator { border-color: #5a5a5a; }
+.menu { background-color: rgba(43, 43, 43, 0.90); border-color: rgba(0, 0, 0, 0); }
+.menu button { color: #ffffff; }
+.menu button:hover { color: #ffffff; background-color: #1d59d1; }
+.menu .shortcut { color: #888888; }
+.menu .separator { border-color: #5a5a5a; }
 }
 @media all and (max-width: 640px) {
 .welcome .logo { width: 240px; }
@@ -510,7 +510,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
         </div>
     </div>
 </div>
-<div id="menu-dropdown" class="menu-dropdown"></div>
+<div id="menu" class="menu"></div>
 <div id="menu-button" class="menu-button">&#9776;</div>
 </body>
 </html>

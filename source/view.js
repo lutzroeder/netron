@@ -54,7 +54,7 @@ view.View = class {
                 this.clearSelection();
             });
             if (this._host.environment('menu')) {
-                this._menu = new view.Dropdown(this._host, 'menu-button', 'menu-dropdown');
+                this._menu = new view.Menu(this._host, 'menu-button', 'menu');
                 this._menu.add({
                     label: 'Properties...',
                     accelerator: 'CmdOrCtrl+Enter',
@@ -958,7 +958,7 @@ view.View = class {
     }
 };
 
-view.Dropdown = class {
+view.Menu = class {
 
     constructor(host, button, dropdown) {
         this._host = host;
@@ -1087,7 +1087,7 @@ view.Dropdown = class {
 
     close() {
         this._dropdown.style.opacity = 0;
-        this._dropdown.style.left = '-200px';
+        this._dropdown.style.left = '-225px';
     }
 };
 
