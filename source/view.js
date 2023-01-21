@@ -4245,20 +4245,30 @@ view.ModelContext = class {
                         case 'pkl': {
                             let unpickler = null;
                             try {
-                                if (stream.length > 2) {
-                                    const archive = zip.Archive.open(stream, 'zlib');
-                                    const data = archive ? archive.entries.get('') : stream;
+                                const archive = zip.Archive.open(stream, 'zlib');
+                                const data = archive ? archive.entries.get('') : stream;
+                                let condition = false;
+                                if (data.length > 2) {
+                                    const head = data.peek(2);
+                                    condition = head[0] === 0x80 && head[1] < 7;
+                                    if (!condition) {
+                                        data.seek(-1);
+                                        const tail = data.peek(1);
+                                        data.seek(0);
+                                        condition = tail[0] === 0x2e;
+                                    }
+                                }
+                                if (condition) {
                                     const signature = [ 0x80, undefined, 0x63, 0x5F, 0x5F, 0x74, 0x6F, 0x72, 0x63, 0x68, 0x5F, 0x5F, 0x2E]; // __torch__.
                                     const torch = signature.length <= data.length && data.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value);
-                                    unpickler = python.Unpickler.open(data, () => {
-                                        const execution = new python.Execution();
-                                        execution.on('resolve', (_, name) => {
-                                            if (!torch || !name.startsWith('__torch__.')) {
-                                                this.exception(new view.Error("Unknown type name '" + name + "'."));
-                                            }
-                                        });
-                                        return execution;
+                                    const execution = new python.Execution();
+                                    execution.on('resolve', (_, name) => {
+                                        if (!torch || !name.startsWith('__torch__.')) {
+                                            this.exception(new view.Error("Unknown type name '" + name + "'."));
+                                        }
                                     });
+                                    const pickle = execution.__import__('pickle');
+                                    unpickler = new pickle.Unpickler(data);
                                 }
                             }
                             catch (err) {
