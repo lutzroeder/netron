@@ -12224,6 +12224,28 @@
     ]
   },
   {
+    "name": "aten::take_along_dim",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" },
+      { "name": "dim", "type": "int64", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::take_along_dim.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "indices", "type": "Tensor" },
+      { "name": "dim", "type": "int64", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::tan",
     "inputs": [
       { "name": "self", "type": "Tensor" }
