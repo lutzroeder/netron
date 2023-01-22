@@ -248,7 +248,7 @@ host.ElectronHost = class {
         return this._environment[name];
     }
 
-    error(message, detail) {
+    error(message, detail, url) {
         const options = {
             type: 'error',
             message: message,
@@ -256,7 +256,8 @@ host.ElectronHost = class {
             buttons: [ 'Report', 'Cancel' ]
         };
         if (electron.ipcRenderer.sendSync('show-message-box', options) === 0) {
-            this.openURL('https://www.github.com/' + this.environment('repository') + '/issues');
+            url = url || 'https://www.github.com/' + this.environment('repository') + '/issues';
+            this.openURL(url);
         }
     }
 

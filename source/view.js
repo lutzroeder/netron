@@ -519,13 +519,10 @@ view.View = class {
             { name: 'Error loading TensorFlow Lite model.', message: /^Offset is outside the bounds of the DataView/, url: 'https://github.com/lutzroeder/netron/issues/563' },
         ];
         const known = knowns.find((known) => (known.name.length === 0 || known.name === err.name) && err.message.match(known.message));
-        const message = err.message + (known ? '\n\n' + known.url : '');
+        const message = err.message;
         name = name || err.name;
-        this._host.error(name, message);
+        this._host.error(name, message, known ? known.url : undefined);
         this.show(screen !== undefined ? screen : 'welcome');
-        if (known) {
-            this._host.openURL(known.url);
-        }
     }
 
     accept(file, size) {

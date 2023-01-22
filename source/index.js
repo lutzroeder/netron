@@ -288,8 +288,11 @@ host.BrowserHost = class {
         return this._environment[name];
     }
 
-    error(message, detail) {
+    error(message, detail, url) {
         alert((message == 'Error' ? '' : message + ' ') + detail);
+        if (url) {
+            this.openURL(url);
+        }
     }
 
     confirm(message, detail) {
