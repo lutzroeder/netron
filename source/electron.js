@@ -14,6 +14,8 @@ host.ElectronHost = class {
     constructor() {
         process.on('uncaughtException', (err) => {
             this.exception(err, true);
+            this._message(err.message);
+            this.document.body.setAttribute('class', 'welcome message');
         });
         this._document = window.document;
         this._window = window;
@@ -31,6 +33,9 @@ host.ElectronHost = class {
         this._environment = electron.ipcRenderer.sendSync('get-environment', {});
         this._environment.menu = this._environment.titlebar && this._environment.platform !== 'darwin';
         this._queue = [];
+        if (!/^\d\.\d\.\d$/.test(this.version)) {
+            throw new Error('Invalid version.');
+        }
     }
 
     get window() {
@@ -240,7 +245,6 @@ host.ElectronHost = class {
             }
             return false;
         });
-
         this._view.show('welcome');
     }
 
@@ -610,7 +614,9 @@ host.ElectronHost = class {
                 messageButton.onclick = null;
             }
         }
-        this._view.show('welcome message');
+        if (this._view) {
+            this._view.show('welcome message');
+        }
     }
 };
 
