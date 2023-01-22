@@ -59,7 +59,7 @@ start: install
 
 lint: install
 	npx eslint source/*.js test/*.js publish/*.js tools/*.js
-	python -m pip install --upgrade --quiet pylint onnx torch torchvision
+	python -m pip install --upgrade --quiet pylint
 	python -m pylint -sn source/*.py publish/*.py test/*.py tools/*.py
 
 codeql:

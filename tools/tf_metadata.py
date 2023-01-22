@@ -2,7 +2,7 @@
 
 import json
 import os
-import google.protobuf.text_format
+from google.protobuf import text_format # pylint: disable=import-error,no-name-in-module
 from tensorflow.core.framework import api_def_pb2 # pylint: disable=import-error
 from tensorflow.core.framework import op_def_pb2 # pylint: disable=import-error
 from tensorflow.core.framework import types_pb2 # pylint: disable=import-error
@@ -82,7 +82,7 @@ def _pbtxt_from_multiline(multiline_pbtxt):
 def _read_op_list(file):
     op_list = op_def_pb2.OpList()
     content = _read(file)
-    google.protobuf.text_format.Merge(content, op_list)
+    text_format.Merge(content, op_list)
     return op_list
 
 def _read_api_def_map(folder):
@@ -94,7 +94,7 @@ def _read_api_def_map(folder):
             with open(filename, 'r', encoding='utf-8') as file:
                 multiline_pbtxt = file.read()
                 pbtxt = _pbtxt_from_multiline(multiline_pbtxt)
-                google.protobuf.text_format.Merge(pbtxt, api_defs)
+                text_format.Merge(pbtxt, api_defs)
             for api_def in api_defs.op:
                 api_def_map[api_def.graph_op_name] = api_def
     return api_def_map

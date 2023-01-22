@@ -27,7 +27,7 @@ class _Model: # pylint: disable=too-few-public-methods
 
     def to_json(self):
         ''' Serialize model to JSON message '''
-        import torch # pylint: disable=import-outside-toplevel
+        import torch # pylint: disable=import-outside-toplevel,import-error
         json_model = {
             'signature': 'netron:pytorch',
             'format': 'TorchScript v' + torch.__version__,
@@ -53,7 +53,7 @@ class _Graph: # pylint: disable=too-few-public-methods
         raise Exception()
 
     def to_json(self): # pylint: disable=missing-function-docstring,too-many-locals,too-many-statements,too-many-branches
-        import torch # pylint: disable=import-outside-toplevel
+        import torch # pylint: disable=import-outside-toplevel,import-error
         graph = self.value
         json_graph = {
             'arguments': [],

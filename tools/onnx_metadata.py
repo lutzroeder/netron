@@ -4,8 +4,8 @@ import collections
 import json
 import os
 import re
-import onnx.backend.test.case
-import onnx.defs
+import onnx.backend.test.case # pylint: disable=import-error
+import onnx.defs # pylint: disable=import-error
 
 def _read(path):
     with open(path, 'r', encoding='utf-8') as file:
