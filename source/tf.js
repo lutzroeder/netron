@@ -127,6 +127,13 @@ tf.ModelFactory = class {
                             return 'tf.pb.GraphDef';
                         }
                     }
+                    // tensorflow.FingerprintDef
+                    if (identifier === 'fingerprint.pb' &&
+                        tags.get(1) === 0 && tags.get(2) === 0 &&
+                        tags.get(3) === 0 && tags.get(4) === 0 &&
+                        tags.get(5) === 0 && tags.get(6) === 2) {
+                        return 'tf.pb.FingerprintDef';
+                    }
                     const decode = (buffer, value) => {
                         const reader = protobuf.BinaryReader.open(buffer);
                         const length = reader.length;
@@ -590,6 +597,12 @@ tf.ModelFactory = class {
                     return openBinarySavedModel({ stream: stream });
                 });
             };
+            const openFingerprint = (context) => {
+                const identifier = 'saved_model.pb';
+                return context.request(identifier, null).then((stream) => {
+                    return openBinarySavedModel({ stream: stream });
+                });
+            };
             const openMemmapped = (context) => {
                 const stream = context.stream;
                 const readDirectoryOffset = (stream) => {
@@ -673,6 +686,8 @@ tf.ModelFactory = class {
                     return openBinarySavedModel(context);
                 case 'tf.pb.keras.SavedMetadata':
                     return openSavedMetadata(context);
+                case 'tf.pb.FingerprintDef':
+                    return openFingerprint(context);
                 case 'tf.pb.mmap':
                     return openMemmapped(context);
                 default:

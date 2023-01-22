@@ -37,6 +37,13 @@
   },
   {
     "type":     "_",
+    "target":   "fingerprint.pb",
+    "source":   "https://github.com/lutzroeder/netron/files/10475238/fingerprint.pb.zip[fingerprint.pb]",
+    "error":    "The file 'saved_model.pb' does not exist.",
+    "link":     "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
+    "type":     "_",
     "target":   "haarcascade_mcs_nose.xml",
     "source":   "https://github.com/lutzroeder/netron/files/7403702/haarcascade_mcs_nose.xml.zip[haarcascade_mcs_nose.xml]",
     "error":    "Invalid file content. File contains OpenCV storage data.",
