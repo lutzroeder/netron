@@ -4562,6 +4562,7 @@ view.ModelFactoryService = class {
                     { name: 'Netron metadata', tags: [ '[].name', '[].schema' ] },
                     { name: 'Netron metadata', tags: [ '[].name', '[].attributes' ] },
                     { name: 'Netron metadata', tags: [ '[].name', '[].category' ] },
+                    { name: 'Netron test data', tags: [ '[].type', '[].target', '[].source', '[].format', '[].link' ] },
                     { name: 'Darkflow metadata', tags: [ 'net', 'type', 'model' ] },
                     { name: 'keras-yolo2 configuration', tags: [ 'model', 'train', 'valid' ] },
                     { name: 'Vulkan SwiftShader ICD manifest', tags: [ 'file_format_version', 'ICD' ] },
