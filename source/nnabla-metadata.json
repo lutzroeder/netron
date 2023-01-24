@@ -4604,7 +4604,7 @@
   },
   {
     "name": "OneHot",
-    "description": "This function creates one-hot vector based on input indices.\n\n        Example:\n\n        .. code-block:: python\n\n          import nnabla as nn\n          import nnabla.functions as F\n          import numpy as np\n\n          labels = nn.Variable.from_numpy_array(np.array([[9], [4], [5], [1], [0]]))\n          print(labels.shape)  # (5, 1)\n\n          num_class = 10\n\n          y_train = F.one_hot(labels, shape=(num_class, ))\n          y_train.forward()\n\n          print(y_train.shape)  # (5, 10)\n          print(y_train.d)\n\n          # [[0. 0. 0. 0. 0. 0. 0. 0. 0. 1.]\n          #  [0. 0. 0. 0. 1. 0. 0. 0. 0. 0.]\n          #  [0. 0. 0. 0. 0. 1. 0. 0. 0. 0.]\n          #  [0. 1. 0. 0. 0. 0. 0. 0. 0. 0.]\n          #  [1. 0. 0. 0. 0. 0. 0. 0. 0. 0.]]\n\n          # Can also be used for ndarray.\n\n          labels = nn.Variable.from_numpy_array(np.array([[1, 7], [4, 7], [8, 6], [5, 0], [2, 6]]))\n          print(labels.shape)  # (5, 2)\n\n          num_class_1, num_class_2  = 10, 8\n\n          y_train = F.one_hot(labels, shape=(num_class_1, num_class_2))\n          y_train.forward()\n\n          print(y_train.shape)  # (5, 10, 8)\n          print(y_train.d)\n\n          # [[[0. 0. 0. 0. 0. 0. 0. 0.]          [[0. 0. 0. 0. 0. 0. 0. 0.]\n          #   [0. 0. 0. 0. 0. 0. 0. 1.]           [0. 0. 0. 0. 0. 0. 0. 0.]\n          #   [0. 0. 0. 0. 0. 0. 0. 0.]           [0. 0. 0. 0. 0. 0. 1. 0.]\n          #   [0. 0. 0. 0. 0. 0. 0. 0.]           [0. 0. 0. 0. 0. 0. 0. 0.]\n          #   [0. 0. 0. 0. 0. 0. 0. 0.]           [0. 0. 0. 0. 0. 0. 0. 0.]\n          #   [0. 0. 0. 0. 0. 0. 0. 0.]    ...    [0. 0. 0. 0. 0. 0. 0. 0.]\n          #   [0. 0. 0. 0. 0. 0. 0. 0.]           [0. 0. 0. 0. 0. 0. 0. 0.]\n          #   [0. 0. 0. 0. 0. 0. 0. 0.]           [0. 0. 0. 0. 0. 0. 0. 0.]\n          #   [0. 0. 0. 0. 0. 0. 0. 0.]           [0. 0. 0. 0. 0. 0. 0. 0.]\n          #   [0. 0. 0. 0. 0. 0. 0. 0.]],         [0. 0. 0. 0. 0. 0. 0. 0.]]]",
+    "description": "This function creates one-hot vector based on input indices.\nThe range [-shape[i], -1] of input indices are regarded as [0, shape[i]-1],\nand an input index outside [-shape[i], shape[i]-1] generates a vector \nfilled with zero.\n\n        Example:\n\n        .. code-block:: python\n\n          import nnabla as nn\n          import nnabla.functions as F\n          import numpy as np\n\n          labels = nn.Variable.from_numpy_array(np.array([[9], [4], [5], [-9], [10]]))\n          print(labels.shape)  # (5, 1)\n\n          num_class = 10\n\n          y_train = F.one_hot(labels, shape=(num_class, ))\n          y_train.forward()\n\n          print(y_train.shape)  # (5, 10)\n          print(y_train.d)\n\n          # [[0. 0. 0. 0. 0. 0. 0. 0. 0. 1.]\n          #  [0. 0. 0. 0. 1. 0. 0. 0. 0. 0.]\n          #  [0. 0. 0. 0. 0. 1. 0. 0. 0. 0.]\n          #  [0. 1. 0. 0. 0. 0. 0. 0. 0. 0.]\n          #  [0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]]\n\n          # Can also be used for ndarray.\n\n          labels = nn.Variable.from_numpy_array(np.array([[1, 7], [4, 7], [8, 6], [5, 0], [2, 6]]))\n          print(labels.shape)  # (5, 2)\n\n          num_class_1, num_class_2  = 10, 8\n\n          y_train = F.one_hot(labels, shape=(num_class_1, num_class_2))\n          y_train.forward()\n\n          print(y_train.shape)  # (5, 10, 8)\n          print(y_train.d)\n\n          # [[[0. 0. 0. 0. 0. 0. 0. 0.]          [[0. 0. 0. 0. 0. 0. 0. 0.]\n          #   [0. 0. 0. 0. 0. 0. 0. 1.]           [0. 0. 0. 0. 0. 0. 0. 0.]\n          #   [0. 0. 0. 0. 0. 0. 0. 0.]           [0. 0. 0. 0. 0. 0. 1. 0.]\n          #   [0. 0. 0. 0. 0. 0. 0. 0.]           [0. 0. 0. 0. 0. 0. 0. 0.]\n          #   [0. 0. 0. 0. 0. 0. 0. 0.]           [0. 0. 0. 0. 0. 0. 0. 0.]\n          #   [0. 0. 0. 0. 0. 0. 0. 0.]    ...    [0. 0. 0. 0. 0. 0. 0. 0.]\n          #   [0. 0. 0. 0. 0. 0. 0. 0.]           [0. 0. 0. 0. 0. 0. 0. 0.]\n          #   [0. 0. 0. 0. 0. 0. 0. 0.]           [0. 0. 0. 0. 0. 0. 0. 0.]\n          #   [0. 0. 0. 0. 0. 0. 0. 0.]           [0. 0. 0. 0. 0. 0. 0. 0.]\n          #   [0. 0. 0. 0. 0. 0. 0. 0.]],         [0. 0. 0. 0. 0. 0. 0. 0.]]]",
     "inputs": [
       {
         "name": "x",
@@ -4617,7 +4617,7 @@
         "name": "shape",
         "required": true,
         "type": "shape",
-        "description": "Number of classes. Note that it must be exactly the same as the number of classes included in label data. Passing incorrect numbers might cause an unexpected error and currently this function doesn't check if the input is valid or not. Also, when nd-labels are given, dimensions must match. See the example above."
+        "description": "Number of classes. When nd-labels are given, dimensions must match. See the example above."
       }
     ],
     "outputs": [
@@ -5292,6 +5292,25 @@
     "category": "Shape"
   },
   {
+    "name": "NonZero",
+    "description": "Find indices of non-zero elements.\n\nNonZero behaves similar to NonZero Operator in ONNX.\n\nExamples:\n\n>>> import numpy as np, nnabla as nn, nnabla.functions as F\n>>> nn.set_auto_forward(True)\n>>> x = F.arange(1, 10).reshape([3, 3])\n>>> x.d[0, 1] = x.d[1, 2] = x.d[2, 2] = 0\n>>> print(x.d)\n[[1. 0. 3.],\n [4. 5. 0.],\n [7. 8. 0.]]\n>>> y = F.nonzero(x)\n>>> print(y.shape)\n(2, 6)\n>>> print(y.d)\n[[0 0 1 1 2 2],\n [0 2 0 1 0 1]]\n\nNote that this function is normally used with the dynamic graph \nsince this function outputs a variable-length output. If used with \nthe static graph, a network has to be constructed all time in iteration.",
+    "inputs": [
+      {
+        "name": "x",
+        "type": "nnabla.Variable",
+        "description": "N-D arrays."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "y",
+        "type": "nnabla.Variable",
+        "description": "N-D array indices."
+      }
+    ],
+    "category": "Shape"
+  },
+  {
     "name": "Interpolate",
     "description": "Resize an ND array with interpolation.\n\nThe last ``len(output_size)`` dimensions of the input ``x`` are considered as the spatial dimensions to be resized.",
     "inputs": [
@@ -5337,6 +5356,80 @@
         "type": "boolean",
         "default": false,
         "description": "If True, the last dimension is considered as channel dimension, a.k.a NHWC order."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "y",
+        "type": "nnabla.Variable",
+        "description": "N-D array."
+      }
+    ]
+  },
+  {
+    "name": "ONNXResize",
+    "description": "Resize an ND array with interpolation. This function provides a \ncompatible interface to ONNX Resize.\n\nReferences:\n    * `ONNX Operators documentation.\n    <https://github.com/onnx/onnx/blob/main/docs/Operators.md>`",
+    "inputs": [
+      {
+        "name": "x",
+        "type": "nnabla.Variable",
+        "description": "N-D array."
+      }
+    ],
+    "attributes": [
+      {
+        "name": "roi",
+        "type": "float32[]",
+        "default": "()",
+        "description": "RoIs for tf_crop_and_resize."
+      },
+      {
+        "name": "scales",
+        "type": "float32[]",
+        "default": "()",
+        "description": "Scale factors along axes."
+      },
+      {
+        "name": "sizes",
+        "type": "int64[]",
+        "default": "()",
+        "description": "Output size."
+      },
+      {
+        "name": "mode",
+        "type": "string",
+        "default": "nearest",
+        "description": "Interpolation mode chosen from ('nearest'|'linear'|'cubic')."
+      },
+      {
+        "name": "coordinate_transformation_mode",
+        "type": "string",
+        "default": "half_pixel",
+        "description": "How to transform the coordinate in the resized tensor to the coordinate in the original tensor. This mode is chosen from ('half_pixel'|'pytorch_half_pixel'|'align_corners'|'asymmetric'|'tf_crop_and_resize')."
+      },
+      {
+        "name": "cubic_coeff_a",
+        "type": "float32",
+        "default": -0.75,
+        "description": "The coefficient used in cubic interpolation."
+      },
+      {
+        "name": "exclude_outside",
+        "type": "int64",
+        "default": 0,
+        "description": "Whether to set coefficients to zero when sampling locations is outside the input tensor."
+      },
+      {
+        "name": "extrapolation_value",
+        "type": "float32",
+        "default": 0.0,
+        "description": "An extrapolation value used when a sampling location is outside the input tensor at tf_crop_and_resize mode."
+      },
+      {
+        "name": "nearest_mode",
+        "type": "string",
+        "default": "round_prefer_floor",
+        "description": "Rounding mode for nearest-neighbor interpolation."
       }
     ],
     "outputs": [
@@ -7536,6 +7629,55 @@
         "name": "y",
         "type": "nnabla.Variable",
         "description": "A 3-dim array with the same dimensions with the input."
+      }
+    ]
+  },
+  {
+    "name": "ONNXNonMaxSuppression",
+    "description": "Non-Maximum Suppression (NMS) to 2D Object detector output. This function\nprovides a ONNX-compatible interface of Non-Maximum Suppression.\nThe first input is a 3-dimensional bounding box tensor with shape of\n``(B, N, 4)`` where ``B`` denotes batch size and ``N`` denotes the \nnumber of detection box candidates.\n``4`` consists of the box coordinates ``y1, x1, y2, x2`` in normalized\ncoordinates (size of each x and y are 1.0).\nThe second input is a 3-dimensional score tensor with shape of\n``(B, C, N)`` where ``C`` denotes the number of classes of object\ndetection.\nIt outputs the indices of the selected boxes as a tensor with shape of\n``(M, 3)`` where ``M`` denotes the number of the selected boxes.\n``3`` consists of 3-dimensional indices\n``batch_index, class_index, box_index``.\n\nReferences:\n    * `Joseph Redmon, Ali Farhadi, YOLO9000: Better, Faster, Stronger.\n      <https://arxiv.org/abs/1612.08242>`_\n    * `ONNX Operators documentation.\n      <https://github.com/onnx/onnx/blob/main/docs/Operators.md>`",
+    "inputs": [
+      {
+        "name": "boxes",
+        "type": "nnabla.Variable",
+        "description": "A 3-dimensional array."
+      },
+      {
+        "name": "scores",
+        "type": "nnabla.Variable",
+        "description": "A 3-dimensional array."
+      }
+    ],
+    "attributes": [
+      {
+        "name": "center_point_box",
+        "type": "int64",
+        "default": 0,
+        "description": "Bounding box format (0 or 1)."
+      },
+      {
+        "name": "max_output_boxes_per_class",
+        "type": "int64",
+        "default": 0,
+        "description": "The maximum number of boxes selected per batch per class."
+      },
+      {
+        "name": "iou_threshold",
+        "type": "float32",
+        "default": 0.0,
+        "description": "IoU threshold for Non-maximum suppression (NMS)."
+      },
+      {
+        "name": "score_threshold",
+        "type": "float32",
+        "default": 0.0,
+        "description": "Detection score threshold."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "y",
+        "type": "nnabla.Variable",
+        "description": "A 2-dimensional array."
       }
     ]
   },

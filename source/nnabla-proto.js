@@ -3217,7 +3217,7 @@ $root.nnabla.Function = class Function {
     }
 
     get parameter() {
-        $root.nnabla.Function.parameterSet = $root.nnabla.Function.parameterSet || new Set([ "affine_param", "rnn_param", "lstm_param", "gru_param", "convolution_param", "fused_convolution_param", "depthwise_convolution_param", "deconvolution_param", "depthwise_deconvolution_param", "deformable_convolution_param", "max_pooling_param", "average_pooling_param", "sum_pooling_param", "unpooling_param", "roi_align_param", "relu_param", "leaky_relu_param", "softmax_param", "log_softmax_param", "elu_param", "selu_param", "crelu_param", "celu_param", "prelu_param", "softplus_param", "fused_batch_normalization_param", "batch_normalization_param", "group_normalization_param", "instance_normalization_param", "layer_normalization_param", "norm_normalization_param", "sync_batch_normalization_param", "tensor_normalization_param", "weight_normalization_param", "weight_standardization_param", "spectral_norm_param", "mean_subtraction_param", "clip_grad_by_norm_param", "sum_param", "cumsum_param", "mean_param", "max_param", "min_param", "norm_param", "prod_param", "cumprod_param", "add2_param", "bc_add2_param", "sub2_param", "mul2_param", "div2_param", "pow2_param", "add_scalar_param", "mul_scalar_param", "pow_scalar_param", "r_sub_scalar_param", "r_div_scalar_param", "r_pow_scalar_param", "sign_param", "minimum_scalar_param", "maximum_scalar_param", "searchsorted_param", "logical_and_scalar_param", "logical_or_scalar_param", "logical_xor_scalar_param", "equal_scalar_param", "not_equal_scalar_param", "greater_equal_scalar_param", "greater_scalar_param", "less_equal_scalar_param", "less_scalar_param", "reset_nan_param", "reset_inf_param", "constant_param", "arange_param", "linspace_param", "batch_matmul_param", "round_param", "ceil_param", "floor_param", "concatenate_param", "split_param", "stack_param", "slice_param", "pad_param", "transpose_param", "broadcast_param", "broadcast_to_param", "tile_param", "one_hot_param", "flip_param", "shift_param", "sort_param", "reshape_param", "shape_param", "meshgrid_param", "batch_cholesky_param", "gather_param", "scatter_nd_param", "scatter_add_param", "bool_fill_param", "pack_padded_sequence_param", "pad_packed_sequence_param", "interpolate_param", "fft_param", "ifft_param", "stft_param", "istft_param", "dropout_param", "top_k_data_param", "top_k_grad_param", "rand_param", "randint_param", "randn_param", "rand_binomial_param", "rand_beta_param", "rand_gamma_param", "random_choice_param", "random_crop_param", "random_flip_param", "random_shift_param", "random_erase_param", "image_augmentation_param", "softmax_cross_entropy_param", "categorical_cross_entropy_param", "huber_loss_param", "epsilon_insensitive_loss_param", "kl_multinomial_param", "affine_grid_param", "warp_by_grid_param", "binary_connect_affine_param", "binary_connect_convolution_param", "binary_weight_affine_param", "binary_weight_convolution_param", "inq_affine_param", "inq_convolution_param", "fixed_point_quantize_param", "min_max_quantize_param", "pow2_quantize_param", "prune_param", "quantize_linear_param", "top_n_error_param", "confusion_matrix_param", "vat_noise_param", "sink_param", "nms_detection2d_param", "max_pooling_backward_param", "patch_correlation_param"]);
+        $root.nnabla.Function.parameterSet = $root.nnabla.Function.parameterSet || new Set([ "affine_param", "rnn_param", "lstm_param", "gru_param", "convolution_param", "fused_convolution_param", "depthwise_convolution_param", "deconvolution_param", "depthwise_deconvolution_param", "deformable_convolution_param", "max_pooling_param", "average_pooling_param", "sum_pooling_param", "unpooling_param", "roi_align_param", "relu_param", "leaky_relu_param", "softmax_param", "log_softmax_param", "elu_param", "selu_param", "crelu_param", "celu_param", "prelu_param", "softplus_param", "fused_batch_normalization_param", "batch_normalization_param", "group_normalization_param", "instance_normalization_param", "layer_normalization_param", "norm_normalization_param", "sync_batch_normalization_param", "tensor_normalization_param", "weight_normalization_param", "weight_standardization_param", "spectral_norm_param", "mean_subtraction_param", "clip_grad_by_norm_param", "sum_param", "cumsum_param", "mean_param", "max_param", "min_param", "norm_param", "prod_param", "cumprod_param", "add2_param", "bc_add2_param", "sub2_param", "mul2_param", "div2_param", "pow2_param", "add_scalar_param", "mul_scalar_param", "pow_scalar_param", "r_sub_scalar_param", "r_div_scalar_param", "r_pow_scalar_param", "sign_param", "minimum_scalar_param", "maximum_scalar_param", "searchsorted_param", "logical_and_scalar_param", "logical_or_scalar_param", "logical_xor_scalar_param", "equal_scalar_param", "not_equal_scalar_param", "greater_equal_scalar_param", "greater_scalar_param", "less_equal_scalar_param", "less_scalar_param", "reset_nan_param", "reset_inf_param", "constant_param", "arange_param", "linspace_param", "batch_matmul_param", "round_param", "ceil_param", "floor_param", "concatenate_param", "split_param", "stack_param", "slice_param", "pad_param", "transpose_param", "broadcast_param", "broadcast_to_param", "tile_param", "one_hot_param", "flip_param", "shift_param", "sort_param", "reshape_param", "shape_param", "meshgrid_param", "batch_cholesky_param", "gather_param", "scatter_nd_param", "scatter_add_param", "bool_fill_param", "pack_padded_sequence_param", "pad_packed_sequence_param", "interpolate_param", "onnx_resize_param", "fft_param", "ifft_param", "stft_param", "istft_param", "dropout_param", "top_k_data_param", "top_k_grad_param", "rand_param", "randint_param", "randn_param", "rand_binomial_param", "rand_beta_param", "rand_gamma_param", "random_choice_param", "random_crop_param", "random_flip_param", "random_shift_param", "random_erase_param", "image_augmentation_param", "softmax_cross_entropy_param", "categorical_cross_entropy_param", "huber_loss_param", "epsilon_insensitive_loss_param", "kl_multinomial_param", "affine_grid_param", "warp_by_grid_param", "binary_connect_affine_param", "binary_connect_convolution_param", "binary_weight_affine_param", "binary_weight_convolution_param", "inq_affine_param", "inq_convolution_param", "fixed_point_quantize_param", "min_max_quantize_param", "pow2_quantize_param", "prune_param", "quantize_linear_param", "top_n_error_param", "confusion_matrix_param", "vat_noise_param", "sink_param", "nms_detection2d_param", "onnx_non_max_suppression_param", "max_pooling_backward_param", "patch_correlation_param"]);
         return Object.keys(this).find((key) => $root.nnabla.Function.parameterSet.has(key) && this[key] != null);
     }
 
@@ -3554,139 +3554,145 @@ $root.nnabla.Function = class Function {
                 case 1164:
                     message.pad_packed_sequence_param = $root.nnabla.PadPackedSequenceParameter.decode(reader, reader.uint32());
                     break;
-                case 1165:
+                case 1166:
                     message.interpolate_param = $root.nnabla.InterpolateParameter.decode(reader, reader.uint32());
                     break;
-                case 1166:
-                    message.fft_param = $root.nnabla.FFTParameter.decode(reader, reader.uint32());
-                    break;
                 case 1167:
-                    message.ifft_param = $root.nnabla.IFFTParameter.decode(reader, reader.uint32());
+                    message.onnx_resize_param = $root.nnabla.ONNXResizeParameter.decode(reader, reader.uint32());
                     break;
                 case 1168:
-                    message.stft_param = $root.nnabla.STFTParameter.decode(reader, reader.uint32());
+                    message.fft_param = $root.nnabla.FFTParameter.decode(reader, reader.uint32());
                     break;
                 case 1169:
-                    message.istft_param = $root.nnabla.ISTFTParameter.decode(reader, reader.uint32());
+                    message.ifft_param = $root.nnabla.IFFTParameter.decode(reader, reader.uint32());
                     break;
                 case 1170:
-                    message.dropout_param = $root.nnabla.DropoutParameter.decode(reader, reader.uint32());
+                    message.stft_param = $root.nnabla.STFTParameter.decode(reader, reader.uint32());
                     break;
                 case 1171:
-                    message.top_k_data_param = $root.nnabla.TopKDataParameter.decode(reader, reader.uint32());
+                    message.istft_param = $root.nnabla.ISTFTParameter.decode(reader, reader.uint32());
                     break;
                 case 1172:
-                    message.top_k_grad_param = $root.nnabla.TopKGradParameter.decode(reader, reader.uint32());
+                    message.dropout_param = $root.nnabla.DropoutParameter.decode(reader, reader.uint32());
                     break;
                 case 1173:
-                    message.rand_param = $root.nnabla.RandParameter.decode(reader, reader.uint32());
+                    message.top_k_data_param = $root.nnabla.TopKDataParameter.decode(reader, reader.uint32());
                     break;
                 case 1174:
-                    message.randint_param = $root.nnabla.RandintParameter.decode(reader, reader.uint32());
+                    message.top_k_grad_param = $root.nnabla.TopKGradParameter.decode(reader, reader.uint32());
                     break;
                 case 1175:
-                    message.randn_param = $root.nnabla.RandnParameter.decode(reader, reader.uint32());
+                    message.rand_param = $root.nnabla.RandParameter.decode(reader, reader.uint32());
                     break;
                 case 1176:
-                    message.rand_binomial_param = $root.nnabla.RandBinomialParameter.decode(reader, reader.uint32());
+                    message.randint_param = $root.nnabla.RandintParameter.decode(reader, reader.uint32());
                     break;
                 case 1177:
-                    message.rand_beta_param = $root.nnabla.RandBetaParameter.decode(reader, reader.uint32());
+                    message.randn_param = $root.nnabla.RandnParameter.decode(reader, reader.uint32());
                     break;
                 case 1178:
-                    message.rand_gamma_param = $root.nnabla.RandGammaParameter.decode(reader, reader.uint32());
+                    message.rand_binomial_param = $root.nnabla.RandBinomialParameter.decode(reader, reader.uint32());
                     break;
                 case 1179:
-                    message.random_choice_param = $root.nnabla.RandomChoiceParameter.decode(reader, reader.uint32());
+                    message.rand_beta_param = $root.nnabla.RandBetaParameter.decode(reader, reader.uint32());
                     break;
                 case 1180:
-                    message.random_crop_param = $root.nnabla.RandomCropParameter.decode(reader, reader.uint32());
+                    message.rand_gamma_param = $root.nnabla.RandGammaParameter.decode(reader, reader.uint32());
                     break;
                 case 1181:
-                    message.random_flip_param = $root.nnabla.RandomFlipParameter.decode(reader, reader.uint32());
+                    message.random_choice_param = $root.nnabla.RandomChoiceParameter.decode(reader, reader.uint32());
                     break;
                 case 1182:
-                    message.random_shift_param = $root.nnabla.RandomShiftParameter.decode(reader, reader.uint32());
+                    message.random_crop_param = $root.nnabla.RandomCropParameter.decode(reader, reader.uint32());
                     break;
                 case 1183:
-                    message.random_erase_param = $root.nnabla.RandomEraseParameter.decode(reader, reader.uint32());
+                    message.random_flip_param = $root.nnabla.RandomFlipParameter.decode(reader, reader.uint32());
                     break;
                 case 1184:
+                    message.random_shift_param = $root.nnabla.RandomShiftParameter.decode(reader, reader.uint32());
+                    break;
+                case 1185:
+                    message.random_erase_param = $root.nnabla.RandomEraseParameter.decode(reader, reader.uint32());
+                    break;
+                case 1186:
                     message.image_augmentation_param = $root.nnabla.ImageAugmentationParameter.decode(reader, reader.uint32());
                     break;
-                case 1187:
+                case 1189:
                     message.softmax_cross_entropy_param = $root.nnabla.SoftmaxCrossEntropyParameter.decode(reader, reader.uint32());
                     break;
-                case 1188:
+                case 1190:
                     message.categorical_cross_entropy_param = $root.nnabla.CategoricalCrossEntropyParameter.decode(reader, reader.uint32());
                     break;
-                case 1191:
+                case 1193:
                     message.huber_loss_param = $root.nnabla.HuberLossParameter.decode(reader, reader.uint32());
                     break;
-                case 1192:
+                case 1194:
                     message.epsilon_insensitive_loss_param = $root.nnabla.EpsilonInsensitiveLossParameter.decode(reader, reader.uint32());
                     break;
-                case 1193:
+                case 1195:
                     message.kl_multinomial_param = $root.nnabla.KLMultinomialParameter.decode(reader, reader.uint32());
                     break;
-                case 1194:
+                case 1196:
                     message.affine_grid_param = $root.nnabla.AffineGridParameter.decode(reader, reader.uint32());
                     break;
-                case 1195:
+                case 1197:
                     message.warp_by_grid_param = $root.nnabla.WarpByGridParameter.decode(reader, reader.uint32());
                     break;
-                case 1199:
+                case 1201:
                     message.binary_connect_affine_param = $root.nnabla.BinaryConnectAffineParameter.decode(reader, reader.uint32());
                     break;
-                case 1200:
+                case 1202:
                     message.binary_connect_convolution_param = $root.nnabla.BinaryConnectConvolutionParameter.decode(reader, reader.uint32());
                     break;
-                case 1201:
+                case 1203:
                     message.binary_weight_affine_param = $root.nnabla.BinaryWeightAffineParameter.decode(reader, reader.uint32());
                     break;
-                case 1202:
+                case 1204:
                     message.binary_weight_convolution_param = $root.nnabla.BinaryWeightConvolutionParameter.decode(reader, reader.uint32());
                     break;
-                case 1203:
+                case 1205:
                     message.inq_affine_param = $root.nnabla.INQAffineParameter.decode(reader, reader.uint32());
                     break;
-                case 1204:
+                case 1206:
                     message.inq_convolution_param = $root.nnabla.INQConvolutionParameter.decode(reader, reader.uint32());
                     break;
-                case 1205:
+                case 1207:
                     message.fixed_point_quantize_param = $root.nnabla.FixedPointQuantizeParameter.decode(reader, reader.uint32());
                     break;
-                case 1206:
+                case 1208:
                     message.min_max_quantize_param = $root.nnabla.MinMaxQuantizeParameter.decode(reader, reader.uint32());
                     break;
-                case 1207:
+                case 1209:
                     message.pow2_quantize_param = $root.nnabla.Pow2QuantizeParameter.decode(reader, reader.uint32());
                     break;
-                case 1208:
+                case 1210:
                     message.prune_param = $root.nnabla.PruneParameter.decode(reader, reader.uint32());
                     break;
-                case 1209:
+                case 1211:
                     message.quantize_linear_param = $root.nnabla.QuantizeLinearParameter.decode(reader, reader.uint32());
                     break;
-                case 1211:
+                case 1213:
                     message.top_n_error_param = $root.nnabla.TopNErrorParameter.decode(reader, reader.uint32());
                     break;
-                case 1213:
+                case 1215:
                     message.confusion_matrix_param = $root.nnabla.ConfusionMatrixParameter.decode(reader, reader.uint32());
                     break;
-                case 1214:
+                case 1216:
                     message.vat_noise_param = $root.nnabla.VATNoiseParameter.decode(reader, reader.uint32());
                     break;
-                case 1216:
+                case 1218:
                     message.sink_param = $root.nnabla.SinkParameter.decode(reader, reader.uint32());
                     break;
-                case 1217:
+                case 1219:
                     message.nms_detection2d_param = $root.nnabla.NmsDetection2dParameter.decode(reader, reader.uint32());
                     break;
-                case 1218:
+                case 1220:
+                    message.onnx_non_max_suppression_param = $root.nnabla.ONNXNonMaxSuppressionParameter.decode(reader, reader.uint32());
+                    break;
+                case 1221:
                     message.max_pooling_backward_param = $root.nnabla.MaxPoolingBackwardParameter.decode(reader, reader.uint32());
                     break;
-                case 1219:
+                case 1222:
                     message.patch_correlation_param = $root.nnabla.PatchCorrelationParameter.decode(reader, reader.uint32());
                     break;
                 case 100:
@@ -4039,6 +4045,9 @@ $root.nnabla.Function = class Function {
                 case "interpolate_param":
                     message.interpolate_param = $root.nnabla.InterpolateParameter.decodeText(reader);
                     break;
+                case "onnx_resize_param":
+                    message.onnx_resize_param = $root.nnabla.ONNXResizeParameter.decodeText(reader);
+                    break;
                 case "fft_param":
                     message.fft_param = $root.nnabla.FFTParameter.decodeText(reader);
                     break;
@@ -4164,6 +4173,9 @@ $root.nnabla.Function = class Function {
                     break;
                 case "nms_detection2d_param":
                     message.nms_detection2d_param = $root.nnabla.NmsDetection2dParameter.decodeText(reader);
+                    break;
+                case "onnx_non_max_suppression_param":
+                    message.onnx_non_max_suppression_param = $root.nnabla.ONNXNonMaxSuppressionParameter.decodeText(reader);
                     break;
                 case "max_pooling_backward_param":
                     message.max_pooling_backward_param = $root.nnabla.MaxPoolingBackwardParameter.decodeText(reader);
@@ -9575,6 +9587,104 @@ $root.nnabla.InterpolateParameter.prototype.half_pixel = false;
 $root.nnabla.InterpolateParameter.prototype.half_pixel_for_nn = false;
 $root.nnabla.InterpolateParameter.prototype.channel_last = false;
 
+$root.nnabla.ONNXResizeParameter = class ONNXResizeParameter {
+
+    constructor() {
+        this.roi = [];
+        this.scales = [];
+        this.sizes = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.nnabla.ONNXResizeParameter();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.roi = reader.floats(message.roi, tag);
+                    break;
+                case 2:
+                    message.scales = reader.floats(message.scales, tag);
+                    break;
+                case 3:
+                    message.sizes = reader.array(message.sizes, () => reader.int64(), tag);
+                    break;
+                case 4:
+                    message.mode = reader.string();
+                    break;
+                case 5:
+                    message.coordinate_transformation_mode = reader.string();
+                    break;
+                case 6:
+                    message.cubic_coeff_a = reader.float();
+                    break;
+                case 7:
+                    message.exclude_outside = reader.int64();
+                    break;
+                case 8:
+                    message.extrapolation_value = reader.float();
+                    break;
+                case 9:
+                    message.nearest_mode = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.nnabla.ONNXResizeParameter();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "roi":
+                    reader.array(message.roi, () => reader.float());
+                    break;
+                case "scales":
+                    reader.array(message.scales, () => reader.float());
+                    break;
+                case "sizes":
+                    reader.array(message.sizes, () => reader.int64());
+                    break;
+                case "mode":
+                    message.mode = reader.string();
+                    break;
+                case "coordinate_transformation_mode":
+                    message.coordinate_transformation_mode = reader.string();
+                    break;
+                case "cubic_coeff_a":
+                    message.cubic_coeff_a = reader.float();
+                    break;
+                case "exclude_outside":
+                    message.exclude_outside = reader.int64();
+                    break;
+                case "extrapolation_value":
+                    message.extrapolation_value = reader.float();
+                    break;
+                case "nearest_mode":
+                    message.nearest_mode = reader.string();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.nnabla.ONNXResizeParameter.prototype.mode = "";
+$root.nnabla.ONNXResizeParameter.prototype.coordinate_transformation_mode = "";
+$root.nnabla.ONNXResizeParameter.prototype.cubic_coeff_a = 0;
+$root.nnabla.ONNXResizeParameter.prototype.exclude_outside = protobuf.Int64.create(0);
+$root.nnabla.ONNXResizeParameter.prototype.extrapolation_value = 0;
+$root.nnabla.ONNXResizeParameter.prototype.nearest_mode = "";
+
 $root.nnabla.FFTParameter = class FFTParameter {
 
     constructor() {
@@ -12178,6 +12288,69 @@ $root.nnabla.NmsDetection2dParameter = class NmsDetection2dParameter {
 $root.nnabla.NmsDetection2dParameter.prototype.thresh = 0;
 $root.nnabla.NmsDetection2dParameter.prototype.nms = 0;
 $root.nnabla.NmsDetection2dParameter.prototype.nms_per_class = false;
+
+$root.nnabla.ONNXNonMaxSuppressionParameter = class ONNXNonMaxSuppressionParameter {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.nnabla.ONNXNonMaxSuppressionParameter();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.center_point_box = reader.int64();
+                    break;
+                case 2:
+                    message.max_output_boxes_per_class = reader.int64();
+                    break;
+                case 3:
+                    message.iou_threshold = reader.float();
+                    break;
+                case 4:
+                    message.score_threshold = reader.float();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.nnabla.ONNXNonMaxSuppressionParameter();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "center_point_box":
+                    message.center_point_box = reader.int64();
+                    break;
+                case "max_output_boxes_per_class":
+                    message.max_output_boxes_per_class = reader.int64();
+                    break;
+                case "iou_threshold":
+                    message.iou_threshold = reader.float();
+                    break;
+                case "score_threshold":
+                    message.score_threshold = reader.float();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.nnabla.ONNXNonMaxSuppressionParameter.prototype.center_point_box = protobuf.Int64.create(0);
+$root.nnabla.ONNXNonMaxSuppressionParameter.prototype.max_output_boxes_per_class = protobuf.Int64.create(0);
+$root.nnabla.ONNXNonMaxSuppressionParameter.prototype.iou_threshold = 0;
+$root.nnabla.ONNXNonMaxSuppressionParameter.prototype.score_threshold = 0;
 
 $root.nnabla.MaxPoolingBackwardParameter = class MaxPoolingBackwardParameter {
 
