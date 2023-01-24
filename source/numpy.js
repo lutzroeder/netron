@@ -85,9 +85,11 @@ numpy.ModelFactory = class {
                     return layers.get(name);
                 };
                 const weights = match.value;
-                let separator = '.';
-                if (Array.from(weights.keys()).filter((key) => key.indexOf('_') !== -1) &&
-                    Array.from(weights.keys()).every((key) => key.indexOf('_') > key.indexOf('.'))) {
+                let separator = undefined;
+                if (Array.from(weights.keys()).every((key) => key.indexOf('.') !== -1)) {
+                    separator = '.';
+                }
+                if (Array.from(weights.keys()).every((key) => key.indexOf('_') > key.indexOf('.'))) {
                     separator = '_';
                 }
                 for (const pair of weights) {
@@ -97,9 +99,9 @@ numpy.ModelFactory = class {
                         layer(name.substring(0, name.length - 10)).type = value;
                         continue;
                     }
-                    const parts = name.split(separator);
-                    const parameterName = parts.length > 1 ? parts.pop() : '?';
-                    const layerName = parts.join(separator);
+                    const parts = separator ? name.split(separator) : null;
+                    const parameterName = separator ? parts.pop() : name;
+                    const layerName = separator ? parts.join(separator) : '';
                     if (!layers.has(layerName)) {
                         layers.set(layerName, { name: layerName, parameters: [] });
                     }
@@ -241,7 +243,7 @@ numpy.Node = class {
 
     constructor(layer) {
         this._name = layer.name || '';
-        this._type = { name: layer.type || '{}' };
+        this._type = { name: layer.type || 'Object' };
         this._inputs = [];
         for (const parameter of layer.parameters) {
             const initializer = new numpy.Tensor(parameter.tensor.array);
