@@ -633,12 +633,6 @@ host.Telemetry = class {
         };
     }
 
-    screenview(screenName) {
-        const params = Object.assign({}, this._params);
-        params.cd = screenName;
-        this._send('screenview', params);
-    }
-
     event(category, action, label, value) {
         const params = Object.assign({}, this._params);
         params.ec = category;
