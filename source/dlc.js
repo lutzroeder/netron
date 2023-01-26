@@ -385,7 +385,8 @@ dlc.Container = class {
         }
         const stream = context.stream;
         let buffer = null;
-        if (dlc.Container._signature(stream, [ 0xD5, 0x0A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00 ])) {
+        if (dlc.Container._signature(stream, [ 0xD5, 0x0A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00 ]) ||
+            dlc.Container._signature(stream, [ 0xD5, 0x0A, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00 ])) {
             buffer = stream.peek(16).slice(8, 16);
         }
         else if (stream && stream.length > 8) {
@@ -456,12 +457,18 @@ dlc.Container = class {
         if (dlc.Container._signature(stream, [ 0xD5, 0x0A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00 ])) {
             stream.read(8);
         }
-        const buffer = new Uint8Array(stream.read());
-        const reader = flatbuffers.BinaryReader.open(buffer);
-        if (identifier != reader.identifier) {
-            throw new dlc.Error("File contains undocumented '" + reader.identifier + "' data.");
+        if (dlc.Container._signature(stream, [ 0xD5, 0x0A, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00 ])) {
+            // stream.read(8);
+            throw new dlc.Error("Unsupported DLC format '0x00040AD5'.");
         }
+        const buffer = new Uint8Array(stream.read());
         stream.seek(0);
+        const reader = flatbuffers.BinaryReader.open(buffer);
+        if (identifier !== reader.identifier) {
+            const buffer = stream.peek(Math.min(16, stream.length));
+            const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+            throw new dlc.Error("File contains undocumented '" + content + "' data.");
+        }
         return reader;
     }
 
