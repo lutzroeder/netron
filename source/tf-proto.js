@@ -6956,9 +6956,7 @@ $root.tensorflow.ConfigProto.Experimental.prototype.disable_optimize_for_static_
 $root.tensorflow.ConfigProto.Experimental.MlirBridgeRollout = {
     "MLIR_BRIDGE_ROLLOUT_UNSPECIFIED": 0,
     "MLIR_BRIDGE_ROLLOUT_ENABLED": 1,
-    "MLIR_BRIDGE_ROLLOUT_DISABLED": 2,
-    "MLIR_BRIDGE_ROLLOUT_SAFE_MODE_ENABLED": 3,
-    "MLIR_BRIDGE_ROLLOUT_SAFE_MODE_FALLBACK_ENABLED": 4
+    "MLIR_BRIDGE_ROLLOUT_DISABLED": 2
 };
 
 $root.tensorflow.RunOptions = class RunOptions {
