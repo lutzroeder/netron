@@ -27,7 +27,7 @@ host.BrowserHost = class {
             'platform': /(Mac|iPhone|iPod|iPad)/i.test(this._navigator.platform) ? 'darwin' : undefined,
             'menu': true
         };
-        if (/^\d\.\d\.\d$/.test(this.version)) {
+        if (!/^\d\.\d\.\d$/.test(this.version)) {
             throw new Error('Invalid version.');
         }
         this.window.require = (id) => {
