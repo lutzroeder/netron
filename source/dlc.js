@@ -15,6 +15,7 @@ dlc.ModelFactory = class {
             let model = null;
             let params = null;
             const metadata_props = container.metadata;
+            container.validate();
             try {
                 model = container.model;
             }
@@ -384,14 +385,10 @@ dlc.Container = class {
             }
         }
         const stream = context.stream;
-        switch (dlc.Container._signature(stream)) {
-            case '1.NETD':
-            case '3.NETD':
-            case '4.NETD':
+        switch (dlc.Container._signature(stream).split('.').pop()) {
+            case 'NETD':
                 return new dlc.Container(stream, null, null);
-            case '1.NETP':
-            case '3.NETP':
-            case '4.NETP':
+            case 'NETP':
                 return new dlc.Container(null, stream, null);
             default:
                 return null;
@@ -399,31 +396,40 @@ dlc.Container = class {
     }
 
     constructor(model, params, metadata) {
-        this._model = model || null;
-        this._params = params || null;
-        this._metadata = metadata || new Uint8Array(0);
+        this._model = { stream: model || null };
+        this._params = { stream: params || null };
+        this._metadata = { stream: metadata || null, value: new Map() };
+    }
+
+    validate() {
+        this._model.signature = dlc.Container._signature(this._model.stream);
+        this._params.signature = dlc.Container._signature(this._params.stream);
+        if (this._model.signature == '2' ||this._params.signature == '2') {
+            throw new dlc.Error("File contains undocumented DLC v2 data.");
+        }
+        if (this._model.signature.startsWith('4.') || this._params.signature.startsWith('4.')) {
+            throw new dlc.Error("File contains undocumented DLC v4 data.");
+        }
     }
 
     get model() {
-        if (this._model && typeof this._model.peek === 'function') {
-            const stream = this._model;
+        if (this._model && this._model.stream) {
+            const stream = this._model.stream;
+            delete this._model.stream;
             switch (dlc.Container._signature(stream)) {
                 case '4.NETD': {
-                    throw new dlc.Error("Unsupported DLC format '0x00040AD5'.");
+                    throw new dlc.Error("File contains undocumented DLC v4 data.");
                 }
                 case '3.NETD': {
                     const buffer = new Uint8Array(stream.peek().subarray(8));
                     const reader = flatbuffers.BinaryReader.open(buffer);
-                    this._model = dlc.schema.NetDef.decode(reader, reader.root);
+                    this._model.value = dlc.schema.NetDef.decode(reader, reader.root);
                     break;
                 }
-                case '2': {
-                    throw new dlc.Error("Unsupported DLC format '0x00020AD5'.");
-                }
-                case '1.NETD': {
+                case 'NETD': {
                     const buffer = stream.peek();
                     const reader = flatbuffers.BinaryReader.open(buffer);
-                    this._model = dlc.schema.NetDef.decode(reader, reader.root);
+                    this._model.value = dlc.schema.NetDef.decode(reader, reader.root);
                     break;
                 }
                 default: {
@@ -433,29 +439,30 @@ dlc.Container = class {
                 }
             }
         }
-        return this._model;
+        return this._model.value;
     }
 
     get params() {
-        if (this._params && typeof this._params.peek === 'function') {
-            const stream = this._params;
+        if (this._params && this._params.stream) {
+            const stream = this._params.stream;
+            delete this._params.stream;
             switch (dlc.Container._signature(stream)) {
                 case '4.NETP': {
-                    throw new dlc.Error("Unsupported DLC format '0x00040AD5'.");
+                    throw new dlc.Error("File contains undocumented DLC v4 data.");
                 }
                 case '3.NETP': {
                     const buffer = new Uint8Array(stream.peek().subarray(8));
                     const reader = flatbuffers.BinaryReader.open(buffer);
-                    this._params = dlc.schema.NetParam.decode(reader, reader.root);
+                    this._params.value = dlc.schema.NetParam.decode(reader, reader.root);
                     break;
                 }
                 case '2': {
-                    throw new dlc.Error("Unsupported DLC format '0x00020AD5'.");
+                    throw new dlc.Error("File contains undocumented DLC v2 data.");
                 }
-                case '1.NETP': {
+                case 'NETP': {
                     const buffer = stream.peek();
                     const reader = flatbuffers.BinaryReader.open(buffer);
-                    this._params = dlc.schema.NetParam.decode(reader, reader.root);
+                    this._params.value = dlc.schema.NetParam.decode(reader, reader.root);
                     break;
                 }
                 default: {
@@ -465,13 +472,14 @@ dlc.Container = class {
                 }
             }
         }
-        return this._params;
+        return this._params.value;
     }
 
     get metadata() {
-        if (this._metadata && typeof this._metadata.peek === 'function') {
-            const reader = text.Reader.open(this._metadata);
-            const metadata = new Map();
+        if (this._metadata.stream) {
+            const stream = this._metadata.stream;
+            delete this._metadata.stream;
+            const reader = text.Reader.open(stream);
             for (;;) {
                 const line = reader.read();
                 if (line === undefined) {
@@ -483,32 +491,33 @@ dlc.Container = class {
                 }
                 const key = line.substring(0, index);
                 const value = line.substring(index + 1);
-                metadata.set(key, value);
+                this._metadata.value.set(key, value);
             }
-            this._metadata = metadata;
         }
-        return this._metadata;
+        return this._metadata.value;
     }
 
     static _signature(stream) {
-        const buffer = stream.peek(Math.min(stream.length, 16));
-        const match = (signature) => buffer.length >= signature.length && signature.every((value, index) => value === buffer[index]);
-        if (match([ 0xD5, 0x0A, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00 ]) && buffer.length >= 16) {
-            const reader = flatbuffers.BinaryReader.open(buffer.slice(8));
-            return '4.' + reader.identifier;
+        if (stream) {
+            const buffer = stream.peek(Math.min(stream.length, 16));
+            const match = (signature) => buffer.length >= signature.length && signature.every((value, index) => value === buffer[index]);
+            if (match([ 0xD5, 0x0A, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00 ]) && buffer.length >= 16) {
+                const reader = flatbuffers.BinaryReader.open(buffer.slice(8));
+                return '4.' + reader.identifier;
+            }
+            if (match([ 0xD5, 0x0A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00 ]) && buffer.length >= 16) {
+                const reader = flatbuffers.BinaryReader.open(buffer.slice(8));
+                return '3.' + reader.identifier;
+            }
+            if (match([ 0xD5, 0x0A, 0x02, 0x00 ])) {
+                return '2';
+            }
+            if (buffer.length >= 8) {
+                const reader = flatbuffers.BinaryReader.open(buffer);
+                return reader.identifier;
+            }
         }
-        if (match([ 0xD5, 0x0A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00 ]) && buffer.length >= 16) {
-            const reader = flatbuffers.BinaryReader.open(buffer.slice(8));
-            return '3.' + reader.identifier;
-        }
-        if (match([ 0xD5, 0x0A, 0x02, 0x00 ])) {
-            return '2';
-        }
-        if (buffer.length >= 8) {
-            const reader = flatbuffers.BinaryReader.open(buffer);
-            return '1.' + reader.identifier;
-        }
-        return '0';
+        return '';
     }
 };
 

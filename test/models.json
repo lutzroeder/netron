@@ -1961,6 +1961,14 @@
   },
   {
     "type":     "dlc",
+    "target":   "mobilenet-SSD.dlc",
+    "source":   "https://github.com/lutzroeder/netron/files/10528507/mobilenet-SSD.dlc.zip[mobilenet-SSD.dlc]",
+    "format":   "DLC",
+    "error":    "File contains undocumented DLC v2 data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/640"
+  },
+  {
+    "type":     "dlc",
     "target":   "yolov8n_op11_v1.dlc",
     "source":   "https://github.com/lutzroeder/netron/files/10527011/yolov8n_op11_v1.dlc.zip[yolov8n_op11_v1.dlc]",
     "format":   "DLC",
@@ -1971,7 +1979,7 @@
     "target":   "yolov8n_op11_v2.dlc",
     "source":   "https://github.com/lutzroeder/netron/files/10527012/yolov8n_op11_v2.dlc.zip[yolov8n_op11_v2.dlc]",
     "format":   "DLC",
-    "error":    "File format is not dlc.NetDef (Unsupported DLC format '0x00040AD5').",
+    "error":    "File contains undocumented DLC v4 data.",
     "link":     "https://github.com/lutzroeder/netron/issues/1037"
   },
   {
