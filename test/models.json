@@ -1960,6 +1960,21 @@
     "link":     "https://github.com/lutzroeder/netron/issues/640"
   },
   {
+    "type":     "dlc",
+    "target":   "yolov8n_op11_v1.dlc",
+    "source":   "https://github.com/lutzroeder/netron/files/10527011/yolov8n_op11_v1.dlc.zip[yolov8n_op11_v1.dlc]",
+    "format":   "DLC",
+    "link":     "https://github.com/lutzroeder/netron/issues/1037"
+  },
+  {
+    "type":     "dlc",
+    "target":   "yolov8n_op11_v2.dlc",
+    "source":   "https://github.com/lutzroeder/netron/files/10527012/yolov8n_op11_v2.dlc.zip[yolov8n_op11_v2.dlc]",
+    "format":   "DLC",
+    "error":    "File format is not dlc.NetDef (Unsupported DLC format '0x00040AD5').",
+    "link":     "https://github.com/lutzroeder/netron/issues/1037"
+  },
+  {
     "type":     "dnn",
     "target":   "brows_model.dnn",
     "source":   "https://github.com/lutzroeder/netron/files/5118426/brows_model.zip[brows_model.dnn]",

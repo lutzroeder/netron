@@ -384,26 +384,18 @@ dlc.Container = class {
             }
         }
         const stream = context.stream;
-        let buffer = null;
-        if (dlc.Container._signature(stream, [ 0xD5, 0x0A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00 ]) ||
-            dlc.Container._signature(stream, [ 0xD5, 0x0A, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00 ])) {
-            buffer = stream.peek(16).slice(8, 16);
+        switch (dlc.Container._signature(stream)) {
+            case '1.NETD':
+            case '3.NETD':
+            case '4.NETD':
+                return new dlc.Container(stream, null, null);
+            case '1.NETP':
+            case '3.NETP':
+            case '4.NETP':
+                return new dlc.Container(null, stream, null);
+            default:
+                return null;
         }
-        else if (stream && stream.length > 8) {
-            buffer = stream.peek(8);
-        }
-        if (buffer) {
-            const reader = flatbuffers.BinaryReader.open(buffer);
-            switch (reader.identifier) {
-                case 'NETD':
-                    return new dlc.Container(stream, null, null);
-                case 'NETP':
-                    return new dlc.Container(null, stream, null);
-                default:
-                    break;
-            }
-        }
-        return null;
     }
 
     constructor(model, params, metadata) {
@@ -414,16 +406,64 @@ dlc.Container = class {
 
     get model() {
         if (this._model && typeof this._model.peek === 'function') {
-            const reader = this._open(this._model, 'NETD');
-            this._model = dlc.schema.NetDef.decode(reader, reader.root);
+            const stream = this._model;
+            switch (dlc.Container._signature(stream)) {
+                case '4.NETD': {
+                    throw new dlc.Error("Unsupported DLC format '0x00040AD5'.");
+                }
+                case '3.NETD': {
+                    const buffer = new Uint8Array(stream.peek().subarray(8));
+                    const reader = flatbuffers.BinaryReader.open(buffer);
+                    this._model = dlc.schema.NetDef.decode(reader, reader.root);
+                    break;
+                }
+                case '2': {
+                    throw new dlc.Error("Unsupported DLC format '0x00020AD5'.");
+                }
+                case '1.NETD': {
+                    const buffer = stream.peek();
+                    const reader = flatbuffers.BinaryReader.open(buffer);
+                    this._model = dlc.schema.NetDef.decode(reader, reader.root);
+                    break;
+                }
+                default: {
+                    const buffer = stream.peek(Math.min(stream.length, 16));
+                    const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+                    throw new dlc.Error("File contains undocumented '" + content + "' data.");
+                }
+            }
         }
         return this._model;
     }
 
     get params() {
         if (this._params && typeof this._params.peek === 'function') {
-            const reader = this._open(this._params, 'NETP');
-            this._params = dlc.schema.NetParam.decode(reader, reader.root);
+            const stream = this._params;
+            switch (dlc.Container._signature(stream)) {
+                case '4.NETP': {
+                    throw new dlc.Error("Unsupported DLC format '0x00040AD5'.");
+                }
+                case '3.NETP': {
+                    const buffer = new Uint8Array(stream.peek().subarray(8));
+                    const reader = flatbuffers.BinaryReader.open(buffer);
+                    this._params = dlc.schema.NetParam.decode(reader, reader.root);
+                    break;
+                }
+                case '2': {
+                    throw new dlc.Error("Unsupported DLC format '0x00020AD5'.");
+                }
+                case '1.NETP': {
+                    const buffer = stream.peek();
+                    const reader = flatbuffers.BinaryReader.open(buffer);
+                    this._params = dlc.schema.NetParam.decode(reader, reader.root);
+                    break;
+                }
+                default: {
+                    const buffer = stream.peek(Math.min(stream.length, 16));
+                    const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+                    throw new dlc.Error("File contains undocumented '" + content + "' data.");
+                }
+            }
         }
         return this._params;
     }
@@ -450,30 +490,25 @@ dlc.Container = class {
         return this._metadata;
     }
 
-    _open(stream, identifier) {
-        if (dlc.Container._signature(stream, [ 0xD5, 0x0A, 0x02, 0x00 ])) {
-            throw new dlc.Error("Unsupported DLC format '0x00020AD5'.");
+    static _signature(stream) {
+        const buffer = stream.peek(Math.min(stream.length, 16));
+        const match = (signature) => buffer.length >= signature.length && signature.every((value, index) => value === buffer[index]);
+        if (match([ 0xD5, 0x0A, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00 ]) && buffer.length >= 16) {
+            const reader = flatbuffers.BinaryReader.open(buffer.slice(8));
+            return '4.' + reader.identifier;
         }
-        if (dlc.Container._signature(stream, [ 0xD5, 0x0A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00 ])) {
-            stream.read(8);
+        if (match([ 0xD5, 0x0A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00 ]) && buffer.length >= 16) {
+            const reader = flatbuffers.BinaryReader.open(buffer.slice(8));
+            return '3.' + reader.identifier;
         }
-        if (dlc.Container._signature(stream, [ 0xD5, 0x0A, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00 ])) {
-            // stream.read(8);
-            throw new dlc.Error("Unsupported DLC format '0x00040AD5'.");
+        if (match([ 0xD5, 0x0A, 0x02, 0x00 ])) {
+            return '2';
         }
-        const buffer = new Uint8Array(stream.read());
-        stream.seek(0);
-        const reader = flatbuffers.BinaryReader.open(buffer);
-        if (identifier !== reader.identifier) {
-            const buffer = stream.peek(Math.min(16, stream.length));
-            const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-            throw new dlc.Error("File contains undocumented '" + content + "' data.");
+        if (buffer.length >= 8) {
+            const reader = flatbuffers.BinaryReader.open(buffer);
+            return '1.' + reader.identifier;
         }
-        return reader;
-    }
-
-    static _signature(stream, signature) {
-        return stream && stream.length > 16 && stream.peek(signature.length).every((value, index) => value === signature[index]);
+        return '0';
     }
 };
 
