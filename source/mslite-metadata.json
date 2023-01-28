@@ -3042,6 +3042,12 @@
     ]
   },
   {
+    "name": "Tril"
+  },
+  {
+    "name": "Triu"
+  },
+  {
     "name": "TupleGetItem",
     "inputs": [
       { "name": "input" }

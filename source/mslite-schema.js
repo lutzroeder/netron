@@ -389,6 +389,8 @@ $root.mindspore.schema.PrimitiveType = class {
             case 212: return $root.mindspore.schema.Log1p.decode(reader, position);
             case 213: return $root.mindspore.schema.TensorScatterAdd.decode(reader, position);
             case 214: return $root.mindspore.schema.ScatterElements.decode(reader, position);
+            case 215: return $root.mindspore.schema.Triu.decode(reader, position);
+            case 216: return $root.mindspore.schema.Tril.decode(reader, position);
             default: return undefined;
         }
     }
@@ -609,6 +611,8 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'Log1p': return $root.mindspore.schema.Log1p.decodeText(reader, json);
             case 'TensorScatterAdd': return $root.mindspore.schema.TensorScatterAdd.decodeText(reader, json);
             case 'ScatterElements': return $root.mindspore.schema.ScatterElements.decodeText(reader, json);
+            case 'Triu': return $root.mindspore.schema.Triu.decodeText(reader, json);
+            case 'Tril': return $root.mindspore.schema.Tril.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -4246,6 +4250,32 @@ $root.mindspore.schema.ScatterElements = class ScatterElements {
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.ScatterElements();
         $.axis = reader.value(json.axis, 0);
+        return $;
+    }
+};
+
+$root.mindspore.schema.Triu = class Triu {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.Triu();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.Triu();
+        return $;
+    }
+};
+
+$root.mindspore.schema.Tril = class Tril {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.Tril();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.Tril();
         return $;
     }
 };
