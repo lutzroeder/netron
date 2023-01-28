@@ -1542,6 +1542,13 @@ view.Sidebar = class {
                 this._pop();
             }
         };
+        const sidebar = this._element('sidebar');
+        sidebar.addEventListener('transitionend', (event) => {
+            if (event.propertyName === 'opacity' && sidebar.style.opacity === '0') {
+                const content = this._element('sidebar-content');
+                content.innerHTML = '';
+            }
+        });
     }
 
     _element(id) {
