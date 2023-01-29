@@ -2586,6 +2586,13 @@
   },
   {
     "type":     "megengine",
+    "target":   "add_with_data.mge",
+    "source":   "https://github.com/lutzroeder/netron/files/10529167/add_with_data.mge.zip[add_with_data.mge]",
+    "format":   "MegEngine Mge v2",
+    "link":     "https://github.com/lutzroeder/netron/issues/607"
+  },
+  {
+    "type":     "megengine",
     "target":   "mobilenetv1.tm",
     "source":   "https://github.com/lutzroeder/netron/files/9257882/mobilenetv1.tm.zip[mobilenetv1.tm]",
     "format":   "MegEngine v1.10.0",

@@ -15,7 +15,7 @@ megengine.ModelFactory = class {
             if (stream.length > (position + 12)) {
                 buffer = stream.peek(24).slice(position, position + 12);
                 const size = buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24);
-                if (size === (stream.length - position - 4)) {
+                if (position > 0 || size === (stream.length - position - 4)) {
                     const reader = flatbuffers.BinaryReader.open(buffer.slice(4, 12));
                     if (reader.identifier === 'mgv2') {
                         return 'megengine.mge';
