@@ -948,9 +948,11 @@ view.View = class {
             this._host.window.removeEventListener('keydown', handler);
             this._host.document.body.removeEventListener('click', handler);
             this.show('default');
+            // this._host.document.body.classList.remove('about');
         };
         this._host.window.addEventListener('keydown', handler);
         this._host.document.body.addEventListener('click', handler);
+        // this._host.document.body.classList.add('about');
         this.show('about');
     }
 };
@@ -1063,6 +1065,9 @@ view.Menu = class {
                         item.click();
                     }, 10);
                 });
+                if (item.enabled && !item.enabled()) {
+                    button.setAttribute('disabled', '');
+                }
                 this._dropdown.appendChild(button);
                 if (item.accelerator) {
                     const accelerator = this._host.document.createElement('span');
