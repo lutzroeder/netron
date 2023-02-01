@@ -139,7 +139,7 @@ tengine.Node = class {
 
     constructor(metadata, node, tensors) {
         this._name = node.name;
-        const type = node.type; + (node.version && node.version !== 1 ? ':' + node.version.toString() : '');
+        const type = node.type;
         const version = node.version;
         this._inputs = [];
         this._outputs = [];
@@ -147,9 +147,9 @@ tengine.Node = class {
         this._type = metadata.type(type, version) || { name: type };
 
         for (let i = 0; i < node.params.length; i++) {
-            const attributeSchema = (this._type && this._type.attributes && i < this._type.attributes.length) ? this._type.attributes[i] : null;
-            const attributeName = attributeSchema ? attributeSchema.name : i.toString();
-            this._attributes.push(new tengine.Attribute(attributeSchema, attributeName, node.params[i]));
+            const metadata = (this._type && this._type.attributes && i < this._type.attributes.length) ? this._type.attributes[i] : null;
+            const name = metadata ? metadata.name : i.toString();
+            this._attributes.push(new tengine.Attribute(metadata, name, node.params[i]));
         }
 
         const inputs = node.inputs;
