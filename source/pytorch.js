@@ -2016,10 +2016,6 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 if (parameter.type === 'Tensor' || (parameter.type === 'Scalar' && pytorch.Utility.isTensor(argument))) {
                     if (Array.isArray(argument) || (!pytorch.Utility.isTensor(argument) && argument !== null && argument !== undefined)) {
                         if (parameter.optional) {
-                            if (argument === undefined) {
-                                copyArgs.shift();
-                                copyEvalArgs.shift();
-                            }
                             continue;
                         }
                         throw new pytorch.Error();
@@ -2464,10 +2460,6 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                         if (parameter.type === 'Tensor' || (parameter.type === 'Scalar' && pytorch.Utility.isTensor(argument))) {
                             if (Array.isArray(argument) || (!pytorch.Utility.isTensor(argument) && argument !== null && argument !== undefined)) {
                                 if (parameter.optional) {
-                                    if (argument === undefined) {
-                                        copyArgs.shift();
-                                        copyEvalArgs.shift();
-                                    }
                                     continue;
                                 }
                                 next = true;
