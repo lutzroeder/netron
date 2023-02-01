@@ -1339,15 +1339,6 @@
     ]
   },
   {
-    "name": "aten::alias_copy.out",
-    "inputs": [
-      { "name": "self", "type": "Tensor" }
-    ],
-    "outputs": [
-      { "type": "Tensor" }
-    ]
-  },
-  {
     "name": "aten::all",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -1847,18 +1838,6 @@
   },
   {
     "name": "aten::as_strided_copy",
-    "inputs": [
-      { "name": "self", "type": "Tensor" },
-      { "name": "size", "type": "SymInt[]" },
-      { "name": "stride", "type": "SymInt[]" },
-      { "name": "storage_offset", "type": "SymInt", "optional": true, "default": null }
-    ],
-    "outputs": [
-      { "type": "Tensor" }
-    ]
-  },
-  {
-    "name": "aten::as_strided_copy.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "size", "type": "SymInt[]" },
@@ -3680,15 +3659,6 @@
     ]
   },
   {
-    "name": "aten::detach_copy.out",
-    "inputs": [
-      { "name": "self", "type": "Tensor" }
-    ],
-    "outputs": [
-      { "type": "Tensor" }
-    ]
-  },
-  {
     "name": "aten::diag",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -3770,18 +3740,6 @@
   },
   {
     "name": "aten::diagonal_copy",
-    "inputs": [
-      { "name": "self", "type": "Tensor" },
-      { "name": "offset", "type": "int64", "default": 0 },
-      { "name": "dim1", "type": "int64", "default": 0 },
-      { "name": "dim2", "type": "int64", "default": 1 }
-    ],
-    "outputs": [
-      { "type": "Tensor" }
-    ]
-  },
-  {
-    "name": "aten::diagonal_copy.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "offset", "type": "int64", "default": 0 },
@@ -10962,17 +10920,6 @@
     ]
   },
   {
-    "name": "aten::select_copy.int_out",
-    "inputs": [
-      { "name": "self", "type": "Tensor" },
-      { "name": "dim", "type": "int64" },
-      { "name": "index", "type": "SymInt" }
-    ],
-    "outputs": [
-      { "type": "Tensor" }
-    ]
-  },
-  {
     "name": "aten::select_scatter",
     "inputs": [
       { "name": "self", "type": "Tensor" },
@@ -11232,19 +11179,6 @@
   },
   {
     "name": "aten::slice_copy.Tensor",
-    "inputs": [
-      { "name": "self", "type": "Tensor" },
-      { "name": "dim", "type": "int64", "default": 0 },
-      { "name": "start", "type": "SymInt", "optional": true, "default": null },
-      { "name": "end", "type": "SymInt", "optional": true, "default": null },
-      { "name": "step", "type": "SymInt", "default": 1 }
-    ],
-    "outputs": [
-      { "type": "Tensor" }
-    ]
-  },
-  {
-    "name": "aten::slice_copy.Tensor_out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64", "default": 0 },
@@ -11590,15 +11524,6 @@
     ]
   },
   {
-    "name": "aten::split_copy.Tensor_out",
-    "inputs": [
-      { "name": "self", "type": "Tensor" },
-      { "name": "split_size", "type": "SymInt" },
-      { "name": "dim", "type": "int64", "default": 0 }
-    ],
-    "outputs": []
-  },
-  {
     "name": "aten::split_with_sizes",
     "category": "Tensor",
     "inputs": [
@@ -11620,15 +11545,6 @@
     "outputs": [
       { "type": "Tensor[]" }
     ]
-  },
-  {
-    "name": "aten::split_with_sizes_copy.out",
-    "inputs": [
-      { "name": "self", "type": "Tensor" },
-      { "name": "split_sizes", "type": "SymInt[]" },
-      { "name": "dim", "type": "int64", "default": 0 }
-    ],
-    "outputs": []
   },
   {
     "name": "aten::splitlines",
@@ -12693,17 +12609,6 @@
     ]
   },
   {
-    "name": "aten::transpose_copy.int_out",
-    "inputs": [
-      { "name": "self", "type": "Tensor" },
-      { "name": "dim0", "type": "int64" },
-      { "name": "dim1", "type": "int64" }
-    ],
-    "outputs": [
-      { "type": "Tensor" }
-    ]
-  },
-  {
     "name": "aten::tril",
     "category": "Layer",
     "inputs": [
@@ -13018,16 +12923,6 @@
   },
   {
     "name": "aten::unsqueeze_copy",
-    "inputs": [
-      { "name": "self", "type": "Tensor" },
-      { "name": "dim", "type": "int64" }
-    ],
-    "outputs": [
-      { "type": "Tensor" }
-    ]
-  },
-  {
-    "name": "aten::unsqueeze_copy.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" }
@@ -13625,15 +13520,6 @@
     ]
   },
   {
-    "name": "aten::view_as_complex_copy.out",
-    "inputs": [
-      { "name": "self", "type": "Tensor" }
-    ],
-    "outputs": [
-      { "type": "Tensor" }
-    ]
-  },
-  {
     "name": "aten::view_as_real",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -13644,15 +13530,6 @@
   },
   {
     "name": "aten::view_as_real_copy",
-    "inputs": [
-      { "name": "self", "type": "Tensor" }
-    ],
-    "outputs": [
-      { "type": "Tensor" }
-    ]
-  },
-  {
-    "name": "aten::view_as_real_copy.out",
     "inputs": [
       { "name": "self", "type": "Tensor" }
     ],
@@ -13675,26 +13552,6 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dtype", "type": "ScalarType" }
-    ],
-    "outputs": [
-      { "type": "Tensor" }
-    ]
-  },
-  {
-    "name": "aten::view_copy.dtype_out",
-    "inputs": [
-      { "name": "self", "type": "Tensor" },
-      { "name": "dtype", "type": "ScalarType" }
-    ],
-    "outputs": [
-      { "type": "Tensor" }
-    ]
-  },
-  {
-    "name": "aten::view_copy.out",
-    "inputs": [
-      { "name": "self", "type": "Tensor" },
-      { "name": "size", "type": "SymInt[]" }
     ],
     "outputs": [
       { "type": "Tensor" }
