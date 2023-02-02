@@ -14,9 +14,9 @@ def _read(path):
 def _find_docstring(class_name):
     class_definition = pydoc.locate(class_name)
     if not class_definition:
-        raise Exception('\'' + class_name + '\' not found.')
+        raise Exception('\'' + class_name + '\' not found.') # pylint: disable=broad-exception-raised
     if not class_definition.__doc__:
-        raise Exception('\'' + class_name + '\' missing __doc__.')
+        raise Exception('\'' + class_name + '\' missing __doc__.') # pylint: disable=broad-exception-raised
     return class_definition.__doc__
 
 def _parse_docstring(docstring):
@@ -41,7 +41,7 @@ def _parse_arguments(arguments):
     item_re = re.compile(r'^   ? ?(\*?\*?\w[\w.]*?\s*):\s', re.MULTILINE)
     content = item_re.split(arguments)
     if content.pop(0) != '':
-        raise Exception('')
+        raise Exception('') # pylint: disable=broad-exception-raised
     while len(content) > 0:
         result.append((content.pop(0), content.pop(0)))
     return result
@@ -87,7 +87,7 @@ def _update_input(schema, description):
     if parameter:
         parameter['description'] = _remove_indentation(description)
     else:
-        raise Exception('')
+        raise Exception('') # pylint: disable=broad-exception-raised
 
 def _update_output(schema, description):
     if not 'outputs' in schema:
@@ -96,7 +96,7 @@ def _update_output(schema, description):
     if parameter:
         parameter['description'] = _remove_indentation(description)
     else:
-        raise Exception('')
+        raise Exception('') # pylint: disable=broad-exception-raised
 
 def _update_examples(schema, value):
     if 'examples' in schema:
@@ -172,7 +172,7 @@ def _update_headers(schema, docstring):
         elif key in ('Call arguments', 'Returns', 'Variables', 'Raises'):
             pass
         else:
-            raise Exception('')
+            raise Exception('') # pylint: disable=broad-exception-raised
 
 
 def _metadata():

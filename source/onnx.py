@@ -109,7 +109,7 @@ class _Graph:
             value = self._tensor(_.t)
         elif _.type == _AttributeType.GRAPH:
             attribute_type = 'tensor'
-            raise Exception('Unsupported graph attribute type')
+            raise Exception('Unsupported graph attribute type') # pylint: disable=broad-exception-raised
         elif _.type == _AttributeType.FLOATS:
             attribute_type = 'float32[]'
             value = list(_.floats)
@@ -121,15 +121,15 @@ class _Graph:
             value = [ item.decode('utf-8') for item in _.strings ]
         elif _.type == _AttributeType.TENSORS:
             attribute_type = 'tensor[]'
-            raise Exception('Unsupported tensors attribute type')
+            raise Exception('Unsupported tensors attribute type') # pylint: disable=broad-exception-raised
         elif _.type == _AttributeType.GRAPHS:
             attribute_type = 'graph[]'
-            raise Exception('Unsupported graphs attribute type')
+            raise Exception('Unsupported graphs attribute type') # pylint: disable=broad-exception-raised
         elif _.type == _AttributeType.SPARSE_TENSOR:
             attribute_type = 'tensor'
             value = self._tensor(_.sparse_tensor)
         else:
-            raise Exception("Unsupported attribute type '" + str(_.type) + "'.")
+            raise Exception("Unsupported attribute type '" + str(_.type) + "'.") # pylint: disable=broad-exception-raised
         json_attribute = {}
         json_attribute['name'] = _.name
         if attribute_type:

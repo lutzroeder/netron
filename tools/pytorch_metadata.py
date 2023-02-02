@@ -84,7 +84,7 @@ def _parse_schemas():
             definition = entry[2] + value if len(entry) > 2 else value
             schema = pytorch.Schema(definition)
             if schema.name in schemas:
-                raise Exception()
+                raise KeyError()
             schemas[schema.name] = schema
     for definition in known_schema_definitions:
         schema = pytorch.Schema(definition)
@@ -146,7 +146,7 @@ def _check_types(types, schemas):
     types.pop('aten::mul.ScalarT')
     types.pop('aten::classes._nnapi.Compilation')
     if len(types) > 0:
-        raise Exception('\n'.join(list(types.keys())))
+        raise Exception('\n'.join(list(types.keys()))) # pylint: disable=broad-exception-raised
 
 def _metadata():
     types = _read_metadata()

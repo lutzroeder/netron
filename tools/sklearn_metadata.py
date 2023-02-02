@@ -43,9 +43,9 @@ def _attribute_value(attribute_type, attribute_value):
     if attribute_type == 'boolean':
         if attribute_value in ('True', 'False'):
             return attribute_value == 'True'
-        raise Exception("Unknown boolean default value '" + str(attribute_value) + "'.")
+        raise ValueError("Unknown boolean default value '" + str(attribute_value) + "'.")
     if attribute_type:
-        raise Exception("Unknown default type '" + attribute_type + "'.")
+        raise ValueError("Unknown default type '" + attribute_type + "'.")
     return attribute_value.strip("'")
 
 def _find_attribute(schema, name):
@@ -61,7 +61,7 @@ def _update_attributes(schema, lines):
         line = lines.pop(0)
         match = re.match(r'\s*(\w*)\s*:\s*(.*)\s*', line)
         if not match:
-            raise Exception("Expected ':' in parameter.")
+            raise SyntaxError("Expected ':' in parameter.")
         name = match.group(1)
         line = match.group(2)
         attribute = _find_attribute(schema, name)
@@ -106,10 +106,10 @@ def _metadata():
         if not any(name.startswith(module) for module in skip_modules):
             class_definition = pydoc.locate(name)
             if not class_definition:
-                raise Exception('\'' + name + '\' not found.')
+                raise KeyError('\'' + name + '\' not found.')
             docstring = class_definition.__doc__
             if not docstring:
-                raise Exception('\'' + name + '\' missing __doc__.')
+                raise Exception('\'' + name + '\' missing __doc__.') # pylint: disable=broad-exception-raised
             headers = _split_docstring(docstring)
             if '' in headers:
                 _update_description(schema, headers[''])

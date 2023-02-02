@@ -150,7 +150,7 @@ def _convert_attr_list(attr_value):
     if len(result) == 0:
         for _, value in attr_value_list.ListFields():
             if len(value) > 0:
-                raise Exception()
+                raise NotImplementedError()
     return result
 
 def _convert_attr_value(attr_value):
@@ -171,7 +171,7 @@ def _convert_attr_value(attr_value):
     elif attr_value.HasField('shape'):
         value = _convert_shape(attr_value.shape)
     else:
-        raise Exception()
+        raise NotImplementedError()
     return value
 
 type_to_string_map = {
@@ -226,7 +226,7 @@ type_to_string_map = {
 def _format_data_type(data_type):
     if data_type in type_to_string_map:
         return type_to_string_map[data_type]
-    raise Exception()
+    raise KeyError()
 
 def _format_attribute_value(value):
     if isinstance(value, dict) and \
@@ -238,7 +238,7 @@ def _format_attribute_value(value):
         return 'true'
     if value is False:
         return 'false'
-    raise Exception()
+    raise NotImplementedError()
 
 def _update_attributes(json_schema, operator, api_def):
     api_def_attr_map = {}

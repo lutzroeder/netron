@@ -50,7 +50,7 @@ class _Graph: # pylint: disable=too-few-public-methods
             name = node.s('name')
             obj, parent = self._getattr(node.input().node())
             return (getattr(obj, name), parent + '.' + name if len(parent) > 0 else name)
-        raise Exception()
+        raise NotImplementedError()
 
     def to_json(self): # pylint: disable=missing-function-docstring,too-many-locals,too-many-statements,too-many-branches
         import torch # pylint: disable=import-outside-toplevel,import-error
@@ -338,7 +338,7 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
             while True:
                 lexer.whitespace(0)
                 if self.is_vararg:
-                    raise Exception()
+                    raise NotImplementedError()
                 if lexer.eat('*'):
                     self.kwarg_only = True
                 elif lexer.eat('...'):
@@ -360,7 +360,7 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
                 while True:
                     lexer.whitespace(0)
                     if self.is_varret:
-                        raise Exception()
+                        raise NotImplementedError()
                     if lexer.eat('...'):
                         self.is_varret = True
                     else:
@@ -418,7 +418,7 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
                 elif lexer.value in ('Mean', 'contiguous_format', 'long'):
                     value = lexer.value
                 else:
-                    raise Exception()
+                    raise NotImplementedError()
             elif lexer.kind == '#':
                 value = float(lexer.value) if \
                     lexer.value.find('.') != -1 or lexer.value.find('e') != -1 else \
@@ -437,7 +437,7 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
                     lexer.expect(']')
                 return value
             else:
-                raise Exception()
+                raise NotImplementedError()
             lexer.next()
             return value
         def _parse_alias(self, lexer):
@@ -506,14 +506,14 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
             return value
         def expect(self, kind): # pylint: disable=missing-function-docstring
             if self.kind != kind:
-                raise Exception("Unexpected '" + self.kind + "' instead of '" + kind + "'.")
+                raise SyntaxError("Unexpected '" + self.kind + "' instead of '" + kind + "'.")
             value = self.value
             self.next()
             return value
         def whitespace(self, count): # pylint: disable=missing-function-docstring
             if self.kind != ' ':
                 if count > len(self.value):
-                    raise Exception('')
+                    raise IndexError()
                 return False
             self.next()
             return True
@@ -564,4 +564,4 @@ class Schema: # pylint: disable=too-few-public-methods,missing-class-docstring
                 self.kind = 'string'
                 self.value = self.buffer[self.position:i]
             else:
-                raise Exception("Unsupported token at " + self.position)
+                raise NotImplementedError("Unsupported token at " + self.position)
