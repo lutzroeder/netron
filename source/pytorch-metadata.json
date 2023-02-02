@@ -11524,6 +11524,15 @@
     ]
   },
   {
+    "name": "aten::split_copy.Tensor_out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "split_size", "type": "SymInt" },
+      { "name": "dim", "type": "int64", "default": 0 }
+    ],
+    "outputs": []
+  },
+  {
     "name": "aten::split_with_sizes",
     "category": "Tensor",
     "inputs": [
@@ -11545,6 +11554,15 @@
     "outputs": [
       { "type": "Tensor[]" }
     ]
+  },
+  {
+    "name": "aten::split_with_sizes_copy.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "split_sizes", "type": "SymInt[]" },
+      { "name": "dim", "type": "int64", "default": 0 }
+    ],
+    "outputs": []
   },
   {
     "name": "aten::splitlines",
