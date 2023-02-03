@@ -388,9 +388,12 @@ $root.mindspore.schema.PrimitiveType = class {
             case 211: return $root.mindspore.schema.GroupNormFusion.decode(reader, position);
             case 212: return $root.mindspore.schema.Log1p.decode(reader, position);
             case 213: return $root.mindspore.schema.TensorScatterAdd.decode(reader, position);
-            case 214: return $root.mindspore.schema.ScatterElements.decode(reader, position);
-            case 215: return $root.mindspore.schema.Triu.decode(reader, position);
-            case 216: return $root.mindspore.schema.Tril.decode(reader, position);
+            case 214: return $root.mindspore.schema.SparseFillEmptyRows.decode(reader, position);
+            case 215: return $root.mindspore.schema.SparseReshape.decode(reader, position);
+            case 216: return $root.mindspore.schema.SparseSegmentSum.decode(reader, position);
+            case 217: return $root.mindspore.schema.ScatterElements.decode(reader, position);
+            case 218: return $root.mindspore.schema.Triu.decode(reader, position);
+            case 219: return $root.mindspore.schema.Tril.decode(reader, position);
             default: return undefined;
         }
     }
@@ -610,6 +613,9 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'GroupNormFusion': return $root.mindspore.schema.GroupNormFusion.decodeText(reader, json);
             case 'Log1p': return $root.mindspore.schema.Log1p.decodeText(reader, json);
             case 'TensorScatterAdd': return $root.mindspore.schema.TensorScatterAdd.decodeText(reader, json);
+            case 'SparseFillEmptyRows': return $root.mindspore.schema.SparseFillEmptyRows.decodeText(reader, json);
+            case 'SparseReshape': return $root.mindspore.schema.SparseReshape.decodeText(reader, json);
+            case 'SparseSegmentSum': return $root.mindspore.schema.SparseSegmentSum.decodeText(reader, json);
             case 'ScatterElements': return $root.mindspore.schema.ScatterElements.decodeText(reader, json);
             case 'Triu': return $root.mindspore.schema.Triu.decodeText(reader, json);
             case 'Tril': return $root.mindspore.schema.Tril.decodeText(reader, json);
@@ -4235,6 +4241,45 @@ $root.mindspore.schema.TensorScatterAdd = class TensorScatterAdd {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.TensorScatterAdd();
+        return $;
+    }
+};
+
+$root.mindspore.schema.SparseFillEmptyRows = class SparseFillEmptyRows {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.SparseFillEmptyRows();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.SparseFillEmptyRows();
+        return $;
+    }
+};
+
+$root.mindspore.schema.SparseReshape = class SparseReshape {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.SparseReshape();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.SparseReshape();
+        return $;
+    }
+};
+
+$root.mindspore.schema.SparseSegmentSum = class SparseSegmentSum {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.SparseSegmentSum();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.SparseSegmentSum();
         return $;
     }
 };

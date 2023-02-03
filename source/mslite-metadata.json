@@ -2720,6 +2720,15 @@
     ]
   },
   {
+    "name": "SparseFillEmptyRows"
+  },
+  {
+    "name": "SparseReshape"
+  },
+  {
+    "name": "SparseSegmentSum"
+  },
+  {
     "name": "SparseSoftmaxCrossEntropyWithLogits",
     "attributes": [
       { "name": "grad", "type": "boolean", "default": false },
