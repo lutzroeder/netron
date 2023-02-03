@@ -90,6 +90,7 @@ host.BrowserHost = class {
             const link = this.document.getElementById('logo-github').href;
             this.openURL(link);
         };
+        this.document.body.classList.remove('spinner');
         this._message('Please update to the newest version.', 'Download', callback, true);
         return new Promise(() => {});
     }
@@ -100,6 +101,7 @@ host.BrowserHost = class {
         }
         const consent = () => {
             return new Promise((resolve) => {
+                this.document.body.classList.remove('spinner');
                 this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept', () => {
                     this._setCookie('consent', Date.now().toString(), 30);
                     resolve();
@@ -605,8 +607,8 @@ host.BrowserHost = class {
         return '';
     }
 
-    _message(message, action, callback) {
-        const text = this.document.getElementById('message');
+    _message(message, action, callback, modal) {
+        const text = this.document.getElementById('message-text');
         if (text) {
             text.innerText = message;
         }
@@ -616,7 +618,10 @@ host.BrowserHost = class {
                 button.style.removeProperty('display');
                 button.innerText = action;
                 button.onclick = () => {
-                    button.onclick = null;
+                    if (!modal) {
+                        this._document.body.classList.remove('message');
+                        button.onclick = null;
+                    }
                     callback();
                 };
             }
@@ -625,13 +630,7 @@ host.BrowserHost = class {
                 button.onclick = null;
             }
         }
-        const page = 'welcome message';
-        if (this._view) {
-            this._view.show(page);
-        }
-        else {
-            this._document.body.setAttribute('class', page);
-        }
+        this._document.body.classList.add('message');
     }
 };
 

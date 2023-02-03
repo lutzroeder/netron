@@ -947,13 +947,11 @@ view.View = class {
         const handler = () => {
             this._host.window.removeEventListener('keydown', handler);
             this._host.document.body.removeEventListener('click', handler);
-            this.show('default');
-            // this._host.document.body.classList.remove('about');
+            this._host.document.body.classList.remove('about');
         };
         this._host.window.addEventListener('keydown', handler);
         this._host.document.body.addEventListener('click', handler);
-        // this._host.document.body.classList.add('about');
-        this.show('about');
+        this._host.document.body.classList.add('about');
     }
 };
 
@@ -1089,7 +1087,7 @@ view.Menu = class {
 
     close() {
         this._dropdown.style.opacity = 0;
-        this._dropdown.style.left = '-225px';
+        this._dropdown.style.left = '-200px';
     }
 };
 

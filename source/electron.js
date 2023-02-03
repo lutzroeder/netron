@@ -593,7 +593,7 @@ host.ElectronHost = class {
     }
 
     _message(message, action, callback, modal) {
-        const messageText = this._element('message');
+        const messageText = this._element('message-text');
         if (messageText) {
             messageText.innerText = message;
         }
@@ -605,6 +605,7 @@ host.ElectronHost = class {
                 messageButton.onclick = () => {
                     if (!modal) {
                         messageButton.onclick = null;
+                        this._document.body.classList.remove('message');
                     }
                     callback();
                 };
@@ -614,9 +615,7 @@ host.ElectronHost = class {
                 messageButton.onclick = null;
             }
         }
-        if (this._view) {
-            this._view.show('welcome message');
-        }
+        this._document.body.classList.add('message');
     }
 };
 

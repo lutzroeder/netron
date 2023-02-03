@@ -20,10 +20,13 @@ body { touch-action: none; overflow: hidden; width: 100%; height: 100%; margin: 
 button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"; }
 .center { position: absolute; margin: auto; top: 0; right: 0; bottom: 0; left: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .select { user-select: text; -webkit-user-select: text; -moz-user-select: text; }
-.open-file-dialog { display: none; }
-.transparent { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #000000; display: none; opacity: 0; }
 .graph { display: flex; height: 100%; width: 100%; overflow: auto; outline: none; touch-action: pan-x pan-y; }
 .canvas { margin: auto; flex-shrink: 0; text-rendering: geometricPrecision; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.open-file-dialog { display: none; }
+.default { background-color: #ffffff; }
+.default .logo { display: none; }
+.default .graph { display: flex; opacity: 1; }
+.default .toolbar { display: table; }
 .toolbar { position: absolute; bottom: 10px; left: 10px; padding: 0; margin: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .toolbar button:focus { outline: 0; }
 .toolbar-button { float: left; background: None; border-radius: 6px; border: 0; margin: 0; margin-right: 1px; padding: 0; fill: None; stroke: #777; cursor: pointer; width: 24px; height: 24px; }
@@ -34,59 +37,62 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .toolbar-icon .border { stroke: #fff; }
 .toolbar-icon .stroke { stroke: #808080; }
 .toolbar-icon:hover .stroke { stroke: #000000; }
-.about { background-color: #ffffff; }
+.welcome body { background-color: #ececec; }
+.welcome { background-color: #ececec; color: #242424; }
+.logo-text { top: -57px; width: 582px; transition: 0.1s; }
+.logo-name { top: -170px; width: 582px; transition: 0.1s; }
+.logo-icon { left: 248px; top: -18px; width: 106px; height: 106px; transition: 0.1s; }
+.logo-spinner { left: 248px; top: -18px; width: 106px; height: 106px; display: none; }
+.logo-stroke { stroke: #444444; }
+.logo-fill { fill: #444444; }
+.logo-border { stroke: #555555; }
+.logo-glyph { fill: #444444; }
+.logo-button { font-size: 12px; font-weight: bold; line-height: 1.25; text-align: center; vertical-align: middle; min-width: 60px; height: 32px; border-radius: 16px; transition: 0.1s; user-select: none; -webkit-user-select: none; -moz-user-select: none; color: #444444; background-color: #ececec; border: 1px solid #444444; }
+.logo-button:hover { color: #ececec; background-color: #444444; cursor: pointer; transition: 0.2s; }
+.logo-button:focus { outline: 0; }
+.logo-message { display: none; height: 0px; }
+.logo-github { display: none; }
+.open-file-button { top: 170px; left: -150px; width: 125px; }
+.github-button { top: 170px; left: 150px; width: 125px; }
+.progress { top: 120px; height: 2px; width: 400px; }
+.progress-bar { height: 100%; width: 0%; background-color: #444444; }
+.message-dialog { display: none; color: #444444; }
+.message-button { top: 224px; left: 0px; width: 125px; }
+.message-text { display: inline-flex; align-items: center; justify-content: center; text-align: center; top: 132px; height: 0px; font-size: 13px; line-height: 20px; }
+.message .message-dialog { display: block; }
+.message .logo-name { display:none; }
+.message .open-file-button { display:none; }
+.message .github-button { display:none; }
+.message .progress { display:none; }
+.welcome .graph { display: none; opacity: 0; }
+.welcome .menu { background-color: #ffffff; }
+.welcome.spinner .logo-spinner { display: block; -webkit-animation: orbit 0.5s infinite linear; animation: orbit 0.5s infinite linear; cursor: wait; }
+.welcome.spinner .menu-button { display: none; }
 .about { overflow: hidden; }
-.about .logo { background-color: #ffffff; color: #666666; width: 320px; height: 200px; padding: 40px; border-radius: 8px; border: 1px solid rgba(0, 0, 0, 0.1); box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1); opacity: 1.0; transition: 0.1s; }
-.about.desktop .logo { background-color: #ececec; border: None; border-radius: 0px; }
-.about.desktop .graph { display: none; opacity: 0; }
-.about.desktop .transparent { display: none; opacity: 0; }
-.about.desktop .toolbar { display: none; opacity: 0; }
-.about .logo-name { opacity: 0; }
-.about .logo-text { top: -130px; width: 320px; }
-.about .logo-icon { left: 136px; top: -108px; width: 60px; height: 60px; }
-.about .logo-stroke { stroke: #1a1a1a; }
-.about .logo-fill { fill: #1a1a1a; }
-.about .logo-border { stroke: #1a1a1a; }
-.about .logo-glyph { fill: #1a1a1a; }
-.about .logo-message { top: 132px; padding-left: 40px; padding-right: 40px; }
+.about .toolbar { display: none; }
+.about .logo { display: block; top: -150px; background-color: #ececec; color: #666666; }
+.about .logo-message { display: block; top: 132px; font-size: 14px; }
+.about .logo-github { display: block; top: 340px; width: 48px; height: 48px; }
 .about a { text-decoration: none; color: #666666; }
 .about a:visited { color: inherit; }
 .about a:hover { color: #242424; }
-.about .logo-github { top: 130px; width: 24px; height: 24px; }
 .about .open-file-button { display: none; }
 .about .github-button { display: none; }
+.about .logo-name { display: none; }
 .about .message { display: none; }
-.about .message-button { display: none; }
-.about .graph { display: flex; opacity: 0.5; }
 .about .progress { display: none; }
-.about .toolbar { display: block; opacity: 0; }
-.about .menu-button { display: none; opacity: 0; }
-.about .transparent { display: block; opacity: 0.04; }
-.welcome body { background-color: #ececec; }
-.welcome { background-color: #ececec; color: #242424; }
-.welcome .menu-button { display: none; }
-.welcome .logo { width: 582px; height: 128px; }
-.welcome .logo-text { top: -57px; width: 582px; transition: 0.1s; }
-.welcome .logo-name { top: -170px; width: 582px; transition: 0.1s; }
-.welcome .logo-icon { left: 248px; top: -18px; width: 106px; height: 106px; transition: 0.1s; }
-.welcome .logo-spinner { left: 248px; top: -18px; width: 106px; height: 106px; display: none; }
-.welcome .logo-stroke { stroke: #444444; }
-.welcome .logo-fill { fill: #444444; }
-.welcome .logo-border { stroke: #555555; }
-.welcome .logo-glyph { fill: #444444; }
-.welcome .logo-message { display: none; }
-.welcome .logo-github { display: none; }
-.welcome .logo-button { font-size: 12px; font-weight: bold; line-height: 1.25; text-align: center; vertical-align: middle; min-width: 60px; height: 32px; border-radius: 16px; transition: 0.1s; user-select: none; -webkit-user-select: none; -moz-user-select: none; color: #444444; background-color: #ececec; border: 1px solid #444444; }
-.welcome .logo-button:hover { color: #ececec; background-color: #444444; cursor: pointer; transition: 0.2s; }
-.welcome .logo-button:focus { outline: 0; }
-.welcome .open-file-button { top: 133px; left: -150px; width: 125px; opacity: 1; margin: 0 auto 0 auto; }
-.welcome .github-button { width: 125px; top: 133px; left: 150px; opacity: 1; margin: 0 auto 0 auto; }
-.welcome .message-button { top: 160px; left: 0px; width: 125px; display: none; opacity: 0; margin: 0 auto 0 auto; }
-.welcome .message { top: 120px; left: 0px; font-size: 13px; text-align: center; line-height: 20px; color: #444444; display: none; opacity: 0; }
-.welcome .progress { top: 120px; height: 2px; width: 400px; }
-.welcome .progress-bar { height: 100%; width: 0%; background-color: #444444; }
-.welcome .graph { display: none; opacity: 0; }
-.welcome.spinner .logo-spinner { display: block; -webkit-animation: orbit 0.5s infinite linear; animation: orbit 0.5s infinite linear; cursor: wait; }
+.about .menu-button { display: none; }
+.about.desktop .logo { background-color: #ececec; color: #666666; top: 0px; width: 320px; height: 200px; padding: 40px; opacity: 1.0; transition: 0.1s; }
+.about.desktop .graph { display: none; }
+.about.desktop .toolbar { display: none; }
+.about.desktop .logo-text { top: -130px; width: 320px; }
+.about.desktop .logo-stroke { stroke: #1a1a1a; }
+.about.desktop .logo-fill { fill: #1a1a1a; }
+.about.desktop .logo-border { stroke: #1a1a1a; }
+.about.desktop .logo-glyph { fill: #1a1a1a; }
+.about.desktop .logo-icon { left: 136px; top: -108px; width: 60px; height: 60px; }
+.about.desktop .logo-message { display: block; top: -20px; font-size: 12px; }
+.about.desktop .logo-github { display: block; top: 130px; width: 24px; height: 24px; }
 .titlebar { color: #aaaaaa; display: none; height: 32px; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2; -webkit-app-region: drag; }
 .titlebar-content { display: block; padding: 0 142px; height: 100%; text-align: center; font-size: 14px; line-height: 32px; transition: all .1s ease-in-out; user-select: none; }
 .titlebar-content-text { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -99,7 +105,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .titlebar-button-close:hover { color: #ffffff; background-color: #b43029; }
 .menu-button { display: flex; justify-content: center; align-items: center; color: #aaaaaa; font-size: 16px; height: 32px; width: 32px; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2; -webkit-app-region: no-drag; -webkit-app-region: no-drag; user-select: none; }
 .menu-button:hover { color: #000000; }
-.menu { display: block; position: absolute; left: -225px; width: 225px; top: 0; height: 100%; z-index: 2; background-color: rgba(235, 235, 235, 0.97); border-right: 1px solid rgba(255, 255, 255, 0.5); padding-top: 40px; padding-bottom: 2px; margin-left: 0; margin-top: 0; overflow: hidden; transition: 0.1s; }
+.menu { display: block; position: absolute; left: -200px; width: 200px; top: 0; height: 100%; z-index: 2; background-color: rgba(235, 235, 235, 0.97); border-right: 1px solid rgba(255, 255, 255, 0.5); padding-top: 40px; padding-bottom: 2px; margin-left: 0; margin-top: 0; overflow: hidden; transition: 0.1s; }
 .menu button { display: block; border: none; border-radius: 0; background-color: transparent; color: black; width: 100%; text-align: left; padding: 4px 12px 5px 12px; white-space: no-wrap; font-size: 12px; }
 .menu button:hover { color: #ffffff; background-color: #2e6bd2; }
 .menu button:disabled { color: #888888; }
@@ -109,43 +115,37 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 @keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 .welcome.spinner .logo-spinner-stroke { stroke: #ececec; }
 .welcome.spinner .logo-name { display: none; }
-.welcome.spinner .open-file-button { opacity: 0; display: none; }
-.welcome.spinner .github-button { opacity: 0; display: none; }
-.welcome.message .logo-name { display: none; }
-.welcome.message .open-file-button { opacity: 0; display: none; }
-.welcome.message .github-button { opacity: 0; display: none; }
-.welcome.message .message-button { opacity: 1; display: block; }
-.welcome.message .message { opacity: 1; display: block; }
+.welcome.spinner .open-file-button { display: none; }
+.welcome.spinner .github-button { display: none; }
 .welcome.spinner .graph { display: flex; opacity: 0; }
+.welcome .message .logo-name { display: none; }
+.welcome .message .open-file-button { display: none; }
+.welcome .message .github-button { display: none; }
 .welcome .toolbar { display: none; }
-.default { background-color: #ffffff; }
-.default .logo { display: none; }
-.default .graph { display: flex; opacity: 1; }
-.default .toolbar { display: table; }
 @media (prefers-color-scheme: dark) {
 :root { color-scheme: dark; }
 .default { background-color: #404040; }
 .graph { background-color: #404040; }
-.about { background-color: #404040; }
-.about .logo { background-color: #404040; color: #c6c6c6; border: 1px solid rgba(0, 0, 0, 0.05); box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.05); opacity: 1; }
+.welcome { background-color: #1e1e1e; color: #888888; }
+.logo-stroke { stroke: #888888; }
+.logo-fill { fill: #888888; }
+.logo-border { stroke: #000000; }
+.logo-glyph { fill: #888888; }
+.logo-spinner-stroke { stroke: #ffffff; }
+.logo-button { color: #888888; background-color: #1e1e1e; border-color: #888888; }
+.logo-button:hover { color: #1e1e1e; background-color: #888888; }
+.message-dialog { color: #888888; }
+.welcome .progress-bar { background-color: #888888; }
+.welcome .menu { background-color: rgba(43, 43, 43, 0.97); }
+.about .logo { background-color: #1e1e1e; color: #888888; }
 .about.desktop .logo { background-color: #2d2d2d; }
 .about a { color: #c6c6c6; }
 .about a:hover { color: #ffffff; }
-.about .logo-stroke { stroke: #c6c6c6; }
-.about .logo-fill { fill: #c6c6c6; }
-.about .logo-border { stroke: #c6c6c6; }
-.about .logo-glyph { fill: #c6c6c6; }
-.about .transparent { display: block; opacity: 0.6; }
-.welcome { background-color: #1e1e1e; color: #888888; }
-.welcome .logo-stroke { stroke: #888888; }
-.welcome .logo-fill { fill: #888888; }
-.welcome .logo-border { stroke: #000000; }
-.welcome .logo-glyph { fill: #888888; }
-.welcome .logo-spinner-stroke { stroke: #ffffff; }
-.welcome .logo-button { color: #888888; background-color: #1e1e1e; border-color: #888888; }
-.welcome .logo-button:hover { color: #1e1e1e; background-color: #888888; }
-.welcome .message { color: #888888; display: none; opacity: 0; }
-.welcome .progress-bar { background-color: #888888; }
+.about.desktop .logo-stroke { stroke: #c6c6c6; }
+.about.desktop .logo-fill { fill: #c6c6c6; }
+.about.desktop .logo-border { stroke: #c6c6c6; }
+.about.desktop .logo-glyph { fill: #c6c6c6; }
+.about.desktop .logo-message { color: #c6c6c6; }
 .toolbar-icon .border { stroke: #1d1d1d; }
 .toolbar-icon .stroke { stroke: #aaaaaa; }
 .toolbar-icon:hover .stroke { stroke: #dfdfdf; }
@@ -161,7 +161,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .titlebar-button-close:hover { color: #ffffff; background-color: #b43029; }
 .menu-button { color: #aaaaaa; }
 .menu-button:hover { color: #ffffff; }
-.menu { background-color: rgba(43, 43, 43, 0.90); border-color: rgba(0, 0, 0, 0); }
+.menu { background-color: rgba(43, 43, 43, 0.97); border-color: rgba(0, 0, 0, 0); }
 .menu button { color: #ffffff; }
 .menu button:hover { color: #ffffff; background-color: #1d59d1; }
 .menu button:disabled { color: #888888; }
@@ -174,13 +174,14 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .welcome .logo-name { opacity: 0; }
 .welcome .logo-icon { left: 0; top: 0; width: 128px; height: 128px; }
 .welcome .logo-spinner { left: 0; top: 0; width: 128px; height: 128px; }
-.welcome .logo .open-file-button { top: 150px; left: 0; }
-.welcome .logo .github-button { top: 200px; left: 0; }
-.welcome .logo .message-button { top: 200px; }
-.welcome .logo .message { top: 140px; }
+.welcome .logo .open-file-button { top: 204px; left: 0; }
+.welcome .logo .github-button { top: 304px; left: 0; }
+.welcome .message-dialog .message-button { top: 304px; }
+.welcome .message-dialog .message-text { top: 190px; width: 240px; }
 .welcome .progress { top: 160px; height: 2px; width: 100px; }
 .about .logo { border-radius: 0; border-left: 0px; border-right: 0px; width: 100%; padding-left: 0; padding-right: 0; }
-.about.desktop .logo { width: 320px; padding: 40px; }
+.about .logo-message { top: 180px; font-size: 12px; }
+.about .logo-github { top: 300px; width: 40px; height: 40px; }
 }
 @media only screen and (max-device-width: 1024px) {
 .toolbar-button { width: 32px; height: 32px; }
@@ -326,7 +327,6 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     <button id="name-button" class="toolbar-name-button" title="Name">
     </button>
 </div>
-<div id="transparent" class="transparent"></div>
 <div id="logo" class="center logo">
     <a href="https://github.com/lutzroeder/netron" target="blank_">
         <svg class="center logo-text" viewbox="0 0 5120 1024">
@@ -469,8 +469,6 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
                 C438.536,184.851,428.728,148.168,409.132,114.573z"/>
         </svg>
     </a>
-    <span id="message" class="center message"></span>
-    <button id="message-button" class="center logo-button message-button">Accept</button>
     <button id="open-file-button" class="center logo-button open-file-button" tabindex="0">Open Model&hellip;</button>
     <button id="github-button" class="center logo-button github-button">GitHub</button>
     <div class="center progress">
@@ -481,6 +479,10 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     <div style="font-weight: normal; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
     <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
     <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
+</div>
+<div id="message-dialog" class="center message-dialog">
+    <span id="message-text" class="center message-text"></span>
+    <button id="message-button" class="center logo-button message-button">Accept</button>
 </div>
 <div id="titlebar" class="titlebar">
     <svg style="position: absolute; width: 0px; height: 0px; overflow: hidden;" aria-hidden="true">
