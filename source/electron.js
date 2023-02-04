@@ -188,7 +188,7 @@ host.ElectronHost = class {
             this._view.find();
         });
         electron.ipcRenderer.on('about', () => {
-            this._view.about();
+            this.about();
         });
 
         this._element('titlebar-close').addEventListener('click', () => {
@@ -219,7 +219,7 @@ host.ElectronHost = class {
         const openFileButton = this._element('open-file-button');
         if (openFileButton) {
             openFileButton.addEventListener('click', () => {
-                electron.ipcRenderer.send('open-file-dialog', {});
+                this.open();
             });
         }
         const githubButton = this._element('github-button');
@@ -260,7 +260,7 @@ host.ElectronHost = class {
             buttons: [ 'Report', 'Cancel' ]
         };
         if (electron.ipcRenderer.sendSync('show-message-box', options) === 0) {
-            url = url || 'https://www.github.com/' + this.environment('repository') + '/issues';
+            url = url || this.environment('repository') + '/issues';
             this.openURL(url);
         }
     }
@@ -325,6 +325,10 @@ host.ElectronHost = class {
         else {
             reader.readAsArrayBuffer(blob);
         }
+    }
+
+    execute(command) {
+        electron.ipcRenderer.send('execute', command);
     }
 
     request(file, encoding, base) {

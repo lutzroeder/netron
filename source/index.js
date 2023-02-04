@@ -25,6 +25,7 @@ host.BrowserHost = class {
             'version': this._meta.version ? this._meta.version[0] : null,
             'date': Array.isArray(this._meta.date) && this._meta.date.length > 0 && this._meta.date[0] ? new Date(this._meta.date[0].split(' ').join('T') + 'Z') : new Date(),
             'platform': /(Mac|iPhone|iPod|iPad)/i.test(this._navigator.platform) ? 'darwin' : undefined,
+            'repository': this._document.getElementById('logo-github').getAttribute('href'),
             'menu': true
         };
         if (!/^\d\.\d\.\d$/.test(this.version)) {
@@ -210,11 +211,6 @@ host.BrowserHost = class {
         const search = this.window.location.search;
         const params = new URLSearchParams(search + (hash ? '&' + hash : ''));
 
-        const versionLabel = this.document.getElementById('version');
-        if (versionLabel) {
-            versionLabel.innerText = this.version;
-        }
-
         if (this._meta.file) {
             const url = this._meta.file[0];
             if (this._view.accept(url)) {
@@ -247,8 +243,7 @@ host.BrowserHost = class {
         const openFileDialog = this.document.getElementById('open-file-dialog');
         if (openFileButton && openFileDialog) {
             openFileButton.addEventListener('click', () => {
-                openFileDialog.value = '';
-                openFileDialog.click();
+                this.execute('open');
             });
             const extensions = new this.window.base.Metadata().extensions.map((extension) => '.' + extension);
             openFileDialog.setAttribute('accept', extensions.join(', '));
@@ -343,6 +338,39 @@ host.BrowserHost = class {
         this.document.body.appendChild(element);
         element.click();
         this.document.body.removeChild(element);
+    }
+
+    execute(command) {
+        switch (command) {
+            case 'open': {
+                const openFileDialog = this.document.getElementById('open-file-dialog');
+                if (openFileDialog) {
+                    openFileDialog.value = '';
+                    openFileDialog.click();
+                }
+                break;
+            }
+            case 'report-issue': {
+                this.openURL(this.environment('repository') + '/issues/new');
+                break;
+            }
+
+            case 'about': {
+                this.document.getElementById('version').innerText = this.version;
+                const handler = () => {
+                    this.window.removeEventListener('keydown', handler);
+                    this.document.body.removeEventListener('click', handler);
+                    this.document.body.classList.remove('about');
+                };
+                this.window.addEventListener('keydown', handler);
+                this.document.body.addEventListener('click', handler);
+                this.document.body.classList.add('about');
+                break;
+            }
+            default: {
+                break;
+            }
+        }
     }
 
     request(file, encoding, base) {

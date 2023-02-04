@@ -56,11 +56,46 @@ view.View = class {
             if (this._host.environment('menu')) {
                 this._menu = new view.Menu(this._host, 'menu-button', 'menu');
                 this._menu.add({
-                    label: 'Properties...',
-                    accelerator: 'CmdOrCtrl+Enter',
-                    click: () => this.showModelProperties(),
-                    enabled: () => this.activeGraph
+                    label: 'Open...',
+                    accelerator: 'CmdOrCtrl+O',
+                    click: () => this._host.execute('open')
                 });
+                if (this._host.type === 'Electron') {
+                    this._menu.add({
+                        label: 'Open Recent',
+                        click: () => {}
+                    });
+                    this._menu.add({
+                        label: 'Export...',
+                        accelerator: 'CmdOrCtrl+Shift+E',
+                        click: () => this._host.execute('export'),
+                        enabled: () => this.activeGraph
+                    });
+                    this._menu.add({
+                        label: this._host.environment('platform') === 'darwin' ? 'Close Window' : 'Close',
+                        accelerator: 'CmdOrCtrl+W',
+                        click: () => this._host.execute('close'),
+                    });
+                    this._menu.add({
+                        label: this._host.environment('platform') === 'win32' ? 'Exit' : 'Quit',
+                        accelerator: this._host.environment('platform') === 'win32' ? '' : 'CmdOrCtrl+Q',
+                        click: () => this._host.execute('quit'),
+                    });
+                }
+                else {
+                    this._menu.add({
+                        label: 'Export as PNG',
+                        accelerator: 'CmdOrCtrl+Shift+E',
+                        click: () => this.export(this._host.document.title + '.png'),
+                        enabled: () => this.activeGraph
+                    });
+                    this._menu.add({
+                        label: 'Export as SVG',
+                        accelerator: 'CmdOrCtrl+Alt+E',
+                        click: () => this.export(this._host.document.title + '.svg'),
+                        enabled: () => this.activeGraph
+                    });
+                }
                 this._menu.add({});
                 this._menu.add({
                     label: 'Find...',
@@ -100,6 +135,15 @@ view.View = class {
                     enabled: () => this.activeGraph
                 });
                 this._menu.add({});
+                if (this._host.type === 'Electron') {
+                    this._menu.add({
+                        label: 'Reload',
+                        accelerator: this._host.environment('platform') === 'darwin' ? 'CmdOrCtrl+R' : 'F5',
+                        click: () => this._host.execute('reload'),
+                        enabled: () => this.activeGraph
+                    });
+                    this._menu.add({});
+                }
                 this._menu.add({
                     label: 'Zoom In',
                     accelerator: 'Shift+Up',
@@ -120,21 +164,19 @@ view.View = class {
                 });
                 this._menu.add({});
                 this._menu.add({
-                    label: 'Export as PNG',
-                    accelerator: 'CmdOrCtrl+Shift+E',
-                    click: () => this.export(this._host.document.title + '.png'),
-                    enabled: () => this.activeGraph
-                });
-                this._menu.add({
-                    label: 'Export as SVG',
-                    accelerator: 'CmdOrCtrl+Alt+E',
-                    click: () => this.export(this._host.document.title + '.svg'),
+                    label: 'Properties...',
+                    accelerator: 'CmdOrCtrl+Enter',
+                    click: () => this.showModelProperties(),
                     enabled: () => this.activeGraph
                 });
                 this._menu.add({});
                 this._menu.add({
+                    label: 'Report Issue',
+                    click: () => this._host.execute('report-issue')
+                });
+                this._menu.add({
                     label: 'About ' + this._host.document.title,
-                    click: () => this.about()
+                    click: () => this._host.execute('about')
                 });
                 this._getElementById('menu-button').addEventListener('click', (e) => {
                     this._menu.toggle();
@@ -942,17 +984,6 @@ view.View = class {
             this._sidebar.push(documentationSidebar.render(), title);
         }
     }
-
-    about() {
-        const handler = () => {
-            this._host.window.removeEventListener('keydown', handler);
-            this._host.document.body.removeEventListener('click', handler);
-            this._host.document.body.classList.remove('about');
-        };
-        this._host.window.addEventListener('keydown', handler);
-        this._host.document.body.addEventListener('click', handler);
-        this._host.document.body.classList.add('about');
-    }
 };
 
 view.Menu = class {
@@ -964,19 +995,33 @@ view.Menu = class {
         this._items = [];
         this._darwin = this._host.environment('platform') === 'darwin';
         this._accelerators = new Map();
+        this._codes = new Map([
+            [ 'Backspace', 0x08 ], [ 'Enter', 0x0D ],
+            [ 'Up', 0x26 ], [ 'Down', 0x28 ],
+            [ 'F5', 0x74 ]
+        ]);
+        this._symbols = new Map([
+            [ 'Backspace', '&#x232B;' ], [ 'Enter', '&#x23ce;' ],
+            [ 'Up', '&#x2191;' ], [ 'Down', '&#x2193;' ],
+        ]);
         this._host.window.addEventListener('keydown', (e) => {
             let code = e.keyCode;
             code |= ((e.ctrlKey && !this._darwin) || (e.metaKey && this._darwin)) ? 0x0400 : 0;
             code |= e.altKey ? 0x0200 : 0;
             code |= e.shiftKey ? 0x0100 : 0;
-            if (code == 0x001b) { // Escape
+            if (code === 0x001b) { // Escape
                 this.close();
+                return;
+            }
+            if (code === 0x0212) { // Alt
+                this.toggle();
                 return;
             }
             const item = this._accelerators.get(code.toString());
             if (item && (!item.enabled || item.enabled())) {
                 item.click();
                 e.preventDefault();
+                this.close();
             }
         });
         this._host.document.body.addEventListener('click', (e) => {
@@ -1008,31 +1053,15 @@ view.Menu = class {
                     item.accelerator.text += alt ? '&#x2325;' : '';
                     item.accelerator.text += shift ? '&#x21e7;' : '';
                     item.accelerator.text += cmdOrCtrl ? '&#x2318;' : '';
-                    const keyTable = { 'Enter': '&#x23ce;', 'Up': '&#x2191;', 'Down': '&#x2193;', 'Backspace': '&#x232B;' };
-                    item.accelerator.text += keyTable[key] ? keyTable[key] : key;
+                    item.accelerator.text += this._symbols.has(key) ? this._symbols.get(key) : key;
                 }
                 else {
-                    const list = [];
-                    if (cmdOrCtrl) {
-                        list.push('Ctrl');
-                    }
-                    if (alt) {
-                        list.push('Alt');
-                    }
-                    if (shift) {
-                        list.push('Shift');
-                    }
-                    list.push(key);
-                    item.accelerator.text = list.join('+');
+                    item.accelerator.text += cmdOrCtrl ? 'Ctrl+' : '';
+                    item.accelerator.text += alt ? 'Alt+' : '';
+                    item.accelerator.text += shift ? 'Shift+' : '';
+                    item.accelerator.text += key;
                 }
-                let code = 0;
-                switch (key) {
-                    case 'Backspace': code = 0x08; break;
-                    case 'Enter': code = 0x0D; break;
-                    case 'Up': code = 0x26; break;
-                    case 'Down': code = 0x28; break;
-                    default: code = key.charCodeAt(0); break;
-                }
+                let code = this._codes.has(key) ? this._codes.get(key) : key.charCodeAt(0);
                 code |= cmdOrCtrl ? 0x0400 : 0;
                 code |= alt ? 0x0200 : 0;
                 code |= shift ? 0x0100 : 0;
