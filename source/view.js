@@ -4533,6 +4533,7 @@ view.ModelFactoryService = class {
         this.register('./nnef', [ '.nnef', '.dat' ]);
         this.register('./cambricon', [ '.cambricon' ]);
         this.register('./onednn', [ '.json']);
+        this.register('./mlir', [ '.mlir']);
     }
 
     register(id, factories, containers) {
