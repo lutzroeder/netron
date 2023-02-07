@@ -15,7 +15,7 @@ darknet.ModelFactory = class {
                 break;
             default:
                 try {
-                    const reader = text.Reader.open(context.stream.peek(), 65536);
+                    const reader = text.Reader.open(context.stream, 65536);
                     for (;;) {
                         const line = reader.read();
                         if (line === undefined) {
