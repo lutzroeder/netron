@@ -9932,7 +9932,7 @@
     ]
   },
   {
-    "name": "aten::random_.from",
+    "name": "aten::random_.from_int",
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "from", "type": "int64" },
