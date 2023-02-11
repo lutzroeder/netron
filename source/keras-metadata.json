@@ -1579,7 +1579,7 @@
       },
       {
         "default": "linear",
-        "description": "Activation function to use.\n    If you don't specify anything, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
+        "description": "Activation function to use.\n        If you don't specify anything, no activation is applied\n        (ie. \"linear\" activation: `a(x) = x`).",
         "name": "activation"
       },
       {
@@ -1612,7 +1612,7 @@
         "visible": false
       },
       {
-        "description": "Regularizer function applied to\n    the `kernel` weights matrix.",
+        "description": "Regularizer function applied to\n        the `kernel` weights matrix.",
         "name": "kernel_regularizer",
         "visible": false
       },
@@ -1622,12 +1622,12 @@
         "visible": false
       },
       {
-        "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").",
+        "description": "Regularizer function applied to\n        the output of the layer (its \"activation\").",
         "name": "activity_regularizer",
         "visible": false
       },
       {
-        "description": "Constraint function applied to\n    the `kernel` weights matrix.",
+        "description": "Constraint function applied to\n        the `kernel` weights matrix.",
         "name": "kernel_constraint"
       },
       {
@@ -3139,11 +3139,11 @@
         "name": "use_bias"
       },
       {
-        "description": "The expected shape of an output tensor, besides the batch\n    and sequence dims. If not specified, projects back to the key feature\n    dim.",
+        "description": "The expected shape of an output tensor, besides the batch\n        and sequence dims. If not specified, projects back to the query\n        feature dim (the query input's last dimension).",
         "name": "output_shape"
       },
       {
-        "description": "axes over which the attention is applied. `None` means\n    attention over all axes, but batch, heads, and features.",
+        "description": "axes over which the attention is applied. `None` means\n        attention over all axes, but batch, heads, and features.",
         "name": "attention_axes"
       },
       {
