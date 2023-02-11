@@ -219,7 +219,7 @@ host.ElectronHost = class {
         const openFileButton = this._element('open-file-button');
         if (openFileButton) {
             openFileButton.addEventListener('click', () => {
-                this.open();
+                this.execute('open');
             });
         }
         const githubButton = this._element('github-button');
