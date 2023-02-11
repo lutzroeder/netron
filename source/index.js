@@ -202,8 +202,8 @@ host.BrowserHost = class {
     }
 
     start() {
-        this.window.addEventListener('error', (e) => {
-            const error = e instanceof Error ? e : new Error(e ? e.message : JSON.stringify(e));
+        this.window.addEventListener('error', (event) => {
+            const error = event instanceof ErrorEvent && event.error && event.error instanceof Error ? event.error : new Error(event && event.message ? event.message : JSON.stringify(event));
             this.exception(error, true);
         });
 
