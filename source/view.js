@@ -55,127 +55,130 @@ view.View = class {
             });
             if (this._host.environment('menu')) {
                 this._menu = new view.Menu(this._host, 'menu-button', 'menu');
-                this._menu.add({
-                    label: 'Open...',
+            }
+            if (this._host.environment('menu')) {
+                const file = this._menu.group('&File');
+                file.add({
+                    label: '&Open...',
                     accelerator: 'CmdOrCtrl+O',
                     click: () => this._host.execute('open')
                 });
                 if (this._host.type === 'Electron') {
-                    this._menu.add({
-                        label: 'Open Recent',
-                        click: () => {}
+                    file.group({
+                        label: 'Open &Recent',
+                        accelerator: '&#10095;'
                     });
-                    this._menu.add({
-                        label: 'Export...',
+                    file.add({
+                        label: '&Export...',
                         accelerator: 'CmdOrCtrl+Shift+E',
                         click: () => this._host.execute('export'),
                         enabled: () => this.activeGraph
                     });
-                    this._menu.add({
+                    file.add({
                         label: this._host.environment('platform') === 'darwin' ? 'Close Window' : 'Close',
                         accelerator: 'CmdOrCtrl+W',
                         click: () => this._host.execute('close'),
                     });
-                    this._menu.add({
-                        label: this._host.environment('platform') === 'win32' ? 'Exit' : 'Quit',
+                    file.add({
+                        label: this._host.environment('platform') === 'win32' ? 'E&xit' : 'Quit',
                         accelerator: this._host.environment('platform') === 'win32' ? '' : 'CmdOrCtrl+Q',
                         click: () => this._host.execute('quit'),
                     });
                 }
                 else {
-                    this._menu.add({
+                    file.add({
                         label: 'Export as PNG',
                         accelerator: 'CmdOrCtrl+Shift+E',
                         click: () => this.export(this._host.document.title + '.png'),
                         enabled: () => this.activeGraph
                     });
-                    this._menu.add({
+                    file.add({
                         label: 'Export as SVG',
                         accelerator: 'CmdOrCtrl+Alt+E',
                         click: () => this.export(this._host.document.title + '.svg'),
                         enabled: () => this.activeGraph
                     });
                 }
-                this._menu.add({});
-                this._menu.add({
-                    label: 'Find...',
+                const edit = this._menu.group('&Edit');
+                edit.add({
+                    label: '&Find...',
                     accelerator: 'CmdOrCtrl+F',
                     click: () => this.find(),
                     enabled: () => this.activeGraph
                 });
-                this._menu.add({});
-                this._menu.add({
+                const view = this._menu.group('&View');
+                view.add({
                     label: () => this.options.attributes ? 'Hide Attributes' : 'Show Attributes',
                     accelerator: 'CmdOrCtrl+D',
                     click: () => this.toggle('attributes'),
                     enabled: () => this.activeGraph
                 });
-                this._menu.add({
+                view.add({
                     label: () => this.options.initializers ? 'Hide Initializers' : 'Show Initializers',
                     accelerator: 'CmdOrCtrl+I',
                     click: () => this.toggle('initializers'),
                     enabled: () => this.activeGraph
                 });
-                this._menu.add({
+                view.add({
                     label: () => this.options.names ? 'Hide Names' : 'Show Names',
                     accelerator: 'CmdOrCtrl+U',
                     click: () => this.toggle('names'),
                     enabled: () => this.activeGraph
                 });
-                this._menu.add({
+                view.add({
                     label: () => this.options.direction === 'vertical' ? 'Show Horizontal' : 'Show Vertical',
                     accelerator: 'CmdOrCtrl+K',
                     click: () => this.toggle('direction'),
                     enabled: () => this.activeGraph
                 });
-                this._menu.add({
+                view.add({
                     label: () => this.options.mousewheel === 'scroll' ? 'Mouse Wheel: Zoom' : 'Mouse Wheel: Scroll',
                     accelerator: 'CmdOrCtrl+M',
                     click: () => this.toggle('mousewheel'),
                     enabled: () => this.activeGraph
                 });
-                this._menu.add({});
+                view.add({});
                 if (this._host.type === 'Electron') {
-                    this._menu.add({
-                        label: 'Reload',
+                    view.add({
+                        label: '&Reload',
                         accelerator: this._host.environment('platform') === 'darwin' ? 'CmdOrCtrl+R' : 'F5',
                         click: () => this._host.execute('reload'),
                         enabled: () => this.activeGraph
                     });
-                    this._menu.add({});
+                    view.add({});
                 }
-                this._menu.add({
-                    label: 'Zoom In',
+                view.add({
+                    label: 'Zoom &In',
                     accelerator: 'Shift+Up',
                     click: () => this.zoomIn(),
                     enabled: () => this.activeGraph
                 });
-                this._menu.add({
-                    label: 'Zoom Out',
+                view.add({
+                    label: 'Zoom &Out',
                     accelerator: 'Shift+Down',
                     click: () => this.zoomOut(),
                     enabled: () => this.activeGraph
                 });
-                this._menu.add({
-                    label: 'Actual Size',
+                view.add({
+                    label: 'Actual &Size',
                     accelerator: 'Shift+Backspace',
                     click: () => this.resetZoom(),
                     enabled: () => this.activeGraph
                 });
-                this._menu.add({});
-                this._menu.add({
-                    label: 'Properties...',
+                view.add({});
+                view.add({
+                    label: '&Properties...',
                     accelerator: 'CmdOrCtrl+Enter',
                     click: () => this.showModelProperties(),
                     enabled: () => this.activeGraph
                 });
-                this._menu.add({});
-                this._menu.add({
-                    label: 'Report Issue',
+                const help = this._menu.group('&Help');
+                help.add({
+                    label: 'Report &Issue',
                     click: () => this._host.execute('report-issue')
                 });
-                this._menu.add({
-                    label: 'About ' + this._host.document.title,
+                help.add({
+                    label: '&About ' + this._host.document.title,
                     click: () => this._host.execute('about')
                 });
                 this._getElementById('menu-button').addEventListener('click', (e) => {
@@ -990,10 +993,11 @@ view.Menu = class {
 
     constructor(host, button, dropdown) {
         this._host = host;
+        this._darwin = this._host.environment('platform') === 'darwin';
         this._dropdown = this._host.document.getElementById(dropdown);
         this._button = this._host.document.getElementById(button);
-        this._items = [];
-        this._darwin = this._host.environment('platform') === 'darwin';
+        this._groups = [];
+        this._items = new Map();
         this._accelerators = new Map();
         this._codes = new Map([
             [ 'Backspace', 0x08 ], [ 'Enter', 0x0D ],
@@ -1014,7 +1018,7 @@ view.Menu = class {
                 return;
             }
             if (code === 0x0212) { // Alt
-                this.toggle();
+                this.toggle(true, 0);
                 return;
             }
             const item = this._accelerators.get(code.toString());
@@ -1031,9 +1035,105 @@ view.Menu = class {
         });
     }
 
-    add(item) {
-        const accelerator = item.accelerator;
-        if (accelerator) {
+    group(label) {
+        const group = new view.Menu.Group(this, label);
+        this._groups.push(group);
+        return group;
+    }
+
+    toggle(mnemonic, level) {
+
+        if (this._dropdown.style.opacity >= 1) {
+            this.close();
+            return;
+        }
+
+        while (this._dropdown.lastChild) {
+            this._dropdown.removeChild(this._dropdown.lastChild);
+        }
+
+        const formatLabel = (value, mnemonic) => {
+            const index = value.indexOf('&');
+            if (index.length !== -1) {
+                if (mnemonic) {
+                    return value.substring(0, index) + '<u>' + value[index + 1] + '</u>' + value.substring(index + 2);
+                }
+                return value.substring(0, index) + value.substring(index + 1);
+            }
+            return value;
+        };
+
+        for (const group of this._groups) {
+            const container = this._host.document.createElement('div');
+            container.setAttribute('class', 'menu-group');
+            container.innerHTML = "<div class='menu-group-header'>" + formatLabel(group.label, mnemonic && level === 0) + "</div>";
+            let visible = false;
+            let block = false;
+            for (const item of group.items) {
+                switch (item.type) {
+                    case 'item': {
+                        const label = (typeof item.label == 'function') ? item.label() : item.label;
+                        const button = this._host.document.createElement('button');
+                        button.setAttribute('class', 'menu-item');
+                        button.innerHTML = formatLabel(label, mnemonic && level === 1);
+                        button.addEventListener('click', () => {
+                            this.close();
+                            setTimeout(() => {
+                                item.click();
+                            }, 10);
+                        });
+                        if (item.enabled && !item.enabled()) {
+                            button.setAttribute('disabled', '');
+                            button.style.display = 'none';
+                        }
+                        else {
+                            visible = true;
+                            block = true;
+                        }
+                        container.appendChild(button);
+                        if (item.accelerator) {
+                            const accelerator = this._host.document.createElement('span');
+                            accelerator.setAttribute('class', 'shortcut');
+                            accelerator.innerHTML = item.accelerator;
+                            button.appendChild(accelerator);
+                        }
+                        break;
+                    }
+                    case 'separator': {
+                        if (block) {
+                            const separator = this._host.document.createElement('div');
+                            separator.setAttribute('class', 'menu-separator');
+                            container.appendChild(separator);
+                            block = false;
+                        }
+                        break;
+                    }
+                    case 'group': {
+                        break;
+                    }
+                    default: {
+                        break;
+                    }
+                }
+            }
+            if (!visible) {
+                container.style.display = 'none';
+            }
+            this._dropdown.appendChild(container);
+        }
+
+        this._dropdown.style.opacity = 1.0;
+        this._dropdown.style.left = '0px';
+    }
+
+    close() {
+        this._dropdown.style.opacity = 0;
+        this._dropdown.style.left = '-200px';
+    }
+
+    register(item) {
+        let shortcut = '';
+        if (item.accelerator) {
             let cmdOrCtrl = false;
             let alt = false;
             let shift = false;
@@ -1047,19 +1147,17 @@ view.Menu = class {
                 }
             }
             if (key !== '') {
-                item.accelerator = {};
-                item.accelerator.text = '';
                 if (this._darwin) {
-                    item.accelerator.text += alt ? '&#x2325;' : '';
-                    item.accelerator.text += shift ? '&#x21e7;' : '';
-                    item.accelerator.text += cmdOrCtrl ? '&#x2318;' : '';
-                    item.accelerator.text += this._symbols.has(key) ? this._symbols.get(key) : key;
+                    shortcut += alt ? '&#x2325;' : '';
+                    shortcut += shift ? '&#x21e7;' : '';
+                    shortcut += cmdOrCtrl ? '&#x2318;' : '';
+                    shortcut += this._symbols.has(key) ? this._symbols.get(key) : key;
                 }
                 else {
-                    item.accelerator.text += cmdOrCtrl ? 'Ctrl+' : '';
-                    item.accelerator.text += alt ? 'Alt+' : '';
-                    item.accelerator.text += shift ? 'Shift+' : '';
-                    item.accelerator.text += key;
+                    shortcut += cmdOrCtrl ? 'Ctrl+' : '';
+                    shortcut += alt ? 'Alt+' : '';
+                    shortcut += shift ? 'Shift+' : '';
+                    shortcut += key;
                 }
                 let code = this._codes.has(key) ? this._codes.get(key) : key.charCodeAt(0);
                 code |= cmdOrCtrl ? 0x0400 : 0;
@@ -1068,55 +1166,31 @@ view.Menu = class {
                 this._accelerators.set(code.toString(), item);
             }
         }
-        this._items.push(item);
+        item.type = item instanceof view.Menu.Group ? 'group' : Object.keys(item).length === 0 ? 'separator' : 'item';
+        item.accelerator = shortcut;
+        item.identifier = this._items.size.toString();
+        this._items.set(item.identifier, item);
+    }
+};
+
+view.Menu.Group = class {
+
+    constructor(menu, label) {
+        this._menu = menu;
+        this.label = label;
+        this.items = [];
     }
 
-    toggle() {
-
-        if (this._dropdown.style.opacity >= 1) {
-            this.close();
-            return;
-        }
-
-        while (this._dropdown.lastChild) {
-            this._dropdown.removeChild(this._dropdown.lastChild);
-        }
-
-        for (const item of this._items) {
-            if (Object.keys(item).length > 0) {
-                const button = this._host.document.createElement('button');
-                button.innerText = (typeof item.label == 'function') ? item.label() : item.label;
-                button.addEventListener('click', () => {
-                    this.close();
-                    setTimeout(() => {
-                        item.click();
-                    }, 10);
-                });
-                if (item.enabled && !item.enabled()) {
-                    button.setAttribute('disabled', '');
-                }
-                this._dropdown.appendChild(button);
-                if (item.accelerator) {
-                    const accelerator = this._host.document.createElement('span');
-                    accelerator.setAttribute('class', 'shortcut');
-                    accelerator.innerHTML = item.accelerator.text;
-                    button.appendChild(accelerator);
-                }
-            }
-            else {
-                const separator = this._host.document.createElement('div');
-                separator.setAttribute('class', 'separator');
-                this._dropdown.appendChild(separator);
-            }
-        }
-
-        this._dropdown.style.opacity = 1.0;
-        this._dropdown.style.left = '0px';
+    add(item) {
+        this.items.push(item);
+        this._menu.register(item);
     }
 
-    close() {
-        this._dropdown.style.opacity = 0;
-        this._dropdown.style.left = '-200px';
+    group(label) {
+        const group = new view.Menu.Group(this._menu, label);
+        this.items.push(group);
+        this._menu.register(group);
+        return group;
     }
 };
 

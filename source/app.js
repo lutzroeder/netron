@@ -580,7 +580,7 @@ app.Application = class {
         if (process.platform !== 'darwin') {
             helpSubmenu.push({ type: 'separator' });
             helpSubmenu.push({
-                label: 'About ' + electron.app.name,
+                label: '&About ' + electron.app.name,
                 click: () => this.execute('about', null)
             });
         }

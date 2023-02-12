@@ -106,11 +106,13 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .menu-button { display: flex; justify-content: center; align-items: center; color: #aaaaaa; font-size: 16px; height: 32px; width: 32px; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2; -webkit-app-region: no-drag; -webkit-app-region: no-drag; user-select: none; }
 .menu-button:hover { color: #000000; }
 .menu { display: block; position: absolute; left: -200px; width: 200px; top: 0; height: 100%; z-index: 2; background-color: rgba(235, 235, 235, 0.97); border-right: 1px solid rgba(255, 255, 255, 0.5); padding-top: 40px; padding-bottom: 2px; margin-left: 0; margin-top: 0; overflow: hidden; transition: 0.1s; }
-.menu button { display: block; border: none; border-radius: 0; background-color: transparent; color: black; width: 100%; text-align: left; padding: 4px 12px 5px 12px; white-space: no-wrap; font-size: 12px; }
-.menu button:hover { color: #ffffff; background-color: #2e6bd2; }
-.menu button:disabled { color: #888888; }
-.menu button .shortcut { float: right; color: #888888; }
-.menu .separator { margin-top: 2px; margin-bottom: 2px; border-top: 1px; border-bottom: 0; border-style: solid; border-color: #e5e5e5; }
+.menu .menu-group { margin-bottom: 12px; }
+.menu .menu-group .menu-group-header { display: block; border: none; border-radius: 0; color: black; width: 100%; text-align: left; margin: 4px 12px 5px 12px; white-space: no-wrap; font-size: 11px; font-weight: bold; color: #bbbbbb; white-space: nowrap; }
+.menu .menu-group .menu-item { display: block; border: none; border-radius: 0; background-color: transparent; color: black; width: 100%; text-align: left; padding: 4px 12px 5px 12px; white-space: no-wrap; font-size: 12px; }
+.menu .menu-group .menu-item:hover { color: #ffffff; background-color: #2e6bd2; }
+.menu .menu-group .menu-item:disabled { color: #888888; }
+.menu .menu-group .menu-item .shortcut { float: right; color: #888888; }
+.menu .menu-group .menu-separator { border-top: 1px; border-bottom: 0; border-style: solid; border-color: #e5e5e5; margin-left: 12px; margin-right: 12px; }
 @-webkit-keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 @keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 .welcome.spinner .logo-spinner-stroke { stroke: #ececec; }
@@ -162,11 +164,12 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .menu-button { color: #aaaaaa; }
 .menu-button:hover { color: #ffffff; }
 .menu { background-color: rgba(43, 43, 43, 0.97); border-color: rgba(0, 0, 0, 0); }
-.menu button { color: #ffffff; }
-.menu button:hover { color: #ffffff; background-color: #1d59d1; }
-.menu button:disabled { color: #888888; }
-.menu button .shortcut { color: #888888; }
-.menu .separator { border-color: #5a5a5a; }
+.menu .menu-group .menu-group-header { color: #666666; }
+.menu .menu-group .menu-item { color: #ffffff; }
+.menu .menu-group .menu-item:hover { color: #ffffff; background-color: #1d59d1; }
+.menu .menu-group .menu-item:disabled { color: #888888; }
+.menu .menu-group .menu-item .shortcut { color: #888888; }
+.menu .menu-group .menu-separator { border-color: #363636; }
 }
 @media all and (max-width: 640px) {
 .welcome .logo { width: 240px; }
