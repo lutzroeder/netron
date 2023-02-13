@@ -8,24 +8,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -43,19 +43,19 @@
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -68,24 +68,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -98,24 +98,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -133,19 +133,19 @@
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -158,24 +158,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -188,24 +188,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -223,19 +223,19 @@
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -253,19 +253,19 @@
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -278,24 +278,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -313,19 +313,19 @@
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -338,24 +338,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -368,24 +368,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -398,7 +398,7 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
@@ -427,24 +427,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -457,24 +457,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -487,24 +487,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -522,19 +522,19 @@
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -547,24 +547,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -577,24 +577,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -607,24 +607,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -637,24 +637,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -667,24 +667,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -697,24 +697,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -727,7 +727,7 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
@@ -757,24 +757,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -787,24 +787,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -817,24 +817,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -847,24 +847,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -877,24 +877,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -907,24 +907,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -937,24 +937,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -972,19 +972,19 @@
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -997,24 +997,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -1027,24 +1027,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -1057,24 +1057,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -1087,24 +1087,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -1117,24 +1117,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -1147,24 +1147,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]
@@ -1177,24 +1177,24 @@
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
-        "visible": true
+        "visible": false
       },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_w_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       },
       {
         "name": "resize_f_ratio_list",
         "type": "array",
-        "visible": true,
+        "visible": false,
         "show_array_length": true
       }
     ]

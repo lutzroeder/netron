@@ -10,7 +10,7 @@ hn.DataTypes = {
     ARRAY: 'array'
 };
 
-hn.MetadataFile = 'hn-metadata.json';
+hn.MetadataFile = 'hailo-metadata.json';
 
 hn.FileExtensions = {
     HN: 'hn',
