@@ -3592,7 +3592,8 @@ pytorch.Utility = class {
                         (key === 'args' && Object(value) === value) ||
                         (key.startsWith('params') && Object(value) === value && (value.id2lang || value.lang2id)) ||
                         (key.startsWith('spk_dict_') && Object(value) === value && Object.keys(value).length === 0) ||
-                        (key === 'blk_det')) {
+                        (key === 'blk_det') ||
+                        (key === 'random_state')) {
                         continue;
                     }
                     target[key] = value;
