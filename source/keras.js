@@ -339,7 +339,6 @@ keras.Graph = class {
                 case 'Sequential': {
                     config = config.config;
                     const inputs = null;
-                    const outputs = null;
                     const inputName = 'input';
                     let inputType = null;
                     let argument = inputName;
@@ -362,12 +361,6 @@ keras.Graph = class {
                         }
                         argument = name;
                         let nodeOutputs = [ argument ];
-                        if (index == layers.length) {
-                            if (outputs && outputs.length > 0) {
-                                nodeOutputs = [ outputs[0] ];
-                                argument = null;
-                            }
-                        }
                         this.nodes.push(loadNode(layer, nodeInputs, nodeOutputs, weights, group));
                     }
                     if (!inputs) {
