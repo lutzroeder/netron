@@ -269,7 +269,7 @@ base.Utility = class {
             return base.Int64.zero;
         }
         if (a.equals(base.Int64.min)) {
-            return b.isOdd() ? base.Int64.min : base.Int64.zero;
+            return a.isOdd() ? base.Int64.min : base.Int64.zero;
         }
         if (b.equals(base.Int64.min)) {
             return b.isOdd() ? base.Int64.min : base.Int64.zero;
