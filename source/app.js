@@ -173,7 +173,7 @@ class Application {
                     'pkl', 'joblib',
                     'pbtxt', 'prototxt',
                     'cfg', 'xml',
-                    'zip', 'tar' ] }
+                    'zip', 'tar', 'hn', 'har' ] }
             ]
         };
         const selectedFiles = electron.dialog.showOpenDialogSync(showOpenDialogOptions);

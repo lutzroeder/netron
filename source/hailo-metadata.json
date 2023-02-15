@@ -1,0 +1,1203 @@
+[
+  {
+    "name": "input_layer",
+    "type": "InputLayer",
+    "description": "His!",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "conv",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": true
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "activation",
+    "type": "Activation",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "argmax",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "avgpool",
+    "type": "Pool",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": true
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "batch_norm",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "bbox_decoder",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "deconv",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": true
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "dense",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": true
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "depth_to_space",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "dw",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": true
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "external_pad",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "feature_interleave",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "feature_multiplier",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": true,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "string",
+        "visible": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": true,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "feature_shuffle",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "format_conversion",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "global_avg_pool",
+    "type": "Pool",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "maxpool",
+    "type": "Pool",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": true
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "nms",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "normalization",
+    "type": "Normalization",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "proposal_generator",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "reduce_l2",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "reduce_max",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "reduce_sum",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "resize",
+    "type": "Tensor",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": true,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": true,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": true,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "shortcut",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "slice",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "softmax",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "space_to_depth",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "output_mux",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "activation",
+    "type": "Activation",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "concat",
+    "type": "Tensor",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "matmul",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": true
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "ew_add",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "ew_div",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "ew_mult",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "ew_sub",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "demux",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "row_splitter",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  },
+  {
+    "name": "feature_splitter",
+    "type": "Layer",
+    "attributes": [
+      {
+        "name": "kernel_shape",
+        "type": "array",
+        "label": "kernel",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "array",
+        "visible": false,
+        "show_array_length": true
+      }
+    ]
+  }
+]
+

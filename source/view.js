@@ -1278,12 +1278,12 @@ view.ModelContext = class {
                 }
             }
             try {
-                const formats = new Map([ [ 'zip', zip ], [ 'tar', tar ] ]);
+                const formats = new Map([ [ 'zip', zip ], [ 'tar', tar ] , ['har', tar]] );
                 for (const pair of formats) {
                     const format = pair[0];
                     const module = pair[1];
                     const archive = module.Archive.open(stream);
-                    if (archive) {
+                    if (archive && archive._entries && archive._entries.size) {
                         this._entries = archive.entries;
                         this._format = format;
                         break;
@@ -1614,6 +1614,7 @@ view.ModelFactoryService = class {
         this.register('./nnabla', [ '.nntxt' ], [ '.nnp' ]);
         this.register('./cambricon', [ '.cambricon' ]);
         this.register('./message', [ '.json']);
+        this.register('./hailo', ['.hn', '.har']);
     }
 
     register(id, factories, containers) {
