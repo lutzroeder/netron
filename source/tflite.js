@@ -113,7 +113,7 @@ tflite.Model = class {
                 switch (metadata.name) {
                     case 'min_runtime_version': {
                         const data = buffer.data || new Uint8Array(0);
-                        this._runtime = data ? new TextDecoder().decode(data) : undefined;
+                        this._runtime = new TextDecoder().decode(data);
                         break;
                     }
                     case 'TFLITE_METADATA': {
