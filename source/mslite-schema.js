@@ -394,6 +394,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 217: return $root.mindspore.schema.ScatterElements.decode(reader, position);
             case 218: return $root.mindspore.schema.Triu.decode(reader, position);
             case 219: return $root.mindspore.schema.Tril.decode(reader, position);
+            case 220: return $root.mindspore.schema.AdamWeightDecay.decode(reader, position);
             default: return undefined;
         }
     }
@@ -619,6 +620,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'ScatterElements': return $root.mindspore.schema.ScatterElements.decodeText(reader, json);
             case 'Triu': return $root.mindspore.schema.Triu.decodeText(reader, json);
             case 'Tril': return $root.mindspore.schema.Tril.decodeText(reader, json);
+            case 'AdamWeightDecay': return $root.mindspore.schema.AdamWeightDecay.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -4321,6 +4323,21 @@ $root.mindspore.schema.Tril = class Tril {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Tril();
+        return $;
+    }
+};
+
+$root.mindspore.schema.AdamWeightDecay = class AdamWeightDecay {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.AdamWeightDecay();
+        $.use_locking = reader.bool_(position, 4, false);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.AdamWeightDecay();
+        $.use_locking = reader.value(json.use_locking, false);
         return $;
     }
 };

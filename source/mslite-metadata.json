@@ -68,6 +68,12 @@
     ]
   },
   {
+    "name": "AdamWeightDecay",
+    "attributes": [
+      { "name": "use_locking", "type": "boolean", "default": false }
+    ]
+  },
+  {
     "name": "Add",
     "attributes": [
       { "name": "ActivationType", "type": "ActivationType" }
