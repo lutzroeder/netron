@@ -1952,6 +1952,10 @@
         "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_default\")"
       },
       {
+        "summary": "averagepool_2d_dilations",
+        "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\nx = (np.arange(16) + 1).astype(np.float32).reshape((1, 1, 4, 4))\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
+      },
+      {
         "summary": "averagepool_2d_pads",
         "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_pads\")"
       },
@@ -2074,6 +2078,10 @@
       {
         "summary": "averagepool_2d_default",
         "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_default\")"
+      },
+      {
+        "summary": "averagepool_2d_dilations",
+        "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\nx = (np.arange(16) + 1).astype(np.float32).reshape((1, 1, 4, 4))\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
       },
       {
         "summary": "averagepool_2d_pads",
@@ -2206,6 +2214,10 @@
         "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_default\")"
       },
       {
+        "summary": "averagepool_2d_dilations",
+        "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\nx = (np.arange(16) + 1).astype(np.float32).reshape((1, 1, 4, 4))\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
+      },
+      {
         "summary": "averagepool_2d_pads",
         "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_pads\")"
       },
@@ -2253,7 +2265,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "AveragePool consumes an input tensor X and applies average pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n ```\n or\n ```\n output_spatial_shape[i] = ceil((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n ```\n if ceil_mode is enabled `pad_shape[i]` is the sum of pads along axis `i`.\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - kernel_spatial_shape[i] + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is divided by the number of elements (exclude pad when attribute count_include_pad is zero).\n ",
+    "description": "AveragePool consumes an input tensor X and applies average pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1)) / strides_spatial_shape[i] + 1)\n ```\n or\n ```\n output_spatial_shape[i] = ceil((input_spatial_shape[i] + pad_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1)) / strides_spatial_shape[i] + 1)\n ```\n if ceil_mode is enabled\n\n ```\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) - input_spatial_shape[i]\n ```\n The output of each pooling window is divided by the number of elements (exclude pad when attribute count_include_pad is zero).\n ",
     "attributes": [
       {
         "name": "auto_pad",
@@ -2334,6 +2346,150 @@
       {
         "summary": "averagepool_2d_default",
         "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_default\")"
+      },
+      {
+        "summary": "averagepool_2d_dilations",
+        "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\nx = (np.arange(16) + 1).astype(np.float32).reshape((1, 1, 4, 4))\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
+      },
+      {
+        "summary": "averagepool_2d_pads",
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_pads\")"
+      },
+      {
+        "summary": "averagepool_2d_pads_count_include_pad",
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n    count_include_pad=1,\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=0,\n)\ny = pool(\n    padded,\n    x_shape,\n    kernel_shape,\n    strides,\n    out_shape,\n    pad_shape,\n    \"AVG\",\n    count_include_pad=1,\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_2d_pads_count_include_pad\",\n)"
+      },
+      {
+        "summary": "averagepool_2d_precomputed_pads",
+        "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 5, 5]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    pads=[2, 2, 2, 2],\n)\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4, 5],\n                [6, 7, 8, 9, 10],\n                [11, 12, 13, 14, 15],\n                [16, 17, 18, 19, 20],\n                [21, 22, 23, 24, 25],\n            ]\n        ]\n    ]\n).astype(np.float32)\ny = np.array(\n    [\n        [\n            [\n                [7, 7.5, 8, 8.5, 9],\n                [9.5, 10, 10.5, 11, 11.5],\n                [12, 12.5, 13, 13.5, 14],\n                [14.5, 15, 15.5, 16, 16.5],\n                [17, 17.5, 18, 18.5, 19],\n            ]\n        ]\n    ]\n).astype(np.float32)\n\nexpect(\n    node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_precomputed_pads\"\n)"
+      },
+      {
+        "summary": "averagepool_2d_precomputed_pads_count_include_pad",
+        "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 5, 5]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    pads=[2, 2, 2, 2],\n    count_include_pad=1,\n)\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4, 5],\n                [6, 7, 8, 9, 10],\n                [11, 12, 13, 14, 15],\n                [16, 17, 18, 19, 20],\n                [21, 22, 23, 24, 25],\n            ]\n        ]\n    ]\n).astype(np.float32)\ny = np.array(\n    [\n        [\n            [\n                [2.5200, 3.6000, 4.8000, 4.0800, 3.2400],\n                [4.5600, 6.4000, 8.4000, 7.0400, 5.5200],\n                [7.2000, 10.0000, 13.0000, 10.8000, 8.4000],\n                [6.9600, 9.6000, 12.4000, 10.2400, 7.9200],\n                [6.1200, 8.4000, 10.8000, 8.8800, 6.8400],\n            ]\n        ]\n    ]\n).astype(np.float32)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_2d_precomputed_pads_count_include_pad\",\n)"
+      },
+      {
+        "summary": "averagepool_2d_precomputed_same_upper",
+        "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 3, 3]\npad_shape: [2, 2] -> [1, 1, 1, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    auto_pad=\"SAME_UPPER\",\n)\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4, 5],\n                [6, 7, 8, 9, 10],\n                [11, 12, 13, 14, 15],\n                [16, 17, 18, 19, 20],\n                [21, 22, 23, 24, 25],\n            ]\n        ]\n    ]\n).astype(np.float32)\ny = np.array([[[[4, 5.5, 7], [11.5, 13, 14.5], [19, 20.5, 22]]]]).astype(\n    np.float32\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_2d_precomputed_same_upper\",\n)"
+      },
+      {
+        "summary": "averagepool_2d_precomputed_strides",
+        "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[2, 2],\n)\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4, 5],\n                [6, 7, 8, 9, 10],\n                [11, 12, 13, 14, 15],\n                [16, 17, 18, 19, 20],\n                [21, 22, 23, 24, 25],\n            ]\n        ]\n    ]\n).astype(np.float32)\ny = np.array([[[[4, 6], [14, 16]]]]).astype(np.float32)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_2d_precomputed_strides\",\n)"
+      },
+      {
+        "summary": "averagepool_2d_same_lower",
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    auto_pad=\"SAME_LOWER\",\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"SAME_LOWER\", x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape(\n    \"SAME_LOWER\", x_shape[2:], kernel_shape, strides, out_shape\n)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_same_lower\")"
+      },
+      {
+        "summary": "averagepool_2d_same_upper",
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    auto_pad=\"SAME_UPPER\",\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"SAME_UPPER\", x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape(\n    \"SAME_UPPER\", x_shape[2:], kernel_shape, strides, out_shape\n)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_same_upper\")"
+      },
+      {
+        "summary": "averagepool_2d_strides",
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    strides=[3, 3],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_strides\")"
+      },
+      {
+        "summary": "averagepool_3d_default",
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_3d_default\")"
+      }
+    ],
+    "category": "Pool"
+  },
+  {
+    "name": "AveragePool",
+    "module": "ai.onnx",
+    "version": 19,
+    "support_level": "common",
+    "description": "AveragePool consumes an input tensor X and applies average pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n ```\n or\n ```\n output_spatial_shape[i] = ceil((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n ```\n if ceil_mode is enabled `pad_shape[i]` is the sum of pads along axis `i`.\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - kernel_spatial_shape[i] + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is divided by the number of elements (exclude pad when attribute count_include_pad is zero).\n ",
+    "attributes": [
+      {
+        "name": "auto_pad",
+        "type": "string",
+        "required": false,
+        "default": "NOTSET",
+        "description": "auto_pad must be either NOTSET, SAME_UPPER, SAME_LOWER or VALID. Where default value is NOTSET, which means explicit padding is used. SAME_UPPER or SAME_LOWER mean pad the input so that `output_shape[i] = ceil(input_shape[i] / strides[i])` for each axis `i`. The padding is split between the two sides equally or almost equally (depending on whether it is even or odd). In case the padding is an odd number, the extra padding is added at the end for SAME_UPPER and at the beginning for SAME_LOWER."
+      },
+      {
+        "name": "ceil_mode",
+        "type": "int64",
+        "required": false,
+        "description": "Whether to use ceil or floor (default) to compute the output shape."
+      },
+      {
+        "name": "count_include_pad",
+        "type": "int64",
+        "required": false,
+        "description": "Whether include pad pixels when calculating values for the edges. Default is 0, doesn't count include pad."
+      },
+      {
+        "name": "dilations",
+        "type": "int64[]",
+        "required": false,
+        "description": "Dilation value along each spatial axis of filter. If not present, the dilation defaults to 1 along each spatial axis."
+      },
+      {
+        "name": "kernel_shape",
+        "type": "int64[]",
+        "required": true,
+        "description": "The size of the kernel along each axis."
+      },
+      {
+        "name": "pads",
+        "type": "int64[]",
+        "required": false,
+        "description": "Padding for the beginning and ending along each spatial axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each spatial axis."
+      },
+      {
+        "name": "strides",
+        "type": "int64[]",
+        "required": false,
+        "description": "Stride along each spatial axis. If not present, the stride defaults to 1 along each spatial axis."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T",
+        "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimensions are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size. Optionally, if dimension denotation is in effect, the operation expects the input data tensor to arrive with the dimension denotation of [DATA_BATCH, DATA_CHANNEL, DATA_FEATURE, DATA_FEATURE ...]."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T",
+        "description": "Output data tensor from average or max pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes. Floor value of the dimension is used"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "averagepool_1d_default",
+        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_1d_default\")"
+      },
+      {
+        "summary": "averagepool_2d_ceil",
+        "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    ceil_mode=True,\n)\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\ny = np.array([[[[6, 7.5], [12, 13.5]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_ceil\")"
+      },
+      {
+        "summary": "averagepool_2d_default",
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_default\")"
+      },
+      {
+        "summary": "averagepool_2d_dilations",
+        "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\nx = (np.arange(16) + 1).astype(np.float32).reshape((1, 1, 4, 4))\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
       },
       {
         "summary": "averagepool_2d_pads",
@@ -3345,11 +3501,11 @@
     "examples": [
       {
         "summary": "bitwiseand",
-        "code": "node = onnx.helper.make_node(\n    \"BitwiseAnd\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"bitwiseand\"],\n)\n\n# 2d\nx = np.random.randn(3, 4).astype(np.int32)\ny = np.random.randn(3, 4).astype(np.int32)\nz = np.bitwise_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_bitwise_and_i32_2d\")\n\n# 3d\nx = np.random.randn(3, 4, 5).astype(np.int16)\ny = np.random.randn(3, 4, 5).astype(np.int16)\nz = np.bitwise_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_bitwise_and_i16_3d\")"
+        "code": "node = onnx.helper.make_node(\n    \"BitwiseAnd\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"bitwiseand\"],\n)\n\n# 2d\nx = create_random_int((3, 4), np.int32)\ny = create_random_int((3, 4), np.int32)\nz = np.bitwise_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_bitwise_and_i32_2d\")\n\n# 3d\nx = create_random_int((3, 4, 5), np.int16)\ny = create_random_int((3, 4, 5), np.int16)\nz = np.bitwise_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_bitwise_and_i16_3d\")"
       },
       {
         "summary": "bitwiseand_broadcast",
-        "code": "node = onnx.helper.make_node(\n    \"BitwiseAnd\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"bitwiseand\"],\n)\n\n# 3d vs 1d\nx = np.random.randn(3, 4, 5).astype(np.uint64)\ny = np.random.randn(5).astype(np.uint64)\nz = np.bitwise_and(x, y)\nexpect(\n    node, inputs=[x, y], outputs=[z], name=\"test_bitwise_and_ui64_bcast_3v1d\"\n)\n\n# 4d vs 3d\nx = np.random.randn(3, 4, 5, 6).astype(np.uint8)\ny = np.random.randn(4, 5, 6).astype(np.uint8)\nz = np.bitwise_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_bitwise_and_ui8_bcast_4v3d\")"
+        "code": "node = onnx.helper.make_node(\n    \"BitwiseAnd\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"bitwiseand\"],\n)\n\n# 3d vs 1d\nx = create_random_int((3, 4, 5), np.uint64)\ny = create_random_int((5,), np.uint64)\nz = np.bitwise_and(x, y)\nexpect(\n    node, inputs=[x, y], outputs=[z], name=\"test_bitwise_and_ui64_bcast_3v1d\"\n)\n\n# 4d vs 3d\nx = create_random_int((3, 4, 5, 6), np.uint8)\ny = create_random_int((4, 5, 6), np.uint8)\nz = np.bitwise_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_bitwise_and_ui8_bcast_4v3d\")"
       }
     ]
   },
@@ -3396,7 +3552,7 @@
     "examples": [
       {
         "summary": "bitwisenot",
-        "code": "node = onnx.helper.make_node(\n    \"BitwiseNot\",\n    inputs=[\"x\"],\n    outputs=[\"bitwise_not\"],\n)\n\n# 2d\nx = np.random.randn(3, 4).astype(np.int32)\ny = np.bitwise_not(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_bitwise_not_2d\")\n\n# 3d\nx = np.random.randn(3, 4, 5).astype(np.uint16)\ny = np.bitwise_not(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_bitwise_not_3d\")\n\n# 4d\nx = np.random.randn(3, 4, 5, 6).astype(np.uint8)\ny = np.bitwise_not(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_bitwise_not_4d\")"
+        "code": "node = onnx.helper.make_node(\n    \"BitwiseNot\",\n    inputs=[\"x\"],\n    outputs=[\"bitwise_not\"],\n)\n\n# 2d\nx = create_random_int((3, 4), np.int32)\ny = np.bitwise_not(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_bitwise_not_2d\")\n\n# 3d\nx = create_random_int((3, 4, 5), np.uint16)\ny = np.bitwise_not(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_bitwise_not_3d\")\n\n# 4d\nx = create_random_int((3, 4, 5, 6), np.uint8)\ny = np.bitwise_not(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_bitwise_not_4d\")"
       }
     ]
   },
@@ -3448,11 +3604,11 @@
     "examples": [
       {
         "summary": "bitwiseor",
-        "code": "node = onnx.helper.make_node(\n    \"BitwiseOr\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"bitwiseor\"],\n)\n# 2d\nx = np.random.randn(3, 4).astype(np.int32)\ny = np.random.randn(3, 4).astype(np.int32)\nz = np.bitwise_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_bitwise_or_i32_2d\")\n\n# 4d\nx = np.random.randn(3, 4, 5, 6).astype(np.int8)\ny = np.random.randn(3, 4, 5, 6).astype(np.int8)\nz = np.bitwise_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_bitwise_or_i16_4d\")"
+        "code": "node = onnx.helper.make_node(\n    \"BitwiseOr\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"bitwiseor\"],\n)\n# 2d\nx = create_random_int((3, 4), np.int32)\ny = create_random_int((3, 4), np.int32)\nz = np.bitwise_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_bitwise_or_i32_2d\")\n\n# 4d\nx = create_random_int((3, 4, 5, 6), np.int8)\ny = create_random_int((3, 4, 5, 6), np.int8)\nz = np.bitwise_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_bitwise_or_i16_4d\")"
       },
       {
         "summary": "bitwiseor_broadcast",
-        "code": "node = onnx.helper.make_node(\n    \"BitwiseOr\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"bitwiseor\"],\n)\n\n# 3d vs 1d\nx = np.random.randn(3, 4, 5).astype(np.uint64)\ny = np.random.randn(5).astype(np.uint64)\nz = np.bitwise_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_bitwise_or_ui64_bcast_3v1d\")\n\n# 4d vs 3d\nx = np.random.randn(3, 4, 5, 6).astype(np.uint8)\ny = np.random.randn(4, 5, 6).astype(np.uint8)\nz = np.bitwise_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_bitwise_or_ui8_bcast_4v3d\")"
+        "code": "node = onnx.helper.make_node(\n    \"BitwiseOr\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"bitwiseor\"],\n)\n\n# 3d vs 1d\nx = create_random_int((3, 4, 5), np.uint64)\ny = create_random_int((5,), np.uint64)\nz = np.bitwise_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_bitwise_or_ui64_bcast_3v1d\")\n\n# 4d vs 3d\nx = create_random_int((3, 4, 5, 6), np.uint8)\ny = create_random_int((4, 5, 6), np.uint8)\nz = np.bitwise_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_bitwise_or_ui8_bcast_4v3d\")"
       }
     ]
   },
@@ -3504,11 +3660,11 @@
     "examples": [
       {
         "summary": "bitwiseor_broadcast",
-        "code": "node = onnx.helper.make_node(\n    \"BitwiseXor\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"bitwisexor\"],\n)\n\n# 3d vs 1d\nx = np.random.randn(3, 4, 5).astype(np.uint64)\ny = np.random.randn(5).astype(np.uint64)\nz = np.bitwise_xor(x, y)\nexpect(\n    node, inputs=[x, y], outputs=[z], name=\"test_bitwise_xor_ui64_bcast_3v1d\"\n)\n\n# 4d vs 3d\nx = np.random.randn(3, 4, 5, 6).astype(np.uint8)\ny = np.random.randn(4, 5, 6).astype(np.uint8)\nz = np.bitwise_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_bitwise_xor_ui8_bcast_4v3d\")"
+        "code": "node = onnx.helper.make_node(\n    \"BitwiseXor\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"bitwisexor\"],\n)\n\n# 3d vs 1d\nx = create_random_int((3, 4, 5), np.uint64)\ny = create_random_int((5,), np.uint64)\nz = np.bitwise_xor(x, y)\nexpect(\n    node, inputs=[x, y], outputs=[z], name=\"test_bitwise_xor_ui64_bcast_3v1d\"\n)\n\n# 4d vs 3d\nx = create_random_int((3, 4, 5, 6), np.uint8)\ny = create_random_int((4, 5, 6), np.uint8)\nz = np.bitwise_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_bitwise_xor_ui8_bcast_4v3d\")"
       },
       {
         "summary": "bitwisexor",
-        "code": "node = onnx.helper.make_node(\n    \"BitwiseXor\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"bitwisexor\"],\n)\n\n# 2d\nx = np.random.randn(3, 4).astype(np.int32)\ny = np.random.randn(3, 4).astype(np.int32)\nz = np.bitwise_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_bitwise_xor_i32_2d\")\n\n# 3d\nx = np.random.randn(3, 4, 5).astype(np.int16)\ny = np.random.randn(3, 4, 5).astype(np.int16)\nz = np.bitwise_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_bitwise_xor_i16_3d\")"
+        "code": "node = onnx.helper.make_node(\n    \"BitwiseXor\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"bitwisexor\"],\n)\n\n# 2d\nx = create_random_int((3, 4), np.int32)\ny = create_random_int((3, 4), np.int32)\nz = np.bitwise_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_bitwise_xor_i32_2d\")\n\n# 3d\nx = create_random_int((3, 4, 5), np.int16)\ny = create_random_int((3, 4, 5), np.int16)\nz = np.bitwise_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z], name=\"test_bitwise_xor_i16_3d\")"
       }
     ]
   },
@@ -21924,8 +22080,8 @@
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([1, 3], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [1, 3],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_axes\",\n)"
       },
       {
-        "summary": "reflection_and_edge_pad",
-        "code": "for mode in [\"edge\", \"reflect\"]:\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
+        "summary": "reflection_edge_and_wrap_pad",
+        "code": "for mode in [\"edge\", \"reflect\", \"wrap\"]:\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
     ],
     "category": "Tensor"
@@ -21996,8 +22152,8 @@
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([1, 3], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [1, 3],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_axes\",\n)"
       },
       {
-        "summary": "reflection_and_edge_pad",
-        "code": "for mode in [\"edge\", \"reflect\"]:\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
+        "summary": "reflection_edge_and_wrap_pad",
+        "code": "for mode in [\"edge\", \"reflect\", \"wrap\"]:\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
     ],
     "category": "Tensor"
@@ -22076,8 +22232,8 @@
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([1, 3], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [1, 3],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_axes\",\n)"
       },
       {
-        "summary": "reflection_and_edge_pad",
-        "code": "for mode in [\"edge\", \"reflect\"]:\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
+        "summary": "reflection_edge_and_wrap_pad",
+        "code": "for mode in [\"edge\", \"reflect\", \"wrap\"]:\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
     ],
     "category": "Tensor"
@@ -22161,8 +22317,8 @@
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([1, 3], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [1, 3],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_axes\",\n)"
       },
       {
-        "summary": "reflection_and_edge_pad",
-        "code": "for mode in [\"edge\", \"reflect\"]:\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
+        "summary": "reflection_edge_and_wrap_pad",
+        "code": "for mode in [\"edge\", \"reflect\", \"wrap\"]:\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
     ],
     "category": "Tensor"
@@ -22260,8 +22416,107 @@
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([1, 3], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [1, 3],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_axes\",\n)"
       },
       {
-        "summary": "reflection_and_edge_pad",
-        "code": "for mode in [\"edge\", \"reflect\"]:\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
+        "summary": "reflection_edge_and_wrap_pad",
+        "code": "for mode in [\"edge\", \"reflect\", \"wrap\"]:\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
+      }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "Pad",
+    "module": "ai.onnx",
+    "version": 19,
+    "support_level": "common",
+    "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe three supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0, empty string, or False)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n4) `wrap` - wrap-around padding as if the data tensor forms a torus\n\n\nExample 1 (`constant` mode):\n\nInsert 0 pads to the beginning of the second dimension.\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'constant'\n\nconstant_value = 0.0\n\noutput = [\n    [0.0, 0.0, 1.0, 1.2],\n    [0.0, 0.0, 2.3, 3.4],\n    [0.0, 0.0, 4.5, 5.7],\n]\n```\n\nExample 2 (`reflect` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'reflect'\n\noutput = [\n    [1.0, 1.2, 1.0, 1.2],\n    [2.3, 3.4, 2.3, 3.4],\n    [4.5, 5.7, 4.5, 5.7],\n]\n```\n\nExample 3 (`edge` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [0, 2, 0, 0]\n\nmode = 'edge'\n\noutput = [\n    [1.0, 1.0, 1.0, 1.2],\n    [2.3, 2.3, 2.3, 3.4],\n    [4.5, 4.5, 4.5, 5.7],\n]\n```\n\nExample 4 (`wrap` mode):\n\n```\ndata = [\n    [1.0, 1.2],\n    [2.3, 3.4],\n    [4.5, 5.7],\n]\n\npads = [2, 1, 1, 1]\n\nmode = 'wrap'\n\noutput = [\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n    [3.4, 2.3, 3.4, 2.3],\n    [5.7, 4.5, 5.7, 4.5],\n    [1.2, 1.0, 1.2, 1.0],\n]\n```\n",
+    "attributes": [
+      {
+        "name": "mode",
+        "type": "string",
+        "required": false,
+        "default": "constant",
+        "description": "Supported modes: `constant`(default), `reflect`, `edge`, `wrap`"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "data",
+        "type": "T",
+        "description": "Input tensor."
+      },
+      {
+        "name": "pads",
+        "type": "tensor(int64)",
+        "description": "Tensor of integers indicating the number of padding elements to add or remove (if negative) at the beginning and end of each axis. For 2D input tensor, it is the number of pixels. `pads` should be a 1D tensor of shape [2 * num_axes] where `num_axes` refers to the number of elements in the `axes` input or the input rank if `axes` are not provided explicitly. `pads` format should be: [x1_begin, x2_begin, ..., x1_end, x2_end,...], where xi_begin is the number of pad values added at the beginning of axis `axes[i]` and xi_end, the number of pad values added at the end of axis `axes[i]`."
+      },
+      {
+        "name": "constant_value",
+        "type": "T",
+        "option": "optional",
+        "description": "(Optional) A scalar value to be used if the mode chosen is `constant` (by default it is 0, empty string or False)."
+      },
+      {
+        "name": "axes",
+        "type": "Tind",
+        "option": "optional",
+        "description": "1-D tensor of axes that `pads` apply to. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(data). Behavior is undefined if an axis is repeated. If not provided, all axes are assumed (`[0, 1, ..., input_rank-1]`)."
+      }
+    ],
+    "min_input": 2,
+    "max_input": 4,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T",
+        "description": "Tensor after padding."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "inputs_range": "2 - 4",
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to all tensor types.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(bfloat16)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(string)",
+          "tensor(bool)",
+          "tensor(complex64)",
+          "tensor(complex128)"
+        ]
+      },
+      {
+        "description": "Constrain indices to integer types",
+        "type_param_str": "Tind",
+        "allowed_type_strs": [
+          "tensor(int32)",
+          "tensor(int64)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "constant_pad",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 0, 1, 3, 0, 0, 2, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\ny = pad_impl(x, pads, \"constant\", 1.2)\n\nexpect(node, inputs=[x, pads, value], outputs=[y], name=\"test_constant_pad\")"
+      },
+      {
+        "summary": "constant_pad_axes",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([1, 3], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [1, 3],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_axes\",\n)"
+      },
+      {
+        "summary": "reflection_edge_and_wrap_pad",
+        "code": "for mode in [\"edge\", \"reflect\", \"wrap\"]:\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
     ],
     "category": "Tensor"
