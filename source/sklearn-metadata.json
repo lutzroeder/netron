@@ -795,7 +795,7 @@
       },
       {
         "default": null,
-        "description": "If 'english', a built-in stop word list for English is used.\nThere are several known issues with 'english' and you should\nconsider an alternative (see :ref:`stop_words`).\n\nIf a list, that list is assumed to contain stop words, all of which\nwill be removed from the resulting tokens.\nOnly applies if ``analyzer == 'word'``.\n\nIf None, no stop words will be used. max_df can be set to a value\nin the range [0.7, 1.0) to automatically detect and filter stop\nwords based on intra corpus document frequency of terms.\n",
+        "description": "If 'english', a built-in stop word list for English is used.\nThere are several known issues with 'english' and you should\nconsider an alternative (see :ref:`stop_words`).\n\nIf a list, that list is assumed to contain stop words, all of which\nwill be removed from the resulting tokens.\nOnly applies if ``analyzer == 'word'``.\n\nIf None, no stop words will be used. In this case, setting `max_df`\nto a higher value, such as in the range (0.7, 1.0), can automatically detect\nand filter stop words based on intra corpus document frequency of terms.\n",
         "name": "stop_words",
         "type": "string"
       },
@@ -901,7 +901,7 @@
       },
       {
         "default": null,
-        "description": "If a string, it is passed to _check_stop_list and the appropriate stop\nlist is returned. 'english' is currently the only supported string\nvalue.\nThere are several known issues with 'english' and you should\nconsider an alternative (see :ref:`stop_words`).\n\nIf a list, that list is assumed to contain stop words, all of which\nwill be removed from the resulting tokens.\nOnly applies if ``analyzer == 'word'``.\n\nIf None, no stop words will be used. max_df can be set to a value\nin the range [0.7, 1.0) to automatically detect and filter stop\nwords based on intra corpus document frequency of terms.\n",
+        "description": "If a string, it is passed to _check_stop_list and the appropriate stop\nlist is returned. 'english' is currently the only supported string\nvalue.\nThere are several known issues with 'english' and you should\nconsider an alternative (see :ref:`stop_words`).\n\nIf a list, that list is assumed to contain stop words, all of which\nwill be removed from the resulting tokens.\nOnly applies if ``analyzer == 'word'``.\n\nIf None, no stop words will be used. In this case, setting `max_df`\nto a higher value, such as in the range (0.7, 1.0), can automatically detect\nand filter stop words based on intra corpus document frequency of terms.\n",
         "name": "stop_words"
       },
       {
