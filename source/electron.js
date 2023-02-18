@@ -279,7 +279,8 @@ host.ElectronHost = class {
 
     require(id) {
         try {
-            return Promise.resolve(require(id));
+            const module = require(id);
+            return Promise.resolve(module);
         }
         catch (error) {
             return Promise.reject(error);
