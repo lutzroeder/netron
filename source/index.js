@@ -305,19 +305,21 @@ host.BrowserHost = class {
         if (value) {
             return Promise.resolve(value);
         }
+        this.window.module = { exports: {} };
+        const url = this._url(id + '.js');
+        const script = document.createElement('script');
+        script.setAttribute('id', id);
+        script.setAttribute('type', 'text/javascript');
+        script.setAttribute('src', url);
         return new Promise((resolve, reject) => {
-            this.window.module = { exports: {} };
-            const url = this._url(id + '.js');
-            const script = document.createElement('script');
-            script.setAttribute('id', id);
-            script.setAttribute('type', 'text/javascript');
-            script.setAttribute('src', url);
             script.onload = () => {
-                if (!this.window[name]) {
-                    this.window[name] = this.window.module.exports;
-                    delete this.window.module;
+                let module = this.window[name];
+                if (!module) {
+                    module = this.window.module.exports;
+                    this.window[name] = module;
                 }
-                resolve(this.window[name]);
+                delete this.window.module;
+                resolve(module);
             };
             script.onerror = (e) => {
                 delete this.window.module;
