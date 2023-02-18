@@ -2,11 +2,12 @@
 var flatbuffers = {};
 
 flatbuffers.get = (name) => {
-    flatbuffers._map = flatbuffers._map || new Map();
-    if (!flatbuffers._map.has(name)) {
-        flatbuffers._map.set(name, {});
+    flatbuffers._roots = flatbuffers._roots || new Map();
+    const roots = flatbuffers._roots;
+    if (!roots.has(name)) {
+        roots.set(name, {});
     }
-    return flatbuffers._map.get(name);
+    return roots.get(name);
 };
 
 flatbuffers.BinaryReader = class {
