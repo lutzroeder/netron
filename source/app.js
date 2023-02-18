@@ -15,7 +15,7 @@ app.Application = class {
     constructor() {
 
         this._views = new app.ViewCollection(this);
-        this._configuration = new app.ConfigurationService();
+        this._configuration = new app.ConfigurationService(this._views);
         this._menu = new app.MenuService(this._views);
         this._openQueue = [];
 
@@ -245,13 +245,6 @@ app.Application = class {
                 view.execute('export', { 'file': selectedFile });
             }
         }
-    }
-
-    service(name) {
-        if (name == 'configuration') {
-            return this._configuration;
-        }
-        return undefined;
     }
 
     execute(command, data, window) {
@@ -946,13 +939,13 @@ app.ViewCollection = class {
 
 app.ConfigurationService = class {
 
-    constructor() {
+    constructor(views) {
+        this._views = views;
         const dir = electron.app.getPath('userData');
         if (dir && dir.length > 0) {
             this._file = path.join(dir, 'configuration.json');
         }
     }
-
 
     load() {
         this._data = { 'recents': [] };
@@ -982,6 +975,9 @@ app.ConfigurationService = class {
 
     set(name, value) {
         this._data[name] = value;
+        for (const view of this._views.views) {
+            view.execute('update-configuration', { name: name, value: value });
+        }
     }
 
     get(name) {

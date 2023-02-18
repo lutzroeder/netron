@@ -191,6 +191,10 @@ host.ElectronHost = class {
             this.about();
         });
 
+        electron.ipcRenderer.on('update-configuration', (/* _, data */) => {
+            // TODO
+        });
+
         this._element('titlebar-close').addEventListener('click', () => {
             electron.ipcRenderer.sendSync('window-close', {});
         });
