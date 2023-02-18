@@ -4,11 +4,12 @@ var base = require('./base');
 var text = require('./text');
 
 protobuf.get = (name) => {
-    protobuf._map = protobuf._map || new Map();
-    if (!protobuf._map.has(name)) {
-        protobuf._map.set(name, {});
+    protobuf._roots = protobuf._roots || new Map();
+    const roots = protobuf._roots;
+    if (!roots.has(name)) {
+        roots.set(name, {});
     }
-    return protobuf._map.get(name);
+    return roots.get(name);
 };
 
 protobuf.BinaryReader = class {
