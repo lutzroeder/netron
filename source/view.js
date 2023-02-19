@@ -287,16 +287,22 @@ view.View = class {
     }
 
     update(name, value) {
-        if (name === 'recents') {
-            this._recents.clear();
-            for (let i = 0; i < value.length; i++) {
-                const path = value[i].path;
-                this._recents.add({
-                    label: path,
-                    accelerator: 'CmdOrCtrl+' + (i + 1).toString(),
-                    click: () => this._host.execute('open', path)
-                });
-            }
+        switch (name) {
+            case 'recents':
+                if (this._recents) {
+                    this._recents.clear();
+                    for (let i = 0; i < value.length; i++) {
+                        const path = value[i].path;
+                        this._recents.add({
+                            label: path,
+                            accelerator: 'CmdOrCtrl+' + (i + 1).toString(),
+                            click: () => this._host.execute('open', path)
+                        });
+                    }
+                }
+                break;
+            default:
+                break;
         }
     }
 
