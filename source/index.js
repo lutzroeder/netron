@@ -342,8 +342,8 @@ host.BrowserHost = class {
         this.document.body.removeChild(element);
     }
 
-    execute(command) {
-        switch (command) {
+    execute(name /*, value */) {
+        switch (name) {
             case 'open': {
                 const openFileDialog = this.document.getElementById('open-file-dialog');
                 if (openFileDialog) {

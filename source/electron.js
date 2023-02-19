@@ -191,9 +191,10 @@ host.ElectronHost = class {
             this.about();
         });
 
-        electron.ipcRenderer.on('update-configuration', (/* _, data */) => {
-            // TODO
+        electron.ipcRenderer.on('update-configuration', (_, data) => {
+            this._view.update(data.name, data.value);
         });
+        this._view.update('recents', this._getConfiguration('recents'));
 
         this._element('titlebar-close').addEventListener('click', () => {
             electron.ipcRenderer.sendSync('window-close', {});
@@ -332,8 +333,8 @@ host.ElectronHost = class {
         }
     }
 
-    execute(command) {
-        electron.ipcRenderer.send('execute', command);
+    execute(name, value) {
+        electron.ipcRenderer.send('execute', { name: name, value: value });
     }
 
     request(file, encoding, base) {

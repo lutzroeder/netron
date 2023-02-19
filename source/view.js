@@ -64,9 +64,9 @@ view.View = class {
                     click: () => this._host.execute('open')
                 });
                 if (this._host.type === 'Electron') {
-                    file.group({
+                    this._recents = file.group({
                         label: 'Open &Recent',
-                        accelerator: '&#10095;'
+                        accelerator: '&#10095;',
                     });
                     file.add({
                         label: '&Export...',
@@ -283,6 +283,20 @@ view.View = class {
                 break;
             default:
                 throw new view.Error("Unsupported toogle '" + name + "'.");
+        }
+    }
+
+    update(name, value) {
+        if (name === 'recents') {
+            this._recents.clear();
+            for (let i = 0; i < value.length; i++) {
+                const path = value[i].path;
+                this._recents.add({
+                    label: path,
+                    accelerator: 'CmdOrCtrl+' + (i + 1).toString(),
+                    click: () => this._host.execute('open', path)
+                });
+            }
         }
     }
 
@@ -1036,9 +1050,11 @@ view.Menu = class {
     }
 
     group(label) {
-        const group = new view.Menu.Group(this, label);
-        this._groups.push(group);
-        return group;
+        const item = new view.Menu.Group(this, label);
+        item.identifier = 'menu-item-' + this._groups.length.toString();
+        this._groups.push(item);
+        this.register(item);
+        return item;
     }
 
     toggle(mnemonic, level) {
@@ -1065,47 +1081,29 @@ view.Menu = class {
 
         for (const group of this._groups) {
             const container = this._host.document.createElement('div');
+            container.setAttribute('id', group.identifier);
             container.setAttribute('class', 'menu-group');
             container.innerHTML = "<div class='menu-group-header'>" + formatLabel(group.label, mnemonic && level === 0) + "</div>";
-            let visible = false;
-            let block = false;
             for (const item of group.items) {
                 switch (item.type) {
                     case 'item': {
-                        const label = (typeof item.label == 'function') ? item.label() : item.label;
                         const button = this._host.document.createElement('button');
                         button.setAttribute('class', 'menu-item');
-                        button.innerHTML = formatLabel(label, mnemonic && level === 1);
+                        button.setAttribute('id', item.identifier);
                         button.addEventListener('click', () => {
                             this.close();
                             setTimeout(() => {
                                 item.click();
                             }, 10);
                         });
-                        if (item.enabled && !item.enabled()) {
-                            button.setAttribute('disabled', '');
-                            button.style.display = 'none';
-                        }
-                        else {
-                            visible = true;
-                            block = true;
-                        }
                         container.appendChild(button);
-                        if (item.accelerator) {
-                            const accelerator = this._host.document.createElement('span');
-                            accelerator.setAttribute('class', 'shortcut');
-                            accelerator.innerHTML = item.accelerator;
-                            button.appendChild(accelerator);
-                        }
                         break;
                     }
                     case 'separator': {
-                        if (block) {
-                            const separator = this._host.document.createElement('div');
-                            separator.setAttribute('class', 'menu-separator');
-                            container.appendChild(separator);
-                            block = false;
-                        }
+                        const element = this._host.document.createElement('div');
+                        element.setAttribute('class', 'menu-separator');
+                        element.setAttribute('id', item.identifier);
+                        container.appendChild(element);
                         break;
                     }
                     case 'group': {
@@ -1116,10 +1114,51 @@ view.Menu = class {
                     }
                 }
             }
+            this._dropdown.appendChild(container);
+        }
+
+        for (const group of this._groups) {
+            let visible = false;
+            let block = false;
+            const container = this._host.document.getElementById(group.identifier);
+            for (const item of group.items) {
+                switch (item.type) {
+                    case 'item': {
+                        const button = this._host.document.getElementById(item.identifier);
+                        const label = (typeof item.label == 'function') ? item.label() : item.label;
+                        button.innerHTML = formatLabel(label, mnemonic && level === 1);
+                        if (item.enabled && !item.enabled()) {
+                            button.setAttribute('disabled', '');
+                            button.style.display = 'none';
+                        }
+                        else {
+                            button.removeAttribute('disabled');
+                            button.style.display = 'block';
+                            visible = true;
+                            block = true;
+                        }
+                        if (item.accelerator) {
+                            const accelerator = this._host.document.createElement('span');
+                            accelerator.setAttribute('class', 'shortcut');
+                            accelerator.innerHTML = item.accelerator;
+                            button.appendChild(accelerator);
+                        }
+                        break;
+                    }
+                    case 'separator': {
+                        const element = this._host.document.createElement('span');
+                        element.style.display = block ? 'block' : 'none';
+                        block = false;
+                        break;
+                    }
+                    default: {
+                        break;
+                    }
+                }
+            }
             if (!visible) {
                 container.style.display = 'none';
             }
-            this._dropdown.appendChild(container);
         }
 
         this._dropdown.style.opacity = 1.0;
@@ -1166,31 +1205,56 @@ view.Menu = class {
                 this._accelerators.set(code.toString(), item);
             }
         }
-        item.type = item instanceof view.Menu.Group ? 'group' : Object.keys(item).length === 0 ? 'separator' : 'item';
         item.accelerator = shortcut;
-        item.identifier = this._items.size.toString();
         this._items.set(item.identifier, item);
+    }
+
+    unregister(item) {
+        this._items.delete(item.identifier);
+        this._accelerators = new Map(Array.from(this._accelerators.entries()).filter((entry) => entry.value !== item));
     }
 };
 
 view.Menu.Group = class {
 
-    constructor(menu, label) {
-        this._menu = menu;
+    constructor(parent, label) {
+        this.type = 'group';
+        this.parent = parent;
         this.label = label;
         this.items = [];
     }
 
     add(item) {
+        item.type = Object.keys(item).length > 0 ? 'item' : 'separator';
+        item.identifier = this.identifier + '-' + this.items.length.toString();
         this.items.push(item);
-        this._menu.register(item);
+        this.parent.register(item);
     }
 
     group(label) {
-        const group = new view.Menu.Group(this._menu, label);
-        this.items.push(group);
-        this._menu.register(group);
-        return group;
+        const item = new view.Menu.Group(this, label);
+        item.identifier = this.identifier + '-' + this.items.length.toString();
+        this.items.push(item);
+        this.parent.register(item);
+        return item;
+    }
+
+    clear() {
+        for (const item of this.items) {
+            if (item.clear) {
+                item.clear();
+            }
+            this.parent.unregister(item);
+        }
+        this.items = [];
+    }
+
+    register(item) {
+        this.parent.register(item);
+    }
+
+    unregister(item) {
+        this.parent.unregister(item);
     }
 };
 

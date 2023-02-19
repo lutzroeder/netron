@@ -75,7 +75,7 @@ app.Application = class {
         });
         electron.ipcMain.on('execute', (event, data) => {
             const owner = event.sender.getOwnerBrowserWindow();
-            this.execute(data, null, owner);
+            this.execute(data.name, data.value || null, owner);
             event.returnValue = null;
         });
 
@@ -158,16 +158,19 @@ app.Application = class {
         });
     }
 
-    _openFileDialog() {
-        const extensions = new base.Metadata().extensions;
-        const showOpenDialogOptions = {
-            properties: [ 'openFile' ],
-            filters: [ { name: 'All Model Files', extensions: extensions } ]
-        };
-        const selectedFiles = electron.dialog.showOpenDialogSync(showOpenDialogOptions);
-        if (selectedFiles) {
-            for (const file of selectedFiles) {
-                this._openPath(file);
+    _open(path) {
+        let paths = path ? [ path ] : [];
+        if (paths.length === 0) {
+            const extensions = new base.Metadata().extensions;
+            const showOpenDialogOptions = {
+                properties: [ 'openFile' ],
+                filters: [ { name: 'All Model Files', extensions: extensions } ]
+            };
+            paths = electron.dialog.showOpenDialogSync(showOpenDialogOptions);
+        }
+        if (Array.isArray(paths) && paths.length > 0) {
+            for (const path of paths) {
+                this._openPath(path);
             }
         }
     }
@@ -247,9 +250,9 @@ app.Application = class {
         }
     }
 
-    execute(command, data, window) {
+    execute(command, value, window) {
         switch (command) {
-            case 'open': this._openFileDialog(); break;
+            case 'open': this._open(value); break;
             case 'export': this._export(); break;
             case 'close': window.close(); break;
             case 'quit': electron.app.quit(); break;
@@ -259,7 +262,7 @@ app.Application = class {
             default: {
                 const view = this._views.get(window) || this._views.activeView;
                 if (view) {
-                    view.execute(command, data || {});
+                    view.execute(command, value || {});
                 }
                 this._menu.update();
             }
@@ -415,7 +418,7 @@ app.Application = class {
                 {
                     label: '&Open...',
                     accelerator: 'CmdOrCtrl+O',
-                    click: () => this._openFileDialog()
+                    click: () => this._open(null)
                 },
                 {
                     label: 'Open &Recent',
