@@ -227,14 +227,6 @@ host.ElectronHost = class {
                 this.execute('open');
             });
         }
-        const githubButton = this._element('github-button');
-        const githubLink = this._element('logo-github');
-        if (githubButton && githubLink) {
-            githubButton.innerText = 'Download';
-            githubButton.addEventListener('click', () => {
-                this.openURL(githubLink.href);
-            });
-        }
 
         this.document.addEventListener('dragover', (e) => {
             e.preventDefault();

@@ -52,8 +52,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .logo-button:focus { outline: 0; }
 .logo-message { display: none; height: 0px; }
 .logo-github { display: none; }
-.open-file-button { top: 170px; left: -150px; width: 125px; }
-.github-button { top: 170px; left: 150px; width: 125px; }
+.open-file-button { top: 170px; left: 0px; width: 125px; }
 .progress { top: 120px; height: 2px; width: 400px; }
 .progress-bar { height: 100%; width: 0%; background-color: #444444; }
 .message-dialog { display: none; color: #444444; }
@@ -62,7 +61,6 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .message .message-dialog { display: block; }
 .message .logo-name { display:none; }
 .message .open-file-button { display:none; }
-.message .github-button { display:none; }
 .message .progress { display:none; }
 .welcome .graph { display: none; opacity: 0; }
 .welcome .menu { background-color: #ffffff; }
@@ -77,7 +75,6 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .about a:visited { color: inherit; }
 .about a:hover { color: #242424; }
 .about .open-file-button { display: none; }
-.about .github-button { display: none; }
 .about .logo-name { display: none; }
 .about .message { display: none; }
 .about .progress { display: none; }
@@ -118,11 +115,9 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .welcome.spinner .logo-spinner-stroke { stroke: #ececec; }
 .welcome.spinner .logo-name { display: none; }
 .welcome.spinner .open-file-button { display: none; }
-.welcome.spinner .github-button { display: none; }
 .welcome.spinner .graph { display: flex; opacity: 0; }
 .welcome .message .logo-name { display: none; }
 .welcome .message .open-file-button { display: none; }
-.welcome .message .github-button { display: none; }
 .welcome .toolbar { display: none; }
 @media (prefers-color-scheme: dark) {
 :root { color-scheme: dark; }
@@ -172,19 +167,19 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .menu .menu-group .menu-separator { border-color: #363636; }
 }
 @media all and (max-width: 640px) {
-.welcome .logo { width: 240px; }
-.welcome .logo-text { opacity: 0; }
-.welcome .logo-name { opacity: 0; }
-.welcome .logo-icon { left: 0; top: 0; width: 128px; height: 128px; }
-.welcome .logo-spinner { left: 0; top: 0; width: 128px; height: 128px; }
-.welcome .logo .open-file-button { top: 204px; left: 0; }
-.welcome .logo .github-button { top: 304px; left: 0; }
-.welcome .message-dialog .message-button { top: 304px; }
-.welcome .message-dialog .message-text { top: 190px; width: 240px; }
-.welcome .progress { top: 160px; height: 2px; width: 100px; }
-.about .logo { border-radius: 0; border-left: 0px; border-right: 0px; width: 100%; padding-left: 0; padding-right: 0; }
+.logo { width: 240px; }
+.logo-text { opacity: 0; }
+.logo-name { opacity: 0; }
+.logo-icon { left: 0; top: 0; width: 128px; height: 128px; }
+.logo-spinner { left: 0; top: 0; width: 128px; height: 128px; }
+.logo .open-file-button { top: 204px; left: 0; }
+.message-dialog .message-button { top: 304px; }
+.message-dialog .message-text { top: 190px; width: 240px; }
+.progress { top: 160px; height: 2px; width: 100px; }
+.about .logo { width: 100%; padding-left: 0; padding-right: 0; }
 .about .logo-message { top: 175px; font-size: 12px; }
 .about .logo-github { top: 370px; }
+.about.desktop .logo-text { opacity: 1; }
 }
 @media only screen and (max-device-width: 1024px) {
 .toolbar-button { width: 32px; height: 32px; }
@@ -473,7 +468,6 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
         </svg>
     </a>
     <button id="open-file-button" class="center logo-button open-file-button" tabindex="0">Open Model&hellip;</button>
-    <button id="github-button" class="center logo-button github-button">GitHub</button>
     <div class="center progress">
         <div id="progress-bar" class="progress-bar"></div>
     </div>
