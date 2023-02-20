@@ -17,7 +17,7 @@ view.View = class {
         this._host = host;
         this._id = id ? ('-' + id) : '';
         this._options = {
-            initializers: true,
+            weights: true,
             attributes: false,
             names: false,
             direction: 'vertical',
@@ -30,22 +30,22 @@ view.View = class {
             this._sidebar = new view.Sidebar(this._host, id);
             this._searchText = '';
             this._modelFactoryService = new view.ModelFactoryService(this._host);
-            this._getElementById('sidebar-button').addEventListener('click', () => {
+            this._element('sidebar-button').addEventListener('click', () => {
                 this.showModelProperties();
             });
-            this._getElementById('zoom-in-button').addEventListener('click', () => {
+            this._element('zoom-in-button').addEventListener('click', () => {
                 this.zoomIn();
             });
-            this._getElementById('zoom-out-button').addEventListener('click', () => {
+            this._element('zoom-out-button').addEventListener('click', () => {
                 this.zoomOut();
             });
-            this._getElementById('back-button').addEventListener('click', () => {
+            this._element('back-button').addEventListener('click', () => {
                 this.popGraph();
             });
-            this._getElementById('name-button').addEventListener('click', () => {
+            this._element('name-button').addEventListener('click', () => {
                 this.showDocumentation(this.activeGraph);
             });
-            this._getElementById('sidebar').addEventListener('mousewheel', (e) => {
+            this._element('sidebar').addEventListener('mousewheel', (e) => {
                 if (e.shiftKey || e.ctrlKey) {
                     e.preventDefault();
                 }
@@ -54,7 +54,9 @@ view.View = class {
                 this.clearSelection();
             });
             if (this._host.environment('menu')) {
-                this._menu = new view.Menu(this._host, 'menu-button', 'menu');
+                const button = this._element('menu-button');
+                const element = this._element('menu');
+                this._menu = new view.Menu(this._host, element, button);
             }
             if (this._host.environment('menu')) {
                 const file = this._menu.group('&File');
@@ -75,25 +77,25 @@ view.View = class {
                         enabled: () => this.activeGraph
                     });
                     file.add({
-                        label: this._host.environment('platform') === 'darwin' ? 'Close Window' : 'Close',
+                        label: this._host.environment('platform') === 'darwin' ? '&Close Window' : '&Close',
                         accelerator: 'CmdOrCtrl+W',
                         click: () => this._host.execute('close'),
                     });
                     file.add({
-                        label: this._host.environment('platform') === 'win32' ? 'E&xit' : 'Quit',
+                        label: this._host.environment('platform') === 'win32' ? 'E&xit' : '&Quit',
                         accelerator: this._host.environment('platform') === 'win32' ? '' : 'CmdOrCtrl+Q',
                         click: () => this._host.execute('quit'),
                     });
                 }
                 else {
                     file.add({
-                        label: 'Export as PNG',
+                        label: 'Export as &PNG',
                         accelerator: 'CmdOrCtrl+Shift+E',
                         click: () => this.export(this._host.document.title + '.png'),
                         enabled: () => this.activeGraph
                     });
                     file.add({
-                        label: 'Export as SVG',
+                        label: 'Export as &SVG',
                         accelerator: 'CmdOrCtrl+Alt+E',
                         click: () => this.export(this._host.document.title + '.svg'),
                         enabled: () => this.activeGraph
@@ -108,31 +110,31 @@ view.View = class {
                 });
                 const view = this._menu.group('&View');
                 view.add({
-                    label: () => this.options.attributes ? 'Hide Attributes' : 'Show Attributes',
+                    label: () => this.options.attributes ? 'Hide &Attributes' : 'Show &Attributes',
                     accelerator: 'CmdOrCtrl+D',
                     click: () => this.toggle('attributes'),
                     enabled: () => this.activeGraph
                 });
                 view.add({
-                    label: () => this.options.initializers ? 'Hide Initializers' : 'Show Initializers',
+                    label: () => this.options.weights ? 'Hide &Weights' : 'Show &Weights',
                     accelerator: 'CmdOrCtrl+I',
-                    click: () => this.toggle('initializers'),
+                    click: () => this.toggle('weights'),
                     enabled: () => this.activeGraph
                 });
                 view.add({
-                    label: () => this.options.names ? 'Hide Names' : 'Show Names',
+                    label: () => this.options.names ? 'Hide &Names' : 'Show &Names',
                     accelerator: 'CmdOrCtrl+U',
                     click: () => this.toggle('names'),
                     enabled: () => this.activeGraph
                 });
                 view.add({
-                    label: () => this.options.direction === 'vertical' ? 'Show Horizontal' : 'Show Vertical',
+                    label: () => this.options.direction === 'vertical' ? 'Show &Horizontal' : 'Show &Vertical',
                     accelerator: 'CmdOrCtrl+K',
                     click: () => this.toggle('direction'),
                     enabled: () => this.activeGraph
                 });
                 view.add({
-                    label: () => this.options.mousewheel === 'scroll' ? 'Mouse Wheel: Zoom' : 'Mouse Wheel: Scroll',
+                    label: () => this.options.mousewheel === 'scroll' ? '&Mouse Wheel: Zoom' : '&Mouse Wheel: Scroll',
                     accelerator: 'CmdOrCtrl+M',
                     click: () => this.toggle('mousewheel'),
                     enabled: () => this.activeGraph
@@ -181,7 +183,7 @@ view.View = class {
                     label: '&About ' + this._host.document.title,
                     click: () => this._host.execute('about')
                 });
-                this._getElementById('menu-button').addEventListener('click', (e) => {
+                this._element('menu-button').addEventListener('click', (e) => {
                     this._menu.toggle();
                     e.preventDefault();
                 });
@@ -211,7 +213,7 @@ view.View = class {
             this._deactivate();
         }
         if (page === 'welcome') {
-            const element = this._getElementById('open-file-button');
+            const element = this._element('open-file-button');
             if (element) {
                 element.focus();
             }
@@ -220,7 +222,7 @@ view.View = class {
     }
 
     progress(percent) {
-        const bar = this._getElementById('progress-bar');
+        const bar = this._element('progress-bar');
         if (bar) {
             bar.style.width = percent.toString() + '%';
         }
@@ -245,7 +247,7 @@ view.View = class {
     find() {
         if (this._graph) {
             this.clearSelection();
-            const graphElement = this._getElementById('canvas');
+            const graphElement = this._element('canvas');
             const content = new view.FindSidebar(this._host, graphElement, this._graph);
             content.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
@@ -270,7 +272,7 @@ view.View = class {
         switch (name) {
             case 'names':
             case 'attributes':
-            case 'initializers':
+            case 'weights':
                 this._options[name] = !this._options[name];
                 this._reload();
                 break;
@@ -325,7 +327,7 @@ view.View = class {
         });
     }
 
-    _getElementById(id) {
+    _element(id) {
         return this._host.document.getElementById(id + this._id);
     }
 
@@ -350,7 +352,7 @@ view.View = class {
             this._events.gesturestart = (e) => this._gestureStartHandler(e);
             this._events.touchstart = (e) => this._touchStartHandler(e);
         }
-        const graph = this._getElementById('graph');
+        const graph = this._element('graph');
         if (graph) {
             graph.focus();
         }
@@ -367,7 +369,7 @@ view.View = class {
 
     _deactivate() {
         if (this._events) {
-            const graph = this._getElementById('graph');
+            const graph = this._element('graph');
             graph.removeEventListener('scroll', this._events.scroll);
             graph.removeEventListener('wheel', this._events.wheel);
             graph.removeEventListener('mousedown', this._events.mousedown);
@@ -377,8 +379,8 @@ view.View = class {
     }
 
     _updateZoom(zoom, e) {
-        const container = this._getElementById('graph');
-        const canvas = this._getElementById('canvas');
+        const container = this._element('graph');
+        const canvas = this._element('canvas');
         const limit = this._options.direction === 'vertical' ?
             container.clientHeight / this._height :
             container.clientWidth / this._width;
@@ -402,14 +404,14 @@ view.View = class {
     _mouseDownHandler(e) {
         if (e.buttons === 1) {
             const document = this._host.document.documentElement;
-            const container = this._getElementById('graph');
+            const container = this._element('graph');
             this._mousePosition = {
                 left: container.scrollLeft,
                 top: container.scrollTop,
                 x: e.clientX,
                 y: e.clientY
             };
-            const background = this._getElementById('background');
+            const background = this._element('background');
             background.setAttribute('cursor', 'grabbing');
             e.stopImmediatePropagation();
             const mouseMoveHandler = (e) => {
@@ -419,7 +421,7 @@ view.View = class {
                 const dy = e.clientY - this._mousePosition.y;
                 this._mousePosition.moved = dx * dx + dy * dy > 0;
                 if (this._mousePosition.moved) {
-                    const container = this._getElementById('graph');
+                    const container = this._element('graph');
                     container.scrollTop = this._mousePosition.top - dy;
                     container.scrollLeft = this._mousePosition.left - dx;
                 }
@@ -478,7 +480,7 @@ view.View = class {
             delete this._touchPoints;
             delete this._touchZoom;
         };
-        const container = this._getElementById('graph');
+        const container = this._element('graph');
         container.addEventListener('touchmove', touchMoveHandler, { passive: true });
         container.addEventListener('touchcancel', touchEndHandler, { passive: true });
         container.addEventListener('touchend', touchEndHandler, { passive: true });
@@ -487,7 +489,7 @@ view.View = class {
     _gestureStartHandler(e) {
         e.preventDefault();
         this._gestureZoom = this._zoom;
-        const container = this._getElementById('graph');
+        const container = this._element('graph');
         const gestureChangeHandler = (e) => {
             e.preventDefault();
             this._updateZoom(this._gestureZoom * e.scale, e);
@@ -525,7 +527,7 @@ view.View = class {
     select(selection) {
         this.clearSelection();
         if (selection && selection.length > 0) {
-            const container = this._getElementById('graph');
+            const container = this._element('graph');
             let x = 0;
             let y = 0;
             for (const element of selection) {
@@ -661,8 +663,8 @@ view.View = class {
                 }
             }
             const update = () => {
-                const nameButton = this._getElementById('name-button');
-                const backButton = this._getElementById('back-button');
+                const nameButton = this._element('name-button');
+                const backButton = this._element('back-button');
                 if (this._graphs.length > 1) {
                     const graph = this.activeGraph;
                     nameButton.innerHTML = graph ? graph.name : '';
@@ -717,7 +719,7 @@ view.View = class {
         try {
             this._graph = null;
 
-            const canvas = this._getElementById('canvas');
+            const canvas = this._element('canvas');
             while (canvas.lastChild) {
                 canvas.removeChild(canvas.lastChild);
             }
@@ -794,7 +796,7 @@ view.View = class {
                 this._zoom = 1;
                 this._updateZoom(this._zoom);
 
-                const container = this._getElementById('graph');
+                const container = this._element('graph');
                 if (elements && elements.length > 0) {
                     // Center view based on input elements
                     const xs = [];
@@ -855,7 +857,7 @@ view.View = class {
         const lastIndex = file.lastIndexOf('.');
         const extension = (lastIndex != -1) ? file.substring(lastIndex + 1).toLowerCase() : 'png';
         if (this.activeGraph && (extension === 'png' || extension === 'svg')) {
-            const canvas = this._getElementById('canvas');
+            const canvas = this._element('canvas');
             const clone = canvas.cloneNode(true);
             this.applyStyleSheet(clone, 'grapher.css');
             clone.setAttribute('id', 'export');
@@ -1011,14 +1013,14 @@ view.View = class {
 
 view.Menu = class {
 
-    constructor(host, button, dropdown) {
+    constructor(host, element, button) {
+        this.items = [];
         this._host = host;
+        this._element = element;
+        this._button = button;
         this._darwin = this._host.environment('platform') === 'darwin';
-        this._dropdown = this._host.document.getElementById(dropdown);
-        this._button = this._host.document.getElementById(button);
-        this._groups = [];
-        this._items = new Map();
         this._accelerators = new Map();
+        this._stack = [];
         this._codes = new Map([
             [ 'Backspace', 0x08 ], [ 'Enter', 0x0D ],
             [ 'Up', 0x26 ], [ 'Down', 0x28 ],
@@ -1029,23 +1031,69 @@ view.Menu = class {
             [ 'Up', '&#x2191;' ], [ 'Down', '&#x2193;' ],
         ]);
         this._host.window.addEventListener('keydown', (e) => {
+            this._pop = false;
             let code = e.keyCode;
             code |= ((e.ctrlKey && !this._darwin) || (e.metaKey && this._darwin)) ? 0x0400 : 0;
             code |= e.altKey ? 0x0200 : 0;
             code |= e.shiftKey ? 0x0100 : 0;
             if (code === 0x001b) { // Escape
-                this.close();
-                return;
+                if (this._stack.length > 0) {
+                    this._stack.pop();
+                    this._update();
+                }
+                if (this._stack.length === 0) {
+                    this.close();
+                }
             }
-            if (code === 0x0212) { // Alt
-                this.toggle(true, 0);
-                return;
+            else if (code === 0x0212) { // Alt
+                if (this._stack.length === 0) {
+                    this.toggle();
+                    this._stack = [ this ];
+                    this._update();
+                }
+                else {
+                    this._pop = true;
+                }
             }
-            const item = this._accelerators.get(code.toString());
-            if (item && (!item.enabled || item.enabled())) {
-                item.click();
-                e.preventDefault();
-                this.close();
+            else if ((this._stack.length > 0 && (code & 0xFD00) === 0) && (code & 0x00FF) != 0) {
+                const key = String.fromCharCode(code & 0x00FF);
+                const group = this._stack[this._stack.length - 1];
+                for (const item of group.items) {
+                    if (key === item.mnemonic) {
+                        if (item.type === 'group') {
+                            e.preventDefault();
+                            this._stack.push(item);
+                            this._update();
+                        }
+                        else if (item.type === 'item') {
+                            if (item && (!item.enabled || item.enabled())) {
+                                item.click();
+                                e.preventDefault();
+                                this.close();
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+                const item = this._accelerators.get(code.toString());
+                if (item && (!item.enabled || item.enabled())) {
+                    item.click();
+                    e.preventDefault();
+                    this.close();
+                }
+            }
+        });
+        this._host.window.addEventListener('keyup', (e) => {
+            const code = e.keyCode;
+            if (code === 0x0012 && this._pop) { // Alt
+                if (this._stack.length === 1) {
+                    this.close();
+                }
+                else if (this._stack.length > 1) {
+                    this._stack = [ this ];
+                    this._update();
+                }
             }
         });
         this._host.document.body.addEventListener('click', (e) => {
@@ -1057,39 +1105,29 @@ view.Menu = class {
 
     group(label) {
         const item = new view.Menu.Group(this, label);
-        item.identifier = 'menu-item-' + this._groups.length.toString();
-        this._groups.push(item);
+        item.identifier = 'menu-item-' + this.items.length.toString();
+        this.items.push(item);
         this.register(item);
         return item;
     }
 
-    toggle(mnemonic, level) {
-
-        if (this._dropdown.style.opacity >= 1) {
+    toggle() {
+        if (this._element.style.opacity >= 1) {
             this.close();
-            return;
         }
-
-        while (this._dropdown.lastChild) {
-            this._dropdown.removeChild(this._dropdown.lastChild);
+        else {
+            this._reset();
+            this._update();
         }
+    }
 
-        const formatLabel = (value, mnemonic) => {
-            const index = value.indexOf('&');
-            if (index.length !== -1) {
-                if (mnemonic) {
-                    return value.substring(0, index) + '<u>' + value[index + 1] + '</u>' + value.substring(index + 2);
-                }
-                return value.substring(0, index) + value.substring(index + 1);
-            }
-            return value;
-        };
-
-        for (const group of this._groups) {
+    _reset() {
+        this._element.innerHTML = '';
+        for (const group of this.items) {
             const container = this._host.document.createElement('div');
             container.setAttribute('id', group.identifier);
             container.setAttribute('class', 'menu-group');
-            container.innerHTML = "<div class='menu-group-header'>" + formatLabel(group.label, mnemonic && level === 0) + "</div>";
+            container.innerHTML = "<div class='menu-group-header'></div>";
             for (const item of group.items) {
                 switch (item.type) {
                     case 'item': {
@@ -1120,19 +1158,40 @@ view.Menu = class {
                     }
                 }
             }
-            this._dropdown.appendChild(container);
+            this._element.appendChild(container);
         }
 
-        for (const group of this._groups) {
+        this._element.style.opacity = 1.0;
+        this._element.style.left = '0px';
+    }
+
+    _update() {
+        const label = (item, mnemonic) => {
+            delete item.mnemonic;
+            const value = typeof item.label == 'function' ? item.label() : item.label;
+            if (value) {
+                const index = value.indexOf('&');
+                if (index !== -1) {
+                    if (mnemonic) {
+                        item.mnemonic = value[index + 1].toUpperCase();
+                        return value.substring(0, index) + '<u>' + value[index + 1] + '</u>' + value.substring(index + 2);
+                    }
+                    return value.substring(0, index) + value.substring(index + 1);
+                }
+            }
+            return value || '';
+        };
+        const active = this._stack.length > 0 ? this._stack[this._stack.length - 1] : null;
+        for (const group of this.items) {
             let visible = false;
             let block = false;
             const container = this._host.document.getElementById(group.identifier);
+            container.childNodes[0].innerHTML = label(group, this === active);
             for (const item of group.items) {
                 switch (item.type) {
                     case 'item': {
                         const button = this._host.document.getElementById(item.identifier);
-                        const label = (typeof item.label == 'function') ? item.label() : item.label;
-                        button.innerHTML = formatLabel(label, mnemonic && level === 1);
+                        button.innerHTML = label(item, group === active);
                         if (item.enabled && !item.enabled()) {
                             button.setAttribute('disabled', '');
                             button.style.display = 'none';
@@ -1165,15 +1224,14 @@ view.Menu = class {
             if (!visible) {
                 container.style.display = 'none';
             }
+            container.style.opacity = this._stack.length > 1 && this._stack[1] !== group ? 0 : 1;
         }
-
-        this._dropdown.style.opacity = 1.0;
-        this._dropdown.style.left = '0px';
     }
 
     close() {
-        this._dropdown.style.opacity = 0;
-        this._dropdown.style.left = '-200px';
+        this._stack = [];
+        this._element.style.opacity = 0;
+        this._element.style.left = '-200px';
     }
 
     register(item) {
@@ -1212,11 +1270,9 @@ view.Menu = class {
             }
         }
         item.accelerator = shortcut;
-        this._items.set(item.identifier, item);
     }
 
     unregister(item) {
-        this._items.delete(item.identifier);
         this._accelerators = new Map(Array.from(this._accelerators.entries()).filter((entry) => entry.value !== item));
     }
 };
@@ -1474,7 +1530,7 @@ view.Node = class extends grapher.Node {
         }
         const initializers = [];
         let hiddenInitializers = false;
-        if (this.context.view.options.initializers) {
+        if (this.context.view.options.weights) {
             for (const input of node.inputs) {
                 if (input.visible && input.arguments.length === 1 && input.arguments[0].initializer != null) {
                     initializers.push(input);

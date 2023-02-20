@@ -494,9 +494,9 @@ app.Application = class {
                     click: () => this.execute('toggle', 'attributes'),
                 },
                 {
-                    id: 'view.toggle-initializers',
+                    id: 'view.toggle-weights',
                     accelerator: 'CmdOrCtrl+I',
-                    click: () => this.execute('toggle', 'initializers'),
+                    click: () => this.execute('toggle', 'weights'),
                 },
                 {
                     id: 'view.toggle-names',
@@ -609,9 +609,9 @@ app.Application = class {
             enabled: (view) => view && view.path ? true : false,
             label: (view) => !view || view.get('attributes') ? 'Hide &Attributes' : 'Show &Attributes'
         });
-        commandTable.set('view.toggle-initializers', {
+        commandTable.set('view.toggle-weights', {
             enabled: (view) => view && view.path ? true : false,
-            label: (view) => !view || view.get('initializers') ? 'Hide &Initializers' : 'Show &Initializers'
+            label: (view) => !view || view.get('weights') ? 'Hide &Weights' : 'Show &Weights'
         });
         commandTable.set('view.toggle-names', {
             enabled: (view) => view && view.path ? true : false,
