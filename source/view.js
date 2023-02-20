@@ -359,7 +359,7 @@ view.View = class {
         graph.addEventListener('scroll', this._events.scroll);
         graph.addEventListener('wheel', this._events.wheel, { passive: false });
         graph.addEventListener('mousedown', this._events.mousedown);
-        if (this._host.agent === 'safari') {
+        if (this._host.environment('agent') === 'safari') {
             graph.addEventListener('gesturestart', this._events.gesturestart, false);
         }
         else {

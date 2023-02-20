@@ -25,6 +25,7 @@ host.BrowserHost = class {
             'version': this._meta.version ? this._meta.version[0] : null,
             'date': Array.isArray(this._meta.date) && this._meta.date.length > 0 && this._meta.date[0] ? new Date(this._meta.date[0].split(' ').join('T') + 'Z') : new Date(),
             'platform': /(Mac|iPhone|iPod|iPad)/i.test(this._navigator.platform) ? 'darwin' : undefined,
+            'agent': this._navigator.userAgent.toLowerCase().indexOf('safari') !== -1 && this._navigator.userAgent.toLowerCase().indexOf('chrome') === -1 ? 'safari' : '',
             'repository': this._document.getElementById('logo-github').getAttribute('href'),
             'menu': true
         };
@@ -67,14 +68,6 @@ host.BrowserHost = class {
 
     get type() {
         return this._environment.type;
-    }
-
-    get agent() {
-        const userAgent = this._navigator.userAgent.toLowerCase();
-        if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1) {
-            return 'safari';
-        }
-        return 'any';
     }
 
     view(view) {
@@ -245,8 +238,11 @@ host.BrowserHost = class {
             openFileButton.addEventListener('click', () => {
                 this.execute('open');
             });
-            const extensions = new this.window.base.Metadata().extensions.map((extension) => '.' + extension);
-            openFileDialog.setAttribute('accept', extensions.join(', '));
+            const mobileSafari = this.environment('platform') === 'darwin' && navigator.maxTouchPoints && navigator.maxTouchPoints > 1;
+            if (!mobileSafari) {
+                const extensions = new this.window.base.Metadata().extensions.map((extension) => '.' + extension);
+                openFileDialog.setAttribute('accept', extensions.join(', '));
+            }
             openFileDialog.addEventListener('change', (e) => {
                 if (e.target && e.target.files && e.target.files.length > 0) {
                     const files = Array.from(e.target.files);

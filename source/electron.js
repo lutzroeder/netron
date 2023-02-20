@@ -54,10 +54,6 @@ host.ElectronHost = class {
         return 'Electron';
     }
 
-    get agent() {
-        return 'any';
-    }
-
     view(view) {
         this._view = view;
         electron.ipcRenderer.on('open', (_, data) => {
