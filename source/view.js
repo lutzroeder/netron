@@ -63,7 +63,7 @@ view.View = class {
                 file.add({
                     label: '&Open...',
                     accelerator: 'CmdOrCtrl+O',
-                    click: () => this._host.execute('open')
+                    execute: () => this._host.execute('open')
                 });
                 if (this._host.type === 'Electron') {
                     this._recents = file.group({
@@ -73,31 +73,31 @@ view.View = class {
                     file.add({
                         label: '&Export...',
                         accelerator: 'CmdOrCtrl+Shift+E',
-                        click: () => this._host.execute('export'),
+                        execute: () => this._host.execute('export'),
                         enabled: () => this.activeGraph
                     });
                     file.add({
                         label: this._host.environment('platform') === 'darwin' ? '&Close Window' : '&Close',
                         accelerator: 'CmdOrCtrl+W',
-                        click: () => this._host.execute('close'),
+                        execute: () => this._host.execute('close'),
                     });
                     file.add({
                         label: this._host.environment('platform') === 'win32' ? 'E&xit' : '&Quit',
                         accelerator: this._host.environment('platform') === 'win32' ? '' : 'CmdOrCtrl+Q',
-                        click: () => this._host.execute('quit'),
+                        execute: () => this._host.execute('quit'),
                     });
                 }
                 else {
                     file.add({
                         label: 'Export as &PNG',
                         accelerator: 'CmdOrCtrl+Shift+E',
-                        click: () => this.export(this._host.document.title + '.png'),
+                        execute: () => this.export(this._host.document.title + '.png'),
                         enabled: () => this.activeGraph
                     });
                     file.add({
                         label: 'Export as &SVG',
                         accelerator: 'CmdOrCtrl+Alt+E',
-                        click: () => this.export(this._host.document.title + '.svg'),
+                        execute: () => this.export(this._host.document.title + '.svg'),
                         enabled: () => this.activeGraph
                     });
                 }
@@ -105,38 +105,38 @@ view.View = class {
                 edit.add({
                     label: '&Find...',
                     accelerator: 'CmdOrCtrl+F',
-                    click: () => this.find(),
+                    execute: () => this.find(),
                     enabled: () => this.activeGraph
                 });
                 const view = this._menu.group('&View');
                 view.add({
                     label: () => this.options.attributes ? 'Hide &Attributes' : 'Show &Attributes',
                     accelerator: 'CmdOrCtrl+D',
-                    click: () => this.toggle('attributes'),
+                    execute: () => this.toggle('attributes'),
                     enabled: () => this.activeGraph
                 });
                 view.add({
                     label: () => this.options.weights ? 'Hide &Weights' : 'Show &Weights',
                     accelerator: 'CmdOrCtrl+I',
-                    click: () => this.toggle('weights'),
+                    execute: () => this.toggle('weights'),
                     enabled: () => this.activeGraph
                 });
                 view.add({
                     label: () => this.options.names ? 'Hide &Names' : 'Show &Names',
                     accelerator: 'CmdOrCtrl+U',
-                    click: () => this.toggle('names'),
+                    execute: () => this.toggle('names'),
                     enabled: () => this.activeGraph
                 });
                 view.add({
                     label: () => this.options.direction === 'vertical' ? 'Show &Horizontal' : 'Show &Vertical',
                     accelerator: 'CmdOrCtrl+K',
-                    click: () => this.toggle('direction'),
+                    execute: () => this.toggle('direction'),
                     enabled: () => this.activeGraph
                 });
                 view.add({
                     label: () => this.options.mousewheel === 'scroll' ? '&Mouse Wheel: Zoom' : '&Mouse Wheel: Scroll',
                     accelerator: 'CmdOrCtrl+M',
-                    click: () => this.toggle('mousewheel'),
+                    execute: () => this.toggle('mousewheel'),
                     enabled: () => this.activeGraph
                 });
                 view.add({});
@@ -144,7 +144,7 @@ view.View = class {
                     view.add({
                         label: '&Reload',
                         accelerator: this._host.environment('platform') === 'darwin' ? 'CmdOrCtrl+R' : 'F5',
-                        click: () => this._host.execute('reload'),
+                        execute: () => this._host.execute('reload'),
                         enabled: () => this.activeGraph
                     });
                     view.add({});
@@ -152,36 +152,36 @@ view.View = class {
                 view.add({
                     label: 'Zoom &In',
                     accelerator: 'Shift+Up',
-                    click: () => this.zoomIn(),
+                    execute: () => this.zoomIn(),
                     enabled: () => this.activeGraph
                 });
                 view.add({
                     label: 'Zoom &Out',
                     accelerator: 'Shift+Down',
-                    click: () => this.zoomOut(),
+                    execute: () => this.zoomOut(),
                     enabled: () => this.activeGraph
                 });
                 view.add({
                     label: 'Actual &Size',
                     accelerator: 'Shift+Backspace',
-                    click: () => this.resetZoom(),
+                    execute: () => this.resetZoom(),
                     enabled: () => this.activeGraph
                 });
                 view.add({});
                 view.add({
                     label: '&Properties...',
                     accelerator: 'CmdOrCtrl+Enter',
-                    click: () => this.showModelProperties(),
+                    execute: () => this.showModelProperties(),
                     enabled: () => this.activeGraph
                 });
                 const help = this._menu.group('&Help');
                 help.add({
                     label: 'Report &Issue',
-                    click: () => this._host.execute('report-issue')
+                    execute: () => this._host.execute('report-issue')
                 });
                 help.add({
                     label: '&About ' + this._host.document.title,
-                    click: () => this._host.execute('about')
+                    execute: () => this._host.execute('about')
                 });
                 this._element('menu-button').addEventListener('click', (e) => {
                     this._menu.toggle();
@@ -298,7 +298,7 @@ view.View = class {
                         this._recents.add({
                             label: path,
                             accelerator: 'CmdOrCtrl+' + (i + 1).toString(),
-                            click: () => this._host.execute('open', path)
+                            execute: () => this._host.execute('open', path)
                         });
                     }
                 }
@@ -1042,7 +1042,7 @@ view.Menu = class {
                     this._update();
                 }
                 if (this._stack.length === 0) {
-                    this.close();
+                    this._close();
                 }
             }
             else if (code === 0x0212) { // Alt
@@ -1060,27 +1060,25 @@ view.Menu = class {
                 const group = this._stack[this._stack.length - 1];
                 for (const item of group.items) {
                     if (key === item.mnemonic) {
-                        if (item.type === 'group') {
+                        if (item.type === 'group' && item.enabled) {
                             e.preventDefault();
                             this._stack.push(item);
                             this._update();
                         }
-                        else if (item.type === 'item') {
-                            if (item && (!item.enabled || item.enabled())) {
-                                item.click();
-                                e.preventDefault();
-                                this.close();
-                            }
+                        else if (item.type === 'command' && item.enabled) {
+                            item.execute();
+                            e.preventDefault();
+                            this._close();
                         }
                     }
                 }
             }
             else {
                 const item = this._accelerators.get(code.toString());
-                if (item && (!item.enabled || item.enabled())) {
-                    item.click();
+                if (item && item.enabled) {
+                    item.execute();
                     e.preventDefault();
-                    this.close();
+                    this._close();
                 }
             }
         });
@@ -1088,7 +1086,7 @@ view.Menu = class {
             const code = e.keyCode;
             if (code === 0x0012 && this._pop) { // Alt
                 if (this._stack.length === 1) {
-                    this.close();
+                    this._close();
                 }
                 else if (this._stack.length > 1) {
                     this._stack = [ this ];
@@ -1098,7 +1096,7 @@ view.Menu = class {
         });
         this._host.document.body.addEventListener('click', (e) => {
             if (!this._button.contains(e.target)) {
-                this.close();
+                this._close();
             }
         });
     }
@@ -1130,14 +1128,14 @@ view.Menu = class {
             container.innerHTML = "<div class='menu-group-header'></div>";
             for (const item of group.items) {
                 switch (item.type) {
-                    case 'item': {
+                    case 'command': {
                         const button = this._host.document.createElement('button');
                         button.setAttribute('class', 'menu-item');
                         button.setAttribute('id', item.identifier);
                         button.addEventListener('click', () => {
                             this.close();
                             setTimeout(() => {
-                                item.click();
+                                item.execute();
                             }, 10);
                         });
                         container.appendChild(button);
@@ -1168,7 +1166,7 @@ view.Menu = class {
     _update() {
         const label = (item, mnemonic) => {
             delete item.mnemonic;
-            const value = typeof item.label == 'function' ? item.label() : item.label;
+            const value = item.label;
             if (value) {
                 const index = value.indexOf('&');
                 if (index !== -1) {
@@ -1189,18 +1187,18 @@ view.Menu = class {
             container.childNodes[0].innerHTML = label(group, this === active);
             for (const item of group.items) {
                 switch (item.type) {
-                    case 'item': {
+                    case 'command': {
                         const button = this._host.document.getElementById(item.identifier);
                         button.innerHTML = label(item, group === active);
-                        if (item.enabled && !item.enabled()) {
-                            button.setAttribute('disabled', '');
-                            button.style.display = 'none';
-                        }
-                        else {
+                        if (item.enabled) {
                             button.removeAttribute('disabled');
                             button.style.display = 'block';
                             visible = true;
                             block = true;
+                        }
+                        else {
+                            button.setAttribute('disabled', '');
+                            button.style.display = 'none';
                         }
                         if (item.accelerator) {
                             const accelerator = this._host.document.createElement('span');
@@ -1228,7 +1226,7 @@ view.Menu = class {
         }
     }
 
-    close() {
+    _close() {
         this._stack = [];
         this._element.style.opacity = 0;
         this._element.style.left = '-200px';
@@ -1286,8 +1284,12 @@ view.Menu.Group = class {
         this.items = [];
     }
 
-    add(item) {
-        item.type = Object.keys(item).length > 0 ? 'item' : 'separator';
+    get enabled() {
+        return this.items.some((item) => item.enabled);
+    }
+
+    add(value) {
+        const item = Object.keys(value).length > 0 ? new view.Menu.Command(value) : new view.Menu.Separator();
         item.identifier = this.identifier + '-' + this.items.length.toString();
         this.items.push(item);
         this.parent.register(item);
@@ -1319,6 +1321,40 @@ view.Menu.Group = class {
         this.parent.unregister(item);
     }
 };
+
+view.Menu.Command = class {
+
+    constructor(item) {
+        this.type = 'command';
+        this.accelerator = item.accelerator;
+        this._label = item.label;
+        this._enabled = item.enabled;
+        this._execute = item.execute;
+    }
+
+    get label() {
+        return typeof this._label === 'function' ? this._label() : this._label;
+    }
+
+    get enabled() {
+        return this._enabled ? this._enabled() : true;
+    }
+
+    execute() {
+        if (this._execute && this.enabled) {
+            this._execute();
+        }
+    }
+};
+
+view.Menu.Separator = class {
+
+    constructor() {
+        this.type = 'separator';
+        this.enabled = false;
+    }
+};
+
 
 view.Graph = class extends grapher.Graph {
 
