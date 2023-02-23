@@ -38,6 +38,10 @@ host.ElectronHost = class {
         }
     }
 
+    static create() {
+        return Promise.resolve(new host.ElectronHost());
+    }
+
     get window() {
         return this._window;
     }
@@ -873,7 +877,8 @@ host.ElectronHost.Context = class {
 window.addEventListener('load', () => {
     global.protobuf = require('./protobuf');
     global.flatbuffers = require('./flatbuffers');
-    const view = require('./view');
-    window.__host__ = new host.ElectronHost();
-    window.__view__ = new view.View(window.__host__);
+    host.ElectronHost.create().then((host) => {
+        const view = require('./view');
+        window.__view__ = new view.View(host);
+    });
 });
