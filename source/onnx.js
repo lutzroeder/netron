@@ -1,8 +1,8 @@
 
-var onnx = onnx || {};
-var protobuf = protobuf || require('./protobuf');
-var flatbuffers = flatbuffers || require('./flatbuffers');
-var text = text || require('./text');
+var onnx = {};
+var protobuf = require('./protobuf');
+var flatbuffers = require('./flatbuffers');
+var text = require('./text');
 
 onnx.ModelFactory = class {
 
@@ -46,7 +46,7 @@ onnx.ModelFactory = class {
                     return true;
                 };
                 // mediapipe.BoxDetectorIndex
-                if (match(tags, [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]],[2,false],[3,false],[4,false],[5,false]]],[2,false],[3,false]] )) {
+                if (match(tags, [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]],[2,false],[3,false],[4,false],[5,false]]],[2,false],[3,false]])) {
                     return undefined;
                 }
                 // third_party.tensorflow.python.keras.protobuf.SavedMetadata
@@ -94,7 +94,7 @@ onnx.ModelFactory = class {
                 }
                 // ModelProto
                 if (tags.get(7) === 2) {
-                    const schema = [[1,0],[2,2],[3,2],[4,2][5,0],[6,2],[7,2],[8,2],[14,2],[20,2]];
+                    const schema = [[1,0],[2,2],[3,2],[4,2],[5,0],[6,2],[7,2],[8,2],[14,2],[20,2]];
                     if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
                         return 'onnx.pb.ModelProto';
                     }
@@ -102,7 +102,7 @@ onnx.ModelFactory = class {
             }
         }
         const stream = context.stream;
-        if (stream.length > 5) {
+        if (stream && stream.length > 5) {
             const buffer = stream.peek(Math.min(stream.length, 32));
             if (buffer[0] === 0x08 && buffer[1] < 0x0A && buffer[2] === 0x12) {
                 const producers = [
@@ -123,11 +123,11 @@ onnx.ModelFactory = class {
                 }
             }
         }
-        if (onnx.Text.Reader.open(stream)) {
+        if (onnx.Reader.text.open(stream)) {
             return 'onnx.text';
         }
-        if (onnx.Runtime.Reader.open(stream, extension)) {
-            return 'onnx.flatbuffers';
+        if (onnx.Reader.ort.open(stream, extension)) {
+            return 'onnx.ort';
         }
         tags = context.tags('pbtxt');
         if (tags.has('ir_version')) {
@@ -136,7 +136,7 @@ onnx.ModelFactory = class {
         if (tags.has('graph') && extension !== 'model') {
             return 'onnx.pbtxt.ModelProto';
         }
-        if (stream.length > 8) {
+        if (stream && stream.length > 8) {
             const buffer = stream.peek(4);
             const length = buffer[0] | (buffer[1] << 8) | (buffer[2] << 16) | (buffer[3] << 24);
             if (length === stream.length - 4) {
@@ -154,7 +154,7 @@ onnx.ModelFactory = class {
                 }
             }
         }
-        if (extension === 'onnx' && stream.length > 3) {
+        if (extension === 'onnx' && stream && stream.length > 3) {
             const signature = stream.peek(2);
             if (signature[0] === 0x80 && signature[1] < 7) {
                 return 'onnx.pickle';
@@ -247,12 +247,12 @@ onnx.ModelFactory = class {
                         throw new onnx.Error('File format is not onnx.ModelProto (' + message.replace(/\.$/, '') + ').');
                     }
                 });
-            case 'onnx.flatbuffers': {
+            case 'onnx.ort': {
                 return context.require('./onnx-schema').then((/* schema */) => {
                     try {
                         onnx.schema = flatbuffers.get('ort').onnxruntime.fbs;
                         const stream = context.stream;
-                        const reader = onnx.Runtime.Reader.open(stream, 'ort');
+                        const reader = onnx.Reader.ort.open(stream, 'ort');
                         const model = reader.read();
                         const format = 'ONNX Runtime' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
                         return open(model, format);
@@ -268,7 +268,7 @@ onnx.ModelFactory = class {
                     try {
                         onnx.proto = protobuf.get('onnx').onnx;
                         const stream = context.stream;
-                        const reader = onnx.Text.Reader.open(stream);
+                        const reader = onnx.Reader.text.open(stream);
                         const model = reader.read();
                         const format = 'ONNX Text' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
                         return open(model, format);
@@ -439,7 +439,7 @@ onnx.Graph = class {
         }
         for (const sparse_initializer of graph.sparse_initializer) {
             const tensor = context.tensor(sparse_initializer.values.name);
-            tensor.initializer = new onnx.Tensor(context, sparse_initializer, 'Sparse Initializer');
+            tensor.initializer = new onnx.Tensor(context, sparse_initializer, 'Initializer');
         }
         for (const tensor_annotation of graph.quantization_annotation || []) {
             const tensor = context.tensor(tensor_annotation.tensor_name);
@@ -703,8 +703,7 @@ onnx.Attribute = class {
             }
             if (metadata.type === 'DataType') {
                 this._type = metadata.type;
-                const value = this._value ? parseInt(this._value.toString(), 10) : this._value;
-                this._value = Number.isInteger(value) ? context.createDataType(value) : value;
+                this._value = context.createDataType(this._value);
             }
         }
     }
@@ -804,12 +803,26 @@ onnx.Group = class {
 
 onnx.Tensor = class {
 
-    constructor(context, tensor, kind) {
-        this._kind = kind || null;
-        const data = (tensor) => {
-            let data = undefined;
+    constructor(context, tensor, category) {
+        this._category = category || null;
+        if ((onnx.proto && tensor instanceof onnx.proto.SparseTensorProto) ||
+            (onnx.schema && tensor instanceof onnx.schema.SparseTensor)) {
+            this._name = tensor.values.name || '';
+            this._type = context.createTensorType(tensor.values.data_type, tensor.dims.map((dim) => dim), null);
+            this._location = Array.from(new Set([ context.createLocation(tensor.values.data_location), context.createLocation(tensor.indices.data_location) ])).join(':');
+            this._layout = 'sparse';
+            this._values = new onnx.Tensor(context, tensor.values);
+            this._indices = new onnx.Tensor(context, tensor.indices);
+        }
+        else {
+            this._name = tensor.name || '';
+            this._type = context.createTensorType(tensor.data_type, tensor.dims.map((dim) => dim), null);
+            this._location = context.createLocation(tensor.data_location);
             if (tensor.data_location === onnx.DataLocation.DEFAULT) {
                 switch (tensor.data_type) {
+                    case onnx.DataType.UNDEFINED: {
+                        break;
+                    }
                     case onnx.DataType.FLOAT16:
                         if (tensor.int32_data && tensor.int32_data.length > 0) {
                             const buffer = new Uint8Array(tensor.int32_data.length << 1);
@@ -818,51 +831,60 @@ onnx.Tensor = class {
                             for (let i = 0; i < array.length; i++) {
                                 view.setUint16(i << 1, array[i], true);
                             }
-                            data = {
-                                type: tensor.data_type,
-                                buffer: buffer
-                            };
+                            this._data = buffer;
+                            this._layout = '<';
                         }
                         break;
                     case onnx.DataType.FLOAT:
-                        data = new Float32Array(tensor.float_data);
+                        this._data = new Float32Array(tensor.float_data);
+                        this._layout = '|';
                         break;
                     case onnx.DataType.DOUBLE:
-                        data = new Float64Array(tensor.double_data);
+                        this._data = new Float64Array(tensor.double_data);
+                        this._layout = '|';
                         break;
                     case onnx.DataType.BOOL:
                         if (tensor.int32_data && tensor.int32_data.length > 0) {
                             const array = tensor.int32_data;
-                            data = new Array(array.length);
-                            for (let i = 0; i < data.length; i++) {
-                                data[i] = array[i] === 0 ? false : true;
+                            this._data = new Array(array.length);
+                            for (let i = 0; i < this._data.length; i++) {
+                                this._data[i] = array[i] === 0 ? false : true;
                             }
+                            this._layout = '|';
                         }
                         break;
                     case onnx.DataType.INT8:
-                        data = new Int8Array(tensor.int32_data);
+                        this._data = new Int8Array(tensor.int32_data);
+                        this._layout = '|';
                         break;
                     case onnx.DataType.UINT8:
-                        data = new Uint8Array(tensor.int32_data);
+                        this._data = new Uint8Array(tensor.int32_data);
+                        this._layout = '|';
                         break;
                     case onnx.DataType.INT16:
-                        data = new Int32Array(tensor.int32_data);
+                        this._data = new Int32Array(tensor.int32_data);
+                        this._layout = '|';
                         break;
                     case onnx.DataType.UINT16:
-                        data = new Int32Array(tensor.int32_data);
+                        this._data = new Int32Array(tensor.int32_data);
+                        this._layout = '|';
                         break;
                     case onnx.DataType.INT32:
-                        data = new Int32Array(tensor.int32_data);
+                        this._data = new Int32Array(tensor.int32_data);
+                        this._layout = '|';
                         break;
                     case onnx.DataType.UINT32:
                     case onnx.DataType.UINT64:
-                        data = tensor.uint64_data;
+                        this._data = tensor.uint64_data;
+                        this._layout = '|';
                         break;
                     case onnx.DataType.INT64:
-                        data = tensor.int64_data;
+                        this._data = tensor.int64_data;
+                        this._layout = '|';
                         break;
                     case onnx.DataType.STRING:
-                        data = tensor.string_data;
+                        this._data = tensor.string_data;
+                        this._layout = '|';
                         break;
                     case onnx.DataType.BFLOAT16:
                     case onnx.DataType.COMPLEX64:
@@ -871,31 +893,14 @@ onnx.Tensor = class {
                     default:
                         throw new onnx.Error("Unsupported tensor data type '" + tensor.data_type + "'.");
                 }
-                if (data && (Array.isArray(data) || ArrayBuffer.isView(data)) && data.length === 0) {
-                    data = undefined;
+                if (this._data && (Array.isArray(this._data) || ArrayBuffer.isView(this._data)) && this._data.length === 0) {
+                    this._data = undefined;
                 }
-                if (!data && tensor.raw_data && tensor.raw_data.length > 0) {
-                    data = {
-                        type: tensor.data_type,
-                        buffer: tensor.raw_data
-                    };
+                if (!this._data && tensor.raw_data && tensor.raw_data.length > 0) {
+                    this._data = tensor.raw_data;
+                    this._layout = '<';
                 }
             }
-            return data;
-        };
-        if ((onnx.proto && tensor instanceof onnx.proto.SparseTensorProto) ||
-            (onnx.schema && tensor instanceof onnx.schema.SparseTensor)) {
-            this._name = tensor.values.name || '';
-            this._type = context.createTensorType(tensor.values.data_type, tensor.dims.map((dim) => dim), null);
-            this._location = Array.from(new Set([ context.createLocation(tensor.values.data_location), context.createLocation(tensor.indices.data_location) ])).join(':');
-            this._values = data(tensor.values);
-            this._indices = data(tensor.indices);
-        }
-        else {
-            this._name = tensor.name || '';
-            this._type = context.createTensorType(tensor.data_type, tensor.dims.map((dim) => dim), null);
-            this._location = context.createLocation(tensor.data_location);
-            this._values = data(tensor);
         }
     }
 
@@ -903,265 +908,26 @@ onnx.Tensor = class {
         return this._name;
     }
 
-    get kind() {
-        return this._kind;
+    get category() {
+        return this._category;
+    }
+
+    get layout() {
+        return this._layout;
     }
 
     get type() {
         return this._type;
     }
 
-    get state() {
-        return this._context().state || null;
+    get indices() {
+        return this._indices;
     }
 
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
+    get values() {
+        return this._layout === 'sparse' ? this._values : this._data;
     }
 
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return onnx.Tensor._stringify(value, '', '    ');
-    }
-
-    _context() {
-        const context = {};
-        context.state = null;
-        if (this._sparse) {
-            context.state = 'Sparse data not implemented.';
-            return context;
-        }
-        if (this._location !== 'default') {
-            context.state = "Data '" + this._location + "' location not implemented.";
-            return context;
-        }
-        const decode = (data) => {
-            if (!data || Array.isArray(data) || ArrayBuffer.isView(data)) {
-                return data;
-            }
-            const buffer = data.buffer;
-            const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-            const type = data.type;
-            data = undefined;
-            switch (type) {
-                case onnx.DataType.BOOL:
-                    data = new Array(buffer.length);
-                    for (let i = 0; i < buffer.length; i++) {
-                        data[i] = view.getUint8(i) === 0 ? false : true;
-                    }
-                    break;
-                case onnx.DataType.FLOAT16:
-                    data = new Float32Array(buffer.length >> 1);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getFloat16(i << 1, true);
-                    }
-                    break;
-                case onnx.DataType.FLOAT:
-                    data = new Float32Array(buffer.length >> 2);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getFloat32(i << 2, true);
-                    }
-                    break;
-                case onnx.DataType.DOUBLE:
-                    data = new Float64Array(buffer.length >> 3);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getFloat64(i << 3, true);
-                    }
-                    break;
-                case onnx.DataType.INT8:
-                    data = new Int8Array(buffer.length);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getInt8(i, true);
-                    }
-                    break;
-                case onnx.DataType.UINT8:
-                    data = new Uint8Array(buffer.length);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getUint8(i, true);
-                    }
-                    break;
-                case onnx.DataType.INT16:
-                    data = new Int16Array(buffer.length >> 1);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getInt16(i << 1, true);
-                    }
-                    break;
-                case onnx.DataType.UINT16:
-                    data = new Uint16Array(buffer.length >> 1);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getUint16(i << 1, true);
-                    }
-                    break;
-                case onnx.DataType.INT32:
-                    data = new Int32Array(buffer.length >> 2);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getInt32(i << 2, true);
-                    }
-                    break;
-                case onnx.DataType.UINT32:
-                    data = new Uint32Array(buffer.length >> 2);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getUint32(i << 2, true);
-                    }
-                    break;
-                case onnx.DataType.INT64:
-                    data = new Array(buffer.length >> 3);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getInt64(i << 3, true);
-                    }
-                    break;
-                case onnx.DataType.UINT64:
-                    data = new Array(buffer.length >> 3);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getUint64(i << 3, true);
-                    }
-                    break;
-                case onnx.DataType.BFLOAT16:
-                    data = new Array(buffer.length >> 1);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getBfloat16(i << 1, true);
-                    }
-                    break;
-                case onnx.DataType.COMPLEX64:
-                    data = new Array(buffer.length >> 3);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getComplex64(i << 3, true);
-                    }
-                    break;
-                case onnx.DataType.COMPLEX128:
-                    data = new Array(buffer.length >> 4);
-                    for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getComplex64(i << 4, true);
-                    }
-                    break;
-                default:
-                    throw new onnx.Error("Unsupported tensor data type '" + type + "'.");
-            }
-            return data;
-        };
-        this._values = decode(this._values);
-        if (!this._values) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-        this._indices = decode(this._indices);
-        context.values = this._values;
-        context.indices = this._indices;
-        context.index = 0;
-        context.dataType = this.type.dataType;
-        context.shape = this.type.shape.dimensions;
-        context.data = function() {
-            if (!this._data) {
-                if (this.indices && this.values && this.indices.length === this.values.length) {
-                    const size = context.shape.reduce((a, b) => a * b, 1);
-                    const indices = this.indices;
-                    const values = this.values;
-                    const array = new values.constructor(size);
-                    switch (this.dataType) {
-                        case 'boolean':
-                            array.fill(false);
-                            break;
-                        case 'int64':
-                        case 'uint64':
-                            break;
-                        default:
-                            break;
-                    }
-                    if (indices.length > 0) {
-                        if (Object.prototype.hasOwnProperty.call(indices[0], 'low')) {
-                            for (let i = 0; i < indices.length; i++) {
-                                const index = indices[i];
-                                array[index.high === 0 ? index.low : index.toNumber()] = values[i];
-                            }
-                        }
-                        else {
-                            for (let i = 0; i < indices.length; i++) {
-                                array[indices[i]] = values[i];
-                            }
-                        }
-                    }
-                    this._data = array;
-                }
-                else {
-                    this._data = this.values;
-                }
-            }
-            return this._data;
-        };
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const shape = context.shape.length !== 0 ? context.shape : [ 1 ];
-        const results = [];
-        const size = shape[dimension];
-        const data = context.data();
-        if (dimension == shape.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.index > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(data[context.index++]);
-            }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.index > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        if (context.shape.length == 0) {
-            return results[0];
-        }
-        return results;
-    }
-
-    static _stringify(value, indentation, indent) {
-        if (Array.isArray(value)) {
-            const result = [];
-            result.push(indentation + '[');
-            const items = value.map((item) => onnx.Tensor._stringify(item, indentation + indent, indent));
-            if (items.length > 0) {
-                result.push(items.join(',\n'));
-            }
-            result.push(indentation + ']');
-            return result.join('\n');
-        }
-        switch (typeof value) {
-            case 'string':
-                return indentation + value;
-            case 'number':
-                if (value == Infinity) {
-                    return indentation + 'Infinity';
-                }
-                if (value == -Infinity) {
-                    return indentation + '-Infinity';
-                }
-                if (isNaN(value)) {
-                    return indentation + 'NaN';
-                }
-                return indentation + value.toString();
-            default:
-                if (value && value.toString) {
-                    return indentation + value.toString();
-                }
-                return indentation + '(undefined)';
-        }
-    }
 };
 
 onnx.TensorType = class {
@@ -1223,7 +989,8 @@ onnx.SequenceType = class {
     }
 
     toString() {
-        return 'sequence<' + this._elementType.toString() + '>';
+        const elementType = this._elementType ? this._elementType.toString() : '';
+        return 'sequence<' + elementType + '>';
     }
 };
 
@@ -1288,7 +1055,9 @@ onnx.Function = class {
         this._description = func.doc_string;
         this._inputs = [];
         this._outputs = [];
-        this._attributes = func.attribute.map((attribtue) => { return { name: attribtue }; });
+        this._attributes = func.attribute.map((attribtue) => {
+            return { name: attribtue };
+        });
         context = new onnx.GraphContext(context, func.node);
         func.input = func.input.map((input) => context.tensor(input));
         func.output = func.output.map((output) => context.tensor(output));
@@ -1385,8 +1154,9 @@ onnx.GraphMetadata = class {
         if (!this._attributes.has(key)) {
             this._attributes.set(key, null);
             const metadata = this.type(type, domain);
-            if (metadata && metadata.attributes && metadata.attributes.length > 0) {
+            if (metadata && Array.isArray(metadata.attributes) && metadata.attributes.length > 0) {
                 for (const attribute of metadata.attributes) {
+                    const key = domain + ':' + type + ':' + attribute.name;
                     this._attributes.set(key, attribute);
                 }
             }
@@ -1554,7 +1324,7 @@ onnx.GraphContext = class {
     constructor(context, nodes) {
         this._context = context;
         this._dataTypes = new Map(Object.entries(onnx.DataType).map((entry) => [ entry[1], entry[0].toLowerCase() ]));
-        this._dataTypes.set(onnx.DataType.UNDEFINED, 'UNDEFINED');
+        this._dataTypes.set(onnx.DataType.UNDEFINED, 'undefined');
         this._dataTypes.set(onnx.DataType.BOOL, 'boolean');
         this._dataTypes.set(onnx.DataType.FLOAT, 'float32');
         this._dataTypes.set(onnx.DataType.DOUBLE, 'float64');
@@ -1690,6 +1460,9 @@ onnx.GraphContext = class {
         else if (type.optional_type) {
             return new onnx.OptionalType(this.createType(type.optional_type.elem_type), denotation);
         }
+        else if (Object.keys(type).length == 0) {
+            return null;
+        }
         throw new onnx.Error("Unsupported tensor type '" + JSON.stringify(type) + "'.");
     }
 
@@ -1704,7 +1477,21 @@ onnx.GraphContext = class {
     }
 
     createDataType(value) {
-        return this._dataTypes.has(value) ? this._dataTypes.get(value) : this._dataTypes.get(onnx.DataType.UNDEFINED);
+        if (!Number.isInteger(value)) {
+            if (value && value.toNumber) {
+                value = value.toNumber();
+            }
+            else if (value && typeof value === 'string' && onnx.DataType[value.toUpperCase()] !== undefined) {
+                value = onnx.DataType[value.toUpperCase()];
+            }
+            else {
+                throw new onnx.Error("Unsupported data type '" + JSON.stringify(value) + "'.");
+            }
+        }
+        if (this._dataTypes.has(value)) {
+            return this._dataTypes.get(value);
+        }
+        throw new onnx.Error("Unsupported data type '" + JSON.stringify(value) + "'.");
     }
 
     createLocation(value) {
@@ -1746,7 +1533,7 @@ onnx.GraphContext = class {
             }
             else if (attribute && attribute.name === 'sparse_value' && attribute.type === onnx.AttributeType.SPARSE_TENSOR && attribute.sparse_tensor) {
                 const tensor = this.tensor(node.output[0].name);
-                tensor.initializer = new onnx.Tensor(this, attribute.sparse_tensor, 'Sparse Constant');
+                tensor.initializer = new onnx.Tensor(this, attribute.sparse_tensor, 'Constant');
                 return false;
             }
             return true;
@@ -1755,7 +1542,7 @@ onnx.GraphContext = class {
             const schema = this._context.metadata.type(node.op_type, node.domain);
             const inputs = [];
             node.input = node.input || [];
-            for (let i = 0; i < node.input.length; ) {
+            for (let i = 0; i < node.input.length;) {
                 const input = schema && schema.inputs && i < schema.inputs.length ? schema.inputs[i] : { name: i.toString() };
                 const count = input.list ? node.input.length - i : 1;
                 const list = node.input.slice(i, i + count).map((input) => this.argument(input.name));
@@ -1764,7 +1551,7 @@ onnx.GraphContext = class {
             }
             const outputs = [];
             node.output = node.output || [];
-            for (let i = 0; i < node.output.length; ) {
+            for (let i = 0; i < node.output.length;) {
                 const output = schema && schema.outputs && i < schema.outputs.length ? schema.outputs[i] : { name: i.toString() };
                 const count = output.list ? node.output.length - i : 1;
                 const list = node.output.slice(i, i + count).map((output) => this.argument(output.name));
@@ -1798,22 +1585,23 @@ onnx.GraphContext = class {
     }
 };
 
-onnx.Runtime = {};
+onnx.Reader = class {
+};
 
-onnx.Runtime.Reader = class {
+onnx.Reader.ort = class {
 
     static open(stream, extension) {
-        if (stream.length >= 8) {
+        if (stream && stream.length >= 8) {
             const buffer = stream.peek(Math.min(32, stream.length));
             const reader = flatbuffers.BinaryReader.open(buffer);
             const identifier = reader.identifier;
             if (identifier === 'ORTM') {
-                return new onnx.Runtime.Reader(stream);
+                return new onnx.Reader.ort(stream);
             }
             if (extension === 'ort') {
                 const signature = [ 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
                 if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                    return new onnx.Runtime.Reader(stream);
+                    return new onnx.Reader.ort(stream);
                 }
             }
         }
@@ -1949,13 +1737,11 @@ onnx.Runtime.Reader = class {
     }
 };
 
-onnx.Text = {};
-
-onnx.Text.Reader = class {
+onnx.Reader.text = class {
 
     static open(stream) {
         try {
-            if (stream.length > 0 && stream.peek(1)[0] < 0x80 || stream.peek(1)[0] >= 0xFE) {
+            if (stream && stream.length > 0 && (stream.peek(1)[0] < 0x80 || stream.peek(1)[0] >= 0xFE)) {
                 const reader = text.Reader.open(stream);
                 const lines = [];
                 for (let i = 0; i < 32; i++) {
@@ -1968,7 +1754,7 @@ onnx.Text.Reader = class {
                 const content = lines.join('\n');
                 if (/^\s*<\s*ir_version\s*:/m.exec(content) ||
                     /^\s*[a-zA-Z][a-zA-Z0-9]*\s*\(.*\)\s=>\s\(/m.exec(content)) {
-                    return new onnx.Text.Reader(stream);
+                    return new onnx.Reader.text(stream);
                 }
             }
         }

@@ -6,10 +6,10 @@ imgdnn.ModelFactory = class {
     match(context) {
         const stream = context.stream;
         const signature = [ 0x49, 0x4d, 0x47, 0x44, 0x4e, 0x4e ]; // IMGDNN
-        if (stream.length >= signature.length && stream.peek(6).every((value, index) => value === signature[index])) {
+        if (stream && stream.length >= signature.length && stream.peek(6).every((value, index) => value === signature[index])) {
             return 'imgdnn';
         }
-        return undefined;
+        return null;
     }
 
     open(context) {
@@ -84,7 +84,6 @@ imgdnn.Error = class extends Error {
     constructor(message) {
         super(message);
         this.name = 'Error loading IMGDNN model.';
-        this.stack = undefined;
     }
 };
 

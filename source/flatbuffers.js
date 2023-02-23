@@ -1,20 +1,19 @@
 
-
 var flatbuffers = {};
-var json = json || require('./json');
 
 flatbuffers.get = (name) => {
-    flatbuffers._map = flatbuffers._map || new Map();
-    if (!flatbuffers._map.has(name)) {
-        flatbuffers._map.set(name, {});
+    flatbuffers._roots = flatbuffers._roots || new Map();
+    const roots = flatbuffers._roots;
+    if (!roots.has(name)) {
+        roots.set(name, {});
     }
-    return flatbuffers._map.get(name);
+    return roots.get(name);
 };
 
 flatbuffers.BinaryReader = class {
 
     static open(data) {
-        return new flatbuffers.BinaryReader(data);
+        return data ? new flatbuffers.BinaryReader(data) : null;
     }
 
     constructor(data) {
@@ -266,15 +265,15 @@ flatbuffers.BinaryReader = class {
     }
 
     unionArray(/* position, offset, decode */) {
-        throw new flatbuffers.Error('Not implemented.');
+        return new flatbuffers.Error('Not implemented.');
     }
 
-    structArray(position, offset, size, decode) {
+    structArray(position, offset, decode) {
         offset = this._offset(position, offset);
         const length = offset ? this._length(position + offset) : 0;
         const list = new Array(length);
         for (let i = 0; i < length; i++) {
-            list[i] = decode(this, this._indirect(this._vector(position + offset) + i * 4));
+            list[i] = decode(this, this._vector(position + offset) + i * 8);
         }
         return list;
     }

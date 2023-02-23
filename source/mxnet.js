@@ -1,9 +1,7 @@
 
-var mxnet = mxnet || {};
-var json = json || require('./json');
-var zip = zip || require('./zip');
-var ndarray = ndarray || {};
-var base = base || require('./base');
+var mxnet = {};
+var json = require('./json');
+var base = require('./base');
 
 mxnet.ModelFactory = class {
 
@@ -19,7 +17,7 @@ mxnet.ModelFactory = class {
         if (extension === 'params') {
             const stream = context.stream;
             const signature = [ 0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
-            if (stream.length > signature.length && stream.peek(signature.length).every((value, index) => value == signature[index])) {
+            if (stream && stream.length > signature.length && stream.peek(signature.length).every((value, index) => value == signature[index])) {
                 return 'mxnet.params';
             }
         }
@@ -173,7 +171,7 @@ mxnet.ModelFactory = class {
                 }
                 if (symbol) {
                     if (!manifest.format) {
-                        const version = convertVersion(symbol && symbol.attrs && symbol.attrs.mxnet_version ? symbol.attrs.mxnet_version : null);
+                        const version = convertVersion(symbol.attrs && symbol.attrs.mxnet_version ? symbol.attrs.mxnet_version : null);
                         manifest.format = 'MXNet' + (version ? ' v' + version : '');
                     }
                     if (symbol.nodes && symbol.nodes.some((node) => node && node.op == 'tvm_op')) {
@@ -559,7 +557,7 @@ mxnet.Node = class {
                                 if (argument.attrs && argument.attrs.__dtype__ && argument.attrs.__shape__) {
                                     try {
                                         dataType = parseInt(argument.attrs.__dtype__);
-                                        shape = JSON.parse('[' + argument.attrs.__shape__.replace('(', '').replace(')', '').split(' ').join('').split(',').map((dimension => dimension || '"?"' )).join(',') + ']');
+                                        shape = JSON.parse('[' + argument.attrs.__shape__.replace('(', '').replace(')', '').split(' ').join('').split(',').map((dimension => dimension || '"?"')).join(',') + ']');
                                     }
                                     catch (err) {
                                         // continue regardless of error
@@ -679,10 +677,12 @@ mxnet.Attribute = class {
                 case 'boolean':
                     switch (value) {
                         case 0:
+                        case '0':
                         case 'False':
                             this._value = false;
                             break;
                         case 1:
+                        case '1':
                         case 'True':
                             this._value = true;
                             break;
@@ -740,7 +740,7 @@ mxnet.Attribute = class {
                             defaultValue.push(defaultValue[defaultValue.length - 1]);
                         }
                     }
-                    if (this._value.every((item, index) => { return item == defaultValue[index]; })) {
+                    if (this._value.every((item, index) => item == defaultValue[index])) {
                         this._visible = false;
                     }
                 }
@@ -767,15 +767,15 @@ mxnet.Attribute = class {
 
 mxnet.Tensor = class {
 
-    constructor(kind, name, type, data) {
-        this._kind = kind;
+    constructor(category, name, type, data) {
+        this._category = category;
         this._name = name;
         this._type = type;
         this._data = data;
     }
 
-    get kind() {
-        return 'Initializer';
+    get category() {
+        return this._category;
     }
 
     get name() {
@@ -786,130 +786,8 @@ mxnet.Tensor = class {
         return this._type;
     }
 
-    get state() {
-        return this._context().state;
-    }
-
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return JSON.stringify(value, null, 4);
-    }
-
-    _context() {
-
-        const context = {};
-        context.state = null;
-        context.index = 0;
-        context.count = 0;
-
-        if (!this._data) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-
-        if (!this._type && this._type.dataType === '?') {
-            context.state = 'Tensor has no data type.';
-            return context;
-        }
-
-        if (this._type.shape.length < 1) {
-            context.state = 'Tensor has unknown shape.';
-            return context;
-        }
-
-        context.dataType = this._type.dataType;
-        context.dimensions = this._type.shape.dimensions;
-        context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const results = [];
-        const size = context.dimensions[dimension];
-        if (dimension == context.dimensions.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                switch (context.dataType) {
-                    case 'float32':
-                        results.push(context.data.getFloat32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    case 'float64':
-                        results.push(context.data.getFloat64(context.index, true));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    case 'float16':
-                        results.push(mxnet.Tensor._decodeNumberFromFloat16(context.data.getUint16(context.index, true)));
-                        context.index += 2;
-                        context.count++;
-                        break;
-                    case 'uint8':
-                        results.push(context.data.getUint8(context.index, true));
-                        context.index += 1;
-                        context.count++;
-                        break;
-                    case 'int32':
-                        results.push(context.data.getInt32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    case 'int8':
-                        results.push(context.data.getInt8(context.index, true));
-                        context.index += 1;
-                        context.count++;
-                        break;
-                    case 'int64':
-                        results.push(context.data.getInt64(context.index, true));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    default:
-                        throw new mxnet.Error("Unsupported tensor data type '" + context.dataType + "'.");
-                }
-            }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        return results;
-    }
-
-    static _decodeNumberFromFloat16(value) {
-        const s = (value & 0x8000) >> 15;
-        const e = (value & 0x7C00) >> 10;
-        const f = value & 0x03FF;
-        if(e == 0) {
-            return (s ? -1 : 1) * Math.pow(2, -14) * (f / Math.pow(2, 10));
-        }
-        else if (e == 0x1F) {
-            return f ? NaN : ((s ? -1 : 1) * Infinity);
-        }
-        return (s ? -1 : 1) * Math.pow(2, e-15) * (1 + (f / Math.pow(2, 10)));
+    get data() {
+        return this._data;
     }
 };
 

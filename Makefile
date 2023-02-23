@@ -28,26 +28,21 @@ update: install
 	@./tools/dnn schema
 	@./tools/mnn sync schema
 	@./tools/mslite sync schema metadata
+	@./tools/megengine sync schema metadata
 	@./tools/nnabla sync schema metadata
 	@./tools/onnx sync install schema metadata
 	@./tools/om schema
-	@./tools/rknn schema
 	@./tools/paddle sync schema
-	@./tools/pytorch sync install schema metadata
+	@./tools/pytorch sync schema metadata
+	@./tools/rknn schema
 	@./tools/sklearn sync install metadata
 	@./tools/tf sync install schema metadata
 	@./tools/uff schema
 	@./tools/xmodel sync schema
 
 build_python: install
+	python publish/python.py build version
 	python -m pip install --user build wheel --quiet
-	rm -rf ./source/__pycache__
-	rm -rf ./dist/pypi
-	mkdir -p ./dist/pypi/netron
-	cp -R ./source/* ./dist/pypi/netron
-	cp ./publish/setup.py ./dist/pypi
-	rm ./dist/pypi/netron/electron.* ./dist/pypi/netron/app.js
-	python publish/version.py
 	python -m build --no-isolation --wheel --outdir ./dist/pypi dist/pypi
 
 install_python: build_python
@@ -64,6 +59,17 @@ start: install
 
 lint: install
 	npx eslint source/*.js test/*.js publish/*.js tools/*.js
+	python -m pip install --upgrade --quiet pylint
+	python -m pylint -sn source/*.py publish/*.py test/*.py tools/*.py
+
+codeql:
+	@[ -d third_party/tools/codeql ] || git clone --depth=1 https://github.com/github/codeql.git ./third_party/tools/codeql
+	rm -rf dist/codeql
+	mkdir -p dist/codeql/netron
+	cp -r publish source test tools dist/codeql/netron/
+	codeql database create dist/codeql/database --source-root dist/codeql/netron --language=javascript --threads=3
+	codeql database analyze dist/codeql/database ./third_party/tools/codeql/javascript/ql/src/codeql-suites/javascript-security-and-quality.qls --format=csv --output=dist/codeql/results.csv --threads=3
+	cat dist/codeql/results.csv
 
 test: install
 	node ./test/models.js
@@ -96,7 +102,7 @@ build_web:
 	cp -R ./source/*.ico ./dist/web
 	cp -R ./source/*.png ./dist/web
 	rm -rf ./dist/web/electron.* ./dist/web/app.js
-	sed -i "s/0\.0\.0/$$(grep '"version":' package.json -m1 | cut -d\" -f4)/g" ./dist/web/index.html
+	node ./publish/web.js ./package.json ./dist/web/index.html
 
 publish_web: build_web
 	rm -rf ./dist/gh-pages
@@ -117,7 +123,7 @@ publish_cask:
 	git -C ./dist/homebrew-cask add --all
 	git -C ./dist/homebrew-cask commit -m "Update $$(node -pe "require('./package.json').productName") to $$(node -pe "require('./package.json').version")"
 	git -C ./dist/homebrew-cask push
-	curl -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/Homebrew/homebrew-cask/pulls -d "{\"title\":\"Update $$(node -pe "require('./package.json').name") to $$(node -pe "require('./package.json').version")\",\"base\":\"master\",\"head\":\"$(GITHUB_USER):master\",\"body\":\"\"}" 2>&1 > /dev/null
+	curl -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/Homebrew/homebrew-cask/pulls -d "{\"title\":\"Update $$(node -pe "require('./package.json').name") to $$(node -pe "require('./package.json').version")\",\"base\":\"master\",\"head\":\"$(GITHUB_USER):master\",\"body\":\"Update version and sha256.\"}" 2>&1 > /dev/null
 	rm -rf ./dist/homebrew-cask
 
 publish_winget:

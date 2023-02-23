@@ -126,8 +126,8 @@ $root.onnxruntime.fbs.NodeEdge = class NodeEdge {
     static decode(reader, position) {
         const $ = new $root.onnxruntime.fbs.NodeEdge();
         $.node_index = reader.uint32_(position, 4, 0);
-        $.input_edges = reader.structArray(position, 6, undefined,$root.onnxruntime.fbs.EdgeEnd.decode);
-        $.output_edges = reader.structArray(position, 8, undefined,$root.onnxruntime.fbs.EdgeEnd.decode);
+        $.input_edges = reader.structArray(position, 6, $root.onnxruntime.fbs.EdgeEnd.decode);
+        $.output_edges = reader.structArray(position, 8, $root.onnxruntime.fbs.EdgeEnd.decode);
         return $;
     }
 };
@@ -171,15 +171,6 @@ $root.onnxruntime.fbs.TypeInfoValue = class {
             case 1: return $root.onnxruntime.fbs.TensorTypeAndShape.decode(reader, position);
             case 2: return $root.onnxruntime.fbs.SequenceType.decode(reader, position);
             case 3: return $root.onnxruntime.fbs.MapType.decode(reader, position);
-            default: return undefined;
-        }
-    }
-
-    static decodeText(reader, json, type) {
-        switch (type) {
-            case 'TensorTypeAndShape': return $root.onnxruntime.fbs.TensorTypeAndShape.decodeText(reader, json);
-            case 'SequenceType': return $root.onnxruntime.fbs.SequenceType.decodeText(reader, json);
-            case 'MapType': return $root.onnxruntime.fbs.MapType.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -266,10 +257,10 @@ $root.onnxruntime.fbs.NodesToOptimizeIndices = class NodesToOptimizeIndices {
     }
 };
 
-$root.onnxruntime.fbs.NodeIndexAndKernelDefHash = class NodeIndexAndKernelDefHash {
+$root.onnxruntime.fbs.DeprecatedNodeIndexAndKernelDefHash = class DeprecatedNodeIndexAndKernelDefHash {
 
     static decode(reader, position) {
-        const $ = new $root.onnxruntime.fbs.NodeIndexAndKernelDefHash();
+        const $ = new $root.onnxruntime.fbs.DeprecatedNodeIndexAndKernelDefHash();
         $.node_index = reader.uint32_(position, 4, 0);
         $.kernel_def_hash = reader.uint64_(position, 6, 0);
         return $;
@@ -282,7 +273,8 @@ $root.onnxruntime.fbs.RuntimeOptimizationRecord = class RuntimeOptimizationRecor
         const $ = new $root.onnxruntime.fbs.RuntimeOptimizationRecord();
         $.action_id = reader.string_(position, 4, null);
         $.nodes_to_optimize_indices = reader.table(position, 6, $root.onnxruntime.fbs.NodesToOptimizeIndices.decode);
-        $.produced_nodes = reader.tableArray(position, 8, $root.onnxruntime.fbs.NodeIndexAndKernelDefHash.decode);
+        $.produced_nodes = reader.tableArray(position, 8, $root.onnxruntime.fbs.DeprecatedNodeIndexAndKernelDefHash.decode);
+        $.produced_op_ids = reader.strings_(position, 10);
         return $;
     }
 };
@@ -351,32 +343,76 @@ $root.onnxruntime.fbs.Model = class Model {
     }
 };
 
-$root.onnxruntime.fbs.KernelCreateInfos = class KernelCreateInfos {
+$root.onnxruntime.fbs.DeprecatedKernelCreateInfos = class DeprecatedKernelCreateInfos {
 
     static decode(reader, position) {
-        const $ = new $root.onnxruntime.fbs.KernelCreateInfos();
+        const $ = new $root.onnxruntime.fbs.DeprecatedKernelCreateInfos();
         $.node_indices = reader.typedArray(position, 4, Uint32Array);
         $.kernel_def_hashes = reader.uint64s_(position, 6);
         return $;
     }
 };
 
-$root.onnxruntime.fbs.SubGraphSessionState = class SubGraphSessionState {
+$root.onnxruntime.fbs.DeprecatedSubGraphSessionState = class DeprecatedSubGraphSessionState {
 
     static decode(reader, position) {
-        const $ = new $root.onnxruntime.fbs.SubGraphSessionState();
+        const $ = new $root.onnxruntime.fbs.DeprecatedSubGraphSessionState();
         $.graph_id = reader.string_(position, 4, null);
-        $.session_state = reader.table(position, 6, $root.onnxruntime.fbs.SessionState.decode);
+        $.session_state = reader.table(position, 6, $root.onnxruntime.fbs.DeprecatedSessionState.decode);
         return $;
     }
 };
 
-$root.onnxruntime.fbs.SessionState = class SessionState {
+$root.onnxruntime.fbs.DeprecatedSessionState = class DeprecatedSessionState {
 
     static decode(reader, position) {
-        const $ = new $root.onnxruntime.fbs.SessionState();
-        $.kernels = reader.table(position, 4, $root.onnxruntime.fbs.KernelCreateInfos.decode);
-        $.sub_graph_session_states = reader.tableArray(position, 6, $root.onnxruntime.fbs.SubGraphSessionState.decode);
+        const $ = new $root.onnxruntime.fbs.DeprecatedSessionState();
+        $.kernels = reader.table(position, 4, $root.onnxruntime.fbs.DeprecatedKernelCreateInfos.decode);
+        $.sub_graph_session_states = reader.tableArray(position, 6, $root.onnxruntime.fbs.DeprecatedSubGraphSessionState.decode);
+        return $;
+    }
+};
+
+$root.onnxruntime.fbs.ArgType = {
+    INPUT: 0,
+    OUTPUT: 1
+};
+
+$root.onnxruntime.fbs.ArgTypeAndIndex = class ArgTypeAndIndex {
+
+    static decode(reader, position) {
+        const $ = new $root.onnxruntime.fbs.ArgTypeAndIndex();
+        $.arg_type = reader.int8_(position, 4, 0);
+        $.index = reader.uint32_(position, 6, 0);
+        return $;
+    }
+};
+
+$root.onnxruntime.fbs.KernelTypeStrArgsEntry = class KernelTypeStrArgsEntry {
+
+    static decode(reader, position) {
+        const $ = new $root.onnxruntime.fbs.KernelTypeStrArgsEntry();
+        $.kernel_type_str = reader.string_(position, 4, null);
+        $.args = reader.tableArray(position, 6, $root.onnxruntime.fbs.ArgTypeAndIndex.decode);
+        return $;
+    }
+};
+
+$root.onnxruntime.fbs.OpIdKernelTypeStrArgsEntry = class OpIdKernelTypeStrArgsEntry {
+
+    static decode(reader, position) {
+        const $ = new $root.onnxruntime.fbs.OpIdKernelTypeStrArgsEntry();
+        $.op_id = reader.string_(position, 4, null);
+        $.kernel_type_str_args = reader.tableArray(position, 6, $root.onnxruntime.fbs.KernelTypeStrArgsEntry.decode);
+        return $;
+    }
+};
+
+$root.onnxruntime.fbs.KernelTypeStrResolver = class KernelTypeStrResolver {
+
+    static decode(reader, position) {
+        const $ = new $root.onnxruntime.fbs.KernelTypeStrResolver();
+        $.op_kernel_type_str_args = reader.tableArray(position, 4, $root.onnxruntime.fbs.OpIdKernelTypeStrArgsEntry.decode);
         return $;
     }
 };
@@ -395,7 +431,8 @@ $root.onnxruntime.fbs.InferenceSession = class InferenceSession {
         const $ = new $root.onnxruntime.fbs.InferenceSession();
         $.ort_version = reader.string_(position, 4, null);
         $.model = reader.table(position, 6, $root.onnxruntime.fbs.Model.decode);
-        $.session_state = reader.table(position, 8, $root.onnxruntime.fbs.SessionState.decode);
+        $.session_state = reader.table(position, 8, $root.onnxruntime.fbs.DeprecatedSessionState.decode);
+        $.kernel_type_str_resolver = reader.table(position, 10, $root.onnxruntime.fbs.KernelTypeStrResolver.decode);
         return $;
     }
 };

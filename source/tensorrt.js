@@ -1,6 +1,6 @@
 
-var tensorrt = tensorrt || {};
-var base = base || require('./base');
+var tensorrt = {};
+var base = require('./base');
 
 tensorrt.ModelFactory = class {
 
@@ -73,7 +73,7 @@ tensorrt.Engine = class {
     _read() {
         if (this._stream) {
             let buffer = this._stream.peek(24);
-            let reader = new base.BinaryReader(buffer);
+            const reader = new base.BinaryReader(buffer);
             reader.skip(4);
             const version = reader.uint32();
             reader.uint32();
@@ -100,7 +100,7 @@ tensorrt.Engine = class {
             }
             const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
             buffer = this._stream.read(24 + size);
-            reader = new tensorrt.BinaryReader(buffer);
+            /* reader = */ new tensorrt.BinaryReader(buffer);
             throw new tensorrt.Error("Invalid file content. File contains undocumented TensorRT engine data (" + content.substring(8) + ").");
         }
     }
@@ -109,21 +109,23 @@ tensorrt.Engine = class {
 tensorrt.Container = class {
 
     static open(stream) {
-        const buffer = stream.peek(Math.min(512, stream.length));
-        if (buffer.length > 12 && buffer[6] === 0x00 && buffer[7] === 0x00) {
-            const reader = new base.BinaryReader(buffer);
-            const length = reader.uint64();
-            if (length === stream.length) {
-                let position = reader.position + reader.uint32();
-                if (position < reader.length) {
-                    reader.seek(position);
-                    const offset = reader.uint32();
-                    position = reader.position - offset - 4;
-                    if (position > 0 && position < reader.length) {
+        if (stream) {
+            const buffer = stream.peek(Math.min(512, stream.length));
+            if (buffer.length > 12 && buffer[6] === 0x00 && buffer[7] === 0x00) {
+                const reader = new base.BinaryReader(buffer);
+                const length = reader.uint64();
+                if (length === stream.length) {
+                    let position = reader.position + reader.uint32();
+                    if (position < reader.length) {
                         reader.seek(position);
-                        const length = reader.uint16();
-                        if (offset === length) {
-                            return new tensorrt.Container(stream);
+                        const offset = reader.uint32();
+                        position = reader.position - offset - 4;
+                        if (position > 0 && position < reader.length) {
+                            reader.seek(position);
+                            const length = reader.uint16();
+                            if (offset === length) {
+                                return new tensorrt.Container(stream);
+                            }
                         }
                     }
                 }
@@ -165,7 +167,6 @@ tensorrt.Error = class extends Error {
     constructor(message) {
         super(message);
         this.name = 'Error loading TensorRT model.';
-        this.stack = undefined;
     }
 };
 

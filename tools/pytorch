@@ -8,19 +8,8 @@ case "${OSTYPE}" in
     *) python="python";;
 esac
 
-venv() {
-    env_dir=./third_party/env/pytorch
-    [ -d "${env_dir}" ] || ${python} -m venv ${env_dir}
-    case "${OSTYPE}" in
-        msys*) source ${env_dir}/Scripts/activate;;
-        *) source ${env_dir}/bin/activate;;
-    esac
-    ${python} -m pip install --quiet --upgrade pip
-}
-
 clean() {
     echo "pytorch clean"
-    rm -rf "./third_party/env/pytorch"
     rm -rf "./third_party/source/pytorch"
 }
 
@@ -30,19 +19,12 @@ sync() {
     git -C "./third_party/source/pytorch" pull --quiet --prune
 }
 
-install() {
-    echo "pytorch install"
-    venv
-    ${python} -m pip install --quiet --upgrade future protobuf
-    ${python} -m pip install --quiet --upgrade six pybind11 cython pyyaml numpy
-    ${python} -m pip install --quiet --upgrade --pre torch -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
-    deactivate
-}
-
 schema() {
-    echo "caffe2 schema"
     [[ $(grep -U $'\x0D' ./source/caffe2-proto.js) ]] && crlf=1
+    echo "caffe2 schema"
     node ./tools/protoc.js --text --root caffe2 --out ./source/caffe2-proto.js ./third_party/source/pytorch/caffe2/proto/caffe2.proto
+    echo "pytorch schema"
+    node ./tools/flatc.js --root torch --out ./source/pytorch-schema.js ./third_party/source/pytorch/torch/csrc/jit/serialization/mobile_bytecode.fbs
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/caffe2-proto.js ./source/caffe2-proto.js
     fi
@@ -50,14 +32,11 @@ schema() {
 
 metadata() {
     echo "pytorch metadata"
-    venv
-    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-    if [[ $(grep -U $'\x0D' ./source/pytorch-metadata.json) ]]; then crlf=1; else crlf=; fi
-    ${python} ./tools/pytorch_script.py metadata
+    [[ $(grep -U $'\x0D' ./source/pytorch-metadata.json) ]] && crlf=1
+    ${python} ./tools/pytorch_metadata.py
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/pytorch-metadata.json ./source/pytorch-metadata.json
     fi
-    deactivate
 }
 
 while [ "$#" != 0 ]; do
@@ -65,7 +44,6 @@ while [ "$#" != 0 ]; do
     case "${command}" in
         "clean") clean;;
         "sync") sync;;
-        "install") install;;
         "schema") schema;;
         "metadata") metadata;;
     esac

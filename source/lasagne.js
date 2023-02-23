@@ -8,15 +8,14 @@ lasagne.ModelFactory = class {
     match(context) {
         const obj = context.open('pkl');
         if (obj && obj.__class__ && obj.__class__.__module__ === 'nolearn.lasagne.base' && obj.__class__.__name__ == 'NeuralNet') {
-            return 'lasagne';
+            return obj;
         }
-        return '';
+        return null;
     }
 
-    open(context) {
+    open(context, match) {
         return context.metadata('lasagne-metadata.json').then((metadata) => {
-            const obj = context.open('pkl');
-            return new lasagne.Model(metadata, obj);
+            return new lasagne.Model(metadata, match);
         });
     }
 };
@@ -212,8 +211,8 @@ lasagne.Attribute = class {
     constructor(metadata, name, value) {
         this._name = name;
         this._value = value;
-        if (value && value.__class_) {
-            this._type = value.__class_.__module__ + '.' + value.__class_.__name__;
+        if (value && value.__class__) {
+            this._type = value.__class__.__module__ + '.' + value.__class__.__name__;
         }
     }
 
@@ -277,17 +276,10 @@ lasagne.Tensor = class {
     get type() {
         return this._type;
     }
-
-    get state() {
-        return 'Tensor data not implemented.';
-    }
-
-    toString() {
-        return '';
-    }
 };
 
 lasagne.Error = class extends Error {
+
     constructor(message) {
         super(message);
         this.name = 'Lasagne Error';

@@ -239,8 +239,9 @@
         "name": "transformers"
       },
       {
-        "description": "By default, only the specified columns in `transformers` are\ntransformed and combined in the output, and the non-specified\ncolumns are dropped. (default of ``'drop'``).\nBy specifying ``remainder='passthrough'``, all remaining columns that\nwere not specified in `transformers` will be automatically passed\nthrough. This subset of columns is concatenated with the output of\nthe transformers.\nBy setting ``remainder`` to be an estimator, the remaining\nnon-specified columns will use the ``remainder`` estimator. The\nestimator must support :term:`fit` and :term:`transform`.\nNote that using this feature requires that the DataFrame columns\ninput at :term:`fit` and :term:`transform` have identical order.\n",
-        "name": "remainder"
+        "description": "By default, only the specified columns in `transformers` are\ntransformed and combined in the output, and the non-specified\ncolumns are dropped. (default of ``'drop'``).\nBy specifying ``remainder='passthrough'``, all remaining columns that\nwere not specified in `transformers`, but present in the data passed\nto `fit` will be automatically passed through. This subset of columns\nis concatenated with the output of the transformers. For dataframes,\nextra columns not seen during `fit` will be excluded from the output\nof `transform`.\nBy setting ``remainder`` to be an estimator, the remaining\nnon-specified columns will use the ``remainder`` estimator. The\nestimator must support :term:`fit` and :term:`transform`.\nNote that using this feature requires that the DataFrame columns\ninput at :term:`fit` and :term:`transform` have identical order.\n",
+        "name": "remainder",
+        "default": "drop"
       },
       {
         "default": 0.3,
@@ -334,7 +335,7 @@
       {
         "name": "power_iteration_normalizer",
         "description": "Power iteration normalizer for randomized SVD solver.\nNot used by ARPACK. See :func:`~sklearn.utils.extmath.randomized_svd`\nfor more details.\n\n.. versionadded:: 1.1\n",
-        "default": "\u2019auto\u2019"
+        "default": "auto"
       }
     ]
   },
@@ -383,7 +384,7 @@
       {
         "name": "power_iteration_normalizer",
         "description": "Power iteration normalizer for randomized SVD solver.\nNot used by ARPACK. See :func:`~sklearn.utils.extmath.randomized_svd`\nfor more details.\n\n.. versionadded:: 1.1\n",
-        "default": "\u2019auto\u2019"
+        "default": "auto"
       }
     ]
   },
@@ -444,7 +445,7 @@
       {
         "name": "power_iteration_normalizer",
         "description": "Power iteration normalizer for randomized SVD solver.\nNot used by ARPACK. See :func:`~sklearn.utils.extmath.randomized_svd`\nfor more details.\n\n.. versionadded:: 1.1\n",
-        "default": "\u2019auto\u2019"
+        "default": "auto"
       }
     ]
   },
@@ -454,12 +455,13 @@
     "attributes": [
       {
         "default": "svd",
-        "description": "Solver to use, possible values:\n- 'svd': Singular value decomposition (default).\nDoes not compute the covariance matrix, therefore this solver is\nrecommended for data with a large number of features.\n- 'lsqr': Least squares solution.\nCan be combined with shrinkage or custom covariance estimator.\n- 'eigen': Eigenvalue decomposition.\nCan be combined with shrinkage or custom covariance estimator.\n",
+        "description": "Solver to use, possible values:\n- 'svd': Singular value decomposition (default).\nDoes not compute the covariance matrix, therefore this solver is\nrecommended for data with a large number of features.\n- 'lsqr': Least squares solution.\nCan be combined with shrinkage or custom covariance estimator.\n- 'eigen': Eigenvalue decomposition.\nCan be combined with shrinkage or custom covariance estimator.\n\n.. versionchanged:: 1.2\n`solver=\"svd\"` now has experimental Array API support. See the\n:ref:`Array API User Guide <array_api>` for more details.\n",
         "name": "solver"
       },
       {
         "description": "Shrinkage parameter, possible values:\n- None: no shrinkage (default).\n- 'auto': automatic shrinkage using the Ledoit-Wolf lemma.\n- float between 0 and 1: fixed shrinkage parameter.\n\nThis should be left to None if `covariance_estimator` is used.\nNote that shrinkage works only with 'lsqr' and 'eigen' solvers.\n",
-        "name": "shrinkage"
+        "name": "shrinkage",
+        "default": null
       },
       {
         "default": null,
@@ -772,7 +774,7 @@
       },
       {
         "default": null,
-        "description": "Remove accents and perform other character normalization\nduring the preprocessing step.\n'ascii' is a fast method that only works on characters that have\nan direct ASCII mapping.\n'unicode' is a slightly slower method that works on any characters.\nNone (default) does nothing.\n\nBoth 'ascii' and 'unicode' use NFKD normalization from\n:func:`unicodedata.normalize`.\n",
+        "description": "Remove accents and perform other character normalization\nduring the preprocessing step.\n'ascii' is a fast method that only works on characters that have\na direct ASCII mapping.\n'unicode' is a slightly slower method that works on any characters.\nNone (default) does nothing.\n\nBoth 'ascii' and 'unicode' use NFKD normalization from\n:func:`unicodedata.normalize`.\n",
         "name": "strip_accents"
       },
       {
@@ -793,7 +795,7 @@
       },
       {
         "default": null,
-        "description": "If 'english', a built-in stop word list for English is used.\nThere are several known issues with 'english' and you should\nconsider an alternative (see :ref:`stop_words`).\n\nIf a list, that list is assumed to contain stop words, all of which\nwill be removed from the resulting tokens.\nOnly applies if ``analyzer == 'word'``.\n\nIf None, no stop words will be used. max_df can be set to a value\nin the range [0.7, 1.0) to automatically detect and filter stop\nwords based on intra corpus document frequency of terms.\n",
+        "description": "If 'english', a built-in stop word list for English is used.\nThere are several known issues with 'english' and you should\nconsider an alternative (see :ref:`stop_words`).\n\nIf a list, that list is assumed to contain stop words, all of which\nwill be removed from the resulting tokens.\nOnly applies if ``analyzer == 'word'``.\n\nIf None, no stop words will be used. In this case, setting `max_df`\nto a higher value, such as in the range (0.7, 1.0), can automatically detect\nand filter stop words based on intra corpus document frequency of terms.\n",
         "name": "stop_words",
         "type": "string"
       },
@@ -873,7 +875,7 @@
       },
       {
         "default": null,
-        "description": "Remove accents and perform other character normalization\nduring the preprocessing step.\n'ascii' is a fast method that only works on characters that have\nan direct ASCII mapping.\n'unicode' is a slightly slower method that works on any characters.\nNone (default) does nothing.\n\nBoth 'ascii' and 'unicode' use NFKD normalization from\n:func:`unicodedata.normalize`.\n",
+        "description": "Remove accents and perform other character normalization\nduring the preprocessing step.\n'ascii' is a fast method that only works on characters that have\na direct ASCII mapping.\n'unicode' is a slightly slower method that works on any characters.\nNone (default) does nothing.\n\nBoth 'ascii' and 'unicode' use NFKD normalization from\n:func:`unicodedata.normalize`.\n",
         "name": "strip_accents"
       },
       {
@@ -894,15 +896,16 @@
       },
       {
         "description": "Whether the feature should be made of word or character n-grams.\nOption 'char_wb' creates character n-grams only from text inside\nword boundaries; n-grams at the edges of words are padded with space.\n\nIf a callable is passed it is used to extract the sequence of features\nout of the raw, unprocessed input.\n\n.. versionchanged:: 0.21\nSince v0.21, if ``input`` is ``'filename'`` or ``'file'``, the data\nis first read from the file and then passed to the given callable\nanalyzer.\n",
-        "name": "analyzer"
+        "name": "analyzer",
+        "default": "word"
       },
       {
         "default": null,
-        "description": "If a string, it is passed to _check_stop_list and the appropriate stop\nlist is returned. 'english' is currently the only supported string\nvalue.\nThere are several known issues with 'english' and you should\nconsider an alternative (see :ref:`stop_words`).\n\nIf a list, that list is assumed to contain stop words, all of which\nwill be removed from the resulting tokens.\nOnly applies if ``analyzer == 'word'``.\n\nIf None, no stop words will be used. max_df can be set to a value\nin the range [0.7, 1.0) to automatically detect and filter stop\nwords based on intra corpus document frequency of terms.\n",
+        "description": "If a string, it is passed to _check_stop_list and the appropriate stop\nlist is returned. 'english' is currently the only supported string\nvalue.\nThere are several known issues with 'english' and you should\nconsider an alternative (see :ref:`stop_words`).\n\nIf a list, that list is assumed to contain stop words, all of which\nwill be removed from the resulting tokens.\nOnly applies if ``analyzer == 'word'``.\n\nIf None, no stop words will be used. In this case, setting `max_df`\nto a higher value, such as in the range (0.7, 1.0), can automatically detect\nand filter stop words based on intra corpus document frequency of terms.\n",
         "name": "stop_words"
       },
       {
-        "default": "r\"(?u)\\\\b\\\\w\\\\w+\\\\b\"",
+        "default": "r\"(?u)\\\\b\\\\w\\\\w+\\\\b",
         "description": "Regular expression denoting what constitutes a \"token\", only used\nif ``analyzer == 'word'``. The default regexp selects tokens of 2\nor more alphanumeric characters (punctuation is completely ignored\nand always treated as a token separator).\n\nIf there is a capturing group in token_pattern then the\ncaptured group content, not the entire match, becomes the token.\nAt most one capturing group is permitted.\n",
         "name": "token_pattern",
         "type": "string"
@@ -948,7 +951,7 @@
       },
       {
         "default": "l2",
-        "description": "Each output row will have unit norm, either:\n\n- 'l2': Sum of squares of vector elements is 1. The cosine\nsimilarity between two vectors is their dot product when l2 norm has\nbeen applied.\n- 'l1': Sum of absolute values of vector elements is 1.\nSee :func:`preprocessing.normalize`.\n",
+        "description": "Each output row will have unit norm, either:\n\n- 'l2': Sum of squares of vector elements is 1. The cosine\nsimilarity between two vectors is their dot product when l2 norm has\nbeen applied.\n- 'l1': Sum of absolute values of vector elements is 1.\nSee :func:`preprocessing.normalize`.\n- None: No normalization.\n",
         "name": "norm"
       },
       {
@@ -990,11 +993,12 @@
   },
   {
     "name": "sklearn.impute._base.SimpleImputer",
-    "description": "Imputation transformer for completing missing values.\n\nRead more in the :ref:`User Guide <impute>`.\n\n.. versionadded:: 0.20\n`SimpleImputer` replaces the previous `sklearn.preprocessing.Imputer`\nestimator which is now removed.\n",
+    "description": "Univariate imputer for completing missing values with simple strategies.\n\nReplace missing values using a descriptive statistic (e.g. mean, median, or\nmost frequent) along each column, or using a constant value.\n\nRead more in the :ref:`User Guide <impute>`.\n\n.. versionadded:: 0.20\n`SimpleImputer` replaces the previous `sklearn.preprocessing.Imputer`\nestimator which is now removed.\n",
     "attributes": [
       {
         "description": "The placeholder for the missing values. All occurrences of\n`missing_values` will be imputed. For pandas' dataframes with\nnullable integer dtypes with missing values, `missing_values`\ncan be set to either `np.nan` or `pd.NA`.\n",
-        "name": "missing_values"
+        "name": "missing_values",
+        "default": "np.nan"
       },
       {
         "default": "mean",
@@ -1004,7 +1008,7 @@
       },
       {
         "default": null,
-        "description": "When strategy == \"constant\", fill_value is used to replace all\noccurrences of missing_values.\nIf left to the default, fill_value will be 0 when imputing numerical\ndata and \"missing_value\" for strings or object data types.\n",
+        "description": "When strategy == \"constant\", `fill_value` is used to replace all\noccurrences of missing_values. For string or object data types,\n`fill_value` must be a string.\nIf `None`, `fill_value` will be 0 when imputing numerical\ndata and \"missing_value\" for strings or object data types.\n",
         "name": "fill_value"
       },
       {
@@ -1024,6 +1028,11 @@
         "description": "If True, a :class:`MissingIndicator` transform will stack onto output\nof the imputer's transform. This allows a predictive estimator\nto account for missingness despite imputation. If a feature has no\nmissing values at fit/train time, the feature won't appear on\nthe missing indicator even if there are missing values at\ntransform/test time.\n",
         "name": "add_indicator",
         "type": "boolean"
+      },
+      {
+        "name": "keep_empty_features",
+        "default": false,
+        "description": "If True, features that consist exclusively of missing values when\n`fit` is called are returned in results when `transform` is called.\nThe imputed value is always `0` except when `strategy=\"constant\"`\nin which case `fill_value` will be used instead.\n\n.. versionadded:: 1.2\n"
       }
     ]
   },
@@ -1033,7 +1042,7 @@
     "attributes": [
       {
         "default": "l2",
-        "description": "Specify the norm of the penalty:\n\n- `'none'`: no penalty is added;\n- `'l2'`: add a L2 penalty term and it is the default choice;\n- `'l1'`: add a L1 penalty term;\n- `'elasticnet'`: both L1 and L2 penalty terms are added.\n\n.. warning::\nSome penalties may not work with some solvers. See the parameter\n`solver` below, to know the compatibility between the penalty and\nsolver.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n",
+        "description": "Specify the norm of the penalty:\n\n- `None`: no penalty is added;\n- `'l2'`: add a L2 penalty term and it is the default choice;\n- `'l1'`: add a L1 penalty term;\n- `'elasticnet'`: both L1 and L2 penalty terms are added.\n\n.. warning::\nSome penalties may not work with some solvers. See the parameter\n`solver` below, to know the compatibility between the penalty and\nsolver.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n\n.. deprecated:: 1.2\nThe 'none' option was deprecated in version 1.2, and will be removed\nin 1.4. Use `None` instead.\n",
         "name": "penalty"
       },
       {
@@ -1079,7 +1088,7 @@
       },
       {
         "default": "lbfgs",
-        "description": "\nAlgorithm to use in the optimization problem. Default is 'lbfgs'.\nTo choose a solver, you might want to consider the following aspects:\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag'\nand 'saga' are faster for large ones;\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and\n'lbfgs' handle multinomial loss;\n- 'liblinear' is limited to one-versus-rest schemes.\n\n.. warning::\nThe choice of the algorithm depends on the penalty chosen:\nSupported penalties by solver:\n\n- 'newton-cg'   -   ['l2', 'none']\n- 'lbfgs'       -   ['l2', 'none']\n- 'liblinear'   -   ['l1', 'l2']\n- 'sag'         -   ['l2', 'none']\n- 'saga'        -   ['elasticnet', 'l1', 'l2', 'none']\n\n.. note::\n'sag' and 'saga' fast convergence is only guaranteed on\nfeatures with approximately the same scale. You can\npreprocess the data with a scaler from :mod:`sklearn.preprocessing`.\n\n.. seealso::\nRefer to the User Guide for more information regarding\n:class:`LogisticRegression` and more specifically the\n:ref:`Table <Logistic_regression>`\nsummarizing solver/penalty supports.\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.22\nThe default solver changed from 'liblinear' to 'lbfgs' in 0.22.\n",
+        "description": "\nAlgorithm to use in the optimization problem. Default is 'lbfgs'.\nTo choose a solver, you might want to consider the following aspects:\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag'\nand 'saga' are faster for large ones;\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and\n'lbfgs' handle multinomial loss;\n- 'liblinear' is limited to one-versus-rest schemes.\n- 'newton-cholesky' is a good choice for `n_samples` >> `n_features`,\nespecially with one-hot encoded categorical features with rare\ncategories. Note that it is limited to binary classification and the\none-versus-rest reduction for multiclass classification. Be aware that\nthe memory usage of this solver has a quadratic dependency on\n`n_features` because it explicitly computes the Hessian matrix.\n\n.. warning::\nThe choice of the algorithm depends on the penalty chosen.\nSupported penalties by solver:\n\n- 'lbfgs'           -   ['l2', None]\n- 'liblinear'       -   ['l1', 'l2']\n- 'newton-cg'       -   ['l2', None]\n- 'newton-cholesky' -   ['l2', None]\n- 'sag'             -   ['l2', None]\n- 'saga'            -   ['elasticnet', 'l1', 'l2', None]\n\n.. note::\n'sag' and 'saga' fast convergence is only guaranteed on features\nwith approximately the same scale. You can preprocess the data with\na scaler from :mod:`sklearn.preprocessing`.\n\n.. seealso::\nRefer to the User Guide for more information regarding\n:class:`LogisticRegression` and more specifically the\n:ref:`Table <Logistic_regression>`\nsummarizing solver/penalty supports.\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.22\nThe default solver changed from 'liblinear' to 'lbfgs' in 0.22.\n.. versionadded:: 1.2\nnewton-cholesky solver.\n",
         "name": "solver"
       },
       {
@@ -1142,8 +1151,8 @@
         "optional": true
       },
       {
-        "default": true,
-        "description": "This parameter is ignored when ``fit_intercept`` is set to False.\nIf True, the regressors X will be normalized before regression by\nsubtracting the mean and dividing by the l2-norm.\nIf you wish to standardize, please use\n:class:`~sklearn.preprocessing.StandardScaler` before calling ``fit``\non an estimator with ``normalize=False``.\n\n.. deprecated:: 1.0\n``normalize`` was deprecated in version 1.0. It will default\nto False in 1.2 and be removed in 1.4.\n",
+        "default": false,
+        "description": "This parameter is ignored when ``fit_intercept`` is set to False.\nIf True, the regressors X will be normalized before regression by\nsubtracting the mean and dividing by the l2-norm.\nIf you wish to standardize, please use\n:class:`~sklearn.preprocessing.StandardScaler` before calling ``fit``\non an estimator with ``normalize=False``.\n\n.. versionchanged:: 1.2\ndefault changed from True to False in 1.2.\n\n.. deprecated:: 1.2\n``normalize`` was deprecated in version 1.2 and will be removed in 1.4.\n",
         "name": "normalize",
         "optional": true,
         "type": "boolean"
@@ -1165,7 +1174,8 @@
         "description": "The machine-precision regularization in the computation of the\nCholesky diagonal factors. Increase this for very ill-conditioned\nsystems. Unlike the ``tol`` parameter in some iterative\noptimization-based algorithms, this parameter does not control\nthe tolerance of the optimization.\n",
         "name": "eps",
         "optional": true,
-        "type": "float32"
+        "type": "float32",
+        "default": null
       },
       {
         "default": true,
@@ -1246,7 +1256,7 @@
     "attributes": [
       {
         "default": "l2",
-        "description": "Specify the norm of the penalty:\n\n- `'none'`: no penalty is added;\n- `'l2'`: add a L2 penalty term and it is the default choice;\n- `'l1'`: add a L1 penalty term;\n- `'elasticnet'`: both L1 and L2 penalty terms are added.\n\n.. warning::\nSome penalties may not work with some solvers. See the parameter\n`solver` below, to know the compatibility between the penalty and\nsolver.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n",
+        "description": "Specify the norm of the penalty:\n\n- `None`: no penalty is added;\n- `'l2'`: add a L2 penalty term and it is the default choice;\n- `'l1'`: add a L1 penalty term;\n- `'elasticnet'`: both L1 and L2 penalty terms are added.\n\n.. warning::\nSome penalties may not work with some solvers. See the parameter\n`solver` below, to know the compatibility between the penalty and\nsolver.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n\n.. deprecated:: 1.2\nThe 'none' option was deprecated in version 1.2, and will be removed\nin 1.4. Use `None` instead.\n",
         "name": "penalty",
         "optional": true
       },
@@ -1300,7 +1310,7 @@
       },
       {
         "default": "lbfgs",
-        "description": "\nAlgorithm to use in the optimization problem. Default is 'lbfgs'.\nTo choose a solver, you might want to consider the following aspects:\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag'\nand 'saga' are faster for large ones;\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and\n'lbfgs' handle multinomial loss;\n- 'liblinear' is limited to one-versus-rest schemes.\n\n.. warning::\nThe choice of the algorithm depends on the penalty chosen:\nSupported penalties by solver:\n\n- 'newton-cg'   -   ['l2', 'none']\n- 'lbfgs'       -   ['l2', 'none']\n- 'liblinear'   -   ['l1', 'l2']\n- 'sag'         -   ['l2', 'none']\n- 'saga'        -   ['elasticnet', 'l1', 'l2', 'none']\n\n.. note::\n'sag' and 'saga' fast convergence is only guaranteed on\nfeatures with approximately the same scale. You can\npreprocess the data with a scaler from :mod:`sklearn.preprocessing`.\n\n.. seealso::\nRefer to the User Guide for more information regarding\n:class:`LogisticRegression` and more specifically the\n:ref:`Table <Logistic_regression>`\nsummarizing solver/penalty supports.\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.22\nThe default solver changed from 'liblinear' to 'lbfgs' in 0.22.\n",
+        "description": "\nAlgorithm to use in the optimization problem. Default is 'lbfgs'.\nTo choose a solver, you might want to consider the following aspects:\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag'\nand 'saga' are faster for large ones;\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and\n'lbfgs' handle multinomial loss;\n- 'liblinear' is limited to one-versus-rest schemes.\n- 'newton-cholesky' is a good choice for `n_samples` >> `n_features`,\nespecially with one-hot encoded categorical features with rare\ncategories. Note that it is limited to binary classification and the\none-versus-rest reduction for multiclass classification. Be aware that\nthe memory usage of this solver has a quadratic dependency on\n`n_features` because it explicitly computes the Hessian matrix.\n\n.. warning::\nThe choice of the algorithm depends on the penalty chosen.\nSupported penalties by solver:\n\n- 'lbfgs'           -   ['l2', None]\n- 'liblinear'       -   ['l1', 'l2']\n- 'newton-cg'       -   ['l2', None]\n- 'newton-cholesky' -   ['l2', None]\n- 'sag'             -   ['l2', None]\n- 'saga'            -   ['elasticnet', 'l1', 'l2', None]\n\n.. note::\n'sag' and 'saga' fast convergence is only guaranteed on features\nwith approximately the same scale. You can preprocess the data with\na scaler from :mod:`sklearn.preprocessing`.\n\n.. seealso::\nRefer to the User Guide for more information regarding\n:class:`LogisticRegression` and more specifically the\n:ref:`Table <Logistic_regression>`\nsummarizing solver/penalty supports.\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.22\nThe default solver changed from 'liblinear' to 'lbfgs' in 0.22.\n.. versionadded:: 1.2\nnewton-cholesky solver.\n",
         "name": "solver",
         "optional": true
       },
@@ -1388,7 +1398,7 @@
         "type": "int32"
       },
       {
-        "default": true,
+        "default": "True",
         "description": "Refit an estimator using the best found parameters on the whole\ndataset.\n\nFor multiple metric evaluation, this needs to be a `str` denoting the\nscorer that would be used to find the best parameters for refitting\nthe estimator at the end.\n\nWhere there are considerations other than maximum score in\nchoosing a best estimator, ``refit`` can be set to a function which\nreturns the selected ``best_index_`` given ``cv_results_``. In that\ncase, the ``best_estimator_`` and ``best_params_`` will be set\naccording to the returned ``best_index_`` while the ``best_score_``\nattribute will not be available.\n\nThe refitted estimator is made available at the ``best_estimator_``\nattribute and permits using ``predict`` directly on this\n``GridSearchCV`` instance.\n\nAlso for multiple metric evaluation, the attributes ``best_index_``,\n``best_score_`` and ``best_params_`` will only be available if\n``refit`` is set and all of them will be determined w.r.t this specific\nscorer.\n\nSee ``scoring`` parameter to know more about multiple metric\nevaluation.\n\nSee :ref:`sphx_glr_auto_examples_model_selection_plot_grid_search_digits.py`\nto see how to design a custom selection strategy using a callable\nvia `refit`.\n\n.. versionchanged:: 0.20\nSupport for callable added.\n",
         "name": "refit",
         "type": "boolean"
@@ -1400,7 +1410,8 @@
       },
       {
         "description": "Value to assign to the score if an error occurs in estimator fitting.\nIf set to 'raise', the error is raised. If a numeric value is given,\nFitFailedWarning is raised. This parameter does not affect the refit\nstep, which will always raise the error.\n",
-        "name": "error_score"
+        "name": "error_score",
+        "default": "np.nan"
       },
       {
         "default": false,
@@ -1416,7 +1427,7 @@
     "attributes": [
       {
         "default": "1.0",
-        "description": "Additive (Laplace/Lidstone) smoothing parameter\n(0 for no smoothing).\n",
+        "description": "Additive (Laplace/Lidstone) smoothing parameter\n(set alpha=0 and force_alpha=True, for no smoothing).\n",
         "name": "alpha",
         "optional": true,
         "type": "float32"
@@ -1439,6 +1450,12 @@
         "description": "Prior probabilities of the classes. If specified, the priors are not\nadjusted according to the data.\n",
         "name": "class_prior",
         "optional": true
+      },
+      {
+        "name": "force_alpha",
+        "description": "If False and alpha is less than 1e-10, it will set alpha to\n1e-10. If True, alpha will remain unchanged. This may cause\nnumerical errors if alpha is too close to 0.\n\n.. versionadded:: 1.2\n.. deprecated:: 1.2\nThe default value of `force_alpha` will change to `True` in v1.4.\n",
+        "type": "boolean",
+        "default": false
       }
     ]
   },
@@ -1448,7 +1465,7 @@
     "attributes": [
       {
         "default": "1.0",
-        "description": "Additive (Laplace/Lidstone) smoothing parameter (0 for no smoothing).\n",
+        "description": "Additive (Laplace/Lidstone) smoothing parameter\n(set alpha=0 and force_alpha=True, for no smoothing).\n",
         "name": "alpha",
         "optional": true,
         "type": "float32"
@@ -1472,6 +1489,12 @@
         "name": "norm",
         "optional": true,
         "type": "boolean"
+      },
+      {
+        "name": "force_alpha",
+        "description": "If False and alpha is less than 1e-10, it will set alpha to\n1e-10. If True, alpha will remain unchanged. This may cause\nnumerical errors if alpha is too close to 0.\n\n.. versionadded:: 1.2\n.. deprecated:: 1.2\nThe default value of `force_alpha` will change to `True` in v1.4.\n",
+        "type": "boolean",
+        "default": false
       }
     ]
   },
@@ -1481,7 +1504,7 @@
     "attributes": [
       {
         "default": "1.0",
-        "description": "Additive (Laplace/Lidstone) smoothing parameter\n(0 for no smoothing).\n",
+        "description": "Additive (Laplace/Lidstone) smoothing parameter\n(set alpha=0 and force_alpha=True, for no smoothing).\n",
         "name": "alpha",
         "optional": true,
         "type": "float32"
@@ -1498,6 +1521,12 @@
         "description": "Prior probabilities of the classes. If specified, the priors are not\nadjusted according to the data.\n",
         "name": "class_prior",
         "optional": true
+      },
+      {
+        "name": "force_alpha",
+        "description": "If False and alpha is less than 1e-10, it will set alpha to\n1e-10. If True, alpha will remain unchanged. This may cause\nnumerical errors if alpha is too close to 0.\n\n.. versionadded:: 1.2\n.. deprecated:: 1.2\nThe default value of `force_alpha` will change to `True` in v1.4.\n",
+        "type": "boolean",
+        "default": false
       }
     ]
   },
@@ -1540,7 +1569,7 @@
       },
       {
         "default": "minkowski",
-        "description": "The distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. For a list of available metrics, see the documentation of\n:class:`~sklearn.metrics.DistanceMetric` and the metrics listed in\n`sklearn.metrics.pairwise.PAIRWISE_DISTANCE_FUNCTIONS`. Note that the\n\"cosine\" metric uses :func:`~sklearn.metrics.pairwise.cosine_distances`.\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`,\nin which case only \"nonzero\" elements may be considered neighbors.\n",
+        "description": "Metric to use for distance computation. Default is \"minkowski\", which\nresults in the standard Euclidean distance when p = 2. See the\ndocumentation of `scipy.spatial.distance\n<https://docs.scipy.org/doc/scipy/reference/spatial.distance.html>`_ and\nthe metrics listed in\n:class:`~sklearn.metrics.pairwise.distance_metrics` for valid metric\nvalues.\n\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`, in which\ncase only \"nonzero\" elements may be considered neighbors.\n\nIf metric is a callable function, it takes two arrays representing 1D\nvectors as inputs and must return one value indicating the distance\nbetween those vectors. This works for Scipy's metrics, but is less\nefficient than passing the metric name as a string.\n",
         "name": "metric"
       },
       {
@@ -1596,7 +1625,7 @@
       },
       {
         "default": "minkowski",
-        "description": "The distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. For a list of available metrics, see the documentation of\n:class:`~sklearn.metrics.DistanceMetric` and the metrics listed in\n`sklearn.metrics.pairwise.PAIRWISE_DISTANCE_FUNCTIONS`. Note that the\n\"cosine\" metric uses :func:`~sklearn.metrics.pairwise.cosine_distances`.\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`,\nin which case only \"nonzero\" elements may be considered neighbors.\n",
+        "description": "Metric to use for distance computation. Default is \"minkowski\", which\nresults in the standard Euclidean distance when p = 2. See the\ndocumentation of `scipy.spatial.distance\n<https://docs.scipy.org/doc/scipy/reference/spatial.distance.html>`_ and\nthe metrics listed in\n:class:`~sklearn.metrics.pairwise.distance_metrics` for valid metric\nvalues.\n\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`, in which\ncase only \"nonzero\" elements may be considered neighbors.\n\nIf metric is a callable function, it takes two arrays representing 1D\nvectors as inputs and must return one value indicating the distance\nbetween those vectors. This works for Scipy's metrics, but is less\nefficient than passing the metric name as a string.\n",
         "name": "metric"
       },
       {
@@ -1806,19 +1835,21 @@
   },
   {
     "name": "sklearn.preprocessing._encoders.OneHotEncoder",
-    "description": "\nEncode categorical features as a one-hot numeric array.\n\nThe input to this transformer should be an array-like of integers or\nstrings, denoting the values taken on by categorical (discrete) features.\nThe features are encoded using a one-hot (aka 'one-of-K' or 'dummy')\nencoding scheme. This creates a binary column for each category and\nreturns a sparse matrix or dense array (depending on the ``sparse``\nparameter)\n\nBy default, the encoder derives the categories based on the unique values\nin each feature. Alternatively, you can also specify the `categories`\nmanually.\n\nThis encoding is needed for feeding categorical data to many scikit-learn\nestimators, notably linear models and SVMs with the standard kernels.\n\nNote: a one-hot encoding of y labels should use a LabelBinarizer\ninstead.\n\nRead more in the :ref:`User Guide <preprocessing_categorical_features>`.\n",
+    "description": "\nEncode categorical features as a one-hot numeric array.\n\nThe input to this transformer should be an array-like of integers or\nstrings, denoting the values taken on by categorical (discrete) features.\nThe features are encoded using a one-hot (aka 'one-of-K' or 'dummy')\nencoding scheme. This creates a binary column for each category and\nreturns a sparse matrix or dense array (depending on the ``sparse_output``\nparameter)\n\nBy default, the encoder derives the categories based on the unique values\nin each feature. Alternatively, you can also specify the `categories`\nmanually.\n\nThis encoding is needed for feeding categorical data to many scikit-learn\nestimators, notably linear models and SVMs with the standard kernels.\n\nNote: a one-hot encoding of y labels should use a LabelBinarizer\ninstead.\n\nRead more in the :ref:`User Guide <preprocessing_categorical_features>`.\n",
     "attributes": [
       {
         "description": "Categories (unique values) per feature:\n\n- 'auto' : Determine categories automatically from the training data.\n- list : ``categories[i]`` holds the categories expected in the ith\ncolumn. The passed categories should not mix strings and numeric\nvalues within a single feature, and should be sorted in case of\nnumeric values.\n\nThe used categories can be found in the ``categories_`` attribute.\n\n.. versionadded:: 0.20\n",
-        "name": "categories"
+        "name": "categories",
+        "default": "auto"
       },
       {
         "description": "Specifies a methodology to use to drop one of the categories per\nfeature. This is useful in situations where perfectly collinear\nfeatures cause problems, such as when feeding the resulting data\ninto an unregularized linear regression model.\n\nHowever, dropping one category breaks the symmetry of the original\nrepresentation and can therefore induce a bias in downstream models,\nfor instance for penalized linear classification or regression models.\n\n- None : retain all features (the default).\n- 'first' : drop the first category in each feature. If only one\ncategory is present, the feature will be dropped entirely.\n- 'if_binary' : drop the first category in each feature with two\ncategories. Features with 1 or more than 2 categories are\nleft intact.\n- array : ``drop[i]`` is the category in feature ``X[:, i]`` that\nshould be dropped.\n\n.. versionadded:: 0.21\nThe parameter `drop` was added in 0.21.\n\n.. versionchanged:: 0.23\nThe option `drop='if_binary'` was added in 0.23.\n\n.. versionchanged:: 1.1\nSupport for dropping infrequent categories.\n",
-        "name": "drop"
+        "name": "drop",
+        "default": null
       },
       {
         "default": true,
-        "description": "Will return sparse matrix if set True else will return an array.\n",
+        "description": "Will return sparse matrix if set True else will return an array.\n\n.. deprecated:: 1.2\n`sparse` is deprecated in 1.2 and will be removed in 1.4. Use\n`sparse_output` instead.\n",
         "name": "sparse",
         "type": "boolean"
       },
@@ -1842,6 +1873,16 @@
         "description": "Specifies an upper limit to the number of output features for each input\nfeature when considering infrequent categories. If there are infrequent\ncategories, `max_categories` includes the category representing the\ninfrequent categories along with the frequent categories. If `None`,\nthere is no limit to the number of output features.\n\n.. versionadded:: 1.1\nRead more in the :ref:`User Guide <one_hot_encoder_infrequent_categories>`.\n",
         "type": "int32",
         "default": null
+      },
+      {
+        "name": "sparse_output",
+        "default": true,
+        "description": "Will return sparse matrix if set True else will return an array.\n\n.. versionadded:: 1.2\n`sparse` was renamed to `sparse_output`\n"
+      },
+      {
+        "name": "feature_name_combiner",
+        "default": "\"concat\"",
+        "description": "Callable with signature `def callable(input_feature, category)` that returns a\nstring. This is used to create feature names to be returned by\n:meth:`get_feature_names_out`.\n\n`\"concat\"` concatenates encoded feature name and category with\n`feature + \"_\" + str(category)`.E.g. feature X with values 1, 6, 7 create\nfeature names `X_1, X_6, X_7`.\n\n.. versionadded:: 1.3\n"
       }
     ]
   },
@@ -1979,7 +2020,7 @@
   },
   {
     "name": "sklearn.svm.SVC",
-    "description": "C-Support Vector Classification.\n\nThe implementation is based on libsvm. The fit time scales at least\nquadratically with the number of samples and may be impractical\nbeyond tens of thousands of samples. For large datasets\nconsider using :class:`~sklearn.svm.LinearSVC` or\n:class:`~sklearn.linear_model.SGDClassifier` instead, possibly after a\n:class:`~sklearn.kernel_approximation.Nystroem` transformer.\n\nThe multiclass support is handled according to a one-vs-one scheme.\n\nFor details on the precise mathematical formulation of the provided\nkernel functions and how `gamma`, `coef0` and `degree` affect each\nother, see the corresponding section in the narrative documentation:\n:ref:`svm_kernels`.\n\nRead more in the :ref:`User Guide <svm_classification>`.\n",
+    "description": "C-Support Vector Classification.\n\nThe implementation is based on libsvm. The fit time scales at least\nquadratically with the number of samples and may be impractical\nbeyond tens of thousands of samples. For large datasets\nconsider using :class:`~sklearn.svm.LinearSVC` or\n:class:`~sklearn.linear_model.SGDClassifier` instead, possibly after a\n:class:`~sklearn.kernel_approximation.Nystroem` transformer or\nother :ref:`kernel_approximation`.\n\nThe multiclass support is handled according to a one-vs-one scheme.\n\nFor details on the precise mathematical formulation of the provided\nkernel functions and how `gamma`, `coef0` and `degree` affect each\nother, see the corresponding section in the narrative documentation:\n:ref:`svm_kernels`.\n\nRead more in the :ref:`User Guide <svm_classification>`.\n",
     "attributes": [
       {
         "default": 1.0,
@@ -1997,14 +2038,14 @@
       },
       {
         "default": 3,
-        "description": "Degree of the polynomial kernel function ('poly').\nIgnored by all other kernels.\n",
+        "description": "Degree of the polynomial kernel function ('poly').\nMust be non-negative. Ignored by all other kernels.\n",
         "name": "degree",
         "optional": true,
         "type": "int32"
       },
       {
-        "default": "auto",
-        "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\n- if ``gamma='scale'`` (default) is passed then it uses\n1 / (n_features * X.var()) as value of gamma,\n- if 'auto', uses 1 / n_features.\n\n.. versionchanged:: 0.22\nThe default value of ``gamma`` changed from 'auto' to 'scale'.\n",
+        "default": "scale",
+        "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\n- if ``gamma='scale'`` (default) is passed then it uses\n1 / (n_features * X.var()) as value of gamma,\n- if 'auto', uses 1 / n_features\n- if float, must be non-negative.\n\n.. versionchanged:: 0.22\nThe default value of ``gamma`` changed from 'auto' to 'scale'.\n",
         "name": "gamma",
         "optional": true,
         "type": "float32"
@@ -2086,7 +2127,7 @@
   },
   {
     "name": "sklearn.svm.SVC",
-    "description": "C-Support Vector Classification.\n\nThe implementation is based on libsvm. The fit time scales at least\nquadratically with the number of samples and may be impractical\nbeyond tens of thousands of samples. For large datasets\nconsider using :class:`~sklearn.svm.LinearSVC` or\n:class:`~sklearn.linear_model.SGDClassifier` instead, possibly after a\n:class:`~sklearn.kernel_approximation.Nystroem` transformer.\n\nThe multiclass support is handled according to a one-vs-one scheme.\n\nFor details on the precise mathematical formulation of the provided\nkernel functions and how `gamma`, `coef0` and `degree` affect each\nother, see the corresponding section in the narrative documentation:\n:ref:`svm_kernels`.\n\nRead more in the :ref:`User Guide <svm_classification>`.\n",
+    "description": "C-Support Vector Classification.\n\nThe implementation is based on libsvm. The fit time scales at least\nquadratically with the number of samples and may be impractical\nbeyond tens of thousands of samples. For large datasets\nconsider using :class:`~sklearn.svm.LinearSVC` or\n:class:`~sklearn.linear_model.SGDClassifier` instead, possibly after a\n:class:`~sklearn.kernel_approximation.Nystroem` transformer or\nother :ref:`kernel_approximation`.\n\nThe multiclass support is handled according to a one-vs-one scheme.\n\nFor details on the precise mathematical formulation of the provided\nkernel functions and how `gamma`, `coef0` and `degree` affect each\nother, see the corresponding section in the narrative documentation:\n:ref:`svm_kernels`.\n\nRead more in the :ref:`User Guide <svm_classification>`.\n",
     "attributes": [
       {
         "default": 1.0,
@@ -2104,14 +2145,14 @@
       },
       {
         "default": 3,
-        "description": "Degree of the polynomial kernel function ('poly').\nIgnored by all other kernels.\n",
+        "description": "Degree of the polynomial kernel function ('poly').\nMust be non-negative. Ignored by all other kernels.\n",
         "name": "degree",
         "optional": true,
         "type": "int32"
       },
       {
-        "default": "auto",
-        "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\n- if ``gamma='scale'`` (default) is passed then it uses\n1 / (n_features * X.var()) as value of gamma,\n- if 'auto', uses 1 / n_features.\n\n.. versionchanged:: 0.22\nThe default value of ``gamma`` changed from 'auto' to 'scale'.\n",
+        "default": "scale",
+        "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\n- if ``gamma='scale'`` (default) is passed then it uses\n1 / (n_features * X.var()) as value of gamma,\n- if 'auto', uses 1 / n_features\n- if float, must be non-negative.\n\n.. versionchanged:: 0.22\nThe default value of ``gamma`` changed from 'auto' to 'scale'.\n",
         "name": "gamma",
         "optional": true,
         "type": "float32"

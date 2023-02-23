@@ -1,15 +1,15 @@
 
 // Experimental
 
-var numpy = numpy || {};
-var python = python || require('./python');
+var numpy = {};
+var python = require('./python');
 
 numpy.ModelFactory = class {
 
     match(context) {
         const stream = context.stream;
         const signature = [ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59 ];
-        if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
+        if (stream && signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
             return { name: 'npy' };
         }
         const entries = context.entries('zip');
@@ -21,11 +21,11 @@ numpy.ModelFactory = class {
             if (numpy.Utility.isTensor(obj)) {
                 return { name: 'numpy.ndarray', value: obj };
             }
-            if (Array.isArray(obj) && obj.every((obj) => obj && obj.__class__ && obj.__class__.__name__ === 'Network' && (obj.__class__.__module__ === 'dnnlib.tflib.network' || obj.__class__.__module__ === 'tfutil'))) {
+            if (Array.isArray(obj) && obj.length > 0 && obj.every((obj) => obj && obj.__class__ && obj.__class__.__name__ === 'Network' && (obj.__class__.__module__ === 'dnnlib.tflib.network' || obj.__class__.__module__ === 'tfutil'))) {
                 return { name: 'dnnlib.tflib.network', value: obj };
             }
             const weights = numpy.Utility.weights(obj);
-            if (weights) {
+            if (weights && weights.size > 0) {
                 return { name: 'pickle', value: weights };
             }
         }
@@ -38,7 +38,7 @@ numpy.ModelFactory = class {
         switch (match.name) {
             case 'npy': {
                 format = 'NumPy Array';
-                const execution = new python.Execution(null);
+                const execution = new python.Execution();
                 const stream = context.stream;
                 const buffer = stream.peek();
                 const bytes = execution.invoke('io.BytesIO', [ buffer ]);
@@ -50,7 +50,7 @@ numpy.ModelFactory = class {
             case 'npz': {
                 format = 'NumPy Zip';
                 const layers = new Map();
-                const execution = new python.Execution(null);
+                const execution = new python.Execution();
                 for (const entry of match.value) {
                     if (!entry[0].endsWith('.npy')) {
                         throw new numpy.Error("Invalid file name '" + entry.name + "'.");
@@ -66,14 +66,7 @@ numpy.ModelFactory = class {
                     const stream = entry[1];
                     const buffer = stream.peek();
                     const bytes = execution.invoke('io.BytesIO', [ buffer ]);
-                    let array = execution.invoke('numpy.load', [ bytes ]);
-                    if (array.dtype.byteorder === '|' && array.dtype.itemsize !== 1) {
-                        if (array.dtype.kind !== 'O') {
-                            throw new numpy.Error("Invalid data type '" + array.dataType + "'.");
-                        }
-                        const unpickler = python.Unpickler.open(array.data, execution);
-                        array = unpickler.load();
-                    }
+                    const array = execution.invoke('numpy.load', [ bytes ]);
                     layer.parameters.push({
                         name: parameterName,
                         tensor: { name: name, array: array }
@@ -85,25 +78,36 @@ numpy.ModelFactory = class {
             case 'pickle': {
                 format = 'NumPy Weights';
                 const layers = new Map();
+                const layer = (name) => {
+                    if (!layers.has(name)) {
+                        layers.set(name, { name: name, parameters: [] });
+                    }
+                    return layers.get(name);
+                };
                 const weights = match.value;
-                let separator = '.';
-                if (Array.from(weights.keys()).filter((key) => key.indexOf('_') !== -1) &&
-                    Array.from(weights.keys()).every((key) => key.indexOf('_') > key.indexOf('.'))) {
+                let separator = undefined;
+                if (Array.from(weights.keys()).every((key) => key.indexOf('.') !== -1)) {
+                    separator = '.';
+                }
+                if (Array.from(weights.keys()).every((key) => key.indexOf('_') > key.indexOf('.'))) {
                     separator = '_';
                 }
                 for (const pair of weights) {
                     const name = pair[0];
-                    const array = pair[1];
-                    const parts = name.split(separator);
-                    const parameterName = parts.length > 1 ? parts.pop() : '?';
-                    const layerName = parts.join(separator);
+                    const value = pair[1];
+                    if (name.endsWith('.__class__')) {
+                        layer(name.substring(0, name.length - 10)).type = value;
+                        continue;
+                    }
+                    const parts = separator ? name.split(separator) : null;
+                    const parameterName = separator ? parts.pop() : name;
+                    const layerName = separator ? parts.join(separator) : '';
                     if (!layers.has(layerName)) {
                         layers.set(layerName, { name: layerName, parameters: [] });
                     }
-                    const layer = layers.get(layerName);
-                    layer.parameters.push({
+                    layer(layerName).parameters.push({
                         name: parameterName,
-                        tensor: { name: name, array: array }
+                        tensor: { name: name, array: value }
                     });
                 }
                 graphs.push({ layers: Array.from(layers.values()) });
@@ -239,7 +243,7 @@ numpy.Node = class {
 
     constructor(layer) {
         this._name = layer.name || '';
-        this._type = { name: layer.type || '{}' };
+        this._type = { name: layer.type || 'Object' };
         this._inputs = [];
         for (const parameter of layer.parameters) {
             const initializer = new numpy.Tensor(parameter.tensor.array);
@@ -274,150 +278,24 @@ numpy.Tensor = class  {
 
     constructor(array) {
         this._type = new numpy.TensorType(array.dtype.__name__, new numpy.TensorShape(array.shape));
-        this._data = array.tobytes();
         this._byteorder = array.dtype.byteorder;
-        this._itemsize = array.dtype.itemsize;
+        this._data = this._type.dataType == 'string' || this._type.dataType == 'object' ? array.tolist() : array.tobytes();
     }
 
-    get type(){
+    get type() {
         return this._type;
     }
 
-    get state() {
-        return this._context().state;
+    get category() {
+        return 'NumPy Array';
     }
 
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
+    get layout() {
+        return this._type.dataType == 'string' || this._type.dataType == 'object' ? '|' : this._byteorder;
     }
 
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return numpy.Tensor._stringify(value, '', '    ');
-    }
-
-    _context() {
-        const context = {};
-        context.index = 0;
-        context.count = 0;
-        context.state = null;
-        if (this._byteorder !== '<' && this._byteorder !== '>' && this._type.dataType !== 'uint8' && this._type.dataType !== 'int8') {
-            context.state = 'Tensor byte order is not supported.';
-            return context;
-        }
-        if (!this._data || this._data.length == 0) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-        context.itemSize = this._itemsize;
-        context.dimensions = this._type.shape.dimensions;
-        context.dataType = this._type.dataType;
-        context.littleEndian = this._byteorder == '<';
-        context.data = this._data;
-        context.rawData = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const littleEndian = context.littleEndian;
-        const shape = context.dimensions.length == 0 ? [ 1 ] : context.dimensions;
-        const results = [];
-        const size = shape[dimension];
-        if (dimension == shape.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                if (context.rawData) {
-                    switch (context.dataType) {
-                        case 'float16':
-                            results.push(context.rawData.getFloat16(context.index, littleEndian));
-                            break;
-                        case 'float32':
-                            results.push(context.rawData.getFloat32(context.index, littleEndian));
-                            break;
-                        case 'float64':
-                            results.push(context.rawData.getFloat64(context.index, littleEndian));
-                            break;
-                        case 'int8':
-                            results.push(context.rawData.getInt8(context.index, littleEndian));
-                            break;
-                        case 'int16':
-                            results.push(context.rawData.getInt16(context.index, littleEndian));
-                            break;
-                        case 'int32':
-                            results.push(context.rawData.getInt32(context.index, littleEndian));
-                            break;
-                        case 'int64':
-                            results.push(context.rawData.getInt64(context.index, littleEndian));
-                            break;
-                        case 'uint8':
-                            results.push(context.rawData.getUint8(context.index, littleEndian));
-                            break;
-                        case 'uint16':
-                            results.push(context.rawData.getUint16(context.index, littleEndian));
-                            break;
-                        case 'uint32':
-                            results.push(context.rawData.getUint32(context.index, littleEndian));
-                            break;
-                        default:
-                            throw new numpy.Error("Unsupported tensor data type '" + context.dataType + "'.");
-                    }
-                    context.index += context.itemSize;
-                    context.count++;
-                }
-            }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        if (context.dimensions.length == 0) {
-            return results[0];
-        }
-        return results;
-    }
-
-    static _stringify(value, indentation, indent) {
-        if (Array.isArray(value)) {
-            const result = [];
-            result.push(indentation + '[');
-            const items = value.map((item) => numpy.Tensor._stringify(item, indentation + indent, indent));
-            if (items.length > 0) {
-                result.push(items.join(',\n'));
-            }
-            result.push(indentation + ']');
-            return result.join('\n');
-        }
-        if (typeof value == 'string') {
-            return indentation + value;
-        }
-        if (value == Infinity) {
-            return indentation + 'Infinity';
-        }
-        if (value == -Infinity) {
-            return indentation + '-Infinity';
-        }
-        if (isNaN(value)) {
-            return indentation + 'NaN';
-        }
-        return indentation + value.toString();
+    get values() {
+        return this._data;
     }
 };
 
@@ -508,6 +386,9 @@ numpy.Utility = class {
                             }
                             if (value && !Array.isArray(value) && Object.entries(value).every((entry) => numpy.Utility.isTensor(entry[1]))) {
                                 const name = key;
+                                if (value && value.__class__ && value.__class__.__module__ && value.__class__.__name__) {
+                                    weights.set(name + '.__class__', value.__class__.__module__ + '.' + value.__class__.__name__);
+                                }
                                 for (const entry of Object.entries(value)) {
                                     weights.set(name + '.' + entry[0], entry[1]);
                                 }
@@ -522,16 +403,9 @@ numpy.Utility = class {
             return null;
         };
         const list = (obj, key) => {
-            const list = key === '' ? obj : obj[key];
+            let list = key === '' ? obj : obj[key];
             if (list && Array.isArray(list) && list.every((obj) => Object.entries(obj).every((entry) => numpy.Utility.isTensor(entry[1])))) {
-                const weights = new Map();
-                for (let i = 0; i < list.length; i++) {
-                    const obj = list[i];
-                    for (const entry of Object.entries(obj)) {
-                        weights.set(i.toString() + '.' + entry[0], entry[1]);
-                    }
-                }
-                return weights;
+                list = list.map((obj) => obj instanceof Map ? obj : new Map(Object.entries(obj)));
             }
             if (list && Array.isArray(list)) {
                 const weights = new Map();
@@ -553,7 +427,7 @@ numpy.Utility = class {
             }
             return null;
         };
-        const keys = [ '', 'blobs', 'model' ];
+        const keys = [ '', 'blobs', 'model', 'experiment_state' ];
         for (const key of keys) {
             const weights = dict(obj, key);
             if (weights && weights.size > 0) {

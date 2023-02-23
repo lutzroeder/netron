@@ -1,0 +1,414 @@
+[
+  {
+    "name": "End"
+  },
+  {
+    "name": "Wildcard"
+  },
+  {
+    "name": "StaticReshape",
+    "category": "Shape"
+  },
+  {
+    "name": "AvgPoolBackward",
+    "category": "Pool"
+  },
+  {
+    "name": "AvgPool",
+    "category": "Pool"
+  },
+  {
+    "name": "MaxPoolBackward",
+    "category": "Pool"
+  },
+  {
+    "name": "MaxPool",
+    "category": "Pool"
+  },
+  {
+    "name": "LayerNormBackward",
+    "category": "Normalization",
+    "inputs": [
+      { "name": "input" },
+      { "name": "diff_dst" },
+      { "name": "mean" },
+      { "name": "variance" },
+      { "name": "gamma" },
+      { "name": "beta" }
+    ],
+    "outputs": [
+      { "name": "diff_src" },
+      { "name": "diff_gamma" },
+      { "name": "diff_beta" }
+    ]
+  },
+  {
+    "name": "BatchNormInference",
+    "category": "Normalization",
+    "inputs": [
+      { "name": "input" },
+      { "name": "gamma" },
+      { "name": "beta" },
+      { "name": "mean" },
+      { "name": "variance" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "BatchNormTrainingBackward",
+    "category": "Normalization",
+    "inputs": [
+      { "name": "input" },
+      { "name": "diff_dst" },
+      { "name": "mean" },
+      { "name": "variance" },
+      { "name": "gamma" }
+    ],
+    "outputs": [
+      { "name": "diff_src" },
+      { "name": "diff_gamma" },
+      { "name": "diff_beta" }
+    ]
+  },
+  {
+    "name": "BatchNormForwardTraining",
+    "category": "Normalization",
+    "inputs": [
+      { "name": "input" },
+      { "name": "mean" },
+      { "name": "variance" },
+      { "name": "gamma" },
+      { "name": "beta" }
+    ],
+    "outputs": [
+      { "name": "output" },
+      { "name": "running_mean" },
+      { "name": "running_variance" },
+      { "name": "batch_mean" },
+      { "name": "batch_variance" }
+    ]
+  },
+  {
+    "name": "LayerNorm",
+    "category": "Normalization",
+    "inputs": [
+      { "name": "input" },
+      { "name": "gamma" },
+      { "name": "beta" }
+    ],
+    "outputs": [
+      { "name": "dst" },
+      { "name": "mean" },
+      { "name": "variance" }
+    ]
+  },
+  {
+    "name": "DynamicDequantize",
+    "category": "Quantization"
+  },
+  {
+    "name": "DynamicQuantize",
+    "category": "Quantization"
+  },
+  {
+    "name": "Dequantize",
+    "category": "Quantization"
+  },
+  {
+    "name": "Quantize",
+    "category": "Quantization"
+  },
+  {
+    "name": "TypeCast",
+    "category": "Quantization"
+  },
+  {
+    "name": "ReLU",
+    "category": "Activation"
+  },
+  {
+    "name": "Sigmoid",
+    "category": "Activation"
+  },
+  {
+    "name": "SoftMaxBackward",
+    "category": "Activation"
+  },
+  {
+    "name": "MishBackward",
+    "category": "Activation"
+  },
+  {
+    "name": "GELU",
+    "category": "Activation"
+  },
+  {
+    "name": "ClampBackward",
+    "category": "Activation"
+  },
+  {
+    "name": "Mish",
+    "category": "Activation"
+  },
+  {
+    "name": "PReLU",
+    "category": "Activation"
+  },
+  {
+    "name": "SigmoidBackward",
+    "category": "Activation"
+  },
+  {
+    "name": "LogSoftmax",
+    "category": "Activation"
+  },
+  {
+    "name": "Clamp",
+    "category": "Activation"
+  },
+  {
+    "name": "TanhBackward",
+    "category": "Activation"
+  },
+  {
+    "name": "ReLUBackward",
+    "category": "Activation"
+  },
+  {
+    "name": "Exp",
+    "category": "Activation"
+  },
+  {
+    "name": "SoftMax",
+    "category": "Activation"
+  },
+  {
+    "name": "HardSwish",
+    "category": "Activation"
+  },
+  {
+    "name": "LeakyReLU",
+    "category": "Activation"
+  },
+  {
+    "name": "LogSoftmaxBackward",
+    "category": "Activation"
+  },
+  {
+    "name": "Tanh",
+    "category": "Activation"
+  },
+  {
+    "name": "Elu",
+    "category": "Activation"
+  },
+  {
+    "name": "SoftPlus",
+    "category": "Activation"
+  },
+  {
+    "name": "EluBackward",
+    "category": "Activation"
+  },
+  {
+    "name": "GELUBackward",
+    "category": "Activation"
+  },
+  {
+    "name": "SoftPlusBackward",
+    "category": "Activation"
+  },
+  {
+    "name": "PReLUBackward",
+    "category": "Activation"
+  },
+  {
+    "name": "HardSwishBackward",
+    "category": "Activation"
+  },
+  {
+    "name": "Interpolate"
+  },
+  {
+    "name": "InterpolateBackward"
+  },
+  {
+    "name": "ReduceMax"
+  },
+  {
+    "name": "ReduceL2"
+  },
+  {
+    "name": "ReduceL1"
+  },
+  {
+    "name": "ReduceSum"
+  },
+  {
+    "name": "ReduceProd"
+  },
+  {
+    "name": "ReduceMean"
+  },
+  {
+    "name": "ReduceMin"
+  },
+  {
+    "name": "Reorder",
+    "category": "Transform"
+  },
+  {
+    "name": "Concat",
+    "category": "Tensor"
+  },
+  {
+    "name": "StaticTranspose",
+    "category": "Transform"
+  },
+  {
+    "name": "Abs"
+  },
+  {
+    "name": "Sqrt"
+  },
+  {
+    "name": "Round"
+  },
+  {
+    "name": "Subtract"
+  },
+  {
+    "name": "Erf"
+  },
+  {
+    "name": "Minimum"
+  },
+  {
+    "name": "Reciprocal"
+  },
+  {
+    "name": "BiasAddBackward"
+  },
+  {
+    "name": "Divide"
+  },
+  {
+    "name": "SquaredDifference"
+  },
+  {
+    "name": "Multiply"
+  },
+  {
+    "name": "AbsBackward"
+  },
+  {
+    "name": "Square"
+  },
+  {
+    "name": "Maximum"
+  },
+  {
+    "name": "Add"
+  },
+  {
+    "name": "SqrtBackward"
+  },
+  {
+    "name": "Log"
+  },
+  {
+    "name": "BiasAdd",
+    "inputs": [
+      { "name": "input" },
+      { "name": "bias" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "ConvTranspose",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Convolution",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "ConvTransposeBackwardData",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "ConvolutionBackwardData",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "dst_shape" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "ConvolutionBackwardWeights",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "diff_dst" },
+      { "name": "weights_shape" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "ConvTransposeBackwardWeights",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "diff_dst" },
+      { "name": "weights_shape" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "MatMul",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  }
+]

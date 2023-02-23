@@ -68,6 +68,12 @@
     ]
   },
   {
+    "name": "AdamWeightDecay",
+    "attributes": [
+      { "name": "use_locking", "type": "boolean", "default": false }
+    ]
+  },
+  {
     "name": "Add",
     "attributes": [
       { "name": "ActivationType", "type": "ActivationType" }
@@ -263,7 +269,12 @@
     ]
   },
   {
-    "name": "Attention"
+    "name": "Attention",
+    "attributes": [
+      { "name": "head_num", "type": "int64", "default": 0 },
+      { "name": "head_size", "type": "int64", "default": 0 },
+      { "name": "cross", "type": "boolean", "default": false }
+    ]
   },
   {
     "name": "AudioSpectrogram",
@@ -882,7 +893,8 @@
     "attributes": [
       { "name": "blockSize", "type": "int32", "default": 0 },
       { "name": "format", "type": "Format", "default": "NCHW" },
-      { "name": "block_size", "type": "int64", "default": 0 }
+      { "name": "block_size", "type": "int64", "default": 0 },
+      { "name": "mode", "type": "string", "default": null }
     ],
     "inputs": [
       { "name": "input" }
@@ -1164,6 +1176,9 @@
   },
   {
     "name": "Flatten",
+    "attributes": [
+      { "name": "axis", "type": "int64", "default": 0 }
+    ],
     "inputs": [
       { "name": "input" }
     ],
@@ -1556,6 +1571,9 @@
     ]
   },
   {
+    "name": "Log1p"
+  },
+  {
     "name": "LogGrad",
     "inputs": [
       { "name": "dy" },
@@ -1776,6 +1794,13 @@
       { "name": "transpose_a", "type": "boolean", "default": false },
       { "name": "transpose_b", "type": "boolean", "default": false },
       { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
+    ],
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ],
+    "outputs": [
+      { "name": "C" }
     ]
   },
   {
@@ -2230,7 +2255,8 @@
       { "name": "srcT", "type": "int32", "default": 0 },
       { "name": "dstT", "type": "int32", "default": 0 },
       { "name": "src_t", "type": "int64", "default": 0 },
-      { "name": "dst_t", "type": "int64", "default": 0 }
+      { "name": "dst_t", "type": "int64", "default": 0 },
+      { "name": "axis", "type": "int64", "default": 0 }
     ],
     "inputs": [
       { "name": "input" }
@@ -2495,6 +2521,12 @@
     ]
   },
   {
+    "name": "ScatterElements",
+    "attributes": [
+      { "name": "axis", "type": "int64", "default": 0 }
+    ]
+  },
+  {
     "name": "ScatterNd"
   },
   {
@@ -2692,6 +2724,15 @@
     "outputs": [
       { "name": "output" }
     ]
+  },
+  {
+    "name": "SparseFillEmptyRows"
+  },
+  {
+    "name": "SparseReshape"
+  },
+  {
+    "name": "SparseSegmentSum"
   },
   {
     "name": "SparseSoftmaxCrossEntropyWithLogits",
@@ -2944,6 +2985,9 @@
     ]
   },
   {
+    "name": "TensorScatterAdd"
+  },
+  {
     "name": "TfReduce",
     "attributes": [
       { "name": "type", "type": "ReduceType" }
@@ -3011,6 +3055,12 @@
     "outputs": [
       { "name": "output" }
     ]
+  },
+  {
+    "name": "Tril"
+  },
+  {
+    "name": "Triu"
   },
   {
     "name": "TupleGetItem",

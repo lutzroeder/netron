@@ -1,0 +1,3526 @@
+[
+  {
+    "name": "megengine.distributed.functional.all_gather",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "group" },
+      { "name": "device" },
+      { "name": "axis" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.distributed.functional.all_reduce_max",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "group" },
+      { "name": "device" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.distributed.functional.all_reduce_min",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "group" },
+      { "name": "device" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.distributed.functional.all_reduce_sum",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "group" },
+      { "name": "device" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.distributed.functional.all_to_all",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "group" },
+      { "name": "device" },
+      { "name": "split_axis" },
+      { "name": "concat_axis" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.distributed.functional.broadcast",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "group" },
+      { "name": "device" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.distributed.functional.collective_comm",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "mode" },
+      { "name": "group" },
+      { "name": "device" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.distributed.functional.gather",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "group" },
+      { "name": "device" },
+      { "name": "axis" }
+    ],
+    "category": "Transform"
+  },
+  {
+    "name": "megengine.distributed.functional.reduce_scatter_sum",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "group" },
+      { "name": "device" },
+      { "name": "axis" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.distributed.functional.reduce_sum",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "group" },
+      { "name": "device" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.distributed.functional.remote_recv",
+    "attributes": [
+      { "name": "src_rank" },
+      { "name": "device" },
+      { "name": "inp" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.distributed.functional.remote_send",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "dest_rank" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.distributed.functional.scatter",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "group" },
+      { "name": "device" },
+      { "name": "axis" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.elemwise.abs",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.add",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.acos",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.asin",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.atan",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.atan2",
+    "attributes": [
+      { "name": "y" },
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.asinh",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.acosh",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.atanh",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.ceil",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.clip",
+    "attributes": [
+      { "name": "x" },
+      { "name": "lower" },
+      { "name": "upper" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.cos",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.cosh",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.div",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.equal",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.exp",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.expm1",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.floor",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.floor_div",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.greater",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.greater_equal",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.left_shift",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.less",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.less_equal",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.log",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.log1p",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.logical_and",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.logical_not",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.logical_or",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.logical_xor",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.logaddexp",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.maximum",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.minimum",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.mod",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.mul",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.neg",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.not_equal",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.pow",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.right_shift",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.round",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.sin",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.sinh",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.sqrt",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.square",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.sub",
+    "attributes": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.tan",
+    "attributes": [
+      { "name": "x" }
+    ]
+  },
+  {
+    "name": "megengine.functional.elemwise.tanh",
+    "attributes": [
+      { "name": "x" }
+    ],
+    "category": "Activation"
+  },
+  {
+    "name": "megengine.functional.loss.l1_loss",
+    "attributes": [],
+    "category": "Layer",
+    "varargs": "args"
+  },
+  {
+    "name": "megengine.functional.loss.square_loss",
+    "attributes": [],
+    "category": "Layer",
+    "varargs": "args"
+  },
+  {
+    "name": "megengine.functional.loss.cross_entropy",
+    "attributes": [],
+    "category": "Layer",
+    "varargs": "args"
+  },
+  {
+    "name": "megengine.functional.loss.binary_cross_entropy",
+    "attributes": [],
+    "category": "Layer",
+    "varargs": "args"
+  },
+  {
+    "name": "megengine.functional.loss.hinge_loss",
+    "attributes": [],
+    "category": "Layer",
+    "varargs": "args"
+  },
+  {
+    "name": "megengine.functional.loss.ctc_loss",
+    "attributes": [
+      { "name": "pred" },
+      { "name": "pred_lengths" },
+      { "name": "label" },
+      { "name": "label_lengths" },
+      { "name": "blank" },
+      { "name": "reduction" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.math.argmax",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "axis" },
+      { "name": "keepdims" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.math.argmin",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "axis" },
+      { "name": "keepdims" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.math.argsort",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "descending" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.math.dot",
+    "attributes": [
+      { "name": "inp1" },
+      { "name": "inp2" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.math.isinf",
+    "attributes": [
+      { "name": "inp" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.math.isnan",
+    "attributes": [
+      { "name": "inp" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.math.matinv",
+    "attributes": [
+      { "name": "inp" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.math.matmul",
+    "attributes": [
+      { "name": "inp1" },
+      { "name": "inp2" },
+      { "name": "transpose_a" },
+      { "name": "transpose_b" },
+      { "name": "compute_mode" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.math.max",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "axis" },
+      { "name": "keepdims" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.math.mean",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "axis" },
+      { "name": "keepdims" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.math.min",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "axis" },
+      { "name": "keepdims" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.math.norm",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "ord" },
+      { "name": "axis" },
+      { "name": "keepdims" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.math.normalize",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "ord" },
+      { "name": "axis" },
+      { "name": "eps" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.math.prod",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "axis" },
+      { "name": "keepdims" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.math.sign",
+    "attributes": [
+      { "name": "inp" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.math.sort",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "descending" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.math.std",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "axis" },
+      { "name": "keepdims" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.math.sum",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "axis" },
+      { "name": "keepdims" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.math.svd",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "full_matrices" },
+      { "name": "compute_uv" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.math.topk",
+    "attributes": [],
+    "category": "Layer",
+    "varargs": "args"
+  },
+  {
+    "name": "megengine.functional.math.var",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "axis" },
+      { "name": "keepdims" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.metric.topk_accuracy",
+    "attributes": [
+      { "name": "logits" },
+      { "name": "target" },
+      { "name": "topk" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.adaptive_avg_pool2d",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "oshp" }
+    ],
+    "category": "Pool"
+  },
+  {
+    "name": "megengine.functional.nn.adaptive_max_pool2d",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "oshp" }
+    ],
+    "category": "Pool"
+  },
+  {
+    "name": "megengine.functional.nn.avg_pool2d",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "kernel_size" },
+      { "name": "stride" },
+      { "name": "padding" },
+      { "name": "mode" }
+    ],
+    "category": "Pool"
+  },
+  {
+    "name": "megengine.functional.nn.batch_norm",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "running_mean" },
+      { "name": "running_var" },
+      { "name": "weight" },
+      { "name": "bias" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.conv1d",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "weight" },
+      { "name": "bias" },
+      { "name": "stride" },
+      { "name": "padding" },
+      { "name": "dilation" },
+      { "name": "groups" },
+      { "name": "conv_mode" },
+      { "name": "compute_mode" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.conv2d",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "weight" },
+      { "name": "bias" },
+      { "name": "stride" },
+      { "name": "padding" },
+      { "name": "dilation" },
+      { "name": "groups" },
+      { "name": "conv_mode" },
+      { "name": "compute_mode" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.conv3d",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "weight" },
+      { "name": "bias" },
+      { "name": "stride" },
+      { "name": "padding" },
+      { "name": "dilation" },
+      { "name": "groups" },
+      { "name": "conv_mode" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.conv_transpose2d",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "weight" },
+      { "name": "bias" },
+      { "name": "stride" },
+      { "name": "padding" },
+      { "name": "dilation" },
+      { "name": "groups" },
+      { "name": "conv_mode" },
+      { "name": "compute_mode" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.conv_transpose3d",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "weight" },
+      { "name": "bias" },
+      { "name": "stride" },
+      { "name": "padding" },
+      { "name": "dilation" },
+      { "name": "groups" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.deformable_conv2d",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "weight" },
+      { "name": "offset" },
+      { "name": "mask" },
+      { "name": "bias" },
+      { "name": "stride" },
+      { "name": "padding" },
+      { "name": "dilation" },
+      { "name": "groups" },
+      { "name": "conv_mode" },
+      { "name": "compute_mode" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.deformable_psroi_pooling",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "rois" },
+      { "name": "trans" },
+      { "name": "no_trans" },
+      { "name": "part_size" },
+      { "name": "pooled_h" },
+      { "name": "pooled_w" },
+      { "name": "sample_per_part" },
+      { "name": "spatial_scale" },
+      { "name": "trans_std" }
+    ],
+    "category": "Pool"
+  },
+  {
+    "name": "megengine.functional.nn.dropout",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "drop_prob" },
+      { "name": "training" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.embedding",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "weight" },
+      { "name": "padding_idx" },
+      { "name": "max_norm" },
+      { "name": "norm_type" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.gelu",
+    "attributes": [
+      { "name": "x" }
+    ],
+    "category": "Activation"
+  },
+  {
+    "name": "megengine.functional.nn.hsigmoid",
+    "attributes": [
+      { "name": "x" }
+    ],
+    "category": "Activation"
+  },
+  {
+    "name": "megengine.functional.nn.hswish",
+    "attributes": [
+      { "name": "x" }
+    ],
+    "category": "Activation"
+  },
+  {
+    "name": "megengine.functional.nn.indexing_one_hot",
+    "attributes": [
+      { "name": "src" },
+      { "name": "index" },
+      { "name": "axis" },
+      { "name": "keepdims" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.layer_norm",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "normalized_shape" },
+      { "name": "affine" },
+      { "name": "weight" },
+      { "name": "bias" },
+      { "name": "eps" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.leaky_relu",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "negative_slope" }
+    ],
+    "category": "Activation"
+  },
+  {
+    "name": "megengine.functional.nn.linear",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "weight" },
+      { "name": "bias" },
+      { "name": "compute_mode" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.local_conv2d",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "weight" },
+      { "name": "bias" },
+      { "name": "stride" },
+      { "name": "padding" },
+      { "name": "dilation" },
+      { "name": "conv_mode" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.local_response_norm",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "kernel_size" },
+      { "name": "k" },
+      { "name": "alpha" },
+      { "name": "beta" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.logsigmoid",
+    "attributes": [
+      { "name": "inp" }
+    ],
+    "category": "Activation"
+  },
+  {
+    "name": "megengine.functional.nn.logsumexp",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "axis" },
+      { "name": "keepdims" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.logsoftmax",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "axis" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.max_pool2d",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "kernel_size" },
+      { "name": "stride" },
+      { "name": "padding" }
+    ],
+    "category": "Pool"
+  },
+  {
+    "name": "megengine.functional.nn.one_hot",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "num_classes" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.prelu",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "weight" }
+    ],
+    "category": "Activation"
+  },
+  {
+    "name": "megengine.functional.nn.pad",
+    "attributes": [
+      { "name": "src" },
+      { "name": "pad_width" },
+      { "name": "mode" },
+      { "name": "constant_value" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.relu",
+    "attributes": [
+      { "name": "x" }
+    ],
+    "category": "Activation"
+  },
+  {
+    "name": "megengine.functional.nn.relu6",
+    "attributes": [
+      { "name": "x" }
+    ],
+    "category": "Activation"
+  },
+  {
+    "name": "megengine.functional.vision.remap",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "map_xy" },
+      { "name": "border_mode" },
+      { "name": "scalar" },
+      { "name": "interp_mode" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.sigmoid",
+    "attributes": [
+      { "name": "x" }
+    ],
+    "category": "Activation"
+  },
+  {
+    "name": "megengine.functional.nn.sliding_window",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "kernel_size" },
+      { "name": "padding" },
+      { "name": "stride" },
+      { "name": "dilation" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.sliding_window_transpose",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "output_size" },
+      { "name": "kernel_size" },
+      { "name": "padding" },
+      { "name": "stride" },
+      { "name": "dilation" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.silu",
+    "attributes": [
+      { "name": "x" }
+    ],
+    "category": "Activation"
+  },
+  {
+    "name": "megengine.functional.nn.softmax",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "axis" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.softplus",
+    "attributes": [
+      { "name": "inp" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.sync_batch_norm",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "running_mean" },
+      { "name": "running_var" },
+      { "name": "weight" },
+      { "name": "bias" },
+      { "name": "training" },
+      { "name": "momentum" },
+      { "name": "eps" },
+      { "name": "eps_mode" },
+      { "name": "group" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.vision.warp_affine",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "mat" },
+      { "name": "out_shape" },
+      { "name": "border_mode" },
+      { "name": "border_val" },
+      { "name": "format" },
+      { "name": "interp_mode" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.vision.warp_perspective",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "mat" },
+      { "name": "out_shape" },
+      { "name": "mat_idx" },
+      { "name": "border_mode" },
+      { "name": "border_val" },
+      { "name": "format" },
+      { "name": "interp_mode" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.nn.pixel_shuffle",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "upscale_factor" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.debug_param.get_execution_strategy",
+    "attributes": [],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.quantized.conv_bias_activation",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "weight" },
+      { "name": "bias" },
+      { "name": "dtype" },
+      { "name": "stride" },
+      { "name": "padding" },
+      { "name": "dilation" },
+      { "name": "groups" },
+      { "name": "nonlinear_mode" },
+      { "name": "conv_mode" },
+      { "name": "compute_mode" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.quantized.batch_conv_bias_activation",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "weight" },
+      { "name": "bias" },
+      { "name": "dtype" },
+      { "name": "stride" },
+      { "name": "padding" },
+      { "name": "dilation" },
+      { "name": "groups" },
+      { "name": "nonlinear_mode" },
+      { "name": "conv_mode" },
+      { "name": "compute_mode" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.quantized.conv_transpose2d",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "weight" },
+      { "name": "bias" },
+      { "name": "dtype" },
+      { "name": "stride" },
+      { "name": "padding" },
+      { "name": "dilation" },
+      { "name": "groups" },
+      { "name": "conv_mode" },
+      { "name": "compute_mode" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.tensor.arange",
+    "attributes": [
+      { "name": "start" },
+      { "name": "stop" },
+      { "name": "step" },
+      { "name": "dtype" },
+      { "name": "device" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.broadcast_to",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "shape" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.concat",
+    "attributes": [
+      { "name": "inps" },
+      { "name": "axis" },
+      { "name": "device" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.cond_take",
+    "attributes": [
+      { "name": "mask" },
+      { "name": "x" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.cumsum",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "axis" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.diag",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "k" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.expand_dims",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "axis" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.eye",
+    "attributes": [
+      { "name": "N" },
+      { "name": "M" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.flatten",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "start_axis" },
+      { "name": "end_axis" }
+    ],
+    "category": "Shape"
+  },
+  {
+    "name": "megengine.functional.tensor.full",
+    "attributes": [
+      { "name": "shape" },
+      { "name": "value" },
+      { "name": "dtype" },
+      { "name": "device" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.full_like",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "value" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.gather",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "axis" },
+      { "name": "index" }
+    ],
+    "category": "Transform"
+  },
+  {
+    "name": "megengine.functional.tensor.linspace",
+    "attributes": [
+      { "name": "start" },
+      { "name": "stop" },
+      { "name": "num" },
+      { "name": "dtype" },
+      { "name": "device" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.ones",
+    "attributes": [
+      { "name": "shape" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.ones_like",
+    "attributes": [
+      { "name": "inp" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.repeat",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "repeats" },
+      { "name": "axis" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.reshape",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "target_shape" }
+    ],
+    "category": "Shape"
+  },
+  {
+    "name": "megengine.functional.tensor.roll",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "shift" },
+      { "name": "axis" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.split",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "nsplits_or_sections" },
+      { "name": "axis" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.squeeze",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "axis" }
+    ],
+    "category": "Transform"
+  },
+  {
+    "name": "megengine.functional.tensor.stack",
+    "attributes": [
+      { "name": "inps" },
+      { "name": "axis" },
+      { "name": "device" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.scatter",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "axis" },
+      { "name": "index" },
+      { "name": "source" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.tile",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "reps" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.copy",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "device" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.transpose",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "pattern" }
+    ],
+    "category": "Shape"
+  },
+  {
+    "name": "megengine.functional.tensor.swapaxes",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "axis1" },
+      { "name": "axis2" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.where",
+    "attributes": [
+      { "name": "mask" },
+      { "name": "x" },
+      { "name": "y" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.zeros",
+    "attributes": [
+      { "name": "shape" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.tensor.zeros_like",
+    "attributes": [
+      { "name": "inp" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.functional.vision.correlation",
+    "attributes": [
+      { "name": "data1" },
+      { "name": "data2" },
+      { "name": "kernel_size" },
+      { "name": "max_displacement" },
+      { "name": "stride1" },
+      { "name": "stride2" },
+      { "name": "pad_size" },
+      { "name": "is_multiply" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.vision.cvt_color",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "mode" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.vision.interpolate",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "size" },
+      { "name": "scale_factor" },
+      { "name": "mode" },
+      { "name": "align_corners" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.vision.nms",
+    "attributes": [
+      { "name": "boxes" },
+      { "name": "scores" },
+      { "name": "iou_thresh" },
+      { "name": "max_output" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.vision.nvof",
+    "attributes": [
+      { "name": "src" },
+      { "name": "precision" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.vision.roi_align",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "rois" },
+      { "name": "output_shape" },
+      { "name": "mode" },
+      { "name": "spatial_scale" },
+      { "name": "sample_points" },
+      { "name": "aligned" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.functional.vision.roi_pooling",
+    "attributes": [
+      { "name": "inp" },
+      { "name": "rois" },
+      { "name": "output_shape" },
+      { "name": "mode" },
+      { "name": "scale" }
+    ],
+    "category": "Pool"
+  },
+  {
+    "name": "__lt__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__le__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__gt__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__ge__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__eq__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__ne__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__neg__",
+    "attributes": [
+      { "name": "self" }
+    ]
+  },
+  {
+    "name": "__pos__",
+    "attributes": [
+      { "name": "self" }
+    ]
+  },
+  {
+    "name": "__abs__",
+    "attributes": [
+      { "name": "self" }
+    ]
+  },
+  {
+    "name": "__invert__",
+    "attributes": [
+      { "name": "self" }
+    ]
+  },
+  {
+    "name": "__round__",
+    "attributes": [
+      { "name": "self" }
+    ]
+  },
+  {
+    "name": "__floor__",
+    "attributes": [
+      { "name": "self" }
+    ]
+  },
+  {
+    "name": "__ceil__",
+    "attributes": [
+      { "name": "self" }
+    ]
+  },
+  {
+    "name": "__add__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__sub__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__mul__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__matmul__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "other" }
+    ]
+  },
+  {
+    "name": "__truediv__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__floordiv__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__mod__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__pow__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__lshift__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__rshift__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__and__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__or__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__xor__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__radd__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__rsub__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__rmul__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__rmatmul__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "other" }
+    ]
+  },
+  {
+    "name": "__rtruediv__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__rfloordiv__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__rmod__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__rpow__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__rlshift__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__rrshift__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__rand__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__ror__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__rxor__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__iadd__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__isub__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__imul__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__imatmul__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__itruediv__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__ifloordiv__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__imod__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__ipow__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__ilshift__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__irshift__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__iand__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__ior__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "__ixor__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "value" }
+    ]
+  },
+  {
+    "name": "transpose",
+    "attributes": [
+      { "name": "self" }
+    ],
+    "category": "Shape",
+    "varargs": "args"
+  },
+  {
+    "name": "astype",
+    "attributes": [
+      { "name": "self" },
+      { "name": "dtype" }
+    ],
+    "category": "Layer"
+  },
+  {
+    "name": "reshape",
+    "attributes": [
+      { "name": "self" }
+    ],
+    "category": "Shape",
+    "varargs": "args"
+  },
+  {
+    "name": "_broadcast",
+    "attributes": [
+      { "name": "self" }
+    ],
+    "category": "Shape",
+    "varargs": "args"
+  },
+  {
+    "name": "flatten",
+    "attributes": [
+      { "name": "self" }
+    ],
+    "category": "Shape"
+  },
+  {
+    "name": "sum",
+    "attributes": [
+      { "name": "self" },
+      { "name": "axis" },
+      { "name": "keepdims" }
+    ]
+  },
+  {
+    "name": "prod",
+    "attributes": [
+      { "name": "self" },
+      { "name": "axis" },
+      { "name": "keepdims" }
+    ]
+  },
+  {
+    "name": "min",
+    "attributes": [
+      { "name": "self" },
+      { "name": "axis" },
+      { "name": "keepdims" }
+    ]
+  },
+  {
+    "name": "max",
+    "attributes": [
+      { "name": "self" },
+      { "name": "axis" },
+      { "name": "keepdims" }
+    ]
+  },
+  {
+    "name": "mean",
+    "attributes": [
+      { "name": "self" },
+      { "name": "axis" },
+      { "name": "keepdims" }
+    ]
+  },
+  {
+    "name": "__getitem__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "index" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "__setitem__",
+    "attributes": [
+      { "name": "self" },
+      { "name": "index" },
+      { "name": "value" }
+    ],
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.module.adaptive_pooling.AdaptiveAvgPool2d",
+    "category": "Pool"
+  },
+  {
+    "name": "megengine.module.adaptive_pooling.AdaptiveMaxPool2d",
+    "category": "Pool"
+  },
+  {
+    "name": "megengine.module.pooling.AvgPool2d",
+    "category": "Pool"
+  },
+  {
+    "name": "megengine.module.batch_matmul_activation.BatchMatMulActivation",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.batchnorm.BatchNorm1d",
+    "category": "Normalization"
+  },
+  {
+    "name": "megengine.module.batchnorm.BatchNorm2d",
+    "category": "Normalization"
+  },
+  {
+    "name": "megengine.module.concat.Concat",
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.module.conv.Conv1d",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.conv.Conv2d",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.conv.Conv3d",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.conv_bn.ConvBn2d",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.conv_bn.ConvBnRelu2d",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.conv.ConvRelu2d",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.conv.ConvTranspose2d",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.conv.ConvTranspose3d",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.conv.DeformableConv2d",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.deformable_psroi_pooling.DeformablePSROIPooling",
+    "category": "Pool"
+  },
+  {
+    "name": "megengine.module.quant_dequant.DequantStub",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.dropout.Dropout",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.elemwise.Elemwise"
+  },
+  {
+    "name": "megengine.module.embedding.Embedding",
+    "category": "Transform"
+  },
+  {
+    "name": "megengine.module.activation.GELU",
+    "category": "Activation"
+  },
+  {
+    "name": "megengine.module.normalization.GroupNorm",
+    "category": "Normalization"
+  },
+  {
+    "name": "megengine.module.identity.Identity",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.normalization.InstanceNorm",
+    "category": "Normalization"
+  },
+  {
+    "name": "megengine.module.rnn.LSTM",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.rnn.LSTMCell",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.normalization.LayerNorm",
+    "category": "Normalization"
+  },
+  {
+    "name": "megengine.module.activation.LeakyReLU",
+    "category": "Activation"
+  },
+  {
+    "name": "megengine.module.linear.Linear",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.conv.LocalConv2d",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.lrn.LocalResponseNorm",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.pooling.MaxPool2d",
+    "category": "Pool"
+  },
+  {
+    "name": "megengine.module.module.Module",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.activation.PReLU",
+    "category": "Activation"
+  },
+  {
+    "name": "megengine.module.padding.Pad",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.pixel_shuffle.PixelShuffle",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.quant_dequant.QuantStub",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.rnn.RNN",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.rnn.RNNCell",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.activation.ReLU",
+    "category": "Activation"
+  },
+  {
+    "name": "megengine.module.activation.SiLU",
+    "category": "Activation"
+  },
+  {
+    "name": "megengine.module.activation.Sigmoid",
+    "category": "Activation"
+  },
+  {
+    "name": "megengine.module.sliding_window.SlidingWindow",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.sliding_window.SlidingWindowTranspose",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.activation.Softmax",
+    "category": "Activation"
+  },
+  {
+    "name": "megengine.module.batchnorm.SyncBatchNorm",
+    "category": "Normalization"
+  },
+  {
+    "name": "megengine.module.qat.batch_matmul_activation.BatchMatMulActivation",
+    "category": "Activation"
+  },
+  {
+    "name": "megengine.module.qat.concat.Concat",
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.module.qat.conv.Conv2d",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.qat.conv_bn.ConvBn2d",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.qat.conv_bn.ConvBnRelu2d",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.qat.conv.ConvRelu2d",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.qat.conv.ConvTranspose2d",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.qat.quant_dequant.DequantStub",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.qat.linear.Linear",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.qat.module.QATModule",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.qat.quant_dequant.QuantStub",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.quantized.batch_matmul_activation.BatchMatMulActivation",
+    "category": "Activation"
+  },
+  {
+    "name": "megengine.module.quantized.concat.Concat",
+    "category": "Tensor"
+  },
+  {
+    "name": "megengine.module.quantized.conv.Conv2d",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.quantized.conv_bn.ConvBn2d",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.quantized.conv_bn.ConvBnRelu2d",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.quantized.conv.ConvRelu2d",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.quantized.conv.ConvTranspose2d",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.quantized.quant_dequant.DequantStub",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.quantized.linear.Linear",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.quantized.quant_dequant.QuantStub",
+    "category": "Layer"
+  },
+  {
+    "name": "megengine.module.quantized.module.QuantizedModule",
+    "category": "Layer"
+  },
+  {
+    "name": "Axis",
+    "attributes": [
+      { "name": "axis", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "ConvolutionV0",
+    "category": "Layer",
+    "attributes": [
+      { "name": "mode", "type": "ConvolutionV0Mode", "default": "CROSS_CORRELATION" },
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_h", "type": "uint32", "default": 1 },
+      { "name": "stride_w", "type": "uint32", "default": 1 },
+      { "name": "dilate_h", "type": "uint32", "default": 1 },
+      { "name": "dilate_w", "type": "uint32", "default": 1 },
+      { "name": "data_type", "type": "ConvolutionV0DataType", "default": "FLOAT" },
+      { "name": "sparse", "type": "ConvolutionV0Sparse", "default": "DENSE" },
+      { "name": "format", "type": "ConvolutionV0Format", "default": "NCHW" }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" }
+    ]
+  },
+  {
+    "name": "ConvolutionV1",
+    "category": "Layer",
+    "attributes": [
+      { "name": "mode", "type": "ConvolutionV0Mode", "default": "CROSS_CORRELATION" },
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_h", "type": "uint32", "default": 1 },
+      { "name": "stride_w", "type": "uint32", "default": 1 },
+      { "name": "dilate_h", "type": "uint32", "default": 1 },
+      { "name": "dilate_w", "type": "uint32", "default": 1 },
+      { "name": "sparse", "type": "ConvolutionV0Sparse", "default": "DENSE" },
+      { "name": "format", "type": "ConvolutionV0Format", "default": "NCHW" },
+      { "name": "compute_mode", "type": "ConvolutionV1ComputeMode", "default": "DEFAULT" }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" }
+    ]
+  },
+  {
+    "name": "Convolution",
+    "category": "Layer",
+    "attributes": [
+      { "name": "mode", "type": "ConvolutionV0Mode", "default": "CROSS_CORRELATION" },
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_h", "type": "uint32", "default": 1 },
+      { "name": "stride_w", "type": "uint32", "default": 1 },
+      { "name": "dilate_h", "type": "uint32", "default": 1 },
+      { "name": "dilate_w", "type": "uint32", "default": 1 },
+      { "name": "sparse", "type": "ConvolutionV0Sparse", "default": "DENSE" },
+      { "name": "format", "type": "ConvolutionFormat", "default": "NCHW" },
+      { "name": "compute_mode", "type": "ConvolutionV1ComputeMode", "default": "DEFAULT" }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" }
+    ]
+  },
+  {
+    "name": "MaskPropagate",
+    "attributes": [
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_h", "type": "uint32", "default": 1 },
+      { "name": "stride_w", "type": "uint32", "default": 1 },
+      { "name": "kernel_h", "type": "uint32", "default": 1 },
+      { "name": "kernel_w", "type": "uint32", "default": 1 },
+      { "name": "dilate_h", "type": "uint32", "default": 1 },
+      { "name": "dilate_w", "type": "uint32", "default": 1 }
+    ]
+  },
+  {
+    "name": "ConvPooling",
+    "category": "Pool",
+    "attributes": [
+      { "name": "method", "type": "ConvPoolingMethod", "default": "WITH_TEXTURE_OBJ" },
+      { "name": "convMode", "type": "ConvolutionV0Mode", "default": "CROSS_CORRELATION" },
+      { "name": "poolMode", "type": "ConvPoolingPoolMode", "default": "AVERAGE" },
+      { "name": "nonlineMode", "type": "ConvPoolingNonlineMode", "default": "IDENTITY" },
+      { "name": "pool_shape_h", "type": "uint32", "default": 1 },
+      { "name": "pool_shape_w", "type": "uint32", "default": 1 },
+      { "name": "pool_stride_h", "type": "uint32", "default": 1 },
+      { "name": "pool_stride_w", "type": "uint32", "default": 1 },
+      { "name": "pool_pad_h", "type": "uint32", "default": 0 },
+      { "name": "pool_pad_w", "type": "uint32", "default": 0 },
+      { "name": "conv_stride_h", "type": "uint32", "default": 1 },
+      { "name": "conv_stride_w", "type": "uint32", "default": 1 },
+      { "name": "conv_pad_h", "type": "uint32", "default": 0 },
+      { "name": "conv_pad_w", "type": "uint32", "default": 0 }
+    ]
+  },
+  {
+    "name": "ConvBiasV0",
+    "category": "Layer",
+    "attributes": [
+      { "name": "nonlineMode", "type": "ConvBiasV0NonlineMode", "default": "IDENTITY" },
+      { "name": "mode", "type": "ConvolutionV0Mode", "default": "CROSS_CORRELATION" },
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_h", "type": "uint32", "default": 1 },
+      { "name": "stride_w", "type": "uint32", "default": 1 }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "biases" }
+    ]
+  },
+  {
+    "name": "ConvBiasV1",
+    "category": "Layer",
+    "attributes": [
+      { "name": "nonlineMode", "type": "ConvBiasV0NonlineMode", "default": "IDENTITY" },
+      { "name": "mode", "type": "ConvolutionV0Mode", "default": "CROSS_CORRELATION" },
+      { "name": "data_type", "type": "ConvolutionV0DataType", "default": "FLOAT" },
+      { "name": "sparse", "type": "ConvolutionV0Sparse", "default": "DENSE" },
+      { "name": "format", "type": "ConvolutionV0Format", "default": "NCHW" },
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_h", "type": "uint32", "default": 1 },
+      { "name": "stride_w", "type": "uint32", "default": 1 },
+      { "name": "dilate_h", "type": "uint32", "default": 1 },
+      { "name": "dilate_w", "type": "uint32", "default": 1 }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "biases" }
+    ]
+  },
+  {
+    "name": "ConvBiasV2",
+    "category": "Layer",
+    "attributes": [
+      { "name": "nonlineMode", "type": "ConvBiasV0NonlineMode", "default": "IDENTITY" },
+      { "name": "mode", "type": "ConvolutionV0Mode", "default": "CROSS_CORRELATION" },
+      { "name": "sparse", "type": "ConvolutionV0Sparse", "default": "DENSE" },
+      { "name": "format", "type": "ConvolutionV0Format", "default": "NCHW" },
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_h", "type": "uint32", "default": 1 },
+      { "name": "stride_w", "type": "uint32", "default": 1 },
+      { "name": "dilate_h", "type": "uint32", "default": 1 },
+      { "name": "dilate_w", "type": "uint32", "default": 1 },
+      { "name": "compute_mode", "type": "ConvolutionV1ComputeMode", "default": "DEFAULT" }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "biases" }
+    ]
+  },
+  {
+    "name": "ConvBiasV3",
+    "category": "Layer",
+    "attributes": [
+      { "name": "nonlineMode", "type": "ConvBiasV0NonlineMode", "default": "IDENTITY" },
+      { "name": "mode", "type": "ConvolutionV0Mode", "default": "CROSS_CORRELATION" },
+      { "name": "sparse", "type": "ConvolutionV0Sparse", "default": "DENSE" },
+      { "name": "format", "type": "ConvolutionV0Format", "default": "NCHW" },
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_h", "type": "uint32", "default": 1 },
+      { "name": "stride_w", "type": "uint32", "default": 1 },
+      { "name": "dilate_h", "type": "uint32", "default": 1 },
+      { "name": "dilate_w", "type": "uint32", "default": 1 },
+      { "name": "output_block_size", "type": "uint32", "default": 0 },
+      { "name": "compute_mode", "type": "ConvolutionV1ComputeMode", "default": "DEFAULT" }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "biases" }
+    ]
+  },
+  {
+    "name": "ConvBias",
+    "category": "Layer",
+    "attributes": [
+      { "name": "nonlineMode", "type": "ConvBiasV0NonlineMode", "default": "IDENTITY" },
+      { "name": "mode", "type": "ConvolutionV0Mode", "default": "CROSS_CORRELATION" },
+      { "name": "sparse", "type": "ConvolutionV0Sparse", "default": "DENSE" },
+      { "name": "format", "type": "ConvolutionFormat", "default": "NCHW" },
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_h", "type": "uint32", "default": 1 },
+      { "name": "stride_w", "type": "uint32", "default": 1 },
+      { "name": "dilate_h", "type": "uint32", "default": 1 },
+      { "name": "dilate_w", "type": "uint32", "default": 1 },
+      { "name": "compute_mode", "type": "ConvolutionV1ComputeMode", "default": "DEFAULT" }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "biases" }
+    ]
+  },
+  {
+    "name": "SeparableConv",
+    "category": "Layer",
+    "attributes": [
+      { "name": "mode", "type": "ConvolutionV0Mode", "default": "CROSS_CORRELATION" },
+      { "name": "borderMode", "type": "SeparableConvBorderMode", "default": "BORDER_REPLICATE" },
+      { "name": "is_symm_kernel", "type": "bool", "default": true },
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_h", "type": "uint32", "default": 1 },
+      { "name": "stride_w", "type": "uint32", "default": 1 },
+      { "name": "ksize_h", "type": "uint32", "default": 3 },
+      { "name": "ksize_w", "type": "uint32", "default": 3 },
+      { "name": "anchor_h", "type": "uint32", "default": 1 },
+      { "name": "anchor_w", "type": "uint32", "default": 1 }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "biases" }
+    ]
+  },
+  {
+    "name": "Images2Neibs",
+    "category": "Shape",
+    "attributes": [
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_h", "type": "uint32", "default": 1 },
+      { "name": "stride_w", "type": "uint32", "default": 1 },
+      { "name": "dilate_h", "type": "uint32", "default": 1 },
+      { "name": "dilate_w", "type": "uint32", "default": 1 },
+      { "name": "window_h", "type": "uint32", "default": 3 },
+      { "name": "window_w", "type": "uint32", "default": 3 }
+    ]
+  },
+  {
+    "name": "SlidingWindowTranspose",
+    "category": "Transform",
+    "attributes": [
+      { "name": "out_h", "type": "uint32", "default": 0 },
+      { "name": "out_w", "type": "uint32", "default": 0 },
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_h", "type": "uint32", "default": 1 },
+      { "name": "stride_w", "type": "uint32", "default": 1 },
+      { "name": "dilate_h", "type": "uint32", "default": 1 },
+      { "name": "dilate_w", "type": "uint32", "default": 1 },
+      { "name": "window_h", "type": "uint32", "default": 3 },
+      { "name": "window_w", "type": "uint32", "default": 3 }
+    ]
+  },
+  {
+    "name": "PoolingV0",
+    "category": "Pool",
+    "attributes": [
+      { "name": "mode", "type": "PoolingV0Mode", "default": "MAX_" },
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_h", "type": "uint32", "default": 2 },
+      { "name": "stride_w", "type": "uint32", "default": 2 },
+      { "name": "window_h", "type": "uint32", "default": 2 },
+      { "name": "window_w", "type": "uint32", "default": 2 },
+      { "name": "format", "type": "ConvolutionV0Format", "default": "NCHW" }
+    ]
+  },
+  {
+    "name": "Pooling",
+    "category": "Pool",
+    "attributes": [
+      { "name": "mode", "type": "PoolingV0Mode", "default": "MAX_" },
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_h", "type": "uint32", "default": 2 },
+      { "name": "stride_w", "type": "uint32", "default": 2 },
+      { "name": "window_h", "type": "uint32", "default": 2 },
+      { "name": "window_w", "type": "uint32", "default": 2 },
+      { "name": "format", "type": "ConvolutionFormat", "default": "NCHW" }
+    ]
+  },
+  {
+    "name": "Softmax",
+    "category": "Activation",
+    "attributes": [
+      { "name": "axis", "type": "int32", "default": -1 }
+    ]
+  },
+  {
+    "name": "AdaptivePoolingV0",
+    "category": "Activation",
+    "attributes": [
+      { "name": "mode", "type": "PoolingV0Mode", "default": "MAX_" },
+      { "name": "format", "type": "ConvolutionV0Format", "default": "NCHW" }
+    ]
+  },
+  {
+    "name": "AdaptivePooling",
+    "category": "Activation",
+    "attributes": [
+      { "name": "mode", "type": "PoolingV0Mode", "default": "MAX_" },
+      { "name": "format", "type": "ConvolutionFormat", "default": "NCHW" }
+    ]
+  },
+  {
+    "name": "LRN",
+    "category": "Normalization",
+    "attributes": [
+      { "name": "n", "type": "uint32", "default": 5 },
+      { "name": "k", "type": "float32", "default": 2 },
+      { "name": "alpha", "type": "float32", "default": 0.0001 },
+      { "name": "beta", "type": "float32", "default": 0.75 }
+    ]
+  },
+  {
+    "name": "BN",
+    "category": "Normalization",
+    "attributes": [
+      { "name": "param_dim", "type": "BNParamDim", "default": "DIM_11HW" },
+      { "name": "fwd_mode", "type": "BNFwdMode", "default": "TRAINING" },
+      { "name": "epsilon", "type": "float64", "default": 0.0001 },
+      { "name": "avg_factor", "type": "float64", "default": 1 },
+      { "name": "scale", "type": "float32", "default": 1 },
+      { "name": "bias", "type": "float32", "default": 0 }
+    ]
+  },
+  {
+    "name": "ROIPooling",
+    "attributes": [
+      { "name": "mode", "type": "ROIPoolingMode", "default": "MAX_" },
+      { "name": "scale", "type": "float32", "default": 1 }
+    ]
+  },
+  {
+    "name": "WarpPerspectiveV1",
+    "attributes": [
+      { "name": "imode", "type": "WarpPerspectiveV1InterpolationMode", "default": "LINEAR" },
+      { "name": "bmode", "type": "WarpPerspectiveV1BorderMode", "default": "REPLICATE" },
+      { "name": "format", "type": "ConvolutionV0Format", "default": "NCHW" },
+      { "name": "border_val", "type": "float32", "default": 0 }
+    ]
+  },
+  {
+    "name": "WarpPerspective",
+    "attributes": [
+      { "name": "imode", "type": "WarpPerspectiveV1InterpolationMode", "default": "LINEAR" },
+      { "name": "bmode", "type": "WarpPerspectiveV1BorderMode", "default": "REPLICATE" },
+      { "name": "format", "type": "ConvolutionFormat", "default": "NCHW" },
+      { "name": "border_val", "type": "float32", "default": 0 }
+    ]
+  },
+  {
+    "name": "SpatialTfGridGenerator",
+    "attributes": [
+      { "name": "mode", "type": "SpatialTfGridGeneratorMode", "default": "AFFINE" }
+    ]
+  },
+  {
+    "name": "SpatialTfSampler",
+    "attributes": [
+      { "name": "mode", "type": "SpatialTfSamplerMode", "default": "BILINEAR" }
+    ]
+  },
+  {
+    "name": "AddUpdate",
+    "attributes": [
+      { "name": "alpha", "type": "float32", "default": 1 },
+      { "name": "beta", "type": "float32", "default": 1 },
+      { "name": "bias", "type": "float32", "default": 0 }
+    ]
+  },
+  {
+    "name": "Elemwise",
+    "attributes": [
+      { "name": "mode", "type": "ElemwiseMode", "default": "RELU" }
+    ],
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ]
+  },
+  {
+    "name": "ElemwiseMultiType",
+    "attributes": [
+      { "name": "mode", "type": "ElemwiseMultiTypeMode", "default": "FUSE_MUL_ADD3_INT16x32x32x32" }
+    ]
+  },
+  {
+    "name": "PowC",
+    "attributes": [
+      { "name": "exp", "type": "float32", "default": 0 }
+    ]
+  },
+  {
+    "name": "DctChannelSelectV0",
+    "attributes": [
+      { "name": "format", "type": "ConvolutionV0Format", "default": "NCHW" },
+      { "name": "fastImpl", "type": "DctChannelSelectV0FastImpl", "default": "NONE" },
+      { "name": "dct_block_size", "type": "int32", "default": 8 }
+    ]
+  },
+  {
+    "name": "DctChannelSelect",
+    "attributes": [
+      { "name": "format", "type": "ConvolutionFormat", "default": "NCHW" },
+      { "name": "fastImpl", "type": "DctChannelSelectV0FastImpl", "default": "NONE" },
+      { "name": "dct_block_size", "type": "int32", "default": 8 }
+    ]
+  },
+  {
+    "name": "MatrixMulV0",
+    "attributes": [
+      { "name": "transposeA", "type": "bool", "default": false },
+      { "name": "transposeB", "type": "bool", "default": false },
+      { "name": "data_type", "type": "MatrixMulV0DataType", "default": "FLOAT" }
+    ],
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ]
+  },
+  {
+    "name": "MatrixMulV1",
+    "attributes": [
+      { "name": "transposeA", "type": "bool", "default": false },
+      { "name": "transposeB", "type": "bool", "default": false },
+      { "name": "compute_mode", "type": "MatrixMulV1ComputeMode", "default": "DEFAULT" }
+    ],
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ]
+  },
+  {
+    "name": "MatrixMulV2",
+    "attributes": [
+      { "name": "transposeA", "type": "bool", "default": false },
+      { "name": "transposeB", "type": "bool", "default": false },
+      { "name": "compute_mode", "type": "MatrixMulV1ComputeMode", "default": "DEFAULT" },
+      { "name": "format", "type": "MatrixMulFormat", "default": "DEFAULT" }
+    ],
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ]
+  },
+  {
+    "name": "MatrixMul",
+    "attributes": [
+      { "name": "transposeA", "type": "bool", "default": false },
+      { "name": "transposeB", "type": "bool", "default": false },
+      { "name": "compute_mode", "type": "MatrixMulV1ComputeMode", "default": "DEFAULT" },
+      { "name": "format", "type": "MatrixMulFormat", "default": "DEFAULT" }
+    ],
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ]
+  },
+  {
+    "name": "SVD",
+    "attributes": [
+      { "name": "full_matrices", "type": "bool", "default": false },
+      { "name": "compute_uv", "type": "bool", "default": true }
+    ]
+  },
+  {
+    "name": "ReduceV0",
+    "attributes": [
+      { "name": "mode", "type": "ReduceV0Mode", "default": "SUM" },
+      { "name": "axis", "type": "int32", "default": -1 }
+    ]
+  },
+  {
+    "name": "ReduceV1",
+    "attributes": [
+      { "name": "mode", "type": "ReduceV1Mode", "default": "SUM" },
+      { "name": "axis", "type": "int32", "default": -1 },
+      { "name": "data_type", "type": "ReduceV1DataType", "default": "DEFAULT" }
+    ]
+  },
+  {
+    "name": "Reduce",
+    "attributes": [
+      { "name": "mode", "type": "ReduceMode", "default": "SUM" },
+      { "name": "axis", "type": "int32", "default": 2147483647 },
+      { "name": "data_type", "type": "ReduceDataType", "default": "DEFAULT" }
+    ]
+  },
+  {
+    "name": "CumsumV0",
+    "attributes": [
+      { "name": "axis", "type": "int32", "default": -1 },
+      { "name": "exclusive", "type": "bool", "default": true },
+      { "name": "reverse", "type": "bool", "default": false }
+    ]
+  },
+  {
+    "name": "Cumsum",
+    "attributes": [
+      { "name": "axis", "type": "int32", "default": 2147483647 },
+      { "name": "exclusive", "type": "bool", "default": true },
+      { "name": "reverse", "type": "bool", "default": false }
+    ]
+  },
+  {
+    "name": "CondTake",
+    "attributes": [
+      { "name": "mode", "type": "CondTakeMode", "default": "EQ" },
+      { "name": "val", "type": "float32", "default": 0 },
+      { "name": "eps", "type": "float32", "default": 0.000001 }
+    ]
+  },
+  {
+    "name": "Argsort",
+    "attributes": [
+      { "name": "order", "type": "ArgsortOrder", "default": "ASCENDING" }
+    ]
+  },
+  {
+    "name": "IndexingRemap",
+    "attributes": [
+      { "name": "is_non_overlapping", "type": "bool", "default": false }
+    ]
+  },
+  {
+    "name": "Sleep",
+    "attributes": [
+      { "name": "time", "type": "float32", "default": 0 }
+    ]
+  },
+  {
+    "name": "Linspace",
+    "attributes": [
+      { "name": "endpoint", "type": "bool", "default": true }
+    ]
+  },
+  {
+    "name": "LinspaceFull",
+    "attributes": [
+      { "name": "start", "type": "float64", "default": 0 },
+      { "name": "stop", "type": "float64", "default": 1 },
+      { "name": "endpoint", "type": "bool", "default": true }
+    ]
+  },
+  {
+    "name": "Eye",
+    "attributes": [
+      { "name": "k", "type": "int32", "default": 0 },
+      { "name": "dtype", "type": "DTypeEnum", "default": "Float32" }
+    ]
+  },
+  {
+    "name": "Diag",
+    "attributes": [
+      { "name": "k", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "UniformRNGV0",
+    "attributes": [
+      { "name": "seed", "type": "uint64", "default": 0 }
+    ]
+  },
+  {
+    "name": "UniformRNG",
+    "attributes": [
+      { "name": "seed", "type": "uint64", "default": 0 },
+      { "name": "dtype", "type": "DTypeEnum", "default": "Float32" }
+    ]
+  },
+  {
+    "name": "GaussianRNGV0",
+    "attributes": [
+      { "name": "seed", "type": "uint64", "default": 0 },
+      { "name": "mean", "type": "float32", "default": 0 },
+      { "name": "std", "type": "float32", "default": 1 }
+    ]
+  },
+  {
+    "name": "GaussianRNG",
+    "attributes": [
+      { "name": "seed", "type": "uint64", "default": 0 },
+      { "name": "mean", "type": "float32", "default": 0 },
+      { "name": "std", "type": "float32", "default": 1 },
+      { "name": "dtype", "type": "DTypeEnum", "default": "Float32" }
+    ]
+  },
+  {
+    "name": "GammaRNG",
+    "attributes": [
+      { "name": "seed", "type": "uint64", "default": 0 }
+    ]
+  },
+  {
+    "name": "BetaRNG",
+    "attributes": [
+      { "name": "seed", "type": "uint64", "default": 0 }
+    ]
+  },
+  {
+    "name": "PoissonRNG",
+    "attributes": [
+      { "name": "seed", "type": "uint64", "default": 0 }
+    ]
+  },
+  {
+    "name": "PermutationRNG",
+    "attributes": [
+      { "name": "seed", "type": "uint64", "default": 0 },
+      { "name": "dtype", "type": "DTypeEnum", "default": "Int32" }
+    ]
+  },
+  {
+    "name": "ShuffleRNG",
+    "attributes": [
+      { "name": "seed", "type": "uint64", "default": 0 }
+    ]
+  },
+  {
+    "name": "Flip",
+    "category": "Shape",
+    "attributes": [
+      { "name": "vertical", "type": "bool", "default": false },
+      { "name": "horizontal", "type": "bool", "default": false }
+    ]
+  },
+  {
+    "name": "Rotate",
+    "attributes": [
+      { "name": "clockwise", "type": "bool", "default": true }
+    ]
+  },
+  {
+    "name": "ROICopy",
+    "attributes": [
+      { "name": "row_from", "type": "uint32", "default": 0 },
+      { "name": "row_to", "type": "uint32", "default": 0 },
+      { "name": "col_from", "type": "uint32", "default": 0 },
+      { "name": "col_to", "type": "uint32", "default": 0 }
+    ]
+  },
+  {
+    "name": "CvtColor",
+    "attributes": [
+      { "name": "mode", "type": "CvtColorMode", "default": "RGB2GRAY" }
+    ]
+  },
+  {
+    "name": "WarpAffineV0",
+    "attributes": [
+      { "name": "imode", "type": "WarpPerspectiveV1InterpolationMode", "default": "LINEAR" },
+      { "name": "border_mode", "type": "WarpPerspectiveV1BorderMode", "default": "REPLICATE" },
+      { "name": "border_val", "type": "float32", "default": 0 }
+    ]
+  },
+  {
+    "name": "WarpAffineV1",
+    "attributes": [
+      { "name": "imode", "type": "WarpPerspectiveV1InterpolationMode", "default": "LINEAR" },
+      { "name": "border_mode", "type": "WarpPerspectiveV1BorderMode", "default": "REPLICATE" },
+      { "name": "border_val", "type": "float32", "default": 0 },
+      { "name": "format", "type": "ConvolutionV0Format", "default": "NHWC" }
+    ]
+  },
+  {
+    "name": "WarpAffine",
+    "attributes": [
+      { "name": "imode", "type": "WarpPerspectiveV1InterpolationMode", "default": "LINEAR" },
+      { "name": "border_mode", "type": "WarpPerspectiveV1BorderMode", "default": "REPLICATE" },
+      { "name": "border_val", "type": "float32", "default": 0 },
+      { "name": "format", "type": "ConvolutionFormat", "default": "NHWC" }
+    ]
+  },
+  {
+    "name": "GaussianBlur",
+    "attributes": [
+      { "name": "border_mode", "type": "WarpPerspectiveV1BorderMode", "default": "REPLICATE" },
+      { "name": "kernel_height", "type": "uint32", "default": 0 },
+      { "name": "kernel_width", "type": "uint32", "default": 0 },
+      { "name": "sigma_x", "type": "float32", "default": 0 },
+      { "name": "sigma_y", "type": "float32", "default": 0 }
+    ]
+  },
+  {
+    "name": "ResizeV0",
+    "attributes": [
+      { "name": "imode", "type": "WarpPerspectiveV1InterpolationMode", "default": "LINEAR" }
+    ]
+  },
+  {
+    "name": "ResizeV1",
+    "attributes": [
+      { "name": "imode", "type": "WarpPerspectiveV1InterpolationMode", "default": "LINEAR" },
+      { "name": "format", "type": "ConvolutionV0Format", "default": "NHWC" }
+    ]
+  },
+  {
+    "name": "Resize",
+    "attributes": [
+      { "name": "imode", "type": "WarpPerspectiveV1InterpolationMode", "default": "LINEAR" },
+      { "name": "format", "type": "ConvolutionFormat", "default": "NHWC" }
+    ]
+  },
+  {
+    "name": "RemapV0",
+    "attributes": [
+      { "name": "imode", "type": "WarpPerspectiveV1InterpolationMode", "default": "LINEAR" },
+      { "name": "border_type", "type": "WarpPerspectiveV1BorderMode", "default": "REPLICATE" },
+      { "name": "format", "type": "ConvolutionV0Format", "default": "NHWC" },
+      { "name": "scalar", "type": "float32", "default": 0 }
+    ]
+  },
+  {
+    "name": "Remap",
+    "attributes": [
+      { "name": "imode", "type": "WarpPerspectiveV1InterpolationMode", "default": "LINEAR" },
+      { "name": "border_type", "type": "WarpPerspectiveV1BorderMode", "default": "REPLICATE" },
+      { "name": "format", "type": "ConvolutionFormat", "default": "NHWC" },
+      { "name": "scalar", "type": "float32", "default": 0 }
+    ]
+  },
+  {
+    "name": "Convolution3D",
+    "category": "Layer",
+    "attributes": [
+      { "name": "mode", "type": "Convolution3DMode", "default": "CROSS_CORRELATION" },
+      { "name": "pad_d", "type": "uint32", "default": 0 },
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_d", "type": "uint32", "default": 1 },
+      { "name": "stride_h", "type": "uint32", "default": 1 },
+      { "name": "stride_w", "type": "uint32", "default": 1 },
+      { "name": "dilate_d", "type": "uint32", "default": 1 },
+      { "name": "dilate_h", "type": "uint32", "default": 1 },
+      { "name": "dilate_w", "type": "uint32", "default": 1 },
+      { "name": "sparse", "type": "Convolution3DSparse", "default": "DENSE" },
+      { "name": "data_type", "type": "Convolution3DDataType", "default": "FLOAT" },
+      { "name": "format", "type": "Convolution3DFormat", "default": "NCDHW" }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" }
+    ]
+  },
+  {
+    "name": "Conv3DBias",
+    "category": "Layer",
+    "attributes": [
+      { "name": "nonlineMode", "type": "Conv3DBiasNonlineMode", "default": "IDENTITY" },
+      { "name": "mode", "type": "Convolution3DMode", "default": "CROSS_CORRELATION" },
+      { "name": "pad_d", "type": "uint32", "default": 0 },
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_d", "type": "uint32", "default": 1 },
+      { "name": "stride_h", "type": "uint32", "default": 1 },
+      { "name": "stride_w", "type": "uint32", "default": 0 }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "biases" }
+    ]
+  },
+  {
+    "name": "SeparableConv3D",
+    "category": "Layer",
+    "attributes": [
+      { "name": "mode", "type": "Convolution3DMode", "default": "CROSS_CORRELATION" },
+      { "name": "borderMode", "type": "SeparableConv3DBorderMode", "default": "BORDER_REPLICATE" },
+      { "name": "is_symm_kernel", "type": "bool", "default": true },
+      { "name": "pad_d", "type": "uint32", "default": 0 },
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_d", "type": "uint32", "default": 0 },
+      { "name": "stride_h", "type": "uint32", "default": 1 },
+      { "name": "stride_w", "type": "uint32", "default": 1 },
+      { "name": "ksize_d", "type": "uint32", "default": 0 },
+      { "name": "ksize_h", "type": "uint32", "default": 3 },
+      { "name": "ksize_w", "type": "uint32", "default": 3 },
+      { "name": "anchor_d", "type": "uint32", "default": 0 },
+      { "name": "anchor_h", "type": "uint32", "default": 1 },
+      { "name": "anchor_w", "type": "uint32", "default": 1 }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "biases" }
+    ]
+  },
+  {
+    "name": "TopK",
+    "attributes": [
+      { "name": "mode", "type": "TopKMode", "default": "KTH_ONLY" }
+    ]
+  },
+  {
+    "name": "RelayoutFormatV0",
+    "attributes": [
+      { "name": "mode", "type": "RelayoutFormatV0Mode", "default": "NHWC_NHWCD4" }
+    ]
+  },
+  {
+    "name": "RelayoutFormat",
+    "attributes": [
+      { "name": "mode", "type": "RelayoutFormatV0Mode", "default": "NHWC_NHWCD4" },
+      { "name": "oc", "type": "uint32", "default": 0 },
+      { "name": "group", "type": "uint32", "default": 1 }
+    ]
+  },
+  {
+    "name": "SeparableFilterV0",
+    "attributes": [
+      { "name": "format", "type": "ConvolutionV0Format", "default": "NCHW" },
+      { "name": "borderMode", "type": "WarpPerspectiveV1BorderMode", "default": "REPLICATE" },
+      { "name": "is_symm_kernel", "type": "bool", "default": true },
+      { "name": "ksize_h", "type": "uint32", "default": 3 },
+      { "name": "ksize_w", "type": "uint32", "default": 3 },
+      { "name": "anchor_h", "type": "uint32", "default": 1 },
+      { "name": "anchor_w", "type": "uint32", "default": 1 }
+    ]
+  },
+  {
+    "name": "SeparableFilter",
+    "attributes": [
+      { "name": "format", "type": "ConvolutionFormat", "default": "NCHW" },
+      { "name": "borderMode", "type": "WarpPerspectiveV1BorderMode", "default": "REPLICATE" },
+      { "name": "is_symm_kernel", "type": "bool", "default": true },
+      { "name": "ksize_h", "type": "uint32", "default": 3 },
+      { "name": "ksize_w", "type": "uint32", "default": 3 },
+      { "name": "anchor_h", "type": "uint32", "default": 1 },
+      { "name": "anchor_w", "type": "uint32", "default": 1 }
+    ]
+  },
+  {
+    "name": "LocalShareV0",
+    "attributes": [
+      { "name": "mode", "type": "ConvolutionV0Mode", "default": "CROSS_CORRELATION" },
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_h", "type": "uint32", "default": 1 },
+      { "name": "stride_w", "type": "uint32", "default": 1 },
+      { "name": "dilate_h", "type": "uint32", "default": 1 },
+      { "name": "dilate_w", "type": "uint32", "default": 1 },
+      { "name": "spatial_groups_h", "type": "uint32", "default": 1 },
+      { "name": "spatial_groups_w", "type": "uint32", "default": 1 },
+      { "name": "sparse", "type": "ConvolutionV0Sparse", "default": "DENSE" },
+      { "name": "format", "type": "ConvolutionV0Format", "default": "NCHW" },
+      { "name": "computeMode", "type": "ConvolutionV1ComputeMode", "default": "DEFAULT" }
+    ]
+  },
+  {
+    "name": "LocalShare",
+    "attributes": [
+      { "name": "mode", "type": "ConvolutionV0Mode", "default": "CROSS_CORRELATION" },
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_h", "type": "uint32", "default": 1 },
+      { "name": "stride_w", "type": "uint32", "default": 1 },
+      { "name": "dilate_h", "type": "uint32", "default": 1 },
+      { "name": "dilate_w", "type": "uint32", "default": 1 },
+      { "name": "spatial_groups_h", "type": "uint32", "default": 1 },
+      { "name": "spatial_groups_w", "type": "uint32", "default": 1 },
+      { "name": "sparse", "type": "ConvolutionV0Sparse", "default": "DENSE" },
+      { "name": "format", "type": "ConvolutionFormat", "default": "NCHW" },
+      { "name": "computeMode", "type": "ConvolutionV1ComputeMode", "default": "DEFAULT" }
+    ]
+  },
+  {
+    "name": "ROIAlignV0",
+    "attributes": [
+      { "name": "mode", "type": "ROIAlignV0Mode", "default": "MAX_" },
+      { "name": "format", "type": "ConvolutionV0Format", "default": "NCHW" },
+      { "name": "spatial_scale", "type": "float32", "default": 1 },
+      { "name": "offset", "type": "float32", "default": 0 },
+      { "name": "pooled_height", "type": "uint32", "default": 1 },
+      { "name": "pooled_width", "type": "uint32", "default": 1 },
+      { "name": "sample_height", "type": "uint32", "default": 2 },
+      { "name": "sample_width", "type": "uint32", "default": 2 }
+    ]
+  },
+  {
+    "name": "ROIAlign",
+    "attributes": [
+      { "name": "mode", "type": "ROIAlignV0Mode", "default": "MAX_" },
+      { "name": "format", "type": "ConvolutionFormat", "default": "NCHW" },
+      { "name": "spatial_scale", "type": "float32", "default": 1 },
+      { "name": "offset", "type": "float32", "default": 0 },
+      { "name": "pooled_height", "type": "uint32", "default": 1 },
+      { "name": "pooled_width", "type": "uint32", "default": 1 },
+      { "name": "sample_height", "type": "uint32", "default": 2 },
+      { "name": "sample_width", "type": "uint32", "default": 2 }
+    ]
+  },
+  {
+    "name": "Correlation",
+    "attributes": [
+      { "name": "format", "type": "ConvolutionV0Format", "default": "NCHW" },
+      { "name": "kernel_size", "type": "uint32", "default": 1 },
+      { "name": "max_displacement", "type": "uint32", "default": 1 },
+      { "name": "stride1", "type": "uint32", "default": 1 },
+      { "name": "stride2", "type": "uint32", "default": 1 },
+      { "name": "pad_size", "type": "uint32", "default": 0 },
+      { "name": "is_multiply", "type": "bool", "default": true }
+    ]
+  },
+  {
+    "name": "DeformablePSROIPooling",
+    "attributes": [
+      { "name": "no_trans", "type": "bool", "default": true },
+      { "name": "spatial_scale", "type": "float32", "default": 1 },
+      { "name": "trans_std", "type": "float32", "default": 1 },
+      { "name": "pooled_h", "type": "uint32", "default": 1 },
+      { "name": "pooled_w", "type": "uint32", "default": 1 },
+      { "name": "part_size", "type": "uint32", "default": 1 },
+      { "name": "sample_per_part", "type": "uint32", "default": 1 }
+    ]
+  },
+  {
+    "name": "BatchConvBiasV0",
+    "attributes": [
+      { "name": "nonlineMode", "type": "ConvBiasV0NonlineMode", "default": "IDENTITY" },
+      { "name": "mode", "type": "ConvolutionV0Mode", "default": "CROSS_CORRELATION" },
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_h", "type": "uint32", "default": 1 },
+      { "name": "stride_w", "type": "uint32", "default": 1 },
+      { "name": "dilate_h", "type": "uint32", "default": 1 },
+      { "name": "dilate_w", "type": "uint32", "default": 1 },
+      { "name": "sparse", "type": "ConvolutionV0Sparse", "default": "DENSE" },
+      { "name": "format", "type": "ConvolutionV0Format", "default": "NCHW" },
+      { "name": "compute_mode", "type": "ConvolutionV1ComputeMode", "default": "DEFAULT" }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "biases" }
+    ]
+  },
+  {
+    "name": "BatchConvBias",
+    "attributes": [
+      { "name": "nonlineMode", "type": "ConvBiasV0NonlineMode", "default": "IDENTITY" },
+      { "name": "mode", "type": "ConvolutionV0Mode", "default": "CROSS_CORRELATION" },
+      { "name": "pad_h", "type": "uint32", "default": 0 },
+      { "name": "pad_w", "type": "uint32", "default": 0 },
+      { "name": "stride_h", "type": "uint32", "default": 1 },
+      { "name": "stride_w", "type": "uint32", "default": 1 },
+      { "name": "dilate_h", "type": "uint32", "default": 1 },
+      { "name": "dilate_w", "type": "uint32", "default": 1 },
+      { "name": "sparse", "type": "ConvolutionV0Sparse", "default": "DENSE" },
+      { "name": "format", "type": "ConvolutionFormat", "default": "NCHW" },
+      { "name": "compute_mode", "type": "ConvolutionV1ComputeMode", "default": "DEFAULT" }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "biases" }
+    ]
+  },
+  {
+    "name": "FakeQuant",
+    "attributes": [
+      { "name": "qmin", "type": "int32", "default": -2147483648 },
+      { "name": "qmax", "type": "int32", "default": 2147483647 }
+    ]
+  },
+  {
+    "name": "TQT",
+    "category": "Quantization",
+    "attributes": [
+      { "name": "qmin", "type": "int32", "default": -2147483648 },
+      { "name": "qmax", "type": "int32", "default": 2147483647 }
+    ]
+  },
+  {
+    "name": "LSQ",
+    "category": "Quantization",
+    "attributes": [
+      { "name": "qmin", "type": "int32", "default": -2147483648 },
+      { "name": "qmax", "type": "int32", "default": 2147483647 }
+    ]
+  },
+  {
+    "name": "Fill",
+    "attributes": [
+      { "name": "value", "type": "float32", "default": 0 }
+    ]
+  },
+  {
+    "name": "CheckNonFinite",
+    "attributes": [
+      { "name": "scale", "type": "float32", "default": 1 }
+    ]
+  },
+  {
+    "name": "Padding",
+    "category": "Layer",
+    "attributes": [
+      { "name": "front_offset_dim0", "type": "uint32", "default": 0 },
+      { "name": "front_offset_dim1", "type": "uint32", "default": 0 },
+      { "name": "front_offset_dim2", "type": "uint32", "default": 0 },
+      { "name": "front_offset_dim3", "type": "uint32", "default": 0 },
+      { "name": "front_offset_dim4", "type": "uint32", "default": 0 },
+      { "name": "front_offset_dim5", "type": "uint32", "default": 0 },
+      { "name": "front_offset_dim6", "type": "uint32", "default": 0 },
+      { "name": "back_offset_dim0", "type": "uint32", "default": 0 },
+      { "name": "back_offset_dim1", "type": "uint32", "default": 0 },
+      { "name": "back_offset_dim2", "type": "uint32", "default": 0 },
+      { "name": "back_offset_dim3", "type": "uint32", "default": 0 },
+      { "name": "back_offset_dim4", "type": "uint32", "default": 0 },
+      { "name": "back_offset_dim5", "type": "uint32", "default": 0 },
+      { "name": "back_offset_dim6", "type": "uint32", "default": 0 },
+      { "name": "padding_val", "type": "float32", "default": 0 },
+      { "name": "padding_mode", "type": "PaddingPaddingMode", "default": "CONSTANT" }
+    ]
+  },
+  {
+    "name": "LayerNorm",
+    "category": "Normalization",
+    "attributes": [
+      { "name": "affine", "type": "bool", "default": true },
+      { "name": "eps", "type": "float32", "default": 0.00001 },
+      { "name": "normalized_dim", "type": "uint64", "default": 1 },
+      { "name": "normalized_size", "type": "uint64", "default": 1 }
+    ]
+  },
+  {
+    "name": "Dropout",
+    "category": "Dropout",
+    "attributes": [
+      { "name": "drop_prob", "type": "float32", "default": 0 },
+      { "name": "seed", "type": "uint64", "default": 0 }
+    ]
+  },
+  {
+    "name": "RNNCell",
+    "category": "Layer",
+    "attributes": [
+      { "name": "nonlineMode", "type": "RNNCellNonlineMode", "default": "IDENTITY" }
+    ]
+  },
+  {
+    "name": "RNN",
+    "category": "Layer",
+    "attributes": [
+      { "name": "num_layers", "type": "uint32", "default": 1 },
+      { "name": "bidirectional", "type": "bool", "default": false },
+      { "name": "bias", "type": "bool", "default": true },
+      { "name": "hidden_size", "type": "uint32", "default": 128 },
+      { "name": "dropout", "type": "float32", "default": 0 },
+      { "name": "nonlineMode", "type": "RNNCellNonlineMode", "default": "IDENTITY" },
+      { "name": "fwd_mode", "type": "BNFwdMode", "default": "TRAINING" }
+    ]
+  },
+  {
+    "name": "LSTM",
+    "category": "Layer",
+    "attributes": [
+      { "name": "num_layers", "type": "uint32", "default": 1 },
+      { "name": "bidirectional", "type": "bool", "default": false },
+      { "name": "bias", "type": "bool", "default": true },
+      { "name": "hidden_size", "type": "uint32", "default": 128 },
+      { "name": "proj_size", "type": "uint32", "default": 0 },
+      { "name": "dropout", "type": "float32", "default": 0 },
+      { "name": "fwd_mode", "type": "BNFwdMode", "default": "TRAINING" }
+    ]
+  },
+  {
+    "name": "DType",
+    "attributes": [
+      { "name": "dtype", "type": "DTypeEnum", "default": "Byte" }
+    ]
+  },
+  {
+    "name": "PersistentOutputStorage",
+    "attributes": [
+      { "name": "share_key", "type": "int32", "default": -1 }
+    ]
+  },
+  {
+    "name": "OptionalAxis",
+    "attributes": [
+      { "name": "axis", "type": "int32", "default": -1 }
+    ]
+  },
+  {
+    "name": "OptionalAxisV1",
+    "attributes": [
+      { "name": "axis", "type": "int32", "default": 7 }
+    ]
+  },
+  {
+    "name": "ExecutionPolicyV0",
+    "attributes": [
+      { "name": "strategy", "type": "ExecutionPolicyV0Strategy", "default": "HEURISTIC" },
+      { "name": "workspace_limit", "type": "uint64", "default": 18446744073709552000 }
+    ]
+  },
+  {
+    "name": "ExecutionPolicy",
+    "attributes": [
+      { "name": "strategy", "type": "ExecutionPolicyStrategy", "default": "PROFILE" },
+      { "name": "workspace_limit", "type": "uint64", "default": 18446744073709552000 }
+    ]
+  },
+  {
+    "name": "AssertEqual",
+    "attributes": [
+      { "name": "maxerr", "type": "float32", "default": 0.0001 },
+      { "name": "verbose", "type": "bool", "default": false }
+    ]
+  },
+  {
+    "name": "FpgaConv",
+    "attributes": [
+      { "name": "need_output_quantize", "type": "bool", "default": false },
+      { "name": "need_output_threshold", "type": "bool", "default": false },
+      { "name": "stride", "type": "int32", "default": 1 },
+      { "name": "input_bit_width", "type": "int32", "default": 2 },
+      { "name": "output_bit_width", "type": "int32", "default": 2 },
+      { "name": "weight_bit_width", "type": "int32", "default": 2 },
+      { "name": "thres0", "type": "int32", "default": 0 },
+      { "name": "thres1", "type": "int32", "default": 1 },
+      { "name": "unpool_size", "type": "uint32", "default": 4 },
+      { "name": "direct_size", "type": "uint32", "default": 4 }
+    ]
+  },
+  {
+    "name": "CollectiveComm",
+    "attributes": [
+      { "name": "mode", "type": "CollectiveCommMode", "default": "REDUCE_SUM" }
+    ]
+  },
+  {
+    "name": "CondExecPred",
+    "attributes": [
+      { "name": "mode", "type": "CondExecPredMode", "default": "CASE" },
+      { "name": "eps", "type": "float32", "default": 0.0001 }
+    ]
+  },
+  {
+    "name": "CondExecPredLogical",
+    "attributes": [
+      { "name": "mode", "type": "CondExecPredLogicalMode", "default": "OR" }
+    ]
+  },
+  {
+    "name": "CondExecMark",
+    "attributes": [
+      { "name": "grad_mode", "type": "CondExecMarkGradMode", "default": "SUM" },
+      { "name": "static_infer", "type": "CondExecMarkStaticInfer", "default": "SHAPE_VALUE" }
+    ]
+  },
+  {
+    "name": "CondExecMerge",
+    "attributes": [
+      { "name": "nr_output", "type": "uint32", "default": 1 },
+      { "name": "mode", "type": "CondExecMergeMode", "default": "EXACT_ONE" }
+    ]
+  },
+  {
+    "name": "NvOf",
+    "attributes": [
+      { "name": "precision", "type": "uint32", "default": 1 }
+    ]
+  },
+  {
+    "name": "PersistentDTypeScalar",
+    "attributes": [
+      { "name": "dtype", "type": "DTypeEnum", "default": "Float32" },
+      { "name": "storage", "type": "uint8", "default": 0 }
+    ]
+  },
+  {
+    "name": "MGBAddUpdate",
+    "attributes": [
+      { "name": "alpha", "type": "PersistentDTypeScalar" },
+      { "name": "beta", "type": "PersistentDTypeScalar" },
+      { "name": "bias", "type": "PersistentDTypeScalar" }
+    ]
+  },
+  {
+    "name": "Host2DeviceCopy",
+    "category": "Data",
+    "attributes": [
+      { "name": "enable_value_infer", "type": "bool", "default": true },
+      { "name": "dump_default_value", "type": "bool", "default": false },
+      { "name": "allow_cpu_mem_fwd", "type": "bool", "default": true }
+    ]
+  },
+  {
+    "name": "Dimshuffle",
+    "category": "Shape",
+    "attributes": [
+      { "name": "pattern", "type": "int32", "default": 0 },
+      { "name": "ndim", "type": "uint32", "default": 0 }
+    ]
+  },
+  {
+    "name": "AxisDesc",
+    "attributes": [
+      { "name": "method", "type": "AxisDescMethod", "default": "ADD_1" },
+      { "name": "axis", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "AxisAddRemove",
+    "attributes": [
+      { "name": "desc", "type": "AxisDesc" }
+    ]
+  },
+  {
+    "name": "MGBSleep",
+    "attributes": [
+      { "name": "device", "type": "bool", "default": true },
+      { "name": "host", "type": "bool", "default": false },
+      { "name": "seconds", "type": "float64", "default": 0 }
+    ]
+  },
+  {
+    "name": "IndexDescMaskItem",
+    "attributes": [
+      { "name": "axis", "type": "int8", "default": 0 },
+      { "name": "begin", "type": "bool", "default": false },
+      { "name": "end", "type": "bool", "default": false },
+      { "name": "step", "type": "bool", "default": false },
+      { "name": "idx", "type": "bool", "default": false }
+    ]
+  },
+  {
+    "name": "IndexDescMaskDump",
+    "attributes": [
+      { "name": "items", "type": "IndexDescMaskItem" }
+    ]
+  },
+  {
+    "name": "NMSKeep",
+    "attributes": [
+      { "name": "iou_thresh", "type": "float32", "default": 0 },
+      { "name": "max_output", "type": "uint32", "default": 0 }
+    ]
+  },
+  {
+    "name": "BatchNormForward",
+    "category": "Normalization"
+  },
+  {
+    "name": "ConvolutionForward",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" }
+    ]
+  },
+  {
+    "name": "ConvBiasForward",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "biases" }
+    ]
+  },
+  {
+    "name": "PoolingForward",
+    "category": "Pool"
+  },
+  {
+    "name": "AdaptivePoolingForward",
+    "category": "Pool"
+  },
+  {
+    "name": "Subtensor",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "input" },
+      { "name": "axis" }
+    ]
+  },
+  {
+    "name": "GetVarShape",
+    "category": "Shape"
+  },
+  {
+    "name": "ReshapeV1",
+    "category": "Shape",
+    "inputs": [
+      { "name": "tensor" },
+      { "name": "target_shape" }
+    ],
+    "outputs": [
+      { "name": "tensor" }
+    ]
+  },
+  {
+    "name": "Reshape",
+    "category": "Shape",
+    "inputs": [
+      { "name": "tensor" },
+      { "name": "target_shape" }
+    ],
+    "outputs": [
+      { "name": "tensor" }
+    ]
+  },
+  {
+    "name": "Concat",
+    "category": "Tensor"
+  },
+  {
+    "name": "GroupNorm",
+    "attributes": [
+      { "name": "affine", "type": "bool", "default": true },
+      { "name": "eps", "type": "float32", "default": 0.00001 },
+      { "name": "group", "type": "uint32", "default": 1 },
+      { "name": "format", "type": "ConvolutionFormat", "default": "NCHW" }
+    ]
+  }
+]

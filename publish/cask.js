@@ -69,7 +69,7 @@ const location = url.replace(/#{version}/g, version);
 get(location).then((data) => {
     const sha256 = crypto.createHash('sha256').update(data).digest('hex').toLowerCase();
     const caskDir = path.dirname(caskFile);
-    if (!fs.existsSync(caskDir)){
+    if (!fs.existsSync(caskDir)) {
         fs.mkdirSync(caskDir, { recursive: true });
     }
     fs.writeFileSync(caskFile, [

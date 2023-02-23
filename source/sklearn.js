@@ -25,14 +25,17 @@ sklearn.ModelFactory = class {
             if (validate(obj, format.name)) {
                 return format.format;
             }
-            if (Array.isArray(obj) && obj.every((item) => validate(item, format.name))) {
+            if (Array.isArray(obj) && obj.length > 0 && obj.every((item) => validate(item, format.name))) {
                 return format.format + '.list';
             }
-            if ((Object(obj) === obj) && Object.entries(obj).every((entry) => validate(entry[1], format.name))) {
-                return format.format + '.map';
+            if (Object(obj) === obj) {
+                const entries = Object.entries(obj);
+                if (entries.length > 0 && entries.every((entry) => validate(entry[1], format.name))) {
+                    return format.format + '.map';
+                }
             }
         }
-        return undefined;
+        return null;
     }
 
     open(context, match) {
@@ -54,7 +57,9 @@ sklearn.Model = class {
             case 'sklearn':
             case 'scipy':
             case 'hmmlearn': {
-                version.push(obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
+                if (obj._sklearn_version) {
+                    version.push(' v' + obj._sklearn_version.toString());
+                }
                 this._graphs.push(new sklearn.Graph(metadata, '', obj));
                 break;
             }
@@ -64,7 +69,9 @@ sklearn.Model = class {
                 for (let i = 0; i < list.length; i++) {
                     const obj = list[i];
                     this._graphs.push(new sklearn.Graph(metadata, i.toString(), obj));
-                    version.push(obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
+                    if (obj._sklearn_version) {
+                        version.push(' v' + obj._sklearn_version.toString());
+                    }
                 }
                 break;
             }
@@ -73,7 +80,9 @@ sklearn.Model = class {
                 for (const entry of Object.entries(obj)) {
                     const obj = entry[1];
                     this._graphs.push(new sklearn.Graph(metadata, entry[0], obj));
-                    version.push(obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
+                    if (obj._sklearn_version) {
+                        version.push(' v' + obj._sklearn_version.toString());
+                    }
                 }
                 break;
             }
@@ -81,7 +90,7 @@ sklearn.Model = class {
                 throw new sklearn.Error("Unsupported scikit-learn format '" + match + "'.");
             }
         }
-        if (version.every((value) => value === version[0])) {
+        if (version.length > 0 && version.every((value) => value === version[0])) {
             this._format += version[0];
         }
     }
@@ -124,7 +133,7 @@ sklearn.Graph = class {
                 const output = this._concat(group, name);
                 const subgroup = this._concat(group, name);
                 this._nodes.push(new sklearn.Node(this._metadata, subgroup, output, obj, inputs, [ output ]));
-                for (const transformer of obj.transformer_list){
+                for (const transformer of obj.transformer_list) {
                     outputs.push(...this._process(subgroup, transformer[0], transformer[1], [ output ]));
                 }
                 return outputs;
@@ -136,7 +145,7 @@ sklearn.Graph = class {
                 const subgroup = this._concat(group, name);
                 const outputs = [];
                 this._nodes.push(new sklearn.Node(this._metadata, subgroup, output, obj, inputs, [ output ]));
-                for (const transformer of obj.transformers){
+                for (const transformer of obj.transformers) {
                     if (transformer[1] !== 'passthrough') {
                         outputs.push(...this._process(subgroup, transformer[0], transformer[1], [ output ]));
                     }
@@ -151,7 +160,7 @@ sklearn.Graph = class {
         }
     }
 
-    _concat(parent, name){
+    _concat(parent, name) {
         return (parent === '' ?  name : `${parent}/${name}`);
     }
 
@@ -333,203 +342,30 @@ sklearn.Attribute = class {
 
 sklearn.Tensor = class {
 
-    constructor(value) {
-        if (!sklearn.Utility.isTensor(value)) {
-            const type = value.__class__.__module__ + '.' + value.__class__.__name__;
+    constructor(array) {
+        if (!sklearn.Utility.isTensor(array)) {
+            const type = array.__class__.__module__ + '.' + array.__class__.__name__;
             throw new sklearn.Error("Unsupported tensor type '" + type + "'.");
         }
-        this._type = new sklearn.TensorType(value.dtype.__name__, new sklearn.TensorShape(value.shape));
-        this._data = value.data;
-        if (this._type.dataType === 'string') {
-            this._itemsize = value.dtype.itemsize;
-        }
+        this._type = new sklearn.TensorType(array.dtype.__name__, new sklearn.TensorShape(array.shape));
+        this._byteorder = array.dtype.byteorder;
+        this._data = this._type.dataType == 'string' || this._type.dataType == 'object' ? array.tolist() : array.tobytes();
     }
 
     get type() {
         return this._type;
     }
 
-    get kind() {
+    get category() {
         return 'NumPy Array';
     }
 
-    get state() {
-        return this._context().state || null;
+    get layout() {
+        return this._type.dataType == 'string' || this._type.dataType == 'object' ? '|' : this._byteorder;
     }
 
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        switch (this._type.dataType) {
-            case 'int64':
-            case 'uint64':
-                return sklearn.Tensor._stringify(value, '', '    ');
-            default:
-                break;
-        }
-        return JSON.stringify(value, null, 4);
-    }
-
-    _context() {
-        const context = {};
-        context.index = 0;
-        context.count = 0;
-        context.state = null;
-
-        if (!this._type) {
-            context.state = 'Tensor has no data type.';
-            return context;
-        }
-        if (!this._data) {
-            context.state = 'Tensor is data is empty.';
-            return context;
-        }
-
-        context.dataType = this._type.dataType;
-        context.dimensions = this._type.shape.dimensions;
-
-        switch (context.dataType) {
-            case 'float32':
-            case 'float64':
-            case 'uint32':
-            case 'int8':
-            case 'int16':
-            case 'int32':
-            case 'int64':
-            case 'uint64':
-                context.view = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-                break;
-            case 'string':
-                context.data = this._data;
-                context.itemsize = this._itemsize;
-                context.decoder = new TextDecoder('utf-8');
-                break;
-            case 'object':
-                context.data = this._data;
-                break;
-            default:
-                context.state = "Tensor data type '" + context.dataType + "' is not implemented.";
-                return context;
-        }
-
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const results = [];
-        const size = context.dimensions[dimension];
-        if (dimension == context.dimensions.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                switch (context.dataType) {
-                    case 'float32': {
-                        results.push(context.view.getFloat32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    }
-                    case 'float64': {
-                        results.push(context.view.getFloat64(context.index, true));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    }
-                    case 'int8': {
-                        results.push(context.view.getInt8(context.index, true));
-                        context.index += 1;
-                        context.count++;
-                        break;
-                    }
-                    case 'int16': {
-                        results.push(context.view.getInt16(context.index, true));
-                        context.index += 2;
-                        context.count++;
-                        break;
-                    }
-                    case 'int32': {
-                        results.push(context.view.getInt32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    }
-                    case 'int64': {
-                        results.push(context.view.getInt64(context.index, true));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    }
-                    case 'uint32': {
-                        results.push(context.view.getUint32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    }
-                    case 'uint64': {
-                        results.push(context.view.getUint64(context.index, true));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    }
-                    case 'string': {
-                        const buffer = context.data.subarray(context.index, context.index + context.itemsize);
-                        const index = buffer.indexOf(0);
-                        const content = context.decoder.decode(index >= 0 ? buffer.subarray(0, index) : buffer);
-                        results.push(content);
-                        context.index += context.itemsize;
-                        context.count++;
-                        break;
-                    }
-                    case 'object': {
-                        results.push(context.data[context.index++]);
-                        context.count++;
-                        break;
-                    }
-                    default: {
-                        throw new sklearn.Error("Unsupported tensor data type '" + context.dataType + "'.");
-                    }
-                }
-            }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        return results;
-    }
-
-    static _stringify(value, indentation, indent) {
-        if (Array.isArray(value)) {
-            const result = [];
-            result.push('[');
-            const items = value.map((item) => sklearn.Tensor._stringify(item, indentation + indent, indent));
-            if (items.length > 0) {
-                result.push(items.join(',\n'));
-            }
-            result.push(']');
-            return result.join('\n');
-        }
-        return indentation + value.toString();
+    get values() {
+        return this._data;
     }
 };
 

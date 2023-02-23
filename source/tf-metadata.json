@@ -54,7 +54,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "shape",
@@ -85,7 +85,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -152,7 +152,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -184,7 +184,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `complex64`, `complex128`."
       }
     ],
     "inputs": [
@@ -312,7 +312,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `variant`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `variant`."
       }
     ],
     "inputs": [
@@ -653,7 +653,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "The type of elements to be exchanged. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `bool`."
+        "description": "The type of elements to be exchanged. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `bool`."
       },
       {
         "name": "concat_dimension",
@@ -694,7 +694,7 @@
   {
     "name": "Angle",
     "summary": "Returns the argument of a complex number.",
-    "description": "Given a tensor `input` of complex numbers, this operation returns a tensor of\ntype `float` that is the argument of each element in `input`. All elements in\n`input` must be complex numbers of the form \\\\(a + bj\\\\), where *a*\nis the real part and *b* is the imaginary part.\n\nThe argument returned by this operation is of the form \\\\(atan2(b, a)\\\\).\n\nFor example:\n\n```\n# tensor 'input' is [-2.25 + 4.75j, 3.25 + 5.75j]\ntf.angle(input) ==> [2.0132, 1.056]\n```\n\n@compatibility(numpy)\nEquivalent to np.angle.\n@end_compatibility",
+    "description": "Given a tensor `input` of complex numbers, this operation returns a tensor of\ntype `float` that is the argument of each element in `input`. All elements in\n`input` must be complex numbers of the form \\\\(a + bj\\\\), where *a*\nis the real part and *b* is the imaginary part.\n\nThe argument returned by this operation is of the form \\\\(atan2(b, a)\\\\).\n\nFor example:\n\n```\n# tensor 'input' is [-2.25 + 4.75j, 3.25 + 5.75j]\ntf.math.angle(input) ==> [2.0132, 1.056]\n```\n\n@compatibility(numpy)\nEquivalent to np.angle.\n@end_compatibility",
     "attributes": [
       {
         "name": "T",
@@ -1111,7 +1111,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1187,7 +1187,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1253,7 +1253,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1307,7 +1307,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1378,7 +1378,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1438,7 +1438,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1525,7 +1525,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1590,7 +1590,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1667,7 +1667,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1743,7 +1743,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1822,7 +1822,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1866,7 +1866,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1927,7 +1927,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -1992,7 +1992,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -2052,7 +2052,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -2106,7 +2106,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -2242,7 +2242,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "tolerance",
@@ -2275,7 +2275,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `bool`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `int64`, `bfloat16`, `uint16`, `float16`, `uint32`, `uint64`, `qint8`, `quint8`, `qint32`, `qint16`, `quint16`, `bool`."
       },
       {
         "name": "Tidx",
@@ -2322,7 +2322,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `bool`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `int64`, `bfloat16`, `uint16`, `float16`, `uint32`, `uint64`, `qint8`, `quint8`, `qint32`, `qint16`, `quint16`, `bool`."
       },
       {
         "name": "Tidx",
@@ -2423,7 +2423,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `complex64`, `complex128`."
       }
     ],
     "inputs": [
@@ -2647,7 +2647,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -2710,7 +2710,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -2841,7 +2841,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `complex64`, `complex128`."
       }
     ],
     "inputs": [
@@ -3958,7 +3958,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int16`, `int32`, `int64`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int16`, `int32`, `int64`, `uint8`, `uint16`, `uint32`, `uint64`, `complex64`, `complex128`."
       },
       {
         "name": "adj_x",
@@ -4302,7 +4302,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "variance_epsilon",
@@ -4357,7 +4357,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "variance_epsilon",
@@ -4919,7 +4919,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "data_format",
@@ -4956,7 +4956,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "data_format",
@@ -4988,7 +4988,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -5050,7 +5050,7 @@
   {
     "name": "Bitcast",
     "summary": "Bitcasts a tensor from one type to another without copying data.",
-    "description": "Given a tensor `input`, this operation returns a tensor that has the same buffer\ndata as `input` with datatype `type`.\n\nIf the input datatype `T` is larger than the output datatype `type` then the\nshape changes from [...] to [..., sizeof(`T`)/sizeof(`type`)].\n\nIf `T` is smaller than `type`, the operator requires that the rightmost\ndimension be equal to sizeof(`type`)/sizeof(`T`). The shape then goes from\n[..., sizeof(`type`)/sizeof(`T`)] to [...].\n\ntf.bitcast() and tf.cast() work differently when real dtype is casted as a complex dtype\n(e.g. tf.complex64 or tf.complex128) as tf.cast() make imaginary part 0 while tf.bitcast()\ngives module error.\nFor example,\n\nExample 1:\n\n>>> a = [1., 2., 3.]\n>>> equality_bitcast = tf.bitcast(a, tf.complex128)\nTraceback (most recent call last):\n...\nInvalidArgumentError: Cannot bitcast from 1 to 18 [Op:Bitcast]\n>>> equality_cast = tf.cast(a, tf.complex128)\n>>> print(equality_cast)\ntf.Tensor([1.+0.j 2.+0.j 3.+0.j], shape=(3,), dtype=complex128)\n\nExample 2:\n\n>>> tf.bitcast(tf.constant(0xffffffff, dtype=tf.uint32), tf.uint8)\n<tf.Tensor: shape=(4,), dtype=uint8, numpy=array([255, 255, 255, 255], dtype=uint8)>\n\nExample 3:\n\n>>> x = [1., 2., 3.]\n>>> y = [0., 2., 3.]\n>>> equality= tf.equal(x,y)\n>>> equality_cast = tf.cast(equality,tf.float32)\n>>> equality_bitcast = tf.bitcast(equality_cast,tf.uint8)\n>>> print(equality)\ntf.Tensor([False True True], shape=(3,), dtype=bool)\n>>> print(equality_cast)\ntf.Tensor([0. 1. 1.], shape=(3,), dtype=float32)\n>>> print(equality_bitcast)\ntf.Tensor(\n    [[  0   0   0   0]\n     [  0   0 128  63]\n     [  0   0 128  63]], shape=(3, 4), dtype=uint8)\n\n*NOTE*: Bitcast is implemented as a low-level cast, so machines with different\nendian orderings will give different results.",
+    "description": "Given a tensor `input`, this operation returns a tensor that has the same buffer\ndata as `input` with datatype `type`.\n\nIf the input datatype `T` is larger than the output datatype `type` then the\nshape changes from [...] to [..., sizeof(`T`)/sizeof(`type`)].\n\nIf `T` is smaller than `type`, the operator requires that the rightmost\ndimension be equal to sizeof(`type`)/sizeof(`T`). The shape then goes from\n[..., sizeof(`type`)/sizeof(`T`)] to [...].\n\ntf.bitcast() and tf.cast() work differently when real dtype is casted as a complex dtype\n(e.g. tf.complex64 or tf.complex128) as tf.cast() make imaginary part 0 while tf.bitcast()\ngives module error.\nFor example,\n\nExample 1:\n\n>>> a = [1., 2., 3.]\n>>> equality_bitcast = tf.bitcast(a, tf.complex128)\nTraceback (most recent call last):\n...\nInvalidArgumentError: Cannot bitcast from 1 to 18 [Op:Bitcast]\n>>> equality_cast = tf.cast(a, tf.complex128)\n>>> print(equality_cast)\ntf.Tensor([1.+0.j 2.+0.j 3.+0.j], shape=(3,), dtype=complex128)\n\nExample 2:\n\n>>> tf.bitcast(tf.constant(0xffffffff, dtype=tf.uint32), tf.uint8)\n<tf.Tensor: shape=(4,), dtype=uint8, numpy=array([255, 255, 255, 255], dtype=uint8)>\n\nExample 3:\n\n>>> x = [1., 2., 3.]\n>>> y = [0., 2., 3.]\n>>> equality= tf.equal(x,y)\n>>> equality_cast = tf.cast(equality,tf.float32)\n>>> equality_bitcast = tf.bitcast(equality_cast,tf.uint8)\n>>> print(equality)\ntf.Tensor([False True True], shape=(3,), dtype=bool)\n>>> print(equality_cast)\ntf.Tensor([0. 1. 1.], shape=(3,), dtype=float32)\n>>> print(equality_bitcast)\ntf.Tensor(\n    [[  0   0   0   0]\n     [  0   0 128  63]\n     [  0   0 128  63]], shape=(3, 4), dtype=uint8)\n\n*NOTE*: Bitcast is implemented as a low-level cast, so machines with different\nendian orderings will give different results. A copy from input buffer to output\nbuffer is made on BE machines when types are of different sizes in order to get\nthe same casting results as on LE machines.",
     "attributes": [
       {
         "name": "T",
@@ -8001,7 +8001,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -8035,6 +8035,87 @@
       {
         "name": "writer",
         "type": 20
+      }
+    ]
+  },
+  {
+    "name": "CollateTPUEmbeddingMemory",
+    "summary": "An op that merges the string-encoded memory config protos from all hosts.",
+    "attributes": [
+      {
+        "name": "N",
+        "type": "int64",
+        "minimum": 1
+      }
+    ],
+    "inputs": [
+      {
+        "name": "memory_configs",
+        "description": "String-encoded memory config protos containing metadata about\nthe memory allocations reserved for TPUEmbedding across all hosts.",
+        "numberAttr": "N",
+        "type": 7
+      }
+    ],
+    "outputs": [
+      {
+        "name": "merged_memory_config",
+        "type": 7
+      }
+    ]
+  },
+  {
+    "name": "CollectiveAllToAllV2",
+    "summary": "Mutually exchanges multiple tensors of identical type and shape.",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type",
+        "description": "Must be one of the following: `bfloat16`, `float32`, `float16`, `float64`, `int32`, `int64`."
+      },
+      {
+        "name": "communication_hint",
+        "type": "string",
+        "default": "auto"
+      },
+      {
+        "name": "timeout_seconds",
+        "type": "float32",
+        "default": 0.0
+      },
+      {
+        "name": "Nordering_token",
+        "type": "int64",
+        "minimum": 0,
+        "default": 0
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "typeAttr": "T"
+      },
+      {
+        "name": "group_size",
+        "type": 3
+      },
+      {
+        "name": "group_key",
+        "type": 3
+      },
+      {
+        "name": "instance_key",
+        "type": 3
+      },
+      {
+        "name": "ordering_token",
+        "numberAttr": "Nordering_token",
+        "type": 20
+      }
+    ],
+    "outputs": [
+      {
+        "name": "data",
+        "typeAttr": "T"
       }
     ]
   },
@@ -8442,7 +8523,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "The type of elements to be exchanged. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "The type of elements to be exchanged. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -8520,6 +8601,77 @@
       {
         "name": "input",
         "typeAttr": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "data",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "CollectiveReduceScatterV2",
+    "summary": "Mutually reduces multiple tensors of identical type and shape and scatters the result.",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type",
+        "description": "Must be one of the following: `bfloat16`, `float32`, `float16`, `float64`, `int32`, `int64`."
+      },
+      {
+        "name": "merge_op",
+        "type": "string",
+        "description": "Must be one of the following: `Min`, `Max`, `Mul`, `Add`."
+      },
+      {
+        "name": "final_op",
+        "type": "string",
+        "description": "Must be one of the following: `Id`, `Div`."
+      },
+      {
+        "name": "communication_hint",
+        "type": "string",
+        "default": "auto"
+      },
+      {
+        "name": "timeout_seconds",
+        "type": "float32",
+        "default": 0.0
+      },
+      {
+        "name": "Nordering_token",
+        "type": "int64",
+        "minimum": 0,
+        "default": 0
+      },
+      {
+        "name": "max_subdivs_per_device",
+        "type": "int64",
+        "default": -1
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "typeAttr": "T"
+      },
+      {
+        "name": "group_size",
+        "type": 3
+      },
+      {
+        "name": "group_key",
+        "type": 3
+      },
+      {
+        "name": "instance_key",
+        "type": 3
+      },
+      {
+        "name": "ordering_token",
+        "numberAttr": "Nordering_token",
+        "type": 20
       }
     ],
     "outputs": [
@@ -8948,6 +9100,25 @@
     ]
   },
   {
+    "name": "ComputeDedupDataTupleMask",
+    "summary": "An op computes tuple mask of deduplication data from embedding core.",
+    "description": "The deduplication data receiving from embedding core is a Tensor with\ntype=DT_VARIANT. The tensor itself is an XLA nested tuple, whose elements are\nrank 1 tensors. This op is to represents types and length of these elements.",
+    "attributes": [
+      {
+        "name": "config",
+        "type": "string",
+        "description": "Serialized TPUEmbeddingConfiguration proto."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output_shape",
+        "description": "A 2-D int tensor represent mask of deduplication data tuple generated by\n`XlaRecvTPUEmbeddingDeduplicationData`. The tuple has several integer and float\ntype 1-D tensor tuple elements. The first dimenion of this output_shape 2-D\ntensor is tensor type of tuple elements, `0` represents integer tensor, `1`\nrepresents float tensor. The second dimension of `output_shape` gives length of\neach tuple element.",
+        "type": 3
+      }
+    ]
+  },
+  {
     "name": "Concat",
     "category": "Tensor",
     "summary": "Concatenates tensors along one dimension.",
@@ -8986,7 +9157,7 @@
   {
     "name": "ConcatOffset",
     "summary": "Computes offsets of concat inputs within its output.",
-    "description": "For example:\n\n```\n# 'x' is [2, 2, 7]\n# 'y' is [2, 3, 7]\n# 'z' is [2, 5, 7]\nconcat_offset(2, [x, y, z]) => [0, 0, 0], [0, 2, 0], [0, 5, 0]\n```\n\nThis is typically used by gradient computations for a concat operation.",
+    "description": "For example:\n\n>>> x = [2, 2, 7]\n>>> y = [2, 3, 7]\n>>> z = [2, 9, 7]\n>>> offsets = concat_offset(1, [x, y, z])\n>>> [list(off.numpy()) for off in offsets]\n[[0, 0, 0], [0, 2, 0], [0, 5, 0]]\n\nThis is typically used by gradient computations for a concat operation.",
     "attributes": [
       {
         "name": "N",
@@ -9106,7 +9277,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "The type of the value being accumulated. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "The type of the value being accumulated. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "shape",
@@ -9144,6 +9315,13 @@
   {
     "name": "ConfigureAndInitializeGlobalTPU",
     "summary": "An op that sets up the centralized structures for a distributed TPU system.",
+    "attributes": [
+      {
+        "name": "use_tfrt_host_runtime",
+        "type": "boolean",
+        "default": true
+      }
+    ],
     "outputs": [
       {
         "name": "output",
@@ -9210,6 +9388,54 @@
     ]
   },
   {
+    "name": "ConfigureTPUEmbeddingHost",
+    "summary": "An op that configures the TPUEmbedding software on a host.",
+    "attributes": [
+      {
+        "name": "config",
+        "type": "string",
+        "description": "An TPUEmbeddingConfiguration proto serialized to a string,\ndescribing the desired TPUEmbedding configuration."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "common_config",
+        "description": "A string-encoded common configuration proto containing metadata\nabout the TPUEmbedding partitioner output.",
+        "type": 7
+      },
+      {
+        "name": "memory_config",
+        "description": "A string-encoded memory config proto containing metadata about\nthe memory allocations reserved for TPUEmbedding.",
+        "type": 7
+      }
+    ],
+    "outputs": [
+      {
+        "name": "network_config",
+        "description": "A string containing metadata about the hostname and RPC port\nused for communication with this host.",
+        "type": 7
+      }
+    ]
+  },
+  {
+    "name": "ConfigureTPUEmbeddingMemory",
+    "summary": "An op that configures the TPUEmbedding software on a host.",
+    "inputs": [
+      {
+        "name": "common_config",
+        "description": "A string-encoded CommonConfiguration proto containing metadata\nabout the TPUEmbedding partitioner output and the HBM size (in bytes) required\nfor operation.",
+        "type": 7
+      }
+    ],
+    "outputs": [
+      {
+        "name": "memory_config",
+        "description": "A string-encoded memory configuration containing metadata about\nthe memory allocations reserved for TPUEmbedding.",
+        "type": 7
+      }
+    ]
+  },
+  {
     "name": "Conj",
     "summary": "Returns the complex conjugate of a complex number.",
     "description": "Given a tensor `input` of complex numbers, this operation returns a tensor of\ncomplex numbers that are the complex conjugate of each element in `input`. The\ncomplex numbers in `input` must be of the form \\\\(a + bj\\\\), where *a* is the\nreal part and *b* is the imaginary part.\n\nThe complex conjugate returned by this operation is of the form \\\\(a - bj\\\\).\n\nFor example:\n\n```\n# tensor 'input' is [-2.25 + 4.75j, 3.25 + 5.75j]\ntf.conj(input) ==> [-2.25 - 4.75j, 3.25 - 5.75j]\n```",
@@ -9270,6 +9496,26 @@
       {
         "name": "y",
         "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "ConnectTPUEmbeddingHosts",
+    "summary": "An op that sets up communication between TPUEmbedding host software instances",
+    "description": "after ConfigureTPUEmbeddingHost has been called on each host.",
+    "attributes": [
+      {
+        "name": "N",
+        "type": "int64",
+        "minimum": 1
+      }
+    ],
+    "inputs": [
+      {
+        "name": "network_configs",
+        "description": "Strings containing metadata about the hostname and RPC port\nused for communication with all hosts.",
+        "numberAttr": "N",
+        "type": 7
       }
     ]
   },
@@ -9456,6 +9702,79 @@
     ]
   },
   {
+    "name": "Conv2DBackpropFilterV2",
+    "summary": "Computes the gradients of convolution with respect to the filter.",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type",
+        "description": "Must be one of the following: `float16`, `bfloat16`, `float32`, `float64`."
+      },
+      {
+        "name": "strides",
+        "type": "int64[]",
+        "description": "The stride of the sliding window for each dimension of the input\nof the convolution. Must be in the same order as the dimension specified with\nformat."
+      },
+      {
+        "name": "use_cudnn_on_gpu",
+        "type": "boolean",
+        "default": true
+      },
+      {
+        "name": "padding",
+        "type": "string",
+        "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`, `EXPLICIT`."
+      },
+      {
+        "name": "explicit_paddings",
+        "type": "int64[]",
+        "description": "If `padding` is `\"EXPLICIT\"`, the list of explicit padding amounts. For the ith\ndimension, the amount of padding inserted before and after the dimension is\n`explicit_paddings[2 * i]` and `explicit_paddings[2 * i + 1]`, respectively. If\n`padding` is not `\"EXPLICIT\"`, `explicit_paddings` must be empty.",
+        "default": []
+      },
+      {
+        "name": "data_format",
+        "type": "string",
+        "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width]. Must be one of the following: `NHWC`, `NCHW`.",
+        "default": "NHWC"
+      },
+      {
+        "name": "dilations",
+        "type": "int64[]",
+        "description": "1-D tensor of length 4.  The dilation factor for each dimension of\n`input`. If set to k > 1, there will be k-1 skipped cells between each filter\nelement on that dimension. The dimension order is determined by the value of\n`data_format`, see above for details. Dilations in the batch and depth\ndimensions must be 1.",
+        "default": [
+          1,
+          1,
+          1,
+          1
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "description": "4-D with shape `[batch, in_height, in_width, in_channels]`.",
+        "typeAttr": "T"
+      },
+      {
+        "name": "filter",
+        "description": "4-D with shape `[filter_height, filter_width, in_channels, out_channels]`.\nOnly shape of tensor is used.",
+        "typeAttr": "T"
+      },
+      {
+        "name": "out_backprop",
+        "description": "4-D with shape `[batch, out_height, out_width, out_channels]`.\nGradients w.r.t. the output of the convolution.",
+        "typeAttr": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "4-D with shape\n`[filter_height, filter_width, in_channels, out_channels]`.  Gradient w.r.t.\nthe `filter` input of the convolution.",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
     "name": "Conv2DBackpropInput",
     "summary": "Computes the gradients of convolution with respect to the input.",
     "attributes": [
@@ -9508,6 +9827,79 @@
         "name": "input_sizes",
         "description": "An integer vector representing the shape of `input`,\nwhere `input` is a 4-D `[batch, height, width, channels]` tensor.",
         "type": 3
+      },
+      {
+        "name": "filter",
+        "description": "4-D with shape\n`[filter_height, filter_width, in_channels, out_channels]`.",
+        "typeAttr": "T"
+      },
+      {
+        "name": "out_backprop",
+        "description": "4-D with shape `[batch, out_height, out_width, out_channels]`.\nGradients w.r.t. the output of the convolution.",
+        "typeAttr": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "4-D with shape `[batch, in_height, in_width, in_channels]`.  Gradient\nw.r.t. the input of the convolution.",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "Conv2DBackpropInputV2",
+    "summary": "Computes the gradients of convolution with respect to the input.",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type",
+        "description": "Must be one of the following: `float16`, `bfloat16`, `float32`, `float64`, `int32`."
+      },
+      {
+        "name": "strides",
+        "type": "int64[]",
+        "description": "The stride of the sliding window for each dimension of the input\nof the convolution. Must be in the same order as the dimension specified with\nformat."
+      },
+      {
+        "name": "use_cudnn_on_gpu",
+        "type": "boolean",
+        "default": true
+      },
+      {
+        "name": "padding",
+        "type": "string",
+        "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`, `EXPLICIT`."
+      },
+      {
+        "name": "explicit_paddings",
+        "type": "int64[]",
+        "description": "If `padding` is `\"EXPLICIT\"`, the list of explicit padding amounts. For the ith\ndimension, the amount of padding inserted before and after the dimension is\n`explicit_paddings[2 * i]` and `explicit_paddings[2 * i + 1]`, respectively. If\n`padding` is not `\"EXPLICIT\"`, `explicit_paddings` must be empty.",
+        "default": []
+      },
+      {
+        "name": "data_format",
+        "type": "string",
+        "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width]. Must be one of the following: `NHWC`, `NCHW`.",
+        "default": "NHWC"
+      },
+      {
+        "name": "dilations",
+        "type": "int64[]",
+        "description": "1-D tensor of length 4.  The dilation factor for each dimension of\n`input`. If set to k > 1, there will be k-1 skipped cells between each filter\nelement on that dimension. The dimension order is determined by the value of\n`data_format`, see above for details. Dilations in the batch and depth\ndimensions must be 1.",
+        "default": [
+          1,
+          1,
+          1,
+          1
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "description": "4-D with shape `[batch, in_height, in_width, in_channels]`.\nOnly shape of tensor is used.",
+        "typeAttr": "T"
       },
       {
         "name": "filter",
@@ -9914,7 +10306,28 @@
         "type": "string"
       },
       {
-        "name": "source_layout",
+        "name": "T",
+        "type": "type"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "typeAttr": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "CopyToMeshGrad",
+    "attributes": [
+      {
+        "name": "reference_layout",
         "type": "string",
         "default": ""
       },
@@ -9926,6 +10339,10 @@
     "inputs": [
       {
         "name": "input",
+        "typeAttr": "T"
+      },
+      {
+        "name": "forward_input",
         "typeAttr": "T"
       }
     ],
@@ -11336,7 +11753,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tidx",
@@ -11387,7 +11804,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tidx",
@@ -11438,7 +11855,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       },
       {
         "name": "Tidx",
@@ -11514,48 +11931,6 @@
       {
         "name": "topology",
         "description": "A serialized tensorflow.tpu.TopologyProto that describes the TPU topology.",
-        "type": 7
-      }
-    ]
-  },
-  {
-    "name": "DTensorShardedPrefix",
-    "attributes": [
-      {
-        "name": "dtypes",
-        "type": "type[]",
-        "minimum": 1
-      }
-    ],
-    "inputs": [
-      {
-        "name": "prefix",
-        "type": 7
-      },
-      {
-        "name": "tensor_names",
-        "type": 7
-      },
-      {
-        "name": "shape_and_slices",
-        "type": 7
-      },
-      {
-        "name": "mesh",
-        "type": 7
-      },
-      {
-        "name": "layouts",
-        "type": 7
-      },
-      {
-        "name": "tensors",
-        "typeListAttr": "dtypes"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "output",
         "type": 7
       }
     ]
@@ -11844,6 +12219,95 @@
       {
         "name": "dataset_id",
         "type": 9
+      },
+      {
+        "name": "processing_mode",
+        "type": 7
+      },
+      {
+        "name": "address",
+        "type": 7
+      },
+      {
+        "name": "protocol",
+        "type": 7
+      },
+      {
+        "name": "job_name",
+        "type": 7
+      },
+      {
+        "name": "consumer_index",
+        "type": 9
+      },
+      {
+        "name": "num_consumers",
+        "type": 9
+      },
+      {
+        "name": "max_outstanding_requests",
+        "type": 9
+      },
+      {
+        "name": "iteration_counter",
+        "type": 20
+      }
+    ],
+    "outputs": [
+      {
+        "name": "handle",
+        "type": 21
+      }
+    ]
+  },
+  {
+    "name": "DataServiceDatasetV4",
+    "summary": "Creates a dataset that reads data from the tf.data service.",
+    "attributes": [
+      {
+        "name": "task_refresh_interval_hint_ms",
+        "type": "int64",
+        "default": -1
+      },
+      {
+        "name": "output_types",
+        "type": "type[]",
+        "minimum": 1
+      },
+      {
+        "name": "output_shapes",
+        "type": "shape[]",
+        "minimum": 1
+      },
+      {
+        "name": "data_transfer_protocol",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "target_workers",
+        "type": "string",
+        "default": "AUTO"
+      },
+      {
+        "name": "uncompress",
+        "type": "boolean",
+        "default": false
+      },
+      {
+        "name": "uncompress_fn",
+        "type": "function"
+      },
+      {
+        "name": "cross_trainer_cache_options",
+        "type": "string",
+        "default": ""
+      }
+    ],
+    "inputs": [
+      {
+        "name": "dataset_id",
+        "type": 7
       },
       {
         "name": "processing_mode",
@@ -14056,6 +14520,30 @@
     ]
   },
   {
+    "name": "DistributedSave",
+    "attributes": [
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
+      }
+    ],
+    "inputs": [
+      {
+        "name": "dataset",
+        "type": 21
+      },
+      {
+        "name": "directory",
+        "type": 7
+      },
+      {
+        "name": "address",
+        "type": 7
+      }
+    ]
+  },
+  {
     "name": "Div",
     "summary": "Returns x / y element-wise.",
     "description": "*NOTE*: `Div` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
@@ -14291,7 +14779,7 @@
   {
     "name": "DynamicPartition",
     "summary": "Partitions `data` into `num_partitions` tensors using indices from `partitions`.",
-    "description": "For each index tuple `js` of size `partitions.ndim`, the slice `data[js, ...]`\nbecomes part of `outputs[partitions[js]]`.  The slices with `partitions[js] = i`\nare placed in `outputs[i]` in lexicographic order of `js`, and the first\ndimension of `outputs[i]` is the number of entries in `partitions` equal to `i`.\nIn detail,\n\n```python\n    outputs[i].shape = [sum(partitions == i)] + data.shape[partitions.ndim:]\n\n    outputs[i] = pack([data[js, ...] for js if partitions[js] == i])\n```\n\n`data.shape` must start with `partitions.shape`.\n\nFor example:\n\n```python\n    # Scalar partitions.\n    partitions = 1\n    num_partitions = 2\n    data = [10, 20]\n    outputs[0] = []  # Empty with shape [0, 2]\n    outputs[1] = [[10, 20]]\n\n    # Vector partitions.\n    partitions = [0, 0, 1, 1, 0]\n    num_partitions = 2\n    data = [10, 20, 30, 40, 50]\n    outputs[0] = [10, 20, 50]\n    outputs[1] = [30, 40]\n```\n\nSee `dynamic_stitch` for an example on how to merge partitions back.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/DynamicPartition.png\" alt>\n</div>",
+    "description": "For each index tuple `js` of size `partitions.ndim`, the slice `data[js, ...]`\nbecomes part of `outputs[partitions[js]]`.  The slices with `partitions[js] = i`\nare placed in `outputs[i]` in lexicographic order of `js`, and the first\ndimension of `outputs[i]` is the number of entries in `partitions` equal to `i`.\nIn detail,\n\n```python\n    outputs[i].shape = [sum(partitions == i)] + data.shape[partitions.ndim:]\n\n    outputs[i] = pack([data[js, ...] for js if partitions[js] == i])\n```\n\n`data.shape` must start with `partitions.shape`.\n\nFor example:\n\n```python\n    # Scalar partitions.\n    partitions = 1\n    num_partitions = 2\n    data = [10, 20]\n    outputs[0] = []  # Empty with shape [0, 2]\n    outputs[1] = [[10, 20]]\n\n    # Vector partitions.\n    partitions = [0, 0, 1, 1, 0]\n    num_partitions = 2\n    data = [10, 20, 30, 40, 50]\n    outputs[0] = [10, 20, 50]\n    outputs[1] = [30, 40]\n```\n\nSee `dynamic_stitch` for an example on how to merge partitions back.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/DynamicPartition.png\" alt>\n</div>\n\n\nRaises:\n  * `InvalidArgumentError` in following cases:\n    - If partitions is not in range `[0, num_partiions)`\n    - If `partitions.shape` does not match prefix of `data.shape` argument.\n",
     "attributes": [
       {
         "name": "num_partitions",
@@ -15477,7 +15965,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tidx",
@@ -15506,6 +15994,25 @@
         "name": "output",
         "description": "The reduced tensor.",
         "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "ExecuteTPUEmbeddingPartitioner",
+    "summary": "An op that executes the TPUEmbedding partitioner on the central configuration",
+    "description": "device and computes the HBM size (in bytes) required for TPUEmbedding operation.",
+    "attributes": [
+      {
+        "name": "config",
+        "type": "string",
+        "description": "An TPUEmbeddingConfiguration proto serialized to a string,\ndescribing the desired TPUEmbedding configuration."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "common_config",
+        "description": "A string-encoded common configuration proto\ncontaining metadata about the TPUEmbedding partitioner output and\nthe HBM size (in bytes) required for operation.",
+        "type": 7
       }
     ]
   },
@@ -17529,8 +18036,8 @@
   },
   {
     "name": "FakeQuantWithMinMaxArgs",
-    "summary": "Fake-quantize the 'inputs' tensor, type float to 'outputs' tensor of same type.",
-    "description": "Attributes\n\n*   `[min; max]` define the clamping range for the `inputs` data.\n*   `inputs` values are quantized into the quantization range (\n`[0; 2^num_bits - 1]` when `narrow_range` is false and `[1; 2^num_bits - 1]`\nwhen it is true) and then de-quantized and output as floats in `[min; max]`\ninterval.\n*   `num_bits` is the bitwidth of the quantization; between 2 and 16, inclusive.\n\nBefore quantization, `min` and `max` values are adjusted with the following\nlogic.\nIt is suggested to have `min <= 0 <= max`. If `0` is not in the range of values,\nthe behavior can be unexpected:\n\n*   If `0 < min < max`: `min_adj = 0` and `max_adj = max - min`.\n*   If `min < max < 0`: `min_adj = min - max` and `max_adj = 0`.\n*   If `min <= 0 <= max`: `scale = (max - min) / (2^num_bits - 1) `,\n`min_adj = scale * round(min / scale)` and `max_adj = max + min_adj - min`.\n\nQuantization is called fake since the output is still in floating point.",
+    "summary": "Fake-quantize the 'inputs' tensor, type float to 'outputs' tensor of same shape and type.",
+    "description": "\n  Quantization is called fake since the output is still in floating point.\n  The API converts inputs into values within the range [min and max] and returns\n  as output.\n\nAttributes\n\n*   `[min; max]` define the clamping range for the `inputs` data.\n*   `inputs` values are quantized into the quantization range (\n`[0; 2^num_bits - 1]` when `narrow_range` is false and `[1; 2^num_bits - 1]`\nwhen it is true) and then de-quantized and output as floats in `[min; max]`\ninterval.\n*   `num_bits` is the bitwidth of the quantization; between 2 and 16, inclusive.\n\nBefore quantization, `min` and `max` values are adjusted with the following\nlogic.\nIt is suggested to have `min <= 0 <= max`. If `0` is not in the range of values,\nthe behavior can be unexpected:\n\n*   If `0 < min < max`: `min_adj = 0` and `max_adj = max - min`.\n*   If `min < max < 0`: `min_adj = min - max` and `max_adj = 0`.\n*   If `min <= 0 <= max`: `scale = (max - min) / (2^num_bits - 1) `,\n`min_adj = scale * round(min / scale)` and `max_adj = max + min_adj - min`.\n\n\nExamples\n\n```python\n\ninp = tf.constant ([10.03, -10.23, 3])\nout = tf.quantization.fake_quant_with_min_max_args(inp, min=-5, max=5,\n                                                   num_bits=16)\nprint(out)\n\n#  Output:\n#  tf.Tensor([ 4.9999237 -5.0000763  3.0000763], shape=(3,), dtype=float32)\n```\n\nRaises:\n  * InvalidArgumentError:\n    - If num_bits are outside of range [2, 16].\n    - If min >= max.\n  * ValueError: If `inputs` are of any other type than float32.\n",
     "attributes": [
       {
         "name": "min",
@@ -17983,6 +18490,22 @@
     ]
   },
   {
+    "name": "FinalizeTPUEmbedding",
+    "summary": "An op that finalizes the TPUEmbedding configuration.",
+    "inputs": [
+      {
+        "name": "common_config",
+        "description": "A string-encoded common configuration proto containing metadata\nabout the TPUEmbedding partitioner output and the HBM size (in bytes) required\nfor operation.",
+        "type": 7
+      },
+      {
+        "name": "memory_config",
+        "description": "A string-encoded memory config proto containing metadata about\nthe memory allocations reserved for TPUEmbedding.",
+        "type": 7
+      }
+    ]
+  },
+  {
     "name": "Fingerprint",
     "summary": "Generates fingerprint values.",
     "description": "Generates fingerprint values of `data`.\n\nFingerprint op considers the first dimension of `data` as the batch dimension,\nand `output[i]` contains the fingerprint value generated from contents in\n`data[i, ...]` for all `i`.\n\nFingerprint op writes fingerprint values as byte arrays. For example, the\ndefault method `farmhash64` generates a 64-bit fingerprint value at a time.\nThis 8-byte value is written out as an `uint8` array of size 8, in little-endian\norder.\n\nFor example, suppose that `data` has data type `DT_INT32` and shape (2, 3, 4),\nand that the fingerprint method is `farmhash64`. In this case, the output shape\nis (2, 8), where 2 is the batch dimension size of `data`, and 8 is the size of\neach fingerprint value in bytes. `output[0, :]` is generated from 12 integers in\n`data[0, :, :]` and similarly `output[1, :]` is generated from other 12 integers\nin `data[1, :, :]`.\n\nNote that this op fingerprints the raw underlying buffer, and it does not\nfingerprint Tensor's metadata such as data type and/or shape. For example, the\nfingerprint values are invariant under reshapes and bitcasts as long as the\nbatch dimension remain the same:\n\n```\nFingerprint(data) == Fingerprint(Reshape(data, ...))\nFingerprint(data) == Fingerprint(Bitcast(data, ...))\n```\n\nFor string data, one should expect `Fingerprint(data) !=\nFingerprint(ReduceJoin(data))` in general.",
@@ -18407,8 +18930,8 @@
   },
   {
     "name": "FloorMod",
-    "summary": "Returns element-wise remainder of division. When `x < 0` xor `y < 0` is",
-    "description": "true, this follows Python semantics in that the result here is consistent\nwith a flooring divide. E.g. `floor(x / y) * y + mod(x, y) = x`.\n\n*NOTE*: `FloorMod` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
+    "summary": "Returns element-wise remainder of division.",
+    "description": "This follows Python semantics in that the\nresult here is consistent with a flooring divide. E.g.\n`floor(x / y) * y + floormod(x, y) = x`, regardless of the signs of x and y.\n\n*NOTE*: `FloorMod` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
     "attributes": [
       {
         "name": "T",
@@ -25239,7 +25762,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int32`, `int64`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int32`, `int64`, `uint8`, `uint16`, `uint32`, `uint64`, `complex64`, `complex128`."
       }
     ],
     "inputs": [
@@ -26755,7 +27278,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tidx",
@@ -26820,6 +27343,52 @@
         "name": "value_index",
         "description": "The index of the chosen input tensor in `inputs`.",
         "type": 3
+      }
+    ]
+  },
+  {
+    "name": "MergeDedupData",
+    "summary": "An op merges elements of integer and float tensors into deduplication data as\nXLA tuple.",
+    "description": "This op merges outputs of SplitDedupDataOp, which gives two 1-D tensors, integer\nand floating point. With respect to tuple_mask, this op merges values of these\ntwo tensors into an XLA tuple, which should be as same as input to\nSplitDedupDataOp.",
+    "attributes": [
+      {
+        "name": "tuple_mask",
+        "type": "string",
+        "description": "A serialized TensorProto string of output tuple mask. This mask is a 2-D tensor,\nwith first column as tuple element type, and second column as span of this type.\nFor example, an output tuple of (1, 2, 0.1, 3), its mask is [[0, 2], [1, 1], [0,\n1]]. We expect only two types of elements: integer(0) and float(1)."
+      },
+      {
+        "name": "integer_type",
+        "type": "type",
+        "description": "integer_tensor type. Allowed types: {int32, int64, uint32, uint64}. Must be one of the following: `int32`, `int64`, `uint32`, `uint64`."
+      },
+      {
+        "name": "float_type",
+        "type": "type",
+        "description": "float_tensor type. Allowed types: {half, bfloat16, float}. Must be one of the following: `float16`, `bfloat16`, `float32`."
+      },
+      {
+        "name": "config",
+        "type": "string",
+        "default": ""
+      }
+    ],
+    "inputs": [
+      {
+        "name": "integer_tensor",
+        "description": "A 1-D integer tensor, includes integer elements of deduplication data tuple.",
+        "typeAttr": "integer_type"
+      },
+      {
+        "name": "float_tensor",
+        "description": "A 1-D float tensor, includes float elements of deduplication data tuple.",
+        "typeAttr": "float_type"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "An XLA tuple merging integer and float elements as deduplication data tuple.",
+        "type": 21
       }
     ]
   },
@@ -28605,7 +29174,7 @@
       {
         "name": "TI",
         "type": "type",
-        "description": "Must be one of the following: `uint8`, `int32`, `int64`.",
+        "description": "Must be one of the following: `uint8`, `int8`, `int32`, `int64`.",
         "default": {
           "type": "type",
           "value": 9
@@ -31981,7 +32550,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tidx",
@@ -36922,6 +37491,57 @@
     ]
   },
   {
+    "name": "RandomDatasetV2",
+    "summary": "Creates a Dataset that returns pseudorandom numbers.",
+    "description": "Creates a Dataset that returns a stream of uniformly distributed\npseudorandom 64-bit signed integers. It accepts a boolean attribute that\ndetermines if the random number generators are re-applied at each epoch. The\ndefault value is True which means that the seeds are applied and the same\nsequence of random numbers are generated at each epoch. If set to False, the\nseeds are not re-applied and a different sequence of random numbers are\ngenerated at each epoch.\n\nIn the TensorFlow Python API, you can instantiate this dataset via the\nclass `tf.data.experimental.RandomDatasetV2`.",
+    "attributes": [
+      {
+        "name": "rerandomize_each_iteration",
+        "type": "boolean",
+        "description": "A boolean attribute to rerandomize the sequence of random numbers generated\nat each epoch.",
+        "default": false
+      },
+      {
+        "name": "output_types",
+        "type": "type[]",
+        "minimum": 1
+      },
+      {
+        "name": "output_shapes",
+        "type": "shape[]",
+        "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
+      }
+    ],
+    "inputs": [
+      {
+        "name": "seed",
+        "description": "A scalar seed for the random number generator. If either seed or\nseed2 is set to be non-zero, the random number generator is seeded\nby the given seed.  Otherwise, a random seed is used.",
+        "type": 9
+      },
+      {
+        "name": "seed2",
+        "description": "A second scalar seed to avoid seed collision.",
+        "type": 9
+      },
+      {
+        "name": "seed_generator",
+        "description": "A resource for the random number seed generator.",
+        "type": 20
+      }
+    ],
+    "outputs": [
+      {
+        "name": "handle",
+        "type": 21
+      }
+    ]
+  },
+  {
     "name": "RandomGamma",
     "summary": "Outputs random values from the Gamma distribution(s) described by alpha.",
     "description": "This op uses the algorithm by Marsaglia et al. to acquire samples via\ntransformation-rejection from pairs of uniform and normal random variables.\nSee http://dl.acm.org/citation.cfm?id=358414",
@@ -37001,6 +37621,12 @@
     "summary": "Outputs the position of `value` in a permutation of [0, ..., max_index].",
     "description": "Output values are a bijection of the `index` for any combination and `seed` and `max_index`.\n\nIf multiple inputs are vectors (matrix in case of seed) then the size of the\nfirst dimension must match.\n\nThe outputs are deterministic.",
     "attributes": [
+      {
+        "name": "rounds",
+        "type": "int64",
+        "description": "The number of rounds to use the in block cipher.",
+        "default": 4
+      },
       {
         "name": "dtype",
         "type": "type",
@@ -38688,6 +39314,51 @@
     ]
   },
   {
+    "name": "RegisterDatasetV2",
+    "summary": "Registers a dataset with the tf.data service.",
+    "attributes": [
+      {
+        "name": "external_state_policy",
+        "type": "int64"
+      },
+      {
+        "name": "element_spec",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "requested_dataset_id",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
+      }
+    ],
+    "inputs": [
+      {
+        "name": "dataset",
+        "type": 21
+      },
+      {
+        "name": "address",
+        "type": 7
+      },
+      {
+        "name": "protocol",
+        "type": 7
+      }
+    ],
+    "outputs": [
+      {
+        "name": "dataset_id",
+        "type": 7
+      }
+    ]
+  },
+  {
     "name": "Relayout",
     "attributes": [
       {
@@ -38702,6 +39373,31 @@
     "inputs": [
       {
         "name": "input",
+        "typeAttr": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "RelayoutGrad",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "typeAttr": "T"
+      },
+      {
+        "name": "forward_input",
         "typeAttr": "T"
       }
     ],
@@ -39448,7 +40144,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -39512,7 +40208,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -39543,7 +40239,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -39608,7 +40304,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -39663,7 +40359,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -39707,7 +40403,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -39767,7 +40463,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -39817,7 +40513,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -39893,7 +40589,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -39968,7 +40664,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40023,7 +40719,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40088,7 +40784,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40153,7 +40849,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40221,7 +40917,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40256,7 +40952,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40307,7 +41003,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40358,7 +41054,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40413,7 +41109,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40463,7 +41159,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40508,7 +41204,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "use_locking",
@@ -40567,7 +41263,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "The type of the value being accumulated. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "The type of the value being accumulated. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "shape",
@@ -40711,7 +41407,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -40745,7 +41441,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -40779,7 +41475,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -40813,7 +41509,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -40847,7 +41543,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41072,7 +41768,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41138,7 +41834,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41202,7 +41898,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41256,7 +41952,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41326,7 +42022,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41386,7 +42082,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41460,7 +42156,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41535,7 +42231,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41614,7 +42310,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41675,7 +42371,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41736,7 +42432,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41796,7 +42492,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -41851,7 +42547,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -44422,11 +45118,11 @@
   {
     "name": "RngReadAndSkip",
     "summary": "Advance the counter of a counter-based RNG.",
-    "description": "The state of the RNG after\n`rng_read_and_skip(n)` will be the same as that after `uniform([n])`\n(or any other distribution). The actual increment added to the\ncounter is an unspecified implementation choice.",
+    "description": "The state of the RNG after\n`rng_read_and_skip(n)` will be the same as that after `uniform([n])`\n(or any other distribution). The actual increment added to the\ncounter is an unspecified implementation choice.\n\nIn the case that the input algorithm is RNG_ALG_AUTO_SELECT, the counter in the state needs to be of size int64[2], the current maximal counter size among algorithms. In this case, this op will manage the counter as if it is an 128-bit integer with layout [lower_64bits, higher_64bits]. If an algorithm needs less than 128 bits for the counter, it should use the left portion of the int64[2]. In this way, the int64[2] is compatible with all current RNG algorithms (Philox, ThreeFry and xla::RandomAlgorithm::RNG_DEFAULT). Downstream RNG ops can thus use this counter with any RNG algorithm.",
     "inputs": [
       {
         "name": "resource",
-        "description": "The handle of the resource variable that stores the state of the RNG.",
+        "description": "The handle of the resource variable that stores the state of the RNG. The state consists of the counter followed by the key.",
         "type": 20
       },
       {
@@ -45192,7 +45888,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -45241,7 +45937,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -45388,7 +46084,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -45432,7 +46128,7 @@
   {
     "name": "ScatterNd",
     "summary": "Scatters `updates` into a tensor of shape `shape` according to `indices`.",
-    "description": "Scatter sparse `updates` according to individual values at the specified\n`indices`. This op returns an output tensor with the `shape` you specify. This\nop is the inverse of the `tf.gather_nd` operator which extracts values or slices\nfrom a given tensor.\n\nThis operation is similar to `tf.tensor_scatter_nd_add`, except that the tensor\nis zero-initialized. Calling `tf.scatter_nd(indices, updates, shape)`\nis identical to calling\n`tf.tensor_scatter_nd_add(tf.zeros(shape, updates.dtype), indices, updates)`\n\nIf `indices` contains duplicates, the associated `updates` are accumulated\n(summed) into the output tensor.\n\n**WARNING**: For floating-point data types, the output may be nondeterministic.\nThis is because the order in which the updates are applied is nondeterministic\nand when floating-point numbers are added in different orders the resulting\nnumerical approximation error can be slightly different. However, the output\nwill be deterministic if op determinism is enabled via\n`tf.config.experimental.enable_op_determinism`.\n\n`indices` is an integer tensor containing indices into the output tensor. The\nlast dimension of `indices` can be at most the rank of `shape`:\n\n    indices.shape[-1] <= shape.rank\n\nThe last dimension of `indices` corresponds to indices of elements\n(if `indices.shape[-1] = shape.rank`) or slices\n(if `indices.shape[-1] < shape.rank`) along dimension `indices.shape[-1]` of\n`shape`.\n\n`updates` is a tensor with shape:\n\n    indices.shape[:-1] + shape[indices.shape[-1]:]\n\nThe simplest form of the scatter op is to insert individual elements in\na tensor by index. Consider an example where you want to insert 4 scattered\nelements in a rank-1 tensor with 8 elements.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/ScatterNd1.png\" alt>\n</div>\n\nIn Python, this scatter operation would look like this:\n\n```python\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    shape = tf.constant([8])\n    scatter = tf.scatter_nd(indices, updates, shape)\n    print(scatter)\n```\n\nThe resulting tensor would look like this:\n\n    [0, 11, 0, 10, 9, 0, 0, 12]\n\nYou can also insert entire slices of a higher rank tensor all at once. For\nexample, you can insert two slices in the first dimension of a rank-3 tensor\nwith two matrices of new values.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/ScatterNd2.png\" alt>\n</div>\n\nIn Python, this scatter operation would look like this:\n\n```python\n    indices = tf.constant([[0], [2]])\n    updates = tf.constant([[[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]],\n                           [[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]]])\n    shape = tf.constant([4, 4, 4])\n    scatter = tf.scatter_nd(indices, updates, shape)\n    print(scatter)\n```\n\nThe resulting tensor would look like this:\n\n    [[[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n     [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],\n     [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n     [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]\n\nNote that on CPU, if an out of bound index is found, an error is returned.\nOn GPU, if an out of bound index is found, the index is ignored.",
+    "description": "Scatter sparse `updates` according to individual values at the specified\n`indices`. This op returns an output tensor with the `shape` you specify. This\nop is the inverse of the `tf.gather_nd` operator which extracts values or slices\nfrom a given tensor.\n\nThis operation is similar to `tf.tensor_scatter_nd_add`, except that the tensor\nis zero-initialized. Calling `tf.scatter_nd(indices, updates, shape)`\nis identical to calling\n`tf.tensor_scatter_nd_add(tf.zeros(shape, updates.dtype), indices, updates)`\n\nIf `indices` contains duplicates, the associated `updates` are accumulated\n(summed) into the output tensor.\n\n**WARNING**: For floating-point data types, the output may be nondeterministic.\nThis is because the order in which the updates are applied is nondeterministic\nand when floating-point numbers are added in different orders the resulting\nnumerical approximation error can be slightly different. However, the output\nwill be deterministic if op determinism is enabled via\n`tf.config.experimental.enable_op_determinism`.\n\n`indices` is an integer tensor containing indices into the output tensor. The\nlast dimension of `indices` can be at most the rank of `shape`:\n\n    indices.shape[-1] <= shape.rank\n\nThe last dimension of `indices` corresponds to indices of elements\n(if `indices.shape[-1] = shape.rank`) or slices\n(if `indices.shape[-1] < shape.rank`) along dimension `indices.shape[-1]` of\n`shape`.\n\n`updates` is a tensor with shape:\n\n    indices.shape[:-1] + shape[indices.shape[-1]:]\n\nThe simplest form of the scatter op is to insert individual elements in\na tensor by index. Consider an example where you want to insert 4 scattered\nelements in a rank-1 tensor with 8 elements.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/ScatterNd1.png\" alt>\n</div>\n\nIn Python, this scatter operation would look like this:\n\n```python\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    shape = tf.constant([8])\n    scatter = tf.scatter_nd(indices, updates, shape)\n    print(scatter)\n```\n\nThe resulting tensor would look like this:\n\n    [0, 11, 0, 10, 9, 0, 0, 12]\n\nYou can also insert entire slices of a higher rank tensor all at once. For\nexample, you can insert two slices in the first dimension of a rank-3 tensor\nwith two matrices of new values.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/ScatterNd2.png\" alt>\n</div>\n\nIn Python, this scatter operation would look like this:\n\n```python\n    indices = tf.constant([[1], [3]])\n    updates = tf.constant([[[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]],\n                           [[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]]])\n    shape = tf.constant([4, 4, 4])\n    scatter = tf.scatter_nd(indices, updates, shape)\n    print(scatter)\n```\n\nThe resulting tensor would look like this:\n\n    [[[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],\n     [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n     [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],\n     [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]]]\n\nNote that on CPU, if an out of bound index is found, an error is returned.\nOn GPU, if an out of bound index is found, the index is ignored.",
     "attributes": [
       {
         "name": "T",
@@ -45477,7 +46173,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -45525,7 +46221,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -45573,7 +46269,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -45622,7 +46318,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `bool`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `bool`."
       },
       {
         "name": "Tindices",
@@ -45663,7 +46359,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -45760,7 +46456,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -46213,7 +46909,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -46283,7 +46979,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -46311,6 +47007,54 @@
     ]
   },
   {
+    "name": "SegmentProdV2",
+    "summary": "Computes the product along segments of a tensor.",
+    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\prod_j data_j\\\\) where the product is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the product is empty for a given segment ID `i`, `output[i] = 1`.\n\nNote: That this op is currently only supported with jit_compile=True.\n\nThe only difference with SegmentProd is the additional input  `num_segments`.\nThis helps in evaluating the output shape in compile time.\n`num_segments` should be consistent with segment_ids.\ne.g. Max(segment_ids) - 1 should be equal to `num_segments` for a 1-d segment_ids\nWith inconsistent num_segments, the op still runs. only difference is, \nthe output takes the size of num_segments irrespective of size of segment_ids and data.\nfor num_segments less than expected output size, the last elements are ignored\nfor num_segments more than the expected output size, last elements are assigned 1.\n\nFor example:\n\n>>> @tf.function(jit_compile=True)\n... def test(c):\n...   return tf.raw_ops.SegmentProdV2(data=c, segment_ids=tf.constant([0, 0, 1]), num_segments=2)\n>>> c = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\n>>> test(c).numpy()\narray([[4, 6, 6, 4],\n       [5, 6, 7, 8]], dtype=int32)\n",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type",
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+      },
+      {
+        "name": "Tindices",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `int64`."
+      },
+      {
+        "name": "Tnumsegments",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `int64`.",
+        "default": {
+          "type": "type",
+          "value": 3
+        }
+      }
+    ],
+    "inputs": [
+      {
+        "name": "data",
+        "typeAttr": "T"
+      },
+      {
+        "name": "segment_ids",
+        "description": "A 1-D tensor whose size is equal to the size of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.\nThe values must be less than `num_segments`.\n\nCaution: The values are always validated to be sorted on CPU, never validated\non GPU.",
+        "typeAttr": "Tindices"
+      },
+      {
+        "name": "num_segments",
+        "typeAttr": "Tnumsegments"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Has same shape as data, except for the first `segment_ids.rank`\ndimensions, which are replaced with a single dimensionw which has size\n`num_segments`.",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
     "name": "SegmentSum",
     "summary": "Computes the sum along segments of a tensor.",
     "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\sum_j data_j\\\\) where sum is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\n\nCaution: On CPU, values in `segment_ids` are always validated to be sorted,\nand an error is thrown for indices that are not increasing. On GPU, this\ndoes not throw an error for unsorted indices. On GPU, out-of-order indices\nresult in safe but unspecified behavior, which may include treating\nout-of-order indices as the same as a smaller following index.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentSum.png\" alt>\n</div>\n\nFor example:\n\n>>> c = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\n>>> tf.math.segment_sum(c, tf.constant([0, 0, 1])).numpy()\narray([[5, 5, 5, 5],\n       [5, 6, 7, 8]], dtype=int32)\n",
@@ -46318,7 +47062,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -46341,6 +47085,54 @@
       {
         "name": "output",
         "description": "Has same shape as data, except for dimension 0 which\nhas size `k`, the number of segments.",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "SegmentSumV2",
+    "summary": "Computes the sum along segments of a tensor.",
+    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\sum_j data_j\\\\) where sum is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\n\nNote that this op is currently only supported with jit_compile=True.\n</div>\n",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type",
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+      },
+      {
+        "name": "Tindices",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `int64`."
+      },
+      {
+        "name": "Tnumsegments",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `int64`.",
+        "default": {
+          "type": "type",
+          "value": 3
+        }
+      }
+    ],
+    "inputs": [
+      {
+        "name": "data",
+        "typeAttr": "T"
+      },
+      {
+        "name": "segment_ids",
+        "description": "A 1-D tensor whose size is equal to the size of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.\nThe values must be less than `num_segments`.\n\nCaution: The values are always validated to be sorted on CPU, never validated\non GPU.",
+        "typeAttr": "Tindices"
+      },
+      {
+        "name": "num_segments",
+        "typeAttr": "Tnumsegments"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Has same shape as data, except for the first `segment_ids.rank`\ndimensions, which are replaced with a single dimension which has size\n`num_segments`.",
         "typeAttr": "T"
       }
     ]
@@ -48286,7 +49078,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "has_known_shape",
@@ -48331,7 +49123,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "The data type of accumulated gradients. Needs to correspond to the type\nof the accumulator. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -48373,7 +49165,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Treal",
@@ -48441,7 +49233,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -48486,7 +49278,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -48561,7 +49353,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -48625,7 +49417,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -48706,7 +49498,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -48776,7 +49568,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -48862,7 +49654,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -48948,7 +49740,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -49038,7 +49830,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -49109,7 +49901,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -49179,7 +49971,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -49243,7 +50035,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -49438,7 +50230,7 @@
       {
         "name": "dtype",
         "type": "type",
-        "description": "The type of the value being accumulated. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "The type of the value being accumulated. Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "shape",
@@ -49797,7 +50589,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -49838,7 +50630,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -49879,7 +50671,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -50550,7 +51342,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -50597,7 +51389,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -51307,7 +52099,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -51348,7 +52140,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`."
+        "description": "Must be one of the following: `float16`, `float32`, `float64`."
       }
     ],
     "inputs": [
@@ -51485,7 +52277,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       }
     ],
     "inputs": [
@@ -51599,7 +52391,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -51942,6 +52734,52 @@
     ]
   },
   {
+    "name": "SplitDedupData",
+    "summary": "An op splits input deduplication data XLA tuple into integer and floating point\ntensors.",
+    "description": "Deduplication data is an XLA tuple, which consists of integer and floating point\nvalues. This op is to split these values into two groups for two types, and\nconstruct each group as one tensor to return.",
+    "attributes": [
+      {
+        "name": "integer_type",
+        "type": "type",
+        "description": "integer_tensor type. Allowed types: int32, int64, uint32, uint64. Must be one of the following: `int32`, `int64`, `uint32`, `uint64`."
+      },
+      {
+        "name": "float_type",
+        "type": "type",
+        "description": "float_tensor type. Allowed types: half, bfloat16, float. Must be one of the following: `float16`, `bfloat16`, `float32`."
+      },
+      {
+        "name": "tuple_mask",
+        "type": "string",
+        "description": "A serialized TensorProto string of output tuple mask. This mask is a 2-D tensor,\nwith first column as tuple element type, and second column as span of this type.\nFor example, an output tuple of (1, 2, 0.1, 3), its mask is [[0, 2], [1, 1], [0,\n1]]. We expect only two types of elements: integer(0) and float(1)."
+      },
+      {
+        "name": "config",
+        "type": "string",
+        "default": ""
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "description": "An XLA tuple including integer and float elements as deduplication data tuple.",
+        "type": 21
+      }
+    ],
+    "outputs": [
+      {
+        "name": "integer_tensor",
+        "description": "A 1-D integer tensor, includes integer elements of deduplication data tuple.",
+        "typeAttr": "integer_type"
+      },
+      {
+        "name": "float_tensor",
+        "description": "A 1-D float tensor, includes float elements of deduplication data tuple.",
+        "typeAttr": "float_type"
+      }
+    ]
+  },
+  {
     "name": "SplitV",
     "summary": "Splits a tensor into `num_split` tensors along one dimension.",
     "attributes": [
@@ -51957,7 +52795,7 @@
       {
         "name": "Tlen",
         "type": "type",
-        "description": "Must be one of the following: `int32`, `int64`.",
+        "description": "Must be one of the following: `int8`, `int32`, `int64`.",
         "default": {
           "type": "type",
           "value": 9
@@ -53242,6 +54080,61 @@
         "name": "seed",
         "description": "2 seeds (shape [2]).",
         "typeAttr": "Tseed"
+      },
+      {
+        "name": "alpha",
+        "description": "The concentration of the gamma distribution. Shape must match the rightmost\ndimensions of `shape`.",
+        "typeAttr": "dtype"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Random values with specified shape.",
+        "typeAttr": "dtype"
+      }
+    ]
+  },
+  {
+    "name": "StatelessRandomGammaV3",
+    "summary": "Outputs deterministic pseudorandom random numbers from a gamma distribution.",
+    "description": "Outputs random values from a gamma distribution.\n\nThe outputs are a deterministic function of the inputs.",
+    "attributes": [
+      {
+        "name": "dtype",
+        "type": "type",
+        "description": "The type of the output. Must be one of the following: `float16`, `float32`, `float64`."
+      },
+      {
+        "name": "shape_dtype",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `int64`.",
+        "default": {
+          "type": "type",
+          "value": 3
+        }
+      }
+    ],
+    "inputs": [
+      {
+        "name": "shape",
+        "description": "The shape of the output tensor.",
+        "typeAttr": "shape_dtype"
+      },
+      {
+        "name": "key",
+        "description": "Key for the counter-based RNG algorithm (shape uint64[1]).",
+        "type": 23
+      },
+      {
+        "name": "counter",
+        "description": "Initial counter for the counter-based RNG algorithm (shape uint64[2] or uint64[1] depending on the algorithm). If a larger vector is given, only the needed portion on the left (i.e. [:N]) will be used.",
+        "type": 23
+      },
+      {
+        "name": "alg",
+        "description": "The RNG algorithm (shape int32[]).",
+        "type": 3
       },
       {
         "name": "alpha",
@@ -55010,7 +55903,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tidx",
@@ -55182,6 +56075,11 @@
         "typeListAttr": "Tout"
       }
     ]
+  },
+  {
+    "name": "SyncDevice",
+    "summary": "Synchronizes the device this op is run on.",
+    "description": "Only GPU ops are asynchrous in TensorFlow, and so this only has an effect when\nrun on GPUs. On GPUs, this op synchronizes the GPU's compute stream."
   },
   {
     "name": "TFRecordDataset",
@@ -55566,6 +56464,47 @@
     ]
   },
   {
+    "name": "TPUPartitionedInputV2",
+    "summary": "An op that groups a list of partitioned inputs together. Supports ND sharding.",
+    "attributes": [
+      {
+        "name": "N",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "T",
+        "type": "type"
+      },
+      {
+        "name": "partition_dims",
+        "type": "int64[]",
+        "description": "A list of integers describing how each dimension is partitioned. Emptiness\nindicates the inputs are replicated."
+      },
+      {
+        "name": "is_packed",
+        "type": "boolean",
+        "description": "Indicates whether the input is a packed resource.",
+        "default": false
+      }
+    ],
+    "inputs": [
+      {
+        "name": "inputs",
+        "description": "A list of partitioned inputs which must have the same shape.",
+        "numberAttr": "N",
+        "typeAttr": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "A handle which represents the full shape of partitioned tensors.",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
     "name": "TPUPartitionedOutput",
     "summary": "An op that demultiplexes a tensor to be sharded by XLA to a list of partitioned",
     "description": "outputs outside the XLA computation.",
@@ -55597,6 +56536,42 @@
       {
         "name": "output",
         "description": "A list of partitioned inputs which must have the same shape.",
+        "numberAttr": "num_splits",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "TPUPartitionedOutputV2",
+    "summary": "An op that demultiplexes a tensor to be sharded by XLA to a list of partitioned",
+    "description": "outputs outside the XLA computation. Supports ND sharding.",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type"
+      },
+      {
+        "name": "num_splits",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "partition_dims",
+        "type": "int64[]",
+        "description": "A list of integers describing how each dimension is partitioned. Emptiness\nindicates the inputs are replicated."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "inputs",
+        "description": "A tensor which represents the full shape of partitioned tensors.",
+        "typeAttr": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "A list of partitioned outputs which have the same shape.",
         "numberAttr": "num_splits",
         "typeAttr": "T"
       }
@@ -55929,7 +56904,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `complex64`, `complex128`."
       }
     ],
     "inputs": [
@@ -56184,7 +57159,7 @@
   {
     "name": "TensorArrayConcatV3",
     "summary": "Concat the elements from the TensorArray into value `value`.",
-    "description": "Takes `T` elements of shapes\n\n  ```\n  (n0 x d0 x d1 x ...), (n1 x d0 x d1 x ...), ..., (n(T-1) x d0 x d1 x ...)\n  ```\n\nand concatenates them into a Tensor of shape:\n\n  ```(n0 + n1 + ... + n(T-1) x d0 x d1 x ...)```\n\nAll elements must have the same shape (excepting the first dimension).",
+    "description": "Takes `T` elements of shapes\n\n  ```\n  (n0 x d0 x d1 x ...), (n1 x d0 x d1 x ...), ..., (n(T-1) x d0 x d1 x ...)\n  ```\n\nand concatenates them into a Tensor of shape:\n\n  ```\n  (n0 + n1 + ... + n(T-1) x d0 x d1 x ...)\n  ```\n\nAll elements must have the same shape (excepting the first dimension).",
     "attributes": [
       {
         "name": "dtype",
@@ -56842,7 +57817,7 @@
   {
     "name": "TensorArraySplitV3",
     "summary": "Split the data from the input value into TensorArray elements.",
-    "description": "Assuming that `lengths` takes on values\n\n  ```(n0, n1, ..., n(T-1))```\n\nand that `value` has shape\n\n  ```(n0 + n1 + ... + n(T-1) x d0 x d1 x ...)```,\n\nthis splits values into a TensorArray with T tensors.\n\nTensorArray index t will be the subtensor of values with starting position\n\n  ```(n0 + n1 + ... + n(t-1), 0, 0, ...)```\n\nand having size\n\n  ```nt x d0 x d1 x ...```",
+    "description": "Assuming that `lengths` takes on values\n\n  ```\n  (n0, n1, ..., n(T-1))\n  ```\n\nand that `value` has shape\n\n  ```\n  (n0 + n1 + ... + n(T-1) x d0 x d1 x ...),\n  ```\n\nthis splits values into a TensorArray with T tensors.\n\nTensorArray index t will be the subtensor of values with starting position\n\n  ```\n  (n0 + n1 + ... + n(t-1), 0, 0, ...)\n  ```\n\nand having size\n\n  ```\n  nt x d0 x d1 x ...\n  ```",
     "attributes": [
       {
         "name": "T",
@@ -57642,6 +58617,11 @@
       {
         "name": "element_dtype",
         "type": "type"
+      },
+      {
+        "name": "resize_if_index_out_of_bounds",
+        "type": "boolean",
+        "default": false
       }
     ],
     "inputs": [
@@ -57940,7 +58920,7 @@
   {
     "name": "TensorScatterMax",
     "summary": "Apply a sparse update to a tensor taking the element-wise maximum.",
-    "description": "Returns a new tensor copied from `tensor` whose values are element-wise maximum between\ntensor and updates according to the indices.\n\n>>> tensor = [0, 0, 0, 0, 0, 0, 0, 0] \n>>> indices = [[1], [4], [5]]\n>>> updates = [1, -1, 1]\n>>> tf.tensor_scatter_nd_max(tensor, indices, updates).numpy()\narray([0, 1, 0, 0, 0, 1, 0, 0], dtype=int32)\n\nRefer to `tf.tensor_scatter_nd_update` for more details.",
+    "description": "Returns a new tensor copied from `tensor` whose values are element-wise maximum between\ntensor and updates according to the indices.\n\n>>> tensor = [0, 0, 0, 0, 0, 0, 0, 0]\n>>> indices = [[1], [4], [5]]\n>>> updates = [1, -1, 1]\n>>> tf.tensor_scatter_nd_max(tensor, indices, updates).numpy()\narray([0, 1, 0, 0, 0, 1, 0, 0], dtype=int32)\n\nRefer to `tf.tensor_scatter_nd_update` for more details.",
     "attributes": [
       {
         "name": "T",
@@ -58585,7 +59565,7 @@
   {
     "name": "Timestamp",
     "summary": "Provides the time since epoch in seconds.",
-    "description": "Returns the timestamp as a `float64` for seconds since the Unix epoch.\n\nNote: the timestamp is computed when the op is executed, not when it is added\nto the graph.",
+    "description": "Returns the timestamp as a `float64` for seconds since the Unix epoch.\n\nCommon usages include:\n* Logging\n* Providing a random number seed\n* Debugging graph execution\n* Generating timing information, mainly through comparison of timestamps\n\nNote: In graph mode, the timestamp is computed when the op is executed,\nnot when it is added to the graph.  In eager mode, the timestamp is computed\nwhen the op is eagerly executed.",
     "outputs": [
       {
         "name": "ts",
@@ -58893,7 +59873,7 @@
   },
   {
     "name": "TruncateDiv",
-    "summary": "Returns x / y element-wise for integer types.",
+    "summary": "Returns x / y element-wise, rounded towards zero.",
     "description": "Truncation designates that negative numbers will round fractional quantities\ntoward zero. I.e. -7 / 5 = -1. This matches C semantics but it is different\nthan Python semantics. See `FloorDiv` for a division function that matches\nPython Semantics.\n\n*NOTE*: `TruncateDiv` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
     "attributes": [
       {
@@ -59449,6 +60429,680 @@
     ]
   },
   {
+    "name": "UniformDequantize",
+    "summary": "Perform dequantization on the quantized Tensor `input`.",
+    "description": "Given quantized `input` which was quantized using `scales` and `zero_points`, performs dequantization using the formula:\ndequantized_data = (quantized_data - zero_point) * scale.",
+    "attributes": [
+      {
+        "name": "Tin",
+        "type": "type",
+        "description": "The type of input Tensor. A tf.DType from: tf.float32 Must be one of the following: `qint8`, `qint32`."
+      },
+      {
+        "name": "Tout",
+        "type": "type",
+        "description": "The type of output Tensor. A tf.DType from: tf.qint8, tf.qint32 Must be one of the following: `float32`."
+      },
+      {
+        "name": "quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization. Otherwise, it must be set within range [0, input.dims()).",
+        "default": -1
+      },
+      {
+        "name": "quantization_min_val",
+        "type": "int64",
+        "description": "The quantization min value that was used when input was quantized.\nThe purpose of this attribute is typically (but not limited to) to indicate narrow range, where this is set to:\n`(Tin lowest) + 1` if narrow range, and `(Tin lowest)` otherwise.\nFor example, if Tin is qint8, this is set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "quantization_max_val",
+        "type": "int64",
+        "description": "The quantization max value that was used when input was quantized.\nThe purpose of this attribute is typically (but not limited to) indicate narrow range, where this is set to:\n`(Tout max)` for both narrow range and not narrow range.\nFor example, if Tin is qint8, this is set to 127."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Must be a Tensor of Tin.",
+        "typeAttr": "Tin"
+      },
+      {
+        "name": "scales",
+        "description": "The float value(s) used as scale(s) when quantizing original data that input represents.\nMust be a scalar Tensor if quantization_axis is -1 (per-tensor quantization), otherwise 1D Tensor of size (input.dim_size(quantization_axis),) (per-axis quantization).",
+        "type": 1
+      },
+      {
+        "name": "zero_points",
+        "description": "The int32 value(s) used as zero_point(s) when quantizing original data that input represents.\nSame shape condition as scales.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "The output dequantized Tensor of Tout, whose shape is same as input.",
+        "typeAttr": "Tout"
+      }
+    ]
+  },
+  {
+    "name": "UniformQuantize",
+    "summary": "Perform quantization on Tensor `input`.",
+    "description": "Given `input`, `scales` and `zero_points`, performs quantization using the formula:\nquantized_data = floor(input_data * (1.0f / scale) + 0.5f) + zero_point",
+    "attributes": [
+      {
+        "name": "Tin",
+        "type": "type",
+        "description": "The type of input Tensor. A tf.DType from: tf.qint8, tf.qint32 Must be one of the following: `float32`."
+      },
+      {
+        "name": "Tout",
+        "type": "type",
+        "description": "The type of output Tensor. A tf.DType from: tf.float32 Must be one of the following: `qint8`, `qint32`."
+      },
+      {
+        "name": "quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization. Otherwise, it must be set within range [0, input.dims()).",
+        "default": -1
+      },
+      {
+        "name": "quantization_min_val",
+        "type": "int64",
+        "description": "The quantization min value to quantize `input`.\nThe purpose of this attribute is typically (but not limited to) to indicate narrow range, where this is set to:\n`(Tin lowest) + 1` if narrow range, and `(Tin lowest)` otherwise.\nFor example, if Tin is qint8, this is set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "quantization_max_val",
+        "type": "int64",
+        "description": "The quantization max value to quantize `input`.\nThe purpose of this attribute is typically (but not limited to) indicate narrow range, where this is set to:\n`(Tout max)` for both narrow range and not narrow range.\nFor example, if Tin is qint8, this is set to 127."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Must be a Tensor of Tin.",
+        "typeAttr": "Tin"
+      },
+      {
+        "name": "scales",
+        "description": "The float value(s) to use as scale(s) to quantize `input`.\nMust be a scalar Tensor if quantization_axis is -1 (per-tensor quantization), otherwise 1D Tensor of size (input.dim_size(quantization_axis),) (per-axis quantization).",
+        "type": 1
+      },
+      {
+        "name": "zero_points",
+        "description": "The int32 value(s) to use as zero_point(s) to quantize `input`.\nSame shape condition as scales.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "The output quantized Tensor of Tout, whose shape is same as input.",
+        "typeAttr": "Tout"
+      }
+    ]
+  },
+  {
+    "name": "UniformQuantizedAdd",
+    "summary": "Perform quantized add of quantized Tensor `lhs` and quantized Tensor `rhs` to make quantized `output`.",
+    "description": "Given quantized `lhs` and quantized `rhs`, performs quantized add on `lhs` and `rhs` to make quantized `output`.\n\n`UniformQuantizedAdd` follows Numpy broadcasting rules.\nThe two input array shapes are compared element-wise.\nStarting with the trailing dimensions, the two dimensions either have to be equal or one of them needs to be 1.\n\n`lhs` and `rhs` must be quantized Tensor, where data value is quantized using the formula:\n```\nquantized_data = clip(original_data / scale + zero_point, quantization_min_val, quantization_max_val)\n```\n`output` is also quantized, using the same formula.\n\nIf `lhs` and `output` is both per-axis quantized, the quantization axis must match.\nAlso, if `rhs` and `output` is both per-axis quantized, the quantization axis must match.\n*Match* means the axis must match when adding, regarding the broadcasting.\ni.e. For both operands `lhs` and `rhs`,\nif `operand.quantization_axis` >= 0 and `output.quantization_axis` >= 0,\n`operand.dims` - `operand.quantization_axis` must be equal to `output.dims` - `output.quantization_axis`.",
+    "attributes": [
+      {
+        "name": "lhs_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor the `lhs`, only per-tensor quantization is supported.\nThus, this must be set to -1.\nOther values will raise error at OpKernel construction.",
+        "default": -1
+      },
+      {
+        "name": "lhs_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in `lhs`.\nFor example, if `Tin` is `qint8`, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "lhs_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in `lhs`.\nFor example, if `Tin` is `qint8`, this must be set to 127."
+      },
+      {
+        "name": "rhs_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor the `rhs`, only per-tensor quantization\nor per-channel quantization along `kernel_output_feature_dimension` is supported.\nThus, this must be set to -1 or `dimension_numbers.kernel_output_feature_dimension`.\nOther values will raise error at OpKernel construction.",
+        "default": -1
+      },
+      {
+        "name": "rhs_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in `rhs`.\nFor example, if `Tin` is `qint8`, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "rhs_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in `rhs`.\nFor example, if `Tin` is `qint8`, this must be set to 127."
+      },
+      {
+        "name": "output_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor the `output`, only per-tensor quantization or per-channel quantization along `output_feature_dimension` is supported.\nThus, this must be set to -1 or `dimension_numbers.output_feature_dimension`.\nOther values will raise error at OpKernel construction.",
+        "default": -1
+      },
+      {
+        "name": "output_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in `output`.\nFor example, if  `Tout` is `qint8`, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "output_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in `output`.\nFor example, if `Tout` is `qint8`, this must be set to 127."
+      },
+      {
+        "name": "T",
+        "type": "type",
+        "description": "The type of `lhs`, `rhs`, and `output`. Must be one of the following: `qint32`."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "lhs",
+        "description": "Must be a quantized tensor.",
+        "typeAttr": "T"
+      },
+      {
+        "name": "rhs",
+        "description": "Must be a quantized tensor.",
+        "typeAttr": "T"
+      },
+      {
+        "name": "lhs_scales",
+        "description": "The float value(s) used as scale factors when quantizing the original data that `lhs` represents.",
+        "type": 1
+      },
+      {
+        "name": "lhs_zero_points",
+        "description": "The int32 value(s) used as zero points when quantizing original data that `lhs` represents.\nMust have same shape with `lhs_scales`.",
+        "type": 3
+      },
+      {
+        "name": "rhs_scales",
+        "description": "The float value(s) used as scale factors when quantizing the original data that `rhs` represents.",
+        "type": 1
+      },
+      {
+        "name": "rhs_zero_points",
+        "description": "The int32 value(s) used as zero points when quantizing original data that `rhs` represents.\nMust have same shape with `rhs_scales`.",
+        "type": 3
+      },
+      {
+        "name": "output_scales",
+        "description": "The float value(s) to use as scale factors when quantizing original data that `output` represents.",
+        "type": 1
+      },
+      {
+        "name": "output_zero_points",
+        "description": "The int32 value(s) used as zero points when quantizing original data that output represents.\nMust have same shape with `output_scales`.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "The output quantized tensor.",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "UniformQuantizedClipByValue",
+    "summary": "Perform clip by value on the quantized Tensor `operand`.",
+    "description": "Given quantized `operand` which was quantized using `scales` and `zero_points`, performs clip by value using `min` and `max` values.\nIf quantization_axis is -1 (per-tensor quantized), the entire operand is clipped using scalar min, max.\nOtherwise (per-channel quantized), the clipping is also done per-channel.",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type",
+        "description": "The type of operand, min, max, and output. A tf.DType from: tf.qint32 Must be one of the following: `qint32`."
+      },
+      {
+        "name": "quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization. Otherwise, it must be set within range [0, operand.dims()).",
+        "default": -1
+      },
+      {
+        "name": "quantization_min_val",
+        "type": "int64",
+        "description": "The quantization min value that was used when operand was quantized."
+      },
+      {
+        "name": "quantization_max_val",
+        "type": "int64",
+        "description": "The quantization max value that was used when operand was quantized."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "operand",
+        "description": "Must be a Tensor of T.",
+        "typeAttr": "T"
+      },
+      {
+        "name": "min",
+        "description": "The min value(s) to clip operand. Must be a Tensor of T.\nMust be a scalar Tensor if quantization_axis is -1 (per-tensor quantization), otherwise 1D Tensor of size (operand.dim_size(quantization_axis),) (per-axis quantization).",
+        "typeAttr": "T"
+      },
+      {
+        "name": "max",
+        "description": "The min value(s) to clip operand. Must be a Tensor of T.\nMust be a scalar Tensor if quantization_axis is -1 (per-tensor quantization), otherwise 1D Tensor of size (operand.dim_size(quantization_axis),) (per-axis quantization).",
+        "typeAttr": "T"
+      },
+      {
+        "name": "scales",
+        "description": "The float value(s) used as scale(s) when quantizing `operand`, `min` and `max`.\nMust be a scalar Tensor if quantization_axis is -1 (per-tensor quantization), otherwise 1D Tensor of size (operand.dim_size(quantization_axis),) (per-axis quantization).",
+        "type": 1
+      },
+      {
+        "name": "zero_points",
+        "description": "The int32 value(s) used as zero_point(s) when quantizing `operand`, `min` and `max`.\nSame shape condition as scales.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "The output clipped Tensor of T, whose shape is same as operand.",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "UniformQuantizedConvolution",
+    "summary": "Perform quantized convolution of quantized Tensor `lhs` and quantized Tensor `rhs`. to make quantized `output`.",
+    "description": "Given quantized `lhs` and quantized `rhs`, performs quantized dot on `lhs` and `rhs` to make quantized `output`.\n\n`lhs` and `rhs` must be Tensors of same rank, and meet following shape conditions.\n- `lhs_feature` % `feature_group_count` == 0\n- `lhs_feature` % `rhs_input_feature` == 0\n- `lhs_feature` / `feature_group_count` == `rhs_input_feature`\n- `rhs_output_feature` % `feature_group_count` == 0\n- `lhs_batch` % `batch_group_count` == 0\n- `rhs_output_feature` % `batch_group_count` == 0\n\n`lhs` and `rhs` must be quantized Tensor, where data value is quantized using the formula:\n```\nquantized_data = clip(original_data / scale + zero_point, quantization_min_val, quantization_max_val)\n```\n`output` is also quantized, using the same formula.\nIf `rhs` is per-tensor quantized, `output` must be also per-tensor quantized.",
+    "attributes": [
+      {
+        "name": "Tin",
+        "type": "type",
+        "description": "The type of `lhs` and `rhs` input `Tensor`. Must be one of the following: `qint8`."
+      },
+      {
+        "name": "Tout",
+        "type": "type",
+        "description": "The type of `output` `Tensor`. Must be one of the following: `qint32`."
+      },
+      {
+        "name": "window_strides",
+        "type": "int64[]",
+        "description": "The stride of the sliding window for each spatial dimension of `lhs`.\nMust be an empty list (default) or a list of size (number of spatial dimensions).\nIf an empty list is provided, the stride for each spatial dimension is set to 1.",
+        "default": []
+      },
+      {
+        "name": "padding",
+        "type": "string",
+        "description": "string from: `\"SAME\"`, `\"VALID\"`, or `\"EXPLICIT\"`, indicating the type of padding algorithm to use."
+      },
+      {
+        "name": "explicit_padding",
+        "type": "int64[]",
+        "description": "If `padding` is `\"EXPLICIT\"`, must be set as a list indicating\nthe explicit paddings at the start and end of each `lhs` spatial dimension.\nOtherwise, this must be empty.\n\n(If used,) Must be a list of size `2 * (number of lhs spatial dimensions)`,\nwhere `(explicit_padding[2 * i], explicit_padding[2 * i + 1])` indicates\n`(start_padding, end_padding)` of `spatial_dimensions[i]`.",
+        "default": []
+      },
+      {
+        "name": "lhs_dilation",
+        "type": "int64[]",
+        "description": "The dilation factor to apply in each spatial dimension of `lhs`.\nMust be an empty list (default) or a list of size (number of `lhs` spatial dimensions).\nIf empty list, the dilation for each `lhs` spatial dimension is set to 1.",
+        "default": []
+      },
+      {
+        "name": "rhs_dilation",
+        "type": "int64[]",
+        "description": "The dilation factor to apply in each spatial dimension of `rhs`.\nMust be an empty list (default) or a list of size (number of `rhs` spatial dimensions).\nIf empty list, the dilation for each `rhs` spatial dimension is set to 1.",
+        "default": []
+      },
+      {
+        "name": "batch_group_count",
+        "type": "int64",
+        "description": "The number of batch groups. Used for grouped filters.\nMust be a divisor of `output_feature`.",
+        "default": 1
+      },
+      {
+        "name": "feature_group_count",
+        "type": "int64",
+        "description": "The number of feature groups. Used for grouped convolutions.\nMust be a divisor of both `lhs_feature` and `output_feature`.",
+        "default": 1
+      },
+      {
+        "name": "dimension_numbers",
+        "type": "string",
+        "description": "Structure of dimension information for the convolution op.\nMust be an empty string (default) or a serialized string of `tensorflow.UniformQuantizedConvolutionDimensionNumbersAttr` proto.\nIf empty string, the default is `(\"NCHW\", \"OIHW\", \"NCHW\")` (for a 2D convolution).",
+        "default": ""
+      },
+      {
+        "name": "lhs_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor the `lhs`, only per-tensor quantization is supported.\nThus, this must be set to -1.\nOther values will raise error at OpKernel construction.",
+        "default": -1
+      },
+      {
+        "name": "lhs_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in `lhs`.\nFor example, if `Tin` is `qint8`, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "lhs_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in `lhs`.\nFor example, if `Tin` is `qint8`, this must be set to 127."
+      },
+      {
+        "name": "rhs_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor the `rhs`, only per-tensor quantization\nor per-channel quantization along `kernel_output_feature_dimension` is supported.\nThus, this must be set to -1 or `dimension_numbers.kernel_output_feature_dimension`.\nOther values will raise error at OpKernel construction.",
+        "default": -1
+      },
+      {
+        "name": "rhs_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in `rhs`.\nFor example, if `Tin` is `qint8`, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "rhs_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in `rhs`.\nFor example, if `Tin` is `qint8`, this must be set to 127."
+      },
+      {
+        "name": "output_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor the `output`, only per-tensor quantization or per-channel quantization along `output_feature_dimension` is supported.\nThus, this must be set to -1 or `dimension_numbers.output_feature_dimension`.\nOther values will raise error at OpKernel construction.",
+        "default": -1
+      },
+      {
+        "name": "output_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in `output`.\nFor example, if  `Tout` is `qint8`, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "output_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in `output`.\nFor example, if `Tout` is `qint8`, this must be set to 127."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "lhs",
+        "description": "Must be a quantized tensor, rank >= 3.",
+        "typeAttr": "Tin"
+      },
+      {
+        "name": "rhs",
+        "description": "Must be a quantized tensor, same rank as `lhs`.",
+        "typeAttr": "Tin"
+      },
+      {
+        "name": "lhs_scales",
+        "description": "The float value(s) used as scale factors when quantizing the original data that `lhs` represents.\nMust be a scalar `Tensor` (`lhs` supports only per-tensor quantization).",
+        "type": 1
+      },
+      {
+        "name": "lhs_zero_points",
+        "description": "The int32 value(s) used as zero points when quantizing original data that `lhs` represents.\nSame shape condition as `lhs_scales`.",
+        "type": 3
+      },
+      {
+        "name": "rhs_scales",
+        "description": "The float value(s) used as scale factors when quantizing the original data that `rhs` represents.\nMust be a scalar `Tensor` for per-tensor quantization,\nor 1D `Tensor` of size `rhs.dim_size(kernel_output_feature_dimension)`, for per-channel quantization.",
+        "type": 1
+      },
+      {
+        "name": "rhs_zero_points",
+        "description": "The int32 value(s) used as zero points when quantizing original data that `rhs` represents.\nSame shape condition as `rhs_scales`.",
+        "type": 3
+      },
+      {
+        "name": "output_scales",
+        "description": "The float value(s) to use as scale factors when quantizing original data that `output` represents.\nMust be a scalar `Tensor` for per-tensor quantization,\nor 1D `Tensor` of size `rhs.dim_size(kernel_output_feature_dimension)`\n- which is equal to `output.dim_size(output_feature_dimension)`,\nfor per-channel quantization.\nIf `rhs` is per-tensor quantized, output must be also per-tensor quantized.\nThis means that if `rhs_scales` and `rhs_zero_points` are scalar `Tensor`s, `output_scales` and `output_zero_points` must be scalar `Tensor`s as well.",
+        "type": 1
+      },
+      {
+        "name": "output_zero_points",
+        "description": "The int32 value(s) used as zero points when quantizing original data that output represents.\nSame shape condition as `output_scales`.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "The output quantized tensor of `Tout`, same rank as `lhs` and `rhs`.",
+        "typeAttr": "Tout"
+      }
+    ]
+  },
+  {
+    "name": "UniformQuantizedConvolutionHybrid",
+    "summary": "Perform hybrid quantized convolution of float Tensor `lhs` and quantized Tensor `rhs`.",
+    "description": "Given float `lhs` and quantized `rhs`, internally performs quantization on `lhs`,\nand then performs quantized convolution on quantized `lhs` and `rhs`.\n\nThe internal quantization on `lhs` is a quantization to `Trhs`, dynamic range,\nper-batch (per-axis along axis `dimension_numbers.input_batch_dimension`), asymmetric,\nand not narrow range (the range is [Trhs_MIN, Trhs_MAX]).\n\n`lhs` and `rhs` must be Tensors of same rank, and meet following shape conditions.\n- lhs_feature % feature_group_count == 0\n- lhs_feature % rhs_input_feature == 0\n- lhs_feature / feature_group_count == rhs_input_feature\n- rhs_output_feature % feature_group_count == 0\n- lhs_batch % batch_group_count == 0\n- rhs_output_feature % batch_group_count == 0\n\n`rhs` must be quantized Tensor, where its data value is quantized using the formula:\nquantized_data = clip(original_data / scale + zero_point, quantization_min_val, quantization_max_val).",
+    "attributes": [
+      {
+        "name": "Tlhs",
+        "type": "type",
+        "description": "The type of `lhs` input Tensor. Must be one of the following: `float32`."
+      },
+      {
+        "name": "Trhs",
+        "type": "type",
+        "description": "The type of `rhs` (quantized) input Tensor. Must be one of the following: `qint8`."
+      },
+      {
+        "name": "Tout",
+        "type": "type",
+        "description": "The type of output Tensor. Must be one of the following: `float32`."
+      },
+      {
+        "name": "window_strides",
+        "type": "int64[]",
+        "description": "The stride of the sliding window for each spatial dimension of `lhs`.\nMust be an empty list (default) or a list of size (number of spatial dimensions).\nIf an empty list is provided, the stride for each spatial dimension is set to 1.",
+        "default": []
+      },
+      {
+        "name": "padding",
+        "type": "string",
+        "description": "string from: `\"SAME\"`, `\"VALID\"`, or `\"EXPLICIT\"`, indicating the type of padding algorithm to use."
+      },
+      {
+        "name": "explicit_padding",
+        "type": "int64[]",
+        "description": "If `padding` Attr is `\"EXPLICIT\"`, must be set as a list indicating\nthe explicit paddings at the start and end of each lhs spatial dimension.\nOtherwise, this Attr is must be empty.\n\n(If used,) Must be a list of size 2 * (number of lhs spatial dimensions),\nwhere (explicit_padding[2 * i], explicit_padding[2 * i + 1]) indicates\nspatial_dimensions[i] (start_padding, end_padding).",
+        "default": []
+      },
+      {
+        "name": "lhs_dilation",
+        "type": "int64[]",
+        "description": "The dilation factor to apply in each spatial dimension of `lhs`.\nMust be an empty list (default) or a list of size (number of lhs spatial dimensions).\nIf empty list, the dilation for each lhs spatial dimension is set to 1.",
+        "default": []
+      },
+      {
+        "name": "rhs_dilation",
+        "type": "int64[]",
+        "description": "The dilation factor to apply in each spatial dimension of `rhs`.\nMust be an empty list (default) or a list of size (number of rhs spatial dimensions).\nIf empty list, the dilation for each rhs spatial dimension is set to 1.",
+        "default": []
+      },
+      {
+        "name": "batch_group_count",
+        "type": "int64",
+        "description": "The number of batch groups. Used for grouped filters.\nMust be a divisor of output_feature.",
+        "default": 1
+      },
+      {
+        "name": "feature_group_count",
+        "type": "int64",
+        "description": "The number of feature groups. Used for grouped convolutions.\nMust be a divisor of both lhs_feature and output_feature.",
+        "default": 1
+      },
+      {
+        "name": "dimension_numbers",
+        "type": "string",
+        "description": "Structure of dimension information for the convolution op.\nMust be an empty string (default) or a serialized string of tensorflow.UniformQuantizedConvolutionDimensionNumbersAttr proto.\nIf empty string, the default is `(\"NCHW\", \"OIHW\", \"NCHW\")` (for a 2D convolution).",
+        "default": ""
+      },
+      {
+        "name": "rhs_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor the `rhs`, only per-tensor quantization\nor per-channel quantization along kernel_output_feature_dimension is supported.\nThus, this attribute must be set to -1 or `dimension_numbers.kernel_output_feature_dimension`.\nOther values will raise error at OpKernel construction.",
+        "default": -1
+      },
+      {
+        "name": "rhs_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in `rhs`.\nFor example, if `Trhs` is qint8, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "rhs_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in `rhs`.\nFor example, if `Trhs` is qint8, this must be set to 127."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "lhs",
+        "description": "Must be a non-quantized Tensor of `Tlhs`, rank >= 3.",
+        "typeAttr": "Tlhs"
+      },
+      {
+        "name": "rhs",
+        "description": "Must be a quantized Tensor of `Trhs`, same rank as `lhs`.",
+        "typeAttr": "Trhs"
+      },
+      {
+        "name": "rhs_scales",
+        "description": "The float value(s) used as scale factors when quantizing the original data that `rhs` represents.\nMust be a scalar Tensor for per-tensor quantization,\nor 1D Tensor of size `rhs.dim_size(kernel_output_feature_dimension)`, for per-channel quantization.",
+        "type": 1
+      },
+      {
+        "name": "rhs_zero_points",
+        "description": "The int32 value(s) used as zero_point when quantizing original data that `rhs` represents.\nSame shape condition as `rhs_scales`.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "The output Tensor of `Tout`, same rank as `lhs` and `rhs`.\nThe output data is the non-quantized output data.",
+        "typeAttr": "Tout"
+      }
+    ]
+  },
+  {
+    "name": "UniformQuantizedDot",
+    "summary": "Perform quantized dot of quantized Tensor `lhs` and quantized Tensor `rhs` to make quantized `output`.",
+    "description": "Given quantized `lhs` and quantized `rhs`, performs quantized dot on `lhs` and `rhs` to make quantized `output`.\n`lhs` and `rhs` must be 2D Tensors and the lhs.dim_size(1) must match rhs.dim_size(0).\n`lhs` and `rhs` must be quantized Tensor, where data value is quantized using the formula:\nquantized_data = clip(original_data / scale + zero_point, quantization_min_val, quantization_max_val).\n`output` is also quantized, using the same formula.\nIf `rhs` is per-tensor quantized, `output` must be also per-tensor quantized.",
+    "attributes": [
+      {
+        "name": "Tin",
+        "type": "type",
+        "description": "The type of lhs and rhs input Tensor. Must be one of the following: `qint8`."
+      },
+      {
+        "name": "Tout",
+        "type": "type",
+        "description": "The type of output Tensor. Must be one of the following: `qint32`."
+      },
+      {
+        "name": "lhs_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor dot op lhs, only per-tensor quantization is supported.\nThus, this attribute must be set to -1. Other values are rejected.",
+        "default": -1
+      },
+      {
+        "name": "lhs_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in lhs.\nFor example, if Tin is qint8, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "lhs_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in rhs.\nFor example, if Tin is qint8, this must be set to 127."
+      },
+      {
+        "name": "rhs_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor dot op rhs, only per-tensor quantization or per-channel quantization along dimension 1 is supported.\nThus, this attribute must be set to -1 or 1. Other values are rejected.",
+        "default": -1
+      },
+      {
+        "name": "rhs_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in rhs.\nFor example, if Trhs is qint8, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "rhs_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in rhs.\nFor example, if Trhs is qint8, this must be set to 127."
+      },
+      {
+        "name": "output_quantization_axis",
+        "type": "int64",
+        "description": "Indicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization.\nFor dot op output, only per-tensor quantization or per-channel quantization along dimension 1 is supported.\nThus, this attribute must be set to -1 or 1. Other values are rejected.",
+        "default": -1
+      },
+      {
+        "name": "output_quantization_min_val",
+        "type": "int64",
+        "description": "The min value of the quantized data stored in output.\nFor example, if Tout is qint8, this must be set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "output_quantization_max_val",
+        "type": "int64",
+        "description": "The max value of the quantized data stored in output.\nFor example, if Tout is qint8, this must be set to 127."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "lhs",
+        "description": "Must be a 2D Tensor of Tin.",
+        "typeAttr": "Tin"
+      },
+      {
+        "name": "rhs",
+        "description": "Must be a 2D Tensor of Tin.",
+        "typeAttr": "Tin"
+      },
+      {
+        "name": "lhs_scales",
+        "description": "The float value(s) used as scale when quantizing original data that lhs represents.\nMust be a scalar Tensor (lhs supports only per-tensor quantization).",
+        "type": 1
+      },
+      {
+        "name": "lhs_zero_points",
+        "description": "The int32 value(s) used as zero_point when quantizing original data that lhs represents.\nSame shape condition as lhs_scales.",
+        "type": 3
+      },
+      {
+        "name": "rhs_scales",
+        "description": "The float value(s) used as scale when quantizing original data that rhs represents.\nMust be a scalar Tensor (per-tensor quantization) or 1D Tensor of size (rhs.dim_size(1),) (per-channel quantization).",
+        "type": 1
+      },
+      {
+        "name": "rhs_zero_points",
+        "description": "The int32 value(s) used as zero_point when quantizing original data that rhs represents.\nSame shape condition as rhs_scales.",
+        "type": 3
+      },
+      {
+        "name": "output_scales",
+        "description": "The float value(s) to use as scales when quantizing original data that output represents.\nMust be a scalar Tensor (per-tensor quantization) or 1D Tensor of size (output.dim_size(1),) (per-channel quantization).\nIf rhs is per-tensor quantized, output must be also per-tensor quantized.\nThis means that if rhs_scales and rhs_zero_points are scalar Tensors, output_scales and output_zero_points must be scalar Tensors as well.",
+        "type": 1
+      },
+      {
+        "name": "output_zero_points",
+        "description": "The int32 value(s) used as zero_point when quantizing original data that output represents.\nSame shape condition as rhs_scales.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "The output 2D Tensor of Tout, whose shape is (lhs.dim_size(0), rhs.dim_size(1)).",
+        "typeAttr": "Tout"
+      }
+    ]
+  },
+  {
     "name": "UniformQuantizedDotHybrid",
     "summary": "Perform hybrid quantized dot of float Tensor `lhs` and quantized Tensor `rhs`.",
     "description": "Given float `lhs` and quantized `rhs`, internally performs quantization on `lhs`, and then performs quantized dot on quantized lhs and `rhs`.\nThe internal quantization on `lhs` is a quantization to qint8, dynamic range, per-batch (per-axis along axis 0), asymmetric, and not narrow range (the range is [-128, 127]).\n`lhs` and `rhs` must be 2D Tensors and the lhs.dim_size(1) must match rhs.dim_size(0).\n`rhs` must be quantized Tensor, where its data value is quantized using the formula:\nquantized_data = clip(original_data / scale + zero_point, quantization_min_val, quantization_max_val).",
@@ -59511,6 +61165,89 @@
       {
         "name": "output",
         "description": "The output 2D Tensor of Tout, whose shape is (lhs.dim_size(0), rhs.dim_size(1)).\nThe output data is the original output data itself (Not quantized).",
+        "typeAttr": "Tout"
+      }
+    ]
+  },
+  {
+    "name": "UniformRequantize",
+    "summary": "Given quantized tensor `input`, requantize it with new quantization parameters.",
+    "description": "Given quantized tensor `input`, which was quantized using {input_scales, input_zero_points, input_quantization_axis, input_quantization_min_val, input_quantization_max_val},\nrequantize it to a tensor, which is quantized using {output_scales, output_zero_points, output_quantization_axis, output_quantization_min_val, output_quantization_max_val}.\nThe requantization is done by using the formula:\noutput_quantized_data = clip(\n  (input_quantized_data - input_zero_point) * (input_scale / output_scale) + output_zero_point,\n  output_quantization_min_val,\n  output_quantization_max_val)\n\nPer-tensor and per-axis quantization supported cases are followings:\n* per-tensor -> per-tensor\n* per-tensor -> per-axis\n* per-axis -> per-axis where input_quantization_axis equals output_quantization_axis.\ni.e. At least one among input_quantization_axis and output_quantization_axis must be -1, or two must be equal.",
+    "attributes": [
+      {
+        "name": "Tin",
+        "type": "type",
+        "description": "The type of input Tensor. A tf.DType from: tf.qint8, tf.qint32 Must be one of the following: `qint8`, `qint32`."
+      },
+      {
+        "name": "Tout",
+        "type": "type",
+        "description": "The type of output Tensor. A tf.DType from: tf.qint8, tf.qint32 Must be one of the following: `qint8`, `qint32`."
+      },
+      {
+        "name": "input_quantization_axis",
+        "type": "int64",
+        "description": "The quantization axis that was used when quantizing original data that `input` represents.\nIndicates the dimension index of the tensor where per-axis quantization is applied for the slices along that dimension.\nIf set to -1 (default), this indicates per-tensor quantization. Otherwise, it must be set within range [0, input.dims()).",
+        "default": -1
+      },
+      {
+        "name": "input_quantization_min_val",
+        "type": "int64",
+        "description": "The quantization min value that was used when quantizing original data that `input` represents.\nThe purpose of this attribute is typically (but not limited to) to indicate narrow range, where this is set to:\n`(Tin lowest) + 1` if narrow range, and `(Tin lowest)` otherwise.\nFor example, if Tin is qint8, this is set to -127 if narrow range quantized or -128 if not."
+      },
+      {
+        "name": "input_quantization_max_val",
+        "type": "int64",
+        "description": "The quantization max value that was used when quantizing original data that `input` represents.\nThe purpose of this attribute is typically (but not limited to) indicate narrow range, where this is set to:\n`(Tout max)` for both narrow range and not narrow range.\nFor example, if Tin is qint8, this is set to 127."
+      },
+      {
+        "name": "output_quantization_axis",
+        "type": "int64",
+        "description": "The new quantization axis to use to quantize original data that `input` represents.",
+        "default": -1
+      },
+      {
+        "name": "output_quantization_min_val",
+        "type": "int64",
+        "description": "The new quantization min value to quantize original data that `input` represents."
+      },
+      {
+        "name": "output_quantization_max_val",
+        "type": "int64",
+        "description": "The new quantization max value to quantize original data that `input` represents."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Must be a Tensor of Tin.",
+        "typeAttr": "Tin"
+      },
+      {
+        "name": "input_scales",
+        "description": "The float value(s) used as scale(s) when quantizing original data that `input` represents.\nMust be a scalar Tensor if quantization_axis is -1 (per-tensor quantization), otherwise 1D Tensor of size (input.dim_size(quantization_axis),) (per-axis quantization).",
+        "type": 1
+      },
+      {
+        "name": "input_zero_points",
+        "description": "The int32 value(s) used as zero_point(s) when quantizing original data that `input` represents.\nSame shape condition as scales.",
+        "type": 3
+      },
+      {
+        "name": "output_scales",
+        "description": "The float value(s) to use as new scale(s) to quantize original data that `input` represents.\nMust be a scalar Tensor if quantization_axis is -1 (per-tensor quantization), otherwise 1D Tensor of size (input.dim_size(quantization_axis),) (per-axis quantization).",
+        "type": 1
+      },
+      {
+        "name": "output_zero_points",
+        "description": "The int32 value(s) to use as new zero_point(s) to quantize original data that `input` represents.\nSame shape condition as scales.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "The output quantized Tensor of Tout, whose shape is same as input.",
         "typeAttr": "Tout"
       }
     ]
@@ -59687,7 +61424,7 @@
   {
     "name": "UniqueWithCountsV2",
     "summary": "Finds unique elements along an axis of a tensor.",
-    "description": "This operation either returns a tensor `y` containing unique elements\nalong the `axis` of a tensor. The returned unique elements is sorted\nin the same order as they occur along `axis` in `x`.\nThis operation also returns a tensor `idx` and a tensor `count`\nthat are the same size as the number of the elements in `x` along the\n`axis` dimension. The `idx` contains the index in the unique output `y`\nand the `count` contains the count in the unique output `y`.\nIn other words, for an `1-D` tensor `x` with `axis = None:\n\n`y[idx[i]] = x[i] for i in [0, 1,...,rank(x) - 1]`\n\nFor example:\n\n```\nx = tf.constant([1, 1, 2, 4, 4, 4, 7, 8, 8])\ny, idx, count = UniqueWithCountsV2(x, axis = [0])\ny ==> [1, 2, 4, 7, 8]\nidx ==> [0, 0, 1, 2, 2, 2, 3, 4, 4]\ncount ==> [2, 1, 3, 1, 2]\n```\n\nFor a `2-D` tensor `x` with `axis = 0`:\n\n```\nx = tf.constant([[1, 0, 0],\n                [1, 0, 0],\n                [2, 0, 0]])\ny, idx, count = UniqueWithCountsV2(x, axis=[0])\ny ==> [[1, 0, 0],\n       [2, 0, 0]]\nidx ==> [0, 0, 1]\ncount ==> [2, 1]\n```\n\nFor a `2-D` tensor `x` with `axis = 1`:\n\n```\nx = tf.constant([[1, 0, 0],\n                [1, 0, 0],\n                [2, 0, 0]])\ny, idx, count = UniqueWithCountsV2(x, axis=[1])\ny ==> [[1, 0],\n       [1, 0],\n       [2, 0]]\nidx ==> [0, 1, 1]\ncount ==> [1, 2]\n```",
+    "description": "This operation either returns a tensor `y` containing unique elements\nalong the `axis` of a tensor. The returned unique elements is sorted\nin the same order as they occur along `axis` in `x`.\nThis operation also returns a tensor `idx` and a tensor `count`\nthat are the same size as the number of the elements in `x` along the\n`axis` dimension. The `idx` contains the index in the unique output `y`\nand the `count` contains the count in the unique output `y`.\nIn other words, for an `1-D` tensor `x` with `axis = None:\n\n`y[idx[i]] = x[i] for i in [0, 1,...,rank(x) - 1]`\n\nFor example:\n\n```\nx = tf.constant([1, 1, 2, 4, 4, 4, 7, 8, 8])\ny, idx, count = tf.raw_ops.UniqueWithCountsV2(x=x, axis = [0])\ny ==> [1, 2, 4, 7, 8]\nidx ==> [0, 0, 1, 2, 2, 2, 3, 4, 4]\ncount ==> [2, 1, 3, 1, 2]\n```\n\nFor a `2-D` tensor `x` with `axis = 0`:\n\n```\nx = tf.constant([[1, 0, 0],\n                [1, 0, 0],\n                [2, 0, 0]])\ny, idx, count = tf.raw_ops.UniqueWithCountsV2(x=x, axis=[0])\ny ==> [[1, 0, 0],\n       [2, 0, 0]]\nidx ==> [0, 0, 1]\ncount ==> [2, 1]\n```\n\nFor a `2-D` tensor `x` with `axis = 1`:\n\n```\nx = tf.constant([[1, 0, 0],\n                [1, 0, 0],\n                [2, 0, 0]])\ny, idx, count = tf.raw_ops.UniqueWithCountsV2(x=x, axis=[1])\ny ==> [[1, 0],\n       [1, 0],\n       [2, 0]]\nidx ==> [0, 1, 1]\ncount ==> [1, 2]\n```",
     "attributes": [
       {
         "name": "T",
@@ -59962,7 +61699,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -60010,7 +61747,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`."
       },
       {
         "name": "Tindices",
@@ -60308,7 +62045,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `bool`.",
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `qint16`, `quint16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `bool`.",
         "default": {
           "type": "type",
           "value": 10
@@ -60784,7 +62521,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `float16`, `bfloat16`, `float32`, `float64`, `complex64`, `complex128`."
       }
     ],
     "inputs": [
@@ -61005,11 +62742,13 @@
       {
         "name": "NumTables",
         "type": "int64",
+        "description": "number of tables",
         "minimum": 1
       },
       {
         "name": "NumLearningRateTags",
         "type": "int64",
+        "description": "number of learning rate tags",
         "minimum": 0,
         "default": 0
       },
@@ -61108,7 +62847,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `float16`, `bfloat16`, `float32`, `float64`, `complex64`, `complex128`."
       }
     ],
     "inputs": [
@@ -61135,7 +62874,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `float16`, `bfloat16`, `float32`, `float64`, `complex64`, `complex128`."
       }
     ],
     "inputs": [

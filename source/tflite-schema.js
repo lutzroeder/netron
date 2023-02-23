@@ -19,7 +19,8 @@ $root.tflite.TensorType = {
     RESOURCE: 13,
     VARIANT: 14,
     UINT32: 15,
-    UINT16: 16
+    UINT16: 16,
+    INT4: 17
 };
 
 $root.tflite.CustomQuantization = class CustomQuantization {
@@ -190,6 +191,25 @@ $root.tflite.SparsityParameters = class SparsityParameters {
     }
 };
 
+$root.tflite.VariantSubType = class VariantSubType {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.VariantSubType();
+        $.shape = reader.typedArray(position, 4, Int32Array);
+        $.type = reader.int8_(position, 6, 0);
+        $.has_rank = reader.bool_(position, 8, false);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.VariantSubType();
+        $.shape = reader.typedArray(json.shape, Int32Array);
+        $.type = $root.tflite.TensorType[json.type];
+        $.has_rank = reader.value(json.has_rank, false);
+        return $;
+    }
+};
+
 $root.tflite.Tensor = class Tensor {
 
     static decode(reader, position) {
@@ -203,6 +223,7 @@ $root.tflite.Tensor = class Tensor {
         $.sparsity = reader.table(position, 16, $root.tflite.SparsityParameters.decode);
         $.shape_signature = reader.typedArray(position, 18, Int32Array);
         $.has_rank = reader.bool_(position, 20, false);
+        $.variant_tensors = reader.tableArray(position, 22, $root.tflite.VariantSubType.decode);
         return $;
     }
 
@@ -217,6 +238,7 @@ $root.tflite.Tensor = class Tensor {
         $.sparsity = reader.object(json.sparsity, $root.tflite.SparsityParameters.decodeText);
         $.shape_signature = reader.typedArray(json.shape_signature, Int32Array);
         $.has_rank = reader.value(json.has_rank, false);
+        $.variant_tensors = reader.objectArray(json.variant_tensors, $root.tflite.VariantSubType.decodeText);
         return $;
     }
 };
@@ -378,7 +400,9 @@ $root.tflite.BuiltinOperator = {
     UNSORTED_SEGMENT_PROD: 153,
     UNSORTED_SEGMENT_MAX: 154,
     UNSORTED_SEGMENT_SUM: 155,
-    ATAN2: 156
+    ATAN2: 156,
+    UNSORTED_SEGMENT_MIN: 157,
+    SIGN: 158
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -504,8 +528,10 @@ $root.tflite.BuiltinOptions = class {
             case 117: return $root.tflite.DynamicUpdateSliceOptions.decode(reader, position);
             case 118: return $root.tflite.UnsortedSegmentProdOptions.decode(reader, position);
             case 119: return $root.tflite.UnsortedSegmentMaxOptions.decode(reader, position);
-            case 120: return $root.tflite.UnsortedSegmentSumOptions.decode(reader, position);
-            case 121: return $root.tflite.ATan2Options.decode(reader, position);
+            case 120: return $root.tflite.UnsortedSegmentMinOptions.decode(reader, position);
+            case 121: return $root.tflite.UnsortedSegmentSumOptions.decode(reader, position);
+            case 122: return $root.tflite.ATan2Options.decode(reader, position);
+            case 123: return $root.tflite.SignOptions.decode(reader, position);
             default: return undefined;
         }
     }
@@ -631,8 +657,10 @@ $root.tflite.BuiltinOptions = class {
             case 'DynamicUpdateSliceOptions': return $root.tflite.DynamicUpdateSliceOptions.decodeText(reader, json);
             case 'UnsortedSegmentProdOptions': return $root.tflite.UnsortedSegmentProdOptions.decodeText(reader, json);
             case 'UnsortedSegmentMaxOptions': return $root.tflite.UnsortedSegmentMaxOptions.decodeText(reader, json);
+            case 'UnsortedSegmentMinOptions': return $root.tflite.UnsortedSegmentMinOptions.decodeText(reader, json);
             case 'UnsortedSegmentSumOptions': return $root.tflite.UnsortedSegmentSumOptions.decodeText(reader, json);
             case 'ATan2Options': return $root.tflite.ATan2Options.decodeText(reader, json);
+            case 'SignOptions': return $root.tflite.SignOptions.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -1037,6 +1065,7 @@ $root.tflite.UnidirectionalSequenceLSTMOptions = class UnidirectionalSequenceLST
         $.proj_clip = reader.float32_(position, 8, 0);
         $.time_major = reader.bool_(position, 10, false);
         $.asymmetric_quantize_inputs = reader.bool_(position, 12, false);
+        $.diagonal_recurrent_tensors = reader.bool_(position, 14, false);
         return $;
     }
 
@@ -1047,6 +1076,7 @@ $root.tflite.UnidirectionalSequenceLSTMOptions = class UnidirectionalSequenceLST
         $.proj_clip = reader.value(json.proj_clip, 0);
         $.time_major = reader.value(json.time_major, false);
         $.asymmetric_quantize_inputs = reader.value(json.asymmetric_quantize_inputs, false);
+        $.diagonal_recurrent_tensors = reader.value(json.diagonal_recurrent_tensors, false);
         return $;
     }
 };
@@ -1647,6 +1677,7 @@ $root.tflite.TransposeConvOptions = class TransposeConvOptions {
         $.padding = reader.int8_(position, 4, 0);
         $.stride_w = reader.int32_(position, 6, 0);
         $.stride_h = reader.int32_(position, 8, 0);
+        $.fused_activation_function = reader.int8_(position, 10, 0);
         return $;
     }
 
@@ -1655,6 +1686,7 @@ $root.tflite.TransposeConvOptions = class TransposeConvOptions {
         $.padding = $root.tflite.Padding[json.padding];
         $.stride_w = reader.value(json.stride_w, 0);
         $.stride_h = reader.value(json.stride_h, 0);
+        $.fused_activation_function = $root.tflite.ActivationFunctionType[json.fused_activation_function];
         return $;
     }
 };
@@ -2540,6 +2572,32 @@ $root.tflite.ATan2Options = class ATan2Options {
     }
 };
 
+$root.tflite.UnsortedSegmentMinOptions = class UnsortedSegmentMinOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.tflite.UnsortedSegmentMinOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.tflite.UnsortedSegmentMinOptions();
+        return $;
+    }
+};
+
+$root.tflite.SignOptions = class SignOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.tflite.SignOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.tflite.SignOptions();
+        return $;
+    }
+};
+
 $root.tflite.OperatorCode = class OperatorCode {
 
     static decode(reader, position) {
@@ -2834,16 +2892,6 @@ $root.tflite.ContentProperties = class {
             default: return undefined;
         }
     }
-
-    static decodeText(reader, json, type) {
-        switch (type) {
-            case 'FeatureProperties': return $root.tflite.FeatureProperties.decodeText(reader, json);
-            case 'ImageProperties': return $root.tflite.ImageProperties.decodeText(reader, json);
-            case 'BoundingBoxProperties': return $root.tflite.BoundingBoxProperties.decodeText(reader, json);
-            case 'AudioProperties': return $root.tflite.AudioProperties.decodeText(reader, json);
-            default: return undefined;
-        }
-    }
 };
 
 $root.tflite.ValueRange = class ValueRange {
@@ -2940,18 +2988,6 @@ $root.tflite.ProcessUnitOptions = class {
             case 4: return $root.tflite.BertTokenizerOptions.decode(reader, position);
             case 5: return $root.tflite.SentencePieceTokenizerOptions.decode(reader, position);
             case 6: return $root.tflite.RegexTokenizerOptions.decode(reader, position);
-            default: return undefined;
-        }
-    }
-
-    static decodeText(reader, json, type) {
-        switch (type) {
-            case 'NormalizationOptions': return $root.tflite.NormalizationOptions.decodeText(reader, json);
-            case 'ScoreCalibrationOptions': return $root.tflite.ScoreCalibrationOptions.decodeText(reader, json);
-            case 'ScoreThresholdingOptions': return $root.tflite.ScoreThresholdingOptions.decodeText(reader, json);
-            case 'BertTokenizerOptions': return $root.tflite.BertTokenizerOptions.decodeText(reader, json);
-            case 'SentencePieceTokenizerOptions': return $root.tflite.SentencePieceTokenizerOptions.decodeText(reader, json);
-            case 'RegexTokenizerOptions': return $root.tflite.RegexTokenizerOptions.decodeText(reader, json);
             default: return undefined;
         }
     }

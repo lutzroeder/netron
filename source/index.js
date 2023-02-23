@@ -1,13 +1,12 @@
 
 var host = {};
-var view = view || {};
 
 host.BrowserHost = class {
 
     constructor() {
-        this._document = window.document;
         this._window = window;
-        this._navigator = navigator;
+        this._navigator = window.navigator;
+        this._document = window.document;
         if (this._window.location.hostname.endsWith('.github.io')) {
             this._window.location.replace('https://netron.app');
         }
@@ -16,16 +15,42 @@ host.BrowserHost = class {
         };
         this._meta = {};
         for (const element of Array.from(this._document.getElementsByTagName('meta'))) {
-            if (element.content) {
+            if (element.name !== undefined && element.content !== undefined) {
                 this._meta[element.name] = this._meta[element.name] || [];
                 this._meta[element.name].push(element.content);
             }
         }
-        this._type = this._meta.type ? this._meta.type[0] : 'Browser';
-        this._version = this._meta.version ? this._meta.version[0] : null;
-        this._telemetry = this._version && this._version !== '0.0.0';
-        this._environment = new Map();
-        this._environment.set('zoom', 'scroll');
+        this._environment = {
+            'type': this._meta.type ? this._meta.type[0] : 'Browser',
+            'version': this._meta.version ? this._meta.version[0] : null,
+            'date': Array.isArray(this._meta.date) && this._meta.date.length > 0 && this._meta.date[0] ? new Date(this._meta.date[0].split(' ').join('T') + 'Z') : new Date(),
+            'platform': /(Mac|iPhone|iPod|iPad)/i.test(this._navigator.platform) ? 'darwin' : undefined,
+            'repository': this._document.getElementById('logo-github').getAttribute('href'),
+            'menu': true
+        };
+        if (!/^\d\.\d\.\d$/.test(this.version)) {
+            throw new Error('Invalid version.');
+        }
+        this.window.require = (id) => {
+            const name = id.startsWith('./') ? id.substring(2) : id;
+            const value = this.window[name];
+            if (value) {
+                return value;
+            }
+            throw new Error("Module '" + id + "' not found.");
+        };
+        const require = (ids) => {
+            return Promise.all(ids.map((id) => this.require(id)));
+        };
+        require([ 'base', 'text', 'flatbuffers', 'flexbuffers', 'zip',  'tar', 'python', 'dagre' ]).then(() => {
+            return require([ 'json', 'xml', 'protobuf', 'hdf5', 'grapher' ]).then(() => {
+                return require([ 'view' ]).then(() => {
+                    this.window.__view__ = new this.window.view.View(this);
+                });
+            });
+        }).catch((error) => {
+            this._message(error.message);
+        });
     }
 
     get window() {
@@ -37,11 +62,11 @@ host.BrowserHost = class {
     }
 
     get version() {
-        return this._version;
+        return this._environment.version;
     }
 
     get type() {
-        return this._type;
+        return this._environment.type;
     }
 
     get agent() {
@@ -52,31 +77,84 @@ host.BrowserHost = class {
         return 'any';
     }
 
-    initialize(view) {
+    view(view) {
         this._view = view;
-        return new Promise((resolve /*, reject */) => {
-            const features = () => {
-                const features = [ 'TextDecoder', 'TextEncoder', 'fetch', 'URLSearchParams', 'HTMLCanvasElement.prototype.toBlob' ];
-                const supported = features.filter((feature) => {
-                    const path = feature.split('.').reverse();
-                    let item = this.window[path.pop()];
-                    while (item && path.length > 0) {
-                        item = item[path.pop()];
-                    }
-                    return !item;
-                });
-                if (supported.length > 0) {
-                    for (const feature of features) {
-                        this.event('Host', 'Browser', feature, 1);
-                    }
-                    this._message('Your browser is not supported.');
-                }
-                else {
+        return this._age().then(() => this._consent()).then(() => this._telemetry()).then(() => this._capabilities());
+    }
+
+    _age() {
+        const age = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
+        if (age <= 180) {
+            return Promise.resolve();
+        }
+        const callback = () => {
+            const link = this.document.getElementById('logo-github').href;
+            this.openURL(link);
+        };
+        this.document.body.classList.remove('spinner');
+        this._message('Please update to the newest version.', 'Download', callback, true);
+        return new Promise(() => {});
+    }
+
+    _consent() {
+        if (this._getCookie('consent') || this._getCookie('_ga')) {
+            return Promise.resolve();
+        }
+        const consent = () => {
+            return new Promise((resolve) => {
+                this.document.body.classList.remove('spinner');
+                this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept', () => {
+                    this._setCookie('consent', Date.now().toString(), 30);
                     resolve();
+                });
+            });
+        };
+        return this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', null, 2000).then((text) => {
+            try {
+                const json = JSON.parse(text);
+                const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
+                if (json && json.country && countries.indexOf(json.country) === -1) {
+                    this._setCookie('consent', Date.now().toString(), 30);
+                    return Promise.resolve();
                 }
+                return consent();
+            }
+            catch (err) {
+                return consent();
+            }
+        }).catch(() => {
+            return consent();
+        });
+    }
+
+    _telemetry() {
+        if (this._environment.version && this._environment.version !== '0.0.0') {
+            const ga4 = () => {
+                const base = this.window.base;
+                const measurement_id = '848W2NVWVH';
+                const user = this._getCookie('_ga').replace(/^(GA1\.\d\.)*/, '');
+                const session = this._getCookie('_ga' + measurement_id);
+                this._telemetry_ga4 = new base.Telemetry(this._window, 'G-' + measurement_id, user, session);
+                return this._telemetry_ga4.start().then(() => {
+                    this._telemetry_ga4.set('page_location', this._document.location && this._document.location.href ? this._document.location.href : null);
+                    this._telemetry_ga4.set('page_title', this._document.title ? this._document.title : null);
+                    this._telemetry_ga4.set('page_referrer', this._document.referrer ? this._document.referrer : null);
+                    this._telemetry_ga4.send('page_view', {
+                        app_name: this.type,
+                        app_version: this.version,
+                    });
+                    this._telemetry_ga4.send('scroll', {
+                        percent_scrolled: 90,
+                        app_name: this.type,
+                        app_version: this.version
+                    });
+                    this._setCookie('_ga', 'GA1.2.' + this._telemetry_ga4.get('client_id'), 1200);
+                    this._setCookie('_ga' + measurement_id, 'GS1.1.' + this._telemetry_ga4.session, 1200);
+                });
             };
-            const telemetry = () => {
-                if (this._telemetry) {
+            const ua = () => {
+                return new Promise((resolve) => {
+                    this._telemetry_ua = true;
                     const script = this.document.createElement('script');
                     script.setAttribute('type', 'text/javascript');
                     script.setAttribute('src', 'https://www.google-analytics.com/analytics.js');
@@ -86,133 +164,52 @@ host.BrowserHost = class {
                             this.window.ga('create', 'UA-54146-13', 'auto');
                             this.window.ga('set', 'anonymizeIp', true);
                         }
-                        features();
+                        resolve();
                     };
                     script.onerror = () => {
-                        features();
+                        resolve();
                     };
                     this.document.body.appendChild(script);
-                }
-                else {
-                    features();
-                }
-            };
-            const consent = () => {
-                this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept', () => {
-                    this._setCookie('consent', 'yes', 30);
-                    telemetry();
                 });
             };
-            if (this._getCookie('consent')) {
-                telemetry();
+            return ga4().then(() => ua());
+        }
+        return Promise.resolve();
+    }
+
+    _capabilities() {
+        const list = [
+            'TextDecoder', 'TextEncoder',
+            'fetch', 'URLSearchParams',
+            'HTMLCanvasElement.prototype.toBlob'
+        ];
+        const capabilities = list.filter((capability) => {
+            const path = capability.split('.').reverse();
+            let obj = this.window[path.pop()];
+            while (obj && path.length > 0) {
+                obj = obj[path.pop()];
             }
-            else {
-                this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', 2000).then((text) => {
-                    try {
-                        const json = JSON.parse(text);
-                        const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
-                        if (json && json.country && !countries.indexOf(json.country) !== -1) {
-                            this._setCookie('consent', Date.now(), 30);
-                            telemetry();
-                        }
-                        else {
-                            consent();
-                        }
-                    }
-                    catch (err) {
-                        consent();
-                    }
-                }).catch(() => {
-                    consent();
-                });
-            }
+            return obj;
         });
+        this.event('browser_open', {
+            browser_capabilities: capabilities.map((capability) => capability.split('.').pop()).join(',')
+        });
+        if (capabilities.length < list.length) {
+            this._message('Your browser is not supported.');
+            return new Promise(() => {});
+        }
+        return Promise.resolve();
     }
 
     start() {
-        this.window.addEventListener('error', (e) => {
-            this.exception(new Error(e ? e.message : JSON.stringify(e)), true);
+        this.window.addEventListener('error', (event) => {
+            const error = event instanceof ErrorEvent && event.error && event.error instanceof Error ? event.error : new Error(event && event.message ? event.message : JSON.stringify(event));
+            this.exception(error, true);
         });
 
-        const params = new URLSearchParams(this.window.location.search);
-        this._environment.set('zoom', params.has('zoom') ? params.get('zoom') : this._environment.get('zoom'));
-
-        this._menu = new host.Dropdown(this, 'menu-button', 'menu-dropdown');
-        this._menu.add({
-            label: 'Properties...',
-            accelerator: 'CmdOrCtrl+Enter',
-            click: () => this._view.showModelProperties()
-        });
-        this._menu.add({});
-        this._menu.add({
-            label: 'Find...',
-            accelerator: 'CmdOrCtrl+F',
-            click: () => this._view.find()
-        });
-        this._menu.add({});
-        this._menu.add({
-            label: () => this._view.options.attributes ? 'Hide Attributes' : 'Show Attributes',
-            accelerator: 'CmdOrCtrl+D',
-            click: () => this._view.toggle('attributes')
-        });
-        this._menu.add({
-            label: () => this._view.options.initializers ? 'Hide Initializers' : 'Show Initializers',
-            accelerator: 'CmdOrCtrl+I',
-            click: () => this._view.toggle('initializers')
-        });
-        this._menu.add({
-            label: () => this._view.options.names ? 'Hide Names' : 'Show Names',
-            accelerator: 'CmdOrCtrl+U',
-            click: () => this._view.toggle('names')
-        });
-        this._menu.add({
-            label: () => this._view.options.direction === 'vertical' ? 'Show Horizontal' : 'Show Vertical',
-            accelerator: 'CmdOrCtrl+K',
-            click: () => this._view.toggle('direction')
-        });
-        this._menu.add({
-            label: () => this._view.options.mousewheel === 'scroll' ? 'Mouse Wheel: Zoom' : 'Mouse Wheel: Scroll',
-            accelerator: 'CmdOrCtrl+M',
-            click: () => this._view.toggle('mousewheel')
-        });
-        this._menu.add({});
-        this._menu.add({
-            label: 'Zoom In',
-            accelerator: 'Shift+Up',
-            click: () => this.document.getElementById('zoom-in-button').click()
-        });
-        this._menu.add({
-            label: 'Zoom Out',
-            accelerator: 'Shift+Down',
-            click: () => this.document.getElementById('zoom-out-button').click()
-        });
-        this._menu.add({
-            label: 'Actual Size',
-            accelerator: 'Shift+Backspace',
-            click: () => this._view.resetZoom()
-        });
-        this._menu.add({});
-        this._menu.add({
-            label: 'Export as PNG',
-            accelerator: 'CmdOrCtrl+Shift+E',
-            click: () => this._view.export(document.title + '.png')
-        });
-        this._menu.add({
-            label: 'Export as SVG',
-            accelerator: 'CmdOrCtrl+Alt+E',
-            click: () => this._view.export(document.title + '.svg')
-        });
-        this.document.getElementById('menu-button').addEventListener('click', (e) => {
-            this._menu.toggle();
-            e.preventDefault();
-        });
-        this._menu.add({});
-        this._menu.add({
-            label: 'About ' + this.document.title,
-            click: () => this._about()
-        });
-
-        this.document.getElementById('version').innerText = this.version;
+        const hash = this.window.location.hash ? this.window.location.hash.replace(/^#/, '') : '';
+        const search = this.window.location.search;
+        const params = new URLSearchParams(search + (hash ? '&' + hash : ''));
 
         if (this._meta.file) {
             const url = this._meta.file[0];
@@ -225,9 +222,13 @@ host.BrowserHost = class {
         const url = params.get('url');
         if (url) {
             const identifier = params.get('identifier') || null;
-            const location = url.replace(new RegExp('^https://github.com/([\\w]*/[\\w]*)/blob/([\\w/_.]*)(\\?raw=true)?$'), 'https://raw.githubusercontent.com/$1/$2');
+            const location = url
+                .replace(new RegExp('^https://github.com/([\\w]*/[\\w]*)/blob/([\\w/_.]*)(\\?raw=true)?$'), 'https://raw.githubusercontent.com/$1/$2')
+                .replace(new RegExp('^https://huggingface.co/(.*)/blob/(.*)$'), 'https://huggingface.co/$1/resolve/$2');
             if (this._view.accept(identifier || location)) {
-                this._openModel(location, identifier);
+                this._openModel(location, identifier).then((identifier) => {
+                    this.document.title = identifier;
+                });
                 return;
             }
         }
@@ -242,25 +243,18 @@ host.BrowserHost = class {
         const openFileDialog = this.document.getElementById('open-file-dialog');
         if (openFileButton && openFileDialog) {
             openFileButton.addEventListener('click', () => {
-                openFileDialog.value = '';
-                openFileDialog.click();
+                this.execute('open');
             });
+            const extensions = new this.window.base.Metadata().extensions.map((extension) => '.' + extension);
+            openFileDialog.setAttribute('accept', extensions.join(', '));
             openFileDialog.addEventListener('change', (e) => {
                 if (e.target && e.target.files && e.target.files.length > 0) {
                     const files = Array.from(e.target.files);
-                    const file = files.find((file) => this._view.accept(file.name));
+                    const file = files.find((file) => this._view.accept(file.name, file.size));
                     if (file) {
                         this._open(file, files);
                     }
                 }
-            });
-        }
-        const githubButton = this.document.getElementById('github-button');
-        const githubLink = this.document.getElementById('logo-github');
-        if (githubButton && githubLink) {
-            githubButton.style.opacity = 1;
-            githubButton.addEventListener('click', () => {
-                this.openURL(githubLink.href);
             });
         }
         this.document.addEventListener('dragover', (e) => {
@@ -273,7 +267,7 @@ host.BrowserHost = class {
             e.preventDefault();
             if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
                 const files = Array.from(e.dataTransfer.files);
-                const file = files.find((file) => this._view.accept(file.name));
+                const file = files.find((file) => this._view.accept(file.name, file.size));
                 if (file) {
                     this._open(file, files);
                 }
@@ -284,11 +278,14 @@ host.BrowserHost = class {
     }
 
     environment(name) {
-        return this._environment.get(name);
+        return this._environment[name];
     }
 
-    error(message, detail) {
+    error(message, detail, url) {
         alert((message == 'Error' ? '' : message + ' ') + detail);
+        if (url) {
+            this.openURL(url);
+        }
     }
 
     confirm(message, detail) {
@@ -296,27 +293,26 @@ host.BrowserHost = class {
     }
 
     require(id) {
-        const url = this._url(id + '.js');
-        this.window.__modules__ = this.window.__modules__ || {};
-        if (this.window.__modules__[url]) {
-            return Promise.resolve(this.window.__exports__[url]);
+        const name = id.startsWith('./') ? id.substring(2) : id;
+        const value = this.window[name];
+        if (value) {
+            return Promise.resolve(value);
         }
+        this.window.module = { exports: {} };
+        const url = this._url(id + '.js');
+        const script = document.createElement('script');
+        script.setAttribute('id', id);
+        script.setAttribute('type', 'text/javascript');
+        script.setAttribute('src', url);
         return new Promise((resolve, reject) => {
-            this.window.module = { exports: {} };
-            const script = document.createElement('script');
-            script.setAttribute('id', id);
-            script.setAttribute('type', 'text/javascript');
-            script.setAttribute('src', url);
-            script.onload = (e) => {
-                if (this.window.module && this.window.module.exports) {
-                    const exports = this.window.module.exports;
-                    delete this.window.module;
-                    this.window.__modules__[id] = exports;
-                    resolve(exports);
+            script.onload = () => {
+                let module = this.window[name];
+                if (!module) {
+                    module = this.window.module.exports;
+                    this.window[name] = module;
                 }
-                else {
-                    reject(new Error('The script \'' + e.target.src + '\' has no exports.'));
-                }
+                delete this.window.module;
+                resolve(module);
             };
             script.onerror = (e) => {
                 delete this.window.module;
@@ -339,6 +335,39 @@ host.BrowserHost = class {
         this.document.body.removeChild(element);
     }
 
+    execute(name /*, value */) {
+        switch (name) {
+            case 'open': {
+                const openFileDialog = this.document.getElementById('open-file-dialog');
+                if (openFileDialog) {
+                    openFileDialog.value = '';
+                    openFileDialog.click();
+                }
+                break;
+            }
+            case 'report-issue': {
+                this.openURL(this.environment('repository') + '/issues/new');
+                break;
+            }
+
+            case 'about': {
+                this.document.getElementById('version').innerText = this.version;
+                const handler = () => {
+                    this.window.removeEventListener('keydown', handler);
+                    this.document.body.removeEventListener('click', handler);
+                    this.document.body.classList.remove('about');
+                };
+                this.window.addEventListener('keydown', handler);
+                this.document.body.addEventListener('click', handler);
+                this.document.body.classList.add('about');
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+    }
+
     request(file, encoding, base) {
         const url = base ? (base + '/' + file) : this._url(file);
         return this._request(url, null, encoding);
@@ -349,61 +378,72 @@ host.BrowserHost = class {
     }
 
     exception(error, fatal) {
-        if (this._telemetry && this.window.ga && error && error.telemetry !== false) {
-            const description = [];
-            description.push((error && error.name ? (error.name + ': ') : '') + (error && error.message ? error.message : JSON.stringify(error)));
+        if ((this._telemetry_ua || this._telemetry_ga4) && error) {
+            const name = error.name ? error.name + ': ' : '';
+            const message = error.message ? error.message : JSON.stringify(error);
+            const description = name + message;
+            let context = '';
+            let stack = '';
             if (error.stack) {
                 const format = (file, line, column) => {
                     return file.split('\\').join('/').split('/').pop() + ':' + line + ':' + column;
                 };
                 const match = error.stack.match(/\n {4}at (.*) \((.*):(\d*):(\d*)\)/);
                 if (match) {
-                    description.push(match[1] + ' (' + format(match[2], match[3], match[4]) + ')');
+                    stack = match[1] + ' (' + format(match[2], match[3], match[4]) + ')';
                 }
                 else {
                     const match = error.stack.match(/\n {4}at (.*):(\d*):(\d*)/);
                     if (match) {
-                        description.push('(' + format(match[1], match[2], match[3]) + ')');
+                        stack = '(' + format(match[1], match[2], match[3]) + ')';
                     }
                     else {
                         const match = error.stack.match(/\n {4}at (.*)\((.*)\)/);
                         if (match) {
-                            description.push('(' + format(match[1], match[2], match[3]) + ')');
+                            stack = '(' + format(match[1], match[2], match[3]) + ')';
                         }
                         else {
                             const match = error.stack.match(/\s*@\s*(.*):(.*):(.*)/);
                             if (match) {
-                                description.push('(' + format(match[1], match[2], match[3]) + ')');
+                                stack = '(' + format(match[1], match[2], match[3]) + ')';
                             }
                             else {
                                 const match = error.stack.match(/.*\n\s*(.*)\s*/);
-                                description.push(match ? match[1] : error.stack.split('\n').shift());
+                                if (match) {
+                                    stack = match[1];
+                                }
                             }
                         }
                     }
                 }
             }
-            this.window.ga('send', 'exception', {
-                exDescription: description.join(' @ '),
-                exFatal: fatal,
-                appName: this.type,
-                appVersion: this.version
-            });
+            if (error.context) {
+                context = typeof error.context === 'string' ? error.context : JSON.stringify(error.context);
+            }
+            if (this._telemetry_ua && this.window.ga) {
+                this.window.ga('send', 'exception', {
+                    exDescription: stack ? description + ' @ ' + stack : description,
+                    exFatal: fatal,
+                    appName: this.type,
+                    appVersion: this.version
+                });
+            }
+            if (this._telemetry_ga4) {
+                this._telemetry_ga4.send('exception', {
+                    app_name: this.type,
+                    app_version: this.version,
+                    error_name: name,
+                    error_message: message,
+                    error_context: context,
+                    error_stack: stack,
+                    error_fatal: fatal ? true : false
+                });
+            }
         }
     }
 
-    screen(name) {
-        if (this._telemetry && this.window.ga) {
-            this.window.ga('send', 'screenview', {
-                screenName: name,
-                appName: this.type,
-                appVersion: this.version
-            });
-        }
-    }
-
-    event(category, action, label, value) {
-        if (this._telemetry && this.window.ga) {
+    event_ua(category, action, label, value) {
+        if (this._telemetry_ua && this.window.ga && category && action && label) {
             this.window.ga('send', 'event', {
                 eventCategory: category,
                 eventAction: action,
@@ -415,7 +455,15 @@ host.BrowserHost = class {
         }
     }
 
-    _request(url, headers, encoding, timeout) {
+    event(name, params) {
+        if (this._telemetry_ga4 && name && params) {
+            params.app_name = this.type,
+            params.app_version = this.version,
+            this._telemetry_ga4.send(name, params);
+        }
+    }
+
+    _request(url, headers, encoding, callback, timeout) {
         return new Promise((resolve, reject) => {
             const request = new XMLHttpRequest();
             if (!encoding) {
@@ -430,7 +478,13 @@ host.BrowserHost = class {
                 err.url = url;
                 return err;
             };
+            const progress = (value) => {
+                if (callback) {
+                    callback(value);
+                }
+            };
             request.onload = () => {
+                progress(0);
                 if (request.status == 200) {
                     if (request.responseType == 'arraybuffer') {
                         resolve(new host.BrowserHost.BinaryStream(new Uint8Array(request.response)));
@@ -444,16 +498,23 @@ host.BrowserHost = class {
                 }
             };
             request.onerror = (e) => {
+                progress(0);
                 const err = error(request.status);
                 err.type = e.type;
                 reject(err);
             };
             request.ontimeout = () => {
+                progress(0);
                 request.abort();
                 const err = new Error("The web request timed out in '" + url + "'.");
                 err.type = 'timeout';
                 err.url = url;
                 reject(err);
+            };
+            request.onprogress = (e) => {
+                if (e && e.lengthComputable) {
+                    progress(e.loaded / e.total * 100);
+                }
             };
             request.open('GET', url, true);
             if (headers) {
@@ -466,27 +527,27 @@ host.BrowserHost = class {
     }
 
     _url(file) {
-        let url = file;
-        if (this.window && this.window.location && this.window.location.href) {
-            let location = this.window.location.href.split('?').shift();
-            if (location.endsWith('.html')) {
-                location = location.split('/').slice(0, -1).join('/');
-            }
-            if (location.endsWith('/')) {
-                location = location.slice(0, -1);
-            }
-            url = location + '/' + (file.startsWith('/') ? file.substring(1) : file);
-        }
-        return url;
+        file = file.startsWith('./') ? file.substring(2) : file.startsWith('/') ? file.substring(1) : file;
+        const location = this.window.location;
+        const pathname = location.pathname.endsWith('/') ?
+            location.pathname :
+            location.pathname.split('/').slice(0, -1).join('/') + '/';
+        return location.protocol + '//' + location.host + pathname + file;
     }
 
     _openModel(url, identifier) {
-        url = url + ((/\?/).test(url) ? '&' : '?') + 'cb=' + (new Date()).getTime();
+        url = url.startsWith('data:') ? url : url + ((/\?/).test(url) ? '&' : '?') + 'cb=' + (new Date()).getTime();
         this._view.show('welcome spinner');
-        this._request(url).then((stream) => {
-            const context = new host.BrowserHost.BrowserContext(this, url, identifier, stream);
-            this._view.open(context).then(() => {
-                this.document.title = identifier || context.identifier;
+        const progress = (value) => {
+            this._view.progress(value);
+        };
+        return this._request(url, null, null, progress).then((stream) => {
+            const context = new host.BrowserHost.Context(this, url, identifier, stream);
+            if (this._telemetry_ga4) {
+                this._telemetry_ga4.set('session_engaged', 1);
+            }
+            return this._view.open(context).then(() => {
+                return identifier || context.identifier;
             }).catch((err) => {
                 if (err) {
                     this._view.error(err, null, 'welcome');
@@ -502,6 +563,9 @@ host.BrowserHost = class {
         this._view.show('welcome spinner');
         const context = new host.BrowserHost.BrowserFileContext(this, file, files);
         context.open().then(() => {
+            if (this._telemetry_ga4) {
+                this._telemetry_ga4.set('session_engaged', 1);
+            }
             return this._view.open(context).then((model) => {
                 this._view.show(null);
                 this.document.title = files[0].name;
@@ -531,7 +595,10 @@ host.BrowserHost = class {
             const encoder = new TextEncoder();
             const buffer = encoder.encode(file.content);
             const stream = new host.BrowserHost.BinaryStream(buffer);
-            const context = new host.BrowserHost.BrowserContext(this, '', identifier, stream);
+            const context = new host.BrowserHost.Context(this, '', identifier, stream);
+            if (this._telemetry_ga4) {
+                this._telemetry_ga4.set('session_engaged', 1);
+            }
             this._view.open(context).then(() => {
                 this.document.title = identifier;
             }).catch((error) => {
@@ -545,181 +612,48 @@ host.BrowserHost = class {
     }
 
     _setCookie(name, value, days) {
+        this.document.cookie = name + '=; Max-Age=0';
+        const location = this.window.location;
+        const domain = location && location.hostname && location.hostname.indexOf('.') !== -1 ? ';domain=.' + location.hostname.split('.').slice(-2).join('.') : '';
         const date = new Date();
-        date.setTime(date.getTime() + ((typeof days !== "number" ? 365 : days) * 24 * 60 * 60 * 1000));
-        document.cookie = name + "=" + value + ";path=/;expires=" + date.toUTCString();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        this.document.cookie = name + "=" + value + domain + ";path=/;expires=" + date.toUTCString();
     }
 
     _getCookie(name) {
-        const cookie = '; ' + document.cookie;
-        const parts = cookie.split('; ' + name + '=');
-        return parts.length < 2 ? undefined : parts.pop().split(';').shift();
+        for (const cookie of this.document.cookie.split(';')) {
+            const entry = cookie.split('=');
+            if (entry[0].trim() === name) {
+                return entry[1].trim();
+            }
+        }
+        return '';
     }
 
-    _message(message, button, callback) {
-        const messageText = this.document.getElementById('message');
-        if (messageText) {
-            messageText.innerText = message;
+    _message(message, action, callback, modal) {
+        const text = this.document.getElementById('message-text');
+        if (text) {
+            text.innerText = message;
         }
-        const messageButton = this.document.getElementById('message-button');
-        if (messageButton) {
-            if (button && callback) {
-                messageButton.style.removeProperty('display');
-                messageButton.innerText = button;
-                messageButton.onclick = () => {
-                    messageButton.onclick = null;
+        const button = this.document.getElementById('message-button');
+        if (button) {
+            if (action && callback) {
+                button.style.removeProperty('display');
+                button.innerText = action;
+                button.onclick = () => {
+                    if (!modal) {
+                        this._document.body.classList.remove('message');
+                        button.onclick = null;
+                    }
                     callback();
                 };
             }
             else {
-                messageButton.style.display = 'none';
-                messageButton.onclick = null;
+                button.style.display = 'none';
+                button.onclick = null;
             }
         }
-        this._view.show('welcome message');
-    }
-
-    _about() {
-        const self = this;
-        const eventHandler = () => {
-            this.window.removeEventListener('keydown', eventHandler);
-            self.document.body.removeEventListener('click', eventHandler);
-            self._view.show('default');
-        };
-        this.window.addEventListener('keydown', eventHandler);
-        this.document.body.addEventListener('click', eventHandler);
-        this._view.show('about');
-    }
-};
-
-host.Dropdown = class {
-
-    constructor(host, button, dropdown) {
-        this._host = host;
-        this._dropdown = this._host.document.getElementById(dropdown);
-        this._button = this._host.document.getElementById(button);
-        this._items = [];
-        this._apple = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
-        this._acceleratorMap = {};
-        this._host.window.addEventListener('keydown', (e) => {
-            let code = e.keyCode;
-            code |= ((e.ctrlKey && !this._apple) || (e.metaKey && this._apple)) ? 0x0400 : 0;
-            code |= e.altKey ? 0x0200 : 0;
-            code |= e.shiftKey ? 0x0100 : 0;
-            if (code == 0x001b) { // Escape
-                this.close();
-                return;
-            }
-            const item = this._acceleratorMap[code.toString()];
-            if (item) {
-                item.click();
-                e.preventDefault();
-            }
-        });
-        this._host.document.body.addEventListener('click', (e) => {
-            if (!this._button.contains(e.target)) {
-                this.close();
-            }
-        });
-    }
-
-    add(item) {
-        const accelerator = item.accelerator;
-        if (accelerator) {
-            let cmdOrCtrl = false;
-            let alt = false;
-            let shift = false;
-            let key = '';
-            for (const part of item.accelerator.split('+')) {
-                switch (part) {
-                    case 'CmdOrCtrl': cmdOrCtrl = true; break;
-                    case 'Alt': alt = true; break;
-                    case 'Shift': shift = true; break;
-                    default: key = part; break;
-                }
-            }
-            if (key !== '') {
-                item.accelerator = {};
-                item.accelerator.text = '';
-                if (this._apple) {
-                    item.accelerator.text += alt ? '&#x2325;' : '';
-                    item.accelerator.text += shift ? '&#x21e7;' : '';
-                    item.accelerator.text += cmdOrCtrl ? '&#x2318;' : '';
-                    const keyTable = { 'Enter': '&#x23ce;', 'Up': '&#x2191;', 'Down': '&#x2193;', 'Backspace': '&#x232B;' };
-                    item.accelerator.text += keyTable[key] ? keyTable[key] : key;
-                }
-                else {
-                    const list = [];
-                    if (cmdOrCtrl) {
-                        list.push('Ctrl');
-                    }
-                    if (alt) {
-                        list.push('Alt');
-                    }
-                    if (shift) {
-                        list.push('Shift');
-                    }
-                    list.push(key);
-                    item.accelerator.text = list.join('+');
-                }
-                let code = 0;
-                switch (key) {
-                    case 'Backspace': code = 0x08; break;
-                    case 'Enter': code = 0x0D; break;
-                    case 'Up': code = 0x26; break;
-                    case 'Down': code = 0x28; break;
-                    default: code = key.charCodeAt(0); break;
-                }
-                code |= cmdOrCtrl ? 0x0400 : 0;
-                code |= alt ? 0x0200 : 0;
-                code |= shift ? 0x0100 : 0;
-                this._acceleratorMap[code.toString()] = item;
-            }
-        }
-        this._items.push(item);
-    }
-
-    toggle() {
-
-        if (this._dropdown.style.display === 'block') {
-            this.close();
-            return;
-        }
-
-        while (this._dropdown.lastChild) {
-            this._dropdown.removeChild(this._dropdown.lastChild);
-        }
-
-        for (const item of this._items) {
-            if (Object.keys(item).length > 0) {
-                const button = this._host.document.createElement('button');
-                button.innerText = (typeof item.label == 'function') ? item.label() : item.label;
-                button.addEventListener('click', () => {
-                    this.close();
-                    setTimeout(() => {
-                        item.click();
-                    }, 10);
-                });
-                this._dropdown.appendChild(button);
-                if (item.accelerator) {
-                    const accelerator = this._host.document.createElement('span');
-                    accelerator.style.float = 'right';
-                    accelerator.innerHTML = item.accelerator.text;
-                    button.appendChild(accelerator);
-                }
-            }
-            else {
-                const separator = this._host.document.createElement('div');
-                separator.setAttribute('class', 'separator');
-                this._dropdown.appendChild(separator);
-            }
-        }
-
-        this._dropdown.style.display = 'block';
-    }
-
-    close() {
-        this._dropdown.style.display = 'none';
+        this._document.body.classList.add('message');
     }
 };
 
@@ -816,7 +750,7 @@ host.BrowserHost.BrowserFileContext = class {
                 e = e || this.window.event;
                 let message = '';
                 const error = e.target.error;
-                switch(error.code) {
+                switch (error.code) {
                     case error.NOT_FOUND_ERR:
                         message = "File not found '" + file + "'.";
                         break;
@@ -856,7 +790,7 @@ host.BrowserHost.BrowserFileContext = class {
     }
 };
 
-host.BrowserHost.BrowserContext = class {
+host.BrowserHost.Context = class {
 
     constructor(host, url, identifier, stream) {
         this._host = host;
@@ -938,5 +872,4 @@ if (!('scrollBehavior' in window.document.documentElement.style)) {
 
 window.addEventListener('load', () => {
     window.__host__ = new host.BrowserHost();
-    window.__view__ = new view.View(window.__host__);
 });

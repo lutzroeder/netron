@@ -1,76 +1,41 @@
-#!/usr/bin/env node
-
-/* eslint "no-console": off */
 
 const fs = require('fs');
 const path = require('path');
 const process = require('process');
-const util = require('util');
 
-// const json = require('../source/json');
+const base = require('../source/base');
 const protobuf = require('../source/protobuf');
 const flatbuffers = require('../source/flatbuffers');
-const sidebar = require('../source/view-sidebar.js');
-const view = require('../source/view.js');
+const view = require('../source/view');
 const zip = require('../source/zip');
-const gzip = require('../source/gzip');
 const tar = require('../source/tar');
-const base = require('../source/base');
 
 global.Int64 = base.Int64;
 global.Uint64 = base.Uint64;
-
-// global.json = json;
 global.protobuf = protobuf;
 global.flatbuffers = flatbuffers;
-
-global.TextDecoder = class {
-
-    constructor(encoding) {
-        if (encoding !== 'ascii') {
-            this._decoder = new util.TextDecoder(encoding);
-        }
-    }
-
-    decode(data) {
-        if (this._decoder) {
-            return this._decoder.decode(data);
-        }
-
-        if (data.length < 32) {
-            return String.fromCharCode.apply(null, data);
-        }
-
-        const buffer = [];
-        let start = 0;
-        do {
-            let end = start + 32;
-            if (end > data.length) {
-                end = data.length;
-            }
-            buffer.push(String.fromCharCode.apply(null, data.subarray(start, end)));
-            start = end;
-        }
-        while (start < data.length);
-        return buffer.join('');
-    }
-};
+global.TextDecoder = TextDecoder;
 
 const filter = process.argv.length > 2 ? process.argv[2].split('*') : ['', ''];
-const dataFolder = path.normalize(__dirname + '/../third_party/test');
 const items = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8'));
 
 class TestHost {
 
     constructor() {
+        this._window = new Window();
         this._document = new HTMLDocument();
+        this._sourceDir = path.join(__dirname, '..', 'source');
+    }
+
+    get window() {
+        return this._window;
     }
 
     get document() {
         return this._document;
     }
 
-    initialize(/* view */) {
+    view(/* view */) {
         return Promise.resolve();
     }
 
@@ -89,7 +54,7 @@ class TestHost {
 
     require(id) {
         try {
-            const file = path.join(path.join(__dirname, '../source'), id + '.js');
+            const file = path.join(this._sourceDir, id + '.js');
             return Promise.resolve(require(file));
         }
         catch (error) {
@@ -98,7 +63,7 @@ class TestHost {
     }
 
     request(file, encoding, base) {
-        const pathname = path.join(base || path.join(__dirname, '../source'), file);
+        const pathname = path.join(base || this._sourceDir, file);
         if (!fs.existsSync(pathname)) {
             return Promise.reject(new Error("The file '" + file + "' does not exist."));
         }
@@ -111,11 +76,14 @@ class TestHost {
         return Promise.resolve(stream);
     }
 
-    event(/* category, action, label, value */) {
+    event_ua(/* category, action, label, value */) {
+    }
+
+    event(/* name, params */) {
     }
 
     exception(err /*, fatal */) {
-        this._raise('exception', { exception: err });
+        this.emit('exception', { exception: err });
     }
 
     on(event, callback) {
@@ -124,7 +92,7 @@ class TestHost {
         this._events[event].push(callback);
     }
 
-    _raise(event, data) {
+    emit(event, data) {
         if (this._events && this._events[event]) {
             for (const callback of this._events[event]) {
                 callback(this, data);
@@ -231,6 +199,15 @@ class TestContext {
     }
 }
 
+class Window {
+
+    addEventListener(/* event, callback */) {
+    }
+
+    removeEventListener(/* event, callback */) {
+    }
+}
+
 class HTMLDocument {
 
     constructor() {
@@ -317,7 +294,7 @@ class HTMLElement {
     }
 
     get classList() {
-        return new DOMTokenList(this);
+        return new DOMTokenList();
     }
 
     getBBox() {
@@ -338,7 +315,7 @@ class HTMLElement {
 class HTMLHtmlElement extends HTMLElement {
 }
 
-class HTMLBodyElement extends HTMLElement{
+class HTMLBodyElement extends HTMLElement {
 }
 
 class CSSStyleDeclaration {
@@ -364,14 +341,17 @@ const clearLine = () => {
     }
 };
 
+const write = (message) => {
+    if (process.stdout.write) {
+        process.stdout.write(message);
+    }
+};
+
 const decompress = (buffer) => {
-    let archive = null;
-    if (buffer.length >= 18 && buffer[0] === 0x1f && buffer[1] === 0x8b) {
-        archive = gzip.Archive.open(buffer);
-        if (archive.entries.size == 1) {
-            const stream = archive.entries.values().next().value;
-            buffer = stream.peek();
-        }
+    let archive = zip.Archive.open(buffer, 'gzip');
+    if (archive && archive.entries.size == 1) {
+        const stream = archive.entries.values().next().value;
+        buffer = stream.peek();
     }
     const formats = [ zip, tar ];
     for (const module of formats) {
@@ -384,10 +364,10 @@ const decompress = (buffer) => {
 };
 
 const request = (location, cookie) => {
-    const url = new URL(location);
-    const protocol = url.protocol === 'https:' ? require('https') : require('http');
-    const request = protocol.request(location, {});
     return new Promise((resolve, reject) => {
+        const url = new URL(location);
+        const protocol = url.protocol === 'https:' ? require('https') : require('http');
+        const request = protocol.request(location, {});
         if (cookie && cookie.length > 0) {
             request.setHeader('Cookie', cookie);
         }
@@ -404,53 +384,54 @@ const request = (location, cookie) => {
 const downloadFile = (location, cookie) => {
     return request(location, cookie).then((response) => {
         const url = new URL(location);
-        if (response.statusCode == 200 &&
-            url.hostname == 'drive.google.com' &&
-            response.headers['set-cookie'].some((cookie) => cookie.startsWith('download_warning_'))) {
-            cookie = response.headers['set-cookie'];
-            const download = cookie.filter((cookie) => cookie.startsWith('download_warning_')).shift();
-            const confirm = download.split(';').shift().split('=').pop();
-            location = location + '&confirm=' + confirm;
-            return downloadFile(location, cookie);
-        }
-        if (response.statusCode == 301 || response.statusCode == 302) {
-            if (response.headers.location.startsWith('http://') || response.headers.location.startsWith('https://')) {
+        switch (response.statusCode) {
+            case 200: {
+                if (url.hostname == 'drive.google.com' &&
+                    response.headers['set-cookie'].some((cookie) => cookie.startsWith('download_warning_'))) {
+                    cookie = response.headers['set-cookie'];
+                    const download = cookie.filter((cookie) => cookie.startsWith('download_warning_')).shift();
+                    const confirm = download.split(';').shift().split('=').pop();
+                    location = location + '&confirm=' + confirm;
+                    return downloadFile(location, cookie);
+                }
+                return new Promise((resolve, reject) => {
+                    let position = 0;
+                    const data = [];
+                    const length = response.headers['content-length'] ? Number(response.headers['content-length']) : -1;
+                    response.on('data', (chunk) => {
+                        position += chunk.length;
+                        if (length >= 0) {
+                            const label = location.length > 70 ? location.substring(0, 66) + '...' : location;
+                            write('  (' + ('  ' + Math.floor(100 * (position / length))).slice(-3) + '%) ' + label + '\r');
+                        }
+                        else {
+                            write('  ' + position + ' bytes\r');
+                        }
+                        data.push(chunk);
+                    });
+                    response.on('end', () => {
+                        resolve(Buffer.concat(data));
+                    });
+                    response.on('error', (error) => {
+                        reject(error);
+                    });
+                });
+            }
+            case 301:
+            case 302: {
                 location = response.headers.location;
+                const context = location.startsWith('http://') || location.startsWith('https://') ? '' : url.protocol + '//' + url.hostname;
+                response.destroy();
+                return downloadFile(context + location, cookie);
             }
-            else {
-                location = url.protocol + '//' + url.hostname + response.headers.location;
+            default: {
+                throw new Error(response.statusCode.toString() + ' ' + location);
             }
-            return downloadFile(location, cookie);
         }
-        if (response.statusCode != 200) {
-            throw new Error(response.statusCode.toString() + ' ' + location);
-        }
-        return new Promise((resolve, reject) => {
-            let position = 0;
-            const data = [];
-            const length = response.headers['content-length'] ? Number(response.headers['content-length']) : -1;
-            response.on('data', (chunk) => {
-                position += chunk.length;
-                if (length >= 0) {
-                    const label = location.length > 70 ? location.substring(0, 66) + '...' : location;
-                    process.stdout.write('  (' + ('  ' + Math.floor(100 * (position / length))).slice(-3) + '%) ' + label + '\r');
-                }
-                else {
-                    process.stdout.write('  ' + position + ' bytes\r');
-                }
-                data.push(chunk);
-            });
-            response.on('end', () => {
-                resolve(Buffer.concat(data));
-            });
-            response.on('error', (error) => {
-                reject(error);
-            });
-        });
     });
 };
 
-const download = (folder, targets, sources) => {
+const downloadTargets = (folder, targets, sources) => {
     if (targets.every((file) => fs.existsSync(folder + '/' + file))) {
         return Promise.resolve();
     }
@@ -459,15 +440,11 @@ const download = (folder, targets, sources) => {
     }
     let source = '';
     let sourceFiles = [];
-    const startIndex = sources.indexOf('[');
-    const endIndex = sources.indexOf(']');
-    if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
-        sourceFiles = sources.substring(startIndex + 1, endIndex).split(',').map((sourceFile) => sourceFile.trim());
-        source = sources.substring(0, startIndex);
-        sources = sources.substring(endIndex + 1);
-        if (sources.startsWith(',')) {
-            sources = sources.substring(1);
-        }
+    const match = sources.match(/^(.*?)\[(.*?)\](.*)$/);
+    if (match) {
+        source = match[1];
+        sourceFiles = match[2].split(',').map((file) => file.trim());
+        sources = match[3] && match[3].startsWith(',') ? match[3].substring(1).trim() : '';
     }
     else {
         const commaIndex = sources.indexOf(',');
@@ -487,11 +464,11 @@ const download = (folder, targets, sources) => {
     return downloadFile(source).then((data) => {
         if (sourceFiles.length > 0) {
             clearLine();
-            process.stdout.write('  decompress...\r');
-            const archive = decompress(data, source.split('?').shift().split('/').pop());
+            write('  decompress...\r');
+            const archive = decompress(data);
             clearLine();
             for (const name of sourceFiles) {
-                process.stdout.write('  write ' + name + '\r');
+                write('  write ' + name + '\r');
                 if (name !== '.') {
                     const stream = archive.entries.get(name);
                     if (!stream) {
@@ -515,12 +492,12 @@ const download = (folder, targets, sources) => {
         else {
             const target = targets.shift();
             clearLine();
-            process.stdout.write('  write ' + target + '\r');
+            write('  write ' + target + '\r');
             fs.writeFileSync(folder + '/' + target, data, null);
         }
         clearLine();
         if (sources.length > 0) {
-            return download(folder, targets, sources);
+            return downloadTargets(folder, targets, sources);
         }
         return null;
     });
@@ -605,10 +582,9 @@ const loadModel = (target, item) => {
                 }
             }
         }
-        model.version;
-        model.description;
-        model.author;
-        model.license;
+        if (model.version || model.description || model.author || model.license) {
+            // continue
+        }
         for (const graph of model.graphs) {
             for (const input of graph.inputs) {
                 input.name.toString();
@@ -619,8 +595,9 @@ const loadModel = (target, item) => {
                     if (argument.type) {
                         argument.type.toString();
                     }
-                    argument.quantization;
-                    argument.initializer;
+                    if (argument.quantization || argument.initializer) {
+                        // continue
+                    }
                 }
             }
             for (const output of graph.outputs) {
@@ -635,24 +612,22 @@ const loadModel = (target, item) => {
                 }
             }
             for (const node of graph.nodes) {
-                node.type.toString();
-                node.type.length;
-                if (!node.type || typeof node.type.name != 'string') {
+                const type = node.type;
+                if (!type || typeof type.name != 'string') {
                     throw new Error("Invalid node type '" + JSON.stringify(node.type) + "'.");
                 }
-                sidebar.DocumentationSidebar.formatDocumentation(node.type);
+                view.Documentation.format(type);
                 node.name.toString();
-                node.name.length;
                 node.description;
                 node.attributes.slice();
                 for (const attribute of node.attributes) {
                     attribute.name.toString();
                     attribute.name.length;
-                    let value = new sidebar.Formatter(attribute.value, attribute.type).toString();
+                    let value = new view.Formatter(attribute.value, attribute.type).toString();
                     if (value && value.length > 1000) {
                         value = value.substring(0, 1000) + '...';
                     }
-                    value = value.split('<');
+                    /* value = */ value.split('<');
                 }
                 for (const input of node.inputs) {
                     input.name.toString();
@@ -665,23 +640,37 @@ const loadModel = (target, item) => {
                             argument.type.toString();
                         }
                         if (argument.initializer) {
-                            argument.initializer.toString();
                             argument.initializer.type.toString();
-                            /*
-                            const python = require('../source/python');
-                            const tensor = argument.initializer;
-                            if (tensor.type && tensor.type.dataType !== '?') {
-                                let data_type = tensor.type.dataType;
-                                switch (data_type) {
-                                    case 'boolean': data_type = 'bool'; break;
-                                }
-                                const execution = new python.Execution(null);
-                                const bytes = execution.invoke('io.BytesIO', []);
-                                const dtype = execution.invoke('numpy.dtype', [ data_type ]);
-                                const array = execution.invoke('numpy.asarray', [ tensor.value, dtype ]);
-                                execution.invoke('numpy.save', [ bytes, array ]);
+                            const tensor = new view.Tensor(argument.initializer);
+                            if (tensor.layout !== '<' && tensor.layout !== '>' && tensor.layout !== '|' && tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo') {
+                                throw new Error("Tensor layout '" + tensor.layout + "' is not implemented.");
                             }
-                            */
+                            if (!tensor.empty) {
+                                if (tensor.type && tensor.type.dataType === '?') {
+                                    throw new Error('Tensor data type is not defined.');
+                                }
+                                else if (tensor.type && !tensor.type.shape) {
+                                    throw new Error('Tensor shape is not defined.');
+                                }
+                                else {
+                                    tensor.toString();
+                                    /*
+                                    const python = require('../source/python');
+                                    const tensor = argument.initializer;
+                                    if (tensor.type && tensor.type.dataType !== '?') {
+                                        let data_type = tensor.type.dataType;
+                                        switch (data_type) {
+                                            case 'boolean': data_type = 'bool'; break;
+                                        }
+                                        const execution = new python.Execution();
+                                        const bytes = execution.invoke('io.BytesIO', []);
+                                        const dtype = execution.invoke('numpy.dtype', [ data_type ]);
+                                        const array = execution.invoke('numpy.asarray', [ tensor.value, dtype ]);
+                                        execution.invoke('numpy.save', [ bytes, array ]);
+                                    }
+                                    */
+                                }
+                            }
                         }
                     }
                 }
@@ -702,7 +691,7 @@ const loadModel = (target, item) => {
                         chain.name.length;
                     }
                 }
-                // new sidebar.NodeSidebar(host, node);
+                // new dialog.NodeSidebar(host, node);
             }
         }
         if (exceptions.length > 0) {
@@ -713,64 +702,59 @@ const loadModel = (target, item) => {
 };
 
 const renderModel = (model, item) => {
-    if (item.actions.has('skip-render')) {
+    if (item.action.has('skip-render')) {
         return Promise.resolve();
     }
     try {
         const host = new TestHost();
-        const currentView = new view.View(host);
-        currentView.options.attributes = true;
-        currentView.options.initializers = true;
-        return currentView.renderGraph(model, model.graphs[0]);
+        const current = new view.View(host);
+        current.options.attributes = true;
+        current.options.initializers = true;
+        return current.renderGraph(model, model.graphs[0]);
     }
     catch (error) {
         return Promise.reject(error);
     }
 };
 
+const queue = items.reverse().filter((item) => {
+    item.target = item.target.split(',');
+    item.action = new Set((item.action || '').split(';'));
+    const name = item.type + '/' + item.target[0];
+    return !((filter[0] && !name.startsWith(filter[0])) || (filter[1] && !name.endsWith(filter[1])));
+});
+
 const next = () => {
-    if (items.length == 0) {
-        return;
+    if (queue.length == 0) {
+        return Promise.resolve();
     }
-    const item = items.shift();
-    if (!item.type) {
-        console.error("Property 'type' is required for item '" + JSON.stringify(item) + "'.");
-        return;
-    }
-    const targets = item.target.split(',');
-    const target = targets[0];
-    const folder = dataFolder + '/' + item.type;
-    const name = item.type + '/' + target;
-    if ((filter[0] && !name.startsWith(filter[0])) || (filter[1] && !name.endsWith(filter[1]))) {
-        next();
-        return;
-    }
-    process.stdout.write(item.type + '/' + target + '\n');
-    item.actions = new Set((item.action || '').split(';'));
-    if (item.actions.has('skip')) {
-        next();
-        return;
+    const item = queue.pop();
+    write(item.type + '/' + item.target[0] + '\n');
+    if (item.action.has('skip')) {
+        return next();
     }
     clearLine();
-
-    const sources = item.source;
-    download(folder, targets, sources).then(() => {
-        return loadModel(folder + '/' + target, item).then((model) => {
+    const folder = path.normalize(path.join(__dirname, '..', 'third_party' , 'test', item.type));
+    return downloadTargets(folder, Array.from(item.target), item.source).then(() => {
+        const file = path.join(folder, item.target[0]);
+        return loadModel(file, item).then((model) => {
             return renderModel(model, item).then(() => {
-                if (!item.error) {
-                    next();
-                    return;
+                if (item.error) {
+                    return Promise.reject(new Error('Expected error.'));
                 }
-                console.error('Expected error.');
+                return next();
             });
         });
     }).catch((error) => {
-        if (item.error && item.error == error.message) {
-            next();
-            return;
+        if (item.error && error && item.error == error.message) {
+            return next();
         }
-        console.error(error.message);
+        return Promise.reject(error);
     });
 };
 
-next();
+next().catch((error) => {
+    /* eslint-disable no-console */
+    console.error(error.message);
+    /* eslint-enable no-console */
+});

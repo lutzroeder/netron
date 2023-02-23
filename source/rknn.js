@@ -1,8 +1,8 @@
 
-var rknn = rknn || {};
-var base = base || require('./base');
-var flatbuffers = flatbuffers || require('./flatbuffers');
-var json = json || require('./json');
+var rknn = {};
+var base = require('./base');
+var flatbuffers = require('./flatbuffers');
+var json = require('./json');
 
 rknn.ModelFactory = class {
 
@@ -319,7 +319,7 @@ rknn.Node = class {
                     }
                 }
                 node.input = node.input || [];
-                for (let i = 0; i < node.input.length; ) {
+                for (let i = 0; i < node.input.length;) {
                     const input = this._type && this._type.inputs && i < this._type.inputs.length ? this._type.inputs[i] : { name: i === 0 ? 'input' : i.toString() };
                     const count = input.list ? node.input.length - i : 1;
                     const list = node.input.slice(i, i + count).map((input) => {
@@ -335,7 +335,7 @@ rknn.Node = class {
                     i += count;
                 }
                 node.output = node.output || [];
-                for (let i = 0; i < node.output.length; ) {
+                for (let i = 0; i < node.output.length;) {
                     const output = this._metadata && this._metadata.outputs && i < this._metadata.outputs.length ? this._metadata.outputs[i] : { name: i === 0 ? 'output' : i.toString() };
                     const count = output.list ? node.output.length - i : 1;
                     const list = node.output.slice(i, i + count).map((output) => {
@@ -444,22 +444,22 @@ rknn.Tensor = class {
     constructor(type, offset, weights) {
         this._type = type;
         this._data = null;
-        let size = 0;
+        let itemsize = 0;
         switch (this._type.dataType) {
-            case 'uint8': size = 1; break;
-            case 'int8': size = 1; break;
-            case 'int16': size = 2; break;
-            case 'int32': size = 4; break;
-            case 'int64': size = 8; break;
-            case 'float16': size = 2; break;
-            case 'float32': size = 4; break;
-            case 'float64': size = 8; break;
-            case 'vdata': size = 1; break;
+            case 'uint8': itemsize = 1; break;
+            case 'int8': itemsize = 1; break;
+            case 'int16': itemsize = 2; break;
+            case 'int32': itemsize = 4; break;
+            case 'int64': itemsize = 8; break;
+            case 'float16': itemsize = 2; break;
+            case 'float32': itemsize = 4; break;
+            case 'float64': itemsize = 8; break;
+            case 'vdata': itemsize = 1; break;
             default: throw new rknn.Error("Unsupported tensor data type '" + this._type.dataType + "'.");
         }
         if (weights) {
             const shape = type.shape.dimensions;
-            size = size * shape.reduce((a, b) => a * b, 1);
+            const size = itemsize * shape.reduce((a, b) => a * b, 1);
             if (size > 0) {
                 this._data = weights.slice(offset, offset + size);
             }
@@ -470,116 +470,8 @@ rknn.Tensor = class {
         return this._type;
     }
 
-    get state() {
-        return this._context().state || null;
-    }
-
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return JSON.stringify(value, '', '    ');
-    }
-
-    _context() {
-        const context = {};
-        if (!this._type.dataType) {
-            context.state = 'Tensor data type is not implemented.';
-            return context;
-        }
-        if (!this._data) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-        context.index = 0;
-        context.count = 0;
-        context.shape = this._type.shape.dimensions;
-        context.dataType = this._type.dataType;
-        context.view = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const shape = context.shape.length !== 0 ? context.shape : [ 1 ];
-        const results = [];
-        const size = shape[dimension];
-        if (dimension == shape.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                switch (context.dataType) {
-                    case 'float16':
-                        results.push(context.view.getFloat16(context.index, true));
-                        context.index += 2;
-                        context.count++;
-                        break;
-                    case 'float32':
-                        results.push(context.view.getFloat32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    case 'float64':
-                        results.push(context.view.getFloat64(context.index, true));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    case 'uint8':
-                        results.push(context.view.getUint8(context.index, true));
-                        context.index++;
-                        context.count++;
-                        break;
-                    case 'int8':
-                        results.push(context.view.getInt8(context.index, true));
-                        context.index += 1;
-                        context.count++;
-                        break;
-                    case 'int16':
-                        results.push(context.view.getInt16(context.index, true));
-                        context.index += 2;
-                        context.count++;
-                        break;
-                    case 'int32':
-                        results.push(context.view.getInt32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    case 'int64':
-                        results.push(context.view.getInt64(context.index, true));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    default:
-                        throw new rknn.Error("Unsupported tensor data type '" + context.dataType + "'.");
-                }
-            }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        if (context.shape.length == 0) {
-            return results[0];
-        }
-        return results;
+    get values() {
+        return this._data;
     }
 };
 
@@ -625,8 +517,13 @@ rknn.Container = class {
 
     static open(context) {
         const stream = context.stream;
-        const container = new rknn.Container(stream, stream.length);
-        return container.type ? container : null;
+        if (stream) {
+            const container = new rknn.Container(stream, stream.length);
+            if (container.type) {
+                return container;
+            }
+        }
+        return null;
     }
 
     constructor(stream, length) {
@@ -640,7 +537,7 @@ rknn.Container = class {
             }
         }
         if ((stream.position + 16) <= this._length) {
-            const signature = [ 0x43, 0x59, 0x50, 0x54, 0x52, 0x4B, 0x4E, 0x4E ]; // RKNN
+            const signature = [ 0x43, 0x59, 0x50, 0x54, 0x52, 0x4B, 0x4E, 0x4E ]; // CYPTRKNN
             if (stream.peek(signature.length).every((value, index) => value === signature[index])) {
                 this._type = 'crypt';
             }
@@ -704,7 +601,7 @@ rknn.Container = class {
                     }
                     this._next = new rknn.Container(stream, data_size);
                     this._next.read();
-                    const value_size = uint64(stream);
+                    const value_size = uint64();
                     this._value = stream.read(value_size);
                     break;
                 }

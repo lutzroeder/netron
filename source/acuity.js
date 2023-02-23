@@ -1,6 +1,5 @@
 
 var acuity = acuity || {};
-var json = json || require('./json');
 
 acuity.ModelFactory = class {
 
@@ -9,16 +8,15 @@ acuity.ModelFactory = class {
         if (extension === 'json') {
             const obj = context.open('json');
             if (obj && obj.MetaData && obj.Layers) {
-                return 'acuity.json';
+                return obj;
             }
         }
-        return undefined;
+        return null;
     }
 
-    open(context) {
+    open(context, match) {
         return context.metadata('acuity-metadata.json').then((metadata) => {
-            const obj = context.open('json');
-            return new acuity.Model(metadata, obj);
+            return new acuity.Model(metadata, match);
         });
     }
 };
@@ -276,16 +274,8 @@ acuity.Argument = class {
         return this._quantization;
     }
 
-    set quantization(quantization) {
-        this._quantization = quantization;
-    }
-
     get initializer() {
         return this._initializer;
-    }
-
-    set initializer(initializer) {
-        this._initializer = initializer;
     }
 };
 
@@ -306,10 +296,6 @@ acuity.TensorType = class {
 
     get shape() {
         return this._shape;
-    }
-
-    set shape(shape) {
-        this._shape = shape;
     }
 
     toString() {
@@ -334,7 +320,7 @@ acuity.TensorShape = class {
         if (!Array.isArray(this._dimensions) || this._dimensions.length == 0 || (this._dimensions.length == 1 && this._dimensions[0] == 0)) {
             return '';
         }
-        return '[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']';
+        return '[' + this._dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',') + ']';
     }
 };
 
@@ -344,20 +330,12 @@ acuity.Tensor = class {
         this._type = type;
     }
 
-    get kind() {
+    get category() {
         return 'Constant';
     }
 
     get type() {
         return this._type;
-    }
-
-    get state() {
-        return 'Tensor data not implemented.';
-    }
-
-    toString() {
-        return '';
     }
 };
 
@@ -614,14 +592,14 @@ acuity.Inference = class {
                     begin[i] = 0;
                 }
             }
-            if (inputs[0].length == end.length){
+            if (inputs[0].length == end.length) {
                 for (let i = 0; i < end.length; i++) {
                     if (end[i] == -1 || end[i] > input_shape[i]) {
                         end[i] = input_shape[i];
                     }
                 }
             }
-            else if (inputs[0].length < end.length){
+            else if (inputs[0].length < end.length) {
                 if (params.slice_new_axis_mask) {
                     const len = (params.slice_new_axis_mask >>> 0).toString(2).length;
                     for (let i = 0; i < len; i++) {

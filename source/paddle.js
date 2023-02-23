@@ -1,9 +1,9 @@
 
-var paddle = paddle || {};
-var flatbuffers = flatbuffers || require('./flatbuffers');
-var protobuf = protobuf || require('./protobuf');
-var python = python || require('./python');
-var base = base || require('./base');
+var paddle = {};
+var flatbuffers = require('./flatbuffers');
+var protobuf = require('./protobuf');
+var python = require('./python');
+var base = require('./base');
 
 paddle.ModelFactory = class {
 
@@ -23,7 +23,7 @@ paddle.ModelFactory = class {
             }
         }
         const stream = context.stream;
-        if (stream.length > 16 && stream.peek(16).every((value) => value === 0x00)) {
+        if (stream && stream.length > 16 && stream.peek(16).every((value) => value === 0x00)) {
             return 'paddle.params';
         }
         if (paddle.Pickle.open(context)) {
@@ -175,8 +175,8 @@ paddle.ModelFactory = class {
                                     });
                                 };
                                 const openNumPyArrayPickle = (stream) => {
-                                    const execution = new python.Execution(null);
-                                    const unpickler = python.Unpickler.open(stream, execution);
+                                    const execution = new python.Execution();
+                                    const unpickler = execution.invoke('pickle.Unpickler', [ stream ]);
                                     const obj = unpickler.load();
                                     const container = new paddle.Pickle(obj);
                                     return container.weights || new Map();
@@ -526,8 +526,16 @@ paddle.Attribute = class {
                 this._value = attr.f;
                 break;
             case paddle.AttributeType.FLOATS:
-                this._type = 'float[]';
+                this._type = 'float32[]';
                 this._value = Array.from(attr.floats);
+                break;
+            case paddle.AttributeType.FLOAT64:
+                this._type = 'float64';
+                this._value = attr.float64;
+                break;
+            case paddle.AttributeType.FLOAT64S:
+                this._type = 'float64[]';
+                this._value = Array.from(attr.float64s);
                 break;
             case paddle.AttributeType.INT:
                 this._type = 'int32';
@@ -567,7 +575,7 @@ paddle.Attribute = class {
                     this._visible = false;
                 }
                 else if (Array.isArray(value) && Array.isArray(defaultValue) && value.length == defaultValue.length) {
-                    if (value.every((item, index) => { return item == defaultValue[index]; })) {
+                    if (value.every((item, index) => item == defaultValue[index])) {
                         this._visible = false;
                     }
                 }
@@ -595,144 +603,22 @@ paddle.Attribute = class {
 
 paddle.Tensor = class {
 
-    constructor(type, data, kind) {
+    constructor(type, data, category) {
         this._type = type;
         this._data = data;
-        this._kind = kind || '';
+        this._category = category || '';
     }
 
-    get kind() {
-        return this._kind;
+    get category() {
+        return this._category;
     }
 
     get type() {
         return this._type;
     }
 
-    get state() {
-        return this._context().state || null;
-    }
-
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return paddle.Tensor._stringify(value, '', '    ');
-    }
-
-    _context() {
-        const context = {};
-        context.index = 0;
-        context.count = 0;
-        context.state = null;
-
-        if (!this._data) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-        if (!this._type) {
-            context.state = 'Tensor has no data type.';
-            return context;
-        }
-
-        context.dataType = this._type.dataType;
-        context.shape = this._type.shape.dimensions;
-        context.view = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-
-        switch (context.dataType) {
-            case 'float32':
-            case 'int32':
-            case 'int64':
-                break;
-            default:
-                context.state = "Tensor data type '" + context.dataType + "' is not implemented.";
-                break;
-        }
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const shape = context.shape.length !== 0 ? context.shape : [ 1 ];
-        const results = [];
-        const size = shape[dimension];
-        if (dimension == shape.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                switch (context.dataType) {
-                    case 'float32':
-                        results.push(context.view.getFloat32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    case 'int32':
-                        results.push(context.view.getInt32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    case 'int64':
-                        results.push(context.view.getInt64(context.index, true));
-                        context.index += 8;
-                        context.count++;
-                        break;
-                    default:
-                        throw new paddle.Error("Unsupported tensor data type '" + context.dataType + "'.");
-                }
-            }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        if (context.shape.length == 0) {
-            return results[0];
-        }
-        return results;
-    }
-
-    static _stringify(value, indentation, indent) {
-        if (Array.isArray(value)) {
-            const result = [];
-            result.push(indentation + '[');
-            const items = value.map((item) => paddle.Tensor._stringify(item, indentation + indent, indent));
-            if (items.length > 0) {
-                result.push(items.join(',\n'));
-            }
-            result.push(indentation + ']');
-            return result.join('\n');
-        }
-        if (typeof value == 'string') {
-            return indentation + value;
-        }
-        if (value == Infinity) {
-            return indentation + 'Infinity';
-        }
-        if (value == -Infinity) {
-            return indentation + '-Infinity';
-        }
-        if (isNaN(value)) {
-            return indentation + 'NaN';
-        }
-        return indentation + value.toString();
+    get values() {
+        return this._data;
     }
 };
 
@@ -902,24 +788,22 @@ paddle.NaiveBuffer = class {
 
     static open(context) {
         const stream = context.stream;
-        if (stream.length > 4) {
-            const buffer = stream.peek();
-            const reader = new base.BinaryReader(buffer);
+        if (stream && stream.length > 4) {
+            const buffer = stream.peek(4);
             if (context.identifier === '__model__.nb' || context.identifier === 'param.nb') {
                 if (buffer[0] > 2 || buffer[1] !== 0x00 || buffer[2] !== 0x76 || buffer[2] !== 0x32) {
-                    return new paddle.NaiveBuffer(reader, -1);
+                    return new paddle.NaiveBuffer(stream, -1);
                 }
             }
-            const meta_version = reader.uint16();
-            if (meta_version <= 2) {
-                return new paddle.NaiveBuffer(reader, meta_version);
+            if (buffer[1] === 0x00 && buffer[0] <= 2) {
+                return new paddle.NaiveBuffer(stream, buffer[0]);
             }
         }
         return null;
     }
 
-    constructor(reader, meta_version) {
-        this.reader = reader;
+    constructor(stream, meta_version) {
+        this.stream = stream;
         this.meta_version = meta_version;
     }
 
@@ -939,13 +823,16 @@ paddle.NaiveBuffer = class {
     }
 
     _read() {
-        if (this.reader) {
-            const reader = this.reader;
-            delete this.reader;
+        if (this.stream) {
+            const reader = new base.BinaryReader(this.stream);
+            if (this.meta_version >= 2) {
+                reader.skip(2);
+            }
+            delete this.stream;
             const decoder = new TextDecoder();
             const opt_version = reader.read(16);
             const version = decoder.decode(opt_version.slice(0, opt_version.indexOf(0x00)));
-            this._format = 'Paddle Lite' + (version ? ' ' + version : '');
+            this._format = 'Paddle Lite' + (version && version.match(/^v\d+\.\d+.\d+$/) ? ' ' + version : '');
             const topo_size = reader.uint64();
             const openProgramDesc = (buffer) => {
                 const reader = flatbuffers.BinaryReader.open(buffer);
@@ -1083,7 +970,10 @@ paddle.AttributeType = {
     LONG: 9,
     BLOCKS: 10,
     LONGS: 11,
-    FLOAT64S: 12
+    FLOAT64S: 12,
+    VAR: 13,
+    VARS: 14,
+    FLOAT64: 15
 };
 
 paddle.Error = class extends Error {

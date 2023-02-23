@@ -272,7 +272,7 @@ base.Utility = class {
             return b.isOdd() ? base.Int64.min : base.Int64.zero;
         }
         if (b.equals(base.Int64.min)) {
-            return b.isOdd() ? base.Int64.min : base.Int64.zero;
+            return a.isOdd() ? base.Int64.min : base.Int64.zero;
         }
         if (a.isNegative) {
             if (b.isNegative) {
@@ -350,7 +350,7 @@ base.Utility = class {
                 return result;
             }
             else if (b.equals(base.Int64.min)) {
-                return unsigned ? base.Uint64.zero : base.Int64.zero;
+                return base.Int64.zero;
             }
             if (a.isNegative) {
                 if (b.isNegative) {
@@ -432,7 +432,7 @@ base.Uint64.zero = new base.Uint64(0, 0);
 base.Uint64.one = new base.Uint64(1, 0);
 base.Uint64.max = new base.Uint64(-1, -1);
 
-base.Complex = class Complex {
+base.Complex64 = class Complex {
 
     constructor(real, imaginary) {
         this.real = real;
@@ -440,7 +440,23 @@ base.Complex = class Complex {
     }
 
     static create(real, imaginary) {
-        return new base.Complex(real, imaginary);
+        return new base.Complex64(real, imaginary);
+    }
+
+    toString(/* radix */) {
+        return this.real + ' + ' + this.imaginary + 'i';
+    }
+};
+
+base.Complex128 = class Complex {
+
+    constructor(real, imaginary) {
+        this.real = real;
+        this.imaginary = imaginary;
+    }
+
+    static create(real, imaginary) {
+        return new base.Complex128(real, imaginary);
     }
 
     toString(/* radix */) {
@@ -543,6 +559,25 @@ DataView.prototype.setInt64 = DataView.prototype.setInt64 || function(byteOffset
     }
 };
 
+DataView.prototype.getIntBits = DataView.prototype.getUintBits || function(offset, bits) {
+    offset = offset * bits;
+    const available = (this.byteLength << 3) - offset;
+    if (bits > available) {
+        throw new RangeError("Invalid bit size '" + bits + "'.");
+    }
+    let value = 0;
+    let index = 0;
+    while (index < bits) {
+        const remainder = offset & 7;
+        const size = Math.min(bits - index, 8 - remainder);
+        value <<= size;
+        value |= (this.getUint8(offset >> 3) >> (8 - size - remainder)) & ~(0xff << size);
+        offset += size;
+        index += size;
+    }
+    return (value < (2 << (bits - 1)) ? value : (2 << bits));
+};
+
 DataView.prototype.getUint64 = DataView.prototype.getUint64 || function(byteOffset, littleEndian) {
     return littleEndian ?
         new base.Uint64(this.getUint32(byteOffset, true), this.getUint32(byteOffset + 4, true)) :
@@ -551,19 +586,38 @@ DataView.prototype.getUint64 = DataView.prototype.getUint64 || function(byteOffs
 
 DataView.prototype.setUint64 = DataView.prototype.setUint64 || function(byteOffset, value, littleEndian) {
     if (littleEndian) {
-        this.setUInt32(byteOffset, value.low, true);
-        this.setUInt32(byteOffset + 4, value.high, true);
+        this.setUint32(byteOffset, value.low, true);
+        this.setUint32(byteOffset + 4, value.high, true);
     }
     else {
-        this.setUInt32(byteOffset + 4, value.low, false);
-        this.setUInt32(byteOffset, value.high, false);
+        this.setUint32(byteOffset + 4, value.low, false);
+        this.setUint32(byteOffset, value.high, false);
     }
+};
+
+DataView.prototype.getUintBits = DataView.prototype.getUintBits || function(offset, bits) {
+    offset = offset * bits;
+    const available = (this.byteLength << 3) - offset;
+    if (bits > available) {
+        throw new RangeError("Invalid bit size '" + bits + "'.");
+    }
+    let value = 0;
+    let index = 0;
+    while (index < bits) {
+        const remainder = offset & 7;
+        const size = Math.min(bits - index, 8 - remainder);
+        value <<= size;
+        value |= (this.getUint8(offset >> 3) >> (8 - size - remainder)) & ~(0xff << size);
+        offset += size;
+        index += size;
+    }
+    return value;
 };
 
 DataView.prototype.getComplex64 = DataView.prototype.getComplex64 || function(byteOffset, littleEndian) {
     const real = littleEndian ? this.getFloat32(byteOffset, littleEndian) : this.getFloat32(byteOffset + 4, littleEndian);
     const imaginary = littleEndian ? this.getFloat32(byteOffset + 4, littleEndian) : this.getFloat32(byteOffset, littleEndian);
-    return base.Complex.create(real, imaginary);
+    return base.Complex64.create(real, imaginary);
 };
 
 DataView.prototype.setComplex64 = DataView.prototype.setComplex64 || function(byteOffset, value, littleEndian) {
@@ -580,7 +634,7 @@ DataView.prototype.setComplex64 = DataView.prototype.setComplex64 || function(by
 DataView.prototype.getComplex128 = DataView.prototype.getComplex128 || function(byteOffset, littleEndian) {
     const real = littleEndian ? this.getFloat64(byteOffset, littleEndian) : this.getFloat64(byteOffset + 8, littleEndian);
     const imaginary = littleEndian ? this.getFloat64(byteOffset + 8, littleEndian) : this.getFloat64(byteOffset, littleEndian);
-    return base.Complex.create(real, imaginary);
+    return base.Complex128.create(real, imaginary);
 };
 
 DataView.prototype.setComplex128 = DataView.prototype.setComplex128 || function(byteOffset, value, littleEndian) {
@@ -592,25 +646,6 @@ DataView.prototype.setComplex128 = DataView.prototype.setComplex128 || function(
         this.setFloat64(byteOffset + 8, value.real, littleEndian);
         this.setFloat64(byteOffset, value.imaginary, littleEndian);
     }
-};
-
-DataView.prototype.getBits = DataView.prototype.getBits || function(offset, bits /*, signed */) {
-    offset = offset * bits;
-    const available = (this.byteLength << 3) - offset;
-    if (bits > available) {
-        throw new RangeError();
-    }
-    let value = 0;
-    let index = 0;
-    while (index < bits) {
-        const remainder = offset & 7;
-        const size = Math.min(bits - index, 8 - remainder);
-        value <<= size;
-        value |= (this.getUint8(offset >> 3) >> (8 - size - remainder)) & ~(0xff << size);
-        offset += size;
-        index += size;
-    }
-    return value;
 };
 
 base.BinaryReader = class {
@@ -754,57 +789,165 @@ base.BinaryReader = class {
     }
 };
 
-base.Metadata = class {
+base.Telemetry = class {
 
-    static open(context, name) {
-        base.Metadata._metadata = base.Metadata._metadata || new Map();
-        if (base.Metadata._metadata.has(name)) {
-            return Promise.resolve(base.Metadata._metadata.get(name));
+    constructor(window, measurement_id, client_id, session) {
+        this._schema = new Map([
+            [ 'protocol_version', 'v' ],
+            [ 'tracking_id', 'tid' ],
+            [ 'hash_info', 'gtm' ],
+            [ '_page_id', '_p'],
+            [ 'client_id', 'cid' ],
+            [ 'language', 'ul' ],
+            [ 'screen_resolution', 'sr' ],
+            [ '_user_agent_architecture', 'uaa' ],
+            [ '_user_agent_bitness', 'uab' ],
+            [ '_user_agent_full_version_list', 'uafvl' ],
+            [ '_user_agent_mobile', 'uamb' ],
+            [ '_user_agent_model', 'uam' ],
+            [ '_user_agent_platform', 'uap' ],
+            [ '_user_agent_platform_version', 'uapv' ],
+            [ '_user_agent_wow64', 'uaw' ],
+            [ 'hit_count', '_s' ],
+            [ 'session_id', 'sid' ],
+            [ 'session_number', 'sct' ],
+            [ 'session_engaged', 'seg' ],
+            [ 'engagement_time_msec', '_et' ],
+            [ 'page_location', 'dl' ],
+            [ 'page_title', 'dt' ],
+            [ 'page_referrer', 'dr' ],
+            [ 'is_first_visit', '_fv' ],
+            [ 'is_external_event', '_ee' ],
+            [ 'is_new_to_site', '_nsi' ],
+            [ 'is_session_start', '_ss' ],
+            [ 'event_name', 'en' ]
+        ]);
+        this._config = new Map();
+        this._metadata = {};
+        this._session = session && typeof session === 'string' ? session.replace(/^GS1\.1\./, '').split('.') : null;
+        this._session = Array.isArray(this._session) && this._session.length >= 7 ? this._session : [ '0', '0', '0', '0', '0', '0', '0' ];
+        this._session[0] = Date.now();
+        this._session[1] = parseInt(this._session[1], 10) + 1;
+        this._engagement_time_msec = 0;
+        this._navigator = window.navigator;
+        const navigator = this._navigator;
+        this.set('protocol_version', 2);
+        this.set('tracking_id', measurement_id);
+        this.set('hash_info', '2oebu0');
+        this.set('_page_id', Math.floor(Math.random() * 2147483648));
+        client_id = client_id ? client_id.replace(/^(GA1\.\d\.)*/, '') : null;
+        if (client_id && client_id.indexOf('.') !== 1) {
+            this.set('client_id', client_id);
         }
-        return context.request(name, 'utf-8', null).then((data) => {
-            const library = new base.Metadata(data);
-            base.Metadata._metadata.set(name, library);
-            return library;
-        }).catch(() => {
-            const library = new base.Metadata(null);
-            base.Metadata._metadata.set(name, library);
-            return library;
+        else {
+            const random = String(Math.round(0x7FFFFFFF * Math.random()));
+            const time = Date.now();
+            const value = [ random, Math.round(time / 1e3) ].join('.');
+            this.set('client_id', value);
+            this._metadata.is_first_visit = 1;
+            this._metadata.is_new_to_site = 1;
+        }
+        this.set('language', ((navigator && (navigator.language || navigator.browserLanguage)) || '').toLowerCase());
+        this.set('screen_resolution', (window.screen ? window.screen.width : 0) + 'x' + (window.screen ? window.screen.height : 0));
+    }
+
+    start() {
+        const promise = navigator && navigator.userAgentData && navigator.userAgentData.getHighEntropyValues ? navigator.userAgentData.getHighEntropyValues([ 'platform', 'platformVersion', 'architecture', 'model', 'uaFullVersion', 'bitness', 'fullVersionList', 'wow64' ]) : Promise.resolve();
+        return promise.then((values) => {
+            if (values) {
+                this.set('_user_agent_architecture', values.architecture);
+                this.set('_user_agent_bitness', values.bitness);
+                this.set('_user_agent_full_version_list', Array.isArray(values.fullVersionList) ? values.fullVersionList.map((h) => encodeURIComponent(h.brand || '') + ';' + encodeURIComponent(h.version || '')).join('|') : '');
+                this.set('_user_agent_mobile', values.mobile ? 1 : 0);
+                this.set('_user_agent_model', values.model);
+                this.set('_user_agent_platform', values.platform);
+                this.set('_user_agent_platform_version', values.platformVersion);
+                this.set('_user_agent_wow64', values.wow64 ? 1 : 0);
+            }
+            this.set('hit_count', 1);
+            this.set('session_id', this._session[0]);
+            this.set('session_number', this._session[1]);
+            this.set('session_engaged', 0);
+            this._metadata.is_session_start = 1;
+            this._metadata.is_external_event = 1;
+            window.addEventListener('focus', () => this._update(true, undefined, undefined));
+            window.addEventListener('blur', () => this._update(false, undefined, undefined));
+            window.addEventListener('pageshow', () => this._update(undefined, true, undefined));
+            window.addEventListener('pagehide', () => this._update(undefined, false, undefined));
+            window.addEventListener('visibilitychange', () => this._update(undefined, undefined, window.document.visibilityState !== 'hidden'));
+            window.addEventListener('beforeunload', () => this._update() && this.send('user_engagement', {}));
         });
     }
 
-    constructor(data) {
-        this._types = new Map();
-        this._attributes = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            for (const entry of metadata) {
-                this._types.set(entry.name, entry);
-                if (entry.identifier !== undefined) {
-                    this._types.set(entry.identifier, entry);
-                }
-            }
-        }
+    get session() {
+        return this._session.join('.');
     }
 
-    type(name) {
-        if (!this._types.has(name)) {
-            this._types.set(name, { name: name.toString() });
+    set(name, value) {
+        const key = this._schema.get(name);
+        if (value !== undefined && value !== null) {
+            this._config.set(key, value);
         }
-        return this._types.get(name);
+        else if (this._config.has(key)) {
+            this._config.delete(key);
+        }
+        this._cache = null;
     }
 
-    attribute(type, name) {
-        const key = type + ':' + name;
-        if (!this._attributes.has(key)) {
-            this._attributes.set(key, null);
-            const metadata = this.type(type);
-            if (metadata && Array.isArray(metadata.attributes)) {
-                for (const attribute of metadata.attributes) {
-                    this._attributes.set(type + ':' + attribute.name, attribute);
-                }
-            }
+    get(name) {
+        const key = this._schema.get(name);
+        return this._config.get(key);
+    }
+
+    send(name, params) {
+        params = Object.assign({ event_name: name }, this._metadata, /* { debug_mode: true },*/ params);
+        this._metadata = {};
+        this._update() && (params.engagement_time_msec = this._engagement_time_msec) && (this._engagement_time_msec = 0);
+        const build = (entires) => entires.map((entry) => entry[0] + '=' + encodeURIComponent(entry[1])).join('&');
+        this._cache = this._cache || build(Array.from(this._config));
+        const key = (name, value) => this._schema.get(name) || ('number' === typeof value && !isNaN(value) ? 'epn.' : 'ep.') + name;
+        const body = build(Object.entries(params).map((entry) => [ key(entry[0], entry[1]), entry[1] ]));
+        const url = 'https://analytics.google.com/g/collect?' + this._cache;
+        this._navigator.sendBeacon(url, body);
+        this._session[2] = this.get('session_engaged') || '0';
+        this.set('hit_count', this.get('hit_count') + 1);
+    }
+
+    _update(focused, page, visible) {
+        this._focused = focused === true || focused === false ? focused : this._focused;
+        this._page = page === true || page === false ? page : this._page;
+        this._visible = visible === true || visible === false ? visible : this._visible;
+        const time = Date.now();
+        if (this._start_time) {
+            this._engagement_time_msec += (time - this._start_time);
+            this._start_time = 0;
         }
-        return this._attributes.get(key);
+        if (this._focused !== false && this._page !== false && this._visible !== false) {
+            this._start_time = time;
+        }
+        return this._engagement_time_msec > 20;
+    }
+};
+
+base.Metadata = class {
+
+    get extensions() {
+        return [
+            'onnx', 'tflite', 'pb', 'pt', 'pth', 'h5', 'pbtxt', 'prototxt', 'caffemodel', 'mlmodel', 'mlpackage',
+            'model', 'json', 'xml', 'cfg',
+            'ort',
+            'dnn', 'cmf',
+            'hd5', 'hdf5', 'keras',
+            'tfl', 'circle', 'lite',
+            'mar',  'meta', 'nn', 'ngf',
+            'param', 'params',
+            'paddle', 'pdiparams', 'pdmodel', 'pdopt', 'pdparams', 'nb',
+            'pkl', 'joblib',
+            'ptl', 't7',
+            'dlc', 'uff', 'armnn',
+            'mnn', 'ms', 'ncnn', 'om', 'tm', 'mge', 'tmfile', 'tnnproto', 'xmodel', 'kmodel', 'rknn',
+            'tar', 'zip', 'hn', 'har'
+        ];
     }
 };
 
@@ -817,6 +960,9 @@ if (typeof window !== 'undefined' && typeof window.Long != 'undefined') {
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.Int64 = base.Int64;
     module.exports.Uint64 = base.Uint64;
+    module.exports.Complex64 = base.Complex64;
+    module.exports.Complex128 = base.Complex128;
     module.exports.BinaryReader = base.BinaryReader;
+    module.exports.Telemetry = base.Telemetry;
     module.exports.Metadata = base.Metadata;
 }

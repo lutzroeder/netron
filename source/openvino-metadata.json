@@ -601,11 +601,31 @@
   },
   {
     "name": "GRUCell",
-    "category": "Layer"
+    "category": "Layer",
+    "description": "GRUCell represents a single GRU Cell that computes the output using the formula described in the [paper](https://arxiv.org/abs/1406.1078).",
+    "attributes": [
+      { "name": "hidden_size", "type": "int64", "description": "pecifies hidden state size." },
+      { "name": "linear_before_reset", "type": "boolean", "optional": true, "default": false, "description": "denotes if the layer behaves according to the modification of GRUCell described in the formula in the [ONNX documentation](https://github.com/onnx/onnx/blob/master/docs/Operators.md#GRU)." }
+    ],
+    "inputs": [
+      { "name": "X", "description": "2D tensor of type T `[batch_size, input_size]`, input data. Required." },
+      { "name": "initial_hidden_state", "description": "2D tensor of type T `[batch_size, hidden_size]`. Required." },
+      { "name": "W", "description": "2D tensor of type T `[3 * hidden_size, input_size]`, the weights for matrix multiplication, gate order: zrh. Required." },
+      { "name": "R", "description": "2D tensor of type T `[3 * hidden_size, hidden_size]`, the recurrence weights for matrix multiplication, gate order: zrh. Required." },
+      { "name": "B", "description": "1D tensor of type T. If linear_before_reset is set to 1, then the shape is `[4 * hidden_size]` - the sum of biases for z and r gates (weights and recurrence weights), the biases for h gate are placed separately. Otherwise the shape is `[3 * hidden_size]`, the sum of biases (weights and recurrence weights). Optional." }
+    ]
   },
   {
     "name": "LSTMCell",
-    "category": "Layer"
+    "category": "Layer",
+    "inputs": [
+      { "name": "X" },
+      { "name": "initial_hidden_state" },
+      { "name": "initial_cell_state" },
+      { "name": "W" },
+      { "name": "R" },
+      { "name": "B" }
+    ]
   },
   {
     "name": "MaxPool",

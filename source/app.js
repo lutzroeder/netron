@@ -6,15 +6,22 @@ const os = require('os');
 const path = require('path');
 const process = require('process');
 const url = require('url');
+const base = require('./base');
 
-class Application {
+var app = {};
+
+app.Application = class {
 
     constructor() {
 
-        this._views = new ViewCollection();
-        this._configuration = new ConfigurationService();
-        this._menu = new MenuService();
+        this._views = new app.ViewCollection(this);
+        this._configuration = new app.ConfigurationService(this._views);
+        this._menu = new app.MenuService(this._views);
         this._openQueue = [];
+
+        const packageFile = path.join(path.dirname(__dirname), 'package.json');
+        const packageContent = fs.readFileSync(packageFile, 'utf-8');
+        this._package = JSON.parse(packageContent);
 
         electron.app.setAppUserModelId('com.lutzroeder.netron');
         electron.app.allowRendererProcessReuse = true;
@@ -29,32 +36,22 @@ class Application {
             process.chdir(workingDirectory);
             const open = this._parseCommandLine(commandLine);
             process.chdir(currentDirectory);
-            if (!open) {
-                if (this._views.count > 0) {
-                    const view = this._views.item(0);
-                    if (view) {
-                        view.restore();
-                    }
+            if (!open && !this._views.empty) {
+                const view = this._views.first();
+                if (view) {
+                    view.restore();
                 }
             }
         });
-
-        electron.ipcMain.on('open-file-dialog', (event) => {
-            this._openFileDialog();
-            event.returnValue = null;
-        });
-
         electron.ipcMain.on('get-environment', (event) => {
-            event.returnValue = {
-                version: electron.app.getVersion(),
-                package: electron.app.isPackaged
-            };
+            event.returnValue = this.environment;
         });
         electron.ipcMain.on('get-configuration', (event, obj) => {
             event.returnValue = this._configuration.has(obj.name) ? this._configuration.get(obj.name) : undefined;
         });
         electron.ipcMain.on('set-configuration', (event, obj) => {
             this._configuration.set(obj.name, obj.value);
+            this._configuration.save();
             event.returnValue = null;
         });
         electron.ipcMain.on('drop-paths', (event, data) => {
@@ -75,6 +72,11 @@ class Application {
         electron.ipcMain.on('show-save-dialog', (event, options) => {
             const owner = event.sender.getOwnerBrowserWindow();
             event.returnValue = electron.dialog.showSaveDialogSync(owner, options);
+        });
+        electron.ipcMain.on('execute', (event, data) => {
+            const owner = event.sender.getOwnerBrowserWindow();
+            this.execute(data.name, data.value || null, owner);
+            event.returnValue = null;
         });
 
         electron.app.on('will-finish-launching', () => {
@@ -101,6 +103,20 @@ class Application {
         this._checkForUpdates();
     }
 
+    get environment() {
+        this._environment = this._environment || {
+            packaged: electron.app.isPackaged,
+            version: this._package.version,
+            date: this._package.date,
+            repository: 'https://github.com' + this._package.repository,
+            platform: process.platform,
+            separator: path.sep,
+            homedir: os.homedir(),
+            titlebar: process.platform === 'darwin'
+        };
+        return this._environment;
+    }
+
     _parseCommandLine(argv) {
         let open = false;
         if (argv.length > 1) {
@@ -122,9 +138,6 @@ class Application {
 
     _ready() {
         this._configuration.load();
-        if (!this._configuration.has('userId')) {
-            this._configuration.set('userId', this._uuid());
-        }
         if (this._openQueue) {
             const queue = this._openQueue;
             this._openQueue = null;
@@ -133,53 +146,31 @@ class Application {
                 this._openPath(file);
             }
         }
-        if (this._views.count == 0) {
+        if (this._views.empty) {
             this._views.openView();
         }
         this._resetMenu();
         this._views.on('active-view-changed', () => {
-            this._updateMenu();
+            this._menu.update();
         });
         this._views.on('active-view-updated', () => {
-            this._updateMenu();
+            this._menu.update();
         });
     }
 
-    _uuid() {
-        const buffer = new Uint8Array(16);
-        require("crypto").randomFillSync(buffer);
-        buffer[6] = buffer[6] & 0x0f | 0x40;
-        buffer[8] = buffer[8] & 0x3f | 0x80;
-        const code = Array.from(buffer).map((value) => value < 0x10 ? '0' + value.toString(16) : value.toString(16)).join('');
-        return code.slice(0, 8) + '-' + code.slice(8, 12) + '-' + code.slice(12, 16) + '-' + code.slice(16, 20) + '-' + code.slice(20, 32);
-    }
-
-    _openFileDialog() {
-        const showOpenDialogOptions = {
-            properties: [ 'openFile' ],
-            filters: [
-                { name: 'All Model Files',  extensions: [
-                    'onnx', 'ort', 'pb',
-                    'h5', 'hd5', 'hdf5', 'json', 'keras',
-                    'mlmodel', 'mlpackage',
-                    'caffemodel',
-                    'model', 'dnn', 'dlc', 'cmf', 'mar', 'params',
-                    'pdmodel', 'pdiparams', 'pdparams', 'pdopt', 'nb',
-                    'meta',
-                    'tflite', 'lite', 'tfl',
-                    'armnn', 'mnn', 'nn', 'uff', 'uff.txt', 'rknn', 'xmodel', 'kmodel',
-                    'ncnn', 'param', 'tnnproto', 'tmfile', 'ms', 'om',
-                    'pt', 'pth', 'ptl', 't7',
-                    'pkl', 'joblib',
-                    'pbtxt', 'prototxt',
-                    'cfg', 'xml',
-                    'zip', 'tar', 'hn', 'har' ] }
-            ]
-        };
-        const selectedFiles = electron.dialog.showOpenDialogSync(showOpenDialogOptions);
-        if (selectedFiles) {
-            for (const file of selectedFiles) {
-                this._openPath(file);
+    _open(path) {
+        let paths = path ? [ path ] : [];
+        if (paths.length === 0) {
+            const extensions = new base.Metadata().extensions;
+            const showOpenDialogOptions = {
+                properties: [ 'openFile' ],
+                filters: [ { name: 'All Model Files', extensions: extensions } ]
+            };
+            paths = electron.dialog.showOpenDialogSync(showOpenDialogOptions);
+        }
+        if (Array.isArray(paths) && paths.length > 0) {
+            for (const path of paths) {
+                this._openPath(path);
             }
         }
     }
@@ -192,11 +183,12 @@ class Application {
         if (path && path.length > 0 && fs.existsSync(path)) {
             const stat = fs.statSync(path);
             if (stat.isFile() || stat.isDirectory()) {
+                const views = Array.from(this._views.views);
                 // find existing view for this file
-                let view = this._views.find(path);
+                let view = views.find(view => view.match(path));
                 // find empty welcome window
                 if (view == null) {
-                    view = this._views.find(null);
+                    view = views.find(view => view.match(null));
                 }
                 // create new window
                 if (view == null) {
@@ -219,7 +211,8 @@ class Application {
     }
 
     _dropPaths(sender, paths) {
-        let view = this._views.from(sender);
+        const window = sender.getOwnerBrowserWindow();
+        let view = this._views.get(window);
         for (const path of paths) {
             if (view) {
                 this._loadPath(path, view);
@@ -257,19 +250,23 @@ class Application {
         }
     }
 
-    service(name) {
-        if (name == 'configuration') {
-            return this._configuration;
+    execute(command, value, window) {
+        switch (command) {
+            case 'open': this._open(value); break;
+            case 'export': this._export(); break;
+            case 'close': window.close(); break;
+            case 'quit': electron.app.quit(); break;
+            case 'reload': this._reload(); break;
+            case 'report-issue': electron.shell.openExternal('https://github.com/' + this._package.repository + '/issues/new'); break;
+            case 'about': this._about(); break;
+            default: {
+                const view = this._views.get(window) || this._views.activeView;
+                if (view) {
+                    view.execute(command, value || {});
+                }
+                this._menu.update();
+            }
         }
-        return undefined;
-    }
-
-    execute(command, data) {
-        const view = this._views.activeView;
-        if (view) {
-            view.execute(command, data || {});
-        }
-        this._updateMenu();
     }
 
     _reload() {
@@ -290,21 +287,11 @@ class Application {
         const promise = autoUpdater.checkForUpdates();
         if (promise) {
             promise.catch((error) => {
-                /* eslint-disable */
+                /* eslint-disable no-console */
                 console.log(error.message);
-                /* eslint-enable */
+                /* eslint-enable no-console */
             });
         }
-    }
-
-    get package() {
-        if (!this._package) {
-            const file = path.join(path.dirname(__dirname), 'package.json');
-            const data = fs.readFileSync(file);
-            this._package = JSON.parse(data);
-            this._package.date = new Date(fs.statSync(file).mtime);
-        }
-        return this._package;
     }
 
     _about() {
@@ -313,7 +300,7 @@ class Application {
             show: false,
             backgroundColor: electron.nativeTheme.shouldUseDarkColors ? '#2d2d2d' : '#e6e6e6',
             width: 400,
-            height: 250,
+            height: 280,
             center: true,
             minimizable: false,
             maximizable: false,
@@ -326,7 +313,7 @@ class Application {
         };
         if (process.platform === 'darwin') {
             options.title = '';
-            dialog = Application._aboutDialog;
+            dialog = app.Application._aboutDialog;
         }
         else {
             options.title = 'About ' + electron.app.name;
@@ -340,21 +327,23 @@ class Application {
         if (!dialog) {
             dialog = new electron.BrowserWindow(options);
             if (process.platform === 'darwin') {
-                Application._aboutDialog = dialog;
+                app.Application._aboutDialog = dialog;
             }
             dialog.removeMenu();
             dialog.excludedFromShownWindowsMenu = true;
-            dialog.webContents.on('new-window', (event, url) => {
+            dialog.webContents.setWindowOpenHandler((detail) => {
+                const url = detail.url;
                 if (url.startsWith('http://') || url.startsWith('https://')) {
-                    event.preventDefault();
                     electron.shell.openExternal(url);
                 }
+                return { action: 'deny' };
             });
-            let content = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf-8');
-            content = content.replace('{version}', this.package.version);
+            const pathname = path.join(__dirname, 'index.html');
+            let content = fs.readFileSync(pathname, 'utf-8');
+            content = content.replace(/<\s*script[^>]*>[\s\S]*?(<\s*\/script[^>]*>|$)/ig, '');
+            content = content.replace('{version}', this._package.version);
             content = content.replace('<title>Netron</title>', '');
-            content = content.replace('<body class="welcome spinner">', '<body class="about desktop">');
-            content = content.replace(/<script\b[^<]*(?:(?!<\/script\s*>)<[^<]*)*<\/script\s*>/gi, '');
+            content = content.replace('<body class="welcome spinner">', '<body class="default about desktop">');
             content = content.replace(/<link.*>/gi, '');
             dialog.once('ready-to-show', () => {
                 dialog.resizable = false;
@@ -362,7 +351,7 @@ class Application {
             });
             dialog.on('close', function() {
                 electron.globalShortcut.unregister('Escape');
-                Application._aboutDialog = null;
+                app.Application._aboutDialog = null;
             });
             dialog.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(content));
             electron.globalShortcut.register('Escape', function() {
@@ -372,15 +361,6 @@ class Application {
         else {
             dialog.show();
         }
-    }
-
-    _updateMenu() {
-        const window = electron.BrowserWindow.getFocusedWindow();
-        this._menu.update({
-            window: window,
-            webContents: window ? window.webContents : null,
-            view: this._views.activeView
-        }, this._views.views.map((view) => view.window));
     }
 
     _resetMenu() {
@@ -405,9 +385,9 @@ class Application {
                 const recent = recents[i];
                 menuRecentsTemplate.push({
                     path: recent.path,
-                    label: Application.minimizePath(recent.path),
+                    label: app.Application.minimizePath(recent.path),
                     accelerator: ((process.platform === 'darwin') ? 'Cmd+' : 'Ctrl+') + (i + 1).toString(),
-                    click: (item) => { this._openPath(item.path); }
+                    click: (item) => this._openPath(item.path)
                 });
             }
         }
@@ -420,7 +400,7 @@ class Application {
                 submenu: [
                     {
                         label: 'About ' + electron.app.name,
-                        click: () => this._about()
+                        click: () => /* this.execute('about', null) */ this._about()
                     },
                     { type: 'separator' },
                     { role: 'hide' },
@@ -438,7 +418,7 @@ class Application {
                 {
                     label: '&Open...',
                     accelerator: 'CmdOrCtrl+O',
-                    click: () => { this._openFileDialog(); }
+                    click: () => this._open(null)
                 },
                 {
                     label: 'Open &Recent',
@@ -449,7 +429,7 @@ class Application {
                     id: 'file.export',
                     label: '&Export...',
                     accelerator: 'CmdOrCtrl+Shift+E',
-                    click: () => this._export(),
+                    click: () => this.execute('export', null)
                 },
                 { type: 'separator' },
                 { role: 'close' },
@@ -526,7 +506,7 @@ class Application {
                 {
                     id: 'view.toggle-direction',
                     accelerator: 'CmdOrCtrl+K',
-                    click: () => { this.execute('toggle', 'direction'); }
+                    click: () => this.execute('toggle', 'direction')
                 },
                 {
                     id: 'view.toggle-mousewheel',
@@ -581,27 +561,23 @@ class Application {
                     { role: 'minimize' },
                     { role: 'zoom' },
                     { type: 'separator' },
-                    { role: 'front'}
+                    { role: 'front' }
                 ]
             });
         }
 
         const helpSubmenu = [
             {
-                label: '&Search Feature Requests',
-                click: () => { electron.shell.openExternal('https://www.github.com/' + this.package.repository + '/issues'); }
-            },
-            {
-                label: 'Report &Issues',
-                click: () => { electron.shell.openExternal('https://www.github.com/' + this.package.repository + '/issues/new'); }
+                label: 'Report &Issue',
+                click: () => this.execute('report-issue', null)
             }
         ];
 
         if (process.platform !== 'darwin') {
             helpSubmenu.push({ type: 'separator' });
             helpSubmenu.push({
-                label: 'About ' + electron.app.name,
-                click: () => this._about()
+                label: '&About ' + electron.app.name,
+                click: () => this.execute('about', null)
             });
         }
 
@@ -612,61 +588,61 @@ class Application {
 
         const commandTable = new Map();
         commandTable.set('file.export', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (view) => view && view.path ? true : false
         });
         commandTable.set('edit.cut', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (view) => view && view.path ? true : false
         });
         commandTable.set('edit.copy', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (view) => view && view.path ? true : false
         });
         commandTable.set('edit.paste', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (view) => view && view.path ? true : false
         });
         commandTable.set('edit.select-all', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (view) => view && view.path ? true : false
         });
         commandTable.set('edit.find', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (view) => view && view.path ? true : false
         });
         commandTable.set('view.toggle-attributes', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; },
-            label: (context) => { return !context.view || context.view.get('attributes') ? 'Hide &Attributes' : 'Show &Attributes'; }
+            enabled: (view) => view && view.path ? true : false,
+            label: (view) => !view || view.get('attributes') ? 'Hide &Attributes' : 'Show &Attributes'
         });
         commandTable.set('view.toggle-initializers', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; },
-            label: (context) => { return !context.view || context.view.get('initializers') ? 'Hide &Initializers' : 'Show &Initializers'; }
+            enabled: (view) => view && view.path ? true : false,
+            label: (view) => !view || view.get('initializers') ? 'Hide &Initializers' : 'Show &Initializers'
         });
         commandTable.set('view.toggle-names', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; },
-            label: (context) => { return !context.view || context.view.get('names') ? 'Hide &Names' : 'Show &Names'; }
+            enabled: (view) => view && view.path ? true : false,
+            label: (view) => !view || view.get('names') ? 'Hide &Names' : 'Show &Names'
         });
         commandTable.set('view.toggle-direction', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; },
-            label: (context) => { return !context.view || context.view.get('direction') === 'vertical' ? 'Show &Horizontal' : 'Show &Vertical'; }
+            enabled: (view) => view && view.path ? true : false,
+            label: (view) => !view || view.get('direction') === 'vertical' ? 'Show &Horizontal' : 'Show &Vertical'
         });
         commandTable.set('view.toggle-mousewheel', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; },
-            label: (context) => { return !context.view || context.view.get('mousewheel') === 'scroll' ? '&Mouse Wheel: Zoom' : '&Mouse Wheel: Scroll'; }
+            enabled: (view) => view && view.path ? true : false,
+            label: (view) => !view || view.get('mousewheel') === 'scroll' ? '&Mouse Wheel: Zoom' : '&Mouse Wheel: Scroll'
         });
         commandTable.set('view.reload', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (view) => view && view.path ? true : false
         });
         commandTable.set('view.reset-zoom', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (view) => view && view.path ? true : false
         });
         commandTable.set('view.zoom-in', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (view) => view && view.path ? true : false
         });
         commandTable.set('view.zoom-out', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (view) => view && view.path ? true : false
         });
         commandTable.set('view.show-properties', {
-            enabled: (context) => { return context.view && context.view.path ? true : false; }
+            enabled: (view) => view && view.path ? true : false
         });
 
-        this._menu.build(menuTemplate, commandTable, this._views.views.map((view) => view.window));
-        this._updateMenu();
+        this._menu.build(menuTemplate, commandTable);
+        this._menu.update();
     }
 
     static minimizePath(file) {
@@ -678,18 +654,15 @@ class Application {
         }
         return file;
     }
+};
 
-}
-
-class View {
+app.View = class {
 
     constructor(owner) {
         this._owner = owner;
         this._ready = false;
         this._path = null;
         this._properties = new Map();
-        this._location = url.format({ protocol: 'file:', slashes: true, pathname: path.join(__dirname, 'electron.html') });
-
         const size = electron.screen.getPrimaryDisplay().workAreaSize;
         const options = {
             show: false,
@@ -697,7 +670,7 @@ class View {
             backgroundColor: electron.nativeTheme.shouldUseDarkColors ? '#1d1d1d' : '#e6e6e6',
             icon: electron.nativeImage.createFromPath(path.join(__dirname, 'icon.png')),
             minWidth: 600,
-            minHeight: 400,
+            minHeight: 600,
             width: size.width > 1024 ? 1024 : size.width,
             height: size.height > 768 ? 768 : size.height,
             webPreferences: {
@@ -705,9 +678,14 @@ class View {
                 nodeIntegration: true
             }
         };
-        if (this._owner.count > 0 && View._position && View._position.length == 2) {
-            options.x = View._position[0] + 30;
-            options.y = View._position[1] + 30;
+        if (owner.application.environment.titlebar) {
+            options.frame = false;
+            options.thickFrame = true;
+            options.titleBarStyle = 'hiddenInset';
+        }
+        if (!this._owner.empty && app.View._position && app.View._position.length == 2) {
+            options.x = app.View._position[0] + 30;
+            options.y = app.View._position[1] + 30;
             if (options.x + options.width > size.width) {
                 options.x = 0;
             }
@@ -716,39 +694,30 @@ class View {
             }
         }
         this._window = new electron.BrowserWindow(options);
-        View._position = this._window.getPosition();
-        this._updateCallback = (event, data) => {
-            if (event.sender == this._window.webContents) {
-                for (const entry of Object.entries(data)) {
-                    this.update(entry[0], entry[1]);
-                }
-                this._raise('updated');
-            }
-        };
-        electron.ipcMain.on('update', this._updateCallback);
-        this._window.on('closed', () => {
-            electron.ipcMain.removeListener('update', this._updateCallback);
-            this._owner.closeView(this);
-        });
-        this._window.on('focus', () => {
-            this._raise('activated');
-        });
-        this._window.on('blur', () => {
-            this._raise('deactivated');
-        });
+        app.View._position = this._window.getPosition();
+        this._window.on('close', () => this._owner.closeView(this));
+        this._window.on('focus', () => this.emit('activated'));
+        this._window.on('blur', () => this.emit('deactivated'));
+        this._window.on('minimize', () => this.state());
+        this._window.on('restore', () => this.state());
+        this._window.on('maximize', () => this.state());
+        this._window.on('unmaximize', () => this.state());
+        this._window.on('enter-full-screen', () => this.state());
+        this._window.on('leave-full-screen', () => this.state());
         this._window.webContents.on('did-finish-load', () => {
             this._didFinishLoad = true;
         });
-        this._window.webContents.on('new-window', (event, url) => {
+        this._window.webContents.setWindowOpenHandler((detail) => {
+            const url = detail.url;
             if (url.startsWith('http://') || url.startsWith('https://')) {
-                event.preventDefault();
                 electron.shell.openExternal(url);
             }
+            return { action: 'deny' };
         });
         this._window.once('ready-to-show', () => {
             this._window.show();
         });
-        this._window.loadURL(this._location);
+        this._loadURL();
     }
 
     get window() {
@@ -768,8 +737,19 @@ class View {
             this._window.webContents.on('did-finish-load', () => {
                 this._window.webContents.send('open', { path: path });
             });
-            this._window.loadURL(this._location);
+            this._loadURL();
         }
+    }
+
+    _loadURL() {
+        const pathname = path.join(__dirname, 'index.html');
+        let content = fs.readFileSync(pathname, 'utf-8');
+        content = content.replace(/<\s*script[^>]*>[\s\S]*?(<\s*\/script[^>]*>|$)/ig, '');
+        const data = 'data:text/html;charset=utf-8,' + encodeURIComponent(content);
+        const options = {
+            baseURLForDataURL: url.pathToFileURL(pathname).toString()
+        };
+        this._window.loadURL(data, options);
     }
 
     restore() {
@@ -783,14 +763,9 @@ class View {
 
     match(path) {
         if (this._openPath) {
-            if (path === null) {
-                return false;
-            }
-            if (path === this._openPath) {
-                return true;
-            }
+            return this._openPath === path;
         }
-        return this._path == path;
+        return this._path === path;
     }
 
     execute(command, data) {
@@ -799,18 +774,28 @@ class View {
         }
     }
 
-    update(name, value) {
-        if (name === 'path') {
-            if (value) {
-                this._path = value;
-                const title = Application.minimizePath(this._path);
-                this._window.setTitle(process.platform !== 'darwin' ? title + ' - ' + electron.app.name : title);
-                this._window.focus();
+    update(data) {
+        for (const entry of Object.entries(data)) {
+            const name = entry[0];
+            const value = entry[1];
+            switch (name) {
+                case 'path': {
+                    if (value) {
+                        this._path = value;
+                        const path = app.Application.minimizePath(this._path);
+                        const title = process.platform !== 'darwin' ? path + ' - ' + electron.app.name : path;
+                        this._window.setTitle(title);
+                        this._window.focus();
+                    }
+                    delete this._openPath;
+                    break;
+                }
+                default: {
+                    this._properties.set(name, value);
+                }
             }
-            this._openPath = null;
-            return;
         }
-        this._properties.set(name, value);
+        this.emit('updated');
     }
 
     get(name) {
@@ -823,66 +808,108 @@ class View {
         this._events[event].push(callback);
     }
 
-    _raise(event, data) {
+    emit(event, data) {
         if (this._events && this._events[event]) {
             for (const callback of this._events[event]) {
                 callback(this, data);
             }
         }
     }
-}
 
-class ViewCollection {
+    state() {
+        this.execute('window-state', {
+            minimized: this._window.isMinimized(),
+            maximized: this._window.isMaximized(),
+            fullscreen: this._window.isFullScreen()
+        });
+    }
+};
 
-    constructor() {
-        this._views = [];
+app.ViewCollection = class {
+
+    constructor(application) {
+        this._application = application;
+        this._views = new Map();
+        electron.ipcMain.on('window-close', (event) => {
+            const window = event.sender.getOwnerBrowserWindow();
+            window.close();
+            event.returnValue = null;
+        });
+        electron.ipcMain.on('window-toggle', (event) => {
+            const window = event.sender.getOwnerBrowserWindow();
+            if (window.isFullScreen()) {
+                window.setFullScreen(false);
+            }
+            else if (window.isMaximized()) {
+                window.unmaximize();
+            }
+            else {
+                window.maximize();
+            }
+            event.returnValue = null;
+        });
+        electron.ipcMain.on('window-minimize', (event) => {
+            const window = event.sender.getOwnerBrowserWindow();
+            window.minimize();
+            event.returnValue = null;
+        });
+        electron.ipcMain.on('window-update', (event, data) => {
+            const window = event.sender.getOwnerBrowserWindow();
+            if (this._views.has(window)) {
+                this._views.get(window).update(data);
+            }
+            event.returnValue = null;
+        });
+        electron.ipcMain.on('update-window-state', (event) => {
+            const window = event.sender.getOwnerBrowserWindow();
+            if (this._views.has(window)) {
+                this._views.get(window).state();
+            }
+            event.returnValue = null;
+        });
+    }
+
+    get application() {
+        return this._application;
     }
 
     get views() {
-        return this._views;
+        return this._views.values();
     }
 
-    get count() {
-        return this._views.length;
+    get empty() {
+        return this._views.size === 0;
     }
 
-    item(index) {
-        return this._views[index];
+    get(window) {
+        return this._views.get(window);
     }
 
     openView() {
-        const view = new View(this);
-        view.on('activated', (sender) => {
-            this._activeView = sender;
-            this._raise('active-view-changed', { activeView: this._activeView });
+        const view = new app.View(this);
+        view.on('activated', (view) => {
+            this._activeView = view;
+            this.emit('active-view-changed', { activeView: this._activeView });
         });
         view.on('updated', () => {
-            this._raise('active-view-updated', { activeView: this._activeView });
+            this.emit('active-view-updated', { activeView: this._activeView });
         });
         view.on('deactivated', () => {
             this._activeView = null;
-            this._raise('active-view-changed', { activeView: this._activeView });
+            this.emit('active-view-changed', { activeView: this._activeView });
         });
-        this._views.push(view);
+        this._views.set(view.window, view);
         this._updateActiveView();
         return view;
     }
 
     closeView(view) {
-        for (let i = this._views.length - 1; i >= 0; i--) {
-            if (this._views[i] == view) {
-                this._views.splice(i, 1);
-            }
-        }
+        this._views.delete(view.window);
         this._updateActiveView();
     }
 
-    find(path) {
-        return this._views.find(view => view.match(path));
-    }
-
-    from(contents) {
-        return this._views.find(view => view && view.window && view.window.webContents && view.window.webContents == contents);
+    first() {
+        return this.empty ? null : this._views.values().next().value;
     }
 
     get activeView() {
@@ -895,7 +922,7 @@ class ViewCollection {
         this._events[event].push(callback);
     }
 
-    _raise(event, data) {
+    emit(event, data) {
         if (this._events && this._events[event]) {
             for (const callback of this._events[event]) {
                 callback(this, data);
@@ -905,45 +932,43 @@ class ViewCollection {
 
     _updateActiveView() {
         const window = electron.BrowserWindow.getFocusedWindow();
-        const view = this._views.find(view => view.window == window) || null;
+        const view = window && this._views.has(window) ? this._views.get(window) : null;
         if (view !== this._activeView) {
             this._activeView = view;
-            this._raise('active-view-changed', { activeView: this._activeView });
+            this.emit('active-view-changed', { activeView: this._activeView });
         }
     }
-}
+};
 
-class ConfigurationService {
+app.ConfigurationService = class {
+
+    constructor(views) {
+        this._views = views;
+        const dir = electron.app.getPath('userData');
+        if (dir && dir.length > 0) {
+            this._file = path.join(dir, 'configuration.json');
+        }
+    }
 
     load() {
         this._data = { 'recents': [] };
-        const dir = electron.app.getPath('userData');
-        if (dir && dir.length > 0) {
-            const file = path.join(dir, 'configuration.json');
-            if (fs.existsSync(file)) {
-                const data = fs.readFileSync(file);
-                if (data) {
-                    try {
-                        this._data = JSON.parse(data);
-                    }
-                    catch (error) {
-                        // continue regardless of error
-                    }
+        if (this._file && fs.existsSync(this._file)) {
+            const data = fs.readFileSync(this._file, 'utf-8');
+            if (data) {
+                try {
+                    this._data = JSON.parse(data);
+                }
+                catch (error) {
+                    // continue regardless of error
                 }
             }
         }
     }
 
     save() {
-        if (this._data) {
+        if (this._data && this._file) {
             const data = JSON.stringify(this._data, null, 2);
-            if (data) {
-                const dir = electron.app.getPath('userData');
-                if (dir && dir.length > 0) {
-                    const file = path.join(dir, 'configuration.json');
-                    fs.writeFileSync(file, data);
-                }
-            }
+            fs.writeFileSync(this._file, data);
         }
     }
 
@@ -953,17 +978,23 @@ class ConfigurationService {
 
     set(name, value) {
         this._data[name] = value;
+        for (const view of this._views.views) {
+            view.execute('update-configuration', { name: name, value: value });
+        }
     }
 
     get(name) {
         return this._data[name];
     }
+};
 
-}
+app.MenuService = class {
 
-class MenuService {
+    constructor(views) {
+        this._views = views;
+    }
 
-    build(menuTemplate, commandTable, windows) {
+    build(menuTemplate, commandTable) {
         this._menuTemplate = menuTemplate;
         this._commandTable = commandTable;
         this._itemTable = new Map();
@@ -977,42 +1008,46 @@ class MenuService {
                 }
             }
         }
-        this._rebuild(windows);
+        this._rebuild();
     }
 
-    update(context, windows) {
+    update() {
         if (!this._menu && !this._commandTable) {
             return;
         }
-        if (this._updateLabel(context)) {
-            this._rebuild(windows);
+        const view = this._views.activeView;
+        if (this._updateLabel(view)) {
+            this._rebuild();
         }
-        this._updateEnabled(context);
+        this._updateEnabled(view);
     }
 
-    _rebuild(windows) {
-        this._menu = electron.Menu.buildFromTemplate(this._menuTemplate);
+    _rebuild() {
         if (process.platform === 'darwin') {
+            this._menu = electron.Menu.buildFromTemplate(this._menuTemplate);
             electron.Menu.setApplicationMenu(this._menu);
         }
-        else {
-            for (const window of windows) {
-                window.setMenu(this._menu);
+        else if (!this._views.application.environment.titlebar) {
+            this._menu = electron.Menu.buildFromTemplate(this._menuTemplate);
+            for (const view of this._views.views) {
+                view.window.setMenu(this._menu);
             }
         }
     }
 
-    _updateLabel(context) {
+    _updateLabel(view) {
         let rebuild = false;
         for (const entry of this._commandTable.entries()) {
-            const menuItem = this._menu.getMenuItemById(entry[0]);
-            const command = entry[1];
-            if (command && command.label) {
-                const label = command.label(context);
-                if (label !== menuItem.label) {
-                    if (this._itemTable.has(entry[0])) {
-                        this._itemTable.get(entry[0]).label = label;
-                        rebuild = true;
+            if (this._menu) {
+                const menuItem = this._menu.getMenuItemById(entry[0]);
+                const command = entry[1];
+                if (command && command.label) {
+                    const label = command.label(view);
+                    if (label !== menuItem.label) {
+                        if (this._itemTable.has(entry[0])) {
+                            this._itemTable.get(entry[0]).label = label;
+                            rebuild = true;
+                        }
                     }
                 }
             }
@@ -1020,17 +1055,17 @@ class MenuService {
         return rebuild;
     }
 
-    _updateEnabled(context) {
+    _updateEnabled(view) {
         for (const entry of this._commandTable.entries()) {
-            const menuItem = this._menu.getMenuItemById(entry[0]);
-            if (menuItem) {
+            if (this._menu) {
+                const menuItem = this._menu.getMenuItemById(entry[0]);
                 const command = entry[1];
-                if (command.enabled) {
-                    menuItem.enabled = command.enabled(context);
+                if (menuItem && command.enabled) {
+                    menuItem.enabled = command.enabled(view);
                 }
             }
         }
     }
-}
+};
 
-global.application = new Application();
+global.application = new app.Application();

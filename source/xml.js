@@ -1,6 +1,6 @@
 
-var xml = xml || {};
-var text = text || require('./text');
+var xml = {};
+var text = require('./text');
 
 // https://www.w3.org/TR/xml
 
@@ -216,7 +216,7 @@ xml.TextReader = class {
                             const elementType = documentType ? documentType.elements.getNamedItem(name) : null;
                             if (namespaceURI !== null) {
                                 this._assert(name === ':' || (!name.endsWith(':') && !name.startsWith(':')));
-                                if (prefix && (namespaceURI === '' || namespaceURI === null)) {
+                                if (prefix && namespaceURI === '') {
                                     this._error("Invalid namespace prefix '" + prefix + "'", this._start);
                                 }
                                 element = document.createElementNS(namespaceURI, name);
@@ -356,7 +356,7 @@ xml.TextReader = class {
                                 let whitespace = this._whitespace(0);
                                 if (whitespace && (this._char === '"' || this._char === "'")) {
                                     node.value = this._entityValue();
-                                    whitespace = this._whitespace(0);
+                                    this._whitespace(0);
                                 }
                                 else {
                                     if (whitespace && this._match('SYSTEM')) {
@@ -466,7 +466,7 @@ xml.TextReader = class {
                                     notation.publicId = this._pubidLiteral();
                                     if (this._whitespace(0) && (this._char === '"') || this._char === "'") {
                                         notation.systemId = this._systemLiteral();
-                                        whitespace = this._whitespace(0);
+                                        this._whitespace(0);
                                     }
                                 }
                                 this._assert(notation.systemId || notation.publicId);

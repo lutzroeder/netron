@@ -7,13 +7,15 @@ const http = require('http');
 const https = require('https');
 const process = require('process');
 const path = require('path');
-const querystring = require('querystring');
+const base = require('./base');
 
 host.ElectronHost = class {
 
     constructor() {
         process.on('uncaughtException', (err) => {
             this.exception(err, true);
+            this._message(err.message);
+            this.document.body.setAttribute('class', 'welcome message');
         });
         this._document = window.document;
         this._window = window;
@@ -29,7 +31,11 @@ host.ElectronHost = class {
             }
         });
         this._environment = electron.ipcRenderer.sendSync('get-environment', {});
+        this._environment.menu = this._environment.titlebar && this._environment.platform !== 'darwin';
         this._queue = [];
+        if (!/^\d\.\d\.\d$/.test(this.version)) {
+            throw new Error('Invalid version.');
+        }
     }
 
     get window() {
@@ -52,49 +58,80 @@ host.ElectronHost = class {
         return 'any';
     }
 
-    initialize(view) {
+    view(view) {
         this._view = view;
         electron.ipcRenderer.on('open', (_, data) => {
             this._openPath(data.path);
         });
-        return new Promise((resolve /*, reject */) => {
-            const telemetry = () => {
-                if (this._environment.package) {
-                    this._telemetry = new host.Telemetry('UA-54146-13', this._getConfiguration('userId'), navigator.userAgent, this.type, this.version);
-                }
-                resolve();
-            };
-            const consent = () => {
+        return this._age().then(() => this._consent()).then(() => this._telemetry());
+    }
+
+    _age() {
+        const age = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
+        if (age <= 180) {
+            return Promise.resolve();
+        }
+        const callback = () => {
+            const link = this._element('logo-github').href;
+            this.openURL(link);
+        };
+        this._message('Please update to the newest version.', 'Download', callback, true);
+        return new Promise(() => {});
+    }
+
+    _consent() {
+        const time = this._getConfiguration('consent');
+        if (time && (Date.now() - time) < 30 * 24 * 60 * 60 * 1000) {
+            return Promise.resolve();
+        }
+        const consent = () => {
+            return new Promise((resolve /*, reject */) => {
                 this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept', () => {
                     this._setConfiguration('consent', Date.now());
-                    telemetry();
+                    resolve();
                 });
-            };
-            const time = this._getConfiguration('consent');
-            if (time && (Date.now() - time) < 30 * 24 * 60 * 60 * 1000) {
-                telemetry();
+            });
+        };
+        return this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 2000).then((text) => {
+            try {
+                const json = JSON.parse(text);
+                const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
+                if (json && json.country && countries.indexOf(json.country) === -1) {
+                    this._setConfiguration('consent', Date.now());
+                    return Promise.resolve();
+                }
+                return consent();
             }
-            else {
-                this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 2000).then((text) => {
-                    try {
-                        const json = JSON.parse(text);
-                        const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
-                        if (json && json.country && !countries.indexOf(json.country) !== -1) {
-                            this._setConfiguration('consent', Date.now());
-                            telemetry();
-                        }
-                        else {
-                            consent();
-                        }
-                    }
-                    catch (err) {
-                        consent();
-                    }
-                }).catch(() => {
-                    consent();
-                });
+            catch (err) {
+                return consent();
             }
+        }).catch(() => {
+            return consent();
         });
+    }
+
+    _telemetry() {
+        if (this._environment.packaged) {
+            const measurement_id = '848W2NVWVH';
+            const user = this._getConfiguration('user') || null;
+            const session = this._getConfiguration('session') || null;
+            this._telemetry_ga4 = new base.Telemetry(this._window, 'G-' + measurement_id, user && user.indexOf('.') !== -1 ? user : null, session);
+            this._telemetry_ga4.start().then(() => {
+                this._telemetry_ga4.send('page_view', {
+                    app_name: this.type,
+                    app_version: this.version,
+                });
+                this._telemetry_ga4.send('scroll', {
+                    percent_scrolled: 90,
+                    app_name: this.type,
+                    app_version: this.version
+                });
+                this._setConfiguration('user', this._telemetry_ga4.get('client_id'));
+                this._setConfiguration('session', this._telemetry_ga4.session);
+                this._telemetry_ua = new host.Telemetry('UA-54146-13', this._telemetry_ga4.get('client_id'), navigator.userAgent, this.type, this.version);
+            });
+        }
+        return Promise.resolve();
     }
 
     start() {
@@ -107,6 +144,15 @@ host.ElectronHost = class {
             }
         }
 
+        this._window.addEventListener('focus', () => {
+            this._document.body.classList.add('active');
+        });
+        this._window.addEventListener('blur', () => {
+            this._document.body.classList.remove('active');
+        });
+        if (this._document.hasFocus()) {
+            this._document.body.classList.add('active');
+        }
         electron.ipcRenderer.on('export', (_, data) => {
             this._view.export(data.file);
         });
@@ -127,37 +173,58 @@ host.ElectronHost = class {
             this._update(Object.assign({}, this._view.options));
         });
         electron.ipcRenderer.on('zoom-in', () => {
-            this.document.getElementById('zoom-in-button').click();
+            this._element('zoom-in-button').click();
         });
         electron.ipcRenderer.on('zoom-out', () => {
-            this.document.getElementById('zoom-out-button').click();
+            this._element('zoom-out-button').click();
         });
         electron.ipcRenderer.on('reset-zoom', () => {
             this._view.resetZoom();
         });
         electron.ipcRenderer.on('show-properties', () => {
-            this.document.getElementById('menu-button').click();
+            this._element('sidebar-button').click();
         });
         electron.ipcRenderer.on('find', () => {
             this._view.find();
         });
-        this.document.getElementById('menu-button').addEventListener('click', () => {
-            this._view.showModelProperties();
+        electron.ipcRenderer.on('about', () => {
+            this.about();
         });
 
-        const openFileButton = this.document.getElementById('open-file-button');
+        electron.ipcRenderer.on('update-configuration', (_, data) => {
+            this._view.update(data.name, data.value);
+        });
+        this._view.update('recents', this._getConfiguration('recents'));
+
+        this._element('titlebar-close').addEventListener('click', () => {
+            electron.ipcRenderer.sendSync('window-close', {});
+        });
+        this._element('titlebar-toggle').addEventListener('click', () => {
+            electron.ipcRenderer.sendSync('window-toggle', {});
+        });
+        this._element('titlebar-minimize').addEventListener('click', () => {
+            electron.ipcRenderer.sendSync('window-minimize', {});
+        });
+        electron.ipcRenderer.on('window-state', (_, data) => {
+            if (this._environment.titlebar) {
+                this._element('graph').style.marginTop = '32px';
+                this._element('graph').style.height = 'calc(100% - 32px)';
+                this._element('sidebar-title').style.marginTop = '24px';
+                this._element('sidebar-closebutton').style.marginTop = '24px';
+            }
+            this._element('titlebar').style.display = this._environment.titlebar ? 'block' : 'none';
+            this._element('menu-button').style.opacity = this._environment.menu ? 1 : 0;
+            this._element('titlebar-control-box').style.opacity = this._environment.titlebar && this._environment.platform !== 'darwin' && !data.fullscreen ? 1 : 0;
+            this._element('titlebar-maximize').style.opacity = data.maximized ? 0 : 1;
+            this._element('titlebar-restore').style.opacity = data.maximized ? 1 : 0;
+            this._element('titlebar-toggle').setAttribute('title', data.maximized ? 'Restore' : 'Maximize');
+        });
+        electron.ipcRenderer.sendSync('update-window-state', {});
+
+        const openFileButton = this._element('open-file-button');
         if (openFileButton) {
-            openFileButton.style.opacity = 1;
             openFileButton.addEventListener('click', () => {
-                electron.ipcRenderer.send('open-file-dialog', {});
-            });
-        }
-        const githubButton = this.document.getElementById('github-button');
-        const githubLink = this.document.getElementById('logo-github');
-        if (githubButton && githubLink) {
-            githubButton.style.opacity = 1;
-            githubButton.addEventListener('click', () => {
-                this.openURL(githubLink.href);
+                this.execute('open');
             });
         }
 
@@ -175,7 +242,6 @@ host.ElectronHost = class {
             }
             return false;
         });
-
         this._view.show('welcome');
     }
 
@@ -183,12 +249,17 @@ host.ElectronHost = class {
         return this._environment[name];
     }
 
-    error(message, detail) {
-        electron.ipcRenderer.sendSync('show-message-box', {
+    error(message, detail, url) {
+        const options = {
             type: 'error',
             message: message,
             detail: detail,
-        });
+            buttons: [ 'Report', 'Cancel' ]
+        };
+        if (electron.ipcRenderer.sendSync('show-message-box', options) === 0) {
+            url = url || this.environment('repository') + '/issues';
+            this.openURL(url);
+        }
     }
 
     confirm(message, detail) {
@@ -205,7 +276,8 @@ host.ElectronHost = class {
 
     require(id) {
         try {
-            return Promise.resolve(require(id));
+            const module = require(id);
+            return Promise.resolve(module);
         }
         catch (error) {
             return Promise.reject(error);
@@ -253,6 +325,10 @@ host.ElectronHost = class {
         }
     }
 
+    execute(name, value) {
+        electron.ipcRenderer.send('execute', { name: name, value: value });
+    }
+
     request(file, encoding, base) {
         return new Promise((resolve, reject) => {
             const pathname = path.join(base || __dirname, file);
@@ -291,31 +367,51 @@ host.ElectronHost = class {
     }
 
     exception(error, fatal) {
-        if (this._telemetry && error && error.telemetry !== false) {
+        if ((this._telemetry_ua || this._telemetry_ga4) && error) {
             try {
-                const name = error && error.name ? error.name + ': ' : '';
-                const message = error && error.message ? error.message : JSON.stringify(error);
-                const description = [ name + message ];
+                const name = error.name ? error.name + ': ' : '';
+                const message = error.message ? error.message : JSON.stringify(error);
+                const description = name + message;
+                let context = '';
+                let stack = '';
                 if (error.stack) {
                     const format = (file, line, column) => {
                         return file.split('\\').join('/').split('/').pop() + ':' + line + ':' + column;
                     };
                     const match = error.stack.match(/\n {4}at (.*) \((.*):(\d*):(\d*)\)/);
                     if (match) {
-                        description.push(match[1] + ' (' + format(match[2], match[3], match[4]) + ')');
+                        stack = match[1] + ' (' + format(match[2], match[3], match[4]) + ')';
                     }
                     else {
                         const match = error.stack.match(/\n {4}at (.*):(\d*):(\d*)/);
                         if (match) {
-                            description.push('(' + format(match[1], match[2], match[3]) + ')');
+                            stack = '(' + format(match[1], match[2], match[3]) + ')';
                         }
                         else {
                             const match = error.stack.match(/.*\n\s*(.*)\s*/);
-                            description.push(match ? match[1] : error.stack.split('\n').shift());
+                            if (match) {
+                                stack = match[1];
+                            }
                         }
                     }
                 }
-                this._telemetry.exception(description.join(' @ '), fatal);
+                if (error.context) {
+                    context = typeof error.context === 'string' ? error.context : JSON.stringify(error.context);
+                }
+                if (this._telemetry_ua) {
+                    this._telemetry_ua.exception(stack ? description + ' @ ' + stack : description, fatal);
+                }
+                if (this._telemetry_ga4) {
+                    this._telemetry_ga4.send('exception', {
+                        app_name: this.type,
+                        app_version: this.version,
+                        error_name: name,
+                        error_message: message,
+                        error_context: context,
+                        error_stack: stack,
+                        error_fatal: fatal ? true : false
+                    });
+                }
             }
             catch (e) {
                 // continue regardless of error
@@ -323,10 +419,10 @@ host.ElectronHost = class {
         }
     }
 
-    screen(name) {
-        if (this._telemetry) {
+    event_ua(category, action, label, value) {
+        if (this._telemetry_ua && category && action && label) {
             try {
-                this._telemetry.screenview(name);
+                this._telemetry_ua.event(category, action, label, value);
             }
             catch (e) {
                 // continue regardless of error
@@ -334,10 +430,12 @@ host.ElectronHost = class {
         }
     }
 
-    event(category, action, label, value) {
-        if (this._telemetry) {
+    event(name, params) {
+        if (this._telemetry_ga4 && name && params) {
             try {
-                this._telemetry.event(category, action, label, value);
+                params.app_name = this.type,
+                params.app_version = this.version,
+                this._telemetry_ga4.send(name, params);
             }
             catch (e) {
                 // continue regardless of error
@@ -351,7 +449,7 @@ host.ElectronHost = class {
         if (stat.isFile()) {
             const dirname = path.dirname(location);
             return this.request(basename, null, dirname).then((stream) => {
-                return new host.ElectronHost.ElectronContext(this, dirname, basename, stream);
+                return new host.ElectronHost.Context(this, dirname, basename, stream);
             });
         }
         else if (stat.isDirectory()) {
@@ -371,7 +469,7 @@ host.ElectronHost = class {
                 }
             };
             walk(location);
-            return Promise.resolve(new host.ElectronHost.ElectronContext(this, location, basename, null, entries));
+            return Promise.resolve(new host.ElectronHost.Context(this, location, basename, null, entries));
         }
         throw new Error("Unsupported path stat '" + JSON.stringify(stat) + "'.");
     }
@@ -381,15 +479,21 @@ host.ElectronHost = class {
             this._queue.push(path);
             return;
         }
-        if (path && this._view.accept(path)) {
+        const stat = fs.existsSync(path) ? fs.statSync(path) : null;
+        const size = stat && stat.isFile() ? stat.size : 0;
+        if (path && this._view.accept(path, size)) {
             this._view.show('welcome spinner');
             this._context(path).then((context) => {
+                if (this._telemetry_ga4) {
+                    this._telemetry_ga4.set('session_engaged', 1);
+                }
                 this._view.open(context).then((model) => {
                     this._view.show(null);
                     const options = Object.assign({}, this._view.options);
                     if (model) {
                         options.path = path;
                     }
+                    this._title(path);
                     this._update(options);
                 }).catch((error) => {
                     const options = Object.assign({}, this._view.options);
@@ -458,22 +562,53 @@ host.ElectronHost = class {
         electron.ipcRenderer.sendSync('set-configuration', { name: name, value: value });
     }
 
-    _update(data) {
-        electron.ipcRenderer.send('update', data);
+    _minimizePath(path) {
+        if (this._environment.platform !== 'win32' && this._environment.homedir) {
+            if (path.startsWith(this._environment.homedir)) {
+                return '~' + path.substring(this._environment.homedir.length);
+            }
+        }
+        return path;
     }
 
-    _message(message, button, callback) {
-        const messageText = this.document.getElementById('message');
+    _title(path) {
+        const element = this._element('titlebar-content-text');
+        if (element) {
+            element.innerHTML = '';
+            if (path) {
+                path = this._minimizePath(path).split(this._environment.separator || '/');
+                for (let i = 0; i < path.length; i++) {
+                    const span = this.document.createElement('span');
+                    span.innerHTML = ' ' + path[i] + ' ' + (i !== path.length - 1 ? '<svg class="titlebar-icon" aria-hidden="true"><use xlink:href="#icon-arrow-right"></use></svg>' : '');
+                    element.appendChild(span);
+                }
+            }
+        }
+    }
+
+    _element(id) {
+        return this.document.getElementById(id);
+    }
+
+    _update(data) {
+        electron.ipcRenderer.send('window-update', data);
+    }
+
+    _message(message, action, callback, modal) {
+        const messageText = this._element('message-text');
         if (messageText) {
             messageText.innerText = message;
         }
-        const messageButton = this.document.getElementById('message-button');
+        const messageButton = this._element('message-button');
         if (messageButton) {
-            if (button && callback) {
+            if (action && callback) {
                 messageButton.style.removeProperty('display');
-                messageButton.innerText = button;
+                messageButton.innerText = action;
                 messageButton.onclick = () => {
-                    messageButton.onclick = null;
+                    if (!modal) {
+                        messageButton.onclick = null;
+                        this._document.body.classList.remove('message');
+                    }
                     callback();
                 };
             }
@@ -482,7 +617,7 @@ host.ElectronHost = class {
                 messageButton.onclick = null;
             }
         }
-        this._view.show('welcome message');
+        this._document.body.classList.add('message');
     }
 };
 
@@ -497,12 +632,6 @@ host.Telemetry = class {
             an: applicationName,
             av: applicationVersion
         };
-    }
-
-    screenview(screenName) {
-        const params = Object.assign({}, this._params);
-        params.cd = screenName;
-        this._send('screenview', params);
     }
 
     event(category, action, label, value) {
@@ -531,7 +660,7 @@ host.Telemetry = class {
                 delete params[param];
             }
         }
-        const body = querystring.stringify(params);
+        const body = Object.entries(params).map((entry) => encodeURIComponent(entry[0]) + '=' + encodeURIComponent(entry[1])).join('&');
         const options = {
             method: 'POST',
             host: 'www.google-analytics.com',
@@ -710,7 +839,7 @@ host.ElectronHost.FileStream = class {
     }
 };
 
-host.ElectronHost.ElectronContext = class {
+host.ElectronHost.Context = class {
 
     constructor(host, folder, identifier, stream, entries) {
         this._host = host;

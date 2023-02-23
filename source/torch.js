@@ -9,28 +9,32 @@ torch.ModelFactory = class {
 
     open(context, match) {
         return context.metadata('torch-metadata.json').then((metadata) => {
-            const identifier = context.identifier;
             const reader = match;
             reader.callback = (name) => {
                 if (name && name != 'nn.JointTrainModule' && !name.startsWith('nn.MSDNet_') && !name.startsWith('onmt.')) {
-                    context.exception(new torch.Error("Unsupported type '" + name + "' in '" + identifier + "'."), false);
+                    context.exception(new torch.Error("Unsupported type '" + name + "'."));
                 }
                 return null;
             };
-            let root = reader.read();
-            if (root && Array.isArray(root) && root.length == 2 && root[0].__class__ && !root[1].__class__) {
-                root = root[0];
+            const obj = reader.read();
+            let graphs = [];
+            if (obj && Array.isArray(obj) && obj.length >= 2 &&
+                obj.slice(0, obj.length - 1).every((item) => item.__class__) &&
+                !obj[obj.length - 1].__class__) {
+                graphs = obj.slice(0, obj.length - 1);
             }
-            return new torch.Model(metadata, root);
+            else {
+                graphs = [ obj ];
+            }
+            return new torch.Model(metadata, graphs);
         });
     }
 };
 
 torch.Model = class {
 
-    constructor(metadata, root) {
-        this._graphs = [];
-        this._graphs.push(new torch.Graph(metadata, root));
+    constructor(metadata, graphs) {
+        this._graphs = graphs.map((graph, index) => new torch.Graph(metadata, index.toString(), graph));
     }
 
     get graphs() {
@@ -44,7 +48,8 @@ torch.Model = class {
 
 torch.Graph = class {
 
-    constructor(metadata, root) {
+    constructor(metadata, name, root) {
+        this._name = name;
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
@@ -64,6 +69,10 @@ torch.Graph = class {
         this._outputs = this._outputs.concat(outputs.map((output, index) => {
             return new torch.Parameter('output' + (index != 0 ? (index + 1).toString() : ''), true, [ output ]);
         }));
+    }
+
+    get name() {
+        return this._name;
     }
 
     get inputs() {
@@ -125,7 +134,7 @@ torch.Graph = class {
                     }
                     index++;
                 }
-                inputs = inputs.concat(newInputs);
+                // inputs = inputs.concat(newInputs);
                 for (const newOutput of newOutputs) {
                     outputs.push(newOutput);
                 }
@@ -286,6 +295,7 @@ torch.Node = class {
             case 'cudnn.SpatialFullConvolution':
             case 'nn.SpatialConvolution':
             case 'nn.SpatialConvolutionMM':
+            case 'nn.SpatialConvolution1_fw':
             case 'nn.SpatialDilatedConvolution':
             case 'nn.SpatialFullConvolution':
                 delete module.ones;
@@ -488,89 +498,22 @@ torch.Tensor = class {
         return this._type;
     }
 
-    get state() {
-        return this._context().state || null;
+    get layout() {
+        return '|';
     }
 
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
+    get values() {
+        if (this._type.shape.dimensions.length === 0) {
+            return [];
         }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 1000;
-        const value = this._decode(context, 0);
-        return JSON.stringify(value, null, 4);
-    }
-
-    _context() {
-        const context = {};
-        context.state = null;
-        context.index = 0;
-        context.count = 0;
-        if (!this._storage) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-        context.data = this._storage.data();
-        context.index = this._offset;
-        if (!context.data) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-        switch (this._type.dataType) {
-            case 'uint8':
-            case 'int8':
-            case 'int16':
-            case 'int32':
-            case 'int64':
-            case 'float32':
-            case 'float64':
-                break;
-            default:
-                context.state = 'Tensor data type is not implemented.';
-                break;
-        }
-        context.dimensions = this._type.shape.dimensions;
-        if (!context.dimensions && context.dimensions.length == 0) {
-            context.state =  'Tensor has no dimensions.';
-            return context;
-        }
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const results = [];
-        const size = context.dimensions[dimension];
-        if (dimension == context.dimensions.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(context.data[context.index]);
-                context.index++;
-                context.count++;
+        if (this._storage) {
+            const data = this._storage.data();
+            if (data) {
+                const size = this._type.shape.dimensions.reduce((a, b) => a * b, 1);
+                return data.slice(this._offset, this._offset + size);
             }
         }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        return results;
+        return null;
     }
 };
 
@@ -627,11 +570,11 @@ torch.T7Reader = class {
 
     static open(context) {
         const stream = context.stream;
-        if (stream.length >= 4 && stream.peek(4).every((value, index) => value === 0x00 || (index == 0 && value <= 0x08))) {
+        if (stream && stream.length >= 4 && stream.peek(4).every((value, index) => value === 0x00 || (index == 0 && value <= 0x08))) {
             const reader = new torch.BinaryReader(stream);
             return new torch.T7Reader(reader);
         }
-        if (stream.length >= 2) {
+        if (stream && stream.length >= 2) {
             const buffer = stream.peek(2);
             const value = String.fromCharCode(stream.peek(1)[0]);
             if (buffer[1] === 0x0a && (value >= '0' && value <= '8')) {
@@ -807,6 +750,7 @@ torch.T7Reader = class {
         this.register('nn.SpatialAveragePooling');
         this.register('nn.SpatialBatchNormalization');
         this.register('nn.SpatialConvolution');
+        this.register('nn.SpatialConvolution1_fw');
         this.register('nn.SpatialConvolutionMM');
         this.register('nn.SpatialCrossMapLRN');
         this.register('nn.SpatialDilatedConvolution');
@@ -837,35 +781,151 @@ torch.T7Reader = class {
         this.register('nngraph.Node');
         this.register('graph.Edge');
         this.register('graph.Graph');
-        this.register('torch.ByteTensor', class extends Tensor { constructor() { super('uint8'); } });
-        this.register('torch.CharTensor', class extends Tensor { constructor() { super('int8'); } });
-        this.register('torch.ShortTensor', class extends Tensor { constructor() { super('int16'); } });
-        this.register('torch.IntTensor', class extends Tensor { constructor() { super('int32'); } });
-        this.register('torch.LongTensor', class extends Tensor { constructor() { super('int64'); } });
-        this.register('torch.FloatTensor', class extends Tensor { constructor() { super('float32'); } });
-        this.register('torch.DoubleTensor', class extends Tensor { constructor() { super('float64'); } });
-        this.register('torch.CudaByteTensor', class extends Tensor { constructor() { super('uint8'); } });
-        this.register('torch.CudaCharTensor', class extends Tensor { constructor() { super('int8'); } });
-        this.register('torch.CudaShortTensor', class extends Tensor { constructor() { super('int16'); } });
-        this.register('torch.CudaIntTensor', class extends Tensor { constructor() { super('int32'); } });
-        this.register('torch.CudaLongTensor', class extends Tensor { constructor() { super('int64'); } });
-        this.register('torch.CudaTensor', class extends Tensor { constructor() { super('float32'); } });
-        this.register('torch.CudaDoubleTensor', class extends Tensor { constructor() { super('float64'); } });
-        this.register('torch.ByteStorage', class extends Storage { constructor() { super('uint8', 1); } });
-        this.register('torch.CharStorage', class extends Storage { constructor() { super('int8', 1); } });
-        this.register('torch.ShortStorage', class extends Storage { constructor() { super('int16', 2); } });
-        this.register('torch.IntStorage', class extends Storage { constructor() { super('int32', 4); } });
-        this.register('torch.LongStorage', class extends Storage { constructor() { super('int64', 8); } });
-        this.register('torch.FloatStorage', class extends Storage { constructor() { super('float32', 4); } });
-        this.register('torch.DoubleStorage', class extends Storage { constructor() { super('float64', 8); } });
-        this.register('torch.CudaByteStorage', class extends Storage { constructor() { super('uint8', 1); } });
-        this.register('torch.CudaCharStorage', class extends Storage { constructor() { super('int8', 1); } });
-        this.register('torch.CudaShortStorage', class extends Storage { constructor() { super('int16', 2); } });
-        this.register('torch.CudaIntStorage', class extends Storage { constructor() { super('int32', 4); } });
-        this.register('torch.CudaLongStorage', class extends Storage { constructor() { super('int64', 8); } });
-        this.register('torch.CudaIntStorage', class extends Storage { constructor() { super('int32', 4); } });
-        this.register('torch.CudaStorage', class extends Storage { constructor() { super('float32', 4); } });
-        this.register('torch.CudaFloatStorage', class extends Storage { constructor() { super('float64', 8); } });
+        this.register('torch.ByteTensor', class extends Tensor {
+            constructor() {
+                super('uint8');
+            }
+        });
+        this.register('torch.CharTensor', class extends Tensor {
+            constructor() {
+                super('int8');
+            }
+        });
+        this.register('torch.ShortTensor', class extends Tensor {
+            constructor() {
+                super('int16');
+            }
+        });
+        this.register('torch.IntTensor', class extends Tensor {
+            constructor() {
+                super('int32');
+            }
+        });
+        this.register('torch.LongTensor', class extends Tensor {
+            constructor() {
+                super('int64');
+            }
+        });
+        this.register('torch.FloatTensor', class extends Tensor {
+            constructor() {
+                super('float32');
+            }
+        });
+        this.register('torch.DoubleTensor', class extends Tensor {
+            constructor() {
+                super('float64');
+            }
+        });
+        this.register('torch.CudaByteTensor', class extends Tensor {
+            constructor() {
+                super('uint8');
+            }
+        });
+        this.register('torch.CudaCharTensor', class extends Tensor {
+            constructor() {
+                super('int8');
+            }
+        });
+        this.register('torch.CudaShortTensor', class extends Tensor {
+            constructor() {
+                super('int16');
+            }
+        });
+        this.register('torch.CudaIntTensor', class extends Tensor {
+            constructor() {
+                super('int32');
+            }
+        });
+        this.register('torch.CudaLongTensor', class extends Tensor {
+            constructor() {
+                super('int64');
+            }
+        });
+        this.register('torch.CudaTensor', class extends Tensor {
+            constructor() {
+                super('float32');
+            }
+        });
+        this.register('torch.CudaDoubleTensor', class extends Tensor {
+            constructor() {
+                super('float64');
+            }
+        });
+        this.register('torch.ByteStorage', class extends Storage {
+            constructor() {
+                super('uint8', 1);
+            }
+        });
+        this.register('torch.CharStorage', class extends Storage {
+            constructor() {
+                super('int8', 1);
+            }
+        });
+        this.register('torch.ShortStorage', class extends Storage {
+            constructor() {
+                super('int16', 2);
+            }
+        });
+        this.register('torch.IntStorage', class extends Storage {
+            constructor() {
+                super('int32', 4);
+            }
+        });
+        this.register('torch.LongStorage', class extends Storage {
+            constructor() {
+                super('int64', 8);
+            }
+        });
+        this.register('torch.FloatStorage', class extends Storage {
+            constructor() {
+                super('float32', 4);
+            }
+        });
+        this.register('torch.DoubleStorage', class extends Storage {
+            constructor() {
+                super('float64', 8);
+            }
+        });
+        this.register('torch.CudaByteStorage', class extends Storage {
+            constructor() {
+                super('uint8', 1);
+            }
+        });
+        this.register('torch.CudaCharStorage', class extends Storage {
+            constructor() {
+                super('int8', 1);
+            }
+        });
+        this.register('torch.CudaShortStorage', class extends Storage {
+            constructor() {
+                super('int16', 2);
+            }
+        });
+        this.register('torch.CudaIntStorage', class extends Storage {
+            constructor() {
+                super('int32', 4);
+            }
+        });
+        this.register('torch.CudaLongStorage', class extends Storage {
+            constructor() {
+                super('int64', 8);
+            }
+        });
+        this.register('torch.CudaIntStorage', class extends Storage {
+            constructor() {
+                super('int32', 4);
+            }
+        });
+        this.register('torch.CudaStorage', class extends Storage {
+            constructor() {
+                super('float32', 4);
+            }
+        });
+        this.register('torch.CudaFloatStorage', class extends Storage {
+            constructor() {
+                super('float64', 8);
+            }
+        });
         this.register('w2nn.AuxiliaryLossTable');
         this.register('w2nn.InplaceClip01');
         this.register('w2nn.ScaleTable');

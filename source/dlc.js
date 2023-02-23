@@ -1,6 +1,6 @@
 
-var dlc = dlc || {};
-var text = text || require('./text');
+var dlc = {};
+var text = require('./text');
 
 dlc.ModelFactory = class {
 
@@ -12,26 +12,26 @@ dlc.ModelFactory = class {
         return context.require('./dlc-schema').then(() => {
             dlc.schema = flatbuffers.get('dlc').dlc;
             const container = match;
+            let model = null;
+            let params = null;
+            const metadata_props = container.metadata;
+            container.validate();
+            try {
+                model = container.model;
+            }
+            catch (error) {
+                const message = error && error.message ? error.message : error.toString();
+                throw new dlc.Error('File format is not dlc.NetDef (' + message.replace(/\.$/, '') + ').');
+            }
+            try {
+                params = container.params;
+            }
+            catch (error) {
+                const message = error && error.message ? error.message : error.toString();
+                throw new dlc.Error('File format is not dlc.NetParam (' + message.replace(/\.$/, '') + ').');
+            }
             return context.metadata('dlc-metadata.json').then((metadata) => {
-                let model = null;
-                let params = null;
-                const metadata_props = container.metadata;
-                try {
-                    model = container.model;
-                }
-                catch (error) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new dlc.Error('File format is not dlc.NetDef (' + message.replace(/\.$/, '') + ').');
-                }
-                try {
-                    params = container.params;
-                }
-                catch (error) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new dlc.Error('File format is not dlc.NetParam (' + message.replace(/\.$/, '') + ').');
-                }
                 return new dlc.Model(metadata, model, params, metadata_props);
-
             });
         });
     }
@@ -353,8 +353,8 @@ dlc.Tensor = class {
     constructor(type, data) {
         this._type = type;
         switch (type.dataType) {
-            case 'uint8': this._data = data.bytes; break;
-            case 'float32': this._data = data.floats; break;
+            case 'uint8': this._values = data.bytes; break;
+            case 'float32': this._values = data.floats; break;
             default: throw new dlc.Error("Unsupported tensor data type '" + type.dataType + "'.");
         }
     }
@@ -363,63 +363,12 @@ dlc.Tensor = class {
         return this._type;
     }
 
-    get state() {
-        return this._context().state || null;
+    get layout() {
+        return '|';
     }
 
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return JSON.stringify(value, null, 4);
-    }
-
-    _context() {
-        const context = {};
-        context.state = null;
-        context.index = 0;
-        context.count = 0;
-        context.shape = this._type.shape.dimensions;
-        context.data = this._data;
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const results = [];
-        const size = context.shape[dimension];
-        if (dimension == context.shape.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(context.data[context.index]);
-                context.index++;
-                context.count++;
-            }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        return results;
+    get values() {
+        return this._values;
     }
 };
 
@@ -430,52 +379,107 @@ dlc.Container = class {
         if (entries.size > 0) {
             const model = entries.get('model');
             const params = entries.get('model.params');
+            const metadata = entries.get('dlc.metadata');
             if (model || params) {
-                return new dlc.Container(model, params, entries.get('dlc.metadata'));
+                return new dlc.Container(model, params, metadata);
             }
         }
         const stream = context.stream;
-        switch (dlc.Container._idenfitier(stream)) {
+        switch (dlc.Container._signature(stream).split('.').pop()) {
             case 'NETD':
                 return new dlc.Container(stream, null, null);
             case 'NETP':
                 return new dlc.Container(null, stream, null);
             default:
-                break;
+                return null;
         }
-        return null;
     }
 
     constructor(model, params, metadata) {
-        this._model = model || null;
-        this._params = params || null;
-        this._metadata = metadata || new Uint8Array(0);
+        this._model = { stream: model || null };
+        this._params = { stream: params || null };
+        this._metadata = { stream: metadata || null, value: new Map() };
+    }
+
+    validate() {
+        this._model.signature = dlc.Container._signature(this._model.stream);
+        this._params.signature = dlc.Container._signature(this._params.stream);
+        if (this._model.signature == '2' ||this._params.signature == '2') {
+            throw new dlc.Error("File contains undocumented DLC v2 data.");
+        }
+        if (this._model.signature.startsWith('4.') || this._params.signature.startsWith('4.')) {
+            throw new dlc.Error("File contains undocumented DLC v4 data.");
+        }
     }
 
     get model() {
-        if (this._model && this._model.peek) {
-            const stream = this._model;
-            const reader = this._open(stream, 'NETD');
-            stream.seek(0);
-            this._model = dlc.schema.NetDef.decode(reader, reader.root);
+        if (this._model && this._model.stream) {
+            const stream = this._model.stream;
+            delete this._model.stream;
+            switch (dlc.Container._signature(stream)) {
+                case '4.NETD': {
+                    throw new dlc.Error("File contains undocumented DLC v4 data.");
+                }
+                case '3.NETD': {
+                    const buffer = new Uint8Array(stream.peek().subarray(8));
+                    const reader = flatbuffers.BinaryReader.open(buffer);
+                    this._model.value = dlc.schema.NetDef.decode(reader, reader.root);
+                    break;
+                }
+                case 'NETD': {
+                    const buffer = stream.peek();
+                    const reader = flatbuffers.BinaryReader.open(buffer);
+                    this._model.value = dlc.schema.NetDef.decode(reader, reader.root);
+                    break;
+                }
+                default: {
+                    const buffer = stream.peek(Math.min(stream.length, 16));
+                    const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+                    throw new dlc.Error("File contains undocumented '" + content + "' data.");
+                }
+            }
         }
-        return this._model;
+        return this._model.value;
     }
 
     get params() {
-        if (this._params && this._params.peek) {
-            const stream = this._params;
-            const reader = this._open(stream, 'NETP');
-            stream.seek(0);
-            this._params = dlc.schema.NetParam.decode(reader, reader.root);
+        if (this._params && this._params.stream) {
+            const stream = this._params.stream;
+            delete this._params.stream;
+            switch (dlc.Container._signature(stream)) {
+                case '4.NETP': {
+                    throw new dlc.Error("File contains undocumented DLC v4 data.");
+                }
+                case '3.NETP': {
+                    const buffer = new Uint8Array(stream.peek().subarray(8));
+                    const reader = flatbuffers.BinaryReader.open(buffer);
+                    this._params.value = dlc.schema.NetParam.decode(reader, reader.root);
+                    break;
+                }
+                case '2': {
+                    throw new dlc.Error("File contains undocumented DLC v2 data.");
+                }
+                case 'NETP': {
+                    const buffer = stream.peek();
+                    const reader = flatbuffers.BinaryReader.open(buffer);
+                    this._params.value = dlc.schema.NetParam.decode(reader, reader.root);
+                    break;
+                }
+                default: {
+                    const buffer = stream.peek(Math.min(stream.length, 16));
+                    const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+                    throw new dlc.Error("File contains undocumented '" + content + "' data.");
+                }
+            }
         }
-        return this._params;
+        return this._params.value;
     }
 
     get metadata() {
-        if (this._metadata && this._metadata.peek) {
-            const reader = text.Reader.open(this._metadata);
-            const metadata = new Map();
+        if (this._metadata.stream) {
+            const stream = this._metadata.stream;
+            delete this._metadata.stream;
+            const reader = text.Reader.open(stream);
             for (;;) {
                 const line = reader.read();
                 if (line === undefined) {
@@ -487,44 +491,33 @@ dlc.Container = class {
                 }
                 const key = line.substring(0, index);
                 const value = line.substring(index + 1);
-                metadata.set(key, value);
+                this._metadata.value.set(key, value);
             }
-            this._metadata = metadata;
         }
-        return this._metadata;
+        return this._metadata.value;
     }
 
-    _open(stream, identifier) {
-        if (dlc.Container._signature(stream, [ 0xD5, 0x0A, 0x02, 0x00 ])) {
-            throw new dlc.Error("Unsupported DLC format '0x00020AD5'.");
-        }
-        if (dlc.Container._signature(stream, [ 0xD5, 0x0A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00 ])) {
-            stream.read(8);
-        }
-        const buffer = new Uint8Array(stream.read());
-        const reader = flatbuffers.BinaryReader.open(buffer);
-        if (identifier != reader.identifier) {
-            throw new dlc.Error("File contains undocumented '" + reader.identifier + "' data.");
-        }
-        return reader;
-    }
-
-    static _idenfitier(stream) {
-        if (dlc.Container._signature(stream, [ 0xD5, 0x0A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00 ])) {
-            const buffer = stream.peek(16).slice(8, 16);
-            const reader = flatbuffers.BinaryReader.open(buffer);
-            return reader.identifier;
-        }
-        else if (stream && stream.length > 8) {
-            const buffer = stream.peek(8);
-            const reader = flatbuffers.BinaryReader.open(buffer);
-            return reader.identifier;
+    static _signature(stream) {
+        if (stream) {
+            const buffer = stream.peek(Math.min(stream.length, 16));
+            const match = (signature) => buffer.length >= signature.length && signature.every((value, index) => value === buffer[index]);
+            if (match([ 0xD5, 0x0A, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00 ]) && buffer.length >= 16) {
+                const reader = flatbuffers.BinaryReader.open(buffer.slice(8));
+                return '4.' + reader.identifier;
+            }
+            if (match([ 0xD5, 0x0A, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00 ]) && buffer.length >= 16) {
+                const reader = flatbuffers.BinaryReader.open(buffer.slice(8));
+                return '3.' + reader.identifier;
+            }
+            if (match([ 0xD5, 0x0A, 0x02, 0x00 ])) {
+                return '2';
+            }
+            if (buffer.length >= 8) {
+                const reader = flatbuffers.BinaryReader.open(buffer);
+                return reader.identifier;
+            }
         }
         return '';
-    }
-
-    static _signature(stream, signature) {
-        return stream && stream.length > 16 && stream.peek(signature.length).every((value, index) => value === signature[index]);
     }
 };
 
@@ -552,7 +545,6 @@ dlc.Error = class extends Error {
     constructor(message) {
         super(message);
         this.name = 'Error loading DLC model.';
-        this.stack = undefined;
     }
 };
 

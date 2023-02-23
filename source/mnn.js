@@ -1,14 +1,15 @@
 
-var mnn = mnn || {};
-var flatbuffers = flatbuffers || require('./flatbuffers');
+var mnn = {};
+var flatbuffers = require('./flatbuffers');
 
 mnn.ModelFactory = class {
 
     match(context) {
-        const stream = context.stream;
-        if (stream.length >= 4) {
-            const extension = context.identifier.split('.').pop().toLowerCase();
-            if (extension == 'mnn') {
+        const identifier = context.identifier;
+        const extension = identifier.split('.').pop().toLowerCase();
+        if (extension == 'mnn') {
+            const stream = context.stream;
+            if (stream && stream.length >= 4) {
                 const buffer = stream.peek(4);
                 const reader = flatbuffers.BinaryReader.open(buffer);
                 if (reader.root === 0x00000018 || reader.root === 0x0000001C || reader.root === 0x00000020) {
@@ -16,7 +17,7 @@ mnn.ModelFactory = class {
                 }
             }
         }
-        return undefined;
+        return null;
     }
 
     open(context) {
@@ -368,104 +369,41 @@ mnn.Argument = class {
 
 mnn.Tensor = class {
 
-    constructor(kind, type, data) {
-        this._kind = kind;
+    constructor(category, type, data) {
+        this._category = category;
         this._type = type;
         this._data = data ? data.slice(0) : null;
     }
 
-    get kind() {
-        return this._kind;
+    get category() {
+        return this._category;
     }
 
     get type() {
         return this._type;
     }
 
-    get state() {
-        return this._context().state;
-    }
-
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return JSON.stringify(value, null, 4);
-    }
-
-    _context() {
-        const context = {};
-        context.state = null;
-        if (!this._data || this._data.length === 0) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-        context.index = 0;
-        context.count = 0;
-        context.dataType = this._type.dataType;
-        context.dimensions = this._type.shape.dimensions;
-        switch (context.dataType) {
+    get layout() {
+        switch (this._type.dataType) {
+            case 'int32':
+            case 'float32':
+                return '|';
             case 'float16':
-                context.view = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-                break;
+                return '<';
             default:
-                context.data = this._data;
-                break;
+                throw new mnn.Error("Unsupported data type '" + this._type.dataType + "'.");
         }
-        return context;
     }
 
-    _decode(context, dimension) {
-        let shape = context.dimensions;
-        if (shape.length == 0) {
-            shape = [ 1 ];
+    get values() {
+        switch (this._type.dataType) {
+            case 'int32':
+            case 'float32':
+            case 'float16':
+                return this._data;
+            default:
+                throw new mnn.Error("Unsupported data type '" + this._type.dataType + "'.");
         }
-        const results = [];
-        const size = shape[dimension];
-        if (dimension == shape.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                switch (context.dataType) {
-                    case 'float16':
-                        results.push(context.view.getFloat16(context.index, true));
-                        context.index += 2;
-                        break;
-                    default:
-                        results.push(context.data[context.index]);
-                        context.index++;
-                        break;
-                }
-                context.count++;
-            }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
-            }
-        }
-        if (context.dimensions.length == 0) {
-            return results[0];
-        }
-        return results;
     }
 };
 
@@ -569,7 +507,7 @@ mnn.Utility = class {
         return value.toString();
     }
 
-    static createTensor(param, kind) {
+    static createTensor(param, category) {
         const type = new mnn.TensorType(param.dataType, new mnn.TensorShape(param.dims), param.dataFormat);
         let data = null;
         switch (type.dataType) {
@@ -581,7 +519,7 @@ mnn.Utility = class {
             case 'float32': data = param.float32s; break;
             default: throw new mnn.Error("Unsupported blob data type '" + JSON.stringify(type.dataType) + "'.");
         }
-        return new mnn.Tensor(kind, type, data);
+        return new mnn.Tensor(category, type, data);
     }
 };
 

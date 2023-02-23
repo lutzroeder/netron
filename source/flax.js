@@ -1,8 +1,8 @@
 
 // Experimental
 
-var flax = flax || {};
-var python = python || require('./python');
+var flax = {};
+var python = require('./python');
 
 flax.ModelFactory = class {
 
@@ -14,19 +14,18 @@ flax.ModelFactory = class {
                 return 'msgpack.map';
             }
         }
-        return '';
+        return null;
     }
 
     open(context) {
-        return context.require('./msgpack').then((msgpack) => {
+        return Promise.resolve().then(() => {
             const stream = context.stream;
-            const buffer = stream.peek();
-            const execution = new python.Execution(null);
-            const reader = msgpack.BinaryReader.open(buffer, (code, data) => {
+            const packed = stream.peek();
+            // https://github.com/google/flax/blob/main/flax/serialization.py
+            const ext_hook = (code, data) => {
                 switch (code) {
                     case 1: { // _MsgpackExtType.ndarray
-                        const reader = msgpack.BinaryReader.open(data);
-                        const tuple = reader.read();
+                        const tuple = execution.invoke('msgpack.unpackb', [ data ]);
                         const dtype = execution.invoke('numpy.dtype', [ tuple[1] ]);
                         dtype.byteorder = '<';
                         return execution.invoke('numpy.ndarray', [ tuple[0], dtype, tuple[2] ]);
@@ -35,8 +34,9 @@ flax.ModelFactory = class {
                         throw new flax.Error("Unsupported MessagePack extension '" + code + "'.");
                     }
                 }
-            });
-            const obj = reader.read();
+            };
+            const execution = new python.Execution();
+            const obj = execution.invoke('msgpack.unpackb', [ packed, ext_hook ]);
             return new flax.Model(obj);
         });
     }
@@ -61,17 +61,40 @@ flax.Graph = class {
 
     constructor(obj) {
         const layers = new Map();
-        const flatten = (path, obj) => {
-            if (Object.entries(obj).every((entry) => entry[1].__class__ && entry[1].__class__.__module__ === 'numpy' && entry[1].__class__.__name__ === 'ndarray')) {
-                layers.set(path.join('.'), obj);
+        const layer = (path) => {
+            const name = path.join('.');
+            if (!layers.has(name)) {
+                layers.set(name, {});
             }
-            else {
-                for (const pair of Object.entries(obj)) {
-                    flatten(path.concat(pair[0]), pair[1]);
+            return layers.get(name);
+        };
+        const flatten = (path, obj) => {
+            for (const entry of Object.entries(obj)) {
+                const name = entry[0];
+                const value = entry[1];
+                if (flax.Utility.isTensor(value)) {
+                    const obj = layer(path);
+                    obj[name] = value;
+                }
+                else if (Array.isArray(value)) {
+                    const obj = layer(path);
+                    obj[name] = value;
+                }
+                else if (Object(value) === value) {
+                    flatten(path.concat(name), value);
+                }
+                else {
+                    const obj = layer(path);
+                    obj[name] = value;
                 }
             }
         };
-        flatten([], obj);
+        if (Array.isArray(obj)) {
+            layer([]).value = obj;
+        }
+        else {
+            flatten([], obj);
+        }
         this._nodes = Array.from(layers).map((entry) => new flax.Node(entry[0], entry[1]));
     }
 
@@ -133,16 +156,28 @@ flax.Argument = class {
 
 flax.Node = class {
 
-    constructor(name, weights) {
+    constructor(name, layer) {
         this._name = name;
         this._type = { name: 'Module' };
+        this._attributes = [];
         this._inputs = [];
-        for (const entry of Object.entries(weights)) {
+        for (const entry of Object.entries(layer)) {
             const name = entry[0];
-            const tensor = new flax.Tensor(entry[1]);
-            const argument = new flax.Argument(this._name + '.' + name, tensor);
-            const parameter = new flax.Parameter(name, [ argument ]);
-            this._inputs.push(parameter);
+            const value = entry[1];
+            if (flax.Utility.isTensor(value)) {
+                const tensor = new flax.Tensor(value);
+                const argument = new flax.Argument(this._name + '.' + name, tensor);
+                const parameter = new flax.Parameter(name, [ argument ]);
+                this._inputs.push(parameter);
+            }
+            else if (Array.isArray(value)) {
+                const attribute = new flax.Attribute(name, value);
+                this._attributes.push(attribute);
+            }
+            else {
+                const attribute = new flax.Attribute(name, value);
+                this._attributes.push(attribute);
+            }
         }
     }
 
@@ -163,7 +198,23 @@ flax.Node = class {
     }
 
     get attributes() {
-        return [];
+        return this._attributes;
+    }
+};
+
+flax.Attribute = class {
+
+    constructor(name, value) {
+        this._name = name;
+        this._value = value;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get value() {
+        return this._value;
     }
 };
 
@@ -218,141 +269,47 @@ flax.Tensor = class {
         return this._type;
     }
 
-    get state() {
-        return this._context().state;
+    get layout() {
+        switch (this._type.dataType) {
+            case 'string':
+            case 'object':
+                return '|';
+            default:
+                return this._byteorder;
+        }
     }
 
-    get value() {
-        const context = this._context();
-        if (context.state) {
-            return null;
-        }
-        context.limit = Number.MAX_SAFE_INTEGER;
-        return this._decode(context, 0);
-    }
-
-    toString() {
-        const context = this._context();
-        if (context.state) {
-            return '';
-        }
-        context.limit = 10000;
-        const value = this._decode(context, 0);
-        return flax.Tensor._stringify(value, '', '    ');
-    }
-
-    _context() {
-        const context = {};
-        context.index = 0;
-        context.count = 0;
-        context.state = null;
-        if (this._byteorder !== '<' && this._byteorder !== '>' && this._type.dataType !== 'uint8' && this._type.dataType !== 'int8') {
-            context.state = 'Tensor byte order is not supported.';
-            return context;
-        }
-        if (!this._data || this._data.length == 0) {
-            context.state = 'Tensor data is empty.';
-            return context;
-        }
-        context.itemSize = this._itemsize;
-        context.dimensions = this._type.shape.dimensions;
-        context.dataType = this._type.dataType;
-        context.littleEndian = this._byteorder == '<';
-        context.data = this._data;
-        context.rawData = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-        return context;
-    }
-
-    _decode(context, dimension) {
-        const littleEndian = context.littleEndian;
-        const shape = context.dimensions.length == 0 ? [ 1 ] : context.dimensions;
-        const results = [];
-        const size = shape[dimension];
-        if (dimension == shape.length - 1) {
-            for (let i = 0; i < size; i++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                if (context.rawData) {
-                    switch (context.dataType) {
-                        case 'float16':
-                            results.push(context.rawData.getFloat16(context.index, littleEndian));
-                            break;
-                        case 'float32':
-                            results.push(context.rawData.getFloat32(context.index, littleEndian));
-                            break;
-                        case 'float64':
-                            results.push(context.rawData.getFloat64(context.index, littleEndian));
-                            break;
-                        case 'int8':
-                            results.push(context.rawData.getInt8(context.index, littleEndian));
-                            break;
-                        case 'int16':
-                            results.push(context.rawData.getInt16(context.index, littleEndian));
-                            break;
-                        case 'int32':
-                            results.push(context.rawData.getInt32(context.index, littleEndian));
-                            break;
-                        case 'int64':
-                            results.push(context.rawData.getInt64(context.index, littleEndian));
-                            break;
-                        case 'uint8':
-                            results.push(context.rawData.getUint8(context.index, littleEndian));
-                            break;
-                        case 'uint16':
-                            results.push(context.rawData.getUint16(context.index, littleEndian));
-                            break;
-                        case 'uint32':
-                            results.push(context.rawData.getUint32(context.index, littleEndian));
-                            break;
-                        default:
-                            throw new flax.Error("Unsupported tensor data type '" + context.dataType + "'.");
+    get values() {
+        switch (this._type.dataType) {
+            case 'string': {
+                if (this._data instanceof Uint8Array) {
+                    const data = this._data;
+                    const decoder = new TextDecoder('utf-8');
+                    const size = this._type.shape.dimensions.reduce((a, b) => a * b, 1);
+                    this._data = new Array(size);
+                    let offset = 0;
+                    for (let i = 0; i < size; i++) {
+                        const buffer = data.subarray(offset, offset + this._itemsize);
+                        const index = buffer.indexOf(0);
+                        this._data[i] = decoder.decode(index >= 0 ? buffer.subarray(0, index) : buffer);
+                        offset += this._itemsize;
                     }
-                    context.index += context.itemSize;
-                    context.count++;
                 }
+                return this._data;
             }
-        }
-        else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
-                    results.push('...');
-                    return results;
-                }
-                results.push(this._decode(context, dimension + 1));
+            case 'object': {
+                return this._data;
             }
+            default:
+                return this._data;
         }
-        if (context.dimensions.length == 0) {
-            return results[0];
-        }
-        return results;
     }
+};
 
-    static _stringify(value, indentation, indent) {
-        if (Array.isArray(value)) {
-            const result = [];
-            result.push(indentation + '[');
-            const items = value.map((item) => flax.Tensor._stringify(item, indentation + indent, indent));
-            if (items.length > 0) {
-                result.push(items.join(',\n'));
-            }
-            result.push(indentation + ']');
-            return result.join('\n');
-        }
-        if (typeof value == 'string') {
-            return indentation + value;
-        }
-        if (value == Infinity) {
-            return indentation + 'Infinity';
-        }
-        if (value == -Infinity) {
-            return indentation + '-Infinity';
-        }
-        if (isNaN(value)) {
-            return indentation + 'NaN';
-        }
-        return indentation + value.toString();
+flax.Utility = class {
+
+    static isTensor(obj) {
+        return obj && obj.__class__ && obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'ndarray';
     }
 };
 

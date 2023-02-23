@@ -360,7 +360,7 @@
     "name": "BatchNormalization",
     "module": "tensorflow.keras.layers",
     "category": "Normalization",
-    "description": "Layer that normalizes its inputs.\n\nBatch normalization applies a transformation that maintains the mean output\nclose to 0 and the output standard deviation close to 1.\n\nImportantly, batch normalization works differently during training and\nduring inference.\n\n**During training** (i.e. when using `fit()` or when calling the layer/model\nwith the argument `training=True`), the layer normalizes its output using\nthe mean and standard deviation of the current batch of inputs. That is to\nsay, for each channel being normalized, the layer returns\n`gamma * (batch - mean(batch)) / sqrt(var(batch) + epsilon) + beta`, where:\n\n- `epsilon` is small constant (configurable as part of the constructor\narguments)\n- `gamma` is a learned scaling factor (initialized as 1), which\ncan be disabled by passing `scale=False` to the constructor.\n- `beta` is a learned offset factor (initialized as 0), which\ncan be disabled by passing `center=False` to the constructor.\n\n**During inference** (i.e. when using `evaluate()` or `predict()` or when\ncalling the layer/model with the argument `training=False` (which is the\ndefault), the layer normalizes its output using a moving average of the\nmean and standard deviation of the batches it has seen during training. That\nis to say, it returns\n`gamma * (batch - self.moving_mean) / sqrt(self.moving_var+epsilon) + beta`.\n\n`self.moving_mean` and `self.moving_var` are non-trainable variables that\nare updated each time the layer in called in training mode, as such:\n\n- `moving_mean = moving_mean * momentum + mean(batch) * (1 - momentum)`\n- `moving_var = moving_var * momentum + var(batch) * (1 - momentum)`\n\nAs such, the layer will only normalize its inputs during inference\n*after having been trained on data that has similar statistics as the\ninference data*.",
+    "description": "Layer that normalizes its inputs.\n\nBatch normalization applies a transformation that maintains the mean output\nclose to 0 and the output standard deviation close to 1.\n\nImportantly, batch normalization works differently during training and\nduring inference.\n\n**During training** (i.e. when using `fit()` or when calling the layer/model\nwith the argument `training=True`), the layer normalizes its output using\nthe mean and standard deviation of the current batch of inputs. That is to\nsay, for each channel being normalized, the layer returns\n`gamma * (batch - mean(batch)) / sqrt(var(batch) + epsilon) + beta`, where:\n\n- `epsilon` is small constant (configurable as part of the constructor\narguments)\n- `gamma` is a learned scaling factor (initialized as 1), which\ncan be disabled by passing `scale=False` to the constructor.\n- `beta` is a learned offset factor (initialized as 0), which\ncan be disabled by passing `center=False` to the constructor.\n\n**During inference** (i.e. when using `evaluate()` or `predict()` or when\ncalling the layer/model with the argument `training=False` (which is the\ndefault), the layer normalizes its output using a moving average of the\nmean and standard deviation of the batches it has seen during training. That\nis to say, it returns\n`gamma * (batch - self.moving_mean) / sqrt(self.moving_var+epsilon) + beta`.\n\n`self.moving_mean` and `self.moving_var` are non-trainable variables that\nare updated each time the layer in called in training mode, as such:\n\n- `moving_mean = moving_mean * momentum + mean(batch) * (1 - momentum)`\n- `moving_var = moving_var * momentum + var(batch) * (1 - momentum)`\n\nAs such, the layer will only normalize its inputs during inference\n*after having been trained on data that has similar statistics as the\ninference data*.\n\nWhen `synchronized=True` is set and if this layer is used within a\n`tf.distribute` strategy, there will be an `allreduce` call\nto aggregate batch statistics across all replicas at every\ntraining step. Setting `synchronized` has no impact when the model is\ntrained without specifying any distribution strategy.\n\nExample usage:\n\n```python\nstrategy = tf.distribute.MirroredStrategy()\n\nwith strategy.scope():\n  model = tf.keras.Sequential()\n  model.add(tf.keras.layers.Dense(16))\n  model.add(tf.keras.layers.BatchNormalization(synchronized=True))\n```",
     "attributes": [
       {
         "default": -1,
@@ -470,6 +470,10 @@
       {
         "description": "A function taking the `Tensor` containing the (dynamic) shape of\n    the input tensor and returning a pair (scale, bias) to apply to the\n    normalized values (before gamma and beta), only during training. For\n    example, if axis==-1,\n      `adjustment = lambda shape: (\n        tf.random.uniform(shape[-1:], 0.93, 1.07),\n        tf.random.uniform(shape[-1:], -0.1, 0.1))` will scale the normalized\n          value by up to 7% up or down, then shift the result by up to 0.1\n          (with independent scaling and bias for each feature but shared\n          across all examples), and finally apply gamma and/or beta. If\n          `None`, no adjustment is applied. Cannot be specified if\n          virtual_batch_size is specified.",
         "name": "adjustment"
+      },
+      {
+        "name": "synchronized",
+        "description": "If True, synchronizes the global batch statistics (mean and\n    variance) for the layer across all devices at each training step in a\n    distributed training strategy. If False, each replica uses its own\n    local batch statistics. Only relevant when used inside a\n    `tf.distribute` strategy."
       }
     ],
     "inputs": [
@@ -593,7 +597,7 @@
       },
       {
         "default": "channels_last",
-        "description": "A string,\n    one of `channels_last` (default) or `channels_first`.",
+        "description": "A string, one of `channels_last` (default) or\n    `channels_first`. The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape `(batch_size, width,\n    channels)` while `channels_first` corresponds to inputs with shape\n    `(batch_size, channels, width)`. Note that the `channels_first` format\n    is currently not supported by TensorFlow on CPU.",
         "name": "data_format"
       },
       {
@@ -721,7 +725,7 @@
       },
       {
         "default": "channels_last",
-        "description": "A string, one of `channels_last` (default) or\n    `channels_first`.  The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape `(batch_size, height,\n    width, channels)` while `channels_first` corresponds to inputs with\n    shape `(batch_size, channels, height, width)`. It defaults to the\n    `image_data_format` value found in your Keras config file at\n    `~/.keras/keras.json`. If you never set it, then it will be\n    `channels_last`.",
+        "description": "A string, one of `channels_last` (default) or\n    `channels_first`.  The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape `(batch_size, height,\n    width, channels)` while `channels_first` corresponds to inputs with\n    shape `(batch_size, channels, height, width)`. It defaults to the\n    `image_data_format` value found in your Keras config file at\n    `~/.keras/keras.json`. If you never set it, then it will be\n    `channels_last`. Note that the `channels_first` format is currently not\n    supported by TensorFlow on CPU.",
         "name": "data_format"
       },
       {
@@ -976,7 +980,7 @@
         "name": "padding"
       },
       {
-        "description": "A string, one of `channels_last` (default) or\n    `channels_first`.  The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape `batch_shape +\n    (spatial_dim1, spatial_dim2, spatial_dim3, channels)` while\n    `channels_first` corresponds to inputs with shape `batch_shape +\n    (channels, spatial_dim1, spatial_dim2, spatial_dim3)`. It defaults to\n    the `image_data_format` value found in your Keras config file at\n    `~/.keras/keras.json`. If you never set it, then it will be\n    \"channels_last\".",
+        "description": "A string, one of `channels_last` (default) or\n    `channels_first`.  The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape `batch_shape +\n    (spatial_dim1, spatial_dim2, spatial_dim3, channels)` while\n    `channels_first` corresponds to inputs with shape `batch_shape +\n    (channels, spatial_dim1, spatial_dim2, spatial_dim3)`. It defaults to\n    the `image_data_format` value found in your Keras config file at\n    `~/.keras/keras.json`. If you never set it, then it will be\n    \"channels_last\". Note that the `channels_first` format is currently not\n    supported by TensorFlow on CPU.",
         "name": "data_format"
       },
       {
@@ -1223,7 +1227,7 @@
       },
       {
         "default": "channels_last",
-        "description": "A string, one of `channels_last` (default) or\n    `channels_first`.  The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape `(batch_size, height,\n    width, channels)` while `channels_first` corresponds to inputs with\n    shape `(batch_size, channels, height, width)`. It defaults to the\n    `image_data_format` value found in your Keras config file at\n    `~/.keras/keras.json`. If you never set it, then it will be\n    `channels_last`.",
+        "description": "A string, one of `channels_last` (default) or\n    `channels_first`.  The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape `(batch_size, height,\n    width, channels)` while `channels_first` corresponds to inputs with\n    shape `(batch_size, channels, height, width)`. It defaults to the\n    `image_data_format` value found in your Keras config file at\n    `~/.keras/keras.json`. If you never set it, then it will be\n    `channels_last`. Note that the `channels_first` format is currently not\n    supported by TensorFlow on CPU.",
         "name": "data_format"
       },
       {
@@ -1575,7 +1579,7 @@
       },
       {
         "default": "linear",
-        "description": "Activation function to use.\n    If you don't specify anything, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
+        "description": "Activation function to use.\n        If you don't specify anything, no activation is applied\n        (ie. \"linear\" activation: `a(x) = x`).",
         "name": "activation"
       },
       {
@@ -1608,7 +1612,7 @@
         "visible": false
       },
       {
-        "description": "Regularizer function applied to\n    the `kernel` weights matrix.",
+        "description": "Regularizer function applied to\n        the `kernel` weights matrix.",
         "name": "kernel_regularizer",
         "visible": false
       },
@@ -1618,12 +1622,12 @@
         "visible": false
       },
       {
-        "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").",
+        "description": "Regularizer function applied to\n        the output of the layer (its \"activation\").",
         "name": "activity_regularizer",
         "visible": false
       },
       {
-        "description": "Constraint function applied to\n    the `kernel` weights matrix.",
+        "description": "Constraint function applied to\n        the `kernel` weights matrix.",
         "name": "kernel_constraint"
       },
       {
@@ -1882,6 +1886,10 @@
       {
         "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").\n    (see [regularizer](https://keras.io/regularizers)).",
         "name": "activity_regularizer"
+      },
+      {
+        "name": "sparse",
+        "description": "If True, calling this layer returns a `tf.SparseTensor`. If False,\n    the layer returns a dense `tf.Tensor`. For an entry with no features in\n    a sparse tensor (entry with value 0), the embedding vector of index 0 is\n    returned by default."
       }
     ],
     "inputs": [
@@ -2890,7 +2898,7 @@
         "name": "bias_initializer"
       },
       {
-        "description": "Boolean (default `True`). If True, add 1 to the bias of\n    the forget gate at initialization. Setting it to true will also force\n    `bias_initializer=\"zeros\"`. This is recommended in [Jozefowicz et\n      al.](http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf)",
+        "description": "Boolean (default `True`). If True, add 1 to the bias of\n    the forget gate at initialization. Setting it to true will also force\n    `bias_initializer=\"zeros\"`. This is recommended in [Jozefowicz et\n      al.](https://github.com/mlresearch/v37/blob/gh-pages/jozefowicz15.pdf)",
         "name": "unit_forget_bias"
       },
       {
@@ -3108,7 +3116,7 @@
   {
     "name": "MultiHeadAttention",
     "module": "tensorflow.keras.layers",
-    "description": "MultiHeadAttention layer.\n\nThis is an implementation of multi-headed attention as described in the\npaper \"Attention is all you Need\" (Vaswani et al., 2017).\nIf `query`, `key,` `value` are the same, then\nthis is self-attention. Each timestep in `query` attends to the\ncorresponding sequence in `key`, and returns a fixed-width vector.\n\nThis layer first projects `query`, `key` and `value`. These are\n(effectively) a list of tensors of length `num_attention_heads`, where the\ncorresponding shapes are `(batch_size, <query dimensions>, key_dim)`,\n`(batch_size, <key/value dimensions>, key_dim)`,\n`(batch_size, <key/value dimensions>, value_dim)`.\n\nThen, the query and key tensors are dot-producted and scaled. These are\nsoftmaxed to obtain attention probabilities. The value tensors are then\ninterpolated by these probabilities, then concatenated back to a single\ntensor.\n\nFinally, the result tensor with the last dimension as value_dim can take an\nlinear projection and return.\n\nWhen using MultiHeadAttention inside a custom Layer, the custom Layer must\nimplement `build()` and call MultiHeadAttention's `_build_from_signature()`.\nThis enables weights to be restored correctly when the model is loaded.\nTODO(b/172609172): link to documentation about calling custom build\nfunctions when used in a custom Layer.",
+    "description": "MultiHeadAttention layer.\n\nThis is an implementation of multi-headed attention as described in the\npaper \"Attention is all you Need\" (Vaswani et al., 2017).\nIf `query`, `key,` `value` are the same, then\nthis is self-attention. Each timestep in `query` attends to the\ncorresponding sequence in `key`, and returns a fixed-width vector.\n\nThis layer first projects `query`, `key` and `value`. These are\n(effectively) a list of tensors of length `num_attention_heads`, where the\ncorresponding shapes are `(batch_size, <query dimensions>, key_dim)`,\n`(batch_size, <key/value dimensions>, key_dim)`,\n`(batch_size, <key/value dimensions>, value_dim)`.\n\nThen, the query and key tensors are dot-producted and scaled. These are\nsoftmaxed to obtain attention probabilities. The value tensors are then\ninterpolated by these probabilities, then concatenated back to a single\ntensor.\n\nFinally, the result tensor with the last dimension as value_dim can take an\nlinear projection and return.\n\nWhen using `MultiHeadAttention` inside a custom layer, the custom layer must\nimplement its own `build()` method and call `MultiHeadAttention`'s\n`_build_from_signature()` there.\nThis enables weights to be restored correctly when the model is loaded.",
     "attributes": [
       {
         "description": "Number of attention heads.",
@@ -3131,11 +3139,11 @@
         "name": "use_bias"
       },
       {
-        "description": "The expected shape of an output tensor, besides the batch\n    and sequence dims. If not specified, projects back to the key feature\n    dim.",
+        "description": "The expected shape of an output tensor, besides the batch\n        and sequence dims. If not specified, projects back to the query\n        feature dim (the query input's last dimension).",
         "name": "output_shape"
       },
       {
-        "description": "axes over which the attention is applied. `None` means\n    attention over all axes, but batch, heads, and features.",
+        "description": "axes over which the attention is applied. `None` means\n        attention over all axes, but batch, heads, and features.",
         "name": "attention_axes"
       },
       {
@@ -3435,7 +3443,7 @@
     ],
     "examples": [
       {
-        "code": "# First, let's define a RNN Cell, as a layer subclass.\n\nclass MinimalRNNCell(keras.layers.Layer):\n\n    def __init__(self, units, **kwargs):\n        self.units = units\n        self.state_size = units\n        super(MinimalRNNCell, self).__init__(**kwargs)\n\n    def build(self, input_shape):\n        self.kernel = self.add_weight(shape=(input_shape[-1], self.units),\n                                      initializer='uniform',\n                                      name='kernel')\n        self.recurrent_kernel = self.add_weight(\n            shape=(self.units, self.units),\n            initializer='uniform',\n            name='recurrent_kernel')\n        self.built = True\n\n    def call(self, inputs, states):\n        prev_output = states[0]\n        h = backend.dot(inputs, self.kernel)\n        output = h + backend.dot(prev_output, self.recurrent_kernel)\n        return output, [output]\n\n# Let's use this cell in a RNN layer:\n\ncell = MinimalRNNCell(32)\nx = keras.Input((None, 5))\nlayer = RNN(cell)\ny = layer(x)\n\n# Here's how to use the cell to build a stacked RNN:\n\ncells = [MinimalRNNCell(32), MinimalRNNCell(64)]\nx = keras.Input((None, 5))\nlayer = RNN(cells)\ny = layer(x)"
+        "code": "from keras.layers import RNN\nfrom keras import backend\n\n# First, let's define a RNN Cell, as a layer subclass.\nclass MinimalRNNCell(keras.layers.Layer):\n\n    def __init__(self, units, **kwargs):\n        self.units = units\n        self.state_size = units\n        super(MinimalRNNCell, self).__init__(**kwargs)\n\n    def build(self, input_shape):\n        self.kernel = self.add_weight(shape=(input_shape[-1], self.units),\n                                      initializer='uniform',\n                                      name='kernel')\n        self.recurrent_kernel = self.add_weight(\n            shape=(self.units, self.units),\n            initializer='uniform',\n            name='recurrent_kernel')\n        self.built = True\n\n    def call(self, inputs, states):\n        prev_output = states[0]\n        h = backend.dot(inputs, self.kernel)\n        output = h + backend.dot(prev_output, self.recurrent_kernel)\n        return output, [output]\n\n# Let's use this cell in a RNN layer:\n\ncell = MinimalRNNCell(32)\nx = keras.Input((None, 5))\nlayer = RNN(cell)\ny = layer(x)\n\n# Here's how to use the cell to build a stacked RNN:\n\ncells = [MinimalRNNCell(32), MinimalRNNCell(64)]\nx = keras.Input((None, 5))\nlayer = RNN(cells)\ny = layer(x)"
       }
     ]
   },

@@ -63,7 +63,7 @@ const version = configuration.version;
 const productName = configuration.productName;
 const publisher = configuration.author.name;
 const packageIdentifier = publisher.replace(' ', '') + '.' + productName;
-const license = 'Copyright (c) ' + publisher;
+const copyright = 'Copyright (c) ' + publisher;
 const repository = 'https://github.com/' + configuration.repository;
 const url = repository + '/releases/download/v' + version + '/' + productName + '-Setup-' + version + '.exe';
 const extensions = configuration.build.fileAssociations.map((entry) => '- ' + entry.ext).sort().join('\n');
@@ -71,19 +71,21 @@ const extensions = configuration.build.fileAssociations.map((entry) => '- ' + en
 get(url).then((data) => {
     const sha256 = crypto.createHash('sha256').update(data).digest('hex').toUpperCase();
     const versionDir = path.join(manifestDir, publisher[0].toLowerCase(), publisher.replace(' ', ''), productName, version);
-    if (!fs.existsSync(versionDir)){
+    if (!fs.existsSync(versionDir)) {
         fs.mkdirSync(versionDir, { recursive: true });
     }
     const manifestFile = path.join(versionDir, packageIdentifier);
     fs.writeFileSync(manifestFile + '.yaml', [
+        '# yaml-language-server: $schema=https://aka.ms/winget-manifest.version.1.2.0.schema.json',
         'PackageIdentifier: ' + packageIdentifier,
         'PackageVersion: ' + version,
         'DefaultLocale: en-US',
         'ManifestType: version',
-        'ManifestVersion: 1.0.0',
+        'ManifestVersion: 1.2.0',
         ''
     ].join('\n'));
     fs.writeFileSync(manifestFile + '.installer.yaml', [
+        '# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.2.0.schema.json',
         'PackageIdentifier: ' + packageIdentifier,
         'PackageVersion: ' + version,
         'Platform:',
@@ -113,10 +115,11 @@ get(url).then((data) => {
         'FileExtensions:',
         extensions,
         'ManifestType: installer',
-        'ManifestVersion: 1.0.0',
+        'ManifestVersion: 1.2.0',
         ''
     ].join('\n'));
     fs.writeFileSync(manifestFile + '.locale.en-US.yaml', [
+        '# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.2.0.schema.json',
         'PackageIdentifier: ' + packageIdentifier,
         'PackageVersion: ' + version,
         'PackageName: ' + productName,
@@ -126,8 +129,8 @@ get(url).then((data) => {
         'PublisherUrl: ' + repository,
         'PublisherSupportUrl: ' + repository + '/issues',
         'Author: ' + publisher,
-        'License: ' + license,
-        'Copyright: ' + license,
+        'License: ' + configuration.license,
+        'Copyright: ' + copyright,
         'CopyrightUrl: ' + repository + '/blob/main/LICENSE',
         'ShortDescription: ' + configuration.description,
         'Description: ' + configuration.description,
@@ -137,7 +140,7 @@ get(url).then((data) => {
         '- deep-learning',
         '- neural-network',
         'ManifestType: defaultLocale',
-        'ManifestVersion: 1.0.0',
+        'ManifestVersion: 1.2.0',
         ''
     ].join('\n'));
 }).catch((err) => {

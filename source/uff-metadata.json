@@ -109,6 +109,10 @@
     ]
   },
   {
+    "name": "Softmax",
+    "category": "Activation"
+  },
+  {
     "name": "Squeeze",
     "category": "Transform"
   },
