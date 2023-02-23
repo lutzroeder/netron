@@ -7,9 +7,6 @@ host.BrowserHost = class {
         this._window = window;
         this._navigator = window.navigator;
         this._document = window.document;
-        if (this._window.location.hostname.endsWith('.github.io')) {
-            this._window.location.replace('https://netron.app');
-        }
         this._window.eval = () => {
             throw new Error('window.eval() not supported.');
         };
@@ -32,25 +29,19 @@ host.BrowserHost = class {
         if (!/^\d\.\d\.\d$/.test(this.version)) {
             throw new Error('Invalid version.');
         }
-        this.window.require = (id) => {
-            const name = id.startsWith('./') ? id.substring(2) : id;
-            const value = this.window[name];
-            if (value) {
-                return value;
-            }
-            throw new Error("Module '" + id + "' not found.");
+    }
+
+    static create() {
+        const value = new host.BrowserHost();
+        const preload = (ids) => {
+            return Promise.all(ids.map((id) => value.require(id)));
         };
-        const require = (ids) => {
-            return Promise.all(ids.map((id) => this.require(id)));
-        };
-        require([ 'base', 'text', 'flatbuffers', 'flexbuffers', 'zip',  'tar', 'python', 'dagre' ]).then(() => {
-            return require([ 'json', 'xml', 'protobuf', 'hdf5', 'grapher' ]).then(() => {
-                return require([ 'view' ]).then(() => {
-                    this.window.__view__ = new this.window.view.View(this);
-                });
+        return preload([ 'base', 'text', 'flatbuffers', 'flexbuffers', 'zip',  'tar', 'python', 'dagre' ]).then(() => {
+            return preload([ 'json', 'xml', 'protobuf', 'hdf5', 'grapher' ]).then(() => {
+                return preload([ 'view' ]).then(() => value);
             });
         }).catch((error) => {
-            this._message(error.message);
+            value._message(error.message);
         });
     }
 
@@ -866,6 +857,22 @@ if (!('scrollBehavior' in window.document.documentElement.style)) {
     };
 }
 
-window.addEventListener('load', () => {
-    window.__host__ = new host.BrowserHost();
-});
+if (window.location.hostname.endsWith('.github.io')) {
+    window.location.replace('https://netron.app');
+}
+else {
+    window.require = (id) => {
+        const name = id.startsWith('./') ? id.substring(2) : id;
+        const value = window[name];
+        if (value) {
+            return value;
+        }
+        throw new Error("Module '" + id + "' not found.");
+    };
+    window.addEventListener('load', () => {
+        host.BrowserHost.create().then((host) => {
+            const view = require('./view');
+            window.__view__ = new view.View(host);
+        });
+    });
+}
