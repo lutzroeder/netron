@@ -11748,7 +11748,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
-      { "name": "correction", "type": "int64", "optional": true, "default": null },
+      { "name": "correction", "type": "Scalar", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -11760,7 +11760,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname[1]" },
-      { "name": "correction", "type": "int64", "optional": true, "default": null },
+      { "name": "correction", "type": "Scalar", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -11772,7 +11772,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname[1]" },
-      { "name": "correction", "type": "int64", "optional": true, "default": null },
+      { "name": "correction", "type": "Scalar", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -11784,7 +11784,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
-      { "name": "correction", "type": "int64", "optional": true, "default": null },
+      { "name": "correction", "type": "Scalar", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -11855,7 +11855,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
-      { "name": "correction", "type": "int64", "optional": true, "default": null },
+      { "name": "correction", "type": "Scalar", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -11868,7 +11868,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname[1]" },
-      { "name": "correction", "type": "int64", "optional": true, "default": null },
+      { "name": "correction", "type": "Scalar", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -13315,7 +13315,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
-      { "name": "correction", "type": "int64", "optional": true, "default": null },
+      { "name": "correction", "type": "Scalar", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -13327,7 +13327,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname[1]" },
-      { "name": "correction", "type": "int64", "default": null, "optional": true },
+      { "name": "correction", "type": "Scalar", "default": null, "optional": true },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -13339,7 +13339,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname[1]" },
-      { "name": "correction", "type": "int64", "optional": true, "default": null },
+      { "name": "correction", "type": "Scalar", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -13351,7 +13351,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
-      { "name": "correction", "type": "int64", "optional": true, "default": null },
+      { "name": "correction", "type": "Scalar", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -13422,7 +13422,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
-      { "name": "correction", "type": "int64", "optional": true, "default": null },
+      { "name": "correction", "type": "Scalar", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -13435,7 +13435,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname[1]" },
-      { "name": "correction", "type": "int64", "optional": true, "default": null },
+      { "name": "correction", "type": "Scalar", "optional": true, "default": null },
       { "name": "keepdim", "type": "boolean", "default": false }
     ],
     "outputs": [
