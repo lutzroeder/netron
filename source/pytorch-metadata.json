@@ -12558,7 +12558,7 @@
     "name": "aten::topk",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "k", "type": "int64" },
+      { "name": "k", "type": "SymInt" },
       { "name": "dim", "type": "int64", "default": -1 },
       { "name": "largest", "type": "boolean", "default": true },
       { "name": "sorted", "type": "boolean", "default": true }
@@ -12572,7 +12572,7 @@
     "name": "aten::topk.values",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "k", "type": "int64" },
+      { "name": "k", "type": "SymInt" },
       { "name": "dim", "type": "int64", "default": -1 },
       { "name": "largest", "type": "boolean", "default": true },
       { "name": "sorted", "type": "boolean", "default": true }
