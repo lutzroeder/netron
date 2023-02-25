@@ -3434,6 +3434,13 @@
   },
   {
     "type":     "onnx",
+    "target":   "decoder_model_merged.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/10830273/decoder_model_merged.onnx.zip[decoder_model_merged.onnx]",
+    "format":   "ONNX v8",
+    "link":     "https://github.com/lutzroeder/netron/issues/1052"
+  },
+  {
+    "type":     "onnx",
     "target":   "denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx]",
     "format":   "ONNX v3",
