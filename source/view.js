@@ -412,7 +412,9 @@ view.View = class {
                 y: e.clientY
             };
             const background = this._element('background');
-            background.setAttribute('cursor', 'grabbing');
+            if (background) {
+                background.setAttribute('cursor', 'grabbing');
+            }
             e.stopImmediatePropagation();
             const mouseMoveHandler = (e) => {
                 e.preventDefault();
@@ -427,7 +429,9 @@ view.View = class {
                 }
             };
             const mouseUpHandler = () => {
-                background.setAttribute('cursor', 'default');
+                if (background) {
+                    background.setAttribute('cursor', 'default');
+                }
                 container.removeEventListener('mouseup', mouseUpHandler);
                 container.removeEventListener('mouseleave', mouseUpHandler);
                 container.removeEventListener('mousemove', mouseMoveHandler);
