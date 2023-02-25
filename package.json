@@ -13,9 +13,10 @@
     "repository": "lutzroeder/netron",
     "main": "source/app.js",
     "scripts": {
-        "postinstall": "electron-builder install-app-deps",
         "start": "[ -d node_modules ] || npm install && npx electron .",
-        "server": "python ./publish/python.py build start"
+        "server": "python ./publish/python.py build start",
+        "test": "node ./test/models.js",
+        "lint": "[ -d node_modules ] || npm install && npx eslint source/*.js test/*.js publish/*.js tools/*.js && python -m pip install --upgrade --quiet pylint && python -m pylint -sn source/*.py publish/*.py test/*.py tools/*.py"
     },
     "dependencies": {
         "electron-updater": "5.3.0"

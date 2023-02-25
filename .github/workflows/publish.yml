@@ -50,6 +50,7 @@ jobs:
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
         run: |
+          npx electron-builder install-app-deps
           case "${{ matrix.os }}" in
             macos*)
               mkdir -p ~/.private_keys

@@ -43,6 +43,7 @@ jobs:
       - name: Build Electron
         shell: bash
         run: |
+          npx electron-builder install-app-deps
           case "${{ matrix.os }}" in
             macos*)
               CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac --universal --publish never -c.mac.identity=null

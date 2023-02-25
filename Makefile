@@ -49,6 +49,7 @@ install_python: build_python
 	pip install --force-reinstall dist/pypi/*.whl
 
 build_electron: install
+	npx electron-builder install-app-deps
 	npx electron-builder --mac --universal --publish never -c.mac.identity=null
 	npx electron-builder --win --x64 --arm64 --publish never
 	npx electron-builder --linux appimage --x64 --publish never
@@ -87,6 +88,7 @@ publish_python: build_python
 	python -m twine upload --non-interactive --skip-existing --verbose dist/pypi/*.whl
 
 publish_electron: install
+	npx electron-builder install-app-deps
 	npx electron-builder --mac --universal --publish always
 	npx electron-builder --win --x64 --arm64 --publish always
 	npx electron-builder --linux appimage --x64 --publish always
