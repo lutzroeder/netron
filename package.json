@@ -14,9 +14,11 @@
     "main": "source/app.js",
     "scripts": {
         "start": "[ -d node_modules ] || npm install && npx electron .",
-        "server": "python ./publish/python.py build start",
-        "test": "node ./test/models.js",
-        "lint": "[ -d node_modules ] || npm install && npx eslint source/*.js test/*.js publish/*.js tools/*.js && python -m pip install --upgrade --quiet pylint && python -m pylint -sn source/*.py publish/*.py test/*.py tools/*.py"
+        "server": "python publish/python.py build start",
+        "lint": "node publish/node.js lint",
+        "test": "node test/models.js",
+        "clean": "node publish/node.js clean",
+        "reset": "node publish/node.js reset"
     },
     "dependencies": {
         "electron-updater": "5.3.0"
