@@ -66,10 +66,7 @@ view.View = class {
                     execute: () => this._host.execute('open')
                 });
                 if (this._host.type === 'Electron') {
-                    this._recents = file.group({
-                        label: 'Open &Recent',
-                        accelerator: '&#10095;',
-                    });
+                    this._recents = file.group('Open &Recent');
                     file.add({
                         label: '&Export...',
                         accelerator: 'CmdOrCtrl+Shift+E',
@@ -1025,6 +1022,7 @@ view.Menu = class {
         this._darwin = this._host.environment('platform') === 'darwin';
         this._accelerators = new Map();
         this._stack = [];
+        this._buttons = [];
         this._codes = new Map([
             [ 'Backspace', 0x08 ], [ 'Enter', 0x0D ],
             [ 'Up', 0x26 ], [ 'Down', 0x28 ],
@@ -1048,6 +1046,12 @@ view.Menu = class {
                 if (this._stack.length === 0) {
                     this._close();
                 }
+            }
+            if (code === 0x0026) { // Up
+                this._previous();
+            }
+            if (code === 0x0028) { // Down
+                this._next();
             }
             else if (code === 0x0212) { // Alt
                 if (this._stack.length === 0) {
@@ -1115,7 +1119,7 @@ view.Menu = class {
 
     toggle() {
         if (this._element.style.opacity >= 1) {
-            this.close();
+            this._close();
         }
         else {
             this._reset();
@@ -1132,16 +1136,22 @@ view.Menu = class {
             container.innerHTML = "<div class='menu-group-header'></div>";
             for (const item of group.items) {
                 switch (item.type) {
+                    case 'group':
                     case 'command': {
                         const button = this._host.document.createElement('button');
                         button.setAttribute('class', 'menu-item');
                         button.setAttribute('id', item.identifier);
-                        button.addEventListener('click', () => {
-                            this.close();
-                            setTimeout(() => {
-                                item.execute();
-                            }, 10);
+                        button.addEventListener('mouseenter', () => {
+                            button.focus();
                         });
+                        if (item.type === 'command') {
+                            button.addEventListener('click', () => {
+                                this._close();
+                                setTimeout(() => {
+                                    item.execute();
+                                }, 10);
+                            });
+                        }
                         container.appendChild(button);
                         break;
                     }
@@ -1150,9 +1160,6 @@ view.Menu = class {
                         element.setAttribute('class', 'menu-separator');
                         element.setAttribute('id', item.identifier);
                         container.appendChild(element);
-                        break;
-                    }
-                    case 'group': {
                         break;
                     }
                     default: {
@@ -1167,44 +1174,57 @@ view.Menu = class {
         this._element.style.left = '0px';
     }
 
-    _update() {
-        const label = (item, mnemonic) => {
-            delete item.mnemonic;
-            const value = item.label;
-            if (value) {
-                const index = value.indexOf('&');
-                if (index !== -1) {
-                    if (mnemonic) {
-                        item.mnemonic = value[index + 1].toUpperCase();
-                        return value.substring(0, index) + '<u>' + value[index + 1] + '</u>' + value.substring(index + 2);
-                    }
-                    return value.substring(0, index) + value.substring(index + 1);
+    _label(item, mnemonic) {
+        delete item.mnemonic;
+        const value = item.label;
+        if (value) {
+            const index = value.indexOf('&');
+            if (index !== -1) {
+                if (mnemonic) {
+                    item.mnemonic = value[index + 1].toUpperCase();
+                    return value.substring(0, index) + '<u>' + value[index + 1] + '</u>' + value.substring(index + 2);
                 }
+                return value.substring(0, index) + value.substring(index + 1);
             }
-            return value || '';
-        };
-        const active = this._stack.length > 0 ? this._stack[this._stack.length - 1] : null;
+        }
+        return value || '';
+    }
+
+    _update() {
+        this._buttons = [];
+        const selected = this._stack.length > 0 ? this._stack[this._stack.length - 1] : null;
         for (const group of this.items) {
             let visible = false;
             let block = false;
+            const active = this._stack.length <= 1 || this._stack[1] === group;
             const container = this._host.document.getElementById(group.identifier);
-            container.childNodes[0].innerHTML = label(group, this === active);
+            container.childNodes[0].innerHTML = this._label(group, this === selected);
             for (const item of group.items) {
                 switch (item.type) {
+                    case 'group':
                     case 'command': {
                         const button = this._host.document.getElementById(item.identifier);
-                        button.innerHTML = label(item, group === active);
+                        button.innerHTML = this._label(item, group === selected);
                         if (item.enabled) {
                             button.removeAttribute('disabled');
                             button.style.display = 'block';
                             visible = true;
                             block = true;
+                            if (active) {
+                                this._buttons.push(button);
+                            }
                         }
                         else {
                             button.setAttribute('disabled', '');
                             button.style.display = 'none';
                         }
-                        if (item.accelerator) {
+                        if (item.type === 'group') {
+                            const accelerator = this._host.document.createElement('span');
+                            accelerator.setAttribute('class', 'shortcut');
+                            accelerator.innerHTML = '&#10095;';
+                            button.appendChild(accelerator);
+                        }
+                        else if (item.accelerator) {
                             const accelerator = this._host.document.createElement('span');
                             accelerator.setAttribute('class', 'shortcut');
                             accelerator.innerHTML = item.accelerator;
@@ -1226,7 +1246,30 @@ view.Menu = class {
             if (!visible) {
                 container.style.display = 'none';
             }
-            container.style.opacity = this._stack.length > 1 && this._stack[1] !== group ? 0 : 1;
+            container.style.opacity = active ? 1 : 0;
+        }
+        const button = this._element.ownerDocument.activeElement;
+        const index = this._buttons.indexOf(button);
+        if (index === -1 && this._buttons.length > 0) {
+            this._buttons[0].focus();
+        }
+    }
+
+    _next() {
+        const button = this._element.ownerDocument.activeElement;
+        const index = this._buttons.indexOf(button);
+        if (index !== -1 && index < this._buttons.length - 1) {
+            const next = this._buttons[index + 1];
+            next.focus();
+        }
+    }
+
+    _previous() {
+        const button = this._element.ownerDocument.activeElement;
+        const index = this._buttons.indexOf(button);
+        if (index > 0) {
+            const next = this._buttons[index - 1];
+            next.focus();
         }
     }
 
