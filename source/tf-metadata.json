@@ -46902,6 +46902,54 @@
     ]
   },
   {
+    "name": "SegmentMaxV2",
+    "summary": "Computes the maximum along segments of a tensor.",
+    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\max_j(data_j)\\\\) where `max` is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the maximum is empty for a given segment ID `i`, it outputs the smallest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::lowest()`.\n\nNote: That this op is currently only supported with jit_compile=True.\n\nCaution: On CPU, values in `segment_ids` are always validated to be sorted,\nand an error is thrown for indices that are not increasing. On GPU, this\ndoes not throw an error for unsorted indices. On GPU, out-of-order indices\nresult in safe but unspecified behavior, which may include treating\nout-of-order indices as the same as a smaller following index.\n\nThe only difference with SegmentMax is the additional input  `num_segments`.\nThis helps in evaluating the output shape in compile time.\n`num_segments` should be consistent with segment_ids.\ne.g. Max(segment_ids) should be equal to `num_segments` - 1 for a 1-d segment_ids\nWith inconsistent num_segments, the op still runs. only difference is,\nthe output takes the size of num_segments irrespective of size of segment_ids and data.\nfor num_segments less than expected output size, the last elements are ignored\nfor num_segments more than the expected output size, last elements are assigned \nsmallest possible value for the specific numeric type.\n\nFor example:\n\n>>> @tf.function(jit_compile=True)\n... def test(c):\n...   return tf.raw_ops.SegmentMaxV2(data=c, segment_ids=tf.constant([0, 0, 1]), num_segments=2)\n>>> c = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\n>>> test(c).numpy()\narray([[4, 3, 3, 4],\n       [5, 6, 7, 8]], dtype=int32)\n",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type",
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `int64`, `bfloat16`, `uint16`, `float16`, `uint32`, `uint64`."
+      },
+      {
+        "name": "Tindices",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `int64`."
+      },
+      {
+        "name": "Tnumsegments",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `int64`.",
+        "default": {
+          "type": "type",
+          "value": 3
+        }
+      }
+    ],
+    "inputs": [
+      {
+        "name": "data",
+        "typeAttr": "T"
+      },
+      {
+        "name": "segment_ids",
+        "description": "A 1-D tensor whose size is equal to the size of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.\nThe values must be less than `num_segments`.\n\nCaution: The values are always validated to be sorted on CPU, never validated\non GPU.",
+        "typeAttr": "Tindices"
+      },
+      {
+        "name": "num_segments",
+        "typeAttr": "Tnumsegments"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Has same shape as data, except for the first `segment_ids.rank`\ndimensions, which are replaced with a single dimensionw which has size\n`num_segments`.\n",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
     "name": "SegmentMean",
     "summary": "Computes the mean along segments of a tensor.",
     "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\frac{\\sum_j data_j}{N}\\\\) where `mean` is\nover `j` such that `segment_ids[j] == i` and `N` is the total number of\nvalues summed.\n\nIf the mean is empty for a given segment ID `i`, `output[i] = 0`.\n\nCaution: On CPU, values in `segment_ids` are always validated to be sorted,\nand an error is thrown for indices that are not increasing. On GPU, this\ndoes not throw an error for unsorted indices. On GPU, out-of-order indices\nresult in safe but unspecified behavior, which may include treating\nout-of-order indices as a smaller following index when computing the numerator\nof the mean.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMean.png\" alt>\n</div>\n\nFor example:\n\n>>> c = tf.constant([[1.0,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\n>>> tf.math.segment_mean(c, tf.constant([0, 0, 1])).numpy()\narray([[2.5, 2.5, 2.5, 2.5],\n       [5., 6., 7., 8.]], dtype=float32)\n",
@@ -46967,6 +47015,54 @@
       {
         "name": "output",
         "description": "Has same shape as data, except for dimension 0 which\nhas size `k`, the number of segments.",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "SegmentMinV2",
+    "summary": "Computes the minimum along segments of a tensor.",
+    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\min_j(data_j)\\\\) where `min` is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the minimum is empty for a given segment ID `i`, it outputs the largest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::max()`.\n\nNote: That this op is currently only supported with jit_compile=True.\n\nCaution: On CPU, values in `segment_ids` are always validated to be sorted,\nand an error is thrown for indices that are not increasing. On GPU, this\ndoes not throw an error for unsorted indices. On GPU, out-of-order indices\nresult in safe but unspecified behavior, which may include treating\nout-of-order indices as the same as a smaller following index.\n\nThe only difference with SegmentMin is the additional input  `num_segments`.\nThis helps in evaluating the output shape in compile time.\n`num_segments` should be consistent with segment_ids.\ne.g. Max(segment_ids) should be equal to `num_segments` - 1 for a 1-d segment_ids\nWith inconsistent num_segments, the op still runs. only difference is,\nthe output takes the size of num_segments irrespective of size of segment_ids and data.\nfor num_segments less than expected output size, the last elements are ignored\nfor num_segments more than the expected output size, last elements are assigned \nthe largest possible value for the specific numeric type.\n\nFor example:\n\n>>> @tf.function(jit_compile=True)\n... def test(c):\n...   return tf.raw_ops.SegmentMinV2(data=c, segment_ids=tf.constant([0, 0, 1]), num_segments=2)\n>>> c = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\n>>> test(c).numpy()\narray([[1, 2, 2, 1],\n       [5, 6, 7, 8]], dtype=int32)\n",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type",
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `int64`, `bfloat16`, `uint16`, `float16`, `uint32`, `uint64`."
+      },
+      {
+        "name": "Tindices",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `int64`."
+      },
+      {
+        "name": "Tnumsegments",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `int64`.",
+        "default": {
+          "type": "type",
+          "value": 3
+        }
+      }
+    ],
+    "inputs": [
+      {
+        "name": "data",
+        "typeAttr": "T"
+      },
+      {
+        "name": "segment_ids",
+        "description": "A 1-D tensor whose size is equal to the size of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.\nThe values must be less than `num_segments`.\n\nCaution: The values are always validated to be sorted on CPU, never validated\non GPU.",
+        "typeAttr": "Tindices"
+      },
+      {
+        "name": "num_segments",
+        "typeAttr": "Tnumsegments"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Has same shape as data, except for the first `segment_ids.rank`\ndimensions, which are replaced with a single dimensionw which has size\n`num_segments`.",
         "typeAttr": "T"
       }
     ]
@@ -61752,7 +61848,7 @@
       {
         "name": "Tindices",
         "type": "type",
-        "description": "Must be one of the following: `int32`, `int64`."
+        "description": "Must be one of the following: `int16`, `int32`, `int64`."
       },
       {
         "name": "Tnumsegments",
