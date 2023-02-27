@@ -828,7 +828,7 @@
       },
       {
         "default": null,
-        "description": "If not None, build a vocabulary that only consider the top\nmax_features ordered by term frequency across the corpus.\n\nThis parameter is ignored if vocabulary is not None.\n",
+        "description": "If not None, build a vocabulary that only consider the top\n`max_features` ordered by term frequency across the corpus.\nOtherwise, all features are used.\n\nThis parameter is ignored if vocabulary is not None.\n",
         "name": "max_features",
         "type": "int32"
       },
@@ -927,7 +927,7 @@
       },
       {
         "default": null,
-        "description": "If not None, build a vocabulary that only consider the top\nmax_features ordered by term frequency across the corpus.\n\nThis parameter is ignored if vocabulary is not None.\n",
+        "description": "If not None, build a vocabulary that only consider the top\n`max_features` ordered by term frequency across the corpus.\nOtherwise, all features are used.\n\nThis parameter is ignored if vocabulary is not None.\n",
         "name": "max_features",
         "type": "int32"
       },

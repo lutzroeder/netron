@@ -1139,7 +1139,7 @@ view.Menu = class {
                     case 'group':
                     case 'command': {
                         const button = this._host.document.createElement('button');
-                        button.setAttribute('class', 'menu-item');
+                        button.setAttribute('class', 'menu-command');
                         button.setAttribute('id', item.identifier);
                         button.addEventListener('mouseenter', () => {
                             button.focus();
