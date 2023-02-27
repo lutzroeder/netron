@@ -44,7 +44,6 @@ while [ "$#" != 0 ]; do
     case "${command}" in
         "clean") clean;;
         "sync") sync;;
-        "install") install;;
         "schema") schema;;
     esac
 done
