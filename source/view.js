@@ -292,8 +292,9 @@ view.View = class {
                     this._recents.clear();
                     for (let i = 0; i < value.length; i++) {
                         const path = value[i].path;
+                        const label = this._host.minimizePath(path);
                         this._recents.add({
-                            label: path,
+                            label: label,
                             accelerator: 'CmdOrCtrl+' + (i + 1).toString(),
                             execute: () => this._host.execute('open', path)
                         });
@@ -1033,22 +1034,30 @@ view.Menu = class {
             [ 'Up', '&#x2191;' ], [ 'Down', '&#x2193;' ],
         ]);
         this._host.window.addEventListener('keydown', (e) => {
-            this._pop = false;
+            this._exit = false;
             let code = e.keyCode;
             code |= ((e.ctrlKey && !this._darwin) || (e.metaKey && this._darwin)) ? 0x0400 : 0;
             code |= e.altKey ? 0x0200 : 0;
             code |= e.shiftKey ? 0x0100 : 0;
             if (code === 0x001b) { // Escape
-                if (this._stack.length > 0) {
-                    this._stack.pop();
-                    this._update();
-                }
+                this._deactivate();
                 if (this._stack.length === 0) {
                     this._close();
                 }
             }
+            if (code === 0x0025) { // Left
+                if (this._stack.length > 1) {
+                    this._deactivate();
+                }
+            }
             if (code === 0x0026) { // Up
                 this._previous();
+            }
+            if (code === 0x0027) { // Right
+                const button = this._element.ownerDocument.activeElement;
+                if (button && button.getAttribute('data-type') === 'group') {
+                    button.click();
+                }
             }
             if (code === 0x0028) { // Down
                 this._next();
@@ -1057,10 +1066,11 @@ view.Menu = class {
                 if (this._stack.length === 0) {
                     this.toggle();
                     this._stack = [ this ];
+                    this._reset();
                     this._update();
                 }
                 else {
-                    this._pop = true;
+                    this._exit = true;
                 }
             }
             else if ((this._stack.length > 0 && (code & 0xFD00) === 0) && (code & 0x00FF) != 0) {
@@ -1070,8 +1080,7 @@ view.Menu = class {
                     if (key === item.mnemonic) {
                         if (item.type === 'group' && item.enabled) {
                             e.preventDefault();
-                            this._stack.push(item);
-                            this._update();
+                            this._activate(item);
                         }
                         else if (item.type === 'command' && item.enabled) {
                             item.execute();
@@ -1092,19 +1101,18 @@ view.Menu = class {
         });
         this._host.window.addEventListener('keyup', (e) => {
             const code = e.keyCode;
-            if (code === 0x0012 && this._pop) { // Alt
+            if (code === 0x0012 && this._exit) { // Alt
                 if (this._stack.length === 1) {
                     this._close();
                 }
                 else if (this._stack.length > 1) {
                     this._stack = [ this ];
+                    if (this._root.length > 1) {
+                        this._root =  [ this ];
+                        this._reset();
+                    }
                     this._update();
                 }
-            }
-        });
-        this._host.document.body.addEventListener('click', (e) => {
-            if (!this._button.contains(e.target)) {
-                this._close();
             }
         });
     }
@@ -1122,14 +1130,45 @@ view.Menu = class {
             this._close();
         }
         else {
+            this._root = [ this ];
             this._reset();
             this._update();
         }
     }
 
+    _activate(item) {
+        this._stack.push(item);
+        this._reset();
+        this._update();
+    }
+
+    _deactivate() {
+        if (this._root.length > 1) {
+            this._root.pop();
+            this._stack.pop();
+            this._reset();
+            this._update();
+        }
+        else if (this._stack.length > 0) {
+            this._stack.pop();
+            this._update();
+        }
+    }
+
+    _push(item) {
+        while (this._stack.length > this._root.length) {
+            this._stack.pop();
+        }
+        this._root.push({ items: [ item ] });
+        this._stack.push(item);
+        this._reset();
+        this._update();
+    }
+
     _reset() {
         this._element.innerHTML = '';
-        for (const group of this.items) {
+        const root = this._root[this._root.length - 1];
+        for (const group of root.items) {
             const container = this._host.document.createElement('div');
             container.setAttribute('id', group.identifier);
             container.setAttribute('class', 'menu-group');
@@ -1138,19 +1177,32 @@ view.Menu = class {
                 switch (item.type) {
                     case 'group':
                     case 'command': {
+                        let callback = () => {
+                            this._close();
+                            setTimeout(() => item.execute(), 10);
+                        };
+                        if (item.type === 'group') {
+                            callback = () => this._push(item);
+
+                        }
                         const button = this._host.document.createElement('button');
                         button.setAttribute('class', 'menu-command');
                         button.setAttribute('id', item.identifier);
-                        button.addEventListener('mouseenter', () => {
-                            button.focus();
-                        });
-                        if (item.type === 'command') {
-                            button.addEventListener('click', () => {
-                                this._close();
-                                setTimeout(() => {
-                                    item.execute();
-                                }, 10);
-                            });
+                        button.setAttribute('data-type', item.type);
+                        button.addEventListener('mouseenter', () => button.focus());
+                        button.addEventListener('click', callback);
+                        button.innerHTML = '<span class="menu-label"/>';
+                        if (item.type === 'group') {
+                            const accelerator = this._host.document.createElement('div');
+                            accelerator.setAttribute('class', 'menu-shortcut');
+                            accelerator.innerHTML = '&#10095;';
+                            button.appendChild(accelerator);
+                        }
+                        else if (item.accelerator) {
+                            const accelerator = this._host.document.createElement('div');
+                            accelerator.setAttribute('class', 'menu-shortcut');
+                            accelerator.innerHTML = item.accelerator;
+                            button.appendChild(accelerator);
                         }
                         container.appendChild(button);
                         break;
@@ -1172,6 +1224,15 @@ view.Menu = class {
 
         this._element.style.opacity = 1.0;
         this._element.style.left = '0px';
+        if (this._root.length > 1) {
+            this._element.style.width = 'auto';
+            this._element.style.maxWidth = '100%';
+        }
+        else {
+            this._element.style.removeProperty('width');
+            this._element.style.maxWidth = 'auto';
+
+        }
     }
 
     _label(item, mnemonic) {
@@ -1193,7 +1254,8 @@ view.Menu = class {
     _update() {
         this._buttons = [];
         const selected = this._stack.length > 0 ? this._stack[this._stack.length - 1] : null;
-        for (const group of this.items) {
+        const root = this._root[this._root.length - 1];
+        for (const group of root.items) {
             let visible = false;
             let block = false;
             const active = this._stack.length <= 1 || this._stack[1] === group;
@@ -1203,8 +1265,10 @@ view.Menu = class {
                 switch (item.type) {
                     case 'group':
                     case 'command': {
+                        const label = this._label(item, group === selected);
                         const button = this._host.document.getElementById(item.identifier);
-                        button.innerHTML = this._label(item, group === selected);
+                        button.setAttribute('title', label);
+                        button.childNodes[0].innerHTML = label;
                         if (item.enabled) {
                             button.removeAttribute('disabled');
                             button.style.display = 'block';
@@ -1217,18 +1281,6 @@ view.Menu = class {
                         else {
                             button.setAttribute('disabled', '');
                             button.style.display = 'none';
-                        }
-                        if (item.type === 'group') {
-                            const accelerator = this._host.document.createElement('span');
-                            accelerator.setAttribute('class', 'shortcut');
-                            accelerator.innerHTML = '&#10095;';
-                            button.appendChild(accelerator);
-                        }
-                        else if (item.accelerator) {
-                            const accelerator = this._host.document.createElement('span');
-                            accelerator.setAttribute('class', 'shortcut');
-                            accelerator.innerHTML = item.accelerator;
-                            button.appendChild(accelerator);
                         }
                         break;
                     }

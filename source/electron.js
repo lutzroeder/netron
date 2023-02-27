@@ -562,7 +562,7 @@ host.ElectronHost = class {
         electron.ipcRenderer.sendSync('set-configuration', { name: name, value: value });
     }
 
-    _minimizePath(path) {
+    minimizePath(path) {
         if (this._environment.platform !== 'win32' && this._environment.homedir) {
             if (path.startsWith(this._environment.homedir)) {
                 return '~' + path.substring(this._environment.homedir.length);
@@ -576,7 +576,7 @@ host.ElectronHost = class {
         if (element) {
             element.innerHTML = '';
             if (path) {
-                path = this._minimizePath(path).split(this._environment.separator || '/');
+                path = this.minimizePath(path).split(this._environment.separator || '/');
                 for (let i = 0; i < path.length; i++) {
                     const span = this.document.createElement('span');
                     span.innerHTML = ' ' + path[i] + ' ' + (i !== path.length - 1 ? '<svg class="titlebar-icon" aria-hidden="true"><use xlink:href="#icon-arrow-right"></use></svg>' : '');

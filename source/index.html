@@ -105,10 +105,11 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .menu { display: block; position: absolute; left: -200px; width: 200px; top: 0; height: 100%; z-index: 2; background-color: rgba(235, 235, 235, 0.97); border-right: 1px solid rgba(255, 255, 255, 0.5); padding-top: 40px; padding-bottom: 2px; margin-left: 0; margin-top: 0; overflow: hidden; transition: 0.1s; }
 .menu .menu-group { margin-bottom: 12px; }
 .menu .menu-group .menu-group-header { display: block; border: none; border-radius: 0; color: black; width: 100%; text-align: left; margin: 4px 12px 5px 12px; white-space: no-wrap; font-size: 11px; font-weight: bold; color: #bbbbbb; white-space: nowrap; }
-.menu .menu-group .menu-command { display: block; border: none; border-radius: 0; background-color: transparent; color: black; width: 100%; text-align: left; padding: 4px 12px 5px 12px; white-space: no-wrap; font-size: 12px; }
+.menu .menu-group .menu-command { display: block; border: none; border-radius: 0; background-color: transparent; color: black; width: 100%; text-align: left; padding: 4px 12px 5px 12px; font-size: 12px; }
 .menu .menu-group .menu-command:focus { color: #ffffff; background-color: #2e6bd2; outline: none; }
 .menu .menu-group .menu-command:disabled { color: #888888; }
-.menu .menu-group .menu-command .shortcut { float: right; color: #888888; }
+.menu .menu-group .menu-command .menu-label { float: left; overflow: hidden; white-space: nowrap; display: block; text-overflow: ellipsis; }
+.menu .menu-group .menu-command .menu-shortcut { float: right; margin-left: 10px; color: #888888; }
 .menu .menu-group .menu-separator { border-top: 1px; border-bottom: 0; border-style: solid; border-color: #e5e5e5; margin-left: 12px; margin-right: 12px; }
 @-webkit-keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 @keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
@@ -133,7 +134,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .logo-button:hover { color: #1e1e1e; background-color: #888888; }
 .message-dialog { color: #888888; }
 .welcome .progress-bar { background-color: #888888; }
-.welcome .menu { background-color: rgba(43, 43, 43, 0.97); }
+.welcome .menu { background-color: #2d2d2d }
 .about .logo { background-color: #1e1e1e; color: #888888; }
 .about.desktop .logo { background-color: #2d2d2d; }
 .about a { color: #c6c6c6; }
@@ -158,7 +159,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .titlebar-button-close:hover { color: #ffffff; background-color: #b43029; }
 .menu-button { color: #aaaaaa; }
 .menu-button:hover { color: #ffffff; }
-.menu { background-color: rgba(43, 43, 43, 0.97); border-color: rgba(0, 0, 0, 0); }
+.menu { background-color: #2d2d2d; border-color: rgba(0, 0, 0, 0); }
 .menu .menu-group .menu-group-header { color: #666666; }
 .menu .menu-group .menu-command { color: #ffffff; }
 .menu .menu-group .menu-command:focus { color: #ffffff; background-color: #2e6bd2; }
