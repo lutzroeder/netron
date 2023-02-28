@@ -1183,7 +1183,6 @@ view.Menu = class {
                         };
                         if (item.type === 'group') {
                             callback = () => this._push(item);
-
                         }
                         const button = this._host.document.createElement('button');
                         button.setAttribute('class', 'menu-command');
@@ -1191,19 +1190,18 @@ view.Menu = class {
                         button.setAttribute('data-type', item.type);
                         button.addEventListener('mouseenter', () => button.focus());
                         button.addEventListener('click', callback);
-                        button.innerHTML = '<span class="menu-label"/>';
+                        const accelerator = this._host.document.createElement('span');
+                        accelerator.setAttribute('class', 'menu-shortcut');
                         if (item.type === 'group') {
-                            const accelerator = this._host.document.createElement('div');
-                            accelerator.setAttribute('class', 'menu-shortcut');
                             accelerator.innerHTML = '&#10095;';
-                            button.appendChild(accelerator);
                         }
                         else if (item.accelerator) {
-                            const accelerator = this._host.document.createElement('div');
-                            accelerator.setAttribute('class', 'menu-shortcut');
                             accelerator.innerHTML = item.accelerator;
-                            button.appendChild(accelerator);
                         }
+                        button.appendChild(accelerator);
+                        const content = this._host.document.createElement('span');
+                        content.setAttribute('class', 'menu-label');
+                        button.appendChild(content);
                         container.appendChild(button);
                         break;
                     }
@@ -1226,7 +1224,7 @@ view.Menu = class {
         this._element.style.left = '0px';
         if (this._root.length > 1) {
             this._element.style.width = 'auto';
-            this._element.style.maxWidth = '100%';
+            this._element.style.maxWidth = '60%';
         }
         else {
             this._element.style.removeProperty('width');
@@ -1268,7 +1266,7 @@ view.Menu = class {
                         const label = this._label(item, group === selected);
                         const button = this._host.document.getElementById(item.identifier);
                         button.setAttribute('title', label);
-                        button.childNodes[0].innerHTML = label;
+                        button.childNodes[1].innerHTML = label;
                         if (item.enabled) {
                             button.removeAttribute('disabled');
                             button.style.display = 'block';
@@ -1329,6 +1327,11 @@ view.Menu = class {
         this._stack = [];
         this._element.style.opacity = 0;
         this._element.style.left = '-200px';
+        const button = this._element.ownerDocument.activeElement;
+        const index = this._buttons.indexOf(button);
+        if (index > 0) {
+            button.blur();
+        }
     }
 
     register(item) {

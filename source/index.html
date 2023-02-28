@@ -108,8 +108,8 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .menu .menu-group .menu-command { display: block; border: none; border-radius: 0; background-color: transparent; color: black; width: 100%; text-align: left; padding: 4px 12px 5px 12px; font-size: 12px; }
 .menu .menu-group .menu-command:focus { color: #ffffff; background-color: #2e6bd2; outline: none; }
 .menu .menu-group .menu-command:disabled { color: #888888; }
-.menu .menu-group .menu-command .menu-label { float: left; overflow: hidden; white-space: nowrap; display: block; text-overflow: ellipsis; }
-.menu .menu-group .menu-command .menu-shortcut { float: right; margin-left: 10px; color: #888888; }
+.menu .menu-group .menu-command .menu-label { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.menu .menu-group .menu-command .menu-shortcut { display: block; float: right; margin-left: 10px; color: #888888; }
 .menu .menu-group .menu-separator { border-top: 1px; border-bottom: 0; border-style: solid; border-color: #e5e5e5; margin-left: 12px; margin-right: 12px; }
 @-webkit-keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 @keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
