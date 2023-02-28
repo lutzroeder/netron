@@ -75,15 +75,12 @@ flax.Graph = class {
                 if (flax.Utility.isTensor(value)) {
                     const obj = layer(path);
                     obj[name] = value;
-                }
-                else if (Array.isArray(value)) {
+                } else if (Array.isArray(value)) {
                     const obj = layer(path);
                     obj[name] = value;
-                }
-                else if (Object(value) === value) {
+                } else if (Object(value) === value) {
                     flatten(path.concat(name), value);
-                }
-                else {
+                } else {
                     const obj = layer(path);
                     obj[name] = value;
                 }
@@ -91,8 +88,7 @@ flax.Graph = class {
         };
         if (Array.isArray(obj)) {
             layer([]).value = obj;
-        }
-        else {
+        } else {
             flatten([], obj);
         }
         this._nodes = Array.from(layers).map((entry) => new flax.Node(entry[0], entry[1]));
@@ -169,12 +165,10 @@ flax.Node = class {
                 const argument = new flax.Argument(this._name + '.' + name, tensor);
                 const parameter = new flax.Parameter(name, [ argument ]);
                 this._inputs.push(parameter);
-            }
-            else if (Array.isArray(value)) {
+            } else if (Array.isArray(value)) {
                 const attribute = new flax.Attribute(name, value);
                 this._attributes.push(attribute);
-            }
-            else {
+            } else {
                 const attribute = new flax.Attribute(name, value);
                 this._attributes.push(attribute);
             }

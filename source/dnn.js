@@ -21,8 +21,7 @@ dnn.ModelFactory = class {
                 const stream = context.stream;
                 const reader = protobuf.BinaryReader.open(stream);
                 model = dnn.proto.Model.decode(reader);
-            }
-            catch (error) {
+            } catch (error) {
                 const message = error && error.message ? error.message : error.toString();
                 throw new dnn.Error('File format is not dnn.Graph (' + message.replace(/\.$/, '') + ').');
             }

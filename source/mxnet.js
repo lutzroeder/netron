@@ -83,8 +83,7 @@ mxnet.ModelFactory = class {
                                 if (obj.Model.Description && manifest.name !== obj.Model.Description) {
                                     manifest.description = obj.Model.Description;
                                 }
-                            }
-                            else if (obj.model) {
+                            } else if (obj.model) {
                                 manifest.format = 'MXNet Model Archive';
                                 if (obj.specificationVersion) {
                                     manifest.format += ' v' + obj.specificationVersion.toString();
@@ -101,8 +100,7 @@ mxnet.ModelFactory = class {
                                 if (manifest.model && manifest.model.modelName && manifest.name != obj.model.description) {
                                     manifest.description = obj.model.description;
                                 }
-                            }
-                            else {
+                            } else {
                                 throw new mxnet.Error('Manifest does not contain model.');
                             }
                             if (obj.Engine && obj.Engine.MXNet) {
@@ -139,8 +137,7 @@ mxnet.ModelFactory = class {
                             }
                         }
                         return manifest;
-                    }
-                    catch (err) {
+                    } catch (err) {
                         throw new mxnet.Error('Failed to read manifest. ' + err.message);
                     }
                 };
@@ -164,8 +161,7 @@ mxnet.ModelFactory = class {
                             const name = (key.startsWith('arg:') || key.startsWith('aux:')) ? key.substring(4) : key;
                             parameters.set(name, array);
                         }
-                    }
-                    catch (error) {
+                    } catch (error) {
                         // continue regardless of error
                     }
                 }
@@ -186,8 +182,7 @@ mxnet.ModelFactory = class {
                     let symbol = null;
                     try {
                         symbol = context.open('json');
-                    }
-                    catch (error) {
+                    } catch (error) {
                         const message = error && error.message ? error.message : error.toString();
                         throw new mxnet.Error("Failed to load symbol entry (" + message.replace(/\.$/, '') + ').');
                     }
@@ -382,8 +377,7 @@ mxnet.Graph = class {
                     this._inputs.push(new mxnet.Parameter(inputName, [ new mxnet.Argument('[' + inputId.join(',') + ']', inputType) ]));
                 }
             }
-        }
-        else if (params) {
+        } else if (params) {
             const blocks = new Map();
             let separator = Array.from(params.keys()).every((key) => key.indexOf('_') != -1) ? '_' : '';
             if (separator.length == 0) {
@@ -403,8 +397,7 @@ mxnet.Graph = class {
                     }
                     blocks.get(nodeName).params.push({ name: argumentName, id: key });
                 }
-            }
-            else {
+            } else {
                 throw new mxnet.Error("Unsupported key format in params.");
             }
 
@@ -545,8 +538,7 @@ mxnet.Node = class {
                         initializer = tensors.get(argument.name) || null;
                         if (initializer) {
                             delete argumentMap[argumentNodeIndex];
-                        }
-                        else {
+                        } else {
                             let prefix = this._name;
                             if (prefix.endsWith('_fwd')) {
                                 prefix = prefix.slice(0, -3);
@@ -558,16 +550,14 @@ mxnet.Node = class {
                                     try {
                                         dataType = parseInt(argument.attrs.__dtype__);
                                         shape = JSON.parse('[' + argument.attrs.__shape__.replace('(', '').replace(')', '').split(' ').join('').split(',').map((dimension => dimension || '"?"')).join(',') + ']');
-                                    }
-                                    catch (err) {
+                                    } catch (err) {
                                         // continue regardless of error
                                     }
                                 }
                                 let argumentType = null;
                                 if (dataType !== -1 || shape.length > 0) {
                                     argumentType = new mxnet.TensorType(dataType, new mxnet.TensorShape(shape));
-                                }
-                                else {
+                                } else {
                                     argumentType = new mxnet.TensorType(-1, new mxnet.TensorShape(null));
                                 }
                                 initializer = new mxnet.Tensor('Initializer', argument.name, argumentType, null);
@@ -709,8 +699,7 @@ mxnet.Attribute = class {
                             number = Number.parseInt(item, 10);
                             if (Number.isNaN(item - number)) {
                                 array = null;
-                            }
-                            else if (array != null) {
+                            } else if (array != null) {
                                 array.push(number);
                             }
                         }
@@ -726,13 +715,11 @@ mxnet.Attribute = class {
         if (metadata) {
             if (metadata.visible === false) {
                 this._visible = false;
-            }
-            else if (metadata.default !== undefined) {
+            } else if (metadata.default !== undefined) {
                 let defaultValue = metadata.default;
                 if (this._value == defaultValue) {
                     this._visible = false;
-                }
-                else if (Array.isArray(this._value) && Array.isArray(defaultValue)) {
+                } else if (Array.isArray(this._value) && Array.isArray(defaultValue)) {
                     defaultValue = defaultValue.slice(0, defaultValue.length);
                     if (defaultValue.length > 1 && defaultValue[defaultValue.length - 1] == null) {
                         defaultValue.pop();

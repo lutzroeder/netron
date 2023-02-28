@@ -137,8 +137,7 @@ dagre.layout = (graph, options) => {
                 if (edge.labelpos.toLowerCase() !== 'c') {
                     if (graph.rankdir === 'TB' || graph.rankdir === 'BT') {
                         edge.width += edge.labeloffset;
-                    }
-                    else {
+                    } else {
                         edge.height += edge.labeloffset;
                     }
                 }
@@ -179,8 +178,7 @@ dagre.layout = (graph, options) => {
                             stack.push(e.w);
                         }
                     }
-                }
-                else {
+                } else {
                     path.delete(v[0]);
                 }
             }
@@ -314,13 +312,11 @@ dagre.layout = (graph, options) => {
                             if (children.length > 0) {
                                 stack.push(node);
                                 stack.push(children.reverse());
-                            }
-                            else {
+                            } else {
                                 node.label.rank = 0;
                             }
                         }
-                    }
-                    else {
+                    } else {
                         stack.pop();
                         let rank = Number.MAX_SAFE_INTEGER;
                         for (const e of current.out) {
@@ -390,8 +386,7 @@ dagre.layout = (graph, options) => {
                         label.lim = nextLim++;
                         if (parent) {
                             label.parent = parent;
-                        }
-                        else {
+                        } else {
                             // TODO should be able to remove this when we incrementally update low lim
                             delete label.parent;
                         }
@@ -419,13 +414,11 @@ dagre.layout = (graph, options) => {
                                 if (children.length > 0) {
                                     stack.push(v);
                                     stack.push(children.reverse());
-                                }
-                                else {
+                                } else {
                                     vs.push(v);
                                 }
                             }
-                        }
-                        else {
+                        } else {
                             vs.push(stack.pop());
                         }
                     }
@@ -601,8 +594,7 @@ dagre.layout = (graph, options) => {
                         const vs = layers[i];
                         if (vs === undefined && i % nodeRankFactor !== 0) {
                             delta--;
-                        }
-                        else if (delta && vs) {
+                        } else if (delta && vs) {
                             for (const v of vs) {
                                 g.node(v).label.rank += delta;
                             }
@@ -1050,8 +1042,7 @@ dagre.layout = (graph, options) => {
                         return function(entryV, entryW) {
                             if (entryV.barycenter < entryW.barycenter) {
                                 return -1;
-                            }
-                            else if (entryV.barycenter > entryW.barycenter) {
+                            } else if (entryV.barycenter > entryW.barycenter) {
                                 return 1;
                             }
                             return !bias ? entryV.i - entryW.i : entryW.i - entryV.i;
@@ -1062,8 +1053,7 @@ dagre.layout = (graph, options) => {
                     for (const value of entries) {
                         if ('barycenter' in value) {
                             parts.lhs.push(value);
-                        }
-                        else {
+                        } else {
                             parts.rhs.push(value);
                         }
                     }
@@ -1103,8 +1093,7 @@ dagre.layout = (graph, options) => {
                             if (entry.barycenter !== undefined) {
                                 entry.barycenter = (entry.barycenter * entry.weight + result.barycenter * result.weight) / (entry.weight + result.weight);
                                 entry.weight += result.weight;
-                            }
-                            else {
+                            } else {
                                 entry.barycenter = result.barycenter;
                                 entry.weight = result.weight;
                             }
@@ -1154,8 +1143,7 @@ dagre.layout = (graph, options) => {
                             if (parent) {
                                 prevChild = prev[parent];
                                 prev[parent] = child;
-                            }
-                            else {
+                            } else {
                                 prevChild = rootPrev;
                                 rootPrev = child;
                             }
@@ -1319,8 +1307,7 @@ dagre.layout = (graph, options) => {
                             for (const e of node.in) {
                                 graph.setEdge(e.v, v, { weight: e.label.weight });
                             }
-                        }
-                        else {
+                        } else {
                             for (const e of node.out) {
                                 graph.setEdge(e.w, v, { weight: e.label.weight });
                             }
@@ -1518,8 +1505,7 @@ dagre.layout = (graph, options) => {
                             const max = Math.max(sum, edge ? edge.label : 0);
                             if (edge) {
                                 edge.label = max;
-                            }
-                            else {
+                            } else {
                                 blockGraph.setEdge(uRoot, vRoot, max);
                             }
                         }
@@ -1587,8 +1573,7 @@ dagre.layout = (graph, options) => {
                                 max = Math.max(max, xs[e.v] + e.label);
                             }
                             xs[v] = max;
-                        }
-                        else {
+                        } else {
                             visited.add(v);
                             stack.push(v);
                             for (const w of blockG.predecessors(v)) {
@@ -1612,8 +1597,7 @@ dagre.layout = (graph, options) => {
                             if (min !== Number.POSITIVE_INFINITY && label.borderType !== borderType) {
                                 xs[v] = Math.max(xs[v], min);
                             }
-                        }
-                        else {
+                        } else {
                             visited.add(v);
                             stack.push(v);
                             for (const w of blockG.successors(v)) {
@@ -1815,8 +1799,7 @@ dagre.layout = (graph, options) => {
                 for (const v of Object.keys(xss.ul)) {
                     g.node(v).label.x = xs[v];
                 }
-            }
-            else {
+            } else {
                 for (const v of Object.keys(xss.ul)) {
                     const xs = [ xss.ul[v], xss.ur[v], xss.dl[v], xss.dr[v] ].sort((a, b) => a - b);
                     g.node(v).label.x = (xs[1] + xs[2]) / 2;
@@ -1966,8 +1949,7 @@ dagre.layout = (graph, options) => {
                     edge.points = [];
                     p1 = wNode;
                     p2 = vNode;
-                }
-                else {
+                } else {
                     p1 = edge.points[0];
                     p2 = edge.points[edge.points.length - 1];
                 }
@@ -2085,8 +2067,7 @@ dagre.Graph = class {
             if (label) {
                 node.label = label;
             }
-        }
-        else {
+        } else {
             const node = { label: label ? label : this._defaultNodeLabelFn(v), in: [], out: [], predecessors: {}, successors: {}, v: v };
             this.nodes.set(v, node);
             if (this._compound) {
@@ -2137,8 +2118,7 @@ dagre.Graph = class {
                 }
             }
             this.setNode(parent);
-        }
-        else {
+        } else {
             parent = '\x00';
         }
         delete this._children[this._parent[v]][v];
@@ -2159,11 +2139,9 @@ dagre.Graph = class {
     children(v) {
         if (this._compound) {
             return Object.keys(this._children[v === undefined ? '\x00' : v]);
-        }
-        else if (v === undefined) {
+        } else if (v === undefined) {
             return this.nodes.keys();
-        }
-        else if (this.hasNode(v)) {
+        } else if (this.hasNode(v)) {
             return [];
         }
         return null;
@@ -2190,8 +2168,7 @@ dagre.Graph = class {
         const edge = this.edges.get(key);
         if (edge) {
             edge.label = label;
-        }
-        else {
+        } else {
             if (!this._directed && v > w) {
                 const tmp = v;
                 v = w;
@@ -2208,8 +2185,7 @@ dagre.Graph = class {
             const incrementOrInitEntry = (map, k) => {
                 if (map[k]) {
                     map[k]++;
-                }
-                else {
+                } else {
                     map[k] = 1;
                 }
             };

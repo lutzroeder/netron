@@ -44,8 +44,7 @@ lightgbm.ModelFactory = class {
                     }
                 }
                 resolve(new lightgbm.Model(obj, format));
-            }
-            catch (err) {
+            } catch (err) {
                 reject(err);
             }
         });

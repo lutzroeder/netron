@@ -18,15 +18,13 @@ dlc.ModelFactory = class {
             container.validate();
             try {
                 model = container.model;
-            }
-            catch (error) {
+            } catch (error) {
                 const message = error && error.message ? error.message : error.toString();
                 throw new dlc.Error('File format is not dlc.NetDef (' + message.replace(/\.$/, '') + ').');
             }
             try {
                 params = container.params;
-            }
-            catch (error) {
+            } catch (error) {
                 const message = error && error.message ? error.message : error.toString();
                 throw new dlc.Error('File format is not dlc.NetParam (' + message.replace(/\.$/, '') + ').');
             }
@@ -131,8 +129,7 @@ dlc.Graph = class {
                 }
                 this._nodes.push(new dlc.Node(metadata, node, weights.get(node.name), arg));
             }
-        }
-        else {
+        } else {
             this._nodes = params.weights.map((weights) => new dlc.Node(metadata, null, weights, arg));
         }
     }
@@ -219,8 +216,7 @@ dlc.Node = class {
                     this._inputs.push(new dlc.Parameter(tensor.name, [ argument ]));
                 }
             }
-        }
-        else {
+        } else {
             this._type = { name: 'Weights' };
             this._name = weights.name;
             this._inputs = weights.tensors.map((tensor) => {

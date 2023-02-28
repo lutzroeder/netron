@@ -107,25 +107,21 @@ om.Node = class {
                     const value = inputNode.attr.value.t;
                     if (value.desc.shape != null) {
                         shape = value.desc.shape.dim;
-                    }
-                    else if (value.desc.attr.origin_shape) {
+                    } else if (value.desc.attr.origin_shape) {
                         shape = value.desc.attr.origin_shape.list.i;
                     }
                     let data = null;
                     if (value.data.length === 0) {
                         if (context.weights == null) {
                             data = null;
-                        }
-                        else if (value.desc.attr.merged_offset) {
+                        } else if (value.desc.attr.merged_offset) {
                             const offset = value.desc.attr.merged_offset.i;
                             data = context.weights.slice(offset, offset + value.desc.weight_size);
-                        }
-                        else {
+                        } else {
                             const offset = value.desc.data_offset;
                             data = context.weights.slice(offset, offset + value.desc.weight_size);
                         }
-                    }
-                    else {
+                    } else {
                         data = value.data;
                     }
                     const dataType = desc && desc.dtype ? om.Utility.dtype(value.desc.dtype) : '?';
@@ -133,8 +129,7 @@ om.Node = class {
                     const tensor = new om.Tensor('Constant', tensorType, data);
                     const argument = new om.Argument(name, null, tensor);
                     this._inputs.push(new om.Parameter(parameterName, true, [ argument ]));
-                }
-                else {
+                } else {
                     const dataType = desc && desc.dtype ? om.Utility.dtype(desc.dtype) : '?';
                     const shape = desc.shape ? desc.shape.dim : undefined;
                     const tensorType = new om.TensorType(dataType, shape, layout, null);
@@ -251,11 +246,9 @@ om.Attribute = class {
             case 's': {
                 if (typeof value.s === 'string') {
                     this._value = value.s;
-                }
-                else if (value.s.filter(c => c <= 32 && c >= 128).length === 0) {
+                } else if (value.s.filter(c => c <= 32 && c >= 128).length === 0) {
                     this._value = om.Utility.decodeText(value.s);
-                }
-                else {
+                } else {
                     this._value = value.s;
                 }
                 this._type = 'string';
@@ -275,24 +268,19 @@ om.Attribute = class {
                 if (list.s && list.s.length > 0) {
                     this._value = list.s.map(v => String.fromCharCode.apply(null, new Uint16Array(v))).join(', ');
                     this._type = 'string[]';
-                }
-                else if (list.b && list.b.length > 0) {
+                } else if (list.b && list.b.length > 0) {
                     this._value = list.b;
                     this._type = 'boolean[]';
-                }
-                else if (list.i && list.i.length > 0) {
+                } else if (list.i && list.i.length > 0) {
                     this._value = list.i;
                     this._type = 'int64[]';
-                }
-                else if (list.f && list.f.length > 0) {
+                } else if (list.f && list.f.length > 0) {
                     this._value = list.f;
                     this._type = 'float32[]';
-                }
-                else if (list.type && list.type.length > 0) {
+                } else if (list.type && list.type.length > 0) {
                     this._type = 'type[]';
                     this._value = list.type.map((type) => om.Node.enum2Dtype(type) || '?');
-                }
-                else if (list.shape && list.shape.length > 0) {
+                } else if (list.shape && list.shape.length > 0) {
                     this._type = 'shape[]';
                     this._value = list.shape.map((shape) => new om.TensorShape(shape));
                 }
@@ -557,8 +545,7 @@ om.Container = class {
                         om.proto = protobuf.get('om').ge.proto;
                         const reader = protobuf.BinaryReader.open(this.model);
                         this.model = om.proto.ModelDef.decode(reader);
-                    }
-                    catch (error) {
+                    } catch (error) {
                         const message = error && error.message ? error.message : error.toString();
                         throw new om.Error('File format is not ge.proto.ModelDef (' + message.replace(/\.$/, '') + ').');
                     }
@@ -641,8 +628,7 @@ svp.ModelDef = class ModelDef {
                             let out_num;
                             if (typeof op.output_index == 'number') {
                                 out_num = op.output_index + 1;
-                            }
-                            else {
+                            } else {
                                 const input_num = op.input.map((element) => element.split(":")[1]);
                                 out_num = input_num.length > 0 ? Math.max(...input_num) + 1 : 1;
                             }
@@ -679,8 +665,7 @@ svp.ModelDef = class ModelDef {
                             }
                             if (curr_op != null) {
                                 curr_op.output_desc = curr_op.output_desc.concat(out_list);
-                            }
-                            else {
+                            } else {
                                 op.output_desc = op.output_desc.concat(out_list);
                                 item.op.push(op);
                             }

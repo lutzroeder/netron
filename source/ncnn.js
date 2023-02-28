@@ -34,8 +34,7 @@ ncnn.ModelFactory = class {
                         return 'ncnn.model';
                     }
                 }
-            }
-            catch (err) {
+            } catch (err) {
                 // continue regardless of error
             }
         }
@@ -72,8 +71,7 @@ ncnn.ModelFactory = class {
                 case 'ncnn.model': {
                     if (identifier.endsWith('.param')) {
                         bin = context.identifier.substring(0, context.identifier.length - 6) + '.bin';
-                    }
-                    else if (identifier.endsWith('.cfg.ncnn')) {
+                    } else if (identifier.endsWith('.cfg.ncnn')) {
                         bin = context.identifier.substring(0, context.identifier.length - 9) + '.weights.ncnn';
                     }
                     return context.request(bin, null).then((stream) => {
@@ -96,8 +94,7 @@ ncnn.ModelFactory = class {
                     let content = null;
                     if (identifier.endsWith('bin')) {
                         content = context.identifier.substring(0, context.identifier.length - 4) + '.param';
-                    }
-                    else if (identifier.endsWith('.weights.ncnn')) {
+                    } else if (identifier.endsWith('.weights.ncnn')) {
                         content = context.identifier.substring(0, context.identifier.length - 13) + '.cfg.ncnn';
                     }
                     return context.request(content, null).then((stream) => {
@@ -179,8 +176,7 @@ ncnn.Graph = class {
                 const type = new ncnn.TensorType('float32', shape);
                 const input = new ncnn.Parameter(layer.name, true, layer.outputs.map((output) => new ncnn.Argument(output, type, null)));
                 this._inputs.push(input);
-            }
-            else {
+            } else {
                 const node = new ncnn.Node(metadata, blobReader, layer, arg);
                 this._nodes.push(node);
             }
@@ -465,17 +461,13 @@ ncnn.Node = class {
                 const c = parseInt(attributes.get('2') || 0, 10);
                 if (d != 0) {
                     this._weight(blobReader, 'data', [ c, d, h, w ], 'float32');
-                }
-                else if (c != 0) {
+                } else if (c != 0) {
                     this._weight(blobReader, 'data', [ c, h, w ], 'float32');
-                }
-                else if (h != 0) {
+                } else if (h != 0) {
                     this._weight(blobReader, 'data', [ h, w ], 'float32');
-                }
-                else if (w != 0) {
+                } else if (w != 0) {
                     this._weight(blobReader, 'data', [ w ], 'float32');
-                }
-                else {
+                } else {
                     this._weight(blobReader, 'data', [ 1 ], 'float32');
                 }
                 break;
@@ -623,8 +615,7 @@ ncnn.Attribute = class {
             }
             if (Object.prototype.hasOwnProperty.call(metadata, 'visible') && !metadata.visible) {
                 this._visible = false;
-            }
-            else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
+            } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
                 if (this._value == metadata.default || (this._value && this._value.toString() == metadata.default.toString())) {
                     this._visible = false;
                 }
@@ -831,8 +822,7 @@ ncnn.BinaryParamReader = class {
                         values.push(reader.int32());
                     }
                     attributes.set(key, values);
-                }
-                else {
+                } else {
                     const value = reader.int32();
                     attributes.set(key, value);
                 }
@@ -880,8 +870,7 @@ ncnn.BlobReader = class {
                         default:
                             throw new ncnn.Error("Unsupported weight type '" + type + "'.");
                     }
-                }
-                else {
+                } else {
                     this._buffer = null;
                 }
             }
@@ -891,8 +880,7 @@ ncnn.BlobReader = class {
                 for (const dimension of shape) {
                     size *= dimension;
                 }
-            }
-            else {
+            } else {
                 this._buffer = null;
             }
             if (this._buffer) {

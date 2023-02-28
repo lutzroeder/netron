@@ -21,8 +21,7 @@ const rm = (...args) => {
 const exec = (command) => {
     try {
         child_process.execSync(command, { cwd: root, stdio: [ 0,1,2 ] });
-    }
-    catch (error) {
+    } catch (error) {
         process.exit(1);
     }
 };

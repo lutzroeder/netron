@@ -160,8 +160,7 @@ hdf5.Group = class {
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 this._decodeDataObject();
                 for (const link of this._dataObjectHeader.links) {
                     if (Object.prototype.hasOwnProperty.call(link, 'objectHeaderAddress')) {
@@ -254,8 +253,7 @@ hdf5.Variable = class {
                                     chunk_pos[i - 1]++;
                                     data_pos[i - 1]++;
                                 }
-                            }
-                            else {
+                            } else {
                                 break;
                             }
                         }
@@ -358,8 +356,7 @@ hdf5.Reader = class {
         const f = value & 0x03FF;
         if (e == 0) {
             return (s ? -1 : 1) * Math.pow(2, -14) * (f / Math.pow(2, 10));
-        }
-        else if (e == 0x1F) {
+        } else if (e == 0x1F) {
             return f ? NaN : ((s ? -1 : 1) * Infinity);
         }
         return (s ? -1 : 1) * Math.pow(2, e-15) * (1 + (f / Math.pow(2, 10)));
@@ -649,8 +646,7 @@ hdf5.SymbolTableNode = class {
                 const entry = new hdf5.SymbolTableEntry(reader);
                 this.entries.push(entry);
             }
-        }
-        else {
+        } else {
             throw new hdf5.Error('Unsupported symbol table node version \'' + version + '\'.');
         }
     }
@@ -707,8 +703,7 @@ hdf5.DataObjectHeader = class {
                         const continuation = this.continuations.shift();
                         reader = reader.at(continuation.offset);
                         end = continuation.offset + continuation.length;
-                    }
-                    else {
+                    } else {
                         reader.align(8);
                     }
                 }
@@ -889,8 +884,7 @@ hdf5.Dataspace = class {
             for (let i = 0; i < size; i++) {
                 array.push(datatype.read(reader));
             }
-        }
-        else {
+        } else {
             for (let j = 0; j < size; j++) {
                 array.push(this._readArray(datatype, reader, shape, dimension + 1));
             }
@@ -911,8 +905,7 @@ hdf5.Dataspace = class {
             for (let i = 0; i < size; i++) {
                 data[i] = datatype.decode(data[i], globalHeap);
             }
-        }
-        else {
+        } else {
             for (let j = 0; j < size; j++) {
                 data[j] = this._decodeArray(datatype, data[j], shape, dimension + 1);
             }
@@ -1001,8 +994,7 @@ hdf5.Datatype = class {
                             case 8: return 'int64';
                             default: throw new hdf5.Error("Unsupported int size '" + this._size + "'.");
                         }
-                    }
-                    else {
+                    } else {
                         switch (this._size) {
                             case 1: return 'uint8';
                             case 2: return 'uint16';
@@ -1016,11 +1008,9 @@ hdf5.Datatype = class {
             case 1: // floating-point
                 if (this._size == 2 && this._flags == 0x0f20) {
                     return 'float16';
-                }
-                else if (this._size == 4 && this._flags == 0x1f20) {
+                } else if (this._size == 4 && this._flags == 0x1f20) {
                     return 'float32';
-                }
-                else if (this._size == 8 && this._flags == 0x3f20) {
+                } else if (this._size == 8 && this._flags == 0x3f20) {
                     return 'float64';
                 }
                 break;
@@ -1063,25 +1053,20 @@ hdf5.Datatype = class {
             case 0: // fixed-point
                 if (this._size == 1) {
                     return ((this._flags & 0x8) != 0) ? reader.int8() : reader.byte();
-                }
-                else if (this._size == 2) {
+                } else if (this._size == 2) {
                     return ((this._flags & 0x8) != 0) ? reader.int16() : reader.uint16();
-                }
-                else if (this._size == 4) {
+                } else if (this._size == 4) {
                     return ((this._flags & 0x8) != 0) ? reader.int32() : reader.uint32();
-                }
-                else if (this._size == 8) {
+                } else if (this._size == 8) {
                     return ((this._flags & 0x8) != 0) ? reader.int64() : reader.uint64();
                 }
                 throw new hdf5.Error('Unsupported fixed-point datatype.');
             case 1: // floating-point
                 if (this._size == 2 && this._flags == 0x0f20) {
                     return reader.float16();
-                }
-                else if (this._size == 4 && this._flags == 0x1f20) {
+                } else if (this._size == 4 && this._flags == 0x1f20) {
                     return reader.float32();
-                }
-                else if (this._size == 8 && this._flags == 0x3f20) {
+                } else if (this._size == 8 && this._flags == 0x3f20) {
                     return reader.float64();
                 }
                 throw new hdf5.Error('Unsupported floating-point datatype.');
@@ -1493,8 +1478,7 @@ hdf5.Tree = class {
                     if (this.level == 0) {
                         const node = new hdf5.SymbolTableNode(reader.at(childPointer));
                         this.nodes.push(node);
-                    }
-                    else {
+                    } else {
                         const tree = new hdf5.Tree(reader.at(childPointer));
                         this.nodes.push(...tree.nodes);
                     }
@@ -1513,8 +1497,7 @@ hdf5.Tree = class {
                     if (this.level == 0) {
                         const data = reader.at(childPointer).read(size);
                         this.nodes.push({ data: data, fields: fields, filterMask: filterMask });
-                    }
-                    else {
+                    } else {
                         const tree = new hdf5.Tree(reader.at(childPointer), dimensionality);
                         this.nodes.push(...tree.nodes);
                     }

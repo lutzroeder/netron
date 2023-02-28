@@ -287,8 +287,7 @@ dl4j.Node = class {
                 if (this._type == 'Activation') {
                     this._type = activation.__type__;
                     attributes = activation;
-                }
-                else {
+                } else {
                     this._chain = this._chain || [];
                     this._chain.push(new dl4j.Node(metadata, activation, [], null, null));
                 }
@@ -352,8 +351,7 @@ dl4j.Node = class {
             }
             delete value['@class'];
             result.__type__ = type;
-        }
-        else {
+        } else {
             let key = Object.keys(value)[0];
             result = value[key];
             if (key.length > 0) {

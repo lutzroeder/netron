@@ -22,8 +22,7 @@ mediapipe.ModelFactory = class {
                 const reader = protobuf.TextReader.open(stream);
                 // const config = mediapipe.proto.mediapipe.CalculatorGraphConfig.decodeText(reader);
                 config = new mediapipe.Object(reader);
-            }
-            catch (error) {
+            } catch (error) {
                 const message = error && error.message ? error.message : error.toString();
                 throw new mediapipe.Error('File text format is not mediapipe.CalculatorGraphConfig (' + message.replace(/\.$/, '') + ').');
             }
@@ -201,8 +200,7 @@ mediapipe.Node = class {
                     options.set(key, message[key]);
                 }
             }
-        }
-        else {
+        } else {
             for (const entry of node_options) {
                 for (const key of Object.keys(entry)) {
                     if (key !== '__type__') {
@@ -342,16 +340,13 @@ mediapipe.Object = class {
                         break;
                     }
                 }
-            }
-            else if (next.startsWith('"') && next.endsWith('"')) {
+            } else if (next.startsWith('"') && next.endsWith('"')) {
                 obj = next.substring(1, next.length - 1);
                 reader.next();
-            }
-            else if (next === 'true' || next === 'false') {
+            } else if (next === 'true' || next === 'false') {
                 obj = next;
                 reader.next();
-            }
-            else if (reader.first()) {
+            } else if (reader.first()) {
                 obj = [];
                 while (!reader.last()) {
                     const data = reader.token();
@@ -360,12 +355,10 @@ mediapipe.Object = class {
                         obj.push(parseFloat(data));
                     }
                 }
-            }
-            else if (!isNaN(next)) {
+            } else if (!isNaN(next)) {
                 obj = parseFloat(next);
                 reader.next();
-            }
-            else {
+            } else {
                 obj = next;
                 reader.next();
             }
@@ -375,8 +368,7 @@ mediapipe.Object = class {
             }
             if (this[tag]) {
                 this[tag].push(obj);
-            }
-            else {
+            } else {
                 if (Array.isArray(obj)) {
                     arrayTags.add(tag);
                 }

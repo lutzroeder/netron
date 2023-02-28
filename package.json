@@ -44,7 +44,7 @@
         },
         "rules": {
             "array-callback-return": "error",
-            "brace-style": [ "error", "stroustrup" ],
+            "brace-style": "error",
             "curly": "error",
             "consistent-return": "error",
             "default-case": "error",

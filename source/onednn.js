@@ -198,8 +198,7 @@ onednn.Attribute = class {
                         number = Number.parseInt(item, 10);
                         if (Number.isNaN(item - number)) {
                             array = null;
-                        }
-                        else if (array != null) {
+                        } else if (array != null) {
                             array.push(number);
                         }
                     }
@@ -224,8 +223,7 @@ onednn.Attribute = class {
                         number = Number.parseFloat(item);
                         if (Number.isNaN(item - number)) {
                             array = null;
-                        }
-                        else if (array != null) {
+                        } else if (array != null) {
                             array.push(number);
                         }
                     }

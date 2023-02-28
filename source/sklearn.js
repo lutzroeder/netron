@@ -249,13 +249,11 @@ sklearn.Node = class {
                 const argument = new sklearn.Argument('', null, new sklearn.Tensor(value));
                 const paramter = new sklearn.Parameter(name, [ argument ]);
                 this._inputs.push(paramter);
-            }
-            else if (Array.isArray(value) && value.every((obj) => sklearn.Utility.isTensor(obj))) {
+            } else if (Array.isArray(value) && value.every((obj) => sklearn.Utility.isTensor(obj))) {
                 const args = value.map((obj) => new sklearn.Argument('', null, new sklearn.Tensor(obj)));
                 const paramter = new sklearn.Parameter(name, args);
                 this._inputs.push(paramter);
-            }
-            else if (!name.startsWith('_')) {
+            } else if (!name.startsWith('_')) {
                 const attribute = new sklearn.Attribute(metadata.attribute(type, name), name, value);
                 this._attributes.push(attribute);
             }
@@ -295,20 +293,16 @@ sklearn.Attribute = class {
         if (metadata) {
             if (metadata.optional && this._value == null) {
                 this._visible = false;
-            }
-            else if (metadata.visible === false) {
+            } else if (metadata.visible === false) {
                 this._visible = false;
-            }
-            else if (metadata.default !== undefined) {
+            } else if (metadata.default !== undefined) {
                 if (Array.isArray(value)) {
                     if (Array.isArray(metadata.default)) {
                         this._visible = value.length !== metadata.default || !this.value.every((item, index) => item == metadata.default[index]);
-                    }
-                    else {
+                    } else {
                         this._visible = !this.value.every((item) => item == metadata.default);
                     }
-                }
-                else {
+                } else {
                     this._visible = this.value !== metadata.default;
                 }
             }
@@ -316,8 +310,7 @@ sklearn.Attribute = class {
         if (value) {
             if (Array.isArray(value) && value.length > 0 && value.every((obj) => obj.__class__ && obj.__class__.__module__ === value[0].__class__.__module__ && obj.__class__.__name__ === value[0].__class__.__name__)) {
                 this._type = value[0].__class__.__module__ + '.' + value[0].__class__.__name__ + '[]';
-            }
-            else if (value.__class__) {
+            } else if (value.__class__) {
                 this._type = value.__class__.__module__ + '.' + value.__class__.__name__;
             }
         }
@@ -424,8 +417,7 @@ sklearn.Utility = class {
                         weights.set(pair[0], pair[1]);
                     }
                     return weights;
-                }
-                else if (!Array.isArray(dict)) {
+                } else if (!Array.isArray(dict)) {
                     for (const key in dict) {
                         const value = dict[key];
                         if (key != 'weight_order' && key != 'lr') {

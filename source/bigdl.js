@@ -23,8 +23,7 @@ bigdl.ModelFactory = class {
                 const stream = context.stream;
                 const reader = protobuf.BinaryReader.open(stream);
                 module = bigdl.proto.BigDLModule.decode(reader);
-            }
-            catch (error) {
+            } catch (error) {
                 const message = error && error.message ? error.message : error.toString();
                 throw new bigdl.Error('File format is not bigdl.BigDLModule (' + message.replace(/\.$/, '') + ').');
             }

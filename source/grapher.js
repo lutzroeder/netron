@@ -23,8 +23,7 @@ grapher.Graph = class {
         const value = this._nodes.get(key);
         if (value) {
             value.label = node;
-        }
-        else {
+        } else {
             this._nodes.set(key, { v: key, label: node });
             if (this._isCompound) {
                 this._parent[key] = '\x00';
@@ -96,11 +95,9 @@ grapher.Graph = class {
             if (children) {
                 return Object.keys(children);
             }
-        }
-        else if (key === '\x00') {
+        } else if (key === '\x00') {
             return this.nodes.keys();
-        }
-        else if (this.hasNode(key)) {
+        } else if (this.hasNode(key)) {
             return [];
         }
         return null;
@@ -146,8 +143,7 @@ grapher.Graph = class {
             if (this.children(nodeId).length == 0) {
                 // node
                 node.label.build(document, nodeGroup);
-            }
-            else {
+            } else {
                 // cluster
                 node.label.rectangle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
                 if (node.label.rx) {
@@ -175,8 +171,7 @@ grapher.Graph = class {
             if (this.children(nodeId).length == 0) {
                 // node
                 node.label.update();
-            }
-            else {
+            } else {
                 // cluster
                 const node = this.node(nodeId);
                 node.label.element.setAttribute('transform', 'translate(' + node.label.x + ',' + node.label.y + ')');
@@ -314,8 +309,7 @@ grapher.Node.Header = class {
             const entry = this._entries[i];
             if (i == 0) {
                 entry.width = entry.width + dx;
-            }
-            else {
+            } else {
                 entry.x = entry.x + dx;
                 entry.tx = entry.tx + dx;
             }
@@ -651,8 +645,7 @@ grapher.Edge.Curve = class {
                 this._state = 1;
                 if (this._line) {
                     this._path.lineTo(x, y);
-                }
-                else {
+                } else {
                     this._path.moveTo(x, y);
                 }
                 break;

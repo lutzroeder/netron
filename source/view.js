@@ -83,8 +83,7 @@ view.View = class {
                         accelerator: this._host.environment('platform') === 'win32' ? '' : 'CmdOrCtrl+Q',
                         execute: () => this._host.execute('quit'),
                     });
-                }
-                else {
+                } else {
                     file.add({
                         label: 'Export as &PNG',
                         accelerator: 'CmdOrCtrl+Shift+E',
@@ -205,8 +204,7 @@ view.View = class {
         this._host.document.body.classList.add(...page.split(' '));
         if (page === 'default') {
             this._activate();
-        }
-        else {
+        } else {
             this._deactivate();
         }
         if (page === 'welcome') {
@@ -359,8 +357,7 @@ view.View = class {
         graph.addEventListener('mousedown', this._events.mousedown);
         if (this._host.environment('agent') === 'safari') {
             graph.addEventListener('gesturestart', this._events.gesturestart, false);
-        }
-        else {
+        } else {
             graph.addEventListener('touchstart', this._events.touchstart, { passive: true });
         }
     }
@@ -672,8 +669,7 @@ view.View = class {
                     nameButton.innerHTML = graph ? graph.name : '';
                     backButton.style.opacity = 1;
                     nameButton.style.opacity = 1;
-                }
-                else {
+                } else {
                     backButton.style.opacity = 0;
                     nameButton.style.opacity = 0;
                 }
@@ -818,8 +814,7 @@ view.View = class {
                     const left = (container.scrollLeft + x - graphRect.left) - (graphRect.width / 2);
                     const top = (container.scrollTop + y - graphRect.top) - (graphRect.height / 2);
                     container.scrollTo({ left: left, top: top, behavior: 'auto' });
-                }
-                else {
+                } else {
                     const canvasRect = canvas.getBoundingClientRect();
                     const graphRect = container.getBoundingClientRect();
                     const left = (container.scrollLeft + (canvasRect.width / 2) - graphRect.left) - (graphRect.width / 2);
@@ -829,8 +824,7 @@ view.View = class {
                 this._graph = viewGraph;
                 return;
             });
-        }
-        catch (error) {
+        } catch (error) {
             return Promise.reject(error);
         }
     }
@@ -913,8 +907,7 @@ view.View = class {
                     canvas.toBlob((blob) => {
                         if (blob) {
                             this._host.export(file, blob);
-                        }
-                        else {
+                        } else {
                             const error = new Error('Image may be too large to render as PNG.');
                             error.name = 'Error exporting image.';
                             this._host.exception(error, false);
@@ -936,8 +929,7 @@ view.View = class {
                 });
                 const content = modelSidebar.render();
                 this._sidebar.open(content, 'Model Properties');
-            }
-            catch (error) {
+            } catch (error) {
                 if (error) {
                     error.context = this._model.identifier;
                 }
@@ -972,8 +964,7 @@ view.View = class {
                             bytes.seek(0);
                             const blob = new Blob([ bytes.read() ], { type: 'application/octet-stream' });
                             this._host.export(file, blob);
-                        }
-                        catch (error) {
+                        } catch (error) {
                             this.error(error, 'Error saving NumPy tensor.', null);
                         }
                     });
@@ -988,8 +979,7 @@ view.View = class {
                     nodeSidebar.toggleInput(input.name);
                 }
                 this._sidebar.open(nodeSidebar.render(), 'Node Properties');
-            }
-            catch (error) {
+            } catch (error) {
                 if (error) {
                     error.context = this._model.identifier;
                 }
@@ -1061,19 +1051,16 @@ view.Menu = class {
             }
             if (code === 0x0028) { // Down
                 this._next();
-            }
-            else if (code === 0x0212) { // Alt
+            } else if (code === 0x0212) { // Alt
                 if (this._stack.length === 0) {
                     this.toggle();
                     this._stack = [ this ];
                     this._reset();
                     this._update();
-                }
-                else {
+                } else {
                     this._exit = true;
                 }
-            }
-            else if ((this._stack.length > 0 && (code & 0xFD00) === 0) && (code & 0x00FF) != 0) {
+            } else if ((this._stack.length > 0 && (code & 0xFD00) === 0) && (code & 0x00FF) != 0) {
                 const key = String.fromCharCode(code & 0x00FF);
                 const group = this._stack[this._stack.length - 1];
                 for (const item of group.items) {
@@ -1081,16 +1068,14 @@ view.Menu = class {
                         if (item.type === 'group' && item.enabled) {
                             e.preventDefault();
                             this._activate(item);
-                        }
-                        else if (item.type === 'command' && item.enabled) {
+                        } else if (item.type === 'command' && item.enabled) {
                             item.execute();
                             e.preventDefault();
                             this._close();
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 const item = this._accelerators.get(code.toString());
                 if (item && item.enabled) {
                     item.execute();
@@ -1104,8 +1089,7 @@ view.Menu = class {
             if (code === 0x0012 && this._exit) { // Alt
                 if (this._stack.length === 1) {
                     this._close();
-                }
-                else if (this._stack.length > 1) {
+                } else if (this._stack.length > 1) {
                     this._stack = [ this ];
                     if (this._root.length > 1) {
                         this._root =  [ this ];
@@ -1128,8 +1112,7 @@ view.Menu = class {
     toggle() {
         if (this._element.style.opacity >= 1) {
             this._close();
-        }
-        else {
+        } else {
             this._root = [ this ];
             this._reset();
             this._update();
@@ -1148,8 +1131,7 @@ view.Menu = class {
             this._stack.pop();
             this._reset();
             this._update();
-        }
-        else if (this._stack.length > 0) {
+        } else if (this._stack.length > 0) {
             this._stack.pop();
             this._update();
         }
@@ -1194,8 +1176,7 @@ view.Menu = class {
                         accelerator.setAttribute('class', 'menu-shortcut');
                         if (item.type === 'group') {
                             accelerator.innerHTML = '&#10095;';
-                        }
-                        else if (item.accelerator) {
+                        } else if (item.accelerator) {
                             accelerator.innerHTML = item.accelerator;
                         }
                         button.appendChild(accelerator);
@@ -1225,8 +1206,7 @@ view.Menu = class {
         if (this._root.length > 1) {
             this._element.style.width = 'auto';
             this._element.style.maxWidth = '60%';
-        }
-        else {
+        } else {
             this._element.style.removeProperty('width');
             this._element.style.maxWidth = 'auto';
 
@@ -1275,8 +1255,7 @@ view.Menu = class {
                             if (active) {
                                 this._buttons.push(button);
                             }
-                        }
-                        else {
+                        } else {
                             button.setAttribute('disabled', '');
                             button.style.display = 'none';
                         }
@@ -1355,8 +1334,7 @@ view.Menu = class {
                     shortcut += shift ? '&#x21e7;' : '';
                     shortcut += cmdOrCtrl ? '&#x2318;' : '';
                     shortcut += this._symbols.has(key) ? this._symbols.get(key) : key;
-                }
-                else {
+                } else {
                     shortcut += cmdOrCtrl ? 'Ctrl+' : '';
                     shortcut += alt ? 'Alt+' : '';
                     shortcut += shift ? 'Shift+' : '';
@@ -1587,8 +1565,7 @@ view.Graph = class extends grapher.Graph {
                             if (!clusterParentMap.has(groupName)) {
                                 groupName = null;
                             }
-                        }
-                        else {
+                        } else {
                             groupName = null;
                         }
                     }
@@ -1710,13 +1687,11 @@ view.Node = class extends grapher.Node {
                                 }
                                 separator = ' = ';
                             }
-                        }
-                        catch (err) {
+                        } catch (err) {
                             let type = '?';
                             try {
                                 type = argument.initializer.type.toString();
-                            }
-                            catch (error) {
+                            } catch (error) {
                                 // continue regardless of error
                             }
                             const error = new view.Error("Failed to render tensor of type '" + type + "' (" + err.message + ").");
@@ -1949,8 +1924,7 @@ view.Sidebar = class {
         }
         if (this._stack.length > 0) {
             this._activate(this._stack[this._stack.length - 1]);
-        }
-        else {
+        } else {
             this._hide();
         }
     }
@@ -1989,14 +1963,12 @@ view.Sidebar = class {
 
             if (typeof item.content == 'string') {
                 content.innerHTML = item.content;
-            }
-            else if (item.content instanceof Array) {
+            } else if (item.content instanceof Array) {
                 content.innerHTML = '';
                 for (const element of item.content) {
                     content.appendChild(element);
                 }
-            }
-            else {
+            } else {
                 content.innerHTML = '';
                 content.appendChild(item.content);
             }
@@ -2318,17 +2290,13 @@ view.ValueView = class extends view.Control {
             }
             if (tensor.layout !== '<' && tensor.layout !== '>' && tensor.layout !== '|' && tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo') {
                 contentLine.innerHTML = "Tensor layout '" + tensor.layout + "' is not implemented.";
-            }
-            else if (tensor.empty) {
+            } else if (tensor.empty) {
                 contentLine.innerHTML = 'Tensor data is empty.';
-            }
-            else if (tensor.type && tensor.type.dataType === '?') {
+            } else if (tensor.type && tensor.type.dataType === '?') {
                 contentLine.innerHTML = 'Tensor data type is not defined.';
-            }
-            else if (tensor.type && !tensor.type.shape) {
+            } else if (tensor.type && !tensor.type.shape) {
                 contentLine.innerHTML = 'Tensor shape is not defined.';
-            }
-            else {
+            } else {
                 contentLine.innerHTML = tensor.toString();
 
                 if (this._host.save &&
@@ -2343,8 +2311,7 @@ view.ValueView = class extends view.Control {
                     this._element.appendChild(this._saveButton);
                 }
             }
-        }
-        catch (err) {
+        } catch (err) {
             contentLine.innerHTML = err.toString();
             this.emit('error', err);
         }
@@ -2439,8 +2406,7 @@ view.AttributeView = class extends view.ValueView {
             if (this._attribute.type == 'tensor' && value) {
                 this._tensor(value);
             }
-        }
-        else {
+        } else {
             this._expander.innerText = '+';
             while (this._element.childElementCount > 2) {
                 this._element.removeChild(this._element.lastChild);
@@ -2521,11 +2487,9 @@ view.ArgumentView = class extends view.ValueView {
             }
             nameLine.innerHTML = '<span class=\'sidebar-view-item-value-line-content\'>name: <b>' + (name || ' ') + '</b></span>';
             this._element.appendChild(nameLine);
-        }
-        else if (this._hasCategory) {
+        } else if (this._hasCategory) {
             this._bold('category', initializer.category);
-        }
-        else if (type) {
+        } else if (type) {
             this._code('type', type.toString().split('<').join('&lt;').split('>').join('&gt;'));
         }
     }
@@ -2582,8 +2546,7 @@ view.ArgumentView = class extends view.ValueView {
                 if (initializer) {
                     this._tensor(initializer);
                 }
-            }
-            else {
+            } else {
                 this._expander.innerText = '+';
                 while (this._element.childElementCount > 2) {
                     this._element.removeChild(this._element.lastChild);
@@ -2911,8 +2874,7 @@ view.FindSidebar = class extends view.Control {
             callback = (name) => {
                 return term == name;
             };
-        }
-        else {
+        } else {
             terms = searchText.trim().toLowerCase().split(' ').map((term) => term.trim()).filter((term) => term.length > 0);
             callback = (name) => {
                 return terms.every((term) => name.toLowerCase().indexOf(term) !== -1);
@@ -2961,8 +2923,7 @@ view.FindSidebar = class extends view.Control {
                                     inputItem.id = 'edge-' + argument.name;
                                     this._resultElement.appendChild(inputItem);
                                     edges.add(argument.name);
-                                }
-                                else {
+                                } else {
                                     initializers.push(argument);
                                 }
                             }
@@ -3158,18 +3119,15 @@ view.Tensor = class {
                     if (context.data.length < (context.itemsize * size)) {
                         throw new Error('Invalid tensor data size.');
                     }
-                }
-                else if (dataType.startsWith('uint') && !isNaN(parseInt(dataType.substring(4), 10))) {
+                } else if (dataType.startsWith('uint') && !isNaN(parseInt(dataType.substring(4), 10))) {
                     context.dataType = 'uint';
                     context.bits = parseInt(dataType.substring(4), 10);
                     context.itemsize = 1;
-                }
-                else if (dataType.startsWith('int') && !isNaN(parseInt(dataType.substring(3), 10))) {
+                } else if (dataType.startsWith('int') && !isNaN(parseInt(dataType.substring(3), 10))) {
                     context.dataType = 'int';
                     context.bits = parseInt(dataType.substring(3), 10);
                     context.itemsize = 1;
-                }
-                else {
+                } else {
                     throw new Error("Tensor data type '" + dataType + "' is not implemented.");
                 }
                 break;
@@ -3239,8 +3197,7 @@ view.Tensor = class {
                     const index = indices[i];
                     array[index.high === 0 ? index.low : index.toNumber()] = values[i];
                 }
-            }
-            else {
+            } else {
                 for (let i = 0; i < indices.length; i++) {
                     array[indices[i]] = values[i];
                 }
@@ -3361,8 +3318,7 @@ view.Tensor = class {
             if (ellipsis) {
                 results.push('...');
             }
-        }
-        else {
+        } else {
             for (let j = 0; j < size; j++) {
                 if (context.count >= context.limit) {
                     results.push('...');
@@ -3399,8 +3355,7 @@ view.Tensor = class {
                 context.index++;
                 context.count++;
             }
-        }
-        else {
+        } else {
             for (let j = 0; j < size; j++) {
                 if (context.count > context.limit) {
                     results.push('...');
@@ -3745,8 +3700,7 @@ view.Formatter = class {
         const entries = Object.entries(value).filter((entry) => !entry[0].startsWith('__') && !entry[0].endsWith('__'));
         if (entries.length == 1) {
             list = [ this._format(entries[0][1], null, true) ];
-        }
-        else {
+        } else {
             list = new Array(entries.length);
             for (let i = 0; i < entries.length; i++) {
                 const entry = entries[i];
@@ -3852,8 +3806,7 @@ markdown.Generator = class {
                 const lastToken = tokens[tokens.length - 1];
                 if (lastToken && lastToken.type === 'paragraph') {
                     lastToken.text += '\n' + match[0].trimRight();
-                }
-                else {
+                } else {
                     const text = match[0].replace(/^ {4}/gm, '').replace(/\n*$/, '');
                     tokens.push({ type: 'code', text: text });
                 }
@@ -3891,14 +3844,11 @@ markdown.Generator = class {
                     for (let i = 0; i < token.align.length; i++) {
                         if (/^ *-+: *$/.test(token.align[i])) {
                             token.align[i] = 'right';
-                        }
-                        else if (/^ *:-+: *$/.test(token.align[i])) {
+                        } else if (/^ *:-+: *$/.test(token.align[i])) {
                             token.align[i] = 'center';
-                        }
-                        else if (/^ *:-+ *$/.test(token.align[i])) {
+                        } else if (/^ *:-+ *$/.test(token.align[i])) {
                             token.align[i] = 'left';
-                        }
-                        else {
+                        } else {
                             token.align[i] = null;
                         }
                     }
@@ -4001,14 +3951,11 @@ markdown.Generator = class {
                     for (let i = 0; i < token.align.length; i++) {
                         if (/^ *-+: *$/.test(token.align[i])) {
                             token.align[i] = 'right';
-                        }
-                        else if (/^ *:-+: *$/.test(token.align[i])) {
+                        } else if (/^ *:-+: *$/.test(token.align[i])) {
                             token.align[i] = 'center';
-                        }
-                        else if (/^ *:-+ *$/.test(token.align[i])) {
+                        } else if (/^ *:-+ *$/.test(token.align[i])) {
                             token.align[i] = 'left';
-                        }
-                        else {
+                        } else {
                             token.align[i] = null;
                         }
                     }
@@ -4038,8 +3985,7 @@ markdown.Generator = class {
                 const lastToken = tokens[tokens.length - 1];
                 if (lastToken && lastToken.type === 'text') {
                     lastToken.text += '\n' + match[0];
-                }
-                else {
+                } else {
                     tokens.push({ type: 'text', text: match[0] });
                 }
                 continue;
@@ -4084,14 +4030,12 @@ markdown.Generator = class {
                 source = source.substring(match[0].length);
                 if (!inLink && /^<a /i.test(match[0])) {
                     inLink = true;
-                }
-                else if (inLink && /^<\/a>/i.test(match[0])) {
+                } else if (inLink && /^<\/a>/i.test(match[0])) {
                     inLink = false;
                 }
                 if (!inRawBlock && /^<(pre|code|kbd|script)(\s|>)/i.test(match[0])) {
                     inRawBlock = true;
-                }
-                else if (inRawBlock && /^<\/(pre|code|kbd|script)(\s|>)/i.test(match[0])) {
+                } else if (inRawBlock && /^<\/(pre|code|kbd|script)(\s|>)/i.test(match[0])) {
                     inRawBlock = false;
                 }
                 tokens.push({ type: 'html', raw: match[0], text: match[0] });
@@ -4147,8 +4091,7 @@ markdown.Generator = class {
                     const text = match[0].charAt(0);
                     source = source.substring(text.length);
                     tokens.push({ type: 'text', text: text });
-                }
-                else {
+                } else {
                     source = source.substring(match[0].length);
                     const token = this._outputLink(match, link);
                     if (token.type === 'link') {
@@ -4354,12 +4297,10 @@ markdown.Generator = class {
                                     if (item.tokens[0].tokens && item.tokens[0].tokens.length > 0 && item.tokens[0].tokens[0].type === 'text') {
                                         item.tokens[0].tokens[0].text = checkbox + ' ' + item.tokens[0].tokens[0].text;
                                     }
-                                }
-                                else {
+                                } else {
                                     item.tokens.unshift({ type: 'text', text: checkbox });
                                 }
-                            }
-                            else {
+                            } else {
                                 itemBody += checkbox;
                             }
                         }
@@ -4466,8 +4407,7 @@ markdown.Generator = class {
         const cells = row.split(/ \|/);
         if (cells.length > count) {
             cells.splice(count);
-        }
-        else {
+        } else {
             while (cells.length < count) {
                 cells.push('');
             }
@@ -4501,8 +4441,7 @@ view.ModelContext = class {
         if (!stream && entries && entries.size > 0) {
             this._entries = entries;
             this._format = '';
-        }
-        else {
+        } else {
             this._entries = new Map();
             const entry = context instanceof view.EntryContext;
             try {
@@ -4514,8 +4453,7 @@ view.ModelContext = class {
                         stream = this._entries.values().next().value;
                     }
                 }
-            }
-            catch (error) {
+            } catch (error) {
                 if (!entry) {
                     throw error;
                 }
@@ -4532,8 +4470,7 @@ view.ModelContext = class {
                         break;
                     }
                 }
-            }
-            catch (error) {
+            } catch (error) {
                 if (!entry) {
                     throw error;
                 }
@@ -4593,8 +4530,7 @@ view.ModelContext = class {
                                     const obj = reader.read();
                                     this._content.set(type, obj);
                                 }
-                            }
-                            catch (err) {
+                            } catch (err) {
                                 // continue regardless of error
                             }
                             break;
@@ -4610,8 +4546,7 @@ view.ModelContext = class {
                                         this._content.set(type, obj);
                                     }
                                 }
-                            }
-                            catch (err) {
+                            } catch (err) {
                                 // continue regardless of error
                             }
                             break;
@@ -4644,8 +4579,7 @@ view.ModelContext = class {
                                     const pickle = execution.__import__('pickle');
                                     unpickler = new pickle.Unpickler(data);
                                 }
-                            }
-                            catch (err) {
+                            } catch (err) {
                                 // continue regardless of error
                             }
                             if (unpickler) {
@@ -4736,8 +4670,7 @@ view.ModelContext = class {
                                 throw new view.Error("Unsupported tags format type '" + type + "'.");
                             }
                         }
-                    }
-                    catch (error) {
+                    } catch (error) {
                         tags.clear();
                     }
                 }
@@ -4925,8 +4858,7 @@ view.ModelFactoryService = class {
             let archive = null;
             try {
                 archive = callback(stream);
-            }
-            catch (error) {
+            } catch (error) {
                 // continue regardless of error
             }
             if (archive) {
@@ -5032,8 +4964,7 @@ view.ModelFactoryService = class {
                             if (typeof value !== 'object' || !match(value, inner)) {
                                 return false;
                             }
-                        }
-                        else if (inner !== value) {
+                        } else if (inner !== value) {
                             if (inner === 2 && !Array.isArray(value) && Object(value) === (value) && Object.keys(value).length === 0) {
                                 return true;
                             }
@@ -5131,8 +5062,7 @@ view.ModelFactoryService = class {
                         if (!match) {
                             return nextModule();
                         }
-                    }
-                    catch (error) {
+                    } catch (error) {
                         return Promise.reject(error);
                     }
                     success = true;
@@ -5149,8 +5079,7 @@ view.ModelFactoryService = class {
                             errors.push(error);
                             return nextModule();
                         });
-                    }
-                    catch (error) {
+                    } catch (error) {
                         if (context.stream && context.stream.position !== 0) {
                             context.stream.seek(0);
                         }
@@ -5296,8 +5225,7 @@ view.ModelFactoryService = class {
                 const queue = files.slice(0).filter((entry) => entry.name.substring(folder.length).indexOf('/') >= 0);
                 return filter(queue);
             });
-        }
-        catch (error) {
+        } catch (error) {
             return Promise.reject(new view.ArchiveError(error.message));
         }
     }

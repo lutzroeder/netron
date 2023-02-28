@@ -102,8 +102,7 @@ host.BrowserHost = class {
                     return Promise.resolve();
                 }
                 return consent();
-            }
-            catch (err) {
+            } catch (err) {
                 return consent();
             }
         }).catch(() => {
@@ -378,23 +377,19 @@ host.BrowserHost = class {
                 const match = error.stack.match(/\n {4}at (.*) \((.*):(\d*):(\d*)\)/);
                 if (match) {
                     stack = match[1] + ' (' + format(match[2], match[3], match[4]) + ')';
-                }
-                else {
+                } else {
                     const match = error.stack.match(/\n {4}at (.*):(\d*):(\d*)/);
                     if (match) {
                         stack = '(' + format(match[1], match[2], match[3]) + ')';
-                    }
-                    else {
+                    } else {
                         const match = error.stack.match(/\n {4}at (.*)\((.*)\)/);
                         if (match) {
                             stack = '(' + format(match[1], match[2], match[3]) + ')';
-                        }
-                        else {
+                        } else {
                             const match = error.stack.match(/\s*@\s*(.*):(.*):(.*)/);
                             if (match) {
                                 stack = '(' + format(match[1], match[2], match[3]) + ')';
-                            }
-                            else {
+                            } else {
                                 const match = error.stack.match(/.*\n\s*(.*)\s*/);
                                 if (match) {
                                     stack = match[1];
@@ -475,12 +470,10 @@ host.BrowserHost = class {
                 if (request.status == 200) {
                     if (request.responseType == 'arraybuffer') {
                         resolve(new host.BrowserHost.BinaryStream(new Uint8Array(request.response)));
-                    }
-                    else {
+                    } else {
                         resolve(request.responseText);
                     }
-                }
-                else {
+                } else {
                     reject(error(request.status));
                 }
             };
@@ -634,8 +627,7 @@ host.BrowserHost = class {
                     }
                     callback();
                 };
-            }
-            else {
+            } else {
                 button.style.display = 'none';
                 button.onclick = null;
             }
@@ -755,8 +747,7 @@ host.BrowserHost.BrowserFileContext = class {
             };
             if (encoding === 'utf-8') {
                 reader.readAsText(blob, encoding);
-            }
-            else {
+            } else {
                 reader.readAsArrayBuffer(blob);
             }
         });
@@ -788,8 +779,7 @@ host.BrowserHost.Context = class {
             if (this._base.endsWith('/')) {
                 this._base.substring(0, this._base.length - 1);
             }
-        }
-        else {
+        } else {
             const parts = url.split('?')[0].split('/');
             this._identifier = parts.pop();
             this._base = parts.join('/');
@@ -859,8 +849,7 @@ if (!('scrollBehavior' in window.document.documentElement.style)) {
 
 if (window.location.hostname.endsWith('.github.io')) {
     window.location.replace('https://netron.app');
-}
-else {
+} else {
     window.require = (id) => {
         const name = id.startsWith('./') ? id.substring(2) : id;
         const value = window[name];

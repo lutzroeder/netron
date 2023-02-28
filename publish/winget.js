@@ -26,15 +26,13 @@ const get = (url, timeout) => {
                 response.on('end', () => {
                     resolve(Buffer.concat(data));
                 });
-            }
-            else if (response.statusCode === 302) {
+            } else if (response.statusCode === 302) {
                 get(response.headers.location).then((data) => {
                     resolve(data);
                 }).catch((err) => {
                     reject(err);
                 });
-            }
-            else {
+            } else {
                 const err = new Error("The web request failed with status code " + response.statusCode + " at '" + url + "'.");
                 err.type = 'error';
                 err.url = url;

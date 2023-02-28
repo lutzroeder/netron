@@ -62,8 +62,7 @@ paddle.ModelFactory = class {
                                     try {
                                         const reader = protobuf.TextReader.open(stream);
                                         program.desc = paddle.proto.ProgramDesc.decodeText(reader);
-                                    }
-                                    catch (error) {
+                                    } catch (error) {
                                         const message = error && error.message ? error.message : error.toString();
                                         throw new paddle.Error('File text format is not paddle.ProgramDesc (' + message.replace(/\.$/, '') + ').');
                                     }
@@ -73,8 +72,7 @@ paddle.ModelFactory = class {
                                     try {
                                         const reader = protobuf.BinaryReader.open(stream);
                                         program.desc = paddle.proto.ProgramDesc.decode(reader);
-                                    }
-                                    catch (error) {
+                                    } catch (error) {
                                         const message = error && error.message ? error.message : error.toString();
                                         throw new paddle.Error('File format is not paddle.ProgramDesc (' + message.replace(/\.$/, '') + ').');
                                     }
@@ -309,12 +307,10 @@ paddle.Graph = class {
                 if (op.type == 'feed') {
                     const inputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
                     this._inputs.push(new paddle.Parameter(inputName, op.outputs[0].arguments.map((id) => args.get(id))));
-                }
-                else if (op.type == 'fetch') {
+                } else if (op.type == 'fetch') {
                     const outputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
                     this._outputs.push(new paddle.Parameter(outputName, op.inputs[0].arguments.map((id) => args.get(id))));
-                }
-                else {
+                } else {
                     const node = new paddle.Node(metadata, op, args);
                     if (op.inputs.length == 1 && op.inputs[0].arguments.length == 1 &&
                         op.outputs.length >= 1 && op.outputs[0].arguments.length == 1 &&
@@ -322,8 +318,7 @@ paddle.Graph = class {
                         lastNode &&
                         lastOutput == op.inputs[0].arguments[0].split('\n').shift()) {
                         lastNode.chain.push(node);
-                    }
-                    else {
+                    } else {
                         this._nodes.push(node);
                         lastNode = null;
                         lastOutput = null;
@@ -334,8 +329,7 @@ paddle.Graph = class {
                     }
                 }
             }
-        }
-        else {
+        } else {
             const args = new Map();
             const ops = new Map();
             for (const pair of tensors) {
@@ -573,8 +567,7 @@ paddle.Attribute = class {
                 const value = this._value;
                 if (defaultValue == value) {
                     this._visible = false;
-                }
-                else if (Array.isArray(value) && Array.isArray(defaultValue) && value.length == defaultValue.length) {
+                } else if (Array.isArray(value) && Array.isArray(defaultValue) && value.length == defaultValue.length) {
                     if (value.every((item, index) => item == defaultValue[index])) {
                         this._visible = false;
                     }
@@ -747,8 +740,7 @@ paddle.Pickle = class {
             const weights = filter(obj);
             if (weights.length > 0) {
                 this._weights = weights;
-            }
-            else {
+            } else {
                 const list = entries(obj);
                 if (list.filter((entry) => entry[0] !== 'StructuredToParameterName@@').length === 1) {
                     const weights = filter(list[0][1]);

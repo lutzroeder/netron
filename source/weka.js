@@ -19,8 +19,7 @@ weka.ModelFactory = class {
                     }
                 }
             }
-        }
-        catch (err) {
+        } catch (err) {
             // continue regardless of error
         }
         return undefined;

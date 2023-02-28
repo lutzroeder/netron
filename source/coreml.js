@@ -73,8 +73,7 @@ coreml.ModelFactory = class {
                         coreml.proto = protobuf.get('coreml').CoreML.Specification;
                         const reader = protobuf.BinaryReader.open(stream);
                         model = coreml.proto.Model.decode(reader);
-                    }
-                    catch (error) {
+                    } catch (error) {
                         const message = error && error.message ? error.message : error.toString();
                         throw new coreml.Error('File format is not coreml.Model (' + message.replace(/\.$/, '') + ').');
                     }
@@ -251,8 +250,7 @@ coreml.Graph = class {
                 value.counter++;
                 const next = name + '\n' + value.counter.toString(); // custom argument id
                 value.argument = new coreml.Argument(next);
-            }
-            else {
+            } else {
                 const argument = new coreml.Argument(name);
                 const value = { counter: 0, argument: argument };
                 args.set(name, value);
@@ -792,8 +790,7 @@ coreml.Graph = class {
                         type.dataType === 'float16' && type.shape.dimensions.length === 0) {
                         const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
                         argument.value = view.getFloat16(0, true);
-                    }
-                    else {
+                    } else {
                         argument.value = data;
                     }
                     argument.const = true;
@@ -935,17 +932,14 @@ coreml.Graph = class {
             if (data.floatValue && data.floatValue.length > 0) {
                 values = data.floatValue;
                 dataType = 'float32';
-            }
-            else if (data.float16Value && data.float16Value.length > 0) {
+            } else if (data.float16Value && data.float16Value.length > 0) {
                 values = data.float16Value; // byte[]
                 dataType = 'float16';
-            }
-            else if (data.rawValue && data.rawValue.length > 0) {
+            } else if (data.rawValue && data.rawValue.length > 0) {
                 if (data.quantization) {
                     values = data.rawValue;
                     dataType = 'uint' + data.quantization.numberOfBits.toString();
-                }
-                else {
+                } else {
                     shape = [];
                 }
             }
@@ -1242,8 +1236,7 @@ coreml.Attribute = class {
             }
             if (Object.prototype.hasOwnProperty.call(metadata, 'visible') && !metadata.visible) {
                 this._visible = false;
-            }
-            else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
+            } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
                 if (Array.isArray(value)) {
                     value = value.map((item) => item.toNumber());
                 }

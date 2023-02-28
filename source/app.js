@@ -217,8 +217,7 @@ app.Application = class {
             if (view) {
                 this._loadPath(path, view);
                 view = null;
-            }
-            else {
+            } else {
                 this._openPath(path);
             }
         }
@@ -314,8 +313,7 @@ app.Application = class {
         if (process.platform === 'darwin') {
             options.title = '';
             dialog = app.Application._aboutDialog;
-        }
-        else {
+        } else {
             options.title = 'About ' + electron.app.name;
             options.parent = electron.BrowserWindow.getFocusedWindow();
             options.modal = true;
@@ -357,8 +355,7 @@ app.Application = class {
             electron.globalShortcut.register('Escape', function() {
                 dialog.close();
             });
-        }
-        else {
+        } else {
             dialog.show();
         }
     }
@@ -732,8 +729,7 @@ app.View = class {
         this._openPath = path;
         if (this._didFinishLoad) {
             this._window.webContents.send('open', { path: path });
-        }
-        else {
+        } else {
             this._window.webContents.on('did-finish-load', () => {
                 this._window.webContents.send('open', { path: path });
             });
@@ -839,11 +835,9 @@ app.ViewCollection = class {
             const window = event.sender.getOwnerBrowserWindow();
             if (window.isFullScreen()) {
                 window.setFullScreen(false);
-            }
-            else if (window.isMaximized()) {
+            } else if (window.isMaximized()) {
                 window.unmaximize();
-            }
-            else {
+            } else {
                 window.maximize();
             }
             event.returnValue = null;
@@ -957,8 +951,7 @@ app.ConfigurationService = class {
             if (data) {
                 try {
                     this._data = JSON.parse(data);
-                }
-                catch (error) {
+                } catch (error) {
                     // continue regardless of error
                 }
             }
@@ -1026,8 +1019,7 @@ app.MenuService = class {
         if (process.platform === 'darwin') {
             this._menu = electron.Menu.buildFromTemplate(this._menuTemplate);
             electron.Menu.setApplicationMenu(this._menu);
-        }
-        else if (!this._views.application.environment.titlebar) {
+        } else if (!this._views.application.environment.titlebar) {
             this._menu = electron.Menu.buildFromTemplate(this._menuTemplate);
             for (const view of this._views.views) {
                 view.window.setMenu(this._menu);

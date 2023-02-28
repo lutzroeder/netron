@@ -42,15 +42,13 @@ caffe.ModelFactory = class {
                         if (tag.endsWith('_param') && (type == 'LayerParameter' || type == 'V1LayerParameter' || type == 'V0LayerParameter')) {
                             message[tag] = caffe.ModelFactory._decodeText(reader);
                             return;
-                        }
-                        else if (message.constructor.name.endsWith('Parameter') || message.constructor.name === 'ParamSpec') {
+                        } else if (message.constructor.name.endsWith('Parameter') || message.constructor.name === 'ParamSpec') {
                             if (message[tag]) {
                                 if (!Array.isArray(message[tag])) {
                                     message[tag] = [ message[tag] ];
                                 }
                                 message[tag].push(this.read());
-                            }
-                            else {
+                            } else {
                                 message[tag] = this.read();
                             }
                             return;
@@ -83,8 +81,7 @@ caffe.ModelFactory = class {
                         };
                     }
                     netParameter = caffe.proto.NetParameter.decodeText(reader);
-                }
-                catch (error) {
+                } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
                     throw new caffe.Error('File text format is not caffe.NetParameter (' + message.replace(/\.$/, '') + ').');
                 }
@@ -126,8 +123,7 @@ caffe.ModelFactory = class {
                         const stream = context.stream;
                         const reader = protobuf.BinaryReader.open(stream);
                         netParameter = caffe.proto.NetParameter.decode(reader);
-                    }
-                    catch (error) {
+                    } catch (error) {
                         const message = error && error.message ? error.message : error.toString();
                         throw new caffe.Error('File format is not caffe.NetParameter (' + message.replace(/\.$/, '') + ').');
                     }
@@ -148,8 +144,7 @@ caffe.ModelFactory = class {
             const value = reader.read();
             if (!message[tag]) {
                 message[tag] = value;
-            }
-            else {
+            } else {
                 if (!Array.isArray(message[tag])) {
                     message[tag] = [ message[tag] ];
                 }
@@ -170,13 +165,11 @@ caffe.Model = class {
             if (net.layers.every((layer) => Object.prototype.hasOwnProperty.call(layer, 'layer'))) {
                 this._version = 0;
                 net.layer = net.layers;
-            }
-            else {
+            } else {
                 this._version = 1;
                 net.layer = net.layers;
             }
-        }
-        else if (net.layer && net.layer.length > 0) {
+        } else if (net.layer && net.layer.length > 0) {
             this._version = 2;
         }
 
@@ -275,8 +268,7 @@ caffe.Graph = class {
                 lastTop == layer.output[0].split('\n').shift()) {
                 lastLayer.chain = lastLayer.chain || [];
                 lastLayer.chain.push(layer);
-            }
-            else {
+            } else {
                 if (layer.type == 'Input' || layer.type == 'Data') {
                     if (layer.input.length == 0 && layer.output.length == 1 &&
                         layer.input_param && layer.input_param.shape &&
@@ -568,8 +560,7 @@ caffe.Attribute = class {
         if (defaultValue !== undefined) {
             if (this._value == defaultValue) {
                 this._visible = false;
-            }
-            else if (Array.isArray(this._value) && Array.isArray(defaultValue)) {
+            } else if (Array.isArray(this._value) && Array.isArray(defaultValue)) {
                 if (this._value.length == defaultValue.length &&
                     this._value.every((item, index) => {
                         return item == defaultValue[index];
@@ -620,8 +611,7 @@ caffe.Tensor = class {
             if (blob.width != 1) {
                 shape.push(blob.width);
             }
-        }
-        else if (Object.prototype.hasOwnProperty.call(blob, 'shape')) {
+        } else if (Object.prototype.hasOwnProperty.call(blob, 'shape')) {
             shape = blob.shape.dim.map((dim) => dim.toNumber());
         }
 
@@ -629,8 +619,7 @@ caffe.Tensor = class {
         if (blob.data.length > 0) {
             dataType = 'float32';
             this._values = blob.data;
-        }
-        else if (blob.double_data.length > 0) {
+        } else if (blob.double_data.length > 0) {
             dataType = 'float64';
             this._values = blob.double_data;
         }

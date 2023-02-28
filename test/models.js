@@ -56,8 +56,7 @@ class TestHost {
         try {
             const file = path.join(this._sourceDir, id + '.js');
             return Promise.resolve(require(file));
-        }
-        catch (error) {
+        } catch (error) {
             return Promise.reject(error);
         }
     }
@@ -403,8 +402,7 @@ const downloadFile = (location, cookie) => {
                         if (length >= 0) {
                             const label = location.length > 70 ? location.substring(0, 66) + '...' : location;
                             write('  (' + ('  ' + Math.floor(100 * (position / length))).slice(-3) + '%) ' + label + '\r');
-                        }
-                        else {
+                        } else {
                             write('  ' + position + ' bytes\r');
                         }
                         data.push(chunk);
@@ -445,14 +443,12 @@ const downloadTargets = (folder, targets, sources) => {
         source = match[1];
         sourceFiles = match[2].split(',').map((file) => file.trim());
         sources = match[3] && match[3].startsWith(',') ? match[3].substring(1).trim() : '';
-    }
-    else {
+    } else {
         const commaIndex = sources.indexOf(',');
         if (commaIndex != -1) {
             source = sources.substring(0, commaIndex);
             sources = sources.substring(commaIndex + 1);
-        }
-        else {
+        } else {
             source = sources;
             sources = '';
         }
@@ -478,8 +474,7 @@ const downloadTargets = (folder, targets, sources) => {
                     const buffer = stream.peek();
                     const file = path.join(folder, target);
                     fs.writeFileSync(file, buffer, null);
-                }
-                else {
+                } else {
                     const target = targets.shift();
                     const dir = path.join(folder, target);
                     if (!fs.existsSync(dir)) {
@@ -488,8 +483,7 @@ const downloadTargets = (folder, targets, sources) => {
                 }
                 clearLine();
             }
-        }
-        else {
+        } else {
             const target = targets.shift();
             clearLine();
             write('  write ' + target + '\r');
@@ -517,8 +511,7 @@ const loadModel = (target, item) => {
         const reader = new TestBinaryStream(buffer);
         const dirname = path.dirname(target);
         context = new TestContext(host, dirname, identifier, reader);
-    }
-    else if (stat.isDirectory()) {
+    } else if (stat.isDirectory()) {
         const entries = new Map();
         const walk = (dir) => {
             for (const item of fs.readdirSync(dir)) {
@@ -526,8 +519,7 @@ const loadModel = (target, item) => {
                 const stat = fs.statSync(pathname);
                 if (stat.isDirectory()) {
                     walk(pathname);
-                }
-                else if (stat.isFile()) {
+                } else if (stat.isFile()) {
                     const buffer = fs.readFileSync(pathname, null);
                     const stream = new TestBinaryStream(buffer);
                     const name = pathname.split(path.sep).join(path.posix.sep);
@@ -648,11 +640,9 @@ const loadModel = (target, item) => {
                             if (!tensor.empty) {
                                 if (tensor.type && tensor.type.dataType === '?') {
                                     throw new Error('Tensor data type is not defined.');
-                                }
-                                else if (tensor.type && !tensor.type.shape) {
+                                } else if (tensor.type && !tensor.type.shape) {
                                     throw new Error('Tensor shape is not defined.');
-                                }
-                                else {
+                                } else {
                                     tensor.toString();
                                     /*
                                     const python = require('../source/python');
@@ -711,8 +701,7 @@ const renderModel = (model, item) => {
         current.options.attributes = true;
         current.options.initializers = true;
         return current.renderGraph(model, model.graphs[0]);
-    }
-    catch (error) {
+    } catch (error) {
         return Promise.reject(error);
     }
 };

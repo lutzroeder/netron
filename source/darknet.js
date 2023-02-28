@@ -30,8 +30,7 @@ darknet.ModelFactory = class {
                         }
                         return undefined;
                     }
-                }
-                catch (err) {
+                } catch (err) {
                     // continue regardless of error
                 }
                 break;
@@ -185,8 +184,7 @@ darknet.Graph = class {
             if (batch_normalize) {
                 if (prefix) {
                     load_batch_normalize_weights(layer, prefix, n);
-                }
-                else {
+                } else {
                     const batchnorm_layer = { weights: [] };
                     load_batch_normalize_weights(batchnorm_layer, prefix, n);
                     layer.chain.push({ type: 'batchnorm', layer: batchnorm_layer });
@@ -205,8 +203,7 @@ darknet.Graph = class {
             if (batch_normalize) {
                 if (prefix) {
                     load_batch_normalize_weights(layer, prefix, outputs);
-                }
-                else {
+                } else {
                     const batchnorm_layer = { weights: [] };
                     load_batch_normalize_weights(batchnorm_layer, prefix, outputs);
                     layer.chain.push({ type: 'batchnorm', layer: batchnorm_layer });
@@ -415,8 +412,7 @@ darknet.Graph = class {
                             layer.out_c = out_channels;
                             layer.out_w = params.w;
                             layer.out_h = params.h;
-                        }
-                        else {
+                        } else {
                             layer.out_w = Math.floor((params.w + padding - size) / stride_x) + 1;
                             layer.out_h = Math.floor((params.h + padding - size) / stride_y) + 1;
                             layer.out_c = params.c;
@@ -429,8 +425,7 @@ darknet.Graph = class {
                             layer.out_w = layer.input_layer.out_w;
                             layer.out_h = layer.input_layer.out_h;
                             layer.out_c = layer.input_layer.out_c;
-                        }
-                        else {
+                        } else {
                             layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'maxpool'));
                         }
                         layer.out = layer.out_w * layer.out_h * layer.out_c;
@@ -580,8 +575,7 @@ darknet.Graph = class {
                             layer.wf = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
                             make_convolutional_layer(layer.wf, 'wf_', params.h, params.w, output_filters * 2, output_filters, groups, size, stride, stride, padding, batch_normalize);
                             layer.weights = layer.weights.concat(layer.wf.weights);
-                        }
-                        else {
+                        } else {
                             layer.wf = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
                             make_convolutional_layer(layer.wf, 'wf_', params.h, params.w, output_filters, output_filters, groups, size, stride, stride, padding, batch_normalize);
                             layer.wi = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
@@ -694,8 +688,7 @@ darknet.Graph = class {
                             layer.out_h = params.h * stride;
                             layer.out_c = Math.floor(params.c / (stride * stride));
                             layer.out = layer.out_h * layer.out_w * layer.out_c;
-                        }
-                        else {
+                        } else {
                             layer.out_w = Math.floor(params.w / stride);
                             layer.out_h = Math.floor(params.h / stride);
                             layer.out_c = params.c * (stride * stride);
@@ -707,8 +700,7 @@ darknet.Graph = class {
                             layer.out_c = 0;
                             layer.out = (params.h * params.w * params.c) + extra;
                             layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out ], 'reorg'));
-                        }
-                        else {
+                        } else {
                             layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'reorg'));
                         }
                         break;
@@ -737,8 +729,7 @@ darknet.Graph = class {
                             if (infer) {
                                 layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'route'));
                             }
-                        }
-                        else {
+                        } else {
                             infer = false;
                         }
                         if (!infer) {
@@ -977,8 +968,7 @@ darknet.Attribute = class {
             }
             if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
-            }
-            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
+            } else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 if (this._value == schema.default) {
                     this._visible = false;
                 }

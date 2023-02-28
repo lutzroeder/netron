@@ -62,8 +62,7 @@ python.Parser = class {
                     throw new python.Error('Empty statement' + this._tokenizer.location());
                 }
             }
-        }
-        else if (!this._tokenizer.eat('eof')) {
+        } else if (!this._tokenizer.eat('eof')) {
             while (!this._tokenizer.match('\n') && !this._tokenizer.match('eof') && !this._tokenizer.match('dedent')) {
                 if (this._tokenizer.eat(';')) {
                     continue;
@@ -100,8 +99,7 @@ python.Parser = class {
             node.exception = this._expression(-1, [ 'from' ]);
             if (this._tokenizer.eat('id', 'from')) {
                 node.from = this._expression();
-            }
-            else if (this._tokenizer.eat(',')) {
+            } else if (this._tokenizer.eat(',')) {
                 node.exception = [ node.exception ];
                 node.exception.push(this._expression());
                 if (this._tokenizer.eat(',')) {
@@ -468,24 +466,20 @@ python.Parser = class {
                     if (token.type == 'id' && (token.value === 'in' || token.value === 'not')) {
                         if (token.value === 'in') {
                             node.type = 'in';
-                        }
-                        else if (this._tokenizer.eat('id', 'in')) {
+                        } else if (this._tokenizer.eat('id', 'in')) {
                             node.type = 'not in';
-                        }
-                        else {
+                        } else {
                             node.type = 'not';
                             node.expression = this._expression(precedence, terminal, tuple === false ? false : true);
                             stack.push(node);
                             continue;
                         }
-                    }
-                    else if (token.value == '~') {
+                    } else if (token.value == '~') {
                         node.type = '~';
                         node.expression = this._expression(precedence, terminal, tuple === false ? false : true);
                         stack.push(node);
                         continue;
-                    }
-                    else if (token.type == 'id' && token.value == 'is') {
+                    } else if (token.type == 'id' && token.value == 'is') {
                         if (this._tokenizer.eat('id', 'not')) {
                             node.type = 'is not';
                         }
@@ -495,8 +489,7 @@ python.Parser = class {
                         node.type = 'binary';
                         node.left = stack.pop();
                         node.right = this._expression(precedence, terminal, tuple === true ? true : false);
-                    }
-                    else {
+                    } else {
                         node.op = node.type;
                         node.type = 'unary';
                         node.operand = this._expression(precedence, terminal, tuple === true ? true : false);
@@ -583,8 +576,7 @@ python.Parser = class {
             if (node) {
                 if (this._tokenizer.eat('id', 'from')) {
                     node.from = this._expression(-1, [], true);
-                }
-                else {
+                } else {
                     node.expression = [];
                     do {
                         node.expression.push(this._expression(-1, [], false));
@@ -614,13 +606,11 @@ python.Parser = class {
                     const args = this._arguments();
                     if (args.length == 1) {
                         stack.push(args[0]);
-                    }
-                    else {
+                    } else {
                         node.value = args;
                         stack.push(node);
                     }
-                }
-                else {
+                } else {
                     node = this._node('call');
                     node.target = stack.pop();
                     node.arguments = this._arguments();
@@ -631,8 +621,7 @@ python.Parser = class {
             if (this._tokenizer.peek().type === '[') {
                 if (stack.length == 0) {
                     stack.push(this._expressions());
-                }
-                else {
+                } else {
                     node = this._node('[]');
                     node.target = stack.pop();
                     node.arguments = this._slice();
@@ -654,11 +643,9 @@ python.Parser = class {
                     node.left = stack.pop();
                     node.right = literal;
                     stack.push(node);
-                }
-                else if (stack.length == 1 && literal.type == 'string' && stack[0].type == 'string') {
+                } else if (stack.length == 1 && literal.type == 'string' && stack[0].type == 'string') {
                     stack[0].value += literal.value;
-                }
-                else {
+                } else {
                     if (literal.type === 'number') {
                         switch (literal.value) {
                             case 'inf': literal.value = Infinity; break;
@@ -687,8 +674,7 @@ python.Parser = class {
             if (tuple === true && stack.length == 1 && this._tokenizer.eat(',')) {
                 if (stack[0].type === 'tuple') {
                     node = stack[0];
-                }
-                else {
+                } else {
                     node = this._node('tuple');
                     node.value = [ stack.pop() ];
                     stack.push(node);
@@ -752,8 +738,7 @@ python.Parser = class {
                     throw new python.Error('Expected expression' + this._tokenizer.location());
                 }
                 list.push({ type: 'pair', key: item, value: value });
-            }
-            else {
+            } else {
                 list.push(item);
             }
             this._tokenizer.eat(',');
@@ -912,8 +897,7 @@ python.Parser = class {
             this._tokenizer.eat('\n');
             if (this._tokenizer.eat('(')) {
                 list.push(this._parameters(')'));
-            }
-            else {
+            } else {
                 list.push(this._parameter(terminal));
             }
             this._tokenizer.eat('\n');
@@ -1006,8 +990,7 @@ python.Tokenizer = class {
                 this._position = this._newLine(this._position);
                 this._lineStart = this._position;
                 this._line++;
-            }
-            else {
+            } else {
                 this._position++;
             }
         }
@@ -1139,29 +1122,24 @@ python.Tokenizer = class {
             const c = this._text[this._position];
             if (c == '#') {
                 this._skipLine();
-            }
-            else if (python.Tokenizer._isSpace(c)) {
+            } else if (python.Tokenizer._isSpace(c)) {
                 this._position++;
-            }
-            else if (c == '\\') {
+            } else if (c == '\\') {
                 // Explicit Line Continuation
                 this._position++;
                 if (python.Tokenizer._isNewline(this._get(this._position))) {
                     this._position = this._newLine(this._position);
                     this._lineStart = this._position;
                     this._line++;
-                }
-                else {
+                } else {
                     throw new python.Error("Unexpected '" + this._text[this._position] + "' after line continuation" + this.location());
                 }
-            }
-            else if (this._brackets > 0 && python.Tokenizer._isNewline(c)) {
+            } else if (this._brackets > 0 && python.Tokenizer._isNewline(c)) {
                 // Implicit Line Continuation
                 this._position = this._newLine(this._position);
                 this._lineStart = this._position;
                 this._line++;
-            }
-            else {
+            } else {
                 break;
             }
         }
@@ -1195,22 +1173,19 @@ python.Tokenizer = class {
                 if (python.Tokenizer._isSpace(c)) {
                     indent += c;
                     i++;
-                }
-                else if (python.Tokenizer._isNewline(c)) {
+                } else if (python.Tokenizer._isNewline(c)) {
                     indent = '';
                     i = this._newLine(i);
                     this._position = i;
                     this._lineStart = i;
                     this._line++;
-                }
-                else if (c == '#') {
+                } else if (c == '#') {
                     indent = '';
                     while (i < this._text.length && !python.Tokenizer._isNewline(this._text[i])) {
                         i++;
                     }
                     continue;
-                }
-                else {
+                } else {
                     break;
                 }
             }
@@ -1220,23 +1195,19 @@ python.Tokenizer = class {
                 if (indent.length > current.length) {
                     type = 'indent';
                     this._indentation.push(indent);
-                }
-                else if (indent.length > 0 && indent.length < current.length) {
+                } else if (indent.length > 0 && indent.length < current.length) {
                     type = 'dedent';
                     this._outdent = 0;
                     for (let j = this._indentation.length - 1; j >= 0 && indent.length < this._indentation[j].length; j--) {
                         this._outdent++;
                     }
-                }
-                else {
+                } else {
                     this._position += indent.length;
                 }
-            }
-            else if (i >= this._text.length) {
+            } else if (i >= this._text.length) {
                 this._token = { type: 'eof', value: '' };
                 return;
-            }
-            else if (this._indentation.length > 0) {
+            } else if (this._indentation.length > 0) {
                 type = 'dedent';
                 this._outdent = this._indentation.length;
             }
@@ -1340,22 +1311,19 @@ python.Tokenizer = class {
                     i += 1;
                 }
                 radix = 16;
-            }
-            else if ((n === 'b' || n === 'B') && binary(this._get(i + 2))) {
+            } else if ((n === 'b' || n === 'B') && binary(this._get(i + 2))) {
                 i += 2;
                 while (binary(this._get(i))) {
                     i++;
                 }
                 radix = 2;
-            }
-            else if ((n === 'o' || n === 'O') && octal(this._get(i + 2))) {
+            } else if ((n === 'o' || n === 'O') && octal(this._get(i + 2))) {
                 i += 2;
                 while (octal(this._get(i))) {
                     i++;
                 }
                 radix = 8;
-            }
-            else if (n >= '0' && n <= '7') {
+            } else if (n >= '0' && n <= '7') {
                 i++;
                 while (octal(this._get(i))) {
                     i += 1;
@@ -1416,14 +1384,12 @@ python.Tokenizer = class {
                     }
                     if (!decimal(this._get(i))) {
                         i = this._position;
-                    }
-                    else {
+                    } else {
                         while (decimal(this._get(i))) {
                             i++;
                         }
                     }
-                }
-                else {
+                } else {
                     while (decimal(this._get(i))) {
                         i++;
                     }
@@ -1525,8 +1491,7 @@ python.Tokenizer = class {
         let prefix = -1;
         if (this._get(i) === "'" || this._get(i) === '"') {
             prefix = '';
-        }
-        else if (this._get(i + 1) === "'" || this._get(i + 1) === '"') {
+        } else if (this._get(i + 1) === "'" || this._get(i + 1) === '"') {
             const c = this._get(i);
             switch (c.toLowerCase()) {
                 case 'b':
@@ -1538,8 +1503,7 @@ python.Tokenizer = class {
                 default:
                     break;
             }
-        }
-        else if (this._get(i + 2) === "'" || this._get(i + 2) === '"') {
+        } else if (this._get(i + 2) === "'" || this._get(i + 2) === '"') {
             const cc = this._text.substr(this._position, 2);
             switch (cc.toLowerCase()) {
                 case 'br':
@@ -1577,25 +1541,20 @@ python.Tokenizer = class {
                 while (i < this._text.length) {
                     if (this._text[i] === quote) {
                         return { type: 'string', value: this._text.substring(this._position, i + 1) };
-                    }
-                    else if (this._text[i] === '\\' &&
+                    } else if (this._text[i] === '\\' &&
                              (this._get(i + 1) == quote || this._get(i + 1) == '\n' || this._get(i + 1) == '\\')) {
                         i += 2;
-                    }
-                    else if (this._text[i] === '\r' || this._text[i] === '\n') {
+                    } else if (this._text[i] === '\r' || this._text[i] === '\n') {
                         break;
-                    }
-                    else {
+                    } else {
                         i++;
                     }
                 }
-            }
-            else if (count == 3) {
+            } else if (count == 3) {
                 while (i < this._text.length) {
                     if (this._get(i) === quote && this._get(i + 1) === quote && this._get(i + 2) === quote) {
                         return { type: 'string', value: this._text.substring(this._position, i + 3) };
-                    }
-                    else if (this._get(i) === '\\' && this._get(i + 1) === quote) {
+                    } else if (this._get(i) === '\\' && this._get(i + 1) === quote) {
                         i += 2;
                         continue;
                     }
@@ -1836,8 +1795,7 @@ python.Execution = class {
                 if (typeof obj === 'string' && (obj.startsWith('<') || obj.startsWith('>'))) {
                     this.byteorder = obj[0];
                     obj = obj.substring(1);
-                }
-                else {
+                } else {
                     this.byteorder = '=';
                 }
                 switch (obj) {
@@ -1860,20 +1818,16 @@ python.Execution = class {
                         if (obj.startsWith('V')) {
                             this.itemsize = parseInt(obj.substring(1), 10);
                             this.kind = 'V';
-                        }
-                        else if (obj.startsWith('O')) {
+                        } else if (obj.startsWith('O')) {
                             this.itemsize = obj === 'O' ? 8 : parseInt(obj.substring(1), 10);
                             this.kind = 'O';
-                        }
-                        else if (obj.startsWith('S')) {
+                        } else if (obj.startsWith('S')) {
                             this.itemsize = parseInt(obj.substring(1), 10);
                             this.kind = 'S';
-                        }
-                        else if (obj.startsWith('U')) { // Unicode string
+                        } else if (obj.startsWith('U')) { // Unicode string
                             this.kind = 'U';
                             this.itemsize = 4 * parseInt(obj.substring(1), 10);
-                        }
-                        else {
+                        } else {
                             throw new python.Error("Unsupported dtype '" + obj.toString() + "'.");
                         }
                         break;
@@ -2129,18 +2083,14 @@ python.Execution = class {
                         const strs = cur_line.split('=');
                         if (strs.length === 1) {
                             key_vals.set(strs[0], '');
-                        }
-                        else if (strs.length === 2) {
+                        } else if (strs.length === 2) {
                             key_vals.set(strs[0], strs[1]);
-                        }
-                        else if (strs.length > 2) {
+                        } else if (strs.length > 2) {
                             if (strs[0] === "feature_names") {
                                 key_vals.set(strs[0], cur_line.substring("feature_names=".length));
-                            }
-                            else if (strs[0] == 'monotone_constraints') {
+                            } else if (strs[0] == 'monotone_constraints') {
                                 key_vals.set(strs[0], cur_line.substring('monotone_constraints='.length));
-                            }
-                            else {
+                            } else {
                                 throw new python.Error('Wrong line: ' + cur_line.substring(0, Math.min(128, cur_line.length)));
                             }
                         }
@@ -2212,11 +2162,9 @@ python.Execution = class {
                     if (line === 'parameters:') {
                         is_inparameter = true;
                         continue;
-                    }
-                    else if (line === 'end of parameters') {
+                    } else if (line === 'end of parameters') {
                         break;
-                    }
-                    else if (is_inparameter) {
+                    } else if (is_inparameter) {
                         ss.push(line);
                     }
                 }
@@ -2293,8 +2241,7 @@ python.Execution = class {
                 let content = '';
                 if (this.const_val !== null) {
                     content += this.const_val;
-                }
-                else {
+                } else {
                     content += '[';
                 }
                 for (var t of Object.values(this.type)) {
@@ -2400,8 +2347,7 @@ python.Execution = class {
                         if (this.data.length != length) {
                             throw new python.Error('Invalid string array data size.');
                         }
-                    }
-                    else if (this.data.length != length) {
+                    } else if (this.data.length != length) {
                         // throw new python.Error('Invalid array data size.');
                     }
                 }
@@ -2421,8 +2367,7 @@ python.Execution = class {
                     let c = token.charCodeAt(i++);
                     if (c !== 0x5C || i >= length) {
                         a[o++] = c;
-                    }
-                    else {
+                    } else {
                         c = token.charCodeAt(i++);
                         switch (c) {
                             case 0x27: a[o++] = 0x27; break; // '
@@ -2460,8 +2405,7 @@ python.Execution = class {
                                 if (c < 48 || c > 57) { // 0-9
                                     a[o++] = 0x5c;
                                     a[o++] = c;
-                                }
-                                else {
+                                } else {
                                     i--;
                                     const osi = i;
                                     const oso = o;
@@ -2875,11 +2819,9 @@ python.Execution = class {
                             const value = reader.line();
                             if (value == '01') {
                                 stack.push(true);
-                            }
-                            else if (value == '00') {
+                            } else if (value == '00') {
                                 stack.push(false);
-                            }
-                            else {
+                            } else {
                                 stack.push(parseInt(value, 10));
                             }
                             break;
@@ -2953,8 +2895,7 @@ python.Execution = class {
                             const obj = stack[stack.length - 1];
                             if (obj.__setitem__) {
                                 obj.__setitem__(key, value);
-                            }
-                            else {
+                            } else {
                                 obj[key] = value;
                             }
                             break;
@@ -2966,8 +2907,7 @@ python.Execution = class {
                             for (let i = 0; i < items.length; i += 2) {
                                 if (obj.__setitem__) {
                                     obj.__setitem__(items[i], items[i + 1]);
-                                }
-                                else {
+                                } else {
                                     obj[items[i]] = items[i + 1];
                                 }
                             }
@@ -3014,20 +2954,16 @@ python.Execution = class {
                             if (obj.__setstate__) {
                                 if (obj.__setstate__.__call__) {
                                     obj.__setstate__.__call__([ obj, state ]);
-                                }
-                                else {
+                                } else {
                                     obj.__setstate__(state);
                                 }
-                            }
-                            else if (ArrayBuffer.isView(state) || Object(state) !== state) {
+                            } else if (ArrayBuffer.isView(state) || Object(state) !== state) {
                                 obj.__state__ = state;
-                            }
-                            else if (obj instanceof Map) {
+                            } else if (obj instanceof Map) {
                                 for (const key in state) {
                                     obj.set(key, state[key]);
                                 }
-                            }
-                            else {
+                            } else {
                                 Object.assign(obj, state);
                             }
                             if (obj.__read__) {
@@ -3377,8 +3313,7 @@ python.Execution = class {
             // copyreg._reconstructor in Python 3
             if (base === '__builtin__.object' || base === self._builtins.object) {
                 return self.invoke(cls, []);
-            }
-            else if (base === '__builtin__.tuple' || base === self._builtins.tuple) {
+            } else if (base === '__builtin__.tuple' || base === self._builtins.tuple) {
                 const obj = self.invoke(cls, []);
                 for (let i = 0; i < state.length; i++) {
                     obj[i] = state[i];
@@ -3420,13 +3355,11 @@ python.Execution = class {
             try {
                 if (import_name.startsWith('__runtime__.')) {
                     return execution.module(import_name);
-                }
-                else if (import_name.indexOf('.') === -1) {
+                } else if (import_name.indexOf('.') === -1) {
                     return execution.__import__(import_name);
                 }
                 return execution.resolve(import_name);
-            }
-            catch (err) {
+            } catch (err) {
                 if (safe) {
                     return null;
                 }
@@ -3782,8 +3715,7 @@ python.Execution = class {
                         }
                         context.position += context.itemsize;
                     }
-                }
-                else {
+                } else {
                     for (let j = 0; j < size; j++) {
                         encode(context, data[j], dim + 1);
                     }
@@ -3879,8 +3811,7 @@ python.Execution = class {
             __setattr__(name, value) {
                 if (value instanceof torch.nn.modules.module.Module) {
                     this._modules.set(name, value);
-                }
-                else {
+                } else {
                     this[name] = value;
                 }
             }
@@ -4488,8 +4419,7 @@ python.Execution = class {
             }
             if (step > 0 && lo < hi) {
                 return 1 + (hi - 1 - lo) / step;
-            }
-            else if (step < 0 && lo > hi) {
+            } else if (step < 0 && lo > hi) {
                 return 1 + (lo - 1 - hi) / (0 - step);
             }
             return 0;
@@ -4539,8 +4469,7 @@ python.Execution = class {
                         const value = pair[1];
                         obj[key] = value;
                     }
-                }
-                else {
+                } else {
                     throw new python.Error("'torch.dict' arguments not supported.");
                 }
             }
@@ -5005,8 +4934,7 @@ python.Execution = class {
             if (meta.state) {
                 if (obj.__setstate__) {
                     obj.__setstate__(meta.state);
-                }
-                else {
+                } else {
                     Object.assign(obj, meta.state);
                 }
             }
@@ -5137,8 +5065,7 @@ python.Execution = class {
                     if (arguments[3] instanceof torch.device) {
                         this._device = arguments[3];
                     }
-                }
-                else {
+                } else {
                     throw new python.Error("Unsupported _TypedStorage arguments '" + JSON.stringify(arguments) + "'.");
                 }
             }
@@ -5556,16 +5483,14 @@ python.Execution = class {
         level = level || 0;
         if (level === 0) {
             module = this.import(name);
-        }
-        else {
+        } else {
             globals = globals || {};
             let current = globals.__package__;
             if (!current) {
                 const spec = globals.__spec__;
                 if (spec) {
                     current = spec.parent;
-                }
-                else {
+                } else {
                     const name = globals.__name__;
                     const bits = name.split('.');
                     bits.pop();
@@ -5577,22 +5502,19 @@ python.Execution = class {
         if (!fromlist) {
             if (level === 0) {
                 return this.import(name.split('.')[0]);
-            }
-            else if (name) {
+            } else if (name) {
                 throw new python.Error("Unsupported relative import '" + name + "'.");
                 // cut_off = len(name) - len(name.partition('.')[0])
                 // return sys.modules[module.__name__[:len(module.__name__)-cut_off]]
             }
-        }
-        else if (module.__path__) {
+        } else if (module.__path__) {
             const handle_fromlist = (module, fromlist, recursive) => {
                 for (const name of fromlist) {
                     if (name == '*') {
                         if (!recursive && module.__all__) {
                             handle_fromlist(module, module.__all__, true);
                         }
-                    }
-                    else if (!module[name]) {
+                    } else if (!module[name]) {
                         this.import(module.__name__ + '.' + name);
                     }
                 }
@@ -5641,8 +5563,7 @@ python.Execution = class {
                     obj.__init__.apply(obj, args);
                 }
                 return obj;
-            }
-            else if (target.__class__ === this._builtins.function) {
+            } else if (target.__class__ === this._builtins.function) {
                 if (target.__call__) {
                     return target.__call__(args);
                 }
@@ -5659,8 +5580,7 @@ python.Execution = class {
             if (name === '__new__' && callArguments.length === 1 && callArguments[0] == callTarget) {
                 name = null;
                 callArguments.shift();
-            }
-            else {
+            } else {
                 const format = (expression) => {
                     if (expression.type == 'id') {
                         return expression.value;
@@ -5782,8 +5702,7 @@ python.Execution = class {
                         return value;
                     }
                     break;
-                }
-                else if (condition === false) {
+                } else if (condition === false) {
                     const value = this.block(statement.else.statements, context);
                     if (value !== undefined) {
                         return value;
@@ -5853,8 +5772,7 @@ python.Execution = class {
                             module = module[bits.pop()];
                         }
                         context.set(alias.asname, module);
-                    }
-                    else {
+                    } else {
                         context.set(alias.name.split('.')[0], module);
                     }
                 }
@@ -5892,8 +5810,7 @@ python.Execution = class {
                 if (target.type === 'id') {
                     context.set(target.value, this.expression(expression.expression, context));
                     return undefined;
-                }
-                else if (target.type === '[]') {
+                } else if (target.type === '[]') {
                     if (target.target.type === 'id' &&
                         target.arguments.type === 'list' &&
                         target.arguments.value.length === 1) {
@@ -5905,19 +5822,16 @@ python.Execution = class {
                         const value = this.expression(expression.expression, context);
                         if (obj instanceof Map) {
                             obj.set(index, value);
-                        }
-                        else {
+                        } else {
                             obj[index] = value;
                         }
                         return undefined;
                     }
-                }
-                else if (target.type === '.' &&
+                } else if (target.type === '.' &&
                     target.member.type === 'id') {
                     this.expression(target.target, context)[target.member.value] = this.expression(expression.expression, context);
                     return undefined;
-                }
-                else if (target.type === 'tuple') {
+                } else if (target.type === 'tuple') {
                     context.target.push(target.value);
                     const value = this.expression(expression.expression, context);
                     context.target.pop();
@@ -6060,12 +5974,10 @@ python.Execution = class {
             if (current.type === '.' && current.member && current.member.type === 'id') {
                 path.push(current.member.value);
                 current = current.target;
-            }
-            else if (current.type === 'id' && current.value !== 'self' && current.value !== 'CONSTANTS') {
+            } else if (current.type === 'id' && current.value !== 'self' && current.value !== 'CONSTANTS') {
                 path.push(current.value);
                 break;
-            }
-            else {
+            } else {
                 path = null;
                 break;
             }
@@ -6084,8 +5996,7 @@ python.Execution = class {
                 const file = path.join('/') + '.py';
                 if (this._sources.has(file)) {
                     target = this.import(name);
-                }
-                else {
+                } else {
                     target = this.resolve(name);
                 }
             }
@@ -6178,8 +6089,7 @@ python.Execution.Context = class {
     set(name, value) {
         if (this.locals) {
             this.locals[name] = value;
-        }
-        else {
+        } else {
             this.globals[name] = value;
         }
     }

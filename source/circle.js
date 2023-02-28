@@ -29,8 +29,7 @@ circle.ModelFactory = class {
                         const obj = context.open('json');
                         const reader = new flatbuffers.TextReader(obj);
                         model = circle.schema.Model.createText(reader);
-                    }
-                    catch (error) {
+                    } catch (error) {
                         const message = error && error.message ? error.message : error.toString();
                         throw new circle.Error('File text format is not circle.Model (' + message.replace(/\.$/, '') + ').');
                     }
@@ -41,8 +40,7 @@ circle.ModelFactory = class {
                     try {
                         const reader = flatbuffers.BinaryReader.open(stream);
                         model = circle.schema.Model.create(reader);
-                    }
-                    catch (error) {
+                    } catch (error) {
                         const message = error && error.message ? error.message : error.toString();
                         throw new circle.Error('File format is not circle.Model (' + message.replace(/\.$/, '') + ').');
                     }
@@ -53,8 +51,7 @@ circle.ModelFactory = class {
                                 attachments.set(entry[0], entry[1]);
                             }
                         }
-                    }
-                    catch (error) {
+                    } catch (error) {
                         // continue regardless of error
                     }
                     break;
@@ -191,8 +188,7 @@ circle.Graph = class {
                     const data = buffer ? buffer.data : null;
                     const initializer = (data && data.length > 0) || is_variable ? new circle.Tensor(index, tensor, buffer, is_variable) : null;
                     tensors.set(index, new circle.Argument(index, tensor, initializer));
-                }
-                else {
+                } else {
                     tensors.set(index, new circle.Argument(index, { name: '' }, null));
                 }
             }
@@ -216,8 +212,7 @@ circle.Graph = class {
                     const contentProperties = content.content_properties;
                     if (contentProperties instanceof circle.schema.FeatureProperties) {
                         denotation = 'Feature';
-                    }
-                    else if (contentProperties instanceof circle.schema.ImageProperties) {
+                    } else if (contentProperties instanceof circle.schema.ImageProperties) {
                         denotation = 'Image';
                         switch (contentProperties.color_space) {
                             case 0: denotation += '(Unknown)'; break;
@@ -225,11 +220,9 @@ circle.Graph = class {
                             case 2: denotation += '(Grayscale)'; break;
                             default: throw circle.Error("Unsupported image color space '" + contentProperties.color_space + "'.");
                         }
-                    }
-                    else if (contentProperties instanceof circle.schema.BoundingBoxProperties) {
+                    } else if (contentProperties instanceof circle.schema.BoundingBoxProperties) {
                         denotation = 'BoundingBox';
-                    }
-                    else if (contentProperties instanceof circle.schema.AudioProperties) {
+                    } else if (contentProperties instanceof circle.schema.AudioProperties) {
                         denotation = 'Audio(' + contentProperties.sample_rate.toString() + ',' + contentProperties.channels.toString() + ')';
                     }
                     if (denotation) {
@@ -342,8 +335,7 @@ circle.Node = class {
                                 const attribute = new circle.Attribute(null, 'custom_options', custom_options);
                                 this._attributes.push(attribute);
                                 decoded = true;
-                            }
-                            else if (custom_options) {
+                            } else if (custom_options) {
                                 for (const pair of Object.entries(custom_options)) {
                                     const key = pair[0];
                                     const value = pair[1];
@@ -354,8 +346,7 @@ circle.Node = class {
                                 decoded = true;
                             }
                         }
-                    }
-                    catch (err) {
+                    } catch (err) {
                         // continue regardless of error
                     }
                 }
@@ -428,8 +419,7 @@ circle.Attribute = class {
         if (metadata) {
             if (Object.prototype.hasOwnProperty.call(metadata, 'visible') && !metadata.visible) {
                 this._visible = false;
-            }
-            else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
+            } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
                 value = this._value;
                 if (typeof value == 'function') {
                     value = value();

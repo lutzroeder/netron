@@ -32,8 +32,7 @@ cntk.ModelFactory = class {
                         const stream = context.stream;
                         const buffer = stream.peek();
                         obj = new cntk_v1.ComputationNetwork(buffer);
-                    }
-                    catch (error) {
+                    } catch (error) {
                         const message = error && error.message ? error.message : error.toString();
                         throw new cntk.Error('File format is not CNTK v1 (' + message.replace(/\.$/, '') + ').');
                     }
@@ -49,8 +48,7 @@ cntk.ModelFactory = class {
                             const reader = protobuf.BinaryReader.open(stream);
                             const dictionary = cntk_v2.Dictionary.decode(reader);
                             obj = cntk.ModelFactory._convertDictionary(dictionary);
-                        }
-                        catch (error) {
+                        } catch (error) {
                             const message = error && error.message ? error.message : error.toString();
                             throw new cntk.Error('File format is not cntk.Dictionary (' + message.replace(/\.$/, '') + ').');
                         }
@@ -306,8 +304,7 @@ cntk.Argument = class {
                     this._name = obj.name || obj.uid;
                     this._type = null;
                     this._initializer = new cntk.Tensor(version, obj);
-                }
-                else {
+                } else {
                     this._name = obj.uid;
                     if (obj.data_type && obj.shape) {
                         this._type = new cntk.TensorType(version, obj.data_type, obj.shape);
@@ -372,12 +369,10 @@ cntk.Node = class {
                 const output = obj.uid;
                 if (obj.op == 57) {
                     this._type = metadata.type(obj.uid) || { name: obj.uid };
-                }
-                else if (Object.prototype.hasOwnProperty.call(obj, 'op')) {
+                } else if (Object.prototype.hasOwnProperty.call(obj, 'op')) {
                     // cntk/Source/CNTKv2LibraryDll/API/Internals/PrimitiveOpType.h
                     this._type = metadata.type(obj.op.toNumber());
-                }
-                else {
+                } else {
                     const type = obj.type;
                     this._type = metadata.type(type) || { name: type };
                     if (obj.user_defined_state) {
@@ -486,8 +481,7 @@ cntk.Attribute = class {
             }
             if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
-            }
-            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
+            } else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 let defaultValue = schema.default;
                 value = this._value;
                 if (typeof value == 'function') {
@@ -498,8 +492,7 @@ cntk.Attribute = class {
                 }
                 if (value == defaultValue) {
                     this._visible = false;
-                }
-                else if (Array.isArray(value) && Array.isArray(defaultValue)) {
+                } else if (Array.isArray(value) && Array.isArray(defaultValue)) {
                     defaultValue = defaultValue.slice(0, defaultValue.length);
                     if (defaultValue.length > 1 && defaultValue[defaultValue.length - 1] == null) {
                         defaultValue.pop();
@@ -786,8 +779,7 @@ cntk_v1.ComputationNetwork = class {
             if (version >= 3) {
                 this.learningRateMultiplier = reader.float32();
                 this.sampleLayout = new cntk_v1.TensorShape(reader);
-            }
-            else {
+            } else {
                 throw new cntk.Error('LeanableParameter reader implemented.');
             }
             this.value = new cntk_v1.Matrix(reader);
@@ -849,13 +841,11 @@ cntk_v1.ComputationNetwork = class {
                 this.sharing = [ true ];
                 this.lowerPad = new cntk_v1.TensorShape([ 0 ]);
                 this.upperPad = new cntk_v1.TensorShape([ 0 ]);
-            }
-            else {
+            } else {
                 this.convolution2D = reader.boolean();
                 if (version >= 18) {
                     this.dilation = new cntk_v1.TensorShape(reader);
-                }
-                else {
+                } else {
                     this.dilation = new cntk_v1.TensorShape([ 1 ]);
                 }
             }
@@ -907,18 +897,15 @@ cntk_v1.ComputationNetwork = class {
                 if (version >= 13) {
                     if (version != 19) {
                         this.runCountUntied = reader.uint64();
-                    }
-                    else {
+                    } else {
                         this.runCountUntied = reader.boolean() ? 0 : 'SIZE_MAX'; // TODO
                     }
-                }
-                else {
+                } else {
                     mbCount = reader.uint64();
                 }
                 this.epsilon = reader.float64();
                 this.useCntkEngine = reader.boolean();
-            }
-            else {
+            } else {
                 const verWritten = reader.int32();
                 const verReadable = reader.int32();
                 if (verReadable > verWritten || verWritten < 0x00010001 || verReadable > 0x00010004) {
@@ -928,8 +915,7 @@ cntk_v1.ComputationNetwork = class {
                 this.spatial = reader.boolean();
                 if (verWritten >= 0x00010004) {
                     this.normalizationTimeConstant = reader.float64();
-                }
-                else {
+                } else {
                     reader.float64(); // expAvgFactor
                 }
                 if (verWritten >= 0x00010002) {
@@ -976,8 +962,7 @@ cntk_v1.ComputationNetwork = class {
             this.timeStep = reader.int32();
             if (version > 3) {
                 this.sampleLayout = new cntk_v1.TensorShape(reader, false);
-            }
-            else {
+            } else {
                 const rows = reader.uint64();
                 reader.uint64();
                 this.sampleLayout = new cntk_v1.TensorShape([ rows ], true);
@@ -990,8 +975,7 @@ cntk_v1.ComputationNetwork = class {
             this.timeStep = reader.int32();
             if (version > 3) {
                 this.sampleLayout = new cntk_v1.TensorShape(reader, false);
-            }
-            else {
+            } else {
                 const rows = reader.uint64();
                 reader.uint64();
                 this.sampleLayout = new cntk_v1.TensorShape([ rows ], true);
@@ -1011,8 +995,7 @@ cntk_v1.ComputationNetwork = class {
                         this.perm.push(reader.uint64());
                     }
                 }
-            }
-            else {
+            } else {
                 this.axis1 = 1;
                 this.axis2 = 2;
             }
@@ -1190,8 +1173,7 @@ cntk_v1.TensorShape = class {
             for (let i = 1; i < rank; i++) {
                 this.dims.push(reader.uint32());
             }
-        }
-        else {
+        } else {
             const dim = reader.uint32();
             this.dims.push(reader.uint32());
             this.dims.push(rank);

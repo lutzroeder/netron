@@ -36,8 +36,7 @@ mslite.ModelFactory = class {
             try {
                 mslite.schema = flatbuffers.get('mslite').mindspore.schema;
                 model = mslite.schema.MetaGraph.create(reader);
-            }
-            catch (error) {
+            } catch (error) {
                 const message = error && error.message ? error.message : error.toString();
                 throw new mslite.Error('File format is not mslite.MetaGraph (' + message.replace(/\.$/, '') + ').');
             }
@@ -60,8 +59,7 @@ mslite.Model = class {
             for (const subgraph of subgraphs) {
                 this._graphs.push(new mslite.Graph(metadata, subgraph, model));
             }
-        }
-        else {
+        } else {
             this._graphs.push(new mslite.Graph(metadata, model, model));
         }
     }
@@ -105,8 +103,7 @@ mslite.Graph = class {
             for (let i = 0; i < subgraph.nodes.length; i++) {
                 this._nodes.push(new mslite.Node(metadata, subgraph.nodes[i], args));
             }
-        }
-        else {
+        } else {
             for (let i = 0; i < subgraph.inputIndices.length; i++) {
                 const index = subgraph.inputIndices[i];
                 this._inputs.push(new mslite.Parameter(i.toString(), true, [args[index]]));

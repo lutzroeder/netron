@@ -175,8 +175,7 @@ zip.Entry = class {
         const signature = [ 0x50, 0x4B, 0x03, 0x04 ];
         if (stream.position + 4 > stream.length || !stream.read(4).every((value, index) => value === signature[index])) {
             this._stream = new zip.ErrorStream(header.size, 'Invalid Zip local file header signature.');
-        }
-        else {
+        } else {
             const reader = new zip.BinaryReader(stream.read(26));
             reader.skip(22);
             header.nameLength = reader.uint16();
@@ -219,8 +218,7 @@ zip.Inflater = class {
         let buffer = null;
         if (typeof process === 'object' && typeof process.versions == 'object' && typeof process.versions.node !== 'undefined') {
             buffer = require('zlib').inflateRawSync(data);
-        }
-        else {
+        } else {
             const reader = new zip.BitReader(data);
             const writer = length === undefined ? new zip.BlockWriter() : new zip.BufferWriter(length);
             if (!zip.Inflater._staticLengthTree) {
@@ -329,12 +327,10 @@ zip.Inflater = class {
             const literal = code >>> 4;
             if (literal < 256) {
                 buffer[position++] = literal;
-            }
-            else if (literal === 256) {
+            } else if (literal === 256) {
                 writer.push(position);
                 return;
-            }
-            else {
+            } else {
                 let length = literal - 254;
                 if (literal > 264) {
                     const lengthBase = zip.Inflater._lengthBase[literal - 257];
@@ -480,8 +476,7 @@ zip.BlockWriter = class {
         if (length > 32768) {
             this.buffer.set(buffer.subarray(length - 32768, length), 0);
             this.position = 32768;
-        }
-        else {
+        } else {
             this._reset();
             this.buffer.set(buffer, this.position);
             this.position += length;

@@ -39,8 +39,7 @@ uff.ModelFactory = class {
                         const stream = context.stream;
                         const reader = protobuf.BinaryReader.open(stream);
                         meta_graph = uff.proto.MetaGraph.decode(reader);
-                    }
-                    catch (error) {
+                    } catch (error) {
                         const message = error && error.message ? error.message : error.toString();
                         throw  new uff.Error('File format is not uff.MetaGraph (' + message.replace(/\.$/, '') + ').');
                     }
@@ -51,8 +50,7 @@ uff.ModelFactory = class {
                         const stream = context.stream;
                         const reader = protobuf.TextReader.open(stream);
                         meta_graph = uff.proto.MetaGraph.decodeText(reader);
-                    }
-                    catch (error) {
+                    } catch (error) {
                         throw new uff.Error('File text format is not uff.MetaGraph (' + error.message + ').');
                     }
                     break;

@@ -151,18 +151,15 @@ flatbuffers.BinaryReader = class {
             const a = this.uint8(offset + i++);
             if (a < 0xC0) {
                 codePoint = a;
-            }
-            else {
+            } else {
                 const b = this.uint8(offset + i++);
                 if (a < 0xE0) {
                     codePoint = ((a & 0x1F) << 6) | (b & 0x3F);
-                }
-                else {
+                } else {
                     const c = this.uint8(offset + i++);
                     if (a < 0xF0) {
                         codePoint = ((a & 0x0F) << 12) | ((b & 0x3F) << 6) | (c & 0x3F);
-                    }
-                    else {
+                    } else {
                         const d = this.uint8(offset + i++);
                         codePoint = ((a & 0x07) << 18) | ((b & 0x3F) << 12) | ((c & 0x3F) << 6) | (d & 0x3F);
                     }
@@ -171,8 +168,7 @@ flatbuffers.BinaryReader = class {
             // Encode UTF-16
             if (codePoint < 0x10000) {
                 result += String.fromCharCode(codePoint);
-            }
-            else {
+            } else {
                 codePoint -= 0x10000;
                 result += String.fromCharCode((codePoint >> 10) + 0xD800, (codePoint & ((1 << 10) - 1)) + 0xDC00);
             }

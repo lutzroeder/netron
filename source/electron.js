@@ -101,8 +101,7 @@ host.ElectronHost = class {
                     return Promise.resolve();
                 }
                 return consent();
-            }
-            catch (err) {
+            } catch (err) {
                 return consent();
             }
         }).catch(() => {
@@ -278,8 +277,7 @@ host.ElectronHost = class {
         try {
             const module = require(id);
             return Promise.resolve(module);
-        }
-        catch (error) {
+        } catch (error) {
             return Promise.reject(error);
         }
     }
@@ -311,16 +309,14 @@ host.ElectronHost = class {
         let err = null;
         if (!blob) {
             err = new Error("Export blob is '" + JSON.stringify(blob) + "'.");
-        }
-        else if (!(blob instanceof Blob)) {
+        } else if (!(blob instanceof Blob)) {
             err = new Error("Export blob type is '" + (typeof blob) + "'.");
         }
 
         if (err) {
             this.exception(err, false);
             this.error('Error exporting image.', err.message);
-        }
-        else {
+        } else {
             reader.readAsArrayBuffer(blob);
         }
     }
@@ -335,27 +331,21 @@ host.ElectronHost = class {
             fs.stat(pathname, (err, stat) => {
                 if (err && err.code === 'ENOENT') {
                     reject(new Error("The file '" + file + "' does not exist."));
-                }
-                else if (err) {
+                } else if (err) {
                     reject(err);
-                }
-                else if (!stat.isFile()) {
+                } else if (!stat.isFile()) {
                     reject(new Error("The path '" + file + "' is not a file."));
-                }
-                else if (stat && stat.size < 0x7ffff000) {
+                } else if (stat && stat.size < 0x7ffff000) {
                     fs.readFile(pathname, encoding, (err, data) => {
                         if (err) {
                             reject(err);
-                        }
-                        else {
+                        } else {
                             resolve(encoding ? data : new host.ElectronHost.BinaryStream(data));
                         }
                     });
-                }
-                else if (encoding) {
+                } else if (encoding) {
                     reject(new Error("The file '" + file + "' size (" + stat.size.toString() + ") for encoding '" + encoding + "' is greater than 2 GB."));
-                }
-                else {
+                } else {
                     resolve(new host.ElectronHost.FileStream(pathname, 0, stat.size, stat.mtimeMs));
                 }
             });
@@ -381,13 +371,11 @@ host.ElectronHost = class {
                     const match = error.stack.match(/\n {4}at (.*) \((.*):(\d*):(\d*)\)/);
                     if (match) {
                         stack = match[1] + ' (' + format(match[2], match[3], match[4]) + ')';
-                    }
-                    else {
+                    } else {
                         const match = error.stack.match(/\n {4}at (.*):(\d*):(\d*)/);
                         if (match) {
                             stack = '(' + format(match[1], match[2], match[3]) + ')';
-                        }
-                        else {
+                        } else {
                             const match = error.stack.match(/.*\n\s*(.*)\s*/);
                             if (match) {
                                 stack = match[1];
@@ -412,8 +400,7 @@ host.ElectronHost = class {
                         error_fatal: fatal ? true : false
                     });
                 }
-            }
-            catch (e) {
+            } catch (e) {
                 // continue regardless of error
             }
         }
@@ -423,8 +410,7 @@ host.ElectronHost = class {
         if (this._telemetry_ua && category && action && label) {
             try {
                 this._telemetry_ua.event(category, action, label, value);
-            }
-            catch (e) {
+            } catch (e) {
                 // continue regardless of error
             }
         }
@@ -436,8 +422,7 @@ host.ElectronHost = class {
                 params.app_name = this.type,
                 params.app_version = this.version,
                 this._telemetry_ga4.send(name, params);
-            }
-            catch (e) {
+            } catch (e) {
                 // continue regardless of error
             }
         }
@@ -451,8 +436,7 @@ host.ElectronHost = class {
             return this.request(basename, null, dirname).then((stream) => {
                 return new host.ElectronHost.Context(this, dirname, basename, stream);
             });
-        }
-        else if (stat.isDirectory()) {
+        } else if (stat.isDirectory()) {
             const entries = new Map();
             const walk = (dir) => {
                 for (const item of fs.readdirSync(dir)) {
@@ -460,8 +444,7 @@ host.ElectronHost = class {
                     const stat = fs.statSync(pathname);
                     if (stat.isDirectory()) {
                         walk(pathname);
-                    }
-                    else if (stat.isFile()) {
+                    } else if (stat.isFile()) {
                         const stream = new host.ElectronHost.FileStream(pathname, 0, stat.size, stat.mtimeMs);
                         const name = pathname.split(path.sep).join(path.posix.sep);
                         entries.set(name, stream);
@@ -526,8 +509,7 @@ host.ElectronHost = class {
                     err.url = location;
                     err.status = response.statusCode;
                     reject(err);
-                }
-                else {
+                } else {
                     let data = '';
                     response.on('data', (chunk) => {
                         data += chunk;
@@ -611,8 +593,7 @@ host.ElectronHost = class {
                     }
                     callback();
                 };
-            }
-            else {
+            } else {
                 messageButton.style.display = 'none';
                 messageButton.onclick = null;
             }
@@ -832,8 +813,7 @@ host.ElectronHost.FileStream = class {
         }
         try {
             fs.readSync(descriptor, buffer, 0, buffer.length, offset + this._start);
-        }
-        finally {
+        } finally {
             fs.closeSync(descriptor);
         }
     }

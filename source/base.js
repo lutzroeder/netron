@@ -279,8 +279,7 @@ base.Utility = class {
                 return this.negate().multiply(b.negate());
             }
             return this.negate().multiply(b).negate();
-        }
-        else if (b.isNegative) {
+        } else if (b.isNegative) {
             return this.multiply(b.negate()).negate();
         }
         if (a.compare(base.Int64.power24) < 0 && b.compare(base.Int64.power24) < 0) {
@@ -335,8 +334,7 @@ base.Utility = class {
             if (a.equals(base.Int64.min)) {
                 if (b.equals(base.Int64.one) || b.equals(base.Int64.negativeOne)) {
                     return base.Int64.min;
-                }
-                else if (b.equals(base.Int64.min)) {
+                } else if (b.equals(base.Int64.min)) {
                     return base.Int64.one;
                 }
                 const half = base.Utility._shiftRight(a, unsigned, 1);
@@ -348,8 +346,7 @@ base.Utility = class {
                 remainder = a.subtract(b.multiply(approx));
                 result = approx.add(remainder.divide(b));
                 return result;
-            }
-            else if (b.equals(base.Int64.min)) {
+            } else if (b.equals(base.Int64.min)) {
                 return base.Int64.zero;
             }
             if (a.isNegative) {
@@ -357,13 +354,11 @@ base.Utility = class {
                     return this.negate().divide(b.negate());
                 }
                 return a.negate().divide(b).negate();
-            }
-            else if (b.isNegative) {
+            } else if (b.isNegative) {
                 return a.divide(b.negate()).negate();
             }
             result = base.Int64.zero;
-        }
-        else {
+        } else {
             if (!(b instanceof base.Uint64)) {
                 b = new base.Uint64(b.low, b.high);
             }
@@ -471,11 +466,9 @@ if (!DataView.prototype.getFloat16) {
         let f = value & 0x03FF;
         if (e == 0) {
             f = 0.00006103515625 * (f / 1024);
-        }
-        else if (e == 0x1F) {
+        } else if (e == 0x1F) {
             f = f ? NaN : Infinity;
-        }
-        else {
+        } else {
             f = DataView.__float16_pow[e] * (1 + (f / 1024));
         }
         return value & 0x8000 ? -f : f;
@@ -507,20 +500,16 @@ if (!DataView.prototype.setFloat16) {
         if (e < -27) {
             DataView.__float16_base[i] = 0x0000;
             DataView.__float16_shift[i] = 24;
-        }
-        else if (e < -14) {
+        } else if (e < -14) {
             DataView.__float16_base[i] = 0x0400 >> -e - 14;
             DataView.__float16_shift[i] = -e - 1;
-        }
-        else if (e <= 15) {
+        } else if (e <= 15) {
             DataView.__float16_base[i] = e + 15 << 10;
             DataView.__float16_shift[i] = 13;
-        }
-        else if (e < 128) {
+        } else if (e < 128) {
             DataView.__float16_base[i] = 0x7c00;
             DataView.__float16_shift[i] = 24;
-        }
-        else {
+        } else {
             DataView.__float16_base[i] = 0x7c00;
             DataView.__float16_shift[i] = 13;
         }
@@ -552,8 +541,7 @@ DataView.prototype.setInt64 = DataView.prototype.setInt64 || function(byteOffset
     if (littleEndian) {
         this.setUint32(byteOffset, value.low, true);
         this.setUint32(byteOffset + 4, value.high, true);
-    }
-    else {
+    } else {
         this.setUint32(byteOffset + 4, value.low, false);
         this.setUint32(byteOffset, value.high, false);
     }
@@ -588,8 +576,7 @@ DataView.prototype.setUint64 = DataView.prototype.setUint64 || function(byteOffs
     if (littleEndian) {
         this.setUint32(byteOffset, value.low, true);
         this.setUint32(byteOffset + 4, value.high, true);
-    }
-    else {
+    } else {
         this.setUint32(byteOffset + 4, value.low, false);
         this.setUint32(byteOffset, value.high, false);
     }
@@ -624,8 +611,7 @@ DataView.prototype.setComplex64 = DataView.prototype.setComplex64 || function(by
     if (littleEndian) {
         this.setFloat32(byteOffset, value.real, littleEndian);
         this.setFloat32(byteOffset + 4, value.imaginary, littleEndian);
-    }
-    else {
+    } else {
         this.setFloat32(byteOffset + 4, value.real, littleEndian);
         this.setFloat32(byteOffset, value.imaginary, littleEndian);
     }
@@ -641,8 +627,7 @@ DataView.prototype.setComplex128 = DataView.prototype.setComplex128 || function(
     if (littleEndian) {
         this.setFloat64(byteOffset, value.real, littleEndian);
         this.setFloat64(byteOffset + 8, value.imaginary, littleEndian);
-    }
-    else {
+    } else {
         this.setFloat64(byteOffset + 8, value.real, littleEndian);
         this.setFloat64(byteOffset, value.imaginary, littleEndian);
     }
@@ -838,8 +823,7 @@ base.Telemetry = class {
         client_id = client_id ? client_id.replace(/^(GA1\.\d\.)*/, '') : null;
         if (client_id && client_id.indexOf('.') !== 1) {
             this.set('client_id', client_id);
-        }
-        else {
+        } else {
             const random = String(Math.round(0x7FFFFFFF * Math.random()));
             const time = Date.now();
             const value = [ random, Math.round(time / 1e3) ].join('.');
@@ -887,8 +871,7 @@ base.Telemetry = class {
         const key = this._schema.get(name);
         if (value !== undefined && value !== null) {
             this._config.set(key, value);
-        }
-        else if (this._config.has(key)) {
+        } else if (this._config.has(key)) {
             this._config.delete(key);
         }
         this._cache = null;

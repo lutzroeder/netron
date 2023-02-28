@@ -68,8 +68,7 @@ caffe2.ModelFactory = class {
                                     throw new Error("Unknown field '" + tag + "'" + this.location());
                                 };
                                 predict_net = caffe2.proto.NetDef.decodeText(reader);
-                            }
-                            catch (error) {
+                            } catch (error) {
                                 const message = error && error.message ? error.message : error.toString();
                                 throw new caffe2.Error('File text format is not caffe2.NetDef (' + message.replace(/\.$/, '') + ').');
                             }
@@ -79,14 +78,12 @@ caffe2.ModelFactory = class {
                                     if (initTextFormat) {
                                         const reader = protobuf.TextReader.open(initBuffer);
                                         init_net = caffe2.proto.NetDef.decodeText(reader);
-                                    }
-                                    else {
+                                    } else {
                                         const reader = protobuf.BinaryReader.open(initBuffer);
                                         init_net = caffe2.proto.NetDef.decode(reader);
                                     }
                                 }
-                            }
-                            catch (error) {
+                            } catch (error) {
                                 // continue regardless of error
                             }
                             return new caffe2.Model(metadata, predict_net, init_net);
@@ -127,8 +124,7 @@ caffe2.ModelFactory = class {
                                 caffe2.proto = protobuf.get('caffe2').caffe2;
                                 const reader = protobuf.BinaryReader.open(predictBuffer);
                                 predict_net = caffe2.proto.NetDef.decode(reader);
-                            }
-                            catch (error) {
+                            } catch (error) {
                                 const message = error && error.message ? error.message : error.toString();
                                 throw new caffe2.Error('File format is not caffe2.NetDef (' + message.replace(/\.$/, '') + ').');
                             }
@@ -138,8 +134,7 @@ caffe2.ModelFactory = class {
                                     const reader = protobuf.BinaryReader.open(initBuffer);
                                     init_net = caffe2.proto.NetDef.decode(reader);
                                 }
-                            }
-                            catch (error) {
+                            } catch (error) {
                                 // continue regardless of error
                             }
                             return new caffe2.Model(metadata, predict_net, init_net);
@@ -299,8 +294,7 @@ caffe2.Graph = class {
                 lastNode &&
                 lastOutput == op.input[0].split('\n').shift()) {
                 lastNode.chain.push(node);
-            }
-            else {
+            } else {
                 this._nodes.push(node);
                 lastNode = null;
                 lastOutput = null;
@@ -447,8 +441,7 @@ caffe2.Node = class {
                     inputIndex += inputCount;
                 }
             }
-        }
-        else {
+        } else {
             this._inputs.push(...inputs.slice(inputIndex).map((input, index) => {
                 const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
                 return new caffe2.Parameter(inputName, [
@@ -467,8 +460,7 @@ caffe2.Node = class {
                     outputIndex += outputCount;
                 }
             }
-        }
-        else {
+        } else {
             this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
                 const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
                 return new caffe2.Parameter(outputName, [
@@ -513,22 +505,17 @@ caffe2.Attribute = class {
         this._name = arg.name;
         if (arg.floats && arg.floats.length > 0) {
             this._value = arg.floats;
-        }
-        else if (arg.ints && arg.ints.length > 0) {
+        } else if (arg.ints && arg.ints.length > 0) {
             this._value = arg.ints;
-        }
-        else if (arg.nets && arg.nets.length > 0) {
+        } else if (arg.nets && arg.nets.length > 0) {
             this._value = arg.nets.map((net) => new caffe2.Graph(metadata, net, null));
             this._type = 'graph[]';
-        }
-        else if (arg.n) {
+        } else if (arg.n) {
             this._value = new caffe2.Graph(metadata, arg.n, null);
             this._type = 'graph';
-        }
-        else if (arg.i != 0) {
+        } else if (arg.i != 0) {
             this._value = arg.i;
-        }
-        else {
+        } else {
             this._value = arg.i;
         }
         metadata = metadata.attribute(type, arg.name);
@@ -544,8 +531,7 @@ caffe2.Attribute = class {
         if (metadata) {
             if (Object.prototype.hasOwnProperty.call(metadata, 'visible') && !metadata.visible) {
                 this._visible = false;
-            }
-            else if (metadata.default !== undefined) {
+            } else if (metadata.default !== undefined) {
                 if (this._value == metadata.default || (this._value && this._value.toString() == metadata.default.toString())) {
                     this._visible = false;
                 }

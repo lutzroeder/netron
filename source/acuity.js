@@ -73,8 +73,7 @@ acuity.Graph = class {
                     layer.op.toLowerCase() == 'variable') {
                     if (Object.prototype.hasOwnProperty.call(layer.parameters, 'shape') && layer.parameters.shape.length > 0) {
                         shape = layer.parameters.shape;
-                    }
-                    else if (Object.prototype.hasOwnProperty.call(layer.parameters, 'size') && Object.prototype.hasOwnProperty.call(layer.parameters, 'channels')) {
+                    } else if (Object.prototype.hasOwnProperty.call(layer.parameters, 'size') && Object.prototype.hasOwnProperty.call(layer.parameters, 'channels')) {
                         const sizes = layer.parameters.size.split(' ');
                         shape = [0, parseInt(sizes[0]), parseInt(sizes[1]), layer.parameters.channels];
                     }
@@ -396,8 +395,7 @@ acuity.Inference = class {
             if (params.padding == 'VALID') {
                 const out_h = ~~((inputs[0][1] + params.stride - params.ksize) / params.stride);
                 return [ [ inputs[0][0], out_h, params.weights ] ];
-            }
-            else if (params.padding == 'SAME') {
+            } else if (params.padding == 'SAME') {
                 const out_h = ~~((inputs[0][1] + params.stride - 1) / params.stride);
                 return [ [ inputs[0][0], out_h, params.weights ] ];
             }
@@ -408,8 +406,7 @@ acuity.Inference = class {
                 const out_h = ~~((inputs[0][1] + params.stride_h + params.pad[0] + params.pad[1] - params.ksize_h) / params.stride_h);
                 const out_w = ~~((inputs[0][2] + params.stride_w + params.pad[2] + params.pad[3]- params.ksize_w) / params.stride_w);
                 return [ [ inputs[0][0], out_h, out_w, params.weights ] ];
-            }
-            else if (params.padding == 'SAME') {
+            } else if (params.padding == 'SAME') {
                 const out_h = ~~((inputs[0][1] + params.stride_h - 1) / params.stride_h);
                 const out_w = ~~((inputs[0][2] + params.stride_w - 1) / params.stride_w);
                 return [ [ inputs[0][0], out_h, out_w, params.weights ] ];
@@ -442,14 +439,12 @@ acuity.Inference = class {
             let newShape = a.slice(0, -2);
             if (params.transpose_a) {
                 newShape = newShape.concat(a.slice(-1));
-            }
-            else {
+            } else {
                 newShape = newShape.concat(a.slice(-2, -1));
             }
             if (params.transpose_b) {
                 newShape = newShape.concat(b.slice(-2, -1));
-            }
-            else {
+            } else {
                 newShape = newShape.concat(b.slice(-1));
             }
             return [ newShape ];
@@ -465,8 +460,7 @@ acuity.Inference = class {
                 const out_h = ~~((inputs[0][1] + params.stride_h - params.ksize_h) / params.stride_h);
                 const out_w = ~~((inputs[0][2] + params.stride_w - params.ksize_w) / params.stride_w);
                 return [ [inputs[0][0], out_h, out_w, inputs[0][3]] ];
-            }
-            else if (params.padding == 'SAME') {
+            } else if (params.padding == 'SAME') {
                 const out_h = ~~((inputs[0][1] + params.stride_h - 1) / params.stride_h);
                 const out_w = ~~((inputs[0][2] + params.stride_w - 1) / params.stride_w);
                 return [ [inputs[0][0], out_h, out_w, inputs[0][3]] ];
@@ -479,8 +473,7 @@ acuity.Inference = class {
                 for (const i in params.axis_list) {
                     newShape[i] = 1;
                 }
-            }
-            else {
+            } else {
                 const axis_list = params.axis_list.map((item) => {
                     return item < 0 ? newShape.length + item : item;
                 });
@@ -563,8 +556,7 @@ acuity.Inference = class {
             const newShape = inputs[0].slice();
             if (newShape.length == 1 && newShape[0] == 0) {
                 newShape[0] = 1;
-            }
-            else {
+            } else {
                 newShape.splice(params.axis, 0, inputs.length);
             }
             return [ newShape ];
@@ -598,8 +590,7 @@ acuity.Inference = class {
                         end[i] = input_shape[i];
                     }
                 }
-            }
-            else if (inputs[0].length < end.length) {
+            } else if (inputs[0].length < end.length) {
                 if (params.slice_new_axis_mask) {
                     const len = (params.slice_new_axis_mask >>> 0).toString(2).length;
                     for (let i = 0; i < len; i++) {
@@ -632,8 +623,7 @@ acuity.Inference = class {
                     if ((params.slice_new_axis_mask >>> i) & 0x1) {
                         if (inputs[0].length == begin.length) {
                             newShape.splice(i, 0, 1);
-                        }
-                        else if (inputs[0].length < begin.length) {
+                        } else if (inputs[0].length < begin.length) {
                             newShape[i] = 1;
                         }
                     }
@@ -658,17 +648,13 @@ acuity.Inference = class {
                     let callback = null;
                     if (operators.has(layer.op)) {
                         callback = operators.get(layer.op);
-                    }
-                    else if (passthroughs.has(layer.op)) {
+                    } else if (passthroughs.has(layer.op)) {
                         callback = (inputs) => [ inputs[0].slice() ];
-                    }
-                    else if (broadcasts.has(layer.op)) {
+                    } else if (broadcasts.has(layer.op)) {
                         callback = operators.get('broadcast');
-                    }
-                    else if (reduces.has(layer.op)) {
+                    } else if (reduces.has(layer.op)) {
                         callback = operators.get('reduce');
-                    }
-                    else {
+                    } else {
                         callback = () => [];
                     }
                     const parameters = layer.parameters;

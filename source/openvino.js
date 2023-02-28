@@ -49,8 +49,7 @@ openvino.ModelFactory = class {
                 try {
                     const reader = xml.TextReader.open(stream);
                     document = reader.read();
-                }
-                catch (error) {
+                } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
                     throw new openvino.Error('File format is not OpenVINO XML (' + message.replace(/\.$/, '') + ').');
                 }
@@ -285,8 +284,7 @@ openvino.Graph = class {
                                 argumentWithoutId._name = potentialParentInput.arguments[0].name;
                             }
                         }
-                    }
-                    else {
+                    } else {
                         if (!nestedNode._inputs) {
                             throw new openvino.Error("Tensor Iterator node with name '" + nestedNode._id + "' does not have inputs.");
                         }
@@ -300,8 +298,7 @@ openvino.Graph = class {
                             if (argumentWithoutId) {
                                 argumentWithoutId._name = newId;
                             }
-                        }
-                        else {
+                        } else {
                             // TODO: no tensor information in the new argument - passed as null for now
                             nestedNode._inputs.push(new openvino.Parameter((nestedNode._inputs.length + 1).toString(), [
                                 new openvino.Argument(newId, null, null)
@@ -725,8 +722,7 @@ openvino.Attribute = class {
                                 const intValue = Number.parseInt(item, 10);
                                 if (Number.isNaN(item - intValue)) {
                                     ints = null;
-                                }
-                                else if (ints != null) {
+                                } else if (ints != null) {
                                     ints.push(intValue);
                                 }
                             }
@@ -743,8 +739,7 @@ openvino.Attribute = class {
                                 const floatValue = Number.parseFloat(item);
                                 if (Number.isNaN(item - floatValue)) {
                                     floats = null;
-                                }
-                                else if (floats != null) {
+                                } else if (floats != null) {
                                     floats.push(floatValue);
                                 }
                             }
@@ -759,13 +754,11 @@ openvino.Attribute = class {
             }
             if (Object.prototype.hasOwnProperty.call(schema, 'visible') && schema.visible == false) {
                 this._visible = false;
-            }
-            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
+            } else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 let defaultValue = schema.default;
                 if (this._value == defaultValue) {
                     this._visible = false;
-                }
-                else if (Array.isArray(this._value) && Array.isArray(defaultValue)) {
+                } else if (Array.isArray(this._value) && Array.isArray(defaultValue)) {
                     defaultValue = defaultValue.slice(0, defaultValue.length);
                     if (defaultValue.length > 1 && defaultValue[defaultValue.length - 1] == null) {
                         defaultValue.pop();

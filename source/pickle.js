@@ -28,29 +28,24 @@ pickle.ModelFactory = class {
             const obj = match;
             if (obj === null || obj === undefined) {
                 context.exception(new pickle.Error("Unsupported Pickle null object in '" + context.identifier + "'."));
-            }
-            else if (Array.isArray(obj)) {
+            } else if (Array.isArray(obj)) {
                 if (obj.length > 0 && obj[0] && obj.every((item) => item && item.__class__ && obj[0].__class__ && item.__class__.__module__ === obj[0].__class__.__module__ && item.__class__.__name__ === obj[0].__class__.__name__)) {
                     const type = obj[0].__class__.__module__ + "." + obj[0].__class__.__name__;
                     context.exception(new pickle.Error("Unsupported Pickle '" + type + "' array object in '" + context.identifier + "'."));
-                }
-                else if (obj.length > 0) {
+                } else if (obj.length > 0) {
                     context.exception(new pickle.Error("Unsupported Pickle array object in '" + context.identifier + "'."));
                 }
-            }
-            else if (obj && obj.__class__) {
+            } else if (obj && obj.__class__) {
                 const formats = new Map([
                     [ 'cuml.ensemble.randomforestclassifier.RandomForestClassifier', 'cuML' ]
                 ]);
                 const type = obj.__class__.__module__ + "." + obj.__class__.__name__;
                 if (formats.has(type)) {
                     format = formats.get(type);
-                }
-                else {
+                } else {
                     context.exception(new pickle.Error("Unsupported Pickle type '" + type +  "'."));
                 }
-            }
-            else {
+            } else {
                 context.exception(new pickle.Error('Unsupported Pickle object.'));
             }
             return new pickle.Model(obj, format);
@@ -85,16 +80,13 @@ pickle.Graph = class {
             for (const item of obj) {
                 this._nodes.push(new pickle.Node(item));
             }
-        }
-        else if (obj && obj instanceof Map) {
+        } else if (obj && obj instanceof Map) {
             for (const entry of obj) {
                 this._nodes.push(new pickle.Node(entry[1], entry[0]));
             }
-        }
-        else if (obj && obj.__class__) {
+        } else if (obj && obj.__class__) {
             this._nodes.push(new pickle.Node(obj));
-        }
-        else if (obj && Object(obj) === obj) {
+        } else if (obj && Object(obj) === obj) {
             this._nodes.push(new pickle.Node(obj));
         }
     }
@@ -122,8 +114,7 @@ pickle.Node = class {
         if (Array.isArray(obj)) {
             this._type = { name: 'List' };
             this._attributes.push(new pickle.Attribute('value', obj));
-        }
-        else {
+        } else {
             const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'Object';
             this._type = { name: type };
             for (const entry of Object.entries(obj)) {
