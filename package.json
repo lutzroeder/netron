@@ -18,7 +18,9 @@
         "lint": "node publish/node.js lint",
         "test": "node test/models.js",
         "clean": "node publish/node.js clean",
-        "reset": "node publish/node.js reset"
+        "reset": "node publish/node.js reset",
+        "update": "node publish/node.js update",
+        "pull": "node publish/node.js pull"
     },
     "dependencies": {
         "electron-updater": "5.3.0"

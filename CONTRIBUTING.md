@@ -7,19 +7,15 @@ Netron can run as both an [Electron](https://electronjs.org) app or a Python web
 To start the Electron app, install [Node.js](https://nodejs.org) and run: 
 
 ```bash
-git clone https://github.com/lutzroeder/netron.git
-cd netron
 npm install
-npx electron .
+npm start
 ```
 
-To debug the Electron app, open the folder in [Visual Studio Code](https://code.visualstudio.com) and press <kbd>F5</kbd>. To attach the debugger to a render process select the `Debug` tab and `Electron View` before launching.
+To debug the Electron app, open the folder in [Visual Studio Code](https://code.visualstudio.com) and press <kbd>F5</kbd>. To attach the debugger to the render process select the `Debug` tab and pick `Electron View` before launching.
 
-To build and launch the Python server run:
+To build and launch the Python server, pick `Python Server` in the `Debug` tab or run this command:
 
 ```bash
-git clone https://github.com/lutzroeder/netron.git
-cd netron
 python publish/python.py build start --browse
 ```
 
@@ -28,6 +24,6 @@ python publish/python.py build start --browse
 To validate changes run:
 
 ```bash
-npm run -s lint
-npm run -s test <format> # e.g. npm run -s test onnx
+npm run lint
+npm test [format] # e.g. npm test onnx
 ```
