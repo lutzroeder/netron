@@ -200,6 +200,9 @@ view.View = class {
         if (this._sidebar) {
             this._sidebar.close();
         }
+        if (this._menu) {
+            this._menu.close();
+        }
         this._host.document.body.classList.remove(...Array.from(this._host.document.body.classList).filter((_) => _ !== 'active'));
         this._host.document.body.classList.add(...page.split(' '));
         if (page === 'default') {
@@ -941,6 +944,9 @@ view.View = class {
     showNodeProperties(node, input) {
         if (node) {
             try {
+                if (this._menu) {
+                    this._menu.close();
+                }
                 const nodeSidebar = new view.NodeSidebar(this._host, node);
                 nodeSidebar.on('show-documentation', (/* sender, e */) => {
                     this.showDocumentation(node.type);
@@ -1032,7 +1038,7 @@ view.Menu = class {
             if (code === 0x001b) { // Escape
                 this._deactivate();
                 if (this._stack.length === 0) {
-                    this._close();
+                    this.close();
                 }
             }
             if (code === 0x0025) { // Left
@@ -1071,7 +1077,7 @@ view.Menu = class {
                         } else if (item.type === 'command' && item.enabled) {
                             item.execute();
                             e.preventDefault();
-                            this._close();
+                            this.close();
                         }
                     }
                 }
@@ -1080,7 +1086,7 @@ view.Menu = class {
                 if (item && item.enabled) {
                     item.execute();
                     e.preventDefault();
-                    this._close();
+                    this.close();
                 }
             }
         });
@@ -1088,7 +1094,7 @@ view.Menu = class {
             const code = e.keyCode;
             if (code === 0x0012 && this._exit) { // Alt
                 if (this._stack.length === 1) {
-                    this._close();
+                    this.close();
                 } else if (this._stack.length > 1) {
                     this._stack = [ this ];
                     if (this._root.length > 1) {
@@ -1111,7 +1117,7 @@ view.Menu = class {
 
     toggle() {
         if (this._element.style.opacity >= 1) {
-            this._close();
+            this.close();
         } else {
             this._root = [ this ];
             this._reset();
@@ -1160,7 +1166,7 @@ view.Menu = class {
                     case 'group':
                     case 'command': {
                         let callback = () => {
-                            this._close();
+                            this.close();
                             setTimeout(() => item.execute(), 10);
                         };
                         if (item.type === 'group') {
@@ -1302,7 +1308,7 @@ view.Menu = class {
         }
     }
 
-    _close() {
+    close() {
         this._stack = [];
         this._element.style.opacity = 0;
         this._element.style.left = '-200px';
