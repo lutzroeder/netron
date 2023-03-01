@@ -149,7 +149,7 @@ app.Application = class {
         if (this._views.empty) {
             this._views.openView();
         }
-        this._resetMenu();
+        this._updateRecents();
         this._views.on('active-view-changed', () => {
             this._menu.update();
         });
@@ -180,34 +180,27 @@ app.Application = class {
             this._openQueue.push(path);
             return;
         }
-        if (path && path.length > 0 && fs.existsSync(path)) {
-            const stat = fs.statSync(path);
-            if (stat.isFile() || stat.isDirectory()) {
-                const views = Array.from(this._views.views);
-                // find existing view for this file
-                let view = views.find(view => view.match(path));
-                // find empty welcome window
-                if (view == null) {
-                    view = views.find(view => view.match(null));
+        if (path && path.length > 0) {
+            const exists = fs.existsSync(path);
+            if (exists) {
+                const stat = fs.statSync(path);
+                if (stat.isFile() || stat.isDirectory()) {
+                    const views = Array.from(this._views.views);
+                    // find existing view for this file
+                    let view = views.find(view => view.match(path));
+                    // find empty welcome window
+                    if (view == null) {
+                        view = views.find(view => view.match(null));
+                    }
+                    // create new window
+                    if (view == null) {
+                        view = this._views.openView();
+                    }
+                    view.open(path);
                 }
-                // create new window
-                if (view == null) {
-                    view = this._views.openView();
-                }
-                this._loadPath(path, view);
             }
+            this._updateRecents(exists ? path : undefined);
         }
-    }
-
-    _loadPath(path, view) {
-        const recents = this._configuration.get('recents').filter((recent) => path !== recent.path);
-        view.open(path);
-        recents.unshift({ path: path });
-        if (recents.length > 9) {
-            recents.splice(9);
-        }
-        this._configuration.set('recents', recents);
-        this._resetMenu();
     }
 
     _dropPaths(sender, paths) {
@@ -215,7 +208,8 @@ app.Application = class {
         let view = this._views.get(window);
         for (const path of paths) {
             if (view) {
-                this._loadPath(path, view);
+                view.open(path);
+                this._updateRecents(path);
                 view = null;
             } else {
                 this._openPath(path);
@@ -271,7 +265,8 @@ app.Application = class {
     _reload() {
         const view = this._views.activeView;
         if (view && view.path) {
-            this._loadPath(view.path, view);
+            view.open(path);
+            this._updateRecents(path);
         }
     }
 
@@ -360,24 +355,42 @@ app.Application = class {
         }
     }
 
+    _updateRecents(path) {
+        let updated = false;
+        let recents = this._configuration.has('recents') ? this._configuration.get('recents') : [];
+        if (path && recents.length > 0 && recents[0] !== path) {
+            recents = recents.filter((recent) => path !== recent.path);
+            recents.unshift({ path: path });
+            updated = true;
+        }
+        const value = [];
+        for (const recent of recents) {
+            if (value.length >= 9) {
+                updated = true;
+                break;
+            }
+            const path = recent.path;
+            if (!fs.existsSync(path)) {
+                updated = true;
+                continue;
+            }
+            const stat = fs.statSync(path);
+            if (!stat.isFile() && !stat.isDirectory()) {
+                updated = true;
+                continue;
+            }
+            value.push(recent);
+        }
+        if (updated) {
+            this._configuration.set('recents', value);
+        }
+        this._resetMenu();
+    }
+
     _resetMenu() {
         const menuRecentsTemplate = [];
         if (this._configuration.has('recents')) {
-            let recents = this._configuration.get('recents');
-            recents = recents.filter((recent) => {
-                const path = recent.path;
-                if (fs.existsSync(path)) {
-                    const stat = fs.statSync(path);
-                    if (stat.isFile() || stat.isDirectory()) {
-                        return true;
-                    }
-                }
-                return false;
-            });
-            if (recents.length > 9) {
-                recents.splice(9);
-            }
-            this._configuration.set('recents', recents);
+            const recents = this._configuration.get('recents');
             for (let i = 0; i < recents.length; i++) {
                 const recent = recents[i];
                 menuRecentsTemplate.push({
