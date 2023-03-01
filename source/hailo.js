@@ -329,7 +329,7 @@ hn.Node = class {
         };
 
         const getChain = (layer) => {
-            return layer && layer.params && layer.params.activation ? [new hn.Node({
+            return layer && layer.params && layer.params.activation && layer.params.activation !== 'linear' && layer.type !== 'activation' ? [new hn.Node({
                 name: "activation",
                 type: "activation",
                 visible: true
@@ -341,10 +341,21 @@ hn.Node = class {
             })] : [];
         };
 
+        const getNodeType = (layer) => {
+            if(layer.type === 'activation') {
+                return layer.params.activation || layer.name || '';
+            }
+            return layer.type;
+        }
+
 
         this._name = layer.name || '';
-        this._type = {category: layer_metadata.type, name: layer.type, attributes: layer_metadata.attributes};
-
+        this._type = {
+            category: layer_metadata.type,
+            name: getNodeType(layer),
+            attributes: layer_metadata.attributes,
+            description: layer_metadata.description
+        };
         this._inputs = getNodeInputs(layer);
         this._outputs = getNodeOutputs(layer);
         this._attributes = getNodeAttributes(layer);
@@ -369,6 +380,10 @@ hn.Node = class {
 
     get attributes() {
         return this._attributes;
+    }
+
+    get description() {
+        return this._descripton;
     }
 
     get chain() {

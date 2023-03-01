@@ -2,733 +2,574 @@
   {
     "name": "input_layer",
     "type": "InputLayer",
-    "description": "His!",
+    "description": "Represents an input of the model",
+    "attributes": []
+  },
+  {
+    "name": "output_layer",
+    "type": "OutputLayer",
+    "description": "Represents an output of the model",
+    "attributes": []
+  },
+  {
+    "name": "postprocess",
+    "type": "Layer",
+    "description": "Represents a whole post-processing function of some meta-architecture",
     "attributes": [
       {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
+        "name": "max_proposals_per_class",
+        "type": "number",
+        "description": "Maximum number of proposals per class",
         "visible": false
       },
       {
-        "name": "resize_h_ratio_list",
-        "type": "array",
+        "name": "iou_th",
+        "type": "string",
         "visible": false,
-        "show_array_length": true
+        "description": "Intersection over union overlap threshold, used in the NMS iterative elimination process where potential duplicates of detected items are ignored"
       },
       {
-        "name": "resize_w_ratio_list",
-        "type": "array",
+        "name": "meta_arch",
+        "type": "string",
         "visible": false,
-        "show_array_length": true
+        "description": "Postprocessing meta-architecture name"
       },
       {
-        "name": "resize_f_ratio_list",
-        "type": "array",
+        "name": "max_total_output_proposals",
+        "type": "number",
         "visible": false,
-        "show_array_length": true
+        "description": "Maximum number of bounding box proposals"
+      },
+      {
+        "name": "postprocess_type",
+        "type": "string",
+        "visible": false,
+        "description": "Postprocessing type name"
       }
     ]
   },
   {
     "name": "conv",
     "type": "Layer",
+    "description": "Convolution layer",
     "attributes": [
       {
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
+        "description": "Shape of the kernel in Tensorflow convention (kernel height, kernel width, features in, features out)",
         "visible": true
       },
       {
-        "name": "resize_h_ratio_list",
+        "name": "strides",
         "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "description": "Stride along each axis (batch, height, width, features)",
+        "visible": false
       },
       {
-        "name": "resize_w_ratio_list",
+        "name": "dilations",
         "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "description": "Dilation value along each axis (batch, height, width, features)",
+        "visible": false
       },
       {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "name": "padding",
+        "type": "number",
+        "description": "Padding mode, either VALID, SAME (symmetric, Caffe-like), SAME_TENSORFLOW, or DECONV",
+        "visible": false
+      },
+      {
+        "name": "groups",
+        "type": "number",
+        "description": "Number of groups input channels and output channels are divided into",
+        "visible": false
+      },
+      {
+        "name": "batch_norm",
+        "type": "string",
+        "description": "Whether batch normalization is folded into the layer",
+        "visible": false
+      },
+      {
+        "name": "elementwise_add",
+        "type": "string",
+        "description": "Whether elementwise addition is folded into the layer",
+        "visible": false
+      },
+      {
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
+      },
+      {
+        "name": "pre_layer_batch_norm",
+        "type": "string",
+        "description": "Whether batch normalization is folded into the layer, before the operation itself",
+        "visible": false
+      },
+      {
+        "name": "transpose_output_width_features",
+        "type": "string",
+        "description": "Whether to transpose the width and the features axes of the layer's output tensor",
+        "visible": false
+      },
+      {
+        "name": "spatial_flatten_output",
+        "type": "string",
+        "description": "Whether to flatten the layer's output to one row",
+        "visible": false
       }
     ]
   },
   {
     "name": "activation",
     "type": "Activation",
+    "description": "Activation function",
     "attributes": [
       {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
+        "name": "batch_norm",
+        "type": "string",
+        "description": "Whether batch normalization is folded into the layer",
         "visible": false
       },
       {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "name": "elementwise_add",
+        "type": "string",
+        "description": "Whether elementwise addition is folded into the layer",
+        "visible": false
       },
       {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
       }
     ]
   },
   {
     "name": "argmax",
     "type": "Layer",
-    "attributes": [
-      {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
-        "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      }
-    ]
+    "description": "Argmax layer",
+    "attributes": []
   },
   {
     "name": "avgpool",
     "type": "Pool",
+    "description": "Average pooling layer",
     "attributes": [
       {
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
+        "description": "Shape of the kernel in Tensorflow convention (kernel height, kernel width, features in, features out)",
         "visible": true
       },
       {
-        "name": "resize_h_ratio_list",
+        "name": "strides",
         "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "description": "Stride along each axis (batch, height, width, features)",
+        "visible": false
       },
       {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "name": "padding",
+        "type": "number",
+        "description": "Padding mode, either VALID, SAME (symmetric, Caffe-like), SAME_TENSORFLOW, or DECONV",
+        "visible": false
       },
       {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
       }
     ]
   },
   {
     "name": "batch_norm",
     "type": "Layer",
+    "description": "Batch normalization layer",
     "attributes": [
       {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
+        "name": "elementwise_add",
+        "type": "string",
+        "description": "Whether elementwise addition is folded into the layer",
         "visible": false
       },
       {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
       }
     ]
   },
   {
     "name": "bbox_decoder",
     "type": "Layer",
+    "description": "Bounding box decoding layer",
     "attributes": [
-      {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
-        "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      }
+
     ]
   },
   {
     "name": "deconv",
     "type": "Layer",
+    "description": "Deconvolution (transposed convolution) layer",
     "attributes": [
       {
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
+        "description": "Shape of the kernel in Tensorflow convention (kernel height, kernel width, features in, features out)",
         "visible": true
       },
       {
-        "name": "resize_h_ratio_list",
+        "name": "strides",
         "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "description": "Stride along each axis (batch, height, width, features)",
+        "visible": false
       },
       {
-        "name": "resize_w_ratio_list",
+        "name": "dilations",
         "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "description": "Dilation value along each axis (batch, height, width, features)",
+        "visible": false
       },
       {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "name": "padding",
+        "type": "number",
+        "description": "Padding mode, either VALID, SAME (symmetric, Caffe-like), SAME_TENSORFLOW, or DECONV",
+        "visible": false
+      },
+      {
+        "name": "groups",
+        "type": "number",
+        "description": "Number of groups input channels and output channels are divided into",
+        "visible": false
+      },
+      {
+        "name": "batch_norm",
+        "type": "string",
+        "description": "Whether batch normalization is folded into the layer",
+        "visible": false
+      },
+      {
+        "name": "elementwise_add",
+        "type": "string",
+        "description": "Whether elementwise addition is folded into the layer",
+        "visible": false
+      },
+      {
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
       }
     ]
   },
   {
     "name": "dense",
     "type": "Layer",
+    "description": "Dense (fully connected) layer",
     "attributes": [
       {
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
+        "description": "Shape of the kernel in Tensorflow convention (kernel height, kernel width, features in, features out)",
         "visible": true
       },
       {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "name": "batch_norm",
+        "type": "string",
+        "description": "Whether batch normalization is folded into the layer",
+        "visible": false
       }
     ]
   },
   {
     "name": "depth_to_space",
     "type": "Layer",
+    "description": "Depth to space layer",
     "attributes": [
       {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
+        "name": "block_sizes",
+        "type": "string",
+        "description": "Block size along each spatial axis",
         "visible": false
       },
       {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "name": "depth_to_space_type",
+        "type": "string",
+        "description": "Depth to space variant, either dcr (depth-column-row) or crd (column-row-depth)",
+        "visible": false
       }
     ]
   },
   {
     "name": "dw",
     "type": "Layer",
+    "description": "Depthwise convolution layer",
     "attributes": [
       {
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
+        "description": "Shape of the kernel in Tensorflow convention (kernel height, kernel width, features in, features out)",
         "visible": true
       },
       {
-        "name": "resize_h_ratio_list",
+        "name": "strides",
         "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "description": "Stride along each axis (batch, height, width, features)",
+        "visible": false
       },
       {
-        "name": "resize_w_ratio_list",
+        "name": "dilations",
         "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "description": "Dilation value along each axis (batch, height, width, features)",
+        "visible": false
       },
       {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "name": "padding",
+        "type": "number",
+        "description": "Padding mode, either VALID, SAME (symmetric, Caffe-like), SAME_TENSORFLOW, or DECONV",
+        "visible": false
+      },
+      {
+        "name": "groups",
+        "type": "number",
+        "description": "Number of groups input channels and output channels are divided into",
+        "visible": false
+      },
+      {
+        "name": "batch_norm",
+        "type": "string",
+        "description": "Whether batch normalization is folded into the layer",
+        "visible": false
+      },
+      {
+        "name": "elementwise_add",
+        "type": "string",
+        "description": "Whether elementwise addition is folded into the layer",
+        "visible": false
+      },
+      {
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
+      },
+      {
+        "name": "transpose_output_width_features",
+        "type": "string",
+        "description": "Whether to transpose the width and the features axes of the layer's output tensor",
+        "visible": false
+      },
+      {
+        "name": "dynamic_weights",
+        "type": "string",
+        "description": "Whether the layer's weights are data driven",
+        "visible": false
       }
     ]
   },
   {
     "name": "external_pad",
     "type": "Layer",
+    "description": "Padding layer",
     "attributes": [
       {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
+        "name": "external_pad_params",
+        "type": "string",
+        "description": "Padding value in pixels in each edge (top, bottom, left, right)",
         "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
       }
     ]
   },
   {
     "name": "feature_interleave",
     "type": "Layer",
-    "attributes": [
-      {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
-        "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      }
-    ]
+    "description": "Feature interleave layer",
+    "attributes": []
   },
   {
     "name": "feature_multiplier",
     "type": "Layer",
+    "description": "Elementwise feature multiplication layer",
     "attributes": [
       {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
-        "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": true,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
+        "name": "feature_multiplier_type",
         "type": "string",
-        "visible": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": true,
-        "show_array_length": true
+        "description": "Feature multiplier variant, either square (to multiply each value by itself), or user_specified",
+        "visible": false
       }
     ]
   },
   {
     "name": "feature_shuffle",
     "type": "Layer",
-    "attributes": [
-      {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
-        "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      }
-    ]
+    "description": "Feature shuffle layer",
+    "attributes": []
   },
   {
     "name": "format_conversion",
     "type": "Layer",
+    "description": "Reshapes the input tensor between different memory layouts",
     "attributes": [
+
       {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
-        "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
+        "name": "conversion_type",
+        "type": "string",
         "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "description": "Format conversion variant"
       }
     ]
   },
   {
     "name": "global_avg_pool",
     "type": "Pool",
-    "attributes": [
-      {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
-        "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      }
-    ]
+    "description": "Global average pooling layer",
+    "attributes": []
   },
   {
     "name": "maxpool",
     "type": "Pool",
+    "description": "Maximum pooling layer",
     "attributes": [
       {
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
+        "description": "Shape of the kernel in Tensorflow convention (kernel height, kernel width, features in, features out)",
         "visible": true
       },
       {
-        "name": "resize_h_ratio_list",
+        "name": "strides",
         "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "description": "Stride along each axis (batch, height, width, features)",
+        "visible": false
       },
       {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "name": "padding",
+        "type": "number",
+        "description": "Padding mode, either VALID, SAME (symmetric, Caffe-like), SAME_TENSORFLOW, or DECONV",
+        "visible": false
       },
       {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
       }
     ]
   },
   {
     "name": "nms",
     "type": "Layer",
+    "description": "Non-maximum suppression layer",
     "attributes": [
       {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
+        "name": "scores_threshold",
+        "type": "string",
+        "description": "Confidence threshold for NMS filtering",
         "visible": false
       },
       {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "name": "iou_threshold",
+        "type": "string",
+        "description": "Intersection over union overlap threshold, used in the NMS iterative elimination process where potential duplicates of detected items are ignored",
+        "visible": false
       },
       {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "name": "classes",
+        "type": "number",
+        "description": "Number of NMS classes",
+        "visible": false
       },
       {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "name": "max_output_size",
+        "type": "number",
+        "description": "Maximum number of proposals per class",
+        "visible": false
       }
     ]
   },
   {
     "name": "normalization",
     "type": "Normalization",
+    "description": "Normalization layer",
     "attributes": [
       {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
+        "name": "elementwise_add",
+        "type": "string",
+        "description": "Whether elementwise addition is folded into the layer",
         "visible": false
       },
       {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
       }
     ]
   },
   {
     "name": "proposal_generator",
     "type": "Layer",
-    "attributes": [
-      {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
-        "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      }
-    ]
+    "description": "Proposal generator layer",
+    "attributes": []
   },
   {
     "name": "reduce_l2",
     "type": "Layer",
-    "attributes": [
-      {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
-        "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      }
-    ]
+    "description": "Reduce layer",
+    "attributes": []
   },
   {
     "name": "reduce_max",
     "type": "Layer",
+    "description": "Reduce Max layer",
     "attributes": [
       {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
+        "name": "groups",
+        "type": "number",
+        "description": "Number of groups input channels and output channels are divided into",
         "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
       }
     ]
   },
   {
     "name": "reduce_sum",
     "type": "Layer",
+    "description": "Reduce Sum layer",
     "attributes": [
       {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
+        "name": "groups",
+        "type": "number",
+        "description": "Number of groups input channels and output channels are divided into",
         "visible": false
       },
       {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
       },
       {
-        "name": "resize_w_ratio_list",
+        "name": "reduce_axes",
         "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "description": "List of axes to reduce",
+        "visible": false
       }
     ]
   },
   {
     "name": "resize",
     "type": "Tensor",
+    "description": "Resize layer",
     "attributes": [
-      {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
-        "visible": false
-      },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
@@ -746,458 +587,216 @@
         "type": "array",
         "visible": true,
         "show_array_length": true
+      },
+      {
+        "name": "method",
+        "type": "string",
+        "description": "Resize method, either bilinear or nearest_neighbor",
+        "visible": false
+      },
+      {
+        "name": "resize_bilinear_pixels_mode",
+        "type": "string",
+        "description": "Bilinear resize variant, either half_pixels, align_corners, or disabled (where both align_corners and half_pixels are false)",
+        "visible": false
       }
     ]
   },
   {
     "name": "shortcut",
     "type": "Layer",
-    "attributes": [
-      {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
-        "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      }
-    ]
+    "description": "Shortcut layer",
+    "attributes": []
   },
   {
     "name": "slice",
     "type": "Layer",
+    "description": "Slice layer",
     "attributes": [
       {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
-        "visible": false
+        "name": "height_slice",
+        "type": "string",
+        "visible": false,
+        "description": "Slice in the height axis (start, stop, step)"
       },
       {
-        "name": "resize_h_ratio_list",
-        "type": "array",
+        "name": "width_slice",
+        "type": "string",
         "visible": false,
-        "show_array_length": true
+        "description": "Slice in the width axis (start, stop, step)"
       },
       {
-        "name": "resize_w_ratio_list",
-        "type": "array",
+        "name": "features_slice",
+        "type": "string",
         "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "description": "Slice in the features axis (start, stop, step)"
       }
     ]
   },
   {
     "name": "softmax",
     "type": "Layer",
+    "description": "Softmax layer",
     "attributes": [
       {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
+        "name": "groups",
+        "type": "number",
+        "description": "Number of groups input channels and output channels are divided into",
         "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
       }
     ]
   },
   {
     "name": "space_to_depth",
     "type": "Layer",
+    "description": "Space to depth layer",
     "attributes": [
       {
-        "name": "kernel_shape",
+        "name": "block_sizes",
         "type": "array",
-        "label": "kernel",
+        "description": "Block size along each spatial axis",
         "visible": false
       },
       {
-        "name": "resize_h_ratio_list",
+        "name": "space_to_depth_type",
         "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "description": "Space to depth variant, either classic_dcr (depth-column-row) classic_crd (column-row-depth), serial (used by Transformers patchify function), or focus (Yolov5-like)",
+        "visible": false
       },
       {
-        "name": "resize_w_ratio_list",
+        "name": "spatial_flatten_output",
         "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "description": "Whether to flatten the layer's output to one row",
+        "visible": false
       }
     ]
   },
   {
     "name": "output_mux",
     "type": "Layer",
-    "attributes": [
-      {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
-        "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      }
-    ]
-  },
-  {
-    "name": "activation",
-    "type": "Activation",
-    "attributes": [
-      {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
-        "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      }
-    ]
+    "description": "Output muxer layer",
+    "attributes": []
   },
   {
     "name": "concat",
     "type": "Tensor",
+    "description": "Concatenation layer",
     "attributes": [
       {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
+        "name": "concat_axis",
+        "type": "string",
+        "description": "Axis to concatenate along, either features or spatial_w (which means the width axis)",
         "visible": false
       },
       {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "name": "spatial_w_concat",
+        "type": "string",
+        "description": "Whether the concat operation is in the width dimension",
+        "visible": false
       }
     ]
   },
   {
     "name": "matmul",
     "type": "Layer",
+    "description": "Matrix multiplication layer",
     "attributes": [
       {
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
+        "description": "Shape of the kernel in Tensorflow convention (kernel height, kernel width, features in, features out)",
         "visible": true
       },
       {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "name": "dynamic_weights",
+        "type": "string",
+        "description": "Whether the layer's weights are data driven",
+        "visible": false
       },
       {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
+        "name": "transpose_matmul_input",
+        "type": "string",
+        "description": "Whether to transpose the width and the features axes of the layer's second input tensor",
+        "visible": false
       }
     ]
   },
   {
     "name": "ew_add",
     "type": "Layer",
+    "description": "Elementwise addition layer",
     "attributes": [
       {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
         "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
       }
     ]
   },
   {
     "name": "ew_div",
     "type": "Layer",
+    "description": "Elementwise division layer",
     "attributes": [
       {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
         "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
       }
     ]
   },
   {
     "name": "ew_mult",
     "type": "Layer",
+    "description": "Elementwise multiplication layer",
     "attributes": [
       {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
         "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
       }
     ]
   },
   {
     "name": "ew_sub",
     "type": "Layer",
+    "description": "Elementwise subtraction layer",
     "attributes": [
       {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
         "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
       }
     ]
   },
   {
     "name": "demux",
     "type": "Layer",
-    "attributes": [
-      {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
-        "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      }
-    ]
+    "description": "Demuxer layer",
+    "attributes": []
   },
   {
     "name": "row_splitter",
     "type": "Layer",
-    "attributes": [
-      {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
-        "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      }
-    ]
+    "description": "Splits the input tensor along the height axis",
+    "attributes": []
   },
   {
     "name": "feature_splitter",
     "type": "Layer",
-    "attributes": [
-      {
-        "name": "kernel_shape",
-        "type": "array",
-        "label": "kernel",
-        "visible": false
-      },
-      {
-        "name": "resize_h_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_w_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      },
-      {
-        "name": "resize_f_ratio_list",
-        "type": "array",
-        "visible": false,
-        "show_array_length": true
-      }
-    ]
+    "description": "Splits the input tensor along the features axis",
+    "attributes": []
+  },
+  {
+    "name": "const_input",
+    "type": "Layer",
+    "description": "Constant input",
+    "attributes": []
   }
 ]
 
