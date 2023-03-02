@@ -16,7 +16,8 @@ hn.FileExtensions = {
     HN: 'hn',
     TAR: 'tar',
     HAR: 'har',
-    JSON: 'json'
+    JSON: 'json',
+    METADATA: 'metadata.json'
 };
 
 hn.Formats = {
@@ -32,7 +33,7 @@ hn.ModelFactory = class {
             json = context.open(hn.FileExtensions.JSON);
         }
         if (extension === hn.FileExtensions.HAR) {
-            json = this._getJSONFromTAR(context);
+            json = this._getHNFromTAR(context);
         }
 
         const {name, net_params, layers} = json || {};
@@ -53,9 +54,10 @@ hn.ModelFactory = class {
                 }
 
                 case hn.FileExtensions.HAR: {
-                    const configuration = this._getJSONFromTAR(context);
+                    const configuration = this._getHNFromTAR(context);
+                    const har_metadata = this._getMetadataFromTAR(context);
                     const graph_metadata = new hn.GraphMetadata(metadata);
-                    return new hn.Model(graph_metadata, configuration, hn.Formats.HAR);
+                    return new hn.Model(graph_metadata, configuration, hn.Formats.HAR, har_metadata);
                 }
 
                 default: {
@@ -65,9 +67,19 @@ hn.ModelFactory = class {
         });
     }
 
-    _getJSONFromTAR(context) {
+    _getHNFromTAR(context) {
         const entries = [...context.entries(hn.FileExtensions.TAR)];
         const regExp = new RegExp(`.${hn.FileExtensions.HN}$`);
+        const [, stream] = entries.find(([name]) => regExp.test(name));
+        const buffer = stream.peek();
+        const decoder = new TextDecoder('utf-8');
+        const content = decoder.decode(buffer);
+        return JSON.parse(content);
+    }
+
+    _getMetadataFromTAR(context) {
+        const entries = [...context.entries(hn.FileExtensions.TAR)];
+        const regExp = new RegExp(`.${hn.FileExtensions.METADATA}$`);
         const [, stream] = entries.find(([name]) => regExp.test(name));
         const buffer = stream.peek();
         const decoder = new TextDecoder('utf-8');
@@ -77,20 +89,15 @@ hn.ModelFactory = class {
 };
 
 hn.Model = class {
-    constructor(metadata, configuration, format) {
+    constructor(metadata, configuration, format, har_metadata) {
         this._graphs = [];
         this._graphs.push(new hn.Graph(metadata, configuration));
         this._name = configuration && configuration.name || "";
-        const {net_params: {version, stage, dtype, output_layers_order = []}} = configuration;
-        this._version = version || 0.0;
+        const {net_params: {version, stage, dtype = []}} = configuration;
+        this._version = har_metadata && har_metadata.sdk_version || version || 0.0;
         this._format = format;
         this._stage = stage;
         this._dtype = dtype;
-        this._output_layers_order = output_layers_order.join(', ');
-    }
-
-    get output_layers_order() {
-        return this._output_layers_order;
     }
 
     get dtype() {
