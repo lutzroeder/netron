@@ -19,6 +19,11 @@ hn.FileExtensions = {
     JSON: 'json'
 };
 
+hn.Formats = {
+    HN: 'HailoNN (hn)',
+    HAR: 'Hailo Archive (har)',
+};
+
 hn.ModelFactory = class {
     match(context) {
         const extension = context.identifier.split('.').pop().toLowerCase();
@@ -44,13 +49,13 @@ hn.ModelFactory = class {
                 case hn.FileExtensions.HN: {
                     const configuration = context.open(hn.FileExtensions.JSON);
                     const graph_metadata = new hn.GraphMetadata(metadata);
-                    return new hn.Model(graph_metadata, configuration, hn.FileExtensions.HN);
+                    return new hn.Model(graph_metadata, configuration, hn.Formats.HN);
                 }
 
                 case hn.FileExtensions.HAR: {
                     const configuration = this._getJSONFromTAR(context);
                     const graph_metadata = new hn.GraphMetadata(metadata);
-                    return new hn.Model(graph_metadata, configuration, hn.FileExtensions.HAR);
+                    return new hn.Model(graph_metadata, configuration, hn.Formats.HAR);
                 }
 
                 default: {

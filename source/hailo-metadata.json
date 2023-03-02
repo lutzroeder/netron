@@ -3,19 +3,38 @@
     "name": "input_layer",
     "type": "InputLayer",
     "description": "Represents an input of the model",
-    "attributes": []
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }
+    ]
   },
   {
     "name": "output_layer",
     "type": "OutputLayer",
     "description": "Represents an output of the model",
-    "attributes": []
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
   },
   {
     "name": "postprocess",
     "type": "Layer",
     "description": "Represents a whole post-processing function of some meta-architecture",
     "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
       {
         "name": "max_proposals_per_class",
         "type": "number",
@@ -54,6 +73,12 @@
     "description": "Convolution layer",
     "attributes": [
       {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
         "name": "kernel_shape",
         "type": "array",
         "label": "kernel",
@@ -86,13 +111,13 @@
       },
       {
         "name": "batch_norm",
-        "type": "string",
+        "type": "boolean",
         "description": "Whether batch normalization is folded into the layer",
         "visible": false
       },
       {
         "name": "elementwise_add",
-        "type": "string",
+        "type": "boolean",
         "description": "Whether elementwise addition is folded into the layer",
         "visible": false
       },
@@ -128,14 +153,20 @@
     "description": "Activation function",
     "attributes": [
       {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
         "name": "batch_norm",
-        "type": "string",
+        "type": "boolean",
         "description": "Whether batch normalization is folded into the layer",
         "visible": false
       },
       {
         "name": "elementwise_add",
-        "type": "string",
+        "type": "boolean",
         "description": "Whether elementwise addition is folded into the layer",
         "visible": false
       },
@@ -151,13 +182,25 @@
     "name": "argmax",
     "type": "Layer",
     "description": "Argmax layer",
-    "attributes": []
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
   },
   {
     "name": "avgpool",
     "type": "Pool",
     "description": "Average pooling layer",
     "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
       {
         "name": "kernel_shape",
         "type": "array",
@@ -191,8 +234,14 @@
     "description": "Batch normalization layer",
     "attributes": [
       {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
         "name": "elementwise_add",
-        "type": "string",
+        "type": "boolean",
         "description": "Whether elementwise addition is folded into the layer",
         "visible": false
       },
@@ -209,7 +258,12 @@
     "type": "Layer",
     "description": "Bounding box decoding layer",
     "attributes": [
-
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }
     ]
   },
   {
@@ -217,6 +271,12 @@
     "type": "Layer",
     "description": "Deconvolution (transposed convolution) layer",
     "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
       {
         "name": "kernel_shape",
         "type": "array",
@@ -250,13 +310,13 @@
       },
       {
         "name": "batch_norm",
-        "type": "string",
+        "type": "boolean",
         "description": "Whether batch normalization is folded into the layer",
         "visible": false
       },
       {
         "name": "elementwise_add",
-        "type": "string",
+        "type": "boolean",
         "description": "Whether elementwise addition is folded into the layer",
         "visible": false
       },
@@ -273,6 +333,12 @@
     "type": "Layer",
     "description": "Dense (fully connected) layer",
     "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
       {
         "name": "kernel_shape",
         "type": "array",
@@ -294,6 +360,12 @@
     "description": "Depth to space layer",
     "attributes": [
       {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
         "name": "block_sizes",
         "type": "string",
         "description": "Block size along each spatial axis",
@@ -312,6 +384,12 @@
     "type": "Layer",
     "description": "Depthwise convolution layer",
     "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
       {
         "name": "kernel_shape",
         "type": "array",
@@ -345,13 +423,13 @@
       },
       {
         "name": "batch_norm",
-        "type": "string",
+        "type": "boolean",
         "description": "Whether batch normalization is folded into the layer",
         "visible": false
       },
       {
         "name": "elementwise_add",
-        "type": "string",
+        "type": "boolean",
         "description": "Whether elementwise addition is folded into the layer",
         "visible": false
       },
@@ -381,6 +459,12 @@
     "description": "Padding layer",
     "attributes": [
       {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
         "name": "external_pad_params",
         "type": "string",
         "description": "Padding value in pixels in each edge (top, bottom, left, right)",
@@ -392,13 +476,25 @@
     "name": "feature_interleave",
     "type": "Layer",
     "description": "Feature interleave layer",
-    "attributes": []
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
   },
   {
     "name": "feature_multiplier",
     "type": "Layer",
     "description": "Elementwise feature multiplication layer",
     "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
       {
         "name": "feature_multiplier_type",
         "type": "string",
@@ -411,13 +507,25 @@
     "name": "feature_shuffle",
     "type": "Layer",
     "description": "Feature shuffle layer",
-    "attributes": []
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
   },
   {
     "name": "format_conversion",
     "type": "Layer",
     "description": "Reshapes the input tensor between different memory layouts",
     "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
 
       {
         "name": "conversion_type",
@@ -431,13 +539,25 @@
     "name": "global_avg_pool",
     "type": "Pool",
     "description": "Global average pooling layer",
-    "attributes": []
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
   },
   {
     "name": "maxpool",
     "type": "Pool",
     "description": "Maximum pooling layer",
     "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
       {
         "name": "kernel_shape",
         "type": "array",
@@ -471,6 +591,12 @@
     "description": "Non-maximum suppression layer",
     "attributes": [
       {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
         "name": "scores_threshold",
         "type": "string",
         "description": "Confidence threshold for NMS filtering",
@@ -502,8 +628,14 @@
     "description": "Normalization layer",
     "attributes": [
       {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
         "name": "elementwise_add",
-        "type": "string",
+        "type": "boolean",
         "description": "Whether elementwise addition is folded into the layer",
         "visible": false
       },
@@ -519,19 +651,37 @@
     "name": "proposal_generator",
     "type": "Layer",
     "description": "Proposal generator layer",
-    "attributes": []
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
   },
   {
     "name": "reduce_l2",
     "type": "Layer",
     "description": "Reduce layer",
-    "attributes": []
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
   },
   {
     "name": "reduce_max",
     "type": "Layer",
     "description": "Reduce Max layer",
     "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
       {
         "name": "groups",
         "type": "number",
@@ -545,6 +695,12 @@
     "type": "Layer",
     "description": "Reduce Sum layer",
     "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
       {
         "name": "groups",
         "type": "number",
@@ -570,6 +726,12 @@
     "type": "Tensor",
     "description": "Resize layer",
     "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
       {
         "name": "resize_h_ratio_list",
         "type": "array",
@@ -606,13 +768,25 @@
     "name": "shortcut",
     "type": "Layer",
     "description": "Shortcut layer",
-    "attributes": []
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
   },
   {
     "name": "slice",
     "type": "Layer",
     "description": "Slice layer",
     "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
       {
         "name": "height_slice",
         "type": "string",
@@ -639,6 +813,12 @@
     "description": "Softmax layer",
     "attributes": [
       {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
         "name": "groups",
         "type": "number",
         "description": "Number of groups input channels and output channels are divided into",
@@ -652,6 +832,12 @@
     "description": "Space to depth layer",
     "attributes": [
       {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
         "name": "block_sizes",
         "type": "array",
         "description": "Block size along each spatial axis",
@@ -659,7 +845,7 @@
       },
       {
         "name": "space_to_depth_type",
-        "type": "array",
+        "type": "boolean",
         "description": "Space to depth variant, either classic_dcr (depth-column-row) classic_crd (column-row-depth), serial (used by Transformers patchify function), or focus (Yolov5-like)",
         "visible": false
       },
@@ -675,13 +861,25 @@
     "name": "output_mux",
     "type": "Layer",
     "description": "Output muxer layer",
-    "attributes": []
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
   },
   {
     "name": "concat",
     "type": "Tensor",
     "description": "Concatenation layer",
     "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
       {
         "name": "concat_axis",
         "type": "string",
@@ -701,6 +899,12 @@
     "type": "Layer",
     "description": "Matrix multiplication layer",
     "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
       {
         "name": "kernel_shape",
         "type": "array",
@@ -728,6 +932,12 @@
     "description": "Elementwise addition layer",
     "attributes": [
       {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
         "name": "activation",
         "type": "string",
         "description": "Activation function name",
@@ -740,6 +950,12 @@
     "type": "Layer",
     "description": "Elementwise division layer",
     "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
       {
         "name": "activation",
         "type": "string",
@@ -754,6 +970,12 @@
     "description": "Elementwise multiplication layer",
     "attributes": [
       {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
         "name": "activation",
         "type": "string",
         "description": "Activation function name",
@@ -767,6 +989,12 @@
     "description": "Elementwise subtraction layer",
     "attributes": [
       {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
         "name": "activation",
         "type": "string",
         "description": "Activation function name",
@@ -778,25 +1006,49 @@
     "name": "demux",
     "type": "Layer",
     "description": "Demuxer layer",
-    "attributes": []
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
   },
   {
     "name": "row_splitter",
     "type": "Layer",
     "description": "Splits the input tensor along the height axis",
-    "attributes": []
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
   },
   {
     "name": "feature_splitter",
     "type": "Layer",
     "description": "Splits the input tensor along the features axis",
-    "attributes": []
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
   },
   {
     "name": "const_input",
     "type": "Layer",
     "description": "Constant input",
-    "attributes": []
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "array",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
   }
 ]
 
