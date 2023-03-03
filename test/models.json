@@ -3,13 +3,13 @@
     "type":     "hailo",
     "target":   "resnet_v1_18.hn",
     "source":   "https://hailo-tappas.s3.eu-west-2.amazonaws.com/netron/resnet_v1_18.hn",
-    "format":   "hn"
+    "format":   "HailoNN (hn)"
   },
   {
     "type":     "hailo",
     "target":   "resnet_v1_18.har",
     "source":   "https://hailo-tappas.s3.eu-west-2.amazonaws.com/netron/resnet_v1_18.har",
-    "format":   "har"
+    "format":   "Hailo Archive (har)"
   },
   {
     "type":     "_",
@@ -5149,7 +5149,7 @@
     "source":   "https://github.com/lutzroeder/netron/files/7688572/torchscript_resnet50_fp32.pth.zip[torchscript_resnet50_fp32.pth]",
     "format":   "TorchScript v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
-  },  
+  },
   {
     "type":     "pytorch",
     "target":   "tutorial_bidirectional_recurrent_neural_network.pth",

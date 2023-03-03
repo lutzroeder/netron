@@ -90,13 +90,27 @@ hn.ModelFactory = class {
 
 hn.Model = class {
     constructor(metadata, configuration, format, har_metadata) {
+        const getStageFromMetadata = (
+            metadata
+        ) => {
+            const rawStage = metadata && metadata.state;
+            switch(rawStage){
+                case 'native':
+                    return 'Native Hailo Model';
+                case 'fp_optimized_model':
+                    return 'Full Precision Hailo Model';
+                case 'quantized':
+                    return 'Quantized Hailo Model';
+            }
+        }
+
         this._graphs = [];
         this._graphs.push(new hn.Graph(metadata, configuration));
         this._name = configuration && configuration.name || "";
         const {net_params: {version, stage, dtype = []}} = configuration;
         this._version = har_metadata && har_metadata.sdk_version || version || 0.0;
         this._format = format;
-        this._stage = stage;
+        this._stage = getStageFromMetadata(har_metadata) || stage;
         this._dtype = dtype;
     }
 

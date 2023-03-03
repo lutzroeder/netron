@@ -2407,6 +2407,9 @@ view.ModelSidebar = class extends view.Control {
         this._model = model;
         this._elements = [];
 
+        if (model.stage) {
+            this._addProperty('stage', new view.ValueTextView(this._host, model.stage));
+        }
         if (model.format) {
             this._addProperty('format', new view.ValueTextView(this._host, model.format));
         }
