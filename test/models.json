@@ -5083,6 +5083,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "TFModel_traced_eager_quant.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/10867120/TFModel_traced_eager_quant.pt.zip[TFModel_traced_eager_quant.pt]",
+    "error":    "Unknown type name '__torch__.torch.classes.rnn.CellParamsBase'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/969"
+  },
+  {
+    "type":     "pytorch",
     "target":   "traced_fft.pt",
     "source":   "https://github.com/lutzroeder/netron/files/5172197/traced_fft.zip[traced_fft.pt]",
     "format":   "TorchScript v1.3",
