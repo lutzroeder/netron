@@ -23656,7 +23656,7 @@
   {
     "name": "LinSpace",
     "summary": "Generates values in an interval.",
-    "description": "A sequence of `num` evenly-spaced values are generated beginning at `start`.\nIf `num > 1`, the values in the sequence increase by `stop - start / num - 1`,\nso that the last one is exactly `stop`.\n\nFor example:\n\n```\ntf.linspace(10.0, 12.0, 3, name=\"linspace\") => [ 10.0  11.0  12.0]\n```",
+    "description": "A sequence of `num` evenly-spaced values are generated beginning at `start`.\nIf `num > 1`, the values in the sequence increase by\n`(stop - start) / (num - 1)`, so that the last one is exactly `stop`.\n\nFor example:\n\n```\ntf.linspace(10.0, 12.0, 3, name=\"linspace\") => [ 10.0  11.0  12.0]\n```",
     "attributes": [
       {
         "name": "T",
