@@ -8,38 +8,6 @@ publish: clean lint publish_electron publish_python publish_web publish_cask pub
 install:
 	@[ -d node_modules ] || npm install
 
-clean:
-	rm -rf ./dist
-	rm -rf ./node_modules
-	rm -rf ./package-lock.json
-
-reset: clean
-	rm -rf ./third_party/env
-	rm -rf ./third_party/source
-
-update: install
-	@./tools/armnn sync schema
-	@./tools/bigdl sync schema
-	@./tools/caffe sync schema
-	@./tools/circle sync schema metadata
-	@./tools/cntk sync schema
-	@./tools/coreml sync schema
-	@./tools/dlc schema
-	@./tools/dnn schema
-	@./tools/mnn sync schema
-	@./tools/mslite sync schema metadata
-	@./tools/megengine sync schema metadata
-	@./tools/nnabla sync schema metadata
-	@./tools/onnx sync install schema metadata
-	@./tools/om schema
-	@./tools/paddle sync schema
-	@./tools/pytorch sync schema metadata
-	@./tools/rknn schema
-	@./tools/sklearn sync install metadata
-	@./tools/tf sync install schema metadata
-	@./tools/uff schema
-	@./tools/xmodel sync schema
-
 build_python: install
 	python publish/python.py build version
 	python -m pip install --user build wheel --quiet
@@ -55,14 +23,6 @@ build_electron: install
 	npx electron-builder --linux appimage --x64 --publish never
 	npx electron-builder --linux snap --x64 --publish never
 
-start: install
-	npx electron .
-
-lint: install
-	npx eslint source/*.js test/*.js publish/*.js tools/*.js
-	python -m pip install --upgrade --quiet pylint
-	python -m pylint -sn source/*.py publish/*.py test/*.py tools/*.py
-
 codeql:
 	@[ -d third_party/tools/codeql ] || git clone --depth=1 https://github.com/github/codeql.git ./third_party/tools/codeql
 	rm -rf dist/codeql
@@ -71,9 +31,6 @@ codeql:
 	codeql database create dist/codeql/database --source-root dist/codeql/netron --language=javascript --threads=3
 	codeql database analyze dist/codeql/database ./third_party/tools/codeql/javascript/ql/src/codeql-suites/javascript-security-and-quality.qls --format=csv --output=dist/codeql/results.csv --threads=3
 	cat dist/codeql/results.csv
-
-test: install
-	node ./test/models.js
 
 coverage:
 	rm -rf .nyc_output ./coverage ./dist/nyc
@@ -142,14 +99,10 @@ publish_winget:
 	curl -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/microsoft/winget-pkgs/pulls -d "{\"title\":\"Update $$(node -pe "require('./package.json').productName") to $$(node -pe "require('./package.json').version")\",\"base\":\"master\",\"head\":\"$(GITHUB_USER):master\",\"body\":\"\"}" 2>&1 > /dev/null
 	rm -rf ./dist/winget-pkgs
 
-version:
+release:
 	node ./publish/version.js ./package.json
 	git add ./package.json
 	git commit -m "Update to $$(node -pe "require('./package.json').version")"
 	git tag v$$(node -pe "require('./package.json').version")
 	git push
 	git push --tags
-
-pull:
-	git fetch --prune origin "refs/tags/*:refs/tags/*"
-	git pull --prune --rebase

@@ -27,8 +27,10 @@ const exec = (command) => {
 };
 
 const install = () => {
-    if (!fs.existsSync(path.join(root, 'node_modules'))) {
-        child_process.execSync('npm install', { cwd: root, stdio: [ 0,1,2 ] });
+    const node_modules = path.join(root, 'node_modules');
+    if (!fs.existsSync(node_modules)) {
+        const options = { cwd: root, stdio: [ 0,1,2 ] };
+        child_process.execSync('npm install', options);
     }
 };
 
@@ -50,7 +52,7 @@ const lint = () => {
     exec('npx eslint source/*.js test/*.js publish/*.js tools/*.js');
     write('pylint');
     exec('python -m pip install --upgrade --quiet pylint');
-    exec('python -m pylint -sn source/*.py publish/*.py test/*.py tools/*.py');
+    exec('python -m pylint -sn --recursive=y source test publish tools');
 };
 
 const update = () => {

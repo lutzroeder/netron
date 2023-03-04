@@ -32,10 +32,10 @@ jobs:
           python-version: '3.10'
 
       - name: Install npm packages 
-        run: make install
+        run: npm install
 
       - name: Lint
-        run: make lint
+        run: npm run lint
 
       - name: Build Python Server
         run: make build_python
