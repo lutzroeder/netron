@@ -1019,6 +1019,7 @@ view.Menu = class {
         this._darwin = this._host.environment('platform') === 'darwin';
         this._accelerators = new Map();
         this._stack = [];
+        this._root = [];
         this._buttons = [];
         this._codes = new Map([
             [ 'Backspace', 0x08 ], [ 'Enter', 0x0D ],
