@@ -7,7 +7,7 @@ import sys
 import shutil
 import subprocess
 
-root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+root_dir = os.path.dirname(os.path.abspath(__file__))
 dist_dir = os.path.join(root_dir, 'dist')
 dist_pypi_dir = os.path.join(dist_dir, 'pypi')
 source_dir = os.path.join(root_dir, 'source')

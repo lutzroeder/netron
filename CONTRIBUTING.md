@@ -16,7 +16,7 @@ To debug the Electron app, open the folder in [Visual Studio Code](https://code.
 To build and launch the Python server, pick `Python Server` in the `Debug` tab or run this command:
 
 ```bash
-python publish/python.py build start --browse
+python package.py build start --browse
 ```
 
 ## Validation

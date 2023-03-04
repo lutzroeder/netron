@@ -30,12 +30,9 @@
             "name": "Python Server",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/publish/python.py",
+            "program": "${workspaceFolder}/package.py",
+            "args": [ "build", "start" ],
             "justMyCode": true,
-            "args": [
-                "build",
-                "start"
-            ],
             "pathMappings": [
                 {
                     "localRoot": "${workspaceFolder}/source",
@@ -54,6 +51,7 @@
             "type": "node",
             "request": "launch",
             "program": "${workspaceFolder}/test/models.js",
+            "args": [],
             "console": "integratedTerminal",
         },
         {
@@ -61,6 +59,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/test/backend.py",
+            "args": [],
             "console": "integratedTerminal",
             "justMyCode": false,
             "serverReadyAction": {
@@ -75,8 +74,17 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
+            "args": [],
             "console": "integratedTerminal",
             "justMyCode": false
-        }
+        },
+        {
+            "name": "Task JavaScript",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/package.js",
+            "args": [],
+            "console": "integratedTerminal",
+        },
     ]
 }

@@ -38,7 +38,7 @@ jobs:
         run: npm run lint
 
       - name: Build Python Server
-        run: make build_python
+        run: npm run build python
 
       - name: Build Electron
         shell: bash

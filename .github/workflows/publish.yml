@@ -74,25 +74,25 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.pypi_api_token }}
-        run: make publish_python
+        run: npm run publish python
 
       - if: startsWith(matrix.os, 'ubuntu')
         name: Publish Web
         env:
           GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
           GITHUB_USER: ${{ secrets.PUBLISH_GITHUB_USER }}
-        run: make publish_web
+        run: npm run publish web
 
       - if: startsWith(matrix.os, 'macos')
         name: Publish cask
         env:
           GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
           GITHUB_USER: ${{ secrets.PUBLISH_GITHUB_USER }}
-        run: make publish_cask
+        run: npm run publish cask
 
       - if: startsWith(matrix.os, 'windows')
         name: Publish winget
         env:
           GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
           GITHUB_USER: ${{ secrets.PUBLISH_GITHUB_USER }}
-        run: make publish_winget
+        run: npm run publish winget

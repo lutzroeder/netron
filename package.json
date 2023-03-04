@@ -14,13 +14,18 @@
     "main": "source/app.js",
     "scripts": {
         "start": "[ -d node_modules ] || npm install && npx electron .",
-        "server": "python publish/python.py build start",
-        "lint": "node publish/node.js lint",
-        "test": "node test/models.js",
-        "clean": "node publish/node.js clean",
-        "reset": "node publish/node.js reset",
-        "update": "node publish/node.js update",
-        "pull": "node publish/node.js pull"
+        "server": "python package.py build start",
+        "lint": "node package.js lint",
+        "test": "node package.js test/models.js",
+        "clean": "node package.js clean",
+        "reset": "node package.js reset",
+        "build": "node package.js build",
+        "publish": "node package.js publish",
+        "version": "node package.js version",
+        "coverage": "node package.js coverage",
+        "analyze": "node package.js analyze",
+        "update": "node package.js update",
+        "pull": "node package.js pull"
     },
     "dependencies": {
         "electron-updater": "5.3.0"
@@ -39,7 +44,6 @@
         },
         "extends": "eslint:recommended",
         "parserOptions": {
-            "ecmaVersion": 2015,
             "sourceType": "module"
         },
         "rules": {
