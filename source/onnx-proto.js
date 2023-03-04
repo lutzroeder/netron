@@ -11,7 +11,8 @@ $root.onnx.Version = {
     "IR_VERSION_2019_3_18": 5,
     "IR_VERSION_2019_9_19": 6,
     "IR_VERSION_2020_5_8": 7,
-    "IR_VERSION": 8
+    "IR_VERSION_2021_7_30": 8,
+    "IR_VERSION": 9
 };
 
 $root.onnx.AttributeProto = class AttributeProto {
@@ -1490,6 +1491,7 @@ $root.onnx.FunctionProto = class FunctionProto {
         this.input = [];
         this.output = [];
         this.attribute = [];
+        this.attribute_proto = [];
         this.node = [];
         this.opset_import = [];
     }
@@ -1511,6 +1513,9 @@ $root.onnx.FunctionProto = class FunctionProto {
                     break;
                 case 6:
                     message.attribute.push(reader.string());
+                    break;
+                case 11:
+                    message.attribute_proto.push($root.onnx.AttributeProto.decode(reader, reader.uint32()));
                     break;
                 case 7:
                     message.node.push($root.onnx.NodeProto.decode(reader, reader.uint32()));
@@ -1549,6 +1554,9 @@ $root.onnx.FunctionProto = class FunctionProto {
                     break;
                 case "attribute":
                     reader.array(message.attribute, () => reader.string());
+                    break;
+                case "attribute_proto":
+                    message.attribute_proto.push($root.onnx.AttributeProto.decodeText(reader));
                     break;
                 case "node":
                     message.node.push($root.onnx.NodeProto.decodeText(reader));
