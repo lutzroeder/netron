@@ -33,6 +33,7 @@ const mkdir = (...args) => {
     write('mkdir ' + path.join(...args));
     const dir = path.join(__dirname, ...args);
     fs.mkdirSync(dir, { recursive: true });
+    return dir;
 };
 
 const exec = (command) => {
@@ -185,9 +186,7 @@ const publish = async (target) => {
             const url = repository + '/releases/download/v#{version}/' + configuration.productName + '-#{version}-mac.zip';
             const location = url.replace(/#{version}/g, configuration.version);
             const sha256 = crypto.createHash('sha256').update(await get(location)).digest('hex').toLowerCase();
-            const paths = [ 'dist', 'homebrew-cask' ];
-            mkdir(...paths);
-            const file = path.join(__dirname, ...paths, 'netron.rb');
+            const file = path.join(mkdir('dist', 'homebrew-cask', 'Casks'), 'netron.rb');
             fs.writeFileSync(file, [
                 'cask "' + configuration.name + '" do',
                 '  version "' + configuration.version + '"',
@@ -370,7 +369,7 @@ const update = () => {
     }
 };
 
-const get = (url, timeout) => {
+const get = (url) => {
     return new Promise((resolve, reject) => {
         const httpModule = url.split(':').shift() === 'https' ? https : http;
         const request = httpModule.request(url, {}, (response) => {
@@ -405,15 +404,6 @@ const get = (url, timeout) => {
         request.on("error", (err) => {
             reject(err);
         });
-        if (timeout) {
-            request.setTimeout(timeout, () => {
-                request.destroy();
-                const err = new Error("The web request timed out at '" + url + "'.");
-                err.type = 'timeout';
-                err.url = url;
-                reject(err);
-            });
-        }
         request.end();
     });
 };
