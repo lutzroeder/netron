@@ -15,8 +15,8 @@
     "scripts": {
         "start": "[ -d node_modules ] || npm install && npx electron .",
         "server": "python package.py build start",
+        "test": "node test/models.js",
         "lint": "node package.js lint",
-        "test": "node package.js test/models.js",
         "clean": "node package.js clean",
         "reset": "node package.js reset",
         "build": "node package.js build",
