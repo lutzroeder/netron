@@ -177,9 +177,12 @@ const publish = async (target) => {
         case 'cask': {
             write('publish cask');
             const authorization = 'Authorization: token ' + GITHUB_TOKEN;
+            write('delete github homebrew-cask');
             exec('curl -s -H "' + authorization + '" -X "DELETE" https://api.github.com/repos/' + GITHUB_USER + '/homebrew-cask 2>&1 > /dev/null');
             await sleep(4000);
+            write('fork github homebrew-cask');
             exec('curl -s -H "' + authorization + '"' + " https://api.github.com/repos/Homebrew/homebrew-cask/forks -d '' 2>&1 > /dev/null");
+            await sleep(4000);
             rm('dist', 'homebrew-cask');
             exec('git clone --depth=2 https://x-access-token:' + GITHUB_TOKEN + '@github.com/' + GITHUB_USER + '/homebrew-cask.git ./dist/homebrew-cask');
             const repository = 'https://github.com/' + configuration.repository;
@@ -216,7 +219,7 @@ const publish = async (target) => {
             write('delete github winget-pkgs');
             exec('curl -s -H "' + authorization + '" -X "DELETE" https://api.github.com/repos/' + GITHUB_USER + '/winget-pkgs');
             await sleep(4000);
-            write('create github winget-pkgs');
+            write('fork github winget-pkgs');
             exec('curl -s -H "' + authorization + '" https://api.github.com/repos/microsoft/winget-pkgs/forks -d ""');
             rm('dist', 'winget-pkgs');
             await sleep(4000);
