@@ -106,10 +106,9 @@ const build = async (target) => {
         }
         case 'python': {
             write('build python');
-            await build('web');
             exec('python package.py build version');
             exec('python -m pip install --user build wheel --quiet');
-            exec('python -m build --no-isolation --wheel --outdir ./dist/pypi dist/pypi');
+            exec('python -m build --no-isolation --wheel --outdir dist/pypi dist/pypi');
             if (read('install')) {
                 exec('python -m pip install --force-reinstall dist/pypi/*.whl');
             }
@@ -230,9 +229,9 @@ const publish = async (target) => {
             write('download ' + url);
             const sha256 = crypto.createHash('sha256').update(await get(url)).digest('hex').toUpperCase();
             const paths = [ 'dist', 'winget-pkgs', 'manifests', publisher[0].toLowerCase(), publisher.replace(' ', ''), productName ];
-            rm(...paths);
-            exec('git -C dist/winget-pkgs add --all');
-            exec('git -C dist/winget-pkgs commit -m "Remove ' + configuration.name + '"');
+            // rm(...paths);
+            // exec('git -C dist/winget-pkgs add --all');
+            // exec('git -C dist/winget-pkgs commit -m "Remove ' + configuration.name + '"');
             paths.push(version);
             mkdir(...paths);
             write('create manifest');
