@@ -43,6 +43,12 @@ const exec = (command) => {
     }
 };
 
+const sleep = (delay) => {
+    return new Promise((resolve) => {
+        setTimeout(resolve, delay);
+    });
+};
+
 const install = () => {
     const node_modules = path.join(__dirname, 'node_modules');
     if (!fs.existsSync(node_modules)) {
@@ -171,7 +177,7 @@ const publish = async (target) => {
             write('publish cask');
             const authorization = 'Authorization: token ' + GITHUB_TOKEN;
             exec('curl -s -H "' + authorization + '" -X "DELETE" https://api.github.com/repos/' + GITHUB_USER + '/homebrew-cask 2>&1 > /dev/null');
-            exec('sleep 4');
+            await sleep(4000);
             exec('curl -s -H "' + authorization + '"' + " https://api.github.com/repos/Homebrew/homebrew-cask/forks -d '' 2>&1 > /dev/null");
             rm('dist', 'homebrew-cask');
             exec('git clone --depth=2 https://x-access-token:' + GITHUB_TOKEN + '@github.com/' + GITHUB_USER + '/homebrew-cask.git ./dist/homebrew-cask');
@@ -209,14 +215,14 @@ const publish = async (target) => {
             write('publish winget');
             const authorization = 'Authorization: token ' + GITHUB_TOKEN;
             write('delete github winget-pkgs');
-            exec('curl -s -H "' + authorization + '" -X "DELETE" https://api.github.com/repos/' + GITHUB_USER + '/winget-pkgs 2>&1 > /dev/null');
-            exec('sleep 4');
+            exec('curl -s -H "' + authorization + '" -X "DELETE" https://api.github.com/repos/' + GITHUB_USER + '/winget-pkgs');
+            await sleep(4000);
             write('create github winget-pkgs');
-            exec('curl -s -H "' + authorization + '"' + " https://api.github.com/repos/microsoft/winget-pkgs/forks -d '' 2>&1 > /dev/null");
+            exec('curl -s -H "' + authorization + '"' + " https://api.github.com/repos/microsoft/winget-pkgs/forks -d ''");
             rm('dist', 'winget-pkgs');
-            exec('sleep 4');
+            await sleep(4000);
             write('clone github winget-pkgs');
-            exec('git clone --depth=2 https://x-access-token:' + GITHUB_TOKEN + '@github.com/' + GITHUB_USER + '/winget-pkgs.git ./dist/winget-pkgs');
+            exec('git clone --depth=2 https://x-access-token:' + GITHUB_TOKEN + '@github.com/' + GITHUB_USER + '/winget-pkgs.git dist/winget-pkgs');
             const name = configuration.name;
             const version = configuration.version;
             const productName = configuration.productName;
