@@ -218,33 +218,33 @@ const publish = async (target) => {
             exec('curl -s -H "' + authorization + '" -X "DELETE" https://api.github.com/repos/' + GITHUB_USER + '/winget-pkgs');
             await sleep(4000);
             write('create github winget-pkgs');
-            exec('curl -s -H "' + authorization + '"' + " https://api.github.com/repos/microsoft/winget-pkgs/forks -d ''");
+            exec('curl -s -H "' + authorization + '" https://api.github.com/repos/microsoft/winget-pkgs/forks -d ""');
             rm('dist', 'winget-pkgs');
             await sleep(4000);
             write('clone github winget-pkgs');
             exec('git clone --depth=2 https://x-access-token:' + GITHUB_TOKEN + '@github.com/' + GITHUB_USER + '/winget-pkgs.git dist/winget-pkgs');
             const name = configuration.name;
             const version = configuration.version;
-            const productName = configuration.productName;
+            const product = configuration.productName;
             const publisher = configuration.author.name;
-            const packageIdentifier = publisher.replace(' ', '') + '.' + productName;
+            const identifier = publisher.replace(' ', '') + '.' + product;
             const copyright = 'Copyright (c) ' + publisher;
             const repository = 'https://github.com/' + configuration.repository;
-            const url = repository + '/releases/download/v' + version + '/' + productName + '-Setup-' + version + '.exe';
+            const url = repository + '/releases/download/v' + version + '/' + product + '-Setup-' + version + '.exe';
             const extensions = configuration.build.fileAssociations.map((entry) => '- ' + entry.ext).sort().join('\n');
             write('download ' + url);
             const sha256 = crypto.createHash('sha256').update(await get(url)).digest('hex').toUpperCase();
-            const paths = [ 'dist', 'winget-pkgs', 'manifests', publisher[0].toLowerCase(), publisher.replace(' ', ''), productName ];
+            const paths = [ 'dist', 'winget-pkgs', 'manifests', publisher[0].toLowerCase(), publisher.replace(' ', ''), product ];
             // rm(...paths);
             // exec('git -C dist/winget-pkgs add --all');
             // exec('git -C dist/winget-pkgs commit -m "Remove ' + configuration.name + '"');
             paths.push(version);
             mkdir(...paths);
             write('create manifest');
-            const manifestFile = path.join(__dirname, ...paths, packageIdentifier);
+            const manifestFile = path.join(__dirname, ...paths, identifier);
             fs.writeFileSync(manifestFile + '.yaml', [
                 '# yaml-language-server: $schema=https://aka.ms/winget-manifest.version.1.2.0.schema.json',
-                'PackageIdentifier: ' + packageIdentifier,
+                'PackageIdentifier: ' + identifier,
                 'PackageVersion: ' + version,
                 'DefaultLocale: en-US',
                 'ManifestType: version',
@@ -253,7 +253,7 @@ const publish = async (target) => {
             ].join('\n'));
             fs.writeFileSync(manifestFile + '.installer.yaml', [
                 '# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.2.0.schema.json',
-                'PackageIdentifier: ' + packageIdentifier,
+                'PackageIdentifier: ' + identifier,
                 'PackageVersion: ' + version,
                 'Platform:',
                 '- Windows.Desktop',
@@ -287,9 +287,9 @@ const publish = async (target) => {
             ].join('\n'));
             fs.writeFileSync(manifestFile + '.locale.en-US.yaml', [
                 '# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.2.0.schema.json',
-                'PackageIdentifier: ' + packageIdentifier,
+                'PackageIdentifier: ' + identifier,
                 'PackageVersion: ' + version,
-                'PackageName: ' + productName,
+                'PackageName: ' + product,
                 'PackageLocale: en-US',
                 'PackageUrl: ' + repository,
                 'Publisher: ' + publisher,
@@ -314,7 +314,7 @@ const publish = async (target) => {
             exec('git -C dist/winget-pkgs add --all');
             exec('git -C dist/winget-pkgs commit -m "Update ' + configuration.name + ' to ' + configuration.version + '"');
             exec('git -C dist/winget-pkgs push');
-            exec('curl -H "' + authorization + '" https://api.github.com/repos/microsoft/winget-pkgs/pulls -d "{\\"title\\":\\"Update ' + configuration.productName + ' to ' + configuration.version + '\\",\\"base\\":\\"master\\",\\"head\\":\\"' + GITHUB_USER + ':master\\",\\"body\\":\\"\\"}" 2>&1 > /dev/null');
+            exec('curl -H "' + authorization + '" https://api.github.com/repos/microsoft/winget-pkgs/pulls -d "{\\"title\\":\\"Update ' + configuration.productName + ' to ' + configuration.version + '\\",\\"base\\":\\"master\\",\\"head\\":\\"' + GITHUB_USER + ':master\\",\\"body\\":\\"\\"}"');
             rm('dist', 'winget-pkgs');
             break;
         }
