@@ -35,11 +35,7 @@ const mkdir = (...args) => {
 };
 
 const exec = (command) => {
-    try {
-        child_process.execSync(command, { cwd: __dirname, stdio: [ 0,1,2 ] });
-    } catch (error) {
-        process.exit(1);
-    }
+    child_process.execSync(command, { cwd: __dirname, stdio: [ 0,1,2 ] });
 };
 
 const sleep = (delay) => {
@@ -286,7 +282,7 @@ const publish = async (target) => {
             exec('git -C dist/homebrew-cask add --all');
             exec('git -C dist/homebrew-cask commit -m "Update ' + configuration.name + ' to ' + configuration.version + '"');
             await pullrequest('Homebrew', 'homebrew-cask', {
-                title: 'Update' + configuration.name + ' to ' + configuration.version,
+                title: 'Update ' + configuration.name + ' to ' + configuration.version,
                 body: 'Update version and sha256',
                 head: process.env.GITHUB_USER + ':master',
                 base: 'master'
@@ -388,7 +384,7 @@ const publish = async (target) => {
             exec('git -C dist/winget-pkgs add --all');
             exec('git -C dist/winget-pkgs commit -m "Update ' + configuration.name + ' to ' + configuration.version + '"');
             await pullrequest('microsoft', 'winget-pkgs', {
-                title: 'Update' + configuration.productName + ' to ' + configuration.version,
+                title: 'Update ' + configuration.productName + ' to ' + configuration.version,
                 body: '',
                 head: process.env.GITHUB_USER + ':master',
                 base: 'master'
@@ -524,6 +520,7 @@ const next = async () => {
         }
     } catch (err) {
         write(err.message);
+        process.exit(1);
     }
 };
 
