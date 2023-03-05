@@ -3,8 +3,6 @@
 
 const child_process = require('child_process');
 const crypto = require('crypto');
-const http = require('http');
-const https = require('https');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -47,6 +45,92 @@ const exec = (command) => {
 const sleep = (delay) => {
     return new Promise((resolve) => {
         setTimeout(resolve, delay);
+    });
+};
+
+const request = async (url, init, status) => {
+    const response = await fetch(url, init);
+    if (status !== false && !response.ok) {
+        throw new Error(response.status.toString());
+    }
+    if (response.body) {
+        const reader = response.body.getReader();
+        let position = 0;
+        const stream = new ReadableStream({
+            start(controller) {
+                const read = () => {
+                    reader.read().then((result) => {
+                        if (result.done) {
+                            process.stdout.clearLine();
+                            controller.close();
+                            return;
+                        }
+                        position += result.value.length;
+                        process.stdout.write('  ' + position + ' bytes\r');
+                        controller.enqueue(result.value);
+                        read();
+                    }).catch(error => {
+                        controller.error(error);
+                    });
+                };
+                read();
+            }
+        });
+        return new Response(stream, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: response.headers
+        });
+    }
+    return response;
+};
+
+const download = async (url) => {
+    write('download ' + url);
+    const response = await request(url);
+    return response.arrayBuffer().then((buffer) => new Uint8Array(buffer));
+};
+
+const hash = async (url, algorithm) => {
+    const data = await download(url);
+    const hash = crypto.createHash(algorithm);
+    hash.update(data);
+    return hash.digest('hex');
+};
+
+const fork = async (organization, repository) => {
+    const headers = {
+        Authorization: 'Bearer ' + process.env.GITHUB_TOKEN
+    };
+    write('github delete ' + repository);
+    await request('https://api.github.com/repos/' + process.env.GITHUB_USER + '/homebrew-cask', {
+        method: 'DELETE',
+        headers: headers
+    }, false);
+    await sleep(4000);
+    write('github fork ' + repository);
+    await request('https://api.github.com/repos/' + organization + '/' + repository + '/forks', {
+        method: 'POST',
+        headers: headers,
+        body: ''
+    });
+    await sleep(4000);
+    rm('dist', repository);
+    write('github clone ' + repository);
+    exec('git clone --depth=2 https://x-access-token:' + process.env.GITHUB_TOKEN + '@github.com/' + process.env.GITHUB_USER + '/' + repository + '.git ' + 'dist/' + repository);
+};
+
+const pullrequest = async (organization, repository, body) => {
+    write('github push ' + repository);
+    exec('git -C dist/' + repository + ' push');
+    write('github pullrequest homebrew-cask');
+    const headers = {
+        Authorization: 'Bearer ' + process.env.GITHUB_TOKEN
+    };
+    await request('https://api.github.com/repos/' + organization + '/' + repository + '/pulls', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(body)
     });
 };
 
@@ -176,24 +260,16 @@ const publish = async (target) => {
         }
         case 'cask': {
             write('publish cask');
-            const authorization = 'Authorization: token ' + GITHUB_TOKEN;
-            write('delete github homebrew-cask');
-            exec('curl -s -H "' + authorization + '" -X "DELETE" https://api.github.com/repos/' + GITHUB_USER + '/homebrew-cask 2>&1 > /dev/null');
-            await sleep(4000);
-            write('fork github homebrew-cask');
-            exec('curl -s -H "' + authorization + '"' + " https://api.github.com/repos/Homebrew/homebrew-cask/forks -d '' 2>&1 > /dev/null");
-            await sleep(4000);
-            rm('dist', 'homebrew-cask');
-            exec('git clone --depth=2 https://x-access-token:' + GITHUB_TOKEN + '@github.com/' + GITHUB_USER + '/homebrew-cask.git ./dist/homebrew-cask');
+            await fork('Homebrew', 'homebrew-cask');
             const repository = 'https://github.com/' + configuration.repository;
             const url = repository + '/releases/download/v#{version}/' + configuration.productName + '-#{version}-mac.zip';
-            const location = url.replace(/#{version}/g, configuration.version);
-            const sha256 = crypto.createHash('sha256').update(await get(location)).digest('hex').toLowerCase();
+            const sha256 = await hash(url.replace(/#{version}/g, configuration.version), 'sha256');
+            write('update manifest');
             const file = path.join(mkdir('dist', 'homebrew-cask', 'Casks'), 'netron.rb');
             fs.writeFileSync(file, [
                 'cask "' + configuration.name + '" do',
                 '  version "' + configuration.version + '"',
-                '  sha256 "' + sha256 + '"',
+                '  sha256 "' + sha256.toLowerCase() + '"',
                 '',
                 '  url "' + url + '"',
                 '  name "' + configuration.productName + '"',
@@ -206,25 +282,21 @@ const publish = async (target) => {
                 'end',
                 ''
             ].join('\n'));
+            write('git push homebrew-cask');
             exec('git -C dist/homebrew-cask add --all');
             exec('git -C dist/homebrew-cask commit -m "Update ' + configuration.name + ' to ' + configuration.version + '"');
-            exec('git -C dist/homebrew-cask push');
-            exec('curl -H "' + authorization + '"' + ' https://api.github.com/repos/Homebrew/homebrew-cask/pulls -d "{\\"title\\":\\"Update ' + configuration.name + ' to ' + configuration.version + '\\",\\"base\\":\\"master\\",\\"head\\":\\"' + GITHUB_USER + ':master\\",\\"body\\":\\"Update version and sha256.\\"}" 2>&1 > /dev/null');
+            await pullrequest('Homebrew', 'homebrew-cask', {
+                title: 'Update' + configuration.name + ' to ' + configuration.version,
+                body: 'Update version and sha256',
+                head: process.env.GITHUB_USER + ':master',
+                base: 'master'
+            });
             rm('dist', 'homebrew-cask');
             break;
         }
         case 'winget': {
             write('publish winget');
-            const authorization = 'Authorization: token ' + GITHUB_TOKEN;
-            write('delete github winget-pkgs');
-            exec('curl -s -H "' + authorization + '" -X "DELETE" https://api.github.com/repos/' + GITHUB_USER + '/winget-pkgs');
-            await sleep(4000);
-            write('fork github winget-pkgs');
-            exec('curl -s -H "' + authorization + '" https://api.github.com/repos/microsoft/winget-pkgs/forks -d ""');
-            rm('dist', 'winget-pkgs');
-            await sleep(4000);
-            write('clone github winget-pkgs');
-            exec('git clone --depth=2 https://x-access-token:' + GITHUB_TOKEN + '@github.com/' + GITHUB_USER + '/winget-pkgs.git dist/winget-pkgs');
+            await fork('microsoft', 'winget-pkgs');
             const name = configuration.name;
             const version = configuration.version;
             const product = configuration.productName;
@@ -235,14 +307,14 @@ const publish = async (target) => {
             const url = repository + '/releases/download/v' + version + '/' + product + '-Setup-' + version + '.exe';
             const extensions = configuration.build.fileAssociations.map((entry) => '- ' + entry.ext).sort().join('\n');
             write('download ' + url);
-            const sha256 = crypto.createHash('sha256').update(await get(url)).digest('hex').toUpperCase();
+            const sha256 = await hash(url, 'sha256');
             const paths = [ 'dist', 'winget-pkgs', 'manifests', publisher[0].toLowerCase(), publisher.replace(' ', ''), product ];
             // rm(...paths);
             // exec('git -C dist/winget-pkgs add --all');
             // exec('git -C dist/winget-pkgs commit -m "Remove ' + configuration.name + '"');
             paths.push(version);
             mkdir(...paths);
-            write('create manifest');
+            write('update manifest');
             const manifestFile = path.join(__dirname, ...paths, identifier);
             fs.writeFileSync(manifestFile + '.yaml', [
                 '# yaml-language-server: $schema=https://aka.ms/winget-manifest.version.1.2.0.schema.json',
@@ -267,7 +339,7 @@ const publish = async (target) => {
                 '  Scope: user',
                 '  InstallerType: nullsoft',
                 '  InstallerUrl: ' + url,
-                '  InstallerSha256: ' + sha256,
+                '  InstallerSha256: ' + sha256.toUpperCase(),
                 '  InstallerLocale: en-US',
                 '  InstallerSwitches:',
                 '    Custom: /NORESTART',
@@ -276,7 +348,7 @@ const publish = async (target) => {
                 '  Scope: user',
                 '  InstallerType: nullsoft',
                 '  InstallerUrl: ' + url,
-                '  InstallerSha256: ' + sha256,
+                '  InstallerSha256: ' + sha256.toUpperCase(),
                 '  InstallerLocale: en-US',
                 '  InstallerSwitches:',
                 '    Custom: /NORESTART',
@@ -312,11 +384,15 @@ const publish = async (target) => {
                 'ManifestVersion: 1.2.0',
                 ''
             ].join('\n'));
-            write('commit manifest');
+            write('git push winget-pkgs');
             exec('git -C dist/winget-pkgs add --all');
             exec('git -C dist/winget-pkgs commit -m "Update ' + configuration.name + ' to ' + configuration.version + '"');
-            exec('git -C dist/winget-pkgs push');
-            exec('curl -H "' + authorization + '" https://api.github.com/repos/microsoft/winget-pkgs/pulls -d "{\\"title\\":\\"Update ' + configuration.productName + ' to ' + configuration.version + '\\",\\"base\\":\\"master\\",\\"head\\":\\"' + GITHUB_USER + ':master\\",\\"body\\":\\"\\"}"');
+            await pullrequest('microsoft', 'winget-pkgs', {
+                title: 'Update' + configuration.productName + ' to ' + configuration.version,
+                body: '',
+                head: process.env.GITHUB_USER + ':master',
+                base: 'master'
+            });
             rm('dist', 'winget-pkgs');
             break;
         }
@@ -370,45 +446,6 @@ const update = () => {
     for (const target of targets) {
         exec('tools/' + target + ' sync install schema metadata');
     }
-};
-
-const get = (url) => {
-    return new Promise((resolve, reject) => {
-        const httpModule = url.split(':').shift() === 'https' ? https : http;
-        const request = httpModule.request(url, {}, (response) => {
-            if (response.statusCode === 200) {
-                const data = [];
-                let position = 0;
-                response.on('data', (chunk) => {
-                    data.push(chunk);
-                    position += chunk.length;
-                    process.stdout.write('  ' + position + ' bytes\r');
-                });
-                response.on('err', (err) => {
-                    reject(err);
-                });
-                response.on('end', () => {
-                    resolve(Buffer.concat(data));
-                });
-            } else if (response.statusCode === 302) {
-                get(response.headers.location).then((data) => {
-                    resolve(data);
-                }).catch((err) => {
-                    reject(err);
-                });
-            } else {
-                const err = new Error("The web request failed with status code " + response.statusCode + " at '" + url + "'.");
-                err.type = 'error';
-                err.url = url;
-                err.status = response.statusCode;
-                reject(err);
-            }
-        });
-        request.on("error", (err) => {
-            reject(err);
-        });
-        request.end();
-    });
 };
 
 const pull = () => {
