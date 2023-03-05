@@ -15,20 +15,30 @@ const load = () => {
     configuration = JSON.parse(content);
 };
 
-const write = (message) => {
-    if (process.stdout.write) {
-        process.stdout.write(message + os.EOL);
+const clearLine = () => {
+    if (process.stdout.clearLine) {
+        process.stdout.clearLine();
     }
 };
 
+const write = (message) => {
+    if (process.stdout.write) {
+        process.stdout.write(message);
+    }
+};
+
+const writeLine = (message) => {
+    write(message + os.EOL);
+};
+
 const rm = (...args) => {
-    write('rm ' + path.join(...args));
+    writeLine('rm ' + path.join(...args));
     const dir = path.join(__dirname, ...args);
     fs.rmSync(dir, { recursive: true, force: true });
 };
 
 const mkdir = (...args) => {
-    write('mkdir ' + path.join(...args));
+    writeLine('mkdir ' + path.join(...args));
     const dir = path.join(__dirname, ...args);
     fs.mkdirSync(dir, { recursive: true });
     return dir;
@@ -57,12 +67,12 @@ const request = async (url, init, status) => {
                 const read = () => {
                     reader.read().then((result) => {
                         if (result.done) {
-                            process.stdout.clearLine();
+                            clearLine();
                             controller.close();
                             return;
                         }
                         position += result.value.length;
-                        process.stdout.write('  ' + position + ' bytes\r');
+                        write('  ' + position + ' bytes\r');
                         controller.enqueue(result.value);
                         read();
                     }).catch(error => {
@@ -82,7 +92,7 @@ const request = async (url, init, status) => {
 };
 
 const download = async (url) => {
-    write('download ' + url);
+    writeLine('download ' + url);
     const response = await request(url);
     return response.arrayBuffer().then((buffer) => new Uint8Array(buffer));
 };
@@ -98,13 +108,13 @@ const fork = async (organization, repository) => {
     const headers = {
         Authorization: 'Bearer ' + process.env.GITHUB_TOKEN
     };
-    write('github delete ' + repository);
+    writeLine('github delete ' + repository);
     await request('https://api.github.com/repos/' + process.env.GITHUB_USER + '/homebrew-cask', {
         method: 'DELETE',
         headers: headers
     }, false);
     await sleep(4000);
-    write('github fork ' + repository);
+    writeLine('github fork ' + repository);
     await request('https://api.github.com/repos/' + organization + '/' + repository + '/forks', {
         method: 'POST',
         headers: headers,
@@ -112,14 +122,14 @@ const fork = async (organization, repository) => {
     });
     await sleep(4000);
     rm('dist', repository);
-    write('github clone ' + repository);
+    writeLine('github clone ' + repository);
     exec('git clone --depth=2 https://x-access-token:' + process.env.GITHUB_TOKEN + '@github.com/' + process.env.GITHUB_USER + '/' + repository + '.git ' + 'dist/' + repository);
 };
 
 const pullrequest = async (organization, repository, body) => {
-    write('github push ' + repository);
+    writeLine('github push ' + repository);
     exec('git -C dist/' + repository + ' push');
-    write('github pullrequest homebrew-cask');
+    writeLine('github pullrequest homebrew-cask');
     const headers = {
         Authorization: 'Bearer ' + process.env.GITHUB_TOKEN
     };
@@ -153,10 +163,10 @@ const reset = () => {
 const build = async (target) => {
     switch (target || read()) {
         case 'web': {
-            write('build web');
+            writeLine('build web');
             rm('dist', 'web');
             mkdir('dist', 'web');
-            write('cp source/dir dist/dir');
+            writeLine('cp source/dir dist/dir');
             const source_dir = path.join(__dirname, 'source');
             const dist_dir = path.join(__dirname, 'dist', 'web');
             const extensions = new Set([ 'html', 'css', 'js', 'json', 'ico', 'png' ]);
@@ -181,7 +191,7 @@ const build = async (target) => {
             break;
         }
         case 'electron': {
-            write('build electron');
+            writeLine('build electron');
             install();
             exec('npx electron-builder install-app-deps');
             exec('npx electron-builder install-app-deps');
@@ -192,7 +202,7 @@ const build = async (target) => {
             break;
         }
         case 'python': {
-            write('build python');
+            writeLine('build python');
             exec('python package.py build version');
             exec('python -m pip install --user build wheel --quiet');
             exec('python -m build --no-isolation --wheel --outdir dist/pypi dist/pypi');
@@ -202,7 +212,7 @@ const build = async (target) => {
             break;
         }
         default: {
-            write('build');
+            writeLine('build');
             rm('dist');
             install();
             await build('web');
@@ -218,12 +228,12 @@ const publish = async (target) => {
     const GITHUB_USER = process.env.GITHUB_USER;
     switch (target || read()) {
         case 'web': {
-            write('publish web');
+            writeLine('publish web');
             build('web');
             rm('dist', 'gh-pages');
             const url = 'https://x-access-token:' + GITHUB_TOKEN + '@github.com/' + GITHUB_USER + '/netron.git';
             exec('git clone --depth=1 ' + url + ' --branch gh-pages ./dist/gh-pages 2>&1 > /dev/null');
-            write('cp dist/web dist/gh-pages');
+            writeLine('cp dist/web dist/gh-pages');
             const source_dir = path.join(__dirname, 'dist', 'web');
             const target_dir = path.join(__dirname, 'dist', 'gh-pages');
             for (const file of fs.readdirSync(target_dir).filter((file) => file !== '.git')) {
@@ -238,7 +248,7 @@ const publish = async (target) => {
             break;
         }
         case 'electron': {
-            write('publish electron');
+            writeLine('publish electron');
             install();
             exec('npx electron-builder install-app-deps');
             exec('npx electron-builder --mac --universal --publish always');
@@ -248,19 +258,19 @@ const publish = async (target) => {
             break;
         }
         case 'python': {
-            write('publish python');
+            writeLine('publish python');
             build('python');
             exec('python -m pip install --user twine');
             exec('python -m twine upload --non-interactive --skip-existing --verbose dist/pypi/*.whl');
             break;
         }
         case 'cask': {
-            write('publish cask');
+            writeLine('publish cask');
             await fork('Homebrew', 'homebrew-cask');
             const repository = 'https://github.com/' + configuration.repository;
             const url = repository + '/releases/download/v#{version}/' + configuration.productName + '-#{version}-mac.zip';
             const sha256 = await hash(url.replace(/#{version}/g, configuration.version), 'sha256');
-            write('update manifest');
+            writeLine('update manifest');
             const file = path.join(mkdir('dist', 'homebrew-cask', 'Casks'), 'netron.rb');
             fs.writeFileSync(file, [
                 'cask "' + configuration.name + '" do',
@@ -278,7 +288,7 @@ const publish = async (target) => {
                 'end',
                 ''
             ].join('\n'));
-            write('git push homebrew-cask');
+            writeLine('git push homebrew-cask');
             exec('git -C dist/homebrew-cask add --all');
             exec('git -C dist/homebrew-cask commit -m "Update ' + configuration.name + ' to ' + configuration.version + '"');
             await pullrequest('Homebrew', 'homebrew-cask', {
@@ -291,7 +301,7 @@ const publish = async (target) => {
             break;
         }
         case 'winget': {
-            write('publish winget');
+            writeLine('publish winget');
             await fork('microsoft', 'winget-pkgs');
             const name = configuration.name;
             const version = configuration.version;
@@ -302,7 +312,7 @@ const publish = async (target) => {
             const repository = 'https://github.com/' + configuration.repository;
             const url = repository + '/releases/download/v' + version + '/' + product + '-Setup-' + version + '.exe';
             const extensions = configuration.build.fileAssociations.map((entry) => '- ' + entry.ext).sort().join('\n');
-            write('download ' + url);
+            writeLine('download ' + url);
             const sha256 = await hash(url, 'sha256');
             const paths = [ 'dist', 'winget-pkgs', 'manifests', publisher[0].toLowerCase(), publisher.replace(' ', ''), product ];
             // rm(...paths);
@@ -310,7 +320,7 @@ const publish = async (target) => {
             // exec('git -C dist/winget-pkgs commit -m "Remove ' + configuration.name + '"');
             paths.push(version);
             mkdir(...paths);
-            write('update manifest');
+            writeLine('update manifest');
             const manifestFile = path.join(__dirname, ...paths, identifier);
             fs.writeFileSync(manifestFile + '.yaml', [
                 '# yaml-language-server: $schema=https://aka.ms/winget-manifest.version.1.2.0.schema.json',
@@ -380,7 +390,7 @@ const publish = async (target) => {
                 'ManifestVersion: 1.2.0',
                 ''
             ].join('\n'));
-            write('git push winget-pkgs');
+            writeLine('git push winget-pkgs');
             exec('git -C dist/winget-pkgs add --all');
             exec('git -C dist/winget-pkgs commit -m "Update ' + configuration.name + ' to ' + configuration.version + '"');
             await pullrequest('microsoft', 'winget-pkgs', {
@@ -393,7 +403,7 @@ const publish = async (target) => {
             break;
         }
         default: {
-            write('publish');
+            writeLine('publish');
             rm('dist');
             install();
             await publish('web');
@@ -408,9 +418,9 @@ const publish = async (target) => {
 
 const lint = () => {
     install();
-    write('eslint');
+    writeLine('eslint');
     exec('npx eslint source/*.js test/*.js publish/*.js tools/*.js');
-    write('pylint');
+    writeLine('pylint');
     exec('python -m pip install --upgrade --quiet pylint');
     exec('python -m pylint -sn --recursive=y source test publish tools');
 };
@@ -519,7 +529,9 @@ const next = async () => {
             default: throw new Error("Unsupported task '" + task + "'.");
         }
     } catch (err) {
-        write(err.message);
+        if (process.stdout.write) {
+            process.stdout.write(err.message + os.EOL);
+        }
         process.exit(1);
     }
 };
