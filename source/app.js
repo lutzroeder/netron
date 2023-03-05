@@ -112,7 +112,7 @@ app.Application = class {
             platform: process.platform,
             separator: path.sep,
             homedir: os.homedir(),
-            titlebar: process.platform === 'darwin'
+            titlebar: true // process.platform === 'darwin'
         };
         return this._environment;
     }
