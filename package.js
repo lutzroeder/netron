@@ -180,7 +180,7 @@ const publish = async (target) => {
             const location = url.replace(/#{version}/g, configuration.version);
             const sha256 = crypto.createHash('sha256').update(await get(location)).digest('hex').toLowerCase();
             const paths = [ 'dist', 'homebrew-cask' ];
-            mkdir(paths);
+            mkdir(...paths);
             const file = path.join(__dirname, ...paths, 'netron.rb');
             fs.writeFileSync(file, [
                 'cask "' + configuration.name + '" do',
