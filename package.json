@@ -13,7 +13,7 @@
     "repository": "lutzroeder/netron",
     "main": "source/app.js",
     "scripts": {
-        "start": "[ -d node_modules ] || npm install && npx electron .",
+        "start": "node package.js start",
         "server": "python package.py build start",
         "test": "node test/models.js",
         "lint": "node package.js lint",

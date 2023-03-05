@@ -148,6 +148,11 @@ const install = () => {
     }
 };
 
+const start = () => {
+    install();
+    exec('npx electron .');
+}
+
 const clean = () => {
     rm('dist');
     rm('node_modules');
@@ -516,6 +521,7 @@ const next = async () => {
         const task = read();
         switch (task) {
             case 'install': clean(); break;
+            case 'start': start(); break;
             case 'clean': clean(); break;
             case 'reset': reset(); break;
             case 'build': await build(); break;
