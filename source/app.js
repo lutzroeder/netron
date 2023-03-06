@@ -112,7 +112,7 @@ app.Application = class {
             platform: process.platform,
             separator: path.sep,
             homedir: os.homedir(),
-            titlebar: true // process.platform === 'darwin'
+            titlebar: process.platform === 'darwin'
         };
         return this._environment;
     }
@@ -265,8 +265,8 @@ app.Application = class {
     _reload() {
         const view = this._views.activeView;
         if (view && view.path) {
-            view.open(path);
-            this._updateRecents(path);
+            view.open(view.path);
+            this._updateRecents(view.path);
         }
     }
 
