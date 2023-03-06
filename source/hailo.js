@@ -10,6 +10,13 @@ hn.DataTypes = {
     ARRAY: 'array'
 };
 
+hn.Stages = {
+    native: 'Native Hailo Model',
+    fp_optimized_model: 'Full Precision Hailo Model',
+    quantized: 'Quantized Hailo Model'
+};
+
+
 hn.MetadataFile = 'hailo-metadata.json';
 
 hn.FileExtensions = {
@@ -94,14 +101,7 @@ hn.Model = class {
             metadata
         ) => {
             const rawStage = metadata && metadata.state;
-            switch(rawStage){
-                case 'native':
-                    return 'Native Hailo Model';
-                case 'fp_optimized_model':
-                    return 'Full Precision Hailo Model';
-                case 'quantized':
-                    return 'Quantized Hailo Model';
-            }
+            return hn.Stages[rawStage];
         }
 
         this._graphs = [];
