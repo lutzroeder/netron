@@ -290,6 +290,12 @@ const publish = async (target) => {
                 '  auto_updates true',
                 '',
                 '  app "' + configuration.productName + '.app"',
+                '',
+                '  zap trash: [',
+                '    "~/Library/Application Support/' + configuration.productName + '",',
+                '    "~/Library/Preferences/' + configuration.build.appId + '.plist",',
+                '    "~/Library/Saved Application State/' + configuration.build.appId + '.savedState",',
+                '  ]',
                 'end',
                 ''
             ].join('\n'));
