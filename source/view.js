@@ -1041,22 +1041,18 @@ view.Menu = class {
                 if (this._stack.length === 0) {
                     this.close();
                 }
-            }
-            if (code === 0x0025) { // Left
+            } else if (code === 0x0025) { // Left
                 if (this._stack.length > 1) {
                     this._deactivate();
                 }
-            }
-            if (code === 0x0026) { // Up
+            } else if (code === 0x0026) { // Up
                 this._previous();
-            }
-            if (code === 0x0027) { // Right
+            } else if (code === 0x0027) { // Right
                 const button = this._element.ownerDocument.activeElement;
                 if (button && button.getAttribute('data-type') === 'group') {
                     button.click();
                 }
-            }
-            if (code === 0x0028) { // Down
+            } else if (code === 0x0028) { // Down
                 this._next();
             } else if (code === 0x0212) { // Alt
                 if (this._stack.length === 0) {
@@ -1074,7 +1070,11 @@ view.Menu = class {
                     if (key === item.mnemonic) {
                         if (item.type === 'group' && item.enabled) {
                             e.preventDefault();
-                            this._activate(item);
+                            if (this._stack.length >= 2) {
+                                this._push(item);
+                            } else {
+                                this._activate(item);
+                            }
                         } else if (item.type === 'command' && item.enabled) {
                             item.execute();
                             e.preventDefault();
