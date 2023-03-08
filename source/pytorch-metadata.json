@@ -1313,7 +1313,7 @@
     "name": "aten::affine_grid_generator",
     "inputs": [
       { "name": "theta", "type": "Tensor" },
-      { "name": "size", "type": "int64[]" },
+      { "name": "size", "type": "SymInt[]" },
       { "name": "align_corners", "type": "boolean" }
     ],
     "outputs": [
@@ -12864,7 +12864,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "Dimname" },
-      { "name": "sizes", "type": "int64[]" },
+      { "name": "sizes", "type": "SymInt[]" },
       { "name": "names", "type": "Dimname[]", "default": null }
     ],
     "outputs": [
@@ -12877,7 +12877,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
-      { "name": "sizes", "type": "int64[]" }
+      { "name": "sizes", "type": "SymInt[]" }
     ],
     "outputs": [
       { "type": "Tensor" }
