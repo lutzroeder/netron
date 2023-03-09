@@ -24420,7 +24420,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the L1 norm of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the L1 norm of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -24494,7 +24494,7 @@
     "module": "ai.onnx",
     "version": 18,
     "support_level": "common",
-    "description": "Computes the L1 norm of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the L1 norm of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "keepdims",
@@ -24721,7 +24721,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the L2 norm of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the L2 norm of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -24795,7 +24795,7 @@
     "module": "ai.onnx",
     "version": 18,
     "support_level": "common",
-    "description": "Computes the L2 norm of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the L2 norm of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "keepdims",
@@ -25014,7 +25014,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the log sum of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the log sum of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -25084,7 +25084,7 @@
     "module": "ai.onnx",
     "version": 18,
     "support_level": "common",
-    "description": "Computes the log sum of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the log sum of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "keepdims",
@@ -25307,7 +25307,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the log sum exponent of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the log sum exponent of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -25381,7 +25381,7 @@
     "module": "ai.onnx",
     "version": 18,
     "support_level": "common",
-    "description": "Computes the log sum exponent of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the log sum exponent of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "keepdims",
@@ -25683,7 +25683,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the max of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the max of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -25759,7 +25759,7 @@
     "module": "ai.onnx",
     "version": 18,
     "support_level": "common",
-    "description": "Computes the max of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the max of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "keepdims",
@@ -25988,7 +25988,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the mean of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the mean of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -26062,7 +26062,7 @@
     "module": "ai.onnx",
     "version": 18,
     "support_level": "common",
-    "description": "Computes the mean of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the mean of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "keepdims",
@@ -26364,7 +26364,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the min of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the min of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -26440,7 +26440,7 @@
     "module": "ai.onnx",
     "version": 18,
     "support_level": "common",
-    "description": "Computes the min of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the min of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "keepdims",
@@ -26669,7 +26669,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the product of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the product of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -26743,7 +26743,7 @@
     "module": "ai.onnx",
     "version": 18,
     "support_level": "common",
-    "description": "Computes the product of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the product of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "keepdims",
@@ -26978,7 +26978,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the sum of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the sum of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "keepdims",
@@ -27209,7 +27209,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the sum square of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the sum square of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -27283,7 +27283,7 @@
     "module": "ai.onnx",
     "version": 18,
     "support_level": "common",
-    "description": "Computes the sum square of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the sum square of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "keepdims",
