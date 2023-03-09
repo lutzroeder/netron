@@ -2571,6 +2571,9 @@ view.ModelSidebar = class extends view.Control {
         this._model = model;
         this._elements = [];
 
+        if (model.stage) {
+            this._addProperty('stage', new view.ValueTextView(this._host, model.stage));
+        }
         if (model.format) {
             this._addProperty('format', new view.ValueTextView(this._host, model.format));
         }
@@ -4812,6 +4815,7 @@ view.ModelFactoryService = class {
         this.register('./cambricon', [ '.cambricon' ]);
         this.register('./onednn', [ '.json']);
         this.register('./mlir', [ '.mlir']);
+        this.register('./hailo', ['.hn', '.har']);
     }
 
     register(id, factories, containers) {
