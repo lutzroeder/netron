@@ -7,7 +7,7 @@ var base = require('./base');
 mlnet.ModelFactory = class {
 
     match(context) {
-        const entries = context.entries('zip');
+        const entries = context.entries('zip') || context.entries('mlnet');
         if (entries.size > 0) {
             const root = new Set([ 'TransformerChain', 'Predictor']);
             if (Array.from(entries.keys()).some((name) => root.has(name.split('\\').shift().split('/').shift()))) {
@@ -19,7 +19,7 @@ mlnet.ModelFactory = class {
 
     open(context) {
         return context.metadata('mlnet-metadata.json').then((metadata) => {
-            const entries = context.entries('zip');
+            const entries = context.entries('zip') || context.entries('mlnet');
             const reader = new mlnet.ModelReader(entries);
             return new mlnet.Model(metadata, reader);
         });
