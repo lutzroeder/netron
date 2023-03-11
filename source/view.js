@@ -1055,6 +1055,7 @@ view.Menu = class {
             } else if (code === 0x0028) { // Down
                 this._next();
             } else if (code === 0x0212) { // Alt
+                this._prevent = true;
                 if (this._stack.length === 0) {
                     this.toggle();
                     this._stack = [ this ];
@@ -1093,16 +1094,22 @@ view.Menu = class {
         });
         this._host.window.addEventListener('keyup', (e) => {
             const code = e.keyCode;
-            if (code === 0x0012 && this._exit) { // Alt
-                if (this._stack.length === 1) {
-                    this.close();
-                } else if (this._stack.length > 1) {
-                    this._stack = [ this ];
-                    if (this._root.length > 1) {
-                        this._root =  [ this ];
-                        this._reset();
+            if (code === 0x0012) { // Alt
+                if (this._exit) {
+                    if (this._stack.length === 1) {
+                        this.close();
+                    } else if (this._stack.length > 1) {
+                        this._stack = [ this ];
+                        if (this._root.length > 1) {
+                            this._root =  [ this ];
+                            this._reset();
+                        }
+                        this._update();
                     }
-                    this._update();
+                }
+                if (this._prevent) {
+                    delete this._prevent;
+                    e.preventDefault();
                 }
             }
         });
