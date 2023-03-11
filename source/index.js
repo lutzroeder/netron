@@ -335,17 +335,8 @@ host.BrowserHost = class {
                 this.openURL(this.environment('repository') + '/issues/new');
                 break;
             }
-
             case 'about': {
-                this.document.getElementById('version').innerText = this.version;
-                const handler = () => {
-                    this.window.removeEventListener('keydown', handler);
-                    this.document.body.removeEventListener('click', handler);
-                    this.document.body.classList.remove('about');
-                };
-                this.window.addEventListener('keydown', handler);
-                this.document.body.addEventListener('click', handler);
-                this.document.body.classList.add('about');
+                this._view.about();
                 break;
             }
             default: {

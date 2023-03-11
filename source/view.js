@@ -1007,6 +1007,18 @@ view.View = class {
             this._sidebar.push(documentationSidebar.render(), title);
         }
     }
+
+    about() {
+        this._host.document.getElementById('version').innerText = this._host.version;
+        const handler = () => {
+            this._host.window.removeEventListener('keydown', handler);
+            this._host.document.body.removeEventListener('click', handler);
+            this._host.document.body.classList.remove('about');
+        };
+        this._host.window.addEventListener('keydown', handler);
+        this._host.document.body.addEventListener('click', handler);
+        this._host.document.body.classList.add('about');
+    }
 };
 
 view.Menu = class {

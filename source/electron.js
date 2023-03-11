@@ -187,7 +187,7 @@ host.ElectronHost = class {
             this._view.find();
         });
         electron.ipcRenderer.on('about', () => {
-            this.about();
+            this._view.about();
         });
 
         electron.ipcRenderer.on('update-configuration', (_, data) => {

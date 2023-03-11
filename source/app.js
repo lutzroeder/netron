@@ -289,70 +289,11 @@ app.Application = class {
     }
 
     _about() {
-        let dialog = null;
-        const options = {
-            show: false,
-            backgroundColor: electron.nativeTheme.shouldUseDarkColors ? '#2d2d2d' : '#e6e6e6',
-            width: 400,
-            height: 280,
-            center: true,
-            minimizable: false,
-            maximizable: false,
-            useContentSize: true,
-            resizable: true,
-            fullscreenable: false,
-            webPreferences: {
-                nodeIntegration: true,
-            }
-        };
-        if (process.platform === 'darwin') {
-            options.title = '';
-            dialog = app.Application._aboutDialog;
-        } else {
-            options.title = 'About ' + electron.app.name;
-            options.parent = electron.BrowserWindow.getFocusedWindow();
-            options.modal = true;
-            options.showInTaskbar = false;
+        let view = this._views.activeView;
+        if (view == null) {
+            view = this._views.openView();
         }
-        if (process.platform === 'win32') {
-            options.type = 'toolbar';
-        }
-        if (!dialog) {
-            dialog = new electron.BrowserWindow(options);
-            if (process.platform === 'darwin') {
-                app.Application._aboutDialog = dialog;
-            }
-            dialog.removeMenu();
-            dialog.excludedFromShownWindowsMenu = true;
-            dialog.webContents.setWindowOpenHandler((detail) => {
-                const url = detail.url;
-                if (url.startsWith('http://') || url.startsWith('https://')) {
-                    electron.shell.openExternal(url);
-                }
-                return { action: 'deny' };
-            });
-            const pathname = path.join(__dirname, 'index.html');
-            let content = fs.readFileSync(pathname, 'utf-8');
-            content = content.replace(/<\s*script[^>]*>[\s\S]*?(<\s*\/script[^>]*>|$)/ig, '');
-            content = content.replace('{version}', this._package.version);
-            content = content.replace('<title>Netron</title>', '');
-            content = content.replace('<body class="welcome spinner">', '<body class="default about desktop">');
-            content = content.replace(/<link.*>/gi, '');
-            dialog.once('ready-to-show', () => {
-                dialog.resizable = false;
-                dialog.show();
-            });
-            dialog.on('close', function() {
-                electron.globalShortcut.unregister('Escape');
-                app.Application._aboutDialog = null;
-            });
-            dialog.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(content));
-            electron.globalShortcut.register('Escape', function() {
-                dialog.close();
-            });
-        } else {
-            dialog.show();
-        }
+        view.execute('about');
     }
 
     _updateRecents(path) {
@@ -673,6 +614,7 @@ app.View = class {
         this._ready = false;
         this._path = null;
         this._properties = new Map();
+        this._dispatch = [];
         const size = electron.screen.getPrimaryDisplay().workAreaSize;
         const options = {
             show: false,
@@ -778,7 +720,9 @@ app.View = class {
     }
 
     execute(command, data) {
-        if (this._window && this._window.webContents) {
+        if (this._dispatch) {
+            this._dispatch.push({ command: command, data: data });
+        } else if (this._window && this._window.webContents) {
             this._window.webContents.send(command, data);
         }
     }
@@ -831,6 +775,13 @@ app.View = class {
             maximized: this._window.isMaximized(),
             fullscreen: this._window.isFullScreen()
         });
+        if (this._dispatch) {
+            const dispatch = this._dispatch;
+            delete this._dispatch;
+            for (const obj of dispatch) {
+                this.execute(obj.command, obj.data);
+            }
+        }
     }
 };
 

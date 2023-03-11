@@ -79,17 +79,6 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .about .message { display: none; }
 .about .progress { display: none; }
 .about .menu-button { display: none; }
-.about.desktop .logo { background-color: #ececec; color: #666666; top: 0px; width: 320px; height: 200px; padding: 40px; opacity: 1.0; transition: 0.1s; }
-.about.desktop .graph { display: none; }
-.about.desktop .toolbar { display: none; }
-.about.desktop .logo-text { top: -130px; width: 320px; }
-.about.desktop .logo-stroke { stroke: #1a1a1a; }
-.about.desktop .logo-fill { fill: #1a1a1a; }
-.about.desktop .logo-border { stroke: #1a1a1a; }
-.about.desktop .logo-glyph { fill: #1a1a1a; }
-.about.desktop .logo-icon { left: 136px; top: -108px; width: 60px; height: 60px; }
-.about.desktop .logo-message { display: block; top: -20px; font-size: 12px; }
-.about.desktop .logo-github { display: block; top: 130px; width: 24px; height: 24px; }
 .titlebar { color: #aaaaaa; display: none; height: 32px; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2; -webkit-app-region: drag; }
 .titlebar-visible { display: block; }
 .titlebar-content { display: block; padding: 0 142px; height: 100%; text-align: center; font-size: 14px; line-height: 32px; transition: all .1s ease-in-out; user-select: none; }
@@ -112,6 +101,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .menu .menu-group .menu-command .menu-label { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .menu .menu-group .menu-command .menu-shortcut { display: block; float: right; margin-left: 25px; color: #888888; }
 .menu .menu-group .menu-separator { border-top: 1px; border-bottom: 0; border-style: solid; border-color: #e5e5e5; margin-left: 12px; margin-right: 12px; }
+.about .titlebar-visible { display: none; }
 @-webkit-keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 @keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 .welcome.spinner .logo-spinner-stroke { stroke: #ececec; }
@@ -137,14 +127,8 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .welcome .progress-bar { background-color: #888888; }
 .welcome .menu { background-color: #2d2d2d }
 .about .logo { background-color: #1e1e1e; color: #888888; }
-.about.desktop .logo { background-color: #2d2d2d; }
 .about a { color: #c6c6c6; }
 .about a:hover { color: #ffffff; }
-.about.desktop .logo-stroke { stroke: #c6c6c6; }
-.about.desktop .logo-fill { fill: #c6c6c6; }
-.about.desktop .logo-border { stroke: #c6c6c6; }
-.about.desktop .logo-glyph { fill: #c6c6c6; }
-.about.desktop .logo-message { color: #c6c6c6; }
 .toolbar-icon .border { stroke: #1d1d1d; }
 .toolbar-icon .stroke { stroke: #aaaaaa; }
 .toolbar-icon:hover .stroke { stroke: #dfdfdf; }
@@ -181,7 +165,6 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .about .logo { width: 100%; padding-left: 0; padding-right: 0; }
 .about .logo-message { top: 175px; font-size: 12px; }
 .about .logo-github { top: 370px; }
-.about.desktop .logo-text { opacity: 1; }
 }
 @media only screen and (max-device-width: 1024px) {
 .toolbar-button { width: 32px; height: 32px; }
