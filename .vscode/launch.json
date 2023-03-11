@@ -79,7 +79,7 @@
             "justMyCode": false
         },
         {
-            "name": "Package JavaScript",
+            "name": "Package.js",
             "type": "node",
             "request": "launch",
             "program": "${workspaceFolder}/package.js",
