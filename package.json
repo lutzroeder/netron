@@ -109,6 +109,7 @@
             { "ext": "meta",        "name": "TensorFlow Meta Graph"    },
             { "ext": "mge",         "name": "MegEngine Mge Model"      },
             { "ext": "mlmodel",     "name": "Core ML Model"            },
+            { "ext": "mlnet",       "name": "ML.NET Model"             },
             { "ext": "mlpackage",   "name": "Core ML Model Package", "isPackage": true },
             { "ext": "mnn",         "name": "MNN Model"                },
             { "ext": "model",       "name": "Model"                    },
