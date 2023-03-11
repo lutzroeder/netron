@@ -1259,7 +1259,6 @@ view.Menu = class {
                     case 'command': {
                         const label = this._label(item, group === selected);
                         const button = this._host.document.getElementById(item.identifier);
-                        button.setAttribute('title', label);
                         button.childNodes[1].innerHTML = label;
                         if (item.enabled) {
                             button.removeAttribute('disabled');
