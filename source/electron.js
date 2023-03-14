@@ -475,8 +475,8 @@ host.ElectronHost = class {
                     const options = Object.assign({}, this._view.options);
                     if (model) {
                         options.path = path;
+                        this._title(path);
                     }
-                    this._title(path);
                     this._update(options);
                 }).catch((error) => {
                     const options = Object.assign({}, this._view.options);
