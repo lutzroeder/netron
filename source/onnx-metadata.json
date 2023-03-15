@@ -3367,6 +3367,12 @@
           "tensor(int32)"
         ]
       }
+    ],
+    "examples": [
+      {
+        "summary": "binarizer",
+        "code": "threshold = 1.0\nnode = onnx.helper.make_node(\n    \"Binarizer\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    threshold=threshold,\n    domain=\"ai.onnx.ml\",\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = compute_binarizer(x, threshold)[0]\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_ai_onnx_ml_binarizer\")"
+      }
     ]
   },
   {
