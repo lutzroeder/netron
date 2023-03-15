@@ -299,7 +299,7 @@ app.Application = class {
     _updateRecents(path) {
         let updated = false;
         let recents = this._configuration.has('recents') ? this._configuration.get('recents') : [];
-        if (path && recents.length > 0 && recents[0] !== path) {
+        if (path && (recents.length === 0 || recents[0] !== path)) {
             recents = recents.filter((recent) => path !== recent.path);
             recents.unshift({ path: path });
             updated = true;
