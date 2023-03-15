@@ -1043,7 +1043,7 @@ view.Menu = class {
             [ 'Up', '&#x2191;' ], [ 'Down', '&#x2193;' ],
         ]);
         this._host.window.addEventListener('keydown', (e) => {
-            this._exit = false;
+            this._alt = false;
             let code = e.keyCode;
             code |= ((e.ctrlKey && !this._darwin) || (e.metaKey && this._darwin)) ? 0x0400 : 0;
             code |= e.altKey ? 0x0200 : 0;
@@ -1067,18 +1067,11 @@ view.Menu = class {
             } else if (code === 0x0028) { // Down
                 this._next();
             } else if (code === 0x0212) { // Alt
-                this._prevent = true;
-                if (this._stack.length === 0) {
-                    this.toggle();
-                    this._stack = [ this ];
-                    this._reset();
-                    this._update();
-                } else {
-                    this._exit = true;
-                }
-            } else if ((this._stack.length > 0 && (code & 0xFD00) === 0) && (code & 0x00FF) != 0) {
+                this._alt = true;
+            } else if ((code & 0xFD00) === 0 && (code & 0x00FF) != 0) {
+                this.open();
                 const key = String.fromCharCode(code & 0x00FF);
-                const group = this._stack[this._stack.length - 1];
+                const group = this._stack.length > 0 ? this._stack[this._stack.length - 1] : this;
                 for (const item of group.items) {
                     if (key === item.mnemonic) {
                         if (item.type === 'group' && item.enabled) {
@@ -1088,6 +1081,7 @@ view.Menu = class {
                             } else {
                                 this._activate(item);
                             }
+                            this._mnemonic = true;
                         } else if (item.type === 'command' && item.enabled) {
                             item.execute();
                             e.preventDefault();
@@ -1106,24 +1100,31 @@ view.Menu = class {
         });
         this._host.window.addEventListener('keyup', (e) => {
             const code = e.keyCode;
-            if (code === 0x0012) { // Alt
-                if (this._exit) {
-                    if (this._stack.length === 1) {
+            if (code === 0x0012 && this._alt) { // Alt
+                switch (this._stack.length) {
+                    case 0: {
+                        this.open();
+                        e.preventDefault();
+                        break;
+                    }
+                    case 1: {
                         this.close();
-                    } else if (this._stack.length > 1) {
+                        e.preventDefault();
+                        break;
+                    }
+                    default: {
                         this._stack = [ this ];
                         if (this._root.length > 1) {
                             this._root =  [ this ];
                             this._reset();
                         }
                         this._update();
+                        e.preventDefault();
+                        break;
                     }
                 }
-                if (this._prevent) {
-                    delete this._prevent;
-                    e.preventDefault();
-                }
             }
+            this._alt = false;
         });
     }
 
@@ -1324,6 +1325,15 @@ view.Menu = class {
         if (index > 0) {
             const next = this._buttons[index - 1];
             next.focus();
+        }
+    }
+
+    open() {
+        if (this._stack.length === 0) {
+            this.toggle();
+            this._stack = [ this ];
+            this._reset();
+            this._update();
         }
     }
 
