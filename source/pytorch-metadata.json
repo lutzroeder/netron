@@ -10422,6 +10422,17 @@
     ]
   },
   {
+    "name": "aten::resize_",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "size", "type": "SymInt[]" },
+      { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::resolve_conj",
     "inputs": [
       { "name": "self", "type": "Tensor" }
