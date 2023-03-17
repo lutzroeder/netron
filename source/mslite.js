@@ -274,8 +274,9 @@ mslite.Argument = class {
             const list = [];
             for (let i = 0; i < tensor.quantParams.length; i++) {
                 const param = tensor.quantParams[i];
-                if (param.scale !== 0 || param.zeroPoint !== 0) {
-                    list.push((param.scale !== 1 ? param.scale.toString() + ' * ' : '') + 'q' + (param.zeroPoint !== 0 ? ' + ' + param.zeroPoint.toString() : ''));
+                const zeroPoint = param.zeroPoint.toString();
+                if (param.scale !== 0 || zeroPoint !== '0') {
+                    list.push((param.scale !== 1 ? param.scale.toString() + ' * ' : '') + (zeroPoint === '0' ? 'q' : ('(q' + (!zeroPoint.startsWith('-') ? ' - ' + zeroPoint : ' + ' + zeroPoint.substring(1)) + ')')));
                 }
             }
             if (list.length > 0 && !list.every((value) => value === 'q')) {
