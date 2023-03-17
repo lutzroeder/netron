@@ -12512,7 +12512,8 @@
     "name": "aten::to_dense",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "masked_grad", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -12522,7 +12523,8 @@
     "name": "aten::to_dense_backward",
     "inputs": [
       { "name": "grad", "type": "Tensor" },
-      { "name": "input", "type": "Tensor" }
+      { "name": "input", "type": "Tensor" },
+      { "name": "masked_grad", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
       { "type": "Tensor" }
