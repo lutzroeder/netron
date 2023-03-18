@@ -1706,6 +1706,12 @@
           "tensor(string)"
         ]
       }
+    ],
+    "examples": [
+      {
+        "summary": "arrayfeatureextractor",
+        "code": "node = onnx.helper.make_node(\n    \"ArrayFeatureExtractor\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"z\"],\n    domain=\"ai.onnx.ml\",\n)\n\nx = np.arange(12).reshape((3, 4)).astype(np.float32)\ny = np.array([0, 1], dtype=np.int64)\nz = np.array([[0, 4, 8], [1, 5, 9]], dtype=np.float32).T\nexpect(\n    node,\n    inputs=[x, y],\n    outputs=[z],\n    name=\"test_ai_onnx_ml_array_feature_extractor\",\n)"
+      }
     ]
   },
   {
