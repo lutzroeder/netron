@@ -275,7 +275,20 @@ mslite.Argument = class {
             for (let i = 0; i < tensor.quantParams.length; i++) {
                 const param = tensor.quantParams[i];
                 if (param.scale !== 0 || param.zeroPoint !== 0) {
-                    list.push((param.scale !== 1 ? param.scale.toString() + ' * ' : '') + 'q' + (param.zeroPoint !== 0 ? ' + ' + param.zeroPoint.toString() : ''));
+                    const scale = param.scale;
+                    const zeroPoint = param.zeroPoint;
+                    let quantization = '';
+                    if (scale !== 1) {
+                        quantization += scale.toString() + ' * ';
+                    }
+                    if (zeroPoint === 0) {
+                        quantization += 'q';
+                    } else if (zeroPoint < 0) {
+                        quantization += '(q + ' + -zeroPoint + ')';
+                    } else if (zeroPoint > 0) {
+                        quantization += '(q - ' + zeroPoint + ')';
+                    }
+                    list.push(quantization);
                 }
             }
             if (list.length > 0 && !list.every((value) => value === 'q')) {
