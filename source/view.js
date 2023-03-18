@@ -1068,7 +1068,7 @@ view.Menu = class {
                 this._next();
             } else if (code === 0x0212) { // Alt
                 this._alt = true;
-            } else if ((code & 0xFD00) === 0 && (code & 0x00FF) != 0) {
+            } else if ((code & 0xFD00) === 0 && /[a-zA-Z0-9]/.test(String.fromCharCode(code & 0x00FF))) {
                 this.open();
                 const key = String.fromCharCode(code & 0x00FF);
                 const group = this._stack.length > 0 ? this._stack[this._stack.length - 1] : this;
