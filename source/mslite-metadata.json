@@ -2655,6 +2655,7 @@
   },
   {
     "name": "Softmax",
+    "category": "Activation",
     "attributes": [
       { "name": "axis", "type": "int64[]", "default": 0 }
     ]
@@ -2674,6 +2675,7 @@
   },
   {
     "name": "SoftmaxCrossEntropy",
+    "category": "Activation",
     "attributes": [
       { "name": "axis", "type": "int32[]" }
     ],
@@ -2687,7 +2689,8 @@
     ]
   },
   {
-    "name": "SoftmaxCrossEntropyWithLogits"
+    "name": "SoftmaxCrossEntropyWithLogits",
+    "category": "Activation"
   },
   {
     "name": "SpaceToBatch",
