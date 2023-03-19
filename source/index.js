@@ -289,9 +289,10 @@ host.BrowserHost = class {
         const script = document.createElement('script');
         script.setAttribute('id', id);
         script.setAttribute('type', 'text/javascript');
-        script.setAttribute('src', url);
         return new Promise((resolve, reject) => {
-            script.onload = () => {
+            const load = () => {
+                script.removeEventListener('load', load);
+                script.removeEventListener('error', error);
                 let module = this.window[name];
                 if (!module) {
                     module = this.window.module.exports;
@@ -300,10 +301,16 @@ host.BrowserHost = class {
                 delete this.window.module;
                 resolve(module);
             };
-            script.onerror = (e) => {
+            const error = (e) => {
+                script.removeEventListener('load', load);
+                script.removeEventListener('error', error);
+                this.document.head.removeChild(script);
                 delete this.window.module;
                 reject(new Error('The script \'' + e.target.src + '\' failed to load.'));
             };
+            script.addEventListener('load', load, false);
+            script.addEventListener('error', error, false);
+            script.setAttribute('src', url);
             this.document.head.appendChild(script);
         });
     }
