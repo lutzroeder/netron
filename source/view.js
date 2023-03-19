@@ -179,10 +179,6 @@ view.View = class {
                     label: '&About ' + this._host.document.title,
                     execute: () => this._host.execute('about')
                 });
-                this._element('menu-button').addEventListener('click', (e) => {
-                    this._menu.toggle();
-                    e.preventDefault();
-                });
             }
             this._host.start();
         }).catch((err) => {
@@ -1027,13 +1023,12 @@ view.Menu = class {
         this.items = [];
         this._host = host;
         this._element = element;
-        this._button = button;
         this._darwin = this._host.environment('platform') === 'darwin';
-        this._accelerators = new Map();
         this._stack = [];
         this._root = [];
         this._buttons = [];
-        this._codes = new Map([
+        this._accelerators = new Map();
+        this._keyCodes = new Map([
             [ 'Backspace', 0x08 ], [ 'Enter', 0x0D ],
             [ 'Up', 0x26 ], [ 'Down', 0x28 ],
             [ 'F5', 0x74 ]
@@ -1042,59 +1037,58 @@ view.Menu = class {
             [ 'Backspace', '&#x232B;' ], [ 'Enter', '&#x23ce;' ],
             [ 'Up', '&#x2191;' ], [ 'Down', '&#x2193;' ],
         ]);
+        button.addEventListener('click', (e) => {
+            this.toggle();
+            e.preventDefault();
+        });
         this._host.window.addEventListener('keydown', (e) => {
             this._alt = false;
             let code = e.keyCode;
             code |= ((e.ctrlKey && !this._darwin) || (e.metaKey && this._darwin)) ? 0x0400 : 0;
             code |= e.altKey ? 0x0200 : 0;
             code |= e.shiftKey ? 0x0100 : 0;
-            if (code === 0x001b) { // Escape
-                this._deactivate();
-                if (this._stack.length === 0) {
-                    this.close();
-                }
-            } else if (code === 0x0025) { // Left
-                if (this._stack.length > 1) {
+            switch (code) {
+                case 0x001B: { // Escape
                     this._deactivate();
-                }
-            } else if (code === 0x0026) { // Up
-                this._previous();
-            } else if (code === 0x0027) { // Right
-                const button = this._element.ownerDocument.activeElement;
-                if (button && button.getAttribute('data-type') === 'group') {
-                    button.click();
-                }
-            } else if (code === 0x0028) { // Down
-                this._next();
-            } else if (code === 0x0212) { // Alt
-                this._alt = true;
-            } else if ((code & 0xFD00) === 0 && /[a-zA-Z0-9]/.test(String.fromCharCode(code & 0x00FF))) {
-                this.open();
-                const key = String.fromCharCode(code & 0x00FF);
-                const group = this._stack.length > 0 ? this._stack[this._stack.length - 1] : this;
-                for (const item of group.items) {
-                    if (key === item.mnemonic) {
-                        if (item.type === 'group' && item.enabled) {
-                            e.preventDefault();
-                            if (this._stack.length >= 2) {
-                                this._push(item);
-                            } else {
-                                this._activate(item);
-                            }
-                            this._mnemonic = true;
-                        } else if (item.type === 'command' && item.enabled) {
-                            item.execute();
-                            e.preventDefault();
-                            this.close();
-                        }
+                    if (this._stack.length === 0) {
+                        this.close();
                     }
+                    break;
                 }
-            } else {
-                const item = this._accelerators.get(code.toString());
-                if (item && item.enabled) {
-                    item.execute();
-                    e.preventDefault();
-                    this.close();
+                case 0x0025: { // Left
+                    if (this._stack.length > 1) {
+                        this._deactivate();
+                    }
+                    break;
+                }
+                case 0x0027: { // Right
+                    const button = this._element.ownerDocument.activeElement;
+                    if (button && button.getAttribute('data-type') === 'group') {
+                        button.click();
+                    }
+                    break;
+                }
+                case 0x0026: { // Up
+                    this._previous();
+                    break;
+                }
+                case 0x0028: { // Down
+                    this._next();
+                    break;
+                }
+                case 0x0212: { // Alt
+                    this._alt = true;
+                    break;
+                }
+                default: {
+                    let item = this._accelerators.get(code.toString());
+                    if (!item) {
+                        item = this._menemonic(code);
+                    }
+                    if (item && this._execute(item)) {
+                        e.preventDefault();
+                    }
+                    break;
                 }
             }
         });
@@ -1116,7 +1110,7 @@ view.Menu = class {
                         this._stack = [ this ];
                         if (this._root.length > 1) {
                             this._root =  [ this ];
-                            this._reset();
+                            this._rebuild();
                         }
                         this._update();
                         e.preventDefault();
@@ -1141,14 +1135,53 @@ view.Menu = class {
             this.close();
         } else {
             this._root = [ this ];
-            this._reset();
+            this._rebuild();
             this._update();
         }
     }
 
+    _execute(item) {
+        if (!item || !item.type || !item.enabled) {
+            return false;
+        }
+        switch (item.type) {
+            case 'group': {
+                if (this._stack.length >= 2) {
+                    this._push(item);
+                } else {
+                    this._activate(item);
+                }
+                return true;
+            }
+            case 'command': {
+                this.close();
+                setTimeout(() => item.execute(), 10);
+                return true;
+            }
+            default: {
+                return false;
+            }
+        }
+    }
+
+    _menemonic(code) {
+        if ((code & 0xFD00) === 0 && /[a-zA-Z0-9]/.test(String.fromCharCode(code & 0x00FF))) {
+            if ((code & 0x0200) !== 0) { // Alt+?
+                this.open();
+            }
+            const key = String.fromCharCode(code & 0x00FF);
+            const group = this._stack.length > 0 ? this._stack[this._stack.length - 1] : this;
+            const item = group.items.find((item) => key === item.mnemonic && (item.type === 'group' || item.type === 'command') && item.enabled);
+            if (item) {
+                return item;
+            }
+        }
+        return null;
+    }
+
     _activate(item) {
         this._stack.push(item);
-        this._reset();
+        this._rebuild();
         this._update();
     }
 
@@ -1156,7 +1189,7 @@ view.Menu = class {
         if (this._root.length > 1) {
             this._root.pop();
             this._stack.pop();
-            this._reset();
+            this._rebuild();
             this._update();
         } else if (this._stack.length > 0) {
             this._stack.pop();
@@ -1170,11 +1203,27 @@ view.Menu = class {
         }
         this._root.push({ items: [ item ] });
         this._stack.push(item);
-        this._reset();
+        this._rebuild();
         this._update();
     }
 
-    _reset() {
+    _label(item, mnemonic) {
+        delete item.mnemonic;
+        const value = item.label;
+        if (value) {
+            const index = value.indexOf('&');
+            if (index !== -1) {
+                if (mnemonic) {
+                    item.mnemonic = value[index + 1].toUpperCase();
+                    return value.substring(0, index) + '<u>' + value[index + 1] + '</u>' + value.substring(index + 2);
+                }
+                return value.substring(0, index) + value.substring(index + 1);
+            }
+        }
+        return value || '';
+    }
+
+    _rebuild() {
         this._element.innerHTML = '';
         const root = this._root[this._root.length - 1];
         for (const group of root.items) {
@@ -1186,13 +1235,7 @@ view.Menu = class {
                 switch (item.type) {
                     case 'group':
                     case 'command': {
-                        let callback = () => {
-                            this.close();
-                            setTimeout(() => item.execute(), 10);
-                        };
-                        if (item.type === 'group') {
-                            callback = () => this._push(item);
-                        }
+                        const callback = item.type === 'group' ? () => this._push(item) : () => this._execute(item);
                         const button = this._host.document.createElement('button');
                         button.setAttribute('class', 'menu-command');
                         button.setAttribute('id', item.identifier);
@@ -1227,7 +1270,6 @@ view.Menu = class {
             }
             this._element.appendChild(container);
         }
-
         this._element.style.opacity = 1.0;
         this._element.style.left = '0px';
         if (this._root.length > 1) {
@@ -1236,24 +1278,7 @@ view.Menu = class {
         } else {
             this._element.style.removeProperty('width');
             this._element.style.maxWidth = 'auto';
-
         }
-    }
-
-    _label(item, mnemonic) {
-        delete item.mnemonic;
-        const value = item.label;
-        if (value) {
-            const index = value.indexOf('&');
-            if (index !== -1) {
-                if (mnemonic) {
-                    item.mnemonic = value[index + 1].toUpperCase();
-                    return value.substring(0, index) + '<u>' + value[index + 1] + '</u>' + value.substring(index + 2);
-                }
-                return value.substring(0, index) + value.substring(index + 1);
-            }
-        }
-        return value || '';
     }
 
     _update() {
@@ -1332,7 +1357,7 @@ view.Menu = class {
         if (this._stack.length === 0) {
             this.toggle();
             this._stack = [ this ];
-            this._reset();
+            this._rebuild();
             this._update();
         }
     }
@@ -1342,8 +1367,7 @@ view.Menu = class {
         this._element.style.opacity = 0;
         this._element.style.left = '-200px';
         const button = this._element.ownerDocument.activeElement;
-        const index = this._buttons.indexOf(button);
-        if (index > 0) {
+        if (this._buttons.indexOf(button) > 0) {
             button.blur();
         }
     }
@@ -1375,7 +1399,7 @@ view.Menu = class {
                     shortcut += shift ? 'Shift+' : '';
                     shortcut += key;
                 }
-                let code = this._codes.has(key) ? this._codes.get(key) : key.charCodeAt(0);
+                let code = this._keyCodes.has(key) ? this._keyCodes.get(key) : key.charCodeAt(0);
                 code |= cmdOrCtrl ? 0x0400 : 0;
                 code |= alt ? 0x0200 : 0;
                 code |= shift ? 0x0100 : 0;
