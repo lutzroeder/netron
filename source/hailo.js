@@ -28,8 +28,8 @@ hn.FileExtensions = {
 };
 
 hn.Formats = {
-    HN: 'HailoNN (hn)',
-    HAR: 'Hailo Archive (har)',
+    HN: 'HailoNN',
+    HAR: 'Hailo Archive',
 };
 
 hn.ModelFactory = class {
@@ -110,7 +110,7 @@ hn.Model = class {
         const { net_params: { version, stage, dtype = [] } } = configuration;
         this._version = har_metadata && har_metadata.sdk_version || version || 0.0;
         this._format = format;
-        this._stage = getStageFromMetadata(har_metadata) || stage;
+        this._description = `${getStageFromMetadata(har_metadata) || stage} of ${this._name}`;
         this._dtype = dtype;
     }
 
@@ -118,8 +118,8 @@ hn.Model = class {
         return this._dtype;
     }
 
-    get stage() {
-        return this._stage;
+    get description() {
+        return this._description;
     }
 
     get graphs() {

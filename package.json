@@ -141,8 +141,8 @@
             { "ext": "torchscript", "name": "PyTorch Model"            },
             { "ext": "uff",         "name": "UFF Model"                },
             { "ext": "xmodel",      "name": "Vitis AI Model"           },
-            { "ext": "hn",          "name": "Hailo Dataflow Compiler Model" },
-            { "ext": "har",         "name": "Hailo Dataflow Compiler Model" }
+            { "ext": "hn",          "name": "Hailo Model"              },
+            { "ext": "har",         "name": "Hailo Model"              }
         ],
         "afterSign": "./publish/notarize.js",
         "publish": [
