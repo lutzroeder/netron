@@ -1,15 +1,15 @@
 [
   {
     "type":     "hailo",
-    "target":   "resnet_v1_18.hn",
-    "source":   "https://hailo-tappas.s3.eu-west-2.amazonaws.com/netron/resnet_v1_18.hn",
-    "format":   "HailoNN (hn)"
+    "target":   "resnet_v1_8.hn",
+    "source":   "https://github.com/lutzroeder/netron/files/11015765/resnet_v1_8.zip[resnet_v1_8.hn]",
+    "format":   "HailoNN"
   },
   {
     "type":     "hailo",
-    "target":   "resnet_v1_18.har",
-    "source":   "https://hailo-tappas.s3.eu-west-2.amazonaws.com/netron/resnet_v1_18.har",
-    "format":   "Hailo Archive (har)"
+    "target":   "resnet_v1_8.har",
+    "source":   "https://github.com/lutzroeder/netron/files/11015765/resnet_v1_8.zip[resnet_v1_8_quantized.har]",
+    "format":   "Hailo Archive"
   },
   {
     "type":     "_",
