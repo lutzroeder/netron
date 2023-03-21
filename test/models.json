@@ -2004,6 +2004,20 @@
     "link":     "https://github.com/lutzroeder/netron/issues/334"
   },
   {
+    "type":     "hailo",
+    "target":   "resnet_v1_8.hn",
+    "source":   "https://github.com/lutzroeder/netron/files/11015765/resnet_v1_8.zip[resnet_v1_8.hn]",
+    "format":   "Hailo NN",
+    "link":     "https://github.com/lutzroeder/netron/issues/1058"
+  },
+  {
+    "type":     "hailo",
+    "target":   "resnet_v1_8.har",
+    "source":   "https://github.com/lutzroeder/netron/files/11015765/resnet_v1_8.zip[resnet_v1_8_quantized.har]",
+    "format":   "Hailo Archive v3.23.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1058"
+  },
+  {
     "type":     "hickle",
     "target":   "googlenet.h5",
     "source":   "https://github.com/vadimkantorov/metriclearningbench/releases/download/data/googlenet.h5",
@@ -5151,7 +5165,7 @@
     "source":   "https://github.com/lutzroeder/netron/files/7688572/torchscript_resnet50_fp32.pth.zip[torchscript_resnet50_fp32.pth]",
     "format":   "TorchScript v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/842"
-  },  
+  },
   {
     "type":     "pytorch",
     "target":   "tutorial_bidirectional_recurrent_neural_network.pth",

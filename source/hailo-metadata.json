@@ -1,0 +1,1025 @@
+[
+  {
+    "name": "input_layer",
+    "description": "Represents an input of the model",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "output_layer",
+    "description": "Represents an output of the model",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
+  },
+  {
+    "name": "postprocess",
+    "description": "Represents a whole post-processing function of some meta-architecture",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "max_proposals_per_class",
+        "type": "int64",
+        "description": "Maximum number of proposals per class",
+        "visible": false
+      },
+      {
+        "name": "iou_th",
+        "type": "float32",
+        "visible": false,
+        "description": "Intersection over union overlap threshold, used in the NMS iterative elimination process where potential duplicates of detected items are ignored"
+      },
+      {
+        "name": "meta_arch",
+        "type": "string",
+        "visible": false,
+        "description": "Postprocessing meta-architecture name"
+      },
+      {
+        "name": "max_total_output_proposals",
+        "type": "int64",
+        "visible": false,
+        "description": "Maximum number of bounding box proposals"
+      },
+      {
+        "name": "postprocess_type",
+        "type": "string",
+        "visible": false,
+        "description": "Postprocessing type name"
+      }
+    ]
+  },
+  {
+    "name": "conv",
+    "category": "Layer",
+    "description": "Convolution layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "kernel_shape",
+        "type": "int64[]",
+        "label": "kernel",
+        "description": "Shape of the kernel in Tensorflow convention (kernel height, kernel width, features in, features out)",
+        "visible": true
+      },
+      {
+        "name": "strides",
+        "type": "int64[]",
+        "description": "Stride along each axis (batch, height, width, features)"
+      },
+      {
+        "name": "dilations",
+        "type": "int64[]",
+        "description": "Dilation value along each axis (batch, height, width, features)"
+      },
+      {
+        "name": "padding",
+        "type": "string",
+        "description": "Padding mode, either VALID, SAME (symmetric, Caffe-like), SAME_TENSORFLOW, or DECONV"
+      },
+      {
+        "name": "groups",
+        "type": "int64",
+        "description": "Number of groups input channels and output channels are divided into"
+      },
+      {
+        "name": "batch_norm",
+        "type": "boolean",
+        "description": "Whether batch normalization is folded into the layer"
+      },
+      {
+        "name": "elementwise_add",
+        "type": "boolean",
+        "description": "Whether elementwise addition is folded into the layer",
+        "visible": false
+      },
+      {
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
+      },
+      {
+        "name": "pre_layer_batch_norm",
+        "type": "boolean",
+        "description": "Whether batch normalization is folded into the layer, before the operation itself",
+        "visible": false
+      },
+      {
+        "name": "transpose_output_width_features",
+        "type": "boolean",
+        "description": "Whether to transpose the width and the features axes of the layer's output tensor",
+        "visible": false
+      },
+      {
+        "name": "spatial_flatten_output",
+        "type": "boolean",
+        "description": "Whether to flatten the layer's output to one row",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "relu",
+    "category": "Activation"
+  },
+  {
+    "name": "activation",
+    "category": "Activation",
+    "description": "Activation function",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "batch_norm",
+        "type": "boolean",
+        "description": "Whether batch normalization is folded into the layer",
+        "visible": false
+      },
+      {
+        "name": "elementwise_add",
+        "type": "boolean",
+        "description": "Whether elementwise addition is folded into the layer",
+        "visible": false
+      },
+      {
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "argmax",
+    "description": "Argmax layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
+  },
+  {
+    "name": "avgpool",
+    "category": "Pool",
+    "description": "Average pooling layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "kernel_shape",
+        "type": "int64[]",
+        "label": "kernel",
+        "description": "Shape of the kernel in Tensorflow convention (kernel height, kernel width, features in, features out)",
+        "visible": true
+      },
+      {
+        "name": "strides",
+        "type": "int64[]",
+        "description": "Stride along each axis (batch, height, width, features)",
+        "visible": false
+      },
+      {
+        "name": "padding",
+        "type": "string",
+        "description": "Padding mode, either VALID, SAME (symmetric, Caffe-like), SAME_TENSORFLOW, or DECONV",
+        "visible": false
+      },
+      {
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "batch_norm",
+    "category": "Normalization",
+    "description": "Batch normalization layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "elementwise_add",
+        "type": "boolean",
+        "description": "Whether elementwise addition is folded into the layer",
+        "visible": false
+      },
+      {
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "bbox_decoder",
+    "description": "Bounding box decoding layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "deconv",
+    "category": "Layer",
+    "description": "Deconvolution (transposed convolution) layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "kernel_shape",
+        "type": "int64[]",
+        "label": "kernel",
+        "description": "Shape of the kernel in Tensorflow convention (kernel height, kernel width, features in, features out)",
+        "visible": true
+      },
+      {
+        "name": "strides",
+        "type": "int64[]",
+        "description": "Stride along each axis (batch, height, width, features)",
+        "visible": false
+      },
+      {
+        "name": "dilations",
+        "type": "int64[]",
+        "description": "Dilation value along each axis (batch, height, width, features)",
+        "visible": false
+      },
+      {
+        "name": "padding",
+        "type": "string",
+        "description": "Padding mode, either VALID, SAME (symmetric, Caffe-like), SAME_TENSORFLOW, or DECONV",
+        "visible": false
+      },
+      {
+        "name": "groups",
+        "type": "int64",
+        "description": "Number of groups input channels and output channels are divided into",
+        "visible": false
+      },
+      {
+        "name": "batch_norm",
+        "type": "boolean",
+        "description": "Whether batch normalization is folded into the layer",
+        "visible": false
+      },
+      {
+        "name": "elementwise_add",
+        "type": "boolean",
+        "description": "Whether elementwise addition is folded into the layer",
+        "visible": false
+      },
+      {
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "dense",
+    "category": "Layer",
+    "description": "Dense (fully connected) layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "kernel_shape",
+        "type": "int64[]",
+        "label": "kernel",
+        "description": "Shape of the kernel in Tensorflow convention (kernel height, kernel width, features in, features out)",
+        "visible": true
+      },
+      {
+        "name": "batch_norm",
+        "type": "boolean",
+        "description": "Whether batch normalization is folded into the layer",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "depth_to_space",
+    "description": "Depth to space layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "block_sizes",
+        "type": "int64[]",
+        "description": "Block size along each spatial axis",
+        "visible": false
+      },
+      {
+        "name": "depth_to_space_type",
+        "type": "string",
+        "description": "Depth to space variant, either dcr (depth-column-row) or crd (column-row-depth)",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "dw",
+    "description": "Depthwise convolution layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "kernel_shape",
+        "type": "int64[]",
+        "label": "kernel",
+        "description": "Shape of the kernel in Tensorflow convention (kernel height, kernel width, features in, features out)",
+        "visible": true
+      },
+      {
+        "name": "strides",
+        "type": "int64[]",
+        "description": "Stride along each axis (batch, height, width, features)",
+        "visible": false
+      },
+      {
+        "name": "dilations",
+        "type": "int64[]",
+        "description": "Dilation value along each axis (batch, height, width, features)",
+        "visible": false
+      },
+      {
+        "name": "padding",
+        "type": "string",
+        "description": "Padding mode, either VALID, SAME (symmetric, Caffe-like), SAME_TENSORFLOW, or DECONV",
+        "visible": false
+      },
+      {
+        "name": "groups",
+        "type": "int64",
+        "description": "Number of groups input channels and output channels are divided into",
+        "visible": false
+      },
+      {
+        "name": "batch_norm",
+        "type": "boolean",
+        "description": "Whether batch normalization is folded into the layer",
+        "visible": false
+      },
+      {
+        "name": "elementwise_add",
+        "type": "boolean",
+        "description": "Whether elementwise addition is folded into the layer",
+        "visible": false
+      },
+      {
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
+      },
+      {
+        "name": "transpose_output_width_features",
+        "type": "string",
+        "description": "Whether to transpose the width and the features axes of the layer's output tensor",
+        "visible": false
+      },
+      {
+        "name": "dynamic_weights",
+        "type": "boolean",
+        "description": "Whether the layer's weights are data driven",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "external_pad",
+    "description": "Padding layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "external_pad_params",
+        "type": "int64[]",
+        "description": "Padding value in pixels in each edge (top, bottom, left, right)",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "feature_interleave",
+    "description": "Feature interleave layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
+  },
+  {
+    "name": "feature_multiplier",
+    "description": "Elementwise feature multiplication layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "feature_multiplier_type",
+        "type": "string",
+        "description": "Feature multiplier variant, either square (to multiply each value by itself), or user_specified",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "feature_shuffle",
+    "description": "Feature shuffle layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
+  },
+  {
+    "name": "format_conversion",
+    "description": "Reshapes the input tensor between different memory layouts",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "expand_spatial_sizes",
+        "type": "int64[]",
+        "description": "New output tensor dimensions after the reshape (height, width)",
+        "visible": false
+      },
+      {
+        "name": "conversion_type",
+        "type": "string",
+        "visible": false,
+        "description": "Format conversion variant"
+      }
+    ]
+  },
+  {
+    "name": "global_avg_pool",
+    "category": "Pool",
+    "description": "Global average pooling layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
+  },
+  {
+    "name": "maxpool",
+    "category": "Pool",
+    "description": "Maximum pooling layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "kernel_shape",
+        "type": "int64[]",
+        "label": "kernel",
+        "description": "Shape of the kernel in Tensorflow convention (kernel height, kernel width, features in, features out)",
+        "visible": true
+      },
+      {
+        "name": "strides",
+        "type": "int64[]",
+        "description": "Stride along each axis (batch, height, width, features)",
+        "visible": false
+      },
+      {
+        "name": "padding",
+        "type": "string",
+        "description": "Padding mode, either VALID, SAME (symmetric, Caffe-like), SAME_TENSORFLOW, or DECONV",
+        "visible": false
+      },
+      {
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "nms",
+    "description": "Non-maximum suppression layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "scores_threshold",
+        "type": "float32",
+        "description": "Confidence threshold for NMS filtering",
+        "visible": false
+      },
+      {
+        "name": "iou_threshold",
+        "type": "float32",
+        "description": "Intersection over union overlap threshold, used in the NMS iterative elimination process where potential duplicates of detected items are ignored",
+        "visible": false
+      },
+      {
+        "name": "classes",
+        "type": "int64",
+        "description": "Number of NMS classes",
+        "visible": false
+      },
+      {
+        "name": "max_output_size",
+        "type": "int64",
+        "description": "Maximum number of proposals per class",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "normalization",
+    "category": "Normalization",
+    "description": "Normalization layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "elementwise_add",
+        "type": "boolean",
+        "description": "Whether elementwise addition is folded into the layer",
+        "visible": false
+      },
+      {
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "proposal_generator",
+    "description": "Proposal generator layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
+  },
+  {
+    "name": "reduce_l2",
+    "description": "Reduce layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
+  },
+  {
+    "name": "reduce_max",
+    "description": "Reduce Max layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "groups",
+        "type": "int64",
+        "description": "Number of groups input channels and output channels are divided into",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "reduce_sum",
+    "description": "Reduce Sum layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "groups",
+        "type": "int64",
+        "description": "Number of groups input channels and output channels are divided into",
+        "visible": false
+      },
+      {
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
+      },
+      {
+        "name": "reduce_axes",
+        "type": "int64[]",
+        "description": "List of axes to reduce",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "resize",
+    "category": "Tensor",
+    "description": "Resize layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "resize_h_ratio_list",
+        "type": "float32[]",
+        "visible": true
+      },
+      {
+        "name": "resize_w_ratio_list",
+        "type": "float32[]",
+        "visible": true
+      },
+      {
+        "name": "resize_f_ratio_list",
+        "type": "float32[]",
+        "visible": true
+      },
+      {
+        "name": "method",
+        "type": "string",
+        "description": "Resize method, either bilinear or nearest_neighbor",
+        "visible": false
+      },
+      {
+        "name": "resize_bilinear_pixels_mode",
+        "type": "string",
+        "description": "Bilinear resize variant, either half_pixels, align_corners, or disabled (where both align_corners and half_pixels are false)",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "shortcut",
+    "description": "Shortcut layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
+  },
+  {
+    "name": "slice",
+    "description": "Slice layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "height_slice",
+        "type": "int64[]",
+        "visible": false,
+        "description": "Slice in the height axis (start, stop, step)"
+      },
+      {
+        "name": "width_slice",
+        "type": "int64[]",
+        "visible": false,
+        "description": "Slice in the width axis (start, stop, step)"
+      },
+      {
+        "name": "features_slice",
+        "type": "int64[]",
+        "visible": false,
+        "description": "Slice in the features axis (start, stop, step)"
+      }
+    ]
+  },
+  {
+    "name": "softmax",
+    "category": "Activation",
+    "description": "Softmax layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "groups",
+        "type": "int64",
+        "description": "Number of groups input channels and output channels are divided into",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "space_to_depth",
+    "description": "Space to depth layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "block_sizes",
+        "type": "int64[]",
+        "description": "Block size along each spatial axis",
+        "visible": false
+      },
+      {
+        "name": "space_to_depth_type",
+        "type": "string",
+        "description": "Space to depth variant, either classic_dcr (depth-column-row) classic_crd (column-row-depth), serial (used by Transformers patchify function), or focus (Yolov5-like)",
+        "visible": false
+      },
+      {
+        "name": "spatial_flatten_output",
+        "type": "boolean",
+        "description": "Whether to flatten the layer's output to one row",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "output_mux",
+    "description": "Output muxer layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
+  },
+  {
+    "name": "concat",
+    "category": "Tensor",
+    "description": "Concatenation layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "concat_axis",
+        "type": "int64",
+        "description": "Axis to concatenate along, either features or spatial_w (which means the width axis)",
+        "visible": false
+      },
+      {
+        "name": "spatial_w_concat",
+        "type": "boolean",
+        "description": "Whether the concat operation is in the width dimension",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "matmul",
+    "description": "Matrix multiplication layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "kernel_shape",
+        "type": "int64[]",
+        "label": "kernel",
+        "description": "Shape of the kernel in Tensorflow convention (kernel height, kernel width, features in, features out)",
+        "visible": true
+      },
+      {
+        "name": "dynamic_weights",
+        "type": "boolean",
+        "description": "Whether the layer's weights are data driven",
+        "visible": false
+      },
+      {
+        "name": "transpose_matmul_input",
+        "type": "boolean",
+        "description": "Whether to transpose the width and the features axes of the layer's second input tensor",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "ew_add",
+    "description": "Elementwise addition layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "ew_div",
+    "description": "Elementwise division layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "ew_mult",
+    "description": "Elementwise multiplication layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "ew_sub",
+    "description": "Elementwise subtraction layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      },
+      {
+        "name": "activation",
+        "type": "string",
+        "description": "Activation function name",
+        "visible": false
+      }
+    ]
+  },
+  {
+    "name": "demux",
+    "description": "Demuxer layer",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
+  },
+  {
+    "name": "row_splitter",
+    "description": "Splits the input tensor along the height axis",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
+  },
+  {
+    "name": "feature_splitter",
+    "description": "Splits the input tensor along the features axis",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
+  },
+  {
+    "name": "const_input",
+    "description": "Constant input",
+    "attributes": [
+      {
+        "name": "original_names",
+        "type": "string[]",
+        "description": "Name of this layer in the original framework, such as Pytorch or Tensorflow",
+        "visible": false
+      }]
+  }
+]
+

@@ -922,7 +922,7 @@ base.Metadata = class {
             'dnn', 'cmf',
             'hd5', 'hdf5', 'keras',
             'tfl', 'circle', 'lite',
-            'mlnet', 'mar',  'meta', 'nn', 'ngf',
+            'mlnet', 'mar',  'meta', 'nn', 'ngf', 'hn', 'har',
             'param', 'params',
             'paddle', 'pdiparams', 'pdmodel', 'pdopt', 'pdparams', 'nb',
             'pkl', 'joblib',
