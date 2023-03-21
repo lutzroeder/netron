@@ -519,6 +519,7 @@ $root.MNN.RoiParameters = class RoiParameters {
         $.samplingRatio = reader.int32_(position, 10, -1);
         $.aligned = reader.bool_(position, 12, false);
         $.poolType = reader.int8_(position, 14, 1);
+        $.outputGrad = reader.bool_(position, 16, false);
         return $;
     }
 };
