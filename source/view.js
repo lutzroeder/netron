@@ -1083,7 +1083,7 @@ view.Menu = class {
                 default: {
                     let item = this._accelerators.get(code.toString());
                     if (!item) {
-                        item = this._menemonic(code);
+                        item = this._mnemonic(code);
                     }
                     if (item && this._execute(item)) {
                         e.preventDefault();
@@ -1141,10 +1141,7 @@ view.Menu = class {
     }
 
     _execute(item) {
-        if (!item || !item.type || !item.enabled) {
-            return false;
-        }
-        switch (item.type) {
+        switch (item ? item.type : null) {
             case 'group': {
                 if (this._stack.length >= 2) {
                     this._push(item);
@@ -1164,11 +1161,14 @@ view.Menu = class {
         }
     }
 
-    _menemonic(code) {
-        if ((code & 0xFD00) === 0 && /[a-zA-Z0-9]/.test(String.fromCharCode(code & 0x00FF))) {
-            if ((code & 0x0200) !== 0) { // Alt+?
-                this.open();
-            }
+    _mnemonic(code) {
+        const key = /[a-zA-Z0-9]/.test(String.fromCharCode(code & 0x00FF));
+        const modifier = (code & 0xFF00) !== 0;
+        const alt = (code & 0xFF00) === 0x0200;
+        if (alt && key) {
+            this.open();
+        }
+        if (this._stack.length > 0 && key && (alt || !modifier)) {
             const key = String.fromCharCode(code & 0x00FF);
             const group = this._stack.length > 0 ? this._stack[this._stack.length - 1] : this;
             const item = group.items.find((item) => key === item.mnemonic && (item.type === 'group' || item.type === 'command') && item.enabled);
