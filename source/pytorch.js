@@ -3280,7 +3280,8 @@ pytorch.Utility = class {
         } else if (Array.isArray(value) && value.every((item) => Number(item) === item)) {
             return 'float32[]';
         }
-        throw new pytorch.Error("Unsupported ops argument type '" + JSON.stringify(value).substring(0, 10) + "'.");
+        const text = (JSON.stringify(value) || '(undefined)').substring(0, 10);
+        throw new pytorch.Error("Unsupported ops argument type '" + text + "'.");
     }
 
     static isType(obj, type) {
