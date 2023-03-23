@@ -12353,6 +12353,13 @@
     "name": "DatasetCardinality",
     "summary": "Returns the cardinality of `input_dataset`.",
     "description": "Returns the cardinality of `input_dataset`.",
+    "attributes": [
+      {
+        "name": "cardinality_options",
+        "type": "string",
+        "default": ""
+      }
+    ],
     "inputs": [
       {
         "name": "input_dataset",
@@ -37020,6 +37027,80 @@
         "name": "output_row_splits",
         "description": "The `row_splits` for the returned `RaggedTensor`.",
         "typeAttr": "out_row_splits_type"
+      }
+    ]
+  },
+  {
+    "name": "RaggedFillEmptyRows",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "value_rowids",
+        "type": 9
+      },
+      {
+        "name": "values",
+        "typeAttr": "T"
+      },
+      {
+        "name": "nrows",
+        "type": 9
+      },
+      {
+        "name": "default_value",
+        "typeAttr": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output_value_rowids",
+        "type": 9
+      },
+      {
+        "name": "output_values",
+        "typeAttr": "T"
+      },
+      {
+        "name": "empty_row_indicator",
+        "type": 10
+      },
+      {
+        "name": "reverse_index_map",
+        "type": 9
+      }
+    ]
+  },
+  {
+    "name": "RaggedFillEmptyRowsGrad",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "reverse_index_map",
+        "type": 9
+      },
+      {
+        "name": "grad_values",
+        "typeAttr": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "d_values",
+        "typeAttr": "T"
+      },
+      {
+        "name": "d_default_value",
+        "typeAttr": "T"
       }
     ]
   },
