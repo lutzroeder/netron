@@ -212,8 +212,12 @@ host.ElectronHost = class {
                 this._element('sidebar-closebutton').style.marginTop = '24px';
                 this._element('titlebar').classList.add('titlebar-visible');
             }
+            if (this._environment.titlebar && this._environment.platform !== 'darwin' && !data.fullscreen) {
+                this._element('titlebar-control-box').classList.add('titlebar-control-box-visible');
+            } else {
+                this._element('titlebar-control-box').classList.remove('titlebar-control-box-visible');
+            }
             this._element('menu-button').style.opacity = this._environment.menu ? 1 : 0;
-            this._element('titlebar-control-box').style.opacity = this._environment.titlebar && this._environment.platform !== 'darwin' && !data.fullscreen ? 1 : 0;
             this._element('titlebar-maximize').style.opacity = data.maximized ? 0 : 1;
             this._element('titlebar-restore').style.opacity = data.maximized ? 1 : 0;
             this._element('titlebar-toggle').setAttribute('title', data.maximized ? 'Restore' : 'Maximize');

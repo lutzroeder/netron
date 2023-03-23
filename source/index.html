@@ -85,7 +85,8 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .titlebar-content-text { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .spinner .titlebar-content { opacity: 0; }
 .active .titlebar { color: #464646; transition: all 0.05s ease-in-out; }
-.titlebar-control-box { display: flex; align-items: center; flex-direction: row-reverse; height: 100%; position: absolute; top: 0; right: 0; width: 138px; }
+.titlebar-control-box { display: none; align-items: center; flex-direction: row-reverse; height: 100%; position: absolute; top: 0; right: 0; width: 138px; }
+.titlebar-control-box-visible { display: flex; }
 .titlebar-icon { width: 1em; height: 1em; vertical-align: -0.15em; fill: currentColor; overflow: hidden; }
 .titlebar-button { display: flex; justify-content: center; align-items: center; width: 46px; height: 32px; -webkit-app-region: no-drag; }
 .titlebar-button:hover { color: #000000; background-color: rgba(0, 0, 0, 0.15); }
@@ -101,7 +102,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .menu .menu-group .menu-command .menu-label { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .menu .menu-group .menu-command .menu-shortcut { display: block; float: right; margin-left: 25px; color: #888888; }
 .menu .menu-group .menu-separator { border-top: 1px; border-bottom: 0; border-style: solid; border-color: #e5e5e5; margin-left: 12px; margin-right: 12px; }
-.about .titlebar-visible { display: none; }
+.about .titlebar-visible { opacity: 0; }
 @-webkit-keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 @keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 .welcome.spinner .logo-spinner-stroke { stroke: #ececec; }
