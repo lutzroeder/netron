@@ -1085,7 +1085,7 @@ $root.nnabla.Solver = class Solver {
     }
 
     get parameter() {
-        $root.nnabla.Solver.parameterSet = $root.nnabla.Solver.parameterSet || new Set([ "sgd_param", "sgdw_param", "momentum_param", "lars_param", "nesterov_param", "adadelta_param", "adagrad_param", "adabelief_param", "rmsprop_param", "rmsprop_graves_param", "adam_param", "adamw_param", "adabound_param", "adamax_param", "amsgrad_param", "amsbound_param", "lamb_param"]);
+        $root.nnabla.Solver.parameterSet = $root.nnabla.Solver.parameterSet || new Set([ "sgd_param", "sgdw_param", "momentum_param", "lars_param", "nesterov_param", "adadelta_param", "adagrad_param", "adabelief_param", "rmsprop_param", "rmsprop_graves_param", "adam_param", "adamw_param", "adabound_param", "adamax_param", "amsgrad_param", "amsbound_param", "lamb_param", "lion_param"]);
         return Object.keys(this).find((key) => $root.nnabla.Solver.parameterSet.has(key) && this[key] != null);
     }
 
@@ -1157,6 +1157,9 @@ $root.nnabla.Solver = class Solver {
                     break;
                 case 116:
                     message.lamb_param = $root.nnabla.LambParameter.decode(reader, reader.uint32());
+                    break;
+                case 117:
+                    message.lion_param = $root.nnabla.LionParameter.decode(reader, reader.uint32());
                     break;
                 case 200:
                     message.lr_scheduler_type = reader.string();
@@ -1264,6 +1267,9 @@ $root.nnabla.Solver = class Solver {
                     break;
                 case "lamb_param":
                     message.lamb_param = $root.nnabla.LambParameter.decodeText(reader);
+                    break;
+                case "lion_param":
+                    message.lion_param = $root.nnabla.LionParameter.decodeText(reader);
                     break;
                 case "lr_scheduler_type":
                     message.lr_scheduler_type = reader.string();
@@ -2409,6 +2415,62 @@ $root.nnabla.LambParameter.prototype.gamma_l = 0;
 $root.nnabla.LambParameter.prototype.gamma_u = 0;
 $root.nnabla.LambParameter.prototype.eps = 0;
 $root.nnabla.LambParameter.prototype.bias_correction = false;
+
+$root.nnabla.LionParameter = class LionParameter {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.nnabla.LionParameter();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.lr = reader.float();
+                    break;
+                case 2:
+                    message.beta1 = reader.float();
+                    break;
+                case 3:
+                    message.beta2 = reader.float();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.nnabla.LionParameter();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "lr":
+                    message.lr = reader.float();
+                    break;
+                case "beta1":
+                    message.beta1 = reader.float();
+                    break;
+                case "beta2":
+                    message.beta2 = reader.float();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.nnabla.LionParameter.prototype.lr = 0;
+$root.nnabla.LionParameter.prototype.beta1 = 0;
+$root.nnabla.LionParameter.prototype.beta2 = 0;
 
 $root.nnabla.PolynomialSchedulerParameter = class PolynomialSchedulerParameter {
 
