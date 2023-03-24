@@ -6888,6 +6888,119 @@
     ]
   },
   {
+    "name": "DeformConv",
+    "module": "ai.onnx",
+    "version": 19,
+    "support_level": "common",
+    "description": "Performs deformable convolution as described in https://arxiv.org/abs/1703.06211 and https://arxiv.org/abs/1811.11168.\nThis operator specification supports the general N-D case. Note that most common use cases have 2D or 3D data.\n",
+    "attributes": [
+      {
+        "name": "dilations",
+        "type": "int64[]",
+        "required": false,
+        "description": "Dilation value along each spatial axis of the kernel. Default is 1 along each axis."
+      },
+      {
+        "name": "group",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "Number of groups the input and output channels, C and oC, are divided into. C and oC must both be divisible by group. Default is 1."
+      },
+      {
+        "name": "kernel_shape",
+        "type": "int64[]",
+        "required": false,
+        "description": "Shape of the convolution kernel. If not present, it is inferred from the shape of input W."
+      },
+      {
+        "name": "offset_group",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "Number of groups of offset. C must be divisible by offset_group. Default is 1."
+      },
+      {
+        "name": "pads",
+        "type": "int64[]",
+        "required": false,
+        "description": "Padding for the beginning and end along each spatial axis. The values represent the number of pixels added to the beginning and end of the corresponding axis and can take any nonnegative value. The format should be as follows: [x1_begin, x2_begin, ..., x1_end, x2_end, ...], where xi_begin is the number of pixels added at the beginning of axis `i` and xi_end is the number of pixels added at the end of axis `i`. Default is 0 along each axis."
+      },
+      {
+        "name": "strides",
+        "type": "int64[]",
+        "required": false,
+        "description": "Stride along each spatial axis. Default is 1 along each axis."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T",
+        "description": "Input data tensor. For 2D image data, it has shape (N, C, H, W) where N is the batch size, C is the number of input channels, and H and W are the height and width. In general, the shape is (N, C, D1, D2, ... , Dn) for n-dimensional data, where D1 to Dn are the spatial dimension sizes. Most common use cases have n = 2 or 3."
+      },
+      {
+        "name": "W",
+        "type": "T",
+        "description": "Weight tensor that will be used in the convolutions. It has shape (oC, C/group, kH, kW), where oC is the number of output channels and kH and kW are the kernel height and width. For more than 2 dimensions, it has shape (oC, C/group, k1, k2, ... , kn)."
+      },
+      {
+        "name": "offset",
+        "type": "T",
+        "description": "Offset tensor denoting the offset for the sampling locations in the convolution kernel. It has shape (N, offset_group * kH * kW * 2, oH, oW) for 2D data or (N, offset_group * k1 * k2 * ... * kn * n, o1, o2, ... , on) for nD data. Use linear interpolationfor fractional offset values. Sampling locations outside of the padded input tensor gives zero."
+      },
+      {
+        "name": "B",
+        "type": "T",
+        "option": "optional",
+        "description": "Optional 1D bias of length oC to be added to the convolution. Default is a tensor of zeros."
+      },
+      {
+        "name": "mask",
+        "type": "T",
+        "option": "optional",
+        "description": "The mask tensor to be applied to each position in the convolution kernel. It has shape (N, offset_group * kH * kW, oH, oW) for 2D data or (N, offset_group * k1 * k2 * ... * kn * n, o1, o2, ... , on) for nD data. Default is a tensor of ones."
+      }
+    ],
+    "min_input": 3,
+    "max_input": 5,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T",
+        "description": "Output data tensor that contains the result of convolution. It has shape (N, oC, oH, oW) for 2D data or (N, oC, o1, o2, ..., on) for nD data"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "inputs_range": "3 - 5",
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "deformconv",
+        "code": "X = np.arange(9).astype(np.float32)\nX.shape = (1, 1, 3, 3)\nW = np.ones((1, 1, 2, 2), dtype=np.float32)\n\n# Convolution with padding\noffset_with_padding = np.zeros((1, 8, 4, 4), dtype=np.float32)\noffset_with_padding[\n    0, 0, 0, 0\n] = 0.5  # h-coord of [0, 0] element of kernel, at output position [0, 0]\noffset_with_padding[\n    0, 5, 1, 2\n] = -0.1  # w-coord of [1, 0] element of kernel, at output position [1, 2]\n\nnode_with_padding = onnx.helper.make_node(\n    \"DeformConv\",\n    inputs=[\"X\", \"W\", \"offset_with_padding\"],\n    outputs=[\"Y_with_padding\"],\n    kernel_shape=[2, 2],\n    pads=[1, 1, 1, 1],\n)\nY_with_padding = np.array(\n    [\n        [\n            [\n                [0.0, 1.0, 3.0, 2.0],  # (1, 1, 4, 4) output tensor\n                [3.0, 8.0, 11.9, 7.0],\n                [9.0, 20.0, 24.0, 13.0],\n                [6.0, 13.0, 15.0, 8.0],\n            ]\n        ]\n    ]\n).astype(np.float32)\nexpect(\n    node_with_padding,\n    inputs=[X, W, offset_with_padding],\n    outputs=[Y_with_padding],\n    name=\"test_basic_deform_conv_with_padding\",\n)\n\n# Convolution without padding\noffset_without_padding = np.zeros((1, 8, 2, 2), dtype=np.float32)\noffset_without_padding[\n    0, 0, 0, 0\n] = 0.5  # h-coord of [0, 0] element of kernel, at output position [0, 0]\noffset_without_padding[\n    0, 5, 0, 1\n] = -0.1  # w-coord of [1, 0] element of kernel, at output position [0, 1]\n\nnode_without_padding = onnx.helper.make_node(\n    \"DeformConv\",\n    inputs=[\"X\", \"W\", \"offset_without_padding\"],\n    outputs=[\"Y_without_padding\"],\n    kernel_shape=[2, 2],\n    pads=[0, 0, 0, 0],\n)\nY_without_padding = np.array(\n    [\n        [\n            [\n                [9.5, 11.9],  # (1, 1, 2, 2) output tensor\n                [20.0, 24.0],\n            ]\n        ]\n    ]\n).astype(np.float32)\nexpect(\n    node_without_padding,\n    inputs=[X, W, offset_without_padding],\n    outputs=[Y_without_padding],\n    name=\"test_basic_deform_conv_without_padding\",\n)"
+      },
+      {
+        "summary": "deformconv_with_mask_bias",
+        "code": "X = np.arange(9).astype(np.float32)\nX.shape = (1, 1, 3, 3)\nW = np.ones((1, 1, 2, 2), dtype=np.float32)\nB = np.ones((1,), dtype=np.float32)\n\noffset = np.zeros((1, 8, 2, 2), dtype=np.float32)\noffset[\n    0, 0, 0, 0\n] = 0.5  # h-coord of [0, 0] element of kernel, at output position [0, 0]\noffset[\n    0, 5, 0, 1\n] = -0.1  # w-coord of [1, 0] element of kernel, at output position [0, 1]\n\nmask = np.ones((1, 4, 2, 2), dtype=np.float32)\nmask[0, 2, 1, 1] = 0.2  # [1, 0] element of kernel at output position [1, 1]\n\nnode = onnx.helper.make_node(\n    \"DeformConv\",\n    inputs=[\"X\", \"W\", \"offset\", \"B\", \"mask\"],\n    outputs=[\"Y\"],\n    kernel_shape=[2, 2],\n    pads=[0, 0, 0, 0],\n)\nY = np.array(\n    [\n        [\n            [\n                [10.5, 12.9],  # (1, 1, 2, 2) output tensor\n                [21.0, 19.4],\n            ]\n        ]\n    ]\n).astype(np.float32)\nexpect(\n    node,\n    inputs=[X, W, offset, B, mask],\n    outputs=[Y],\n    name=\"test_deform_conv_with_mask_bias\",\n)"
+      },
+      {
+        "summary": "deformconv_with_multiple_offset_groups",
+        "code": "X = np.zeros((1, 2, 3, 3), dtype=np.float32)\nX[0, 0] = np.reshape(np.arange(9).astype(np.float32), (3, 3))\nX[0, 1] = np.reshape(np.arange(8, -1, -1).astype(np.float32), (3, 3))\nX.shape = (1, 2, 3, 3)\nW = np.ones((1, 2, 2, 2), dtype=np.float32)\n\noffset = np.zeros((1, 16, 2, 2), dtype=np.float32)\noffset[\n    0, 0, 0, 0\n] = 0.5  # h-coord of [0, 0] element of kernel in channel 0, at output position [0, 0]\noffset[\n    0, 13, 0, 1\n] = (\n    -0.1\n)  # w-coord of [1, 0] element of kernel in channel 1, at output position [0, 1]\n\nnode = onnx.helper.make_node(\n    \"DeformConv\",\n    inputs=[\"X\", \"W\", \"offset\"],\n    outputs=[\"Y\"],\n    kernel_shape=[2, 2],\n    pads=[0, 0, 0, 0],\n    offset_group=2,\n)\nY = np.array(\n    [\n        [\n            [\n                [33.5, 32.1],  # (1, 1, 2, 2) output tensor\n                [32.0, 32.0],\n            ]\n        ]\n    ]\n).astype(np.float32)\nexpect(\n    node,\n    inputs=[X, W, offset],\n    outputs=[Y],\n    name=\"test_deform_conv_with_multiple_offset_groups\",\n)"
+      }
+    ]
+  },
+  {
     "name": "DepthToSpace",
     "module": "ai.onnx",
     "version": 1,
