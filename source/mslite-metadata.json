@@ -273,7 +273,8 @@
     "attributes": [
       { "name": "head_num", "type": "int64", "default": 0 },
       { "name": "head_size", "type": "int64", "default": 0 },
-      { "name": "cross", "type": "boolean", "default": false }
+      { "name": "cross", "type": "boolean", "default": false },
+      { "name": "scale", "type": "float32", "default": 0 }
     ]
   },
   {

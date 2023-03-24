@@ -1164,6 +1164,7 @@ $root.mindspore.schema.Attention = class Attention {
         $.head_num = reader.int64_(position, 4, 0);
         $.head_size = reader.int64_(position, 6, 0);
         $.cross = reader.bool_(position, 8, false);
+        $.scale = reader.float32_(position, 10, 0);
         return $;
     }
 
@@ -1172,6 +1173,7 @@ $root.mindspore.schema.Attention = class Attention {
         $.head_num = reader.value(json.head_num, 0);
         $.head_size = reader.value(json.head_size, 0);
         $.cross = reader.value(json.cross, false);
+        $.scale = reader.value(json.scale, 0);
         return $;
     }
 };
