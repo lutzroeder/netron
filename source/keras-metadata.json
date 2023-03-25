@@ -1842,7 +1842,7 @@
     "name": "Embedding",
     "module": "tensorflow.keras.layers",
     "category": "Transform",
-    "description": "Turns positive integers (indexes) into dense vectors of fixed size.\n\ne.g. `[[4], [20]] -> [[0.25, 0.1], [0.6, -0.2]]`\n\nThis layer can only be used on positive integer inputs of a fixed range. The\n`tf.keras.layers.TextVectorization`, `tf.keras.layers.StringLookup`,\nand `tf.keras.layers.IntegerLookup` preprocessing layers can help prepare\ninputs for an `Embedding` layer.\n\nThis layer accepts `tf.Tensor` and `tf.RaggedTensor` inputs. It cannot be\ncalled with `tf.SparseTensor` input.",
+    "description": "Turns positive integers (indexes) into dense vectors of fixed size.\n\ne.g. `[[4], [20]] -> [[0.25, 0.1], [0.6, -0.2]]`\n\nThis layer can only be used on positive integer inputs of a fixed range. The\n`tf.keras.layers.TextVectorization`, `tf.keras.layers.StringLookup`,\nand `tf.keras.layers.IntegerLookup` preprocessing layers can help prepare\ninputs for an `Embedding` layer.\n\nThis layer accepts `tf.Tensor`, `tf.RaggedTensor` and `tf.SparseTensor`\ninput.",
     "attributes": [
       {
         "default": false,
@@ -2443,7 +2443,7 @@
   {
     "name": "Lambda",
     "module": "tensorflow.keras.layers",
-    "description": "Wraps arbitrary expressions as a `Layer` object.\n\nThe `Lambda` layer exists so that arbitrary expressions can be used\nas a `Layer` when constructing `Sequential`\nand Functional API models. `Lambda` layers are best suited for simple\noperations or quick experimentation. For more advanced use cases, follow\n[this guide](\nhttps://www.tensorflow.org/guide/keras/custom_layers_and_models)\nfor subclassing `tf.keras.layers.Layer`.\n\nWARNING: `tf.keras.layers.Lambda` layers have (de)serialization limitations!\n\nThe main reason to subclass `tf.keras.layers.Layer` instead of using a\n`Lambda` layer is saving and inspecting a Model. `Lambda` layers\nare saved by serializing the Python bytecode, which is fundamentally\nnon-portable. They should only be loaded in the same environment where\nthey were saved. Subclassed layers can be saved in a more portable way\nby overriding their `get_config` method. Models that rely on\nsubclassed Layers are also often easier to visualize and reason about.",
+    "description": "Wraps arbitrary expressions as a `Layer` object.\n\nThe `Lambda` layer exists so that arbitrary expressions can be used\nas a `Layer` when constructing Sequential\nand Functional API models. `Lambda` layers are best suited for simple\noperations or quick experimentation. For more advanced use cases, follow\n[this guide](\nhttps://www.tensorflow.org/guide/keras/custom_layers_and_models)\nfor subclassing `tf.keras.layers.Layer`.\n\nWARNING: `tf.keras.layers.Lambda` layers have (de)serialization limitations!\n\nThe main reason to subclass `tf.keras.layers.Layer` instead of using a\n`Lambda` layer is saving and inspecting a Model. `Lambda` layers\nare saved by serializing the Python bytecode, which is fundamentally\nnon-portable. They should only be loaded in the same environment where\nthey were saved. Subclassed layers can be saved in a more portable way\nby overriding their `get_config()` method. Models that rely on\nsubclassed Layers are also often easier to visualize and reason about.",
     "attributes": [
       {
         "description": "The function to be evaluated. Takes input tensor as first\n    argument.",
@@ -2454,7 +2454,7 @@
         "name": "output_shape"
       },
       {
-        "description": "Optional dictionary of keyword arguments to be passed to the\n    function.\nInput shape: Arbitrary. Use the keyword argument input_shape (tuple of\n  integers, does not include the samples axis) when using this layer as the\n  first layer in a model.\nOutput shape: Specified by `output_shape` argument",
+        "description": "Optional dictionary of keyword arguments to be passed to the\n    function.\n\nInput shape: Arbitrary. Use the keyword argument input_shape (tuple of\n  integers, does not include the samples axis) when using this layer as the\n  first layer in a model.\n\nOutput shape: Specified by `output_shape` argument",
         "name": "arguments"
       },
       {
@@ -2481,6 +2481,14 @@
       },
       {
         "code": "# add a layer that returns the concatenation\n# of the positive part of the input and\n# the opposite of the negative part\n\ndef antirectifier(x):\n    x -= K.mean(x, axis=1, keepdims=True)\n    x = K.l2_normalize(x, axis=1)\n    pos = K.relu(x)\n    neg = K.relu(-x)\n    return K.concatenate([pos, neg], axis=1)\n\nmodel.add(Lambda(antirectifier))"
+      },
+      {
+        "summary": "**Note on Variables:**\nWhile it is possible to use Variables with Lambda layers,\nthis practice is discouraged as it can easily lead to bugs.\nFor instance, consider the following layer:",
+        "code": "scale = tf.Variable(1.)\nscale_layer = tf.keras.layers.Lambda(lambda x: x * scale)"
+      },
+      {
+        "summary": "Because `scale_layer` does not directly track the `scale` variable, it will\nnot appear in `scale_layer.trainable_weights` and will therefore not be\ntrained if `scale_layer` is used in a Model.\nA better pattern is to write a subclassed Layer:",
+        "code": "class ScaleLayer(tf.keras.layers.Layer):\n    def __init__(self, **kwargs):\n        super().__init__(**kwargs)\n        self.scale = tf.Variable(1.)\n\n    def call(self, inputs):\n        return inputs * self.scale"
       }
     ]
   },
@@ -3443,7 +3451,7 @@
     ],
     "examples": [
       {
-        "code": "from keras.layers import RNN\nfrom keras import backend\n\n# First, let's define a RNN Cell, as a layer subclass.\nclass MinimalRNNCell(keras.layers.Layer):\n\n    def __init__(self, units, **kwargs):\n        self.units = units\n        self.state_size = units\n        super(MinimalRNNCell, self).__init__(**kwargs)\n\n    def build(self, input_shape):\n        self.kernel = self.add_weight(shape=(input_shape[-1], self.units),\n                                      initializer='uniform',\n                                      name='kernel')\n        self.recurrent_kernel = self.add_weight(\n            shape=(self.units, self.units),\n            initializer='uniform',\n            name='recurrent_kernel')\n        self.built = True\n\n    def call(self, inputs, states):\n        prev_output = states[0]\n        h = backend.dot(inputs, self.kernel)\n        output = h + backend.dot(prev_output, self.recurrent_kernel)\n        return output, [output]\n\n# Let's use this cell in a RNN layer:\n\ncell = MinimalRNNCell(32)\nx = keras.Input((None, 5))\nlayer = RNN(cell)\ny = layer(x)\n\n# Here's how to use the cell to build a stacked RNN:\n\ncells = [MinimalRNNCell(32), MinimalRNNCell(64)]\nx = keras.Input((None, 5))\nlayer = RNN(cells)\ny = layer(x)"
+        "code": "from keras.src.layers import RNN\nfrom keras.src import backend\n\n# First, let's define a RNN Cell, as a layer subclass.\nclass MinimalRNNCell(keras.layers.Layer):\n\n    def __init__(self, units, **kwargs):\n        self.units = units\n        self.state_size = units\n        super(MinimalRNNCell, self).__init__(**kwargs)\n\n    def build(self, input_shape):\n        self.kernel = self.add_weight(shape=(input_shape[-1], self.units),\n                                      initializer='uniform',\n                                      name='kernel')\n        self.recurrent_kernel = self.add_weight(\n            shape=(self.units, self.units),\n            initializer='uniform',\n            name='recurrent_kernel')\n        self.built = True\n\n    def call(self, inputs, states):\n        prev_output = states[0]\n        h = backend.dot(inputs, self.kernel)\n        output = h + backend.dot(prev_output, self.recurrent_kernel)\n        return output, [output]\n\n# Let's use this cell in a RNN layer:\n\ncell = MinimalRNNCell(32)\nx = keras.Input((None, 5))\nlayer = RNN(cell)\ny = layer(x)\n\n# Here's how to use the cell to build a stacked RNN:\n\ncells = [MinimalRNNCell(32), MinimalRNNCell(64)]\nx = keras.Input((None, 5))\nlayer = RNN(cells)\ny = layer(x)"
       }
     ]
   },
@@ -4106,7 +4114,7 @@
     ],
     "examples": [
       {
-        "code": "    import keras\n\n    input1 = keras.layers.Input(shape=(16,))\n    x1 = keras.layers.Dense(8, activation='relu')(input1)\n    input2 = keras.layers.Input(shape=(32,))\n    x2 = keras.layers.Dense(8, activation='relu')(input2)\n    # Equivalent to subtracted = keras.layers.subtract([x1, x2])\n    subtracted = keras.layers.Subtract()([x1, x2])\n\n    out = keras.layers.Dense(4)(subtracted)\n    model = keras.models.Model(inputs=[input1, input2], outputs=out)"
+        "code": "    import keras.src as keras\n\n    input1 = keras.layers.Input(shape=(16,))\n    x1 = keras.layers.Dense(8, activation='relu')(input1)\n    input2 = keras.layers.Input(shape=(32,))\n    x2 = keras.layers.Dense(8, activation='relu')(input2)\n    # Equivalent to subtracted = keras.layers.subtract([x1, x2])\n    subtracted = keras.layers.Subtract()([x1, x2])\n\n    out = keras.layers.Dense(4)(subtracted)\n    model = keras.models.Model(inputs=[input1, input2], outputs=out)"
       }
     ]
   },
