@@ -280,7 +280,7 @@
   {
     "type":     "caffe",
     "target":   "bvlc_alexnet.caffemodel",
-    "source":   "https://media.githubusercontent.com/media/facebookarchive/models/master/bvlc_alexnet/original.caffemodel",
+    "source":   "https://github.com/facebookarchive/models/raw/master/bvlc_alexnet/original.caffemodel",
     "format":   "Caffe v1",
     "link":     "https://github.com/BVLC/caffe/tree/master/models/bvlc_alexnet"
   },
@@ -301,7 +301,7 @@
   {
     "type":     "caffe",
     "target":   "bvlc_googlenet.caffemodel",
-    "source":   "https://media.githubusercontent.com/media/facebookarchive/models/master/bvlc_googlenet/original.caffemodel",
+    "source":   "https://github.com/facebookarchive/models/raw/master/bvlc_googlenet/original.caffemodel",
     "format":   "Caffe v1",
     "link":     "https://github.com/BVLC/caffe/tree/master/models/bvlc_googlenet"
   },
@@ -790,35 +790,35 @@
   {
     "type":     "caffe2",
     "target":   "bvlc_alexnet/predict_net.pb,bvlc_alexnet/init_net.pb",
-    "source":   "https://media.githubusercontent.com/media/facebookarchive/models/master/bvlc_alexnet/predict_net.pb,https://media.githubusercontent.com/media/facebookarchive/models/master/bvlc_alexnet/init_net.pb",
+    "source":   "https://github.com/facebookarchive/models/raw/master/bvlc_alexnet/predict_net.pb,https://github.com/facebookarchive/models/raw/master/bvlc_alexnet/init_net.pb",
     "format":   "Caffe2",
     "link":     "https://github.com/caffe2/models"
   },
   {
     "type":     "caffe2",
     "target":   "bvlc_alexnet/init_net.pb",
-    "source":   "https://media.githubusercontent.com/media/facebookarchive/models/master/bvlc_alexnet/init_net.pb",
+    "source":   "https://github.com/facebookarchive/models/raw/master/bvlc_alexnet/init_net.pb",
     "format":   "Caffe2",
     "link":     "https://github.com/caffe2/models"
   },
   {
     "type":     "caffe2",
     "target":   "bvlc_alexnet/predict_net.pbtxt,bvlc_alexnet/init_net.pb",
-    "source":   "https://media.githubusercontent.com/media/facebookarchive/models/master/bvlc_alexnet/predict_net.pbtxt,https://media.githubusercontent.com/media/facebookarchive/models/master/bvlc_alexnet/init_net.pb",
+    "source":   "https://github.com/facebookarchive/models/raw/master/bvlc_alexnet/predict_net.pbtxt,https://github.com/facebookarchive/models/raw/master/bvlc_alexnet/init_net.pb",
     "format":   "Caffe2",
     "link":     "https://github.com/caffe2/models"
   },
   {
     "type":     "caffe2",
     "target":   "bvlc_googlenet/predict_net.pb,bvlc_googlenet/init_net.pb",
-    "source":   "https://media.githubusercontent.com/media/facebookarchive/models/master/bvlc_googlenet/predict_net.pb,https://media.githubusercontent.com/media/facebookarchive/models/master/bvlc_googlenet/init_net.pb",
+    "source":   "https://github.com/facebookarchive/models/raw/master/bvlc_googlenet/predict_net.pb,https://github.com/facebookarchive/models/raw/master/bvlc_googlenet/init_net.pb",
     "format":   "Caffe2",
     "link":     "https://github.com/caffe2/models"
   },
   {
     "type":     "caffe2",
     "target":   "densenet121/predict_net.pb,densenet121/init_net.pb",
-    "source":   "https://media.githubusercontent.com/media/facebookarchive/models/master/densenet121/predict_net.pb,https://media.githubusercontent.com/media/facebookarchive/models/master/densenet121/init_net.pb",
+    "source":   "https://github.com/facebookarchive/models/raw/master/densenet121/predict_net.pb,https://github.com/facebookarchive/models/raw/master/densenet121/init_net.pb",
     "format":   "Caffe2",
     "link":     "https://github.com/caffe2/models"
   },
@@ -847,7 +847,7 @@
   {
     "type":     "caffe2",
     "target":   "inception_v2/predict_net.pb,inception_v2/init_net.pb",
-    "source":   "https://media.githubusercontent.com/media/facebookarchive/models/master/inception_v2/predict_net.pb,https://media.githubusercontent.com/media/facebookarchive/models/master/inception_v2/init_net.pb",
+    "source":   "https://github.com/facebookarchive/models/raw/master/inception_v2/predict_net.pb,https://github.com/facebookarchive/models/raw/master/inception_v2/init_net.pb",
     "format":   "Caffe2",
     "link":     "https://github.com/caffe2/models"
   },
@@ -868,14 +868,14 @@
   {
     "type":     "caffe2",
     "target":   "mobilenet_v2/predict_net.pb,mobilenet_v2/init_net.pb",
-    "source":   "https://media.githubusercontent.com/media/facebookarchive/models/master/mobilenet_v2/predict_net.pb,https://media.githubusercontent.com/media/facebookarchive/models/master/mobilenet_v2/init_net.pb",
+    "source":   "https://github.com/facebookarchive/models/raw/master/mobilenet_v2/predict_net.pb,https://github.com/facebookarchive/models/raw/master/mobilenet_v2/init_net.pb",
     "format":   "Caffe2",
     "link":     "https://github.com/caffe2/models"
   },
   {
     "type":     "caffe2",
     "target":   "mobilenet_v2/predict_net.pb",
-    "source":   "https://media.githubusercontent.com/media/facebookarchive/models/master/mobilenet_v2/predict_net.pb",
+    "source":   "https://github.com/facebookarchive/models/raw/master/mobilenet_v2/predict_net.pb",
     "format":   "Caffe2",
     "link":     "https://github.com/caffe2/models"
   },
@@ -889,14 +889,14 @@
   {
     "type":     "caffe2",
     "target":   "resnet50/predict_net.pb,resnet50/init_net.pb",
-    "source":   "https://media.githubusercontent.com/media/facebookarchive/models/master/resnet50/predict_net.pb,https://media.githubusercontent.com/media/facebookarchive/models/master/resnet50/init_net.pb",
+    "source":   "https://github.com/facebookarchive/models/raw/master/resnet50/predict_net.pb,https://github.com/facebookarchive/models/raw/master/resnet50/init_net.pb",
     "format":   "Caffe2",
     "link":     "https://github.com/caffe2/models"
   },
   {
     "type":     "caffe2",
     "target":   "squeezenet/squeezenet.pb,squeezenet/init_net.pb",
-    "source":   "https://media.githubusercontent.com/media/facebookarchive/models/master/squeezenet/predict_net.pb,https://media.githubusercontent.com/media/facebookarchive/models/master/squeezenet/init_net.pb",
+    "source":   "https://github.com/facebookarchive/models/raw/master/squeezenet/predict_net.pb,https://github.com/facebookarchive/models/raw/master/squeezenet/init_net.pb",
     "format":   "Caffe2",
     "link":     "https://github.com/caffe2/models"
   },
