@@ -3385,12 +3385,6 @@
   },
   {
     "type":     "onnx",
-    "target":   "bvlc_googlenet_opset_9.onnx",
-    "source":   "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_googlenet.tar.gz[bvlc_googlenet/model.onnx]",
-    "link":     "https://github.com/onnx/models/tree/main/bvlc_googlenet"
-  },
-  {
-    "type":     "onnx",
     "target":   "candy.onnx",
     "source":   "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/FNSCandyStyleTransfer/UWP/cs/Assets/candy.onnx",
     "format":   "ONNX v3",
@@ -3470,11 +3464,6 @@
   },
   {
     "type":     "onnx",
-    "target":   "densenet121_opset_9.onnx",
-    "source":   "https://s3.amazonaws.com/download.onnx/models/opset_9/densenet121.tar.gz[densenet121/model.onnx]"
-  },
-  {
-    "type":     "onnx",
     "target":   "DocumentClassification.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/2592479/DocumentClassification.onnx.zip[DocumentClassification.onnx]",
     "format":   "ONNX v3",
@@ -3546,14 +3535,9 @@
   {
     "type":     "onnx",
     "target":   "input_0.pb",
-    "source":   "https://s3.amazonaws.com/download.onnx/models/opset_9/shufflenet.tar.gz[shufflenet/test_data_set_0/input_0.pb]",
+    "source":   "https://github.com/lutzroeder/netron/files/11067440/input_0.pb.zip[input_0.pb]",
     "format":   "ONNX Tensor",
-    "link":     "https://github.com/lutzroeder/netron/issues/550"
-  },
-  {
-    "type":     "onnx",
-    "target":   "inception_v1_opset_9.onnx",
-    "source":   "https://s3.amazonaws.com/download.onnx/models/opset_9/inception_v1.tar.gz[inception_v1/model.onnx]"
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
     "type":     "onnx",
@@ -3748,13 +3732,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/2592368/shufflenet_float16.onnx.zip[shufflenet_float16.onnx]",
     "format":   "ONNX v3",
     "link":     "https://github.com/lutzroeder/netron/issues/186"
-  },
-  {
-    "type":     "onnx",
-    "target":   "shufflenet_opset_9.onnx",
-    "source":   "https://s3.amazonaws.com/download.onnx/models/opset_9/shufflenet.tar.gz[shufflenet/model.onnx]",
-    "format":   "ONNX v3",
-    "link":     "https://github.com/onnx/models/tree/main/shufflenet"
   },
   {
     "type":     "onnx",
