@@ -151,7 +151,7 @@ const install = () => {
 const start = () => {
     install();
     exec('npx electron .');
-}
+};
 
 const clean = () => {
     rm('dist');
@@ -430,10 +430,10 @@ const publish = async (target) => {
 const lint = () => {
     install();
     writeLine('eslint');
-    exec('npx eslint source/*.js test/*.js publish/*.js tools/*.js');
+    exec('npx eslint *.js source/*.js test/*.js publish/*.js tools/*.js');
     writeLine('pylint');
     exec('python -m pip install --upgrade --quiet pylint');
-    exec('python -m pylint -sn --recursive=y source test publish tools');
+    exec('python -m pylint -sn --recursive=y source test publish tools *.py');
 };
 
 const update = () => {
