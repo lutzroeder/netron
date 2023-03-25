@@ -6492,13 +6492,6 @@
   },
   {
     "type":     "torch",
-    "target":   "2chdeep_yosemite.t7",
-    "source":   "https://s3.amazonaws.com/modelzoo-networks/cvpr2015matching_networks.tar.gz[2chdeep/2chdeep_yosemite.t7]",
-    "format":   "Torch v7",
-    "link":     "https://github.com/szagoruyko/cvpr15deepcompare"
-  },
-  {
-    "type":     "torch",
     "target":   "apple2orange.t7",
     "source":   "https://people.eecs.berkeley.edu/~taesung_park/CycleGAN/models/apple2orange.t7",
     "format":   "Torch v7",
@@ -6592,13 +6585,6 @@
     "type":     "torch",
     "target":   "siam_liberty.t7",
     "source":   "https://s3.amazonaws.com/modelzoo-networks/cvpr2015matching_networks.tar.gz[siam/siam_liberty.t7]",
-    "format":   "Torch v7",
-    "link":     "https://github.com/szagoruyko/cvpr15deepcompare"
-  },
-  {
-    "type":     "torch",
-    "target":   "siam2stream_notredame.t7",
-    "source":   "https://s3.amazonaws.com/modelzoo-networks/cvpr2015matching_networks.tar.gz[siam2stream/siam2stream_notredame.t7]",
     "format":   "Torch v7",
     "link":     "https://github.com/szagoruyko/cvpr15deepcompare"
   },
