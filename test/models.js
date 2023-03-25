@@ -1,4 +1,6 @@
 
+/* eslint-env es2017 */
+
 const fs = require('fs');
 const path = require('path');
 const process = require('process');
@@ -35,8 +37,7 @@ class TestHost {
         return this._document;
     }
 
-    view(/* view */) {
-        return Promise.resolve();
+    async view(/* view */) {
     }
 
     start() {
@@ -52,27 +53,21 @@ class TestHost {
     screen(/* name */) {
     }
 
-    require(id) {
-        try {
-            const file = path.join(this._sourceDir, id + '.js');
-            return Promise.resolve(require(file));
-        } catch (error) {
-            return Promise.reject(error);
-        }
+    async require(id) {
+        const file = path.join(this._sourceDir, id + '.js');
+        return require(file);
     }
 
-    request(file, encoding, base) {
+    async request(file, encoding, base) {
         const pathname = path.join(base || this._sourceDir, file);
         if (!fs.existsSync(pathname)) {
-            return Promise.reject(new Error("The file '" + file + "' does not exist."));
+            throw new Error("The file '" + file + "' does not exist.");
         }
         if (encoding) {
-            const content = fs.readFileSync(pathname, encoding);
-            return Promise.resolve(content);
+            return fs.readFileSync(pathname, encoding);
         }
         const buffer = fs.readFileSync(pathname, null);
-        const stream = new TestBinaryStream(buffer);
-        return Promise.resolve(stream);
+        return new TestBinaryStream(buffer);
     }
 
     event_ua(/* category, action, label, value */) {
@@ -380,61 +375,60 @@ const request = (location, cookie) => {
     });
 };
 
-const downloadFile = (location, cookie) => {
-    return request(location, cookie).then((response) => {
-        const url = new URL(location);
-        switch (response.statusCode) {
-            case 200: {
-                if (url.hostname == 'drive.google.com' &&
-                    response.headers['set-cookie'].some((cookie) => cookie.startsWith('download_warning_'))) {
-                    cookie = response.headers['set-cookie'];
-                    const download = cookie.filter((cookie) => cookie.startsWith('download_warning_')).shift();
-                    const confirm = download.split(';').shift().split('=').pop();
-                    location = location + '&confirm=' + confirm;
-                    return downloadFile(location, cookie);
-                }
-                return new Promise((resolve, reject) => {
-                    let position = 0;
-                    const data = [];
-                    const length = response.headers['content-length'] ? Number(response.headers['content-length']) : -1;
-                    response.on('data', (chunk) => {
-                        position += chunk.length;
-                        if (length >= 0) {
-                            const label = location.length > 70 ? location.substring(0, 66) + '...' : location;
-                            write('  (' + ('  ' + Math.floor(100 * (position / length))).slice(-3) + '%) ' + label + '\r');
-                        } else {
-                            write('  ' + position + ' bytes\r');
-                        }
-                        data.push(chunk);
-                    });
-                    response.on('end', () => {
-                        resolve(Buffer.concat(data));
-                    });
-                    response.on('error', (error) => {
-                        reject(error);
-                    });
+const downloadFile = async (location, cookie) => {
+    const response = await request(location, cookie);
+    const url = new URL(location);
+    switch (response.statusCode) {
+        case 200: {
+            if (url.hostname == 'drive.google.com' &&
+                response.headers['set-cookie'].some((cookie) => cookie.startsWith('download_warning_'))) {
+                cookie = response.headers['set-cookie'];
+                const download = cookie.filter((cookie) => cookie.startsWith('download_warning_')).shift();
+                const confirm = download.split(';').shift().split('=').pop();
+                location = location + '&confirm=' + confirm;
+                return downloadFile(location, cookie);
+            }
+            return new Promise((resolve, reject) => {
+                let position = 0;
+                const data = [];
+                const length = response.headers['content-length'] ? Number(response.headers['content-length']) : -1;
+                response.on('data', (chunk) => {
+                    position += chunk.length;
+                    if (length >= 0) {
+                        const label = location.length > 70 ? location.substring(0, 66) + '...' : location;
+                        write('  (' + ('  ' + Math.floor(100 * (position / length))).slice(-3) + '%) ' + label + '\r');
+                    } else {
+                        write('  ' + position + ' bytes\r');
+                    }
+                    data.push(chunk);
                 });
-            }
-            case 301:
-            case 302: {
-                location = response.headers.location;
-                const context = location.startsWith('http://') || location.startsWith('https://') ? '' : url.protocol + '//' + url.hostname;
-                response.destroy();
-                return downloadFile(context + location, cookie);
-            }
-            default: {
-                throw new Error(response.statusCode.toString() + ' ' + location);
-            }
+                response.on('end', () => {
+                    resolve(Buffer.concat(data));
+                });
+                response.on('error', (error) => {
+                    reject(error);
+                });
+            });
         }
-    });
+        case 301:
+        case 302: {
+            location = response.headers.location;
+            const context = location.startsWith('http://') || location.startsWith('https://') ? '' : url.protocol + '//' + url.hostname;
+            response.destroy();
+            return downloadFile(context + location, cookie);
+        }
+        default: {
+            throw new Error(response.statusCode.toString() + ' ' + location);
+        }
+    }
 };
 
-const downloadTargets = (folder, targets, sources) => {
+const downloadTargets = async (folder, targets, sources) => {
     if (targets.every((file) => fs.existsSync(folder + '/' + file))) {
-        return Promise.resolve();
+        return;
     }
     if (!sources) {
-        return Promise.reject(new Error('Download source not specified.'));
+        throw new Error('Download source not specified.');
     }
     let source = '';
     let sourceFiles = [];
@@ -455,49 +449,45 @@ const downloadTargets = (folder, targets, sources) => {
     }
     for (const target of targets) {
         const dir = path.dirname(folder + '/' + target);
-        fs.existsSync(dir) || fs.mkdirSync(dir, { recursive: true });
+        fs.mkdirSync(dir, { recursive: true });
     }
-    return downloadFile(source).then((data) => {
-        if (sourceFiles.length > 0) {
-            clearLine();
-            write('  decompress...\r');
-            const archive = decompress(data);
-            clearLine();
-            for (const name of sourceFiles) {
-                write('  write ' + name + '\r');
-                if (name !== '.') {
-                    const stream = archive.entries.get(name);
-                    if (!stream) {
-                        throw new Error("Entry not found '" + name + '. Archive contains entries: ' + JSON.stringify(Array.from(archive.entries.keys())) + " .");
-                    }
-                    const target = targets.shift();
-                    const buffer = stream.peek();
-                    const file = path.join(folder, target);
-                    fs.writeFileSync(file, buffer, null);
-                } else {
-                    const target = targets.shift();
-                    const dir = path.join(folder, target);
-                    if (!fs.existsSync(dir)) {
-                        fs.mkdirSync(dir);
-                    }
-                }
-                clearLine();
-            }
-        } else {
-            const target = targets.shift();
-            clearLine();
-            write('  write ' + target + '\r');
-            fs.writeFileSync(folder + '/' + target, data, null);
-        }
+    const data = await downloadFile(source);
+    if (sourceFiles.length > 0) {
         clearLine();
-        if (sources.length > 0) {
-            return downloadTargets(folder, targets, sources);
+        write('  decompress...\r');
+        const archive = decompress(data);
+        clearLine();
+        for (const name of sourceFiles) {
+            write('  write ' + name + '\r');
+            if (name !== '.') {
+                const stream = archive.entries.get(name);
+                if (!stream) {
+                    throw new Error("Entry not found '" + name + '. Archive contains entries: ' + JSON.stringify(Array.from(archive.entries.keys())) + " .");
+                }
+                const target = targets.shift();
+                const buffer = stream.peek();
+                const file = path.join(folder, target);
+                fs.writeFileSync(file, buffer, null);
+            } else {
+                const target = targets.shift();
+                const dir = path.join(folder, target);
+                fs.mkdirSync(dir, { recursive: true });
+            }
+            clearLine();
         }
-        return null;
-    });
+    } else {
+        const target = targets.shift();
+        clearLine();
+        write('  write ' + target + '\r');
+        fs.writeFileSync(folder + '/' + target, data, null);
+    }
+    clearLine();
+    if (sources.length > 0) {
+        downloadTargets(folder, targets, sources);
+    }
 };
 
-const loadModel = (target, item) => {
+const loadModel = async (target, item) => {
     const host = new TestHost();
     const exceptions = [];
     host.on('exception', (_, data) => {
@@ -532,67 +522,139 @@ const loadModel = (target, item) => {
     }
     const modelFactoryService = new view.ModelFactoryService(host);
     let opened = false;
-    return modelFactoryService.open(context).then((model) => {
-        if (opened) {
-            throw new Error("Model opened more than once '" + target + "'.");
-        }
-        opened = true;
-        if (!model.format || (item.format && model.format != item.format)) {
-            throw new Error("Invalid model format '" + model.format + "'.");
-        }
-        if (item.producer && model.producer != item.producer) {
-            throw new Error("Invalid producer '" + model.producer + "'.");
-        }
-        if (item.runtime && model.runtime != item.runtime) {
-            throw new Error("Invalid runtime '" + model.runtime + "'.");
-        }
-        if (item.assert) {
-            for (const assert of item.assert) {
-                const parts = assert.split('=').map((item) => item.trim());
-                const properties = parts[0].split('.');
-                const value = parts[1];
-                let context = { model: model };
-                while (properties.length) {
-                    const property = properties.shift();
-                    if (context[property] !== undefined) {
-                        context = context[property];
+    const model = await modelFactoryService.open(context);
+    if (opened) {
+        throw new Error("Model opened more than once '" + target + "'.");
+    }
+    opened = true;
+    if (!model.format || (item.format && model.format != item.format)) {
+        throw new Error("Invalid model format '" + model.format + "'.");
+    }
+    if (item.producer && model.producer != item.producer) {
+        throw new Error("Invalid producer '" + model.producer + "'.");
+    }
+    if (item.runtime && model.runtime != item.runtime) {
+        throw new Error("Invalid runtime '" + model.runtime + "'.");
+    }
+    if (item.assert) {
+        for (const assert of item.assert) {
+            const parts = assert.split('=').map((item) => item.trim());
+            const properties = parts[0].split('.');
+            const value = parts[1];
+            let context = { model: model };
+            while (properties.length) {
+                const property = properties.shift();
+                if (context[property] !== undefined) {
+                    context = context[property];
+                    continue;
+                }
+                const match = /(.*)\[(.*)\]/.exec(property);
+                if (match.length === 3 && context[match[1]] !== undefined) {
+                    const array = context[match[1]];
+                    const index = parseInt(match[2], 10);
+                    if (array[index] !== undefined) {
+                        context = array[index];
                         continue;
                     }
-                    const match = /(.*)\[(.*)\]/.exec(property);
-                    if (match.length === 3 && context[match[1]] !== undefined) {
-                        const array = context[match[1]];
-                        const index = parseInt(match[2], 10);
-                        if (array[index] !== undefined) {
-                            context = array[index];
-                            continue;
-                        }
-                    }
-                    throw new Error("Invalid property path: '" + parts[0]);
                 }
-                if (context !== value.toString()) {
-                    throw new Error("Invalid '" + value.toString() + "' != '" + assert + "'.");
+                throw new Error("Invalid property path: '" + parts[0]);
+            }
+            if (context !== value.toString()) {
+                throw new Error("Invalid '" + value.toString() + "' != '" + assert + "'.");
+            }
+        }
+    }
+    if (model.version || model.description || model.author || model.license) {
+        // continue
+    }
+    for (const graph of model.graphs) {
+        for (const input of graph.inputs) {
+            input.name.toString();
+            input.name.length;
+            for (const argument of input.arguments) {
+                argument.name.toString();
+                argument.name.length;
+                if (argument.type) {
+                    argument.type.toString();
+                }
+                if (argument.quantization || argument.initializer) {
+                    // continue
                 }
             }
         }
-        if (model.version || model.description || model.author || model.license) {
-            // continue
+        for (const output of graph.outputs) {
+            output.name.toString();
+            output.name.length;
+            for (const argument of output.arguments) {
+                argument.name.toString();
+                argument.name.length;
+                if (argument.type) {
+                    argument.type.toString();
+                }
+            }
         }
-        for (const graph of model.graphs) {
-            for (const input of graph.inputs) {
+        for (const node of graph.nodes) {
+            const type = node.type;
+            if (!type || typeof type.name != 'string') {
+                throw new Error("Invalid node type '" + JSON.stringify(node.type) + "'.");
+            }
+            view.Documentation.format(type);
+            node.name.toString();
+            node.description;
+            node.attributes.slice();
+            for (const attribute of node.attributes) {
+                attribute.name.toString();
+                attribute.name.length;
+                let value = new view.Formatter(attribute.value, attribute.type).toString();
+                if (value && value.length > 1000) {
+                    value = value.substring(0, 1000) + '...';
+                }
+                /* value = */ value.split('<');
+            }
+            for (const input of node.inputs) {
                 input.name.toString();
                 input.name.length;
                 for (const argument of input.arguments) {
                     argument.name.toString();
                     argument.name.length;
+                    argument.description;
                     if (argument.type) {
                         argument.type.toString();
                     }
-                    if (argument.quantization || argument.initializer) {
-                        // continue
+                    if (argument.initializer) {
+                        argument.initializer.type.toString();
+                        const tensor = new view.Tensor(argument.initializer);
+                        if (tensor.layout !== '<' && tensor.layout !== '>' && tensor.layout !== '|' && tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo') {
+                            throw new Error("Tensor layout '" + tensor.layout + "' is not implemented.");
+                        }
+                        if (!tensor.empty) {
+                            if (tensor.type && tensor.type.dataType === '?') {
+                                throw new Error('Tensor data type is not defined.');
+                            } else if (tensor.type && !tensor.type.shape) {
+                                throw new Error('Tensor shape is not defined.');
+                            } else {
+                                tensor.toString();
+                                /*
+                                const python = require('../source/python');
+                                const tensor = argument.initializer;
+                                if (tensor.type && tensor.type.dataType !== '?') {
+                                    let data_type = tensor.type.dataType;
+                                    switch (data_type) {
+                                        case 'boolean': data_type = 'bool'; break;
+                                    }
+                                    const execution = new python.Execution();
+                                    const bytes = execution.invoke('io.BytesIO', []);
+                                    const dtype = execution.invoke('numpy.dtype', [ data_type ]);
+                                    const array = execution.invoke('numpy.asarray', [ tensor.value, dtype ]);
+                                    execution.invoke('numpy.save', [ bytes, array ]);
+                                }
+                                */
+                            }
+                        }
                     }
                 }
             }
-            for (const output of graph.outputs) {
+            for (const output of node.outputs) {
                 output.name.toString();
                 output.name.length;
                 for (const argument of output.arguments) {
@@ -603,107 +665,30 @@ const loadModel = (target, item) => {
                     }
                 }
             }
-            for (const node of graph.nodes) {
-                const type = node.type;
-                if (!type || typeof type.name != 'string') {
-                    throw new Error("Invalid node type '" + JSON.stringify(node.type) + "'.");
+            if (node.chain) {
+                for (const chain of node.chain) {
+                    chain.name.toString();
+                    chain.name.length;
                 }
-                view.Documentation.format(type);
-                node.name.toString();
-                node.description;
-                node.attributes.slice();
-                for (const attribute of node.attributes) {
-                    attribute.name.toString();
-                    attribute.name.length;
-                    let value = new view.Formatter(attribute.value, attribute.type).toString();
-                    if (value && value.length > 1000) {
-                        value = value.substring(0, 1000) + '...';
-                    }
-                    /* value = */ value.split('<');
-                }
-                for (const input of node.inputs) {
-                    input.name.toString();
-                    input.name.length;
-                    for (const argument of input.arguments) {
-                        argument.name.toString();
-                        argument.name.length;
-                        argument.description;
-                        if (argument.type) {
-                            argument.type.toString();
-                        }
-                        if (argument.initializer) {
-                            argument.initializer.type.toString();
-                            const tensor = new view.Tensor(argument.initializer);
-                            if (tensor.layout !== '<' && tensor.layout !== '>' && tensor.layout !== '|' && tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo') {
-                                throw new Error("Tensor layout '" + tensor.layout + "' is not implemented.");
-                            }
-                            if (!tensor.empty) {
-                                if (tensor.type && tensor.type.dataType === '?') {
-                                    throw new Error('Tensor data type is not defined.');
-                                } else if (tensor.type && !tensor.type.shape) {
-                                    throw new Error('Tensor shape is not defined.');
-                                } else {
-                                    tensor.toString();
-                                    /*
-                                    const python = require('../source/python');
-                                    const tensor = argument.initializer;
-                                    if (tensor.type && tensor.type.dataType !== '?') {
-                                        let data_type = tensor.type.dataType;
-                                        switch (data_type) {
-                                            case 'boolean': data_type = 'bool'; break;
-                                        }
-                                        const execution = new python.Execution();
-                                        const bytes = execution.invoke('io.BytesIO', []);
-                                        const dtype = execution.invoke('numpy.dtype', [ data_type ]);
-                                        const array = execution.invoke('numpy.asarray', [ tensor.value, dtype ]);
-                                        execution.invoke('numpy.save', [ bytes, array ]);
-                                    }
-                                    */
-                                }
-                            }
-                        }
-                    }
-                }
-                for (const output of node.outputs) {
-                    output.name.toString();
-                    output.name.length;
-                    for (const argument of output.arguments) {
-                        argument.name.toString();
-                        argument.name.length;
-                        if (argument.type) {
-                            argument.type.toString();
-                        }
-                    }
-                }
-                if (node.chain) {
-                    for (const chain of node.chain) {
-                        chain.name.toString();
-                        chain.name.length;
-                    }
-                }
-                // new dialog.NodeSidebar(host, node);
             }
+            // new dialog.NodeSidebar(host, node);
         }
-        if (exceptions.length > 0) {
-            throw exceptions[0];
-        }
-        return model;
-    });
+    }
+    if (exceptions.length > 0) {
+        throw exceptions[0];
+    }
+    return model;
 };
 
-const renderModel = (model, item) => {
+const renderModel = async (model, item) => {
     if (item.action.has('skip-render')) {
-        return Promise.resolve();
+        return;
     }
-    try {
-        const host = new TestHost();
-        const current = new view.View(host);
-        current.options.attributes = true;
-        current.options.initializers = true;
-        return current.renderGraph(model, model.graphs[0]);
-    } catch (error) {
-        return Promise.reject(error);
-    }
+    const host = new TestHost();
+    const current = new view.View(host);
+    current.options.attributes = true;
+    current.options.initializers = true;
+    current.renderGraph(model, model.graphs[0]);
 };
 
 const queue = items.reverse().filter((item) => {
@@ -713,33 +698,35 @@ const queue = items.reverse().filter((item) => {
     return !((filter[0] && !name.startsWith(filter[0])) || (filter[1] && !name.endsWith(filter[1])));
 });
 
-const next = () => {
+const next = async () => {
     if (queue.length == 0) {
-        return Promise.resolve();
+        return;
     }
     const item = queue.pop();
     write(item.type + '/' + item.target[0] + '\n');
     if (item.action.has('skip')) {
-        return next();
+        next();
+        return;
     }
     clearLine();
     const folder = path.normalize(path.join(__dirname, '..', 'third_party' , 'test', item.type));
-    return downloadTargets(folder, Array.from(item.target), item.source).then(() => {
+    await downloadTargets(folder, Array.from(item.target), item.source);
+    try {
         const file = path.join(folder, item.target[0]);
-        return loadModel(file, item).then((model) => {
-            return renderModel(model, item).then(() => {
-                if (item.error) {
-                    return Promise.reject(new Error('Expected error.'));
-                }
-                return next();
-            });
-        });
-    }).catch((error) => {
-        if (item.error && error && item.error == error.message) {
-            return next();
+        const model = await loadModel(file, item);
+        await renderModel(model, item);
+        if (item.error) {
+            throw new Error('Expected error.');
         }
-        return Promise.reject(error);
-    });
+        next();
+        return;
+    } catch (error) {
+        if (item.error && error && item.error == error.message) {
+            next();
+            return;
+        }
+        throw error;
+    }
 };
 
 next().catch((error) => {
