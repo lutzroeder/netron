@@ -467,7 +467,10 @@ host.BrowserHost = class {
                 progress(0);
                 if (request.status == 200) {
                     if (request.responseType == 'arraybuffer') {
-                        resolve(new host.BrowserHost.BinaryStream(new Uint8Array(request.response)));
+                        const base = this.window.base;
+                        const buffer = new Uint8Array(request.response);
+                        const stream = new base.BinaryStream(buffer);
+                        resolve(stream);
                     } else {
                         resolve(request.responseText);
                     }
@@ -568,11 +571,12 @@ host.BrowserHost = class {
                 this.error('Error while loading Gist.', 'Gist does not contain a model file.');
                 return;
             }
+            const base = this.window.base;
             const file = json.files[key];
             const identifier = file.filename;
             const encoder = new TextEncoder();
             const buffer = encoder.encode(file.content);
-            const stream = new host.BrowserHost.BinaryStream(buffer);
+            const stream = new base.BinaryStream(buffer);
             const context = new host.BrowserHost.Context(this, '', identifier, stream);
             if (this._telemetry_ga4) {
                 this._telemetry_ga4.set('session_engaged', 1);
@@ -634,63 +638,6 @@ host.BrowserHost = class {
     }
 };
 
-host.BrowserHost.BinaryStream = class {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-        this._length = buffer.length;
-        this._position = 0;
-    }
-
-    get position() {
-        return this._position;
-    }
-
-    get length() {
-        return this._length;
-    }
-
-    stream(length) {
-        const buffer = this.read(length);
-        return new host.BrowserHost.BinaryStream(buffer.slice(0));
-    }
-
-    seek(position) {
-        this._position = position >= 0 ? position : this._length + position;
-    }
-
-    skip(offset) {
-        this._position += offset;
-    }
-
-    peek(length) {
-        if (this._position === 0 && length === undefined) {
-            return this._buffer;
-        }
-        const position = this._position;
-        this.skip(length !== undefined ? length : this._length - this._position);
-        const end = this._position;
-        this.seek(position);
-        return this._buffer.subarray(position, end);
-    }
-
-    read(length) {
-        if (this._position === 0 && length === undefined) {
-            this._position = this._length;
-            return this._buffer;
-        }
-        const position = this._position;
-        this.skip(length !== undefined ? length : this._length - this._position);
-        return this._buffer.subarray(position, this._position);
-    }
-
-    byte() {
-        const position = this._position;
-        this.skip(1);
-        return this._buffer[position];
-    }
-};
-
 host.BrowserHost.BrowserFileContext = class {
 
     constructor(host, file, blobs) {
@@ -710,9 +657,9 @@ host.BrowserHost.BrowserFileContext = class {
         return this._stream;
     }
 
-    request(file, encoding, base) {
-        if (base !== undefined) {
-            return this._host.request(file, encoding, base);
+    request(file, encoding, basename) {
+        if (basename !== undefined) {
+            return this._host.request(file, encoding, basename);
         }
         const blob = this._blobs[file];
         if (!blob) {
@@ -721,7 +668,14 @@ host.BrowserHost.BrowserFileContext = class {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = (e) => {
-                resolve(encoding ? e.target.result : new host.BrowserHost.BinaryStream(new Uint8Array(e.target.result)));
+                if (encoding) {
+                    resolve(e.target.result);
+                } else {
+                    const base = this._host.window.base;
+                    const buffer = new Uint8Array(e.target.result);
+                    const stream = new base.BinaryStream(buffer);
+                    resolve(stream);
+                }
             };
             reader.onerror = (e) => {
                 e = e || this.window.event;

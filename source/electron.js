@@ -329,9 +329,9 @@ host.ElectronHost = class {
         electron.ipcRenderer.send('execute', { name: name, value: value });
     }
 
-    request(file, encoding, base) {
+    request(file, encoding, basename) {
         return new Promise((resolve, reject) => {
-            const pathname = path.join(base || __dirname, file);
+            const pathname = path.join(basename || __dirname, file);
             fs.stat(pathname, (err, stat) => {
                 if (err && err.code === 'ENOENT') {
                     reject(new Error("The file '" + file + "' does not exist."));
@@ -344,7 +344,7 @@ host.ElectronHost = class {
                         if (err) {
                             reject(err);
                         } else {
-                            resolve(encoding ? data : new host.ElectronHost.BinaryStream(data));
+                            resolve(encoding ? data : new base.BinaryStream(data));
                         }
                     });
                 } else if (encoding) {
@@ -661,69 +661,6 @@ host.Telemetry = class {
         request.on('error', (/* error */) => {});
         request.write(body);
         request.end();
-    }
-};
-
-host.ElectronHost.BinaryStream = class {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-        this._length = buffer.length;
-        this._position = 0;
-    }
-
-    get position() {
-        return this._position;
-    }
-
-    get length() {
-        return this._length;
-    }
-
-    stream(length) {
-        const buffer = this.read(length);
-        return new host.ElectronHost.BinaryStream(buffer.slice(0));
-    }
-
-    seek(position) {
-        this._position = position >= 0 ? position : this._length + position;
-        if (this._position > this._buffer.length) {
-            throw new Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
-        }
-    }
-
-    skip(offset) {
-        this._position += offset;
-        if (this._position > this._buffer.length) {
-            throw new Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
-        }
-    }
-
-    peek(length) {
-        if (this._position === 0 && length === undefined) {
-            return this._buffer;
-        }
-        const position = this._position;
-        this.skip(length !== undefined ? length : this._length - this._position);
-        const end = this._position;
-        this.seek(position);
-        return this._buffer.subarray(position, end);
-    }
-
-    read(length) {
-        if (this._position === 0 && length === undefined) {
-            this._position = this._length;
-            return this._buffer;
-        }
-        const position = this._position;
-        this.skip(length !== undefined ? length : this._length - this._position);
-        return this._buffer.subarray(position, this._position);
-    }
-
-    byte() {
-        const position = this._position;
-        this.skip(1);
-        return this._buffer[position];
     }
 };
 

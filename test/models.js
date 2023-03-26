@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const process = require('process');
 
+const base = require('../source/base');
 const view = require('../source/view');
 const zip = require('../source/zip');
 const tar = require('../source/tar');
@@ -55,8 +56,8 @@ host.TestHost = class {
         return require(file);
     }
 
-    async request(file, encoding, base) {
-        const pathname = path.join(base || this._sourceDir, file);
+    async request(file, encoding, basename) {
+        const pathname = path.join(basename || this._sourceDir, file);
         if (!fs.existsSync(pathname)) {
             throw new Error("The file '" + file + "' does not exist.");
         }
@@ -64,7 +65,7 @@ host.TestHost = class {
             return fs.readFileSync(pathname, encoding);
         }
         const buffer = fs.readFileSync(pathname, null);
-        return new host.TestHost.BinaryStream(buffer);
+        return new base.BinaryStream(buffer);
     }
 
     event_ua(/* category, action, label, value */) {
@@ -75,69 +76,6 @@ host.TestHost = class {
 
     exception(err /*, fatal */) {
         throw err;
-    }
-};
-
-host.TestHost.BinaryStream = class {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-        this._length = buffer.length;
-        this._position = 0;
-    }
-
-    get position() {
-        return this._position;
-    }
-
-    get length() {
-        return this._length;
-    }
-
-    stream(length) {
-        const buffer = this.read(length);
-        return new host.TestHost.BinaryStream(buffer.slice(0));
-    }
-
-    seek(position) {
-        this._position = position >= 0 ? position : this._length + position;
-        if (this._position > this._buffer.length) {
-            throw new Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
-        }
-    }
-
-    skip(offset) {
-        this._position += offset;
-        if (this._position > this._buffer.length) {
-            throw new Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
-        }
-    }
-
-    peek(length) {
-        if (this._position === 0 && length === undefined) {
-            return this._buffer;
-        }
-        const position = this._position;
-        this.skip(length !== undefined ? length : this._length - this._position);
-        const end = this._position;
-        this.seek(position);
-        return this._buffer.subarray(position, end);
-    }
-
-    read(length) {
-        if (this._position === 0 && length === undefined) {
-            this._position = this._length;
-            return this._buffer;
-        }
-        const position = this._position;
-        this.skip(length !== undefined ? length : this._length - this._position);
-        return this._buffer.subarray(position, this._position);
-    }
-
-    byte() {
-        const position = this._position;
-        this.skip(1);
-        return this._buffer[position];
     }
 };
 
@@ -499,7 +437,7 @@ class Target {
         let context = null;
         if (stat.isFile()) {
             const buffer = fs.readFileSync(target, null);
-            const reader = new host.TestHost.BinaryStream(buffer);
+            const reader = new base.BinaryStream(buffer);
             const dirname = path.dirname(target);
             context = new host.TestHost.Context(this.host, dirname, identifier, reader);
         } else if (stat.isDirectory()) {
@@ -512,7 +450,7 @@ class Target {
                         walk(pathname);
                     } else if (stat.isFile()) {
                         const buffer = fs.readFileSync(pathname, null);
-                        const stream = new host.TestHost.BinaryStream(buffer);
+                        const stream = new base.BinaryStream(buffer);
                         const name = pathname.split(path.sep).join(path.posix.sep);
                         entries.set(name, stream);
                     }

@@ -40,7 +40,7 @@ base.Int64 = class Int64 {
     }
 
     not() {
-        return new Int64(~this.low, ~this.high);
+        return new base.Int64(~this.low, ~this.high);
     }
 
     equals(other) {
@@ -105,7 +105,7 @@ base.Int64 = class Int64 {
         }
         if (this.high < 0) {
             if (this.equals(base.Int64.min)) {
-                const r = new Int64(radix, 0);
+                const r = new base.Int64(radix, 0);
                 const div = this.divide(r);
                 const remainder = div.multiply(r).subtract(this);
                 return div.toString(r) + (remainder.low >>> 0).toString(r);
@@ -633,6 +633,69 @@ DataView.prototype.setComplex128 = DataView.prototype.setComplex128 || function(
     }
 };
 
+base.BinaryStream = class {
+
+    constructor(buffer) {
+        this._buffer = buffer;
+        this._length = buffer.length;
+        this._position = 0;
+    }
+
+    get position() {
+        return this._position;
+    }
+
+    get length() {
+        return this._length;
+    }
+
+    stream(length) {
+        const buffer = this.read(length);
+        return new base.BinaryStream(buffer.slice(0));
+    }
+
+    seek(position) {
+        this._position = position >= 0 ? position : this._length + position;
+        if (this._position > this._buffer.length) {
+            throw new Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
+    }
+
+    skip(offset) {
+        this._position += offset;
+        if (this._position > this._buffer.length) {
+            throw new Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
+    }
+
+    peek(length) {
+        if (this._position === 0 && length === undefined) {
+            return this._buffer;
+        }
+        const position = this._position;
+        this.skip(length !== undefined ? length : this._length - this._position);
+        const end = this._position;
+        this.seek(position);
+        return this._buffer.subarray(position, end);
+    }
+
+    read(length) {
+        if (this._position === 0 && length === undefined) {
+            this._position = this._length;
+            return this._buffer;
+        }
+        const position = this._position;
+        this.skip(length !== undefined ? length : this._length - this._position);
+        return this._buffer.subarray(position, this._position);
+    }
+
+    byte() {
+        const position = this._position;
+        this.skip(1);
+        return this._buffer[position];
+    }
+};
+
 base.BinaryReader = class {
 
     constructor(data) {
@@ -945,6 +1008,7 @@ if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.Uint64 = base.Uint64;
     module.exports.Complex64 = base.Complex64;
     module.exports.Complex128 = base.Complex128;
+    module.exports.BinaryStream = base.BinaryStream;
     module.exports.BinaryReader = base.BinaryReader;
     module.exports.Telemetry = base.Telemetry;
     module.exports.Metadata = base.Metadata;
