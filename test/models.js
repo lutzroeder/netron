@@ -637,6 +637,9 @@ global.window.__host__ = new host.TestHost();
 
 next().catch((error) => {
     /* eslint-disable no-console */
-    console.error(error.message);
+    console.error(error.name + ': ' + error.message);
+    if (error.cause) {
+        console.error('  ' + error.cause.name + ': ' + error.cause.message);
+    }
     /* eslint-enable no-console */
 });
