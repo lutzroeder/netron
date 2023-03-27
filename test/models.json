@@ -6479,21 +6479,21 @@
   {
     "type":     "torch",
     "target":   "2ch_notredame.t7",
-    "source":   "https://s3.amazonaws.com/modelzoo-networks/cvpr2015matching_networks.tar.gz[2ch/2ch_notredame.t7]",
+    "source":   "https://github.com/lutzroeder/netron/files/11073797/2ch_notredame.t7.zip[2ch_notredame.t7]",
     "format":   "Torch v7",
     "link":     "https://github.com/szagoruyko/cvpr15deepcompare"
   },
   {
     "type":     "torch",
     "target":   "2ch2stream_liberty.t7",
-    "source":   "https://s3.amazonaws.com/modelzoo-networks/cvpr2015matching_networks.tar.gz[2ch2stream/2ch2stream_liberty.t7]",
+    "source":   "https://github.com/lutzroeder/netron/files/11073798/2ch2stream_liberty.t7.zip[2ch2stream_liberty.t7]",
     "format":   "Torch v7",
     "link":     "https://github.com/szagoruyko/cvpr15deepcompare"
   },
   {
     "type":     "torch",
     "target":   "apple2orange.t7",
-    "source":   "https://people.eecs.berkeley.edu/~taesung_park/CycleGAN/models/apple2orange.t7",
+    "source":   "https://github.com/lutzroeder/netron/files/11073799/apple2orange.t7.zip[apple2orange.t7]",
     "format":   "Torch v7",
     "link":     "https://github.com/junyanz/CycleGAN"
   },
@@ -6584,16 +6584,9 @@
   {
     "type":     "torch",
     "target":   "siam_liberty.t7",
-    "source":   "https://s3.amazonaws.com/modelzoo-networks/cvpr2015matching_networks.tar.gz[siam/siam_liberty.t7]",
+    "source":   "https://github.com/lutzroeder/netron/files/11073755/siam_liberty.t7.zip[siam_liberty.t7]",
     "format":   "Torch v7",
     "link":     "https://github.com/szagoruyko/cvpr15deepcompare"
-  },
-  {
-    "type":     "torch",
-    "target":   "soundnet5_final.t7",
-    "source":   "http://data.csail.mit.edu/soundnet/soundnet_models_public.zip[soundnet_models_public/soundnet5_final.t7]",
-    "format":   "Torch v7",
-    "link":     "https://github.com/afperezm/acoustic-images-distillation"
   },
   {
     "type":     "torch",
