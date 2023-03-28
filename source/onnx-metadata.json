@@ -4556,6 +4556,10 @@
         "code": "node = onnx.helper.make_node(\n    \"CenterCropPad\",\n    inputs=[\"x\", \"shape\"],\n    outputs=[\"y\"],\n    axes=[0, 1],\n)\n\n# Cropping on first dim, padding on second, third stays the same\nx = np.random.randn(20, 8, 3).astype(np.float32)\nshape = np.array([10, 9], dtype=np.int64)\ny = np.zeros([10, 9, 3], dtype=np.float32)\ny[:, :8, :] = x[5:15, :, :]\n\nexpect(\n    node,\n    inputs=[x, shape],\n    outputs=[y],\n    name=\"test_center_crop_pad_crop_axes_hwc\",\n)"
       },
       {
+        "summary": "center_crop_pad_crop_negative_axes_hwc",
+        "code": "node = onnx.helper.make_node(\n    \"CenterCropPad\",\n    inputs=[\"x\", \"shape\"],\n    outputs=[\"y\"],\n    axes=[-3, -2],\n)\n\n# Cropping on first dim, padding on second, third stays the same\nx = np.random.randn(20, 8, 3).astype(np.float32)\nshape = np.array([10, 9], dtype=np.int64)\ny = np.zeros([10, 9, 3], dtype=np.float32)\ny[:, :8, :] = x[5:15, :, :]\n\nexpect(\n    node,\n    inputs=[x, shape],\n    outputs=[y],\n    name=\"test_center_crop_pad_crop_negative_axes_hwc\",\n)"
+      },
+      {
         "summary": "center_crop_pad_pad",
         "code": "node = onnx.helper.make_node(\n    \"CenterCropPad\",\n    inputs=[\"x\", \"shape\"],\n    outputs=[\"y\"],\n)\n\n# First dim is even diff, second is uneven\nx = np.random.randn(10, 7, 3).astype(np.float32)\nshape = np.array([20, 10, 3], dtype=np.int64)\ny = np.zeros([20, 10, 3], dtype=np.float32)\ny[5:15, 1:8, :] = x\n\nexpect(node, inputs=[x, shape], outputs=[y], name=\"test_center_crop_pad_pad\")"
       }
@@ -22314,6 +22318,10 @@
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([1, 3], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [1, 3],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_axes\",\n)"
       },
       {
+        "summary": "constant_pad_negative_axes",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([-3, -1], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [-3, -1],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_negative_axes\",\n)"
+      },
+      {
         "summary": "reflection_edge_and_wrap_pad",
         "code": "for mode in [\"edge\", \"reflect\", \"wrap\"]:\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
@@ -22384,6 +22392,10 @@
       {
         "summary": "constant_pad_axes",
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([1, 3], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [1, 3],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_axes\",\n)"
+      },
+      {
+        "summary": "constant_pad_negative_axes",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([-3, -1], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [-3, -1],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_negative_axes\",\n)"
       },
       {
         "summary": "reflection_edge_and_wrap_pad",
@@ -22464,6 +22476,10 @@
       {
         "summary": "constant_pad_axes",
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([1, 3], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [1, 3],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_axes\",\n)"
+      },
+      {
+        "summary": "constant_pad_negative_axes",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([-3, -1], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [-3, -1],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_negative_axes\",\n)"
       },
       {
         "summary": "reflection_edge_and_wrap_pad",
@@ -22549,6 +22565,10 @@
       {
         "summary": "constant_pad_axes",
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([1, 3], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [1, 3],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_axes\",\n)"
+      },
+      {
+        "summary": "constant_pad_negative_axes",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([-3, -1], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [-3, -1],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_negative_axes\",\n)"
       },
       {
         "summary": "reflection_edge_and_wrap_pad",
@@ -22650,6 +22670,10 @@
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([1, 3], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [1, 3],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_axes\",\n)"
       },
       {
+        "summary": "constant_pad_negative_axes",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([-3, -1], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [-3, -1],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_negative_axes\",\n)"
+      },
+      {
         "summary": "reflection_edge_and_wrap_pad",
         "code": "for mode in [\"edge\", \"reflect\", \"wrap\"]:\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
@@ -22747,6 +22771,10 @@
       {
         "summary": "constant_pad_axes",
         "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([1, 3], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [1, 3],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_axes\",\n)"
+      },
+      {
+        "summary": "constant_pad_negative_axes",
+        "code": "node = onnx.helper.make_node(\n    \"Pad\", inputs=[\"x\", \"pads\", \"value\", \"axes\"], outputs=[\"y\"], mode=\"constant\"\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\npads = np.array([0, 3, 0, 4]).astype(\n    np.int64\n)  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\nvalue = np.float32(1.2)\naxes = np.array([-3, -1], dtype=np.int64)\ny = pad_impl(\n    x,\n    pads,\n    \"constant\",\n    1.2,\n    [-3, -1],\n)\n\nexpect(\n    node,\n    inputs=[x, pads, value, axes],\n    outputs=[y],\n    name=\"test_constant_pad_negative_axes\",\n)"
       },
       {
         "summary": "reflection_edge_and_wrap_pad",
