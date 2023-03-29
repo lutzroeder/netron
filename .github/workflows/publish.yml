@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ macos-latest, ubuntu-latest, windows-latest ]
+        os: [ ubuntu-latest ]
 
     steps:
       - name: Check out Git repository
@@ -32,7 +32,7 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install npm packages 
+      - name: Install npm packages
         run: npm install
 
       - name: Lint
@@ -40,6 +40,7 @@ jobs:
 
       - name: Publish Electron
         shell: bash
+        if: github.repository == 'lutzroeder/netron'
         env:
           GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
           API_KEY_ID: ${{ secrets.API_KEY_ID }}
@@ -69,7 +70,7 @@ jobs:
               ;;
           esac
 
-      - if: startsWith(matrix.os, 'ubuntu')
+      - if: github.repository == 'lutzroeder/netron' && startsWith(matrix.os, 'ubuntu')
         name: Publish Python
         env:
           TWINE_USERNAME: __token__
@@ -83,14 +84,14 @@ jobs:
           GITHUB_USER: ${{ secrets.PUBLISH_GITHUB_USER }}
         run: npm run publish web
 
-      - if: startsWith(matrix.os, 'macos')
+      - if: github.repository == 'lutzroeder/netron' && startsWith(matrix.os, 'macos')
         name: Publish cask
         env:
           GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
           GITHUB_USER: ${{ secrets.PUBLISH_GITHUB_USER }}
         run: npm run publish cask
 
-      - if: startsWith(matrix.os, 'windows')
+      - if: github.repository == 'lutzroeder/netron' && startsWith(matrix.os, 'windows')
         name: Publish winget
         env:
           GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
