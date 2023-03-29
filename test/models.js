@@ -14,7 +14,7 @@ global.protobuf = require('../source/protobuf');
 global.flatbuffers = require('../source/flatbuffers');
 global.TextDecoder = TextDecoder;
 
-const pattern = process.argv.length > 2 ? process.argv[2] : '';
+const patterns = process.argv.length > 2 ? process.argv.slice(2) : [];
 const targets = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8')).reverse();
 
 const host = {};
@@ -333,12 +333,19 @@ class Target {
         this.folder = path.normalize(path.join(__dirname, '..', 'third_party' , 'test', item.type));
     }
 
-    match(pattern) {
-        pattern = pattern.split('*');
-        for (const target of this.target) {
-            const name = this.type + '/' + target;
-            if (pattern.length > 0 && name.startsWith(pattern[0]) && (pattern.length === 1 || name.endsWith(pattern[1]))) {
-                return true;
+    match(patterns) {
+        if (patterns.length === 0) {
+            return true;
+        }
+        for (const pattern of patterns) {
+            for (const target of this.target) {
+                const name = this.type + '/' + target;
+                const match = pattern.indexOf('*') !== -1 ?
+                    new RegExp('^' + pattern.replace('*', '.*') + '$').test(name) :
+                    name.startsWith(pattern);
+                if (match) {
+                    return true;
+                }
             }
         }
         return false;
@@ -625,7 +632,7 @@ const next = async () => {
     if (targets.length > 0) {
         const item = targets.pop();
         const target = new Target(global.window.__host__, item);
-        if (target.match(pattern)) {
+        if (target.match(patterns)) {
             await target.execute();
         }
         next();
