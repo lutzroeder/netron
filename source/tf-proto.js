@@ -3561,7 +3561,7 @@ $root.tensorflow.StructuredValue = class StructuredValue {
     }
 
     get kind() {
-        $root.tensorflow.StructuredValue.kindSet = $root.tensorflow.StructuredValue.kindSet || new Set([ "none_value", "float64_value", "int64_value", "string_value", "bool_value", "tensor_shape_value", "tensor_dtype_value", "tensor_spec_value", "type_spec_value", "bounded_tensor_spec_value", "list_value", "tuple_value", "dict_value", "named_tuple_value"]);
+        $root.tensorflow.StructuredValue.kindSet = $root.tensorflow.StructuredValue.kindSet || new Set([ "none_value", "float64_value", "int64_value", "string_value", "bool_value", "tensor_shape_value", "tensor_dtype_value", "tensor_spec_value", "type_spec_value", "bounded_tensor_spec_value", "list_value", "tuple_value", "dict_value", "named_tuple_value", "tensor_value"]);
         return Object.keys(this).find((key) => $root.tensorflow.StructuredValue.kindSet.has(key) && this[key] != null);
     }
 
@@ -3612,6 +3612,9 @@ $root.tensorflow.StructuredValue = class StructuredValue {
                     break;
                 case 54:
                     message.named_tuple_value = $root.tensorflow.NamedTupleValue.decode(reader, reader.uint32());
+                    break;
+                case 55:
+                    message.tensor_value = $root.tensorflow.TensorProto.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -3668,6 +3671,9 @@ $root.tensorflow.StructuredValue = class StructuredValue {
                     break;
                 case "named_tuple_value":
                     message.named_tuple_value = $root.tensorflow.NamedTupleValue.decodeText(reader);
+                    break;
+                case "tensor_value":
+                    message.tensor_value = $root.tensorflow.TensorProto.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
