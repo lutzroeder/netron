@@ -64,7 +64,153 @@ $root.paddle.framework.proto.AttrType = {
     "FLOAT64S": 12,
     "VAR": 13,
     "VARS": 14,
-    "FLOAT64": 15
+    "FLOAT64": 15,
+    "SCALAR": 16,
+    "SCALARS": 17
+};
+
+$root.paddle.framework.proto.Complex = class Complex {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.paddle.framework.proto.Complex();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.r = reader.double();
+                    break;
+                case 2:
+                    message.i = reader.double();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        if (!Object.prototype.hasOwnProperty.call(message, 'r')) {
+            throw new protobuf.Error("Excepted 'r'.");
+        }
+        if (!Object.prototype.hasOwnProperty.call(message, 'i')) {
+            throw new protobuf.Error("Excepted 'i'.");
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.paddle.framework.proto.Complex();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "r":
+                    message.r = reader.double();
+                    break;
+                case "i":
+                    message.i = reader.double();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        if (!Object.prototype.hasOwnProperty.call(message, "r")) {
+            throw new protobuf.Error("Excepted 'r'.");
+        }
+        if (!Object.prototype.hasOwnProperty.call(message, "i")) {
+            throw new protobuf.Error("Excepted 'i'.");
+        }
+        return message;
+    }
+};
+
+$root.paddle.framework.proto.Complex.prototype.r = 0;
+$root.paddle.framework.proto.Complex.prototype.i = 0;
+
+$root.paddle.framework.proto.Scalar = class Scalar {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.paddle.framework.proto.Scalar();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.type = reader.int32();
+                    break;
+                case 2:
+                    message.b = reader.bool();
+                    break;
+                case 3:
+                    message.i = reader.int64();
+                    break;
+                case 4:
+                    message.r = reader.double();
+                    break;
+                case 5:
+                    message.c = $root.paddle.framework.proto.Complex.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        if (!Object.prototype.hasOwnProperty.call(message, 'type')) {
+            throw new protobuf.Error("Excepted 'type'.");
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.paddle.framework.proto.Scalar();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "type":
+                    message.type = reader.enum($root.paddle.framework.proto.Scalar.Type);
+                    break;
+                case "b":
+                    message.b = reader.bool();
+                    break;
+                case "i":
+                    message.i = reader.int64();
+                    break;
+                case "r":
+                    message.r = reader.double();
+                    break;
+                case "c":
+                    message.c = $root.paddle.framework.proto.Complex.decodeText(reader);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        if (!Object.prototype.hasOwnProperty.call(message, "type")) {
+            throw new protobuf.Error("Excepted 'type'.");
+        }
+        return message;
+    }
+};
+
+$root.paddle.framework.proto.Scalar.prototype.type = 1;
+$root.paddle.framework.proto.Scalar.prototype.b = false;
+$root.paddle.framework.proto.Scalar.prototype.i = protobuf.Int64.create(0);
+$root.paddle.framework.proto.Scalar.prototype.r = 0;
+$root.paddle.framework.proto.Scalar.prototype.c = null;
+
+$root.paddle.framework.proto.Scalar.Type = {
+    "BOOLEAN": 1,
+    "LONG": 2,
+    "FLOAT64": 3,
+    "COMPLEX128": 4
 };
 
 $root.paddle.framework.proto.OpDesc = class OpDesc {
@@ -154,6 +300,7 @@ $root.paddle.framework.proto.OpDesc.Attr = class Attr {
         this.longs = [];
         this.float64s = [];
         this.vars_name = [];
+        this.scalars = [];
     }
 
     static decode(reader, length) {
@@ -215,6 +362,12 @@ $root.paddle.framework.proto.OpDesc.Attr = class Attr {
                     break;
                 case 19:
                     message.float64 = reader.double();
+                    break;
+                case 20:
+                    message.scalar = $root.paddle.framework.proto.Scalar.decode(reader, reader.uint32());
+                    break;
+                case 21:
+                    message.scalars.push($root.paddle.framework.proto.Scalar.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -290,6 +443,12 @@ $root.paddle.framework.proto.OpDesc.Attr = class Attr {
                 case "float64":
                     message.float64 = reader.double();
                     break;
+                case "scalar":
+                    message.scalar = $root.paddle.framework.proto.Scalar.decodeText(reader);
+                    break;
+                case "scalars":
+                    message.scalars.push($root.paddle.framework.proto.Scalar.decodeText(reader));
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -315,6 +474,7 @@ $root.paddle.framework.proto.OpDesc.Attr.prototype.block_idx = 0;
 $root.paddle.framework.proto.OpDesc.Attr.prototype.l = protobuf.Int64.create(0);
 $root.paddle.framework.proto.OpDesc.Attr.prototype.var_name = "";
 $root.paddle.framework.proto.OpDesc.Attr.prototype.float64 = 0;
+$root.paddle.framework.proto.OpDesc.Attr.prototype.scalar = null;
 
 $root.paddle.framework.proto.OpDesc.Var = class Var {
 
