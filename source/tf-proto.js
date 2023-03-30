@@ -9419,6 +9419,9 @@ $root.tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
                 case 9:
                     message.recoverable_jobs.push(reader.string());
                     break;
+                case 11:
+                    message.allow_new_incarnation_to_reconnect = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -9460,6 +9463,9 @@ $root.tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
                 case "recoverable_jobs":
                     reader.array(message.recoverable_jobs, () => reader.string());
                     break;
+                case "allow_new_incarnation_to_reconnect":
+                    message.allow_new_incarnation_to_reconnect = reader.bool();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -9476,6 +9482,7 @@ $root.tensorflow.CoordinationServiceConfig.prototype.cluster_register_timeout_in
 $root.tensorflow.CoordinationServiceConfig.prototype.heartbeat_timeout_in_ms = protobuf.Int64.create(0);
 $root.tensorflow.CoordinationServiceConfig.prototype.shutdown_barrier_timeout_in_ms = protobuf.Int64.create(0);
 $root.tensorflow.CoordinationServiceConfig.prototype.agent_destruction_without_shutdown = false;
+$root.tensorflow.CoordinationServiceConfig.prototype.allow_new_incarnation_to_reconnect = false;
 
 $root.tensorflow.MemmappedFileSystemDirectoryElement = class MemmappedFileSystemDirectoryElement {
 
