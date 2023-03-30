@@ -3407,6 +3407,9 @@ pytorch.Utility = class {
         if (weights) {
             return weights;
         }
+        if (data && Array.isArray(data) && data === Object(data) && Object.entries(data).length === 0) {
+            return [];
+        }
         throw new pytorch.Error('File does not contain root module or state dictionary.');
     }
 
