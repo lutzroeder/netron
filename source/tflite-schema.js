@@ -403,7 +403,8 @@ $root.tflite.BuiltinOperator = {
     ATAN2: 156,
     UNSORTED_SEGMENT_MIN: 157,
     SIGN: 158,
-    BITCAST: 159
+    BITCAST: 159,
+    BITWISE_XOR: 160
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -534,6 +535,7 @@ $root.tflite.BuiltinOptions = class {
             case 122: return $root.tflite.ATan2Options.decode(reader, position);
             case 123: return $root.tflite.SignOptions.decode(reader, position);
             case 124: return $root.tflite.BitcastOptions.decode(reader, position);
+            case 125: return $root.tflite.BitwiseXorOptions.decode(reader, position);
             default: return undefined;
         }
     }
@@ -664,6 +666,7 @@ $root.tflite.BuiltinOptions = class {
             case 'ATan2Options': return $root.tflite.ATan2Options.decodeText(reader, json);
             case 'SignOptions': return $root.tflite.SignOptions.decodeText(reader, json);
             case 'BitcastOptions': return $root.tflite.BitcastOptions.decodeText(reader, json);
+            case 'BitwiseXorOptions': return $root.tflite.BitwiseXorOptions.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -2610,6 +2613,19 @@ $root.tflite.BitcastOptions = class BitcastOptions {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.tflite.BitcastOptions();
+        return $;
+    }
+};
+
+$root.tflite.BitwiseXorOptions = class BitwiseXorOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.tflite.BitwiseXorOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.tflite.BitwiseXorOptions();
         return $;
     }
 };
