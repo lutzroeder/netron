@@ -14258,6 +14258,20 @@
     ]
   },
   {
+    "name": "quantized::conv1d_prepack",
+    "inputs": [
+      { "name": "weight", "type": "Tensor" },
+      { "name": "bias", "type": "Tensor", "optional": true },
+      { "name": "stride", "type": "int64[]" },
+      { "name": "padding", "type": "int64[]" },
+      { "name": "dilation", "type": "int64[]" },
+      { "name": "groups", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "__torch__.torch.classes.quantized.Conv2dPackedParamsBase" }
+    ]
+  },
+  {
     "name": "quantized::conv1d_relu",
     "category": "Layer",
     "inputs": [
@@ -14459,6 +14473,20 @@
     ]
   },
   {
+    "name": "quantized::conv3d_prepack",
+    "inputs": [
+      { "name": "weight", "type": "Tensor" },
+      { "name": "bias", "type": "Tensor", "optional": true },
+      { "name": "stride", "type": "int64[]" },
+      { "name": "padding", "type": "int64[]" },
+      { "name": "dilation", "type": "int64[]" },
+      { "name": "groups", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "__torch__.torch.classes.quantized.Conv3dPackedParamsBase" }
+    ]
+  },
+  {
     "name": "quantized::conv3d_relu",
     "category": "Layer",
     "inputs": [
@@ -14486,6 +14514,20 @@
     ],
     "outputs": [
       { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "quantized::conv_prepack",
+    "inputs": [
+      { "name": "weight", "type": "Tensor" },
+      { "name": "bias", "type": "Tensor", "optional": true },
+      { "name": "stride", "type": "int64[]" },
+      { "name": "padding", "type": "int64[]" },
+      { "name": "dilation", "type": "int64[]" },
+      { "name": "groups", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "__torch__.torch.classes.quantized.Conv2dPackedParamsBase" }
     ]
   },
   {
