@@ -2302,6 +2302,13 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                         result.push(tensors);
                         break;
                     }
+                    case '__torch__.torch.classes.xnnpack.Conv2dOpContext':
+                    case '__torch__.torch.classes.xnnpack.LinearOpContext': {
+                        const value = this.invoke(parameter.type, []);
+                        this.variable(value, node);
+                        result.push(value);
+                        break;
+                    }
                     default: {
                         const output = this.invoke('torch.Tensor', []);
                         output.resize_([]);
@@ -2465,6 +2472,9 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                             case 'Scalar':
                             case 'Tensor':
                             case 'Tensor[]':
+                                break;
+                            case '__torch__.torch.classes.xnnpack.Conv2dOpContext':
+                            case '__torch__.torch.classes.xnnpack.LinearOpContext':
                                 break;
                             default: {
                                 if (!outputTypes || schema.outputs.length !== 1 || schema.outputs[0].type !== outputTypes[0]) {

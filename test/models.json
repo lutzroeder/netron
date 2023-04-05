@@ -4537,6 +4537,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "model.ptl",
+    "source":   "https://github.com/lutzroeder/netron/files/11149538/model.ptl.zip[model.ptl]",
+    "format":   "TorchScript v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/1067"
+  },
+  {
+    "type":     "pytorch",
     "target":   "model_0_epochs.pt",
     "source":   "https://github.com/lutzroeder/netron/files/6765569/model_0_epochs.pt.zip[model_0_epochs.pt]",
     "format":   "TorchScript v1.6",

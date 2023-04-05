@@ -4185,18 +4185,6 @@ python.Execution = class {
         this.registerFunction('builtins.uninitialized', function(/* type */) {
             return undefined;
         });
-        this.registerFunction('ops.prepacked.linear_clamp_prepack', function(W, B, output_min, output_max) {
-            const params = self.invoke('__torch__.torch.classes.xnnpack.LinearOpContext', []);
-            params.weight = W;
-            params.bias = B;
-            if (output_min !== undefined) {
-                params.output_min = output_min;
-            }
-            if (output_max !== undefined) {
-                params.output_max = output_max;
-            }
-            return params;
-        });
         this.registerFunction('ops.prim.data', function(tensor) {
             return tensor;
         });
