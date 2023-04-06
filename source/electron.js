@@ -1,4 +1,6 @@
 
+/* eslint-env es2017 */
+
 var host = host || {};
 
 const electron = require('electron');
@@ -12,13 +14,13 @@ const base = require('./base');
 host.ElectronHost = class {
 
     constructor() {
+        this._document = window.document;
+        this._window = window;
         process.on('uncaughtException', (err) => {
             this.exception(err, true);
             this._message(err.message);
             this.document.body.setAttribute('class', 'welcome message');
         });
-        this._document = window.document;
-        this._window = window;
         this._window.eval = global.eval = () => {
             throw new Error('window.eval() not supported.');
         };
@@ -32,14 +34,15 @@ host.ElectronHost = class {
         });
         this._environment = electron.ipcRenderer.sendSync('get-environment', {});
         this._environment.menu = this._environment.titlebar && this._environment.platform !== 'darwin';
+        this._element('menu-button').style.opacity = 0;
         this._queue = [];
         if (!/^\d\.\d\.\d$/.test(this.version)) {
             throw new Error('Invalid version.');
         }
     }
 
-    static create() {
-        return Promise.resolve(new host.ElectronHost());
+    static async create() {
+        return new host.ElectronHost();
     }
 
     get window() {
@@ -58,79 +61,71 @@ host.ElectronHost = class {
         return 'Electron';
     }
 
-    view(view) {
+    async view(view) {
         this._view = view;
         electron.ipcRenderer.on('open', (_, data) => {
             this._openPath(data.path);
         });
-        return this._age().then(() => this._consent()).then(() => this._telemetry());
+        await this._age();
+        await this._consent();
+        await this._telemetry();
     }
 
-    _age() {
+    async _age() {
         const age = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
-        if (age <= 180) {
-            return Promise.resolve();
+        if (age > 180) {
+            this._view.show('welcome');
+            for (;;) {
+                /* eslint-disable no-await-in-loop */
+                await this._message('Please update to the newest version.', 'Download');
+                /* eslint-enable no-await-in-loop */
+                const link = this._element('logo-github').href;
+                this.openURL(link);
+            }
         }
-        const callback = () => {
-            const link = this._element('logo-github').href;
-            this.openURL(link);
-        };
-        this._message('Please update to the newest version.', 'Download', callback, true);
-        return new Promise(() => {});
     }
 
-    _consent() {
+    async _consent() {
         const time = this._getConfiguration('consent');
-        if (time && (Date.now() - time) < 30 * 24 * 60 * 60 * 1000) {
-            return Promise.resolve();
-        }
-        const consent = () => {
-            return new Promise((resolve /*, reject */) => {
-                this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept', () => {
-                    this._setConfiguration('consent', Date.now());
-                    resolve();
-                });
-            });
-        };
-        return this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 2000).then((text) => {
+        if (!time || (Date.now() - time) > 30 * 24 * 60 * 60 * 1000) {
+            let consent = true;
             try {
-                const json = JSON.parse(text);
+                const content = await this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 2000);
+                const json = JSON.parse(content);
                 const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
                 if (json && json.country && countries.indexOf(json.country) === -1) {
-                    this._setConfiguration('consent', Date.now());
-                    return Promise.resolve();
+                    consent = false;
                 }
-                return consent();
-            } catch (err) {
-                return consent();
+            } catch (error) {
+                // continue regardless of error
             }
-        }).catch(() => {
-            return consent();
-        });
+            if (consent) {
+                await this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept');
+            }
+            this._setConfiguration('consent', Date.now());
+        }
     }
 
-    _telemetry() {
+    async _telemetry() {
         if (this._environment.packaged) {
             const measurement_id = '848W2NVWVH';
             const user = this._getConfiguration('user') || null;
             const session = this._getConfiguration('session') || null;
             this._telemetry_ga4 = new base.Telemetry(this._window, 'G-' + measurement_id, user && user.indexOf('.') !== -1 ? user : null, session);
-            this._telemetry_ga4.start().then(() => {
-                this._telemetry_ga4.send('page_view', {
-                    app_name: this.type,
-                    app_version: this.version,
-                });
-                this._telemetry_ga4.send('scroll', {
-                    percent_scrolled: 90,
-                    app_name: this.type,
-                    app_version: this.version
-                });
-                this._setConfiguration('user', this._telemetry_ga4.get('client_id'));
-                this._setConfiguration('session', this._telemetry_ga4.session);
-                this._telemetry_ua = new host.Telemetry('UA-54146-13', this._telemetry_ga4.get('client_id'), navigator.userAgent, this.type, this.version);
+            await this._telemetry_ga4.start();
+            this._telemetry_ga4.send('page_view', {
+                app_name: this.type,
+                app_version: this.version,
             });
+            this._telemetry_ga4.send('scroll', {
+                percent_scrolled: 90,
+                app_name: this.type,
+                app_version: this.version
+            });
+            this._setConfiguration('user', this._telemetry_ga4.get('client_id'));
+            this._setConfiguration('session', this._telemetry_ga4.session);
+            this._telemetry_ua = new host.Telemetry('UA-54146-13', this._telemetry_ga4.get('client_id'), navigator.userAgent, this.type, this.version);
         }
-        return Promise.resolve();
     }
 
     start() {
@@ -277,13 +272,8 @@ host.ElectronHost = class {
         return result === 0;
     }
 
-    require(id) {
-        try {
-            const module = require(id);
-            return Promise.resolve(module);
-        } catch (error) {
-            return Promise.reject(error);
-        }
+    async require(id) {
+        return require(id);
     }
 
     save(name, extension, defaultPath, callback) {
@@ -432,14 +422,22 @@ host.ElectronHost = class {
         }
     }
 
-    _context(location) {
+    minimizePath(path) {
+        if (this._environment.platform !== 'win32' && this._environment.homedir) {
+            if (path.startsWith(this._environment.homedir)) {
+                return '~' + path.substring(this._environment.homedir.length);
+            }
+        }
+        return path;
+    }
+
+    async _context(location) {
         const basename = path.basename(location);
         const stat = fs.statSync(location);
         if (stat.isFile()) {
             const dirname = path.dirname(location);
-            return this.request(basename, null, dirname).then((stream) => {
-                return new host.ElectronHost.Context(this, dirname, basename, stream);
-            });
+            const stream = await this.request(basename, null, dirname);
+            return new host.ElectronHost.Context(this, dirname, basename, stream);
         } else if (stat.isDirectory()) {
             const entries = new Map();
             const walk = (dir) => {
@@ -456,12 +454,12 @@ host.ElectronHost = class {
                 }
             };
             walk(location);
-            return Promise.resolve(new host.ElectronHost.Context(this, location, basename, null, entries));
+            return new host.ElectronHost.Context(this, location, basename, null, entries);
         }
         throw new Error("Unsupported path stat '" + JSON.stringify(stat) + "'.");
     }
 
-    _openPath(path) {
+    async _openPath(path) {
         if (this._queue) {
             this._queue.push(path);
             return;
@@ -470,11 +468,13 @@ host.ElectronHost = class {
         const size = stat && stat.isFile() ? stat.size : 0;
         if (path && this._view.accept(path, size)) {
             this._view.show('welcome spinner');
-            this._context(path).then((context) => {
+            try {
+                const context = await this._context(path);
                 if (this._telemetry_ga4) {
                     this._telemetry_ga4.set('session_engaged', 1);
                 }
-                this._view.open(context).then((model) => {
+                try {
+                    const model = await this._view.open(context);
                     this._view.show(null);
                     const options = Object.assign({}, this._view.options);
                     if (model) {
@@ -482,18 +482,18 @@ host.ElectronHost = class {
                         this._title(path);
                     }
                     this._update(options);
-                }).catch((error) => {
+                } catch (error) {
                     const options = Object.assign({}, this._view.options);
                     if (error) {
                         this._view.error(error, null, null);
                         options.path = null;
                     }
                     this._update(options);
-                });
-            }).catch((error) => {
+                }
+            } catch (error) {
                 this._view.error(error, 'Error while reading file.', null);
                 this._update({ path: null });
-            });
+            }
         }
     }
 
@@ -548,15 +548,6 @@ host.ElectronHost = class {
         electron.ipcRenderer.sendSync('set-configuration', { name: name, value: value });
     }
 
-    minimizePath(path) {
-        if (this._environment.platform !== 'win32' && this._environment.homedir) {
-            if (path.startsWith(this._environment.homedir)) {
-                return '~' + path.substring(this._environment.homedir.length);
-            }
-        }
-        return path;
-    }
-
     _title(path) {
         const element = this._element('titlebar-content-text');
         if (element) {
@@ -580,29 +571,29 @@ host.ElectronHost = class {
         electron.ipcRenderer.send('window-update', data);
     }
 
-    _message(message, action, callback, modal) {
-        const messageText = this._element('message-text');
-        if (messageText) {
-            messageText.innerText = message;
-        }
-        const messageButton = this._element('message-button');
-        if (messageButton) {
-            if (action && callback) {
-                messageButton.style.removeProperty('display');
-                messageButton.innerText = action;
-                messageButton.onclick = () => {
-                    if (!modal) {
+    _message(message, action) {
+        return new Promise((resolve) => {
+            const messageText = this._element('message-text');
+            if (messageText) {
+                messageText.innerText = message;
+            }
+            const messageButton = this._element('message-button');
+            if (messageButton) {
+                if (action) {
+                    messageButton.style.removeProperty('display');
+                    messageButton.innerText = action;
+                    messageButton.onclick = () => {
                         messageButton.onclick = null;
                         this._document.body.classList.remove('message');
-                    }
-                    callback();
-                };
-            } else {
-                messageButton.style.display = 'none';
-                messageButton.onclick = null;
+                        resolve();
+                    };
+                } else {
+                    messageButton.style.display = 'none';
+                    messageButton.onclick = null;
+                }
             }
-        }
-        this._document.body.classList.add('message');
+            this._document.body.classList.add('message');
+        });
     }
 };
 
