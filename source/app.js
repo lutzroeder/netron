@@ -15,7 +15,7 @@ app.Application = class {
     constructor() {
 
         this._views = new app.ViewCollection(this);
-        this._configuration = new app.ConfigurationService(this._views);
+        this._configuration = new app.ConfigurationService();
         this._menu = new app.MenuService(this._views);
         this._openQueue = [];
 
@@ -111,7 +111,6 @@ app.Application = class {
             repository: 'https://github.com' + this._package.repository,
             platform: process.platform,
             separator: path.sep,
-            homedir: os.homedir(),
             titlebar: true // process.platform === 'darwin'
         };
         return this._environment;
@@ -149,7 +148,7 @@ app.Application = class {
         if (this._views.empty) {
             this._views.openView();
         }
-        this._updateRecents();
+        this._updateMenu();
         this._views.on('active-view-changed', () => {
             this._menu.update();
         });
@@ -324,286 +323,299 @@ app.Application = class {
         }
         if (updated) {
             this._configuration.set('recents', value);
+            this._updateMenu();
         }
-        this._resetMenu();
     }
 
-    _resetMenu() {
-        const menuRecentsTemplate = [];
+    _updateMenu() {
+
+        let recents = [];
         if (this._configuration.has('recents')) {
-            const recents = this._configuration.get('recents');
+            const value = this._configuration.get('recents');
+            recents = value.map((recent) => app.Application.location(recent.path));
+        }
+
+        if (this.environment.titlebar && recents.length > 0) {
+            for (const view of this._views.views) {
+                view.execute('recents', recents);
+            }
+        }
+
+        const darwin = process.platform === 'darwin';
+        if (!this.environment.titlebar || darwin) {
+            const menuRecentsTemplate = [];
             for (let i = 0; i < recents.length; i++) {
                 const recent = recents[i];
                 menuRecentsTemplate.push({
                     path: recent.path,
-                    label: app.Application.minimizePath(recent.path),
-                    accelerator: ((process.platform === 'darwin') ? 'Cmd+' : 'Ctrl+') + (i + 1).toString(),
+                    label: recent.label,
+                    accelerator: (darwin ? 'Cmd+' : 'Ctrl+') + (i + 1).toString(),
                     click: (item) => this._openPath(item.path)
                 });
             }
-        }
 
-        const menuTemplate = [];
+            const menuTemplate = [];
 
-        if (process.platform === 'darwin') {
-            menuTemplate.unshift({
-                label: electron.app.name,
+            if (darwin) {
+                menuTemplate.unshift({
+                    label: electron.app.name,
+                    submenu: [
+                        {
+                            label: 'About ' + electron.app.name,
+                            click: () => /* this.execute('about', null) */ this._about()
+                        },
+                        { type: 'separator' },
+                        { role: 'hide' },
+                        { role: 'hideothers' },
+                        { role: 'unhide' },
+                        { type: 'separator' },
+                        { role: 'quit' }
+                    ]
+                });
+            }
+
+            menuTemplate.push({
+                label: '&File',
                 submenu: [
                     {
-                        label: 'About ' + electron.app.name,
-                        click: () => /* this.execute('about', null) */ this._about()
+                        label: '&Open...',
+                        accelerator: 'CmdOrCtrl+O',
+                        click: () => this._open(null)
+                    },
+                    {
+                        label: 'Open &Recent',
+                        submenu: menuRecentsTemplate
                     },
                     { type: 'separator' },
-                    { role: 'hide' },
-                    { role: 'hideothers' },
-                    { role: 'unhide' },
+                    {
+                        id: 'file.export',
+                        label: '&Export...',
+                        accelerator: 'CmdOrCtrl+Shift+E',
+                        click: () => this.execute('export', null)
+                    },
+                    { type: 'separator' },
+                    { role: 'close' },
+                ]
+            });
+
+            if (!darwin) {
+                menuTemplate.slice(-1)[0].submenu.push(
                     { type: 'separator' },
                     { role: 'quit' }
-                ]
-            });
-        }
-
-        menuTemplate.push({
-            label: '&File',
-            submenu: [
-                {
-                    label: '&Open...',
-                    accelerator: 'CmdOrCtrl+O',
-                    click: () => this._open(null)
-                },
-                {
-                    label: 'Open &Recent',
-                    submenu: menuRecentsTemplate
-                },
-                { type: 'separator' },
-                {
-                    id: 'file.export',
-                    label: '&Export...',
-                    accelerator: 'CmdOrCtrl+Shift+E',
-                    click: () => this.execute('export', null)
-                },
-                { type: 'separator' },
-                { role: 'close' },
-            ]
-        });
-
-        if (process.platform !== 'darwin') {
-            menuTemplate.slice(-1)[0].submenu.push(
-                { type: 'separator' },
-                { role: 'quit' }
-            );
-        }
-
-        if (process.platform == 'darwin') {
-            electron.systemPreferences.setUserDefault('NSDisabledDictationMenuItem', 'boolean', true);
-            electron.systemPreferences.setUserDefault('NSDisabledCharacterPaletteMenuItem', 'boolean', true);
-        }
-
-        menuTemplate.push({
-            label: '&Edit',
-            submenu: [
-                {
-                    id: 'edit.cut',
-                    label: 'Cu&t',
-                    accelerator: 'CmdOrCtrl+X',
-                    click: () => this.execute('cut', null),
-                },
-                {
-                    id: 'edit.copy',
-                    label: '&Copy',
-                    accelerator: 'CmdOrCtrl+C',
-                    click: () => this.execute('copy', null),
-                },
-                {
-                    id: 'edit.paste',
-                    label: '&Paste',
-                    accelerator: 'CmdOrCtrl+V',
-                    click: () => this.execute('paste', null),
-                },
-                {
-                    id: 'edit.select-all',
-                    label: 'Select &All',
-                    accelerator: 'CmdOrCtrl+A',
-                    click: () => this.execute('selectall', null),
-                },
-                { type: 'separator' },
-                {
-                    id: 'edit.find',
-                    label: '&Find...',
-                    accelerator: 'CmdOrCtrl+F',
-                    click: () => this.execute('find', null),
-                }
-            ]
-        });
-
-        const viewTemplate = {
-            label: '&View',
-            submenu: [
-                {
-                    id: 'view.toggle-attributes',
-                    accelerator: 'CmdOrCtrl+D',
-                    click: () => this.execute('toggle', 'attributes'),
-                },
-                {
-                    id: 'view.toggle-weights',
-                    accelerator: 'CmdOrCtrl+I',
-                    click: () => this.execute('toggle', 'weights'),
-                },
-                {
-                    id: 'view.toggle-names',
-                    accelerator: 'CmdOrCtrl+U',
-                    click: () => this.execute('toggle', 'names'),
-                },
-                {
-                    id: 'view.toggle-direction',
-                    accelerator: 'CmdOrCtrl+K',
-                    click: () => this.execute('toggle', 'direction')
-                },
-                {
-                    id: 'view.toggle-mousewheel',
-                    accelerator: 'CmdOrCtrl+M',
-                    click: () => this.execute('toggle', 'mousewheel'),
-                },
-                { type: 'separator' },
-                {
-                    id: 'view.reload',
-                    label: '&Reload',
-                    accelerator: (process.platform === 'darwin') ? 'Cmd+R' : 'F5',
-                    click: () => this._reload(),
-                },
-                { type: 'separator' },
-                {
-                    id: 'view.reset-zoom',
-                    label: 'Actual &Size',
-                    accelerator: 'Shift+Backspace',
-                    click: () => this.execute('reset-zoom', null),
-                },
-                {
-                    id: 'view.zoom-in',
-                    label: 'Zoom &In',
-                    accelerator: 'Shift+Up',
-                    click: () => this.execute('zoom-in', null),
-                },
-                {
-                    id: 'view.zoom-out',
-                    label: 'Zoom &Out',
-                    accelerator: 'Shift+Down',
-                    click: () => this.execute('zoom-out', null),
-                },
-                { type: 'separator' },
-                {
-                    id: 'view.show-properties',
-                    label: '&Properties...',
-                    accelerator: 'CmdOrCtrl+Enter',
-                    click: () => this.execute('show-properties', null),
-                }
-            ]
-        };
-        if (!electron.app.isPackaged) {
-            viewTemplate.submenu.push({ type: 'separator' });
-            viewTemplate.submenu.push({ role: 'toggledevtools' });
-        }
-        menuTemplate.push(viewTemplate);
-
-        if (process.platform === 'darwin') {
-            menuTemplate.push({
-                role: 'window',
-                submenu: [
-                    { role: 'minimize' },
-                    { role: 'zoom' },
-                    { type: 'separator' },
-                    { role: 'front' }
-                ]
-            });
-        }
-
-        const helpSubmenu = [
-            {
-                label: 'Report &Issue',
-                click: () => this.execute('report-issue', null)
+                );
             }
-        ];
 
-        if (process.platform !== 'darwin') {
-            helpSubmenu.push({ type: 'separator' });
-            helpSubmenu.push({
-                label: '&About ' + electron.app.name,
-                click: () => this.execute('about', null)
+            if (darwin) {
+                electron.systemPreferences.setUserDefault('NSDisabledDictationMenuItem', 'boolean', true);
+                electron.systemPreferences.setUserDefault('NSDisabledCharacterPaletteMenuItem', 'boolean', true);
+            }
+
+            menuTemplate.push({
+                label: '&Edit',
+                submenu: [
+                    {
+                        id: 'edit.cut',
+                        label: 'Cu&t',
+                        accelerator: 'CmdOrCtrl+X',
+                        click: () => this.execute('cut', null),
+                    },
+                    {
+                        id: 'edit.copy',
+                        label: '&Copy',
+                        accelerator: 'CmdOrCtrl+C',
+                        click: () => this.execute('copy', null),
+                    },
+                    {
+                        id: 'edit.paste',
+                        label: '&Paste',
+                        accelerator: 'CmdOrCtrl+V',
+                        click: () => this.execute('paste', null),
+                    },
+                    {
+                        id: 'edit.select-all',
+                        label: 'Select &All',
+                        accelerator: 'CmdOrCtrl+A',
+                        click: () => this.execute('selectall', null),
+                    },
+                    { type: 'separator' },
+                    {
+                        id: 'edit.find',
+                        label: '&Find...',
+                        accelerator: 'CmdOrCtrl+F',
+                        click: () => this.execute('find', null),
+                    }
+                ]
             });
+
+            const viewTemplate = {
+                label: '&View',
+                submenu: [
+                    {
+                        id: 'view.toggle-attributes',
+                        accelerator: 'CmdOrCtrl+D',
+                        click: () => this.execute('toggle', 'attributes'),
+                    },
+                    {
+                        id: 'view.toggle-weights',
+                        accelerator: 'CmdOrCtrl+I',
+                        click: () => this.execute('toggle', 'weights'),
+                    },
+                    {
+                        id: 'view.toggle-names',
+                        accelerator: 'CmdOrCtrl+U',
+                        click: () => this.execute('toggle', 'names'),
+                    },
+                    {
+                        id: 'view.toggle-direction',
+                        accelerator: 'CmdOrCtrl+K',
+                        click: () => this.execute('toggle', 'direction')
+                    },
+                    {
+                        id: 'view.toggle-mousewheel',
+                        accelerator: 'CmdOrCtrl+M',
+                        click: () => this.execute('toggle', 'mousewheel'),
+                    },
+                    { type: 'separator' },
+                    {
+                        id: 'view.reload',
+                        label: '&Reload',
+                        accelerator: darwin ? 'Cmd+R' : 'F5',
+                        click: () => this._reload(),
+                    },
+                    { type: 'separator' },
+                    {
+                        id: 'view.reset-zoom',
+                        label: 'Actual &Size',
+                        accelerator: 'Shift+Backspace',
+                        click: () => this.execute('reset-zoom', null),
+                    },
+                    {
+                        id: 'view.zoom-in',
+                        label: 'Zoom &In',
+                        accelerator: 'Shift+Up',
+                        click: () => this.execute('zoom-in', null),
+                    },
+                    {
+                        id: 'view.zoom-out',
+                        label: 'Zoom &Out',
+                        accelerator: 'Shift+Down',
+                        click: () => this.execute('zoom-out', null),
+                    },
+                    { type: 'separator' },
+                    {
+                        id: 'view.show-properties',
+                        label: '&Properties...',
+                        accelerator: 'CmdOrCtrl+Enter',
+                        click: () => this.execute('show-properties', null),
+                    }
+                ]
+            };
+            if (!electron.app.isPackaged) {
+                viewTemplate.submenu.push({ type: 'separator' });
+                viewTemplate.submenu.push({ role: 'toggledevtools' });
+            }
+            menuTemplate.push(viewTemplate);
+
+            if (darwin) {
+                menuTemplate.push({
+                    role: 'window',
+                    submenu: [
+                        { role: 'minimize' },
+                        { role: 'zoom' },
+                        { type: 'separator' },
+                        { role: 'front' }
+                    ]
+                });
+            }
+
+            const helpSubmenu = [
+                {
+                    label: 'Report &Issue',
+                    click: () => this.execute('report-issue', null)
+                }
+            ];
+
+            if (!darwin) {
+                helpSubmenu.push({ type: 'separator' });
+                helpSubmenu.push({
+                    label: '&About ' + electron.app.name,
+                    click: () => this.execute('about', null)
+                });
+            }
+
+            menuTemplate.push({
+                role: 'help',
+                submenu: helpSubmenu
+            });
+
+            const commandTable = new Map();
+            commandTable.set('file.export', {
+                enabled: (view) => view && view.path ? true : false
+            });
+            commandTable.set('edit.cut', {
+                enabled: (view) => view && view.path ? true : false
+            });
+            commandTable.set('edit.copy', {
+                enabled: (view) => view && view.path ? true : false
+            });
+            commandTable.set('edit.paste', {
+                enabled: (view) => view && view.path ? true : false
+            });
+            commandTable.set('edit.select-all', {
+                enabled: (view) => view && view.path ? true : false
+            });
+            commandTable.set('edit.find', {
+                enabled: (view) => view && view.path ? true : false
+            });
+            commandTable.set('view.toggle-attributes', {
+                enabled: (view) => view && view.path ? true : false,
+                label: (view) => !view || view.get('attributes') ? 'Hide &Attributes' : 'Show &Attributes'
+            });
+            commandTable.set('view.toggle-weights', {
+                enabled: (view) => view && view.path ? true : false,
+                label: (view) => !view || view.get('weights') ? 'Hide &Weights' : 'Show &Weights'
+            });
+            commandTable.set('view.toggle-names', {
+                enabled: (view) => view && view.path ? true : false,
+                label: (view) => !view || view.get('names') ? 'Hide &Names' : 'Show &Names'
+            });
+            commandTable.set('view.toggle-direction', {
+                enabled: (view) => view && view.path ? true : false,
+                label: (view) => !view || view.get('direction') === 'vertical' ? 'Show &Horizontal' : 'Show &Vertical'
+            });
+            commandTable.set('view.toggle-mousewheel', {
+                enabled: (view) => view && view.path ? true : false,
+                label: (view) => !view || view.get('mousewheel') === 'scroll' ? '&Mouse Wheel: Zoom' : '&Mouse Wheel: Scroll'
+            });
+            commandTable.set('view.reload', {
+                enabled: (view) => view && view.path ? true : false
+            });
+            commandTable.set('view.reset-zoom', {
+                enabled: (view) => view && view.path ? true : false
+            });
+            commandTable.set('view.zoom-in', {
+                enabled: (view) => view && view.path ? true : false
+            });
+            commandTable.set('view.zoom-out', {
+                enabled: (view) => view && view.path ? true : false
+            });
+            commandTable.set('view.show-properties', {
+                enabled: (view) => view && view.path ? true : false
+            });
+
+            this._menu.build(menuTemplate, commandTable);
+            this._menu.update();
         }
-
-        menuTemplate.push({
-            role: 'help',
-            submenu: helpSubmenu
-        });
-
-        const commandTable = new Map();
-        commandTable.set('file.export', {
-            enabled: (view) => view && view.path ? true : false
-        });
-        commandTable.set('edit.cut', {
-            enabled: (view) => view && view.path ? true : false
-        });
-        commandTable.set('edit.copy', {
-            enabled: (view) => view && view.path ? true : false
-        });
-        commandTable.set('edit.paste', {
-            enabled: (view) => view && view.path ? true : false
-        });
-        commandTable.set('edit.select-all', {
-            enabled: (view) => view && view.path ? true : false
-        });
-        commandTable.set('edit.find', {
-            enabled: (view) => view && view.path ? true : false
-        });
-        commandTable.set('view.toggle-attributes', {
-            enabled: (view) => view && view.path ? true : false,
-            label: (view) => !view || view.get('attributes') ? 'Hide &Attributes' : 'Show &Attributes'
-        });
-        commandTable.set('view.toggle-weights', {
-            enabled: (view) => view && view.path ? true : false,
-            label: (view) => !view || view.get('weights') ? 'Hide &Weights' : 'Show &Weights'
-        });
-        commandTable.set('view.toggle-names', {
-            enabled: (view) => view && view.path ? true : false,
-            label: (view) => !view || view.get('names') ? 'Hide &Names' : 'Show &Names'
-        });
-        commandTable.set('view.toggle-direction', {
-            enabled: (view) => view && view.path ? true : false,
-            label: (view) => !view || view.get('direction') === 'vertical' ? 'Show &Horizontal' : 'Show &Vertical'
-        });
-        commandTable.set('view.toggle-mousewheel', {
-            enabled: (view) => view && view.path ? true : false,
-            label: (view) => !view || view.get('mousewheel') === 'scroll' ? '&Mouse Wheel: Zoom' : '&Mouse Wheel: Scroll'
-        });
-        commandTable.set('view.reload', {
-            enabled: (view) => view && view.path ? true : false
-        });
-        commandTable.set('view.reset-zoom', {
-            enabled: (view) => view && view.path ? true : false
-        });
-        commandTable.set('view.zoom-in', {
-            enabled: (view) => view && view.path ? true : false
-        });
-        commandTable.set('view.zoom-out', {
-            enabled: (view) => view && view.path ? true : false
-        });
-        commandTable.set('view.show-properties', {
-            enabled: (view) => view && view.path ? true : false
-        });
-
-        this._menu.build(menuTemplate, commandTable);
-        this._menu.update();
     }
 
-    static minimizePath(file) {
+    static location(path) {
         if (process.platform !== 'win32') {
             const homeDir = os.homedir();
-            if (file.startsWith(homeDir)) {
-                return '~' + file.substring(homeDir.length);
+            if (path.startsWith(homeDir)) {
+                return { path: path, label: '~' + path.substring(homeDir.length) };
             }
         }
-        return file;
+        return { path: path, label: path };
     }
 };
 
@@ -682,11 +694,12 @@ app.View = class {
 
     open(path) {
         this._openPath = path;
+        const location = app.Application.location(path);
         if (this._didFinishLoad) {
-            this._window.webContents.send('open', { path: path });
+            this._window.webContents.send('open', location);
         } else {
             this._window.webContents.on('did-finish-load', () => {
-                this._window.webContents.send('open', { path: path });
+                this._window.webContents.send('open', location);
             });
             this._loadURL();
         }
@@ -735,8 +748,8 @@ app.View = class {
                 case 'path': {
                     if (value) {
                         this._path = value;
-                        const path = app.Application.minimizePath(this._path);
-                        const title = process.platform !== 'darwin' ? path + ' - ' + electron.app.name : path;
+                        const location = app.Application.location(this._path);
+                        const title = process.platform !== 'darwin' ? location.label + ' - ' + electron.app.name : location.label;
                         this._window.setTitle(title);
                         this._window.focus();
                     }
@@ -900,8 +913,7 @@ app.ViewCollection = class {
 
 app.ConfigurationService = class {
 
-    constructor(views) {
-        this._views = views;
+    constructor() {
         const dir = electron.app.getPath('userData');
         if (dir && dir.length > 0) {
             this._file = path.join(dir, 'configuration.json');
@@ -935,9 +947,6 @@ app.ConfigurationService = class {
 
     set(name, value) {
         this._data[name] = value;
-        for (const view of this._views.views) {
-            view.execute('update-configuration', { name: name, value: value });
-        }
     }
 
     get(name) {

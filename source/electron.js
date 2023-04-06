@@ -35,7 +35,7 @@ host.ElectronHost = class {
         this._environment = electron.ipcRenderer.sendSync('get-environment', {});
         this._environment.menu = this._environment.titlebar && this._environment.platform !== 'darwin';
         this._element('menu-button').style.opacity = 0;
-        this._queue = [];
+        this._files = [];
         if (!/^\d\.\d\.\d$/.test(this.version)) {
             throw new Error('Invalid version.');
         }
@@ -64,7 +64,7 @@ host.ElectronHost = class {
     async view(view) {
         this._view = view;
         electron.ipcRenderer.on('open', (_, data) => {
-            this._openPath(data.path);
+            this._open(data);
         });
         await this._age();
         await this._consent();
@@ -129,12 +129,12 @@ host.ElectronHost = class {
     }
 
     start() {
-        if (this._queue) {
-            const queue = this._queue;
-            delete this._queue;
-            if (queue.length > 0) {
-                const path = queue.pop();
-                this._openPath(path);
+        if (this._files) {
+            const files = this._files;
+            delete this._files;
+            if (files.length > 0) {
+                const data = files.pop();
+                this._open(data);
             }
         }
 
@@ -147,6 +147,9 @@ host.ElectronHost = class {
         if (this._document.hasFocus()) {
             this._document.body.classList.add('active');
         }
+        electron.ipcRenderer.on('recents', (_, data) => {
+            this._view.recents(data);
+        });
         electron.ipcRenderer.on('export', (_, data) => {
             this._view.export(data.file);
         });
@@ -184,11 +187,6 @@ host.ElectronHost = class {
         electron.ipcRenderer.on('about', () => {
             this._view.about();
         });
-
-        electron.ipcRenderer.on('update-configuration', (_, data) => {
-            this._view.update(data.name, data.value);
-        });
-        this._view.update('recents', this._getConfiguration('recents'));
 
         this._element('titlebar-close').addEventListener('click', () => {
             electron.ipcRenderer.sendSync('window-close', {});
@@ -422,15 +420,6 @@ host.ElectronHost = class {
         }
     }
 
-    minimizePath(path) {
-        if (this._environment.platform !== 'win32' && this._environment.homedir) {
-            if (path.startsWith(this._environment.homedir)) {
-                return '~' + path.substring(this._environment.homedir.length);
-            }
-        }
-        return path;
-    }
-
     async _context(location) {
         const basename = path.basename(location);
         const stat = fs.statSync(location);
@@ -459,11 +448,12 @@ host.ElectronHost = class {
         throw new Error("Unsupported path stat '" + JSON.stringify(stat) + "'.");
     }
 
-    async _openPath(path) {
-        if (this._queue) {
-            this._queue.push(path);
+    async _open(location) {
+        if (this._files) {
+            this._files.push(location);
             return;
         }
+        const path = location.path;
         const stat = fs.existsSync(path) ? fs.statSync(path) : null;
         const size = stat && stat.isFile() ? stat.size : 0;
         if (path && this._view.accept(path, size)) {
@@ -479,7 +469,7 @@ host.ElectronHost = class {
                     const options = Object.assign({}, this._view.options);
                     if (model) {
                         options.path = path;
-                        this._title(path);
+                        this._title(location.label);
                     }
                     this._update(options);
                 } catch (error) {
@@ -548,12 +538,12 @@ host.ElectronHost = class {
         electron.ipcRenderer.sendSync('set-configuration', { name: name, value: value });
     }
 
-    _title(path) {
+    _title(label) {
         const element = this._element('titlebar-content-text');
         if (element) {
             element.innerHTML = '';
-            if (path) {
-                path = this.minimizePath(path).split(this._environment.separator || '/');
+            if (label) {
+                const path = label.split(this._environment.separator || '/');
                 for (let i = 0; i < path.length; i++) {
                     const span = this.document.createElement('span');
                     span.innerHTML = ' ' + path[i] + ' ' + (i !== path.length - 1 ? '<svg class="titlebar-icon" aria-hidden="true"><use xlink:href="#icon-arrow-right"></use></svg>' : '');

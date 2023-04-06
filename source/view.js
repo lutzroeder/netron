@@ -282,24 +282,17 @@ view.View = class {
         }
     }
 
-    update(name, value) {
-        switch (name) {
-            case 'recents':
-                if (this._recents) {
-                    this._recents.clear();
-                    for (let i = 0; i < value.length; i++) {
-                        const path = value[i].path;
-                        const label = this._host.minimizePath(path);
-                        this._recents.add({
-                            label: label,
-                            accelerator: 'CmdOrCtrl+' + (i + 1).toString(),
-                            execute: () => this._host.execute('open', path)
-                        });
-                    }
-                }
-                break;
-            default:
-                break;
+    recents(recents) {
+        if (this._recents) {
+            this._recents.clear();
+            for (let i = 0; i < recents.length; i++) {
+                const recent = recents[i];
+                this._recents.add({
+                    label: recent.label,
+                    accelerator: 'CmdOrCtrl+' + (i + 1).toString(),
+                    execute: () => this._host.execute('open', recent.path)
+                });
+            }
         }
     }
 
