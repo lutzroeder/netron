@@ -133,7 +133,7 @@ def _update_inputs(json_schema, inputs):
     for _ in inputs:
         json_input = {}
         json_input['name'] = _.name
-        json_input['type'] = _.typeStr
+        json_input['type'] = _.type_str
         if _.option == onnx.defs.OpSchema.FormalParameterOption.Optional:
             json_input['option'] = 'optional'
         elif _.option == onnx.defs.OpSchema.FormalParameterOption.Variadic:
@@ -146,7 +146,7 @@ def _update_outputs(json_schema, outputs):
     for _ in outputs:
         json_output = {}
         json_output['name'] = _.name
-        json_output['type'] = _.typeStr
+        json_output['type'] = _.type_str
         if _.option == onnx.defs.OpSchema.FormalParameterOption.Optional:
             json_output['option'] = 'optional'
         elif _.option == onnx.defs.OpSchema.FormalParameterOption.Variadic:
