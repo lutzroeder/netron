@@ -10697,7 +10697,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       },
       {
         "name": "rnn_mode",
@@ -10783,7 +10783,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       },
       {
         "name": "rnn_mode",
@@ -10892,7 +10892,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       },
       {
         "name": "rnn_mode",
@@ -11005,7 +11005,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       },
       {
         "name": "rnn_mode",
@@ -11132,7 +11132,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       },
       {
         "name": "num_params",
@@ -11212,7 +11212,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       },
       {
         "name": "num_params_weights",
@@ -11302,7 +11302,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       },
       {
         "name": "S",
@@ -11377,7 +11377,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       },
       {
         "name": "num_params",
@@ -11457,7 +11457,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       },
       {
         "name": "num_params_weights",
@@ -11547,7 +11547,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       },
       {
         "name": "rnn_mode",
@@ -11637,7 +11637,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       },
       {
         "name": "rnn_mode",
@@ -48634,6 +48634,38 @@
       {
         "name": "output",
         "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "SnapshotChunkDataset",
+    "attributes": [
+      {
+        "name": "output_types",
+        "type": "type[]",
+        "minimum": 1
+      },
+      {
+        "name": "output_shapes",
+        "type": "shape[]",
+        "minimum": 1
+      },
+      {
+        "name": "compression",
+        "type": "string",
+        "default": ""
+      }
+    ],
+    "inputs": [
+      {
+        "name": "chunk_file",
+        "type": 7
+      }
+    ],
+    "outputs": [
+      {
+        "name": "handle",
+        "type": 21
       }
     ]
   },
