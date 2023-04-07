@@ -4382,7 +4382,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Ceil takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the ceil is, y = ceil(x), is applied to\nthe tensor elementwise.\n",
+    "description": "Ceil takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the ceil is, y = ceil(x), is applied to\nthe tensor elementwise. If x is integral, +0, -0, NaN,  or infinite, x itself is returned.\n",
     "inputs": [
       {
         "name": "X",
@@ -9962,7 +9962,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Floor takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the floor is, y = floor(x), is applied to\nthe tensor elementwise.\n",
+    "description": "Floor takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the floor is, y = floor(x), is applied to\nthe tensor elementwise. If x is integral, +0, -0, NaN,  or infinite, x itself is returned.\n",
     "inputs": [
       {
         "name": "X",
@@ -29620,7 +29620,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "Round takes one input Tensor and rounds the values, element-wise, meaning\nit finds the nearest integer for each value.\nIn case of halfs, the rule is to round them to the nearest even integer.\nThe output tensor has the same shape and type as the input.\n\nExamples:\n```\nround([0.9]) = [1.0]\nround([2.5]) = [2.0]\nround([2.3]) = [2.0]\nround([1.5]) = [2.0]\nround([-4.5]) = [-4.0]\n```\n",
+    "description": "Round takes one input Tensor and rounds the values, element-wise, meaning\nit finds the nearest integer for each value.\nIn case of halfs, the rule is to round them to the nearest even integer.\nIf input x is integral, +0, -0, NaN,  or infinite, x itself is returned.\nThe output tensor has the same shape and type as the input.\n\nExamples:\n```\nround([0.9]) = [1.0]\nround([2.5]) = [2.0]\nround([2.3]) = [2.0]\nround([1.5]) = [2.0]\nround([-4.5]) = [-4.0]\n```\n",
     "inputs": [
       {
         "name": "X",
