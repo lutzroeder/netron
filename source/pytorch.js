@@ -2084,6 +2084,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                                 case 'aten::avg_pool2d':
                                 case 'aten::quantize_per_tensor':
                                 case 'aten::relu_':
+                                case 'aten::prelu':
                                 case 'aten::hardtanh_':
                                 case 'aten::upsample_bilinear2d':
                                 case 'prepacked::conv2d_clamp_run': {
