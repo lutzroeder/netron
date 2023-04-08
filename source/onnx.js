@@ -1263,7 +1263,11 @@ onnx.DataType = {
     UINT64: 13,
     COMPLEX64: 14,
     COMPLEX128: 15,
-    BFLOAT16: 16
+    BFLOAT16: 16,
+    FLOAT8E4M3FN: 17,
+    FLOAT8E4M3FNUZ: 18,
+    FLOAT8E5M2: 19,
+    FLOAT8E5M2FNUZ: 20
 };
 
 onnx.AttributeType = {
@@ -1732,18 +1736,8 @@ onnx.Reader.text = class {
 
     constructor(stream) {
         this._stream = stream;
-        this._dataTypes = new Map([
-            [ 'float', 1 ], [ 'uint8', 2 ], [ 'int8', 3 ], [ 'uint16', 4 ],
-            [ 'int16', 5 ], [ 'int32', 6 ], [ 'int64', 7 ], [ 'string', 8 ],
-            [ 'bool', 9 ], [ 'float16', 10 ], [ 'double', 11 ], [ 'uint32', 12 ],
-            [ 'uint64', 13 ], [ 'complex64', 14 ], [ 'complex128', 15 ], [ 'bfloat16', 16 ]
-        ]);
-        this._attributeTypes = new Map([
-            [ 'float', 1 ], [ 'int', 2 ], [ 'string', 3 ],
-            [ 'tensor', 4 ], [ 'graph', 5 ], [ 'sparse_tensor', 11 ], [ 'type_proto', 13 ],
-            [ 'floats', 6 ], [ 'ints', 7 ], [ 'strings', 8 ],
-            [ 'tensors', 9 ], [ 'graphs', 10 ], [ 'sparse_tensors', 12 ], [ 'type_protos', 14 ]
-        ]);
+        this._dataTypes = new Map(Object.entries(onnx.DataType).map((entry) => [ entry[0].toLowerCase(), entry[1] ]));
+        this._attributeTypes = new Map(Object.entries(onnx.AttributeType).map((entry) => [ entry[0].toLowerCase(), entry[1] ]));
     }
 
     read() {
