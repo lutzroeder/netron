@@ -681,6 +681,9 @@ app.View = class {
         this._window.once('ready-to-show', () => {
             this._window.show();
         });
+        if (owner.application.environment.titlebar && process.platform !== 'darwin') {
+            this._window.removeMenu();
+        }
         this._loadURL();
     }
 
