@@ -164,6 +164,14 @@ view.View = class {
                     enabled: () => this.activeGraph
                 });
                 view.add({});
+                if (!this._host.environment('packages')) {
+                    view.add({
+                        label: '&Developer Tools...',
+                        accelerator: 'CmdOrCtrl+Alt+I',
+                        execute: () => this._host.execute('toggle-developer-tools')
+                    });
+                    view.add({});
+                }
                 view.add({
                     label: '&Properties...',
                     accelerator: 'CmdOrCtrl+Enter',
@@ -1306,7 +1314,7 @@ view.Menu = class {
                         break;
                     }
                     case 'separator': {
-                        const element = this._host.document.createElement('span');
+                        const element = this._host.document.getElementById(item.identifier);
                         element.style.display = block ? 'block' : 'none';
                         block = false;
                         break;
@@ -1314,6 +1322,15 @@ view.Menu = class {
                     default: {
                         break;
                     }
+                }
+            }
+            for (let i = group.items.length - 1; i >= 0; i--) {
+                const item = group.items[i];
+                if ((item.type === 'group' || item.type === 'command') && item.enabled) {
+                    break;
+                } else if (item.type === 'separator') {
+                    const element = this._host.document.getElementById(item.identifier);
+                    element.style.display = 'none';
                 }
             }
             if (!visible) {
