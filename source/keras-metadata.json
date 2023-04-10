@@ -862,7 +862,7 @@
       },
       {
         "default": "channels_last",
-        "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch_size, height, width, channels)` while `channels_first`\n    corresponds to inputs with shape\n    `(batch_size, channels, height, width)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".",
+        "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch_size, height, width, channels)` while `channels_first`\n    corresponds to inputs with shape\n    `(batch_size, channels, height, width)`.\n    When unspecified, uses `image_data_format` value found in your Keras\n    config file at `~/.keras/keras.json` (if exists) else 'channels_last'.\n    Defaults to \"channels_last\".",
         "name": "data_format"
       },
       {
@@ -980,7 +980,7 @@
         "name": "padding"
       },
       {
-        "description": "A string, one of `channels_last` (default) or\n    `channels_first`.  The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape `batch_shape +\n    (spatial_dim1, spatial_dim2, spatial_dim3, channels)` while\n    `channels_first` corresponds to inputs with shape `batch_shape +\n    (channels, spatial_dim1, spatial_dim2, spatial_dim3)`. It defaults to\n    the `image_data_format` value found in your Keras config file at\n    `~/.keras/keras.json`. If you never set it, then it will be\n    \"channels_last\". Note that the `channels_first` format is currently not\n    supported by TensorFlow on CPU.",
+        "description": "A string, one of `channels_last` (default) or\n    `channels_first`.  The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape `batch_shape +\n    (spatial_dim1, spatial_dim2, spatial_dim3, channels)` while\n    `channels_first` corresponds to inputs with shape `batch_shape +\n    (channels, spatial_dim1, spatial_dim2, spatial_dim3)`. When unspecified,\n    uses `image_data_format` value found in your Keras config file at\n    `~/.keras/keras.json` (if exists) else 'channels_last'. Note that the\n    `channels_first` format is currently not supported by TensorFlow on CPU.\n    Defaults to 'channels_last'.",
         "name": "data_format"
       },
       {
@@ -2074,7 +2074,7 @@
     ],
     "examples": [
       {
-        "code": ">>> input_shape = (2, 4, 5, 3)\n>>> x = tf.random.normal(input_shape)\n>>> y = tf.keras.layers.GlobalMaxPool2D()(x)\n>>> print(y.shape)\n(2, 3)"
+        "code": ">>> input_shape = (2, 4, 5, 3)\n>>> x = tf.random.normal(input_shape)\n>>> y = tf.keras.layers.GlobalMaxPooling2D()(x)\n>>> print(y.shape)\n(2, 3)"
       }
     ]
   },
@@ -2373,11 +2373,11 @@
         "name": "input_tensor"
       },
       {
-        "description": "Boolean, whether the placeholder created is meant to be sparse.\n        Default to `False`.",
+        "description": "Boolean, whether the placeholder created is meant to be sparse.\n        Defaults to `False`.",
         "name": "sparse"
       },
       {
-        "description": "Boolean, whether the placeholder created is meant to be ragged.\n        In this case, values of `None` in the `shape` argument represent\n        ragged dimensions. For more information about `tf.RaggedTensor`, see\n        [this guide](https://www.tensorflow.org/guide/ragged_tensor).\n        Default to `False`.",
+        "description": "Boolean, whether the placeholder created is meant to be ragged.\n        In this case, values of `None` in the `shape` argument represent\n        ragged dimensions. For more information about `tf.RaggedTensor`, see\n        [this guide](https://www.tensorflow.org/guide/ragged_tensor).\n        Defaults to `False`.",
         "name": "ragged"
       },
       {
@@ -2499,7 +2499,7 @@
     "description": "Leaky version of a Rectified Linear Unit.\n\nIt allows a small gradient when the unit is not active:\n\n```\n  f(x) = alpha * x if x < 0\n  f(x) = x if x >= 0\n```",
     "attributes": [
       {
-        "description": "Float >= 0. Negative slope coefficient. Default to 0.3.",
+        "description": "Float >= 0. Negative slope coefficient. Defaults to `0.3`.",
         "name": "alpha"
       }
     ],
@@ -2591,7 +2591,7 @@
       },
       {
         "default": "channels_last",
-        "description": "A string, one of `channels_last` (default) or\n      `channels_first`. The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape `(batch, length,\n      channels)` while `channels_first` corresponds to inputs with shape\n      `(batch, channels, length)`. It defaults to the `image_data_format`\n      value found in your Keras config file at `~/.keras/keras.json`. If you\n      never set it, then it will be \"channels_last\".",
+        "description": "A string, one of `channels_last` (default) or\n      `channels_first`. The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape `(batch, length,\n      channels)` while `channels_first` corresponds to inputs with shape\n      `(batch, channels, length)`. When unspecified, uses\n      `image_data_format` value found in your Keras config file at\n      `~/.keras/keras.json` (if exists) else 'channels_last'.\n      Defaults to 'channels_last'.",
         "name": "data_format"
       },
       {
@@ -2641,7 +2641,7 @@
       },
       {
         "default": "channels_last",
-        "description": "A string, one of `channels_last` (default) or\n      `channels_first`. The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape `(batch, height,\n        width, channels)` while `channels_first` corresponds to inputs with\n        shape\n      `(batch, channels, height, width)`. It defaults to the\n      `image_data_format` value found in your Keras config file at\n      `~/.keras/keras.json`. If you never set it, then it will be\n      \"channels_last\".",
+        "description": "A string, one of `channels_last` (default) or\n      `channels_first`. The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape `(batch, height,\n        width, channels)` while `channels_first` corresponds to inputs with\n        shape\n      `(batch, channels, height, width)`. When unspecified, uses\n      `image_data_format` value found in your Keras config file at\n      `~/.keras/keras.json` (if exists) else 'channels_last'.\n      Defaults to 'channels_last'.",
         "name": "data_format"
       },
       {
@@ -3291,15 +3291,15 @@
     "description": "Rectified Linear Unit activation function.\n\nWith default values, it returns element-wise `max(x, 0)`.\n\nOtherwise, it follows:\n\n```\n  f(x) = max_value if x >= max_value\n  f(x) = x if threshold <= x < max_value\n  f(x) = negative_slope * (x - threshold) otherwise\n```",
     "attributes": [
       {
-        "description": "Float >= 0. Maximum activation value. Default to None, which\n    means unlimited.",
+        "description": "Float >= 0. Maximum activation value. None means unlimited.\n    Defaults to `None`.",
         "name": "max_value"
       },
       {
-        "description": "Float >= 0. Negative slope coefficient. Default to 0.",
+        "description": "Float >= 0. Negative slope coefficient. Defaults to `0.`.",
         "name": "negative_slope"
       },
       {
-        "description": "Float >= 0. Threshold value for thresholded activation. Default\n    to 0.",
+        "description": "Float >= 0. Threshold value for thresholded activation.\n    Defaults to `0.`.",
         "name": "threshold"
       }
     ],
@@ -3579,7 +3579,7 @@
       },
       {
         "default": "channels_last",
-        "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch_size, height, width, channels)` while `channels_first`\n    corresponds to inputs with shape\n    `(batch_size, channels, height, width)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".",
+        "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch_size, height, width, channels)` while `channels_first`\n    corresponds to inputs with shape\n    `(batch_size, channels, height, width)`.\n    When unspecified, uses `image_data_format` value found in your Keras\n    config file at `~/.keras/keras.json` (if exists) else 'channels_last'.\n    Defaults to 'channels_last'.",
         "name": "data_format"
       },
       {
