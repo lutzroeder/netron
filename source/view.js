@@ -164,20 +164,20 @@ view.View = class {
                     enabled: () => this.activeGraph
                 });
                 view.add({});
-                if (!this._host.environment('packages')) {
-                    view.add({
-                        label: '&Developer Tools...',
-                        accelerator: 'CmdOrCtrl+Alt+I',
-                        execute: () => this._host.execute('toggle-developer-tools')
-                    });
-                    view.add({});
-                }
                 view.add({
                     label: '&Properties...',
                     accelerator: 'CmdOrCtrl+Enter',
                     execute: () => this.showModelProperties(),
                     enabled: () => this.activeGraph
                 });
+                if (!this._host.environment('packages')) {
+                    view.add({});
+                    view.add({
+                        label: '&Developer Tools...',
+                        accelerator: 'CmdOrCtrl+Alt+I',
+                        execute: () => this._host.execute('toggle-developer-tools')
+                    });
+                }
                 const help = this._menu.group('&Help');
                 help.add({
                     label: 'Report &Issue',
