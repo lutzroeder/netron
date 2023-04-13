@@ -86,6 +86,13 @@ def _test_torchscript_nnapi():
     torch._C._jit_pass_inline(trace.graph) # pylint: disable=protected-access
     netron.serve('inception_v3', trace)
 
+def _test_torchscript_alexnet():
+    torch = __import__('torch')
+    trace = torch.load(os.path.join(test_data_dir, 'pytorch', 'alexnet.pt'))
+    torch._C._jit_pass_inline(trace.graph) # pylint: disable=protected-access
+    netron.serve('alexnet', trace)
+
+
 # _test_onnx()
 # _test_onnx_iterate()
 
@@ -96,4 +103,5 @@ def _test_torchscript_nnapi():
 # _test_torchscript_scalar()
 # _test_torchscript_tuple()
 # _test_torchscript_nnapi()
-_test_torchscript_transformer()
+# _test_torchscript_transformer()
+_test_torchscript_alexnet()
