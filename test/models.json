@@ -4169,8 +4169,8 @@
   },
   {
     "type":     "pytorch",
-    "target":   "alexnet.pt.zip",
-    "source":   "https://github.com/lutzroeder/netron/files/6096605/alexnet.pt.zip",
+    "target":   "alexnet.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/6096605/alexnet.pt.zip[alexnet.pt]",
     "format":   "TorchScript v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/281"
   },
