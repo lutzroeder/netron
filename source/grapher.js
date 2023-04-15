@@ -136,6 +136,7 @@ grapher.Graph = class {
             return element;
         };
         edgePathGroupDefs.appendChild(marker("arrowhead-vee"));
+        edgePathGroupDefs.appendChild(marker("arrowhead-vee-hover"));
         edgePathGroupDefs.appendChild(marker("arrowhead-vee-select"));
 
         for (const nodeId of this.nodes.keys()) {
@@ -565,6 +566,9 @@ grapher.Edge = class {
             this.width = edgeBox.width;
             this.height = edgeBox.height;
         }
+        this.hitTestElement = createElement('path');
+        this.hitTestElement.setAttribute('class', 'edge-path-hit-test');
+        edgePathGroupElement.insertBefore(this.hitTestElement, this.element);
     }
 
     update() {
@@ -594,6 +598,7 @@ grapher.Edge = class {
         };
         const edgePath = curvePath(this, this.from, this.to);
         this.element.setAttribute('d', edgePath);
+        this.hitTestElement.setAttribute('d', edgePath);
         if (this.labelElement) {
             this.labelElement.setAttribute('transform', 'translate(' + (this.x - (this.width / 2)) + ',' + (this.y - (this.height / 2)) + ')');
             this.labelElement.style.opacity = 1;

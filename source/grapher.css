@@ -68,6 +68,10 @@
 #arrowhead-vee { fill: #000; }
 .edge-path-control-dependency { stroke-dasharray: 3, 2; }
 
+.edge-path-hit-test { pointer-events: stroke; stroke-width: 0.5em; fill: none; stroke-opacity: 0; }
+.edge-path-hit-test:hover + .edge-path { stroke: yellow; marker-end: url("#arrowhead-vee-hover"); }
+.edge-path:hover { stroke: yellow; marker-end: url("#arrowhead-vee-hover"); }
+
 .cluster rect { stroke: #000; fill: #000; fill-opacity: 0.02; stroke-opacity: 0.06; stroke-width: 1px; }
 
 .select .node.border { stroke: #e00; stroke-width: 2px; }
@@ -81,6 +85,7 @@
     .edge-label { fill: #b2b2b2; }
     .edge-path { stroke: #888; }
     #arrowhead-vee { fill: #888; }
+    #arrowhead-vee-hover { fill: yellow; }
 
     .node path { stroke: #1d1d1d; }
     .node line { stroke: #1d1d1d; }
