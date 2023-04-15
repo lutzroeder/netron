@@ -4660,7 +4660,7 @@
     "name": "aten::fft_fft",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "n", "type": "int64", "optional": true, "default": null },
+      { "name": "n", "type": "SymInt", "optional": true, "default": null },
       { "name": "dim", "type": "int64", "default": -1 },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4672,7 +4672,7 @@
     "name": "aten::fft_fft.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "n", "type": "int64", "optional": true, "default": null },
+      { "name": "n", "type": "SymInt", "optional": true, "default": null },
       { "name": "dim", "type": "int64", "default": -1 },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4684,7 +4684,7 @@
     "name": "aten::fft_fft2",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4696,7 +4696,7 @@
     "name": "aten::fft_fft2.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4708,7 +4708,7 @@
     "name": "aten::fft_fftn",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4720,7 +4720,7 @@
     "name": "aten::fft_fftn.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4742,7 +4742,7 @@
     "name": "aten::fft_hfft2",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4754,7 +4754,7 @@
     "name": "aten::fft_hfft2.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4766,7 +4766,7 @@
     "name": "aten::fft_hfftn",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4778,7 +4778,7 @@
     "name": "aten::fft_hfftn.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4790,7 +4790,7 @@
     "name": "aten::fft_ifft2",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4802,7 +4802,7 @@
     "name": "aten::fft_ifft2.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4814,7 +4814,7 @@
     "name": "aten::fft_ifftn",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4826,7 +4826,7 @@
     "name": "aten::fft_ifftn.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4848,7 +4848,7 @@
     "name": "aten::fft_ihfft2",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4860,7 +4860,7 @@
     "name": "aten::fft_ihfft2.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4872,7 +4872,7 @@
     "name": "aten::fft_ihfftn",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4884,7 +4884,7 @@
     "name": "aten::fft_ihfftn.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4896,7 +4896,7 @@
     "name": "aten::fft_irfft2",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4908,7 +4908,7 @@
     "name": "aten::fft_irfft2.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4920,7 +4920,7 @@
     "name": "aten::fft_irfftn",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4932,7 +4932,7 @@
     "name": "aten::fft_irfftn.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4944,7 +4944,7 @@
     "name": "aten::fft_rfft2",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4956,7 +4956,7 @@
     "name": "aten::fft_rfft2.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "default": [   -2,   -1 ] },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4968,7 +4968,7 @@
     "name": "aten::fft_rfftn",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -4980,7 +4980,7 @@
     "name": "aten::fft_rfftn.out",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "s", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "s", "type": "SymInt[1]", "optional": true, "default": null },
       { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
       { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
@@ -9758,7 +9758,7 @@
   {
     "name": "aten::randint",
     "inputs": [
-      { "name": "high", "type": "int64" },
+      { "name": "high", "type": "SymInt" },
       { "name": "size", "type": "SymInt[]" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": "long" },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
@@ -9772,7 +9772,7 @@
   {
     "name": "aten::randint.generator",
     "inputs": [
-      { "name": "high", "type": "int64" },
+      { "name": "high", "type": "SymInt" },
       { "name": "size", "type": "SymInt[]" },
       { "name": "generator", "type": "Generator", "optional": true },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": "long" },
@@ -9787,7 +9787,7 @@
   {
     "name": "aten::randint.generator_out",
     "inputs": [
-      { "name": "high", "type": "int64" },
+      { "name": "high", "type": "SymInt" },
       { "name": "size", "type": "SymInt[]" },
       { "name": "generator", "type": "Generator", "optional": true }
     ],
@@ -9798,8 +9798,8 @@
   {
     "name": "aten::randint.low",
     "inputs": [
-      { "name": "low", "type": "int64", "default": null },
-      { "name": "high", "type": "int64", "default": null },
+      { "name": "low", "type": "SymInt", "default": null },
+      { "name": "high", "type": "SymInt", "default": null },
       { "name": "size", "type": "SymInt[]" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": "long" },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
@@ -9813,8 +9813,8 @@
   {
     "name": "aten::randint.low_generator",
     "inputs": [
-      { "name": "low", "type": "int64", "default": null },
-      { "name": "high", "type": "int64", "default": null },
+      { "name": "low", "type": "SymInt", "default": null },
+      { "name": "high", "type": "SymInt", "default": null },
       { "name": "size", "type": "SymInt[]" },
       { "name": "generator", "type": "Generator", "optional": true },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": "long" },
@@ -9829,8 +9829,8 @@
   {
     "name": "aten::randint.low_generator_out",
     "inputs": [
-      { "name": "low", "type": "int64" },
-      { "name": "high", "type": "int64" },
+      { "name": "low", "type": "SymInt" },
+      { "name": "high", "type": "SymInt" },
       { "name": "size", "type": "SymInt[]" },
       { "name": "generator", "type": "Generator", "optional": true }
     ],
@@ -9841,8 +9841,8 @@
   {
     "name": "aten::randint.low_out",
     "inputs": [
-      { "name": "low", "type": "int64" },
-      { "name": "high", "type": "int64" },
+      { "name": "low", "type": "SymInt" },
+      { "name": "high", "type": "SymInt" },
       { "name": "size", "type": "SymInt[]" }
     ],
     "outputs": [
@@ -9852,7 +9852,7 @@
   {
     "name": "aten::randint.out",
     "inputs": [
-      { "name": "high", "type": "int64" },
+      { "name": "high", "type": "SymInt" },
       { "name": "size", "type": "SymInt[]" }
     ],
     "outputs": [
@@ -9863,7 +9863,7 @@
     "name": "aten::randint_like",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "high", "type": "int64" },
+      { "name": "high", "type": "SymInt" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
       { "name": "device", "type": "Device", "optional": true, "default": null },
@@ -9878,8 +9878,8 @@
     "name": "aten::randint_like.low_dtype",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "low", "type": "int64" },
-      { "name": "high", "type": "int64" },
+      { "name": "low", "type": "SymInt" },
+      { "name": "high", "type": "SymInt" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
       { "name": "device", "type": "Device", "optional": true, "default": null },
@@ -10015,7 +10015,7 @@
   {
     "name": "aten::randperm",
     "inputs": [
-      { "name": "n", "type": "int64" },
+      { "name": "n", "type": "SymInt" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": "long" },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
       { "name": "device", "type": "Device", "optional": true, "default": null },
@@ -10028,7 +10028,7 @@
   {
     "name": "aten::randperm.generator",
     "inputs": [
-      { "name": "n", "type": "int64" },
+      { "name": "n", "type": "SymInt" },
       { "name": "generator", "type": "Generator", "optional": true },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": "long" },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
@@ -10042,7 +10042,7 @@
   {
     "name": "aten::randperm.generator_out",
     "inputs": [
-      { "name": "n", "type": "int64" },
+      { "name": "n", "type": "SymInt" },
       { "name": "generator", "type": "Generator", "optional": true }
     ],
     "outputs": [
@@ -10052,7 +10052,7 @@
   {
     "name": "aten::randperm.out",
     "inputs": [
-      { "name": "n", "type": "int64" }
+      { "name": "n", "type": "SymInt" }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -10541,7 +10541,7 @@
     "category": "Layer",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "shifts", "type": "int64[1]" },
+      { "name": "shifts", "type": "SymInt[1]" },
       { "name": "dims", "type": "int64[1]", "default": [] }
     ],
     "outputs": [
