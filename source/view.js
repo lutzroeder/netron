@@ -1226,6 +1226,7 @@ view.Menu = class {
 
     _rebuild() {
         this._element.innerHTML = '';
+        this._element.style.pointerEvents = 'auto';
         const root = this._root[this._root.length - 1];
         for (const group of root.items) {
             const container = this._host.document.createElement('div');
@@ -1374,6 +1375,7 @@ view.Menu = class {
 
     close() {
         this._stack = [];
+        this._element.style.pointerEvents = 'none';
         this._element.style.opacity = 0;
         this._element.style.left = '-200px';
         const button = this._element.ownerDocument.activeElement;
