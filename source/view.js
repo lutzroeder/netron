@@ -1189,9 +1189,15 @@ view.Menu = class {
     _deactivate() {
         if (this._root.length > 1) {
             this._root.pop();
-            this._stack.pop();
+            const group = this._stack.pop();
             this._rebuild();
             this._update();
+            if (group) {
+                const button = this._buttons.find((button) => button.getAttribute('id') === group.identifier);
+                if (button) {
+                    button.focus();
+                }
+            }
         } else if (this._stack.length > 0) {
             this._stack.pop();
             this._update();
