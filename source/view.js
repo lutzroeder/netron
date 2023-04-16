@@ -2150,7 +2150,7 @@ view.NodeSidebar = class extends view.Control {
         }
 
         const separator = this._host.document.createElement('div');
-        separator.className = 'sidebar-view-separator';
+        separator.className = 'sidebar-separator';
         this._elements.push(separator);
     }
 
@@ -2159,10 +2159,10 @@ view.NodeSidebar = class extends view.Control {
     }
 
     _addHeader(title) {
-        const headerElement = this._host.document.createElement('div');
-        headerElement.className = 'sidebar-view-header';
-        headerElement.innerText = title;
-        this._elements.push(headerElement);
+        const element = this._host.document.createElement('div');
+        element.className = 'sidebar-header';
+        element.innerText = title;
+        this._elements.push(element);
     }
 
     _addProperty(name, value) {
@@ -2220,7 +2220,7 @@ view.NameValueView = class {
         this._value = value;
 
         const nameElement = this._host.document.createElement('div');
-        nameElement.className = 'sidebar-view-item-name';
+        nameElement.className = 'sidebar-item-name';
 
         const nameInputElement = this._host.document.createElement('input');
         nameInputElement.setAttribute('type', 'text');
@@ -2230,14 +2230,14 @@ view.NameValueView = class {
         nameElement.appendChild(nameInputElement);
 
         const valueElement = this._host.document.createElement('div');
-        valueElement.className = 'sidebar-view-item-value-list';
+        valueElement.className = 'sidebar-item-value-list';
 
         for (const element of value.render()) {
             valueElement.appendChild(element);
         }
 
         this._element = this._host.document.createElement('div');
-        this._element.className = 'sidebar-view-item';
+        this._element.className = 'sidebar-item';
         this._element.appendChild(nameElement);
         this._element.appendChild(valueElement);
     }
@@ -2264,7 +2264,7 @@ view.SelectView = class extends view.Control {
         this._values = values;
 
         const selectElement = this._host.document.createElement('select');
-        selectElement.setAttribute('class', 'sidebar-view-item-select');
+        selectElement.setAttribute('class', 'sidebar-item-select');
         selectElement.addEventListener('change', (e) => {
             this.emit('change', this._values[e.target.selectedIndex]);
         });
@@ -2291,12 +2291,12 @@ view.ValueTextView = class {
         this._host = host;
         this._elements = [];
         const element = this._host.document.createElement('div');
-        element.className = 'sidebar-view-item-value';
+        element.className = 'sidebar-item-value';
         this._elements.push(element);
 
         if (action) {
             this._action = this._host.document.createElement('div');
-            this._action.className = 'sidebar-view-item-value-expander';
+            this._action.className = 'sidebar-item-value-expander';
             this._action.innerHTML = action.text;
             this._action.addEventListener('click', () => {
                 action.callback();
@@ -2305,13 +2305,13 @@ view.ValueTextView = class {
         }
 
         const list = Array.isArray(value) ? value : [ value ];
-        let className = 'sidebar-view-item-value-line';
+        let className = 'sidebar-item-value-line';
         for (const item of list) {
             const line = this._host.document.createElement('div');
             line.className = className;
             line.innerText = item;
             element.appendChild(line);
-            className = 'sidebar-view-item-value-line-border';
+            className = 'sidebar-item-value-line-border';
         }
     }
 
@@ -2338,7 +2338,7 @@ view.ValueView = class extends view.Control {
     }
 
     _add(child) {
-        child.className = this._element.childNodes.length < 2 ? 'sidebar-view-item-value-line' : 'sidebar-view-item-value-line-border';
+        child.className = this._element.childNodes.length < 2 ? 'sidebar-item-value-line' : 'sidebar-item-value-line-border';
         this._element.appendChild(child);
     }
 
@@ -2378,7 +2378,7 @@ view.ValueView = class extends view.Control {
                     value.type.shape && value.type.shape.dimensions &&
                     value.type.shape.dimensions.length > 0) {
                     this._saveButton = this._host.document.createElement('div');
-                    this._saveButton.className = 'sidebar-view-item-value-expander';
+                    this._saveButton.className = 'sidebar-item-value-expander';
                     this._saveButton.innerHTML = '&#x1F4BE;';
                     this._saveButton.addEventListener('click', () => {
                         this.emit('export-tensor', tensor);
@@ -2391,7 +2391,7 @@ view.ValueView = class extends view.Control {
             this.emit('error', err);
         }
         const valueLine = this._host.document.createElement('div');
-        valueLine.className = 'sidebar-view-item-value-line-border';
+        valueLine.className = 'sidebar-item-value-line-border';
         valueLine.appendChild(contentLine);
         this._element.appendChild(valueLine);
     }
@@ -2404,12 +2404,12 @@ view.AttributeView = class extends view.ValueView {
         this._host = host;
         this._attribute = attribute;
         this._element = this._host.document.createElement('div');
-        this._element.className = 'sidebar-view-item-value';
+        this._element.className = 'sidebar-item-value';
 
         const type = this._attribute.type;
         if (type) {
             this._expander = this._host.document.createElement('div');
-            this._expander.className = 'sidebar-view-item-value-expander';
+            this._expander.className = 'sidebar-item-value-expander';
             this._expander.innerText = '+';
             this._expander.addEventListener('click', () => {
                 this.toggle();
@@ -2420,7 +2420,7 @@ view.AttributeView = class extends view.ValueView {
         switch (type) {
             case 'graph': {
                 const line = this._host.document.createElement('div');
-                line.className = 'sidebar-view-item-value-line-link';
+                line.className = 'sidebar-item-value-line-link';
                 line.innerHTML = value.name;
                 line.addEventListener('click', () => {
                     this.emit('show-graph', value);
@@ -2430,7 +2430,7 @@ view.AttributeView = class extends view.ValueView {
             }
             case 'function': {
                 const line = this._host.document.createElement('div');
-                line.className = 'sidebar-view-item-value-line-link';
+                line.className = 'sidebar-item-value-line-link';
                 line.innerHTML = value.type.name;
                 line.addEventListener('click', () => {
                     this.emit('show-graph', value.type);
@@ -2447,7 +2447,7 @@ view.AttributeView = class extends view.ValueView {
                     content = content.split('<').join('&lt;').split('>').join('&gt;');
                 }
                 const line = this._host.document.createElement('div');
-                line.className = 'sidebar-view-item-value-line';
+                line.className = 'sidebar-item-value-line';
                 line.innerHTML = content ? content : '&nbsp;';
                 this._element.appendChild(line);
             }
@@ -2466,14 +2466,14 @@ view.AttributeView = class extends view.ValueView {
             const value = this._attribute.value;
             const content = type == 'tensor' && value && value.type ? value.type.toString() : this._attribute.type;
             const typeLine = this._host.document.createElement('div');
-            typeLine.className = 'sidebar-view-item-value-line-border';
+            typeLine.className = 'sidebar-item-value-line-border';
             typeLine.innerHTML = 'type: ' + '<code><b>' + content + '</b></code>';
             this._element.appendChild(typeLine);
 
             const description = this._attribute.description;
             if (description) {
                 const descriptionLine = this._host.document.createElement('div');
-                descriptionLine.className = 'sidebar-view-item-value-line-border';
+                descriptionLine.className = 'sidebar-item-value-line-border';
                 descriptionLine.innerHTML = description;
                 this._element.appendChild(descriptionLine);
             }
@@ -2529,7 +2529,7 @@ view.ArgumentView = class extends view.ValueView {
         this._argument = argument;
 
         this._element = this._host.document.createElement('div');
-        this._element.className = 'sidebar-view-item-value';
+        this._element.className = 'sidebar-item-value';
 
         const type = this._argument.type;
         const initializer = this._argument.initializer;
@@ -2537,12 +2537,12 @@ view.ArgumentView = class extends view.ValueView {
         const location = this._argument.location !== undefined;
 
         if (initializer) {
-            this._element.classList.add('sidebar-view-item-value-dark');
+            this._element.classList.add('sidebar-item-value-dark');
         }
 
         if (type || initializer || quantization || location) {
             this._expander = this._host.document.createElement('div');
-            this._expander.className = 'sidebar-view-item-value-expander';
+            this._expander.className = 'sidebar-item-value-expander';
             this._expander.innerText = '+';
             this._expander.addEventListener('click', () => {
                 this.toggle();
@@ -2556,11 +2556,11 @@ view.ArgumentView = class extends view.ValueView {
         if (this._hasId || (!this._hasCategory && !type)) {
             this._hasId = true;
             const nameLine = this._host.document.createElement('div');
-            nameLine.className = 'sidebar-view-item-value-line';
+            nameLine.className = 'sidebar-item-value-line';
             if (typeof name !== 'string') {
                 throw new Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
             }
-            nameLine.innerHTML = '<span class=\'sidebar-view-item-value-line-content\'>name: <b>' + (name || ' ') + '</b></span>';
+            nameLine.innerHTML = '<span class=\'sidebar-item-value-line-content\'>name: <b>' + (name || ' ') + '</b></span>';
             this._element.appendChild(nameLine);
         } else if (this._hasCategory) {
             this._bold('category', initializer.category);
@@ -2599,7 +2599,7 @@ view.ArgumentView = class extends view.ValueView {
                 const description = this._argument.description;
                 if (description) {
                     const descriptionLine = this._host.document.createElement('div');
-                    descriptionLine.className = 'sidebar-view-item-value-line-border';
+                    descriptionLine.className = 'sidebar-item-value-line-border';
                     descriptionLine.innerHTML = description;
                     this._element.appendChild(descriptionLine);
                 }
@@ -2607,9 +2607,9 @@ view.ArgumentView = class extends view.ValueView {
                 const quantization = this._argument.quantization;
                 if (quantization) {
                     const quantizationLine = this._host.document.createElement('div');
-                    quantizationLine.className = 'sidebar-view-item-value-line-border';
+                    quantizationLine.className = 'sidebar-item-value-line-border';
                     const content = !Array.isArray(quantization) ? quantization : '<br><br>' + quantization.map((value) => '  ' + value).join('<br>');
-                    quantizationLine.innerHTML = '<span class=\'sidebar-view-item-value-line-content\'>quantization: ' + '<b>' + content + '</b></span>';
+                    quantizationLine.innerHTML = '<span class=\'sidebar-item-value-line-content\'>quantization: ' + '<b>' + content + '</b></span>';
                     this._element.appendChild(quantizationLine);
                 }
 
@@ -2705,7 +2705,7 @@ view.ModelSidebar = class extends view.Control {
         }
 
         const separator = this._host.document.createElement('div');
-        separator.className = 'sidebar-view-separator';
+        separator.className = 'sidebar-separator';
         this._elements.push(separator);
     }
 
@@ -2714,10 +2714,10 @@ view.ModelSidebar = class extends view.Control {
     }
 
     _addHeader(title) {
-        const headerElement = this._host.document.createElement('div');
-        headerElement.className = 'sidebar-view-header';
-        headerElement.innerText = title;
-        this._elements.push(headerElement);
+        const element = this._host.document.createElement('div');
+        element.className = 'sidebar-header';
+        element.innerText = title;
+        this._elements.push(element);
     }
 
     _addProperty(name, value) {
@@ -2748,7 +2748,7 @@ view.DocumentationSidebar = class extends view.Control {
             const type = view.Documentation.format(this._type);
 
             const element = this._host.document.createElement('div');
-            element.setAttribute('class', 'sidebar-view-documentation');
+            element.setAttribute('class', 'sidebar-documentation');
 
             this._append(element, 'h1', type.name);
 
@@ -2833,7 +2833,7 @@ view.DocumentationSidebar = class extends view.Control {
             this._elements = [ element ];
 
             const separator = this._host.document.createElement('div');
-            separator.className = 'sidebar-view-separator';
+            separator.className = 'sidebar-separator';
             this._elements.push(separator);
         }
         return this._elements;
@@ -2857,7 +2857,7 @@ view.FindSidebar = class extends view.Control {
         this._graphElement = element;
         this._graph = graph;
         this._contentElement = this._host.document.createElement('div');
-        this._contentElement.setAttribute('class', 'sidebar-view-find');
+        this._contentElement.setAttribute('class', 'sidebar-find');
         this._searchElement = this._host.document.createElement('input');
         this._searchElement.setAttribute('id', 'search');
         this._searchElement.setAttribute('type', 'text');
