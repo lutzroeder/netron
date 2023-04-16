@@ -944,7 +944,8 @@ view.View = class {
                 if (this._menu) {
                     this._menu.close();
                 }
-                const nodeSidebar = new view.NodeSidebar(this._host, node);
+                const graphElement = this._element('canvas');
+                const nodeSidebar = new view.NodeSidebar(this._host, node, graphElement);
                 nodeSidebar.on('show-documentation', (/* sender, e */) => {
                     this.showDocumentation(node.type);
                 });
@@ -2072,7 +2073,7 @@ view.Control = class {
 
 view.NodeSidebar = class extends view.Control {
 
-    constructor(host, node) {
+    constructor(host, node, graph) {
         super();
         this._host = host;
         this._node = node;
@@ -2140,6 +2141,25 @@ view.NodeSidebar = class extends view.Control {
             this._addHeader('Outputs');
             for (const output of outputs) {
                 this._addOutput(output.name, output);
+            }
+        }
+
+        // hover edges
+        const edgePathsElement = graph.getElementById('edge-paths');
+        for (let item of this._inputs.concat(this._outputs)) {
+            let edges = edgePathsElement.querySelectorAll('[data-id=\"edge-' + item._value._list._arguments[0]._name + '\"]');
+            let valueElement = item.render().lastChild;
+            if (edges) {
+                valueElement.addEventListener('pointerenter', function(e){
+                    for (let e of this) {
+                        e.setAttribute('class', e.getAttribute('class') + ' hover');
+                    }
+                }.bind(edges));
+                valueElement.addEventListener('pointerleave', function(e){
+                    for (let e of this) {
+                        e.setAttribute('class', e.getAttribute('class').replace(' hover', ''));
+                    }
+                }.bind(edges));
             }
         }
 
@@ -2900,7 +2920,7 @@ view.FindSidebar = class extends view.Control {
         const edgePathsElement = this._graphElement.getElementById('edge-paths');
         let edgePathElement = edgePathsElement.firstChild;
         while (edgePathElement) {
-            if (edgePathElement.id == id) {
+            if (edgePathElement.getAttribute('data-id') == id) {
                 selection.push(edgePathElement);
             }
             edgePathElement = edgePathElement.nextSibling;
