@@ -159,7 +159,7 @@ const clean = () => {
     rm('package-lock.json');
 };
 
-const reset = () => {
+const purge = () => {
     clean();
     rm('third_party', 'env');
     rm('third_party', 'source');
@@ -527,7 +527,7 @@ const next = async () => {
         switch (task) {
             case 'start': start(); break;
             case 'clean': clean(); break;
-            case 'reset': reset(); break;
+            case 'purge': purge(); break;
             case 'build': await build(); break;
             case 'publish': await publish(); break;
             case 'version': version(); break;

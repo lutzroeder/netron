@@ -18,7 +18,7 @@
         "test": "node test/models.js",
         "lint": "node package.js lint",
         "clean": "node package.js clean",
-        "reset": "node package.js reset",
+        "purge": "node package.js purge",
         "build": "node package.js build",
         "publish": "node package.js publish",
         "version": "node package.js version",
