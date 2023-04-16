@@ -2144,11 +2144,12 @@ view.NodeSidebar = class extends view.Control {
             }
         }
 
-        // hover edges
+        // highlight edges
         const edgePathsElement = graph.getElementById('edge-paths');
         for (const io of this._inputs.concat(this._outputs)) {
             for (const item of io._value._items) {
-                const edges = edgePathsElement.querySelectorAll('[data-id="edge-' + item._argument.name + '"]');
+                const argName = item._argument.name.split('\n')[0];
+                const edges = edgePathsElement.querySelectorAll('[data-id="edge-' + CSS.escape(argName) + '"]');
                 if (edges.length > 0) {
                     const valueElement = item._element.lastChild;
                     valueElement.addEventListener('pointerenter', function() {

@@ -539,15 +539,17 @@ grapher.Edge = class {
             return document.createElementNS('http://www.w3.org/2000/svg', name);
         };
         this.element = createElement('path');
+        let id = '';
         if (this.id) {
-            this.element.setAttribute('data-id', this.id);
-            this.element.setAttribute('id', this.id + '_' + edgePathGroupElement.children.length);
+            id = this.id.split('\n')[0];
+            this.element.setAttribute('data-id', id);
+            this.element.setAttribute('id', id + '_' + edgePathGroupElement.children.length);
         }
         this.element.setAttribute('class', this.class ? 'edge-path ' + this.class : 'edge-path');
         edgePathGroupElement.appendChild(this.element);
         this.hitTestElement = createElement('use');
         this.hitTestElement.setAttribute('class', 'edge-path-hover');
-        this.hitTestElement.setAttribute('href', '#' + this.element.getAttribute('id'));
+        this.hitTestElement.setAttribute('href', '#' + this.element.id);
         edgePathGroupElement.insertBefore(this.hitTestElement, this.element);
         if (this.label) {
             const tspan = createElement('tspan');
@@ -560,7 +562,7 @@ grapher.Edge = class {
             this.labelElement.style.opacity = 0;
             this.labelElement.setAttribute('class', 'edge-label');
             if (this.id) {
-                this.labelElement.setAttribute('data-id', 'edge-label-' + this.id);
+                this.labelElement.setAttribute('data-id', 'edge-label-' + id);
             }
             edgeLabelGroupElement.appendChild(this.labelElement);
             const edgeBox = this.labelElement.getBBox();
