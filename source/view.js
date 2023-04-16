@@ -2146,19 +2146,19 @@ view.NodeSidebar = class extends view.Control {
 
         // hover edges
         const edgePathsElement = graph.getElementById('edge-paths');
-        for (let io of this._inputs.concat(this._outputs)) {
-            for (let item of io._value._items) {
-                let edges = edgePathsElement.querySelectorAll('[data-id=\"edge-' + item._argument.name + '\"]');
+        for (const io of this._inputs.concat(this._outputs)) {
+            for (const item of io._value._items) {
+                const edges = edgePathsElement.querySelectorAll('[data-id="edge-' + item._argument.name + '"]');
                 if (edges.length > 0) {
-                    let valueElement = item._element.lastChild;
-                    valueElement.addEventListener('pointerenter', function(e){
-                        for (let e of this) {
-                            e.classList.add('hover');
+                    const valueElement = item._element.lastChild;
+                    valueElement.addEventListener('pointerenter', function() {
+                        for (const edge of this) {
+                            edge.classList.add('hover');
                         }
                     }.bind(edges));
-                    valueElement.addEventListener('pointerleave', function(e){
-                        for (let e of this) {
-                            e.classList.remove('hover');
+                    valueElement.addEventListener('pointerleave', function() {
+                        for (const edge of this) {
+                            edge.classList.remove('hover');
                         }
                     }.bind(edges));
                 }
