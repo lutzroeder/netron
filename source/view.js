@@ -1082,12 +1082,14 @@ view.Menu = class {
                     break;
                 }
                 default: {
-                    let item = this._accelerators.get(code.toString());
-                    if (!item) {
-                        item = this._mnemonic(code);
-                    }
+                    const item = this._accelerators.get(code.toString());
                     if (item && this._execute(item)) {
                         e.preventDefault();
+                    } else {
+                        const item = this._mnemonic(code);
+                        if (item && this._activate(item)) {
+                            e.preventDefault();
+                        }
                     }
                     break;
                 }
@@ -1144,11 +1146,7 @@ view.Menu = class {
     _execute(item) {
         switch (item ? item.type : null) {
             case 'group': {
-                if (this._stack.length >= 2) {
-                    this._push(item);
-                } else {
-                    this._activate(item);
-                }
+                this._push(item);
                 return true;
             }
             case 'command': {
@@ -1181,9 +1179,20 @@ view.Menu = class {
     }
 
     _activate(item) {
-        this._stack.push(item);
-        this._rebuild();
-        this._update();
+        switch (item ? item.type : null) {
+            case 'group': {
+                this._stack.push(item);
+                this._rebuild();
+                this._update();
+                return true;
+            }
+            case 'command': {
+                return this._execute(item);
+            }
+            default: {
+                return false;
+            }
+        }
     }
 
     _deactivate() {
@@ -1242,13 +1251,12 @@ view.Menu = class {
                 switch (item.type) {
                     case 'group':
                     case 'command': {
-                        const callback = item.type === 'group' ? () => this._push(item) : () => this._execute(item);
                         const button = this._host.document.createElement('button');
                         button.setAttribute('class', 'menu-command');
                         button.setAttribute('id', item.identifier);
                         button.setAttribute('data-type', item.type);
                         button.addEventListener('mouseenter', () => button.focus());
-                        button.addEventListener('click', callback);
+                        button.addEventListener('click', () => this._execute(item));
                         const accelerator = this._host.document.createElement('span');
                         accelerator.setAttribute('class', 'menu-shortcut');
                         if (item.type === 'group') {
@@ -2032,13 +2040,11 @@ view.Sidebar = class {
     _activate(item) {
         const sidebar = this._element('sidebar');
         if (sidebar) {
-
             const title = this._element('sidebar-title');
             title.innerHTML = item.title ? item.title.toUpperCase() : '';
             const closeButton = this._element('sidebar-closebutton');
             closeButton.addEventListener('click', this._closeSidebarHandler);
             const content = this._element('sidebar-content');
-
             if (typeof item.content == 'string') {
                 content.innerHTML = item.content;
             } else if (item.content instanceof Array) {
