@@ -1379,13 +1379,16 @@ view.Menu = class {
     }
 
     close() {
-        this._stack = [];
         this._element.style.opacity = 0;
         this._element.style.left = '-200px';
         const button = this._element.ownerDocument.activeElement;
         if (this._buttons.indexOf(button) > 0) {
             button.blur();
         }
+        while (this._root.length > 1) {
+            this._deactivate();
+        }
+        this._stack = [];
     }
 
     register(item) {
