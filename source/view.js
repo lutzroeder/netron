@@ -170,7 +170,7 @@ view.View = class {
                     execute: () => this.showModelProperties(),
                     enabled: () => this.activeGraph
                 });
-                if (!this._host.environment('packages')) {
+                if (!this._host.environment('packaged')) {
                     view.add({});
                     view.add({
                         label: '&Developer Tools...',
