@@ -2894,7 +2894,6 @@ view.FindSidebar = class extends view.Control {
         this._searchElement.setAttribute('type', 'text');
         this._searchElement.setAttribute('spellcheck', 'false');
         this._searchElement.setAttribute('placeholder', 'Search...');
-        this._searchElement.setAttribute('style', 'width: 100%');
         this._searchElement.addEventListener('input', (e) => {
             this.update(e.target.value);
             this.emit('search-text-changed', e.target.value);
