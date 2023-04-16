@@ -2146,20 +2146,22 @@ view.NodeSidebar = class extends view.Control {
 
         // hover edges
         const edgePathsElement = graph.getElementById('edge-paths');
-        for (let item of this._inputs.concat(this._outputs)) {
-            let edges = edgePathsElement.querySelectorAll('[data-id=\"edge-' + item._value._list._arguments[0]._name + '\"]');
-            let valueElement = item.render().lastChild;
-            if (edges) {
-                valueElement.addEventListener('pointerenter', function(e){
-                    for (let e of this) {
-                        e.setAttribute('class', e.getAttribute('class') + ' hover');
-                    }
-                }.bind(edges));
-                valueElement.addEventListener('pointerleave', function(e){
-                    for (let e of this) {
-                        e.setAttribute('class', e.getAttribute('class').replace(' hover', ''));
-                    }
-                }.bind(edges));
+        for (let io of this._inputs.concat(this._outputs)) {
+            for (let item of io._value._items) {
+                let edges = edgePathsElement.querySelectorAll('[data-id=\"edge-' + item._argument.name + '\"]');
+                let valueElement = item._element.lastChild;
+                if (edges) {
+                    valueElement.addEventListener('pointerenter', function(e){
+                        for (let e of this) {
+                            e.classList.add('hover');
+                        }
+                    }.bind(edges));
+                    valueElement.addEventListener('pointerleave', function(e){
+                        for (let e of this) {
+                            e.classList.remove('hover');
+                        }
+                    }.bind(edges));
+                }
             }
         }
 
