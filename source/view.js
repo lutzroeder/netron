@@ -2149,8 +2149,8 @@ view.NodeSidebar = class extends view.Control {
         for (let io of this._inputs.concat(this._outputs)) {
             for (let item of io._value._items) {
                 let edges = edgePathsElement.querySelectorAll('[data-id=\"edge-' + item._argument.name + '\"]');
-                let valueElement = item._element.lastChild;
-                if (edges) {
+                if (edges.length > 0) {
+                    let valueElement = item._element.lastChild;
                     valueElement.addEventListener('pointerenter', function(e){
                         for (let e of this) {
                             e.classList.add('hover');
