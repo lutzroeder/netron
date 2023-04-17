@@ -18,7 +18,8 @@ $root.circle.TensorType = {
     UINT64: 12,
     RESOURCE: 13,
     VARIANT: 14,
-    UINT32: 15
+    UINT32: 15,
+    UINT16: 16
 };
 
 $root.circle.CustomQuantization = class CustomQuantization {
@@ -201,6 +202,7 @@ $root.circle.Tensor = class Tensor {
         $.is_variable = reader.bool_(position, 14, false);
         $.sparsity = reader.table(position, 16, $root.circle.SparsityParameters.decode);
         $.shape_signature = reader.typedArray(position, 18, Int32Array);
+        $.has_rank = reader.bool_(position, 20, false);
         return $;
     }
 
@@ -214,6 +216,7 @@ $root.circle.Tensor = class Tensor {
         $.is_variable = reader.value(json.is_variable, false);
         $.sparsity = reader.object(json.sparsity, $root.circle.SparsityParameters.decodeText);
         $.shape_signature = reader.typedArray(json.shape_signature, Int32Array);
+        $.has_rank = reader.value(json.has_rank, false);
         return $;
     }
 };
@@ -368,7 +371,17 @@ $root.circle.BuiltinOperator = {
     READ_VARIABLE: 143,
     ASSIGN_VARIABLE: 144,
     BROADCAST_ARGS: 145,
-    RANDOM_STANDARD_NORMAL: 146
+    RANDOM_STANDARD_NORMAL: 146,
+    BUCKETIZE: 147,
+    RANDOM_UNIFORM: 148,
+    MULTINOMIAL: 149,
+    GELU: 150,
+    DYNAMIC_UPDATE_SLICE: 151,
+    RELU_0_TO_1: 152,
+    UNSORTED_SEGMENT_PROD: 153,
+    UNSORTED_SEGMENT_MAX: 154,
+    UNSORTED_SEGMENT_SUM: 155,
+    ATAN2: 156
 };
 
 $root.circle.BuiltinOptions = class {
@@ -489,6 +502,13 @@ $root.circle.BuiltinOptions = class {
             case 112: return $root.circle.ReadVariableOptions.decode(reader, position);
             case 113: return $root.circle.AssignVariableOptions.decode(reader, position);
             case 114: return $root.circle.RandomOptions.decode(reader, position);
+            case 115: return $root.circle.BucketizeOptions.decode(reader, position);
+            case 116: return $root.circle.GeluOptions.decode(reader, position);
+            case 117: return $root.circle.DynamicUpdateSliceOptions.decode(reader, position);
+            case 118: return $root.circle.UnsortedSegmentProdOptions.decode(reader, position);
+            case 119: return $root.circle.UnsortedSegmentMaxOptions.decode(reader, position);
+            case 120: return $root.circle.UnsortedSegmentSumOptions.decode(reader, position);
+            case 121: return $root.circle.ATan2Options.decode(reader, position);
             case 252: return $root.circle.BCQGatherOptions.decode(reader, position);
             case 253: return $root.circle.BCQFullyConnectedOptions.decode(reader, position);
             case 254: return $root.circle.InstanceNormOptions.decode(reader, position);
@@ -612,6 +632,13 @@ $root.circle.BuiltinOptions = class {
             case 'ReadVariableOptions': return $root.circle.ReadVariableOptions.decodeText(reader, json);
             case 'AssignVariableOptions': return $root.circle.AssignVariableOptions.decodeText(reader, json);
             case 'RandomOptions': return $root.circle.RandomOptions.decodeText(reader, json);
+            case 'BucketizeOptions': return $root.circle.BucketizeOptions.decodeText(reader, json);
+            case 'GeluOptions': return $root.circle.GeluOptions.decodeText(reader, json);
+            case 'DynamicUpdateSliceOptions': return $root.circle.DynamicUpdateSliceOptions.decodeText(reader, json);
+            case 'UnsortedSegmentProdOptions': return $root.circle.UnsortedSegmentProdOptions.decodeText(reader, json);
+            case 'UnsortedSegmentMaxOptions': return $root.circle.UnsortedSegmentMaxOptions.decodeText(reader, json);
+            case 'UnsortedSegmentSumOptions': return $root.circle.UnsortedSegmentSumOptions.decodeText(reader, json);
+            case 'ATan2Options': return $root.circle.ATan2Options.decodeText(reader, json);
             case 'BCQGatherOptions': return $root.circle.BCQGatherOptions.decodeText(reader, json);
             case 'BCQFullyConnectedOptions': return $root.circle.BCQFullyConnectedOptions.decodeText(reader, json);
             case 'InstanceNormOptions': return $root.circle.InstanceNormOptions.decodeText(reader, json);
@@ -2415,8 +2442,8 @@ $root.circle.RandomOptions = class RandomOptions {
 
     static decode(reader, position) {
         const $ = new $root.circle.RandomOptions();
-        $.seed = reader.int32_(position, 4, 0);
-        $.seed2 = reader.int32_(position, 6, 0);
+        $.seed = reader.int64_(position, 4, 0);
+        $.seed2 = reader.int64_(position, 6, 0);
         return $;
     }
 
@@ -2424,6 +2451,101 @@ $root.circle.RandomOptions = class RandomOptions {
         const $ = new $root.circle.RandomOptions();
         $.seed = reader.value(json.seed, 0);
         $.seed2 = reader.value(json.seed2, 0);
+        return $;
+    }
+};
+
+$root.circle.BucketizeOptions = class BucketizeOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.BucketizeOptions();
+        $.boundaries = reader.typedArray(position, 4, Float32Array);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.BucketizeOptions();
+        $.boundaries = reader.typedArray(json.boundaries, Float32Array);
+        return $;
+    }
+};
+
+$root.circle.GeluOptions = class GeluOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.GeluOptions();
+        $.approximate = reader.bool_(position, 4, false);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.GeluOptions();
+        $.approximate = reader.value(json.approximate, false);
+        return $;
+    }
+};
+
+$root.circle.DynamicUpdateSliceOptions = class DynamicUpdateSliceOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.circle.DynamicUpdateSliceOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.circle.DynamicUpdateSliceOptions();
+        return $;
+    }
+};
+
+$root.circle.UnsortedSegmentProdOptions = class UnsortedSegmentProdOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.circle.UnsortedSegmentProdOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.circle.UnsortedSegmentProdOptions();
+        return $;
+    }
+};
+
+$root.circle.UnsortedSegmentMaxOptions = class UnsortedSegmentMaxOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.circle.UnsortedSegmentMaxOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.circle.UnsortedSegmentMaxOptions();
+        return $;
+    }
+};
+
+$root.circle.UnsortedSegmentSumOptions = class UnsortedSegmentSumOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.circle.UnsortedSegmentSumOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.circle.UnsortedSegmentSumOptions();
+        return $;
+    }
+};
+
+$root.circle.ATan2Options = class ATan2Options {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.circle.ATan2Options();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.circle.ATan2Options();
         return $;
     }
 };

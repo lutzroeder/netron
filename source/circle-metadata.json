@@ -54,6 +54,12 @@
     ]
   },
   {
+    "name": "Bucketize",
+    "attributes": [
+      { "name": "boundaries", "type": "float32[]", "default": 0 }
+    ]
+  },
+  {
     "name": "Call",
     "attributes": [
       { "name": "subgraph", "type": "uint32", "default": 0 }
@@ -185,6 +191,12 @@
     "attributes": [
       { "name": "axis", "type": "int32", "default": 0 },
       { "name": "batch_dims", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "Gelu",
+    "attributes": [
+      { "name": "approximate", "type": "boolean", "default": false }
     ]
   },
   {
