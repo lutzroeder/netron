@@ -51,7 +51,7 @@ view.View = class {
                 }
             }, { passive: true });
             this._host.document.addEventListener('keydown', () => {
-                this.clearSelection();
+                this.select(null);
             });
             if (this._host.environment('menu')) {
                 const button = this._element('menu-button');
@@ -248,7 +248,7 @@ view.View = class {
 
     find() {
         if (this._graph) {
-            this.clearSelection();
+            this.select(null);
             const graphElement = this._element('canvas');
             const content = new view.FindSidebar(this._host, graphElement, this._graph);
             content.on('search-text-changed', (sender, text) => {
@@ -256,6 +256,7 @@ view.View = class {
             });
             content.on('select', (sender, selection) => {
                 this.select(selection);
+                this.scrollTo(selection);
             });
             this._sidebar.open(content.content, 'Find');
             content.focus(this._searchText);
@@ -523,15 +524,12 @@ view.View = class {
         }
     }
 
-    select(selection) {
-        this.clearSelection();
+    scrollTo(selection) {
         if (selection && selection.length > 0) {
             const container = this._element('graph');
             let x = 0;
             let y = 0;
             for (const element of selection) {
-                element.classList.add('select');
-                this._selection.push(element);
                 const rect = element.getBoundingClientRect();
                 x += rect.left + (rect.width / 2);
                 y += rect.top + (rect.height / 2);
@@ -545,10 +543,16 @@ view.View = class {
         }
     }
 
-    clearSelection() {
+    select(selection) {
         while (this._selection.length > 0) {
             const element = this._selection.pop();
             element.classList.remove('select');
+        }
+        if (selection && selection.length > 0) {
+            for (const element of selection) {
+                element.classList.add('select');
+                this._selection.push(element);
+            }
         }
     }
 
@@ -977,6 +981,23 @@ view.View = class {
                         error.context = this._model.identifier;
                     }
                     this.error(error, null, null);
+                });
+                nodeSidebar.on('activate', (sender, argument) => {
+                    const name = 'edge-' + argument.name;
+                    const selection = [];
+                    const graphElement = this._element('canvas');
+                    const edgePathsElement = graphElement.getElementById('edge-paths');
+                    let element = edgePathsElement.firstChild;
+                    while (element) {
+                        if (element.id == name) {
+                            selection.push(element);
+                        }
+                        element = element.nextSibling;
+                    }
+                    this.select(selection);
+                });
+                nodeSidebar.on('deactivate', () => {
+                    this.select(null);
                 });
                 if (input) {
                     nodeSidebar.toggleInput(input.name);
@@ -2192,12 +2213,10 @@ view.NodeSidebar = class extends view.Control {
     _addInput(name, input) {
         if (input.arguments.length > 0) {
             const value = new view.ParameterView(this._host, input);
-            value.on('export-tensor', (sender, tensor) => {
-                this.emit('export-tensor', tensor);
-            });
-            value.on('error', (sender, tensor) => {
-                this.emit('error', tensor);
-            });
+            value.on('export-tensor', (sender, value) => this.emit('export-tensor', value));
+            value.on('error', (sender, value) => this.emit('error', value));
+            value.on('activate', (sender, value) => this.emit('activate', value));
+            value.on('deactivate', (sender, value) => this.emit('deactivate', value));
             const item = new view.NameValueView(this._host, name, value);
             this._inputs.push(item);
             this._elements.push(item.render());
@@ -2206,7 +2225,10 @@ view.NodeSidebar = class extends view.Control {
 
     _addOutput(name, output) {
         if (output.arguments.length > 0) {
-            const item = new view.NameValueView(this._host, name, new view.ParameterView(this._host, output));
+            const value = new view.ParameterView(this._host, output);
+            value.on('activate', (sender, value) => this.emit('activate', value));
+            value.on('deactivate', (sender, value) => this.emit('deactivate', value));
+            const item = new view.NameValueView(this._host, name, value);
             this._outputs.push(item);
             this._elements.push(item.render());
         }
@@ -2508,12 +2530,10 @@ view.ParameterView = class extends view.Control {
         this._items = [];
         for (const argument of list.arguments) {
             const item = new view.ArgumentView(host, argument);
-            item.on('export-tensor', (sender, tensor) => {
-                this.emit('export-tensor', tensor);
-            });
-            item.on('error', (sender, tensor) => {
-                this.emit('error', tensor);
-            });
+            item.on('export-tensor', (sender, value) => this.emit('export-tensor', value));
+            item.on('error', (sender, value) => this.emit('error', value));
+            item.on('activate', (sender, value) => this.emit('activate', value));
+            item.on('deactivate', (sender, value) => this.emit('deactivate', value));
             this._items.push(item);
             this._elements.push(item.render());
         }
@@ -2570,6 +2590,8 @@ view.ArgumentView = class extends view.ValueView {
                 throw new Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
             }
             nameLine.innerHTML = '<span class=\'sidebar-item-value-line-content\'>name: <b>' + (name || ' ') + '</b></span>';
+            nameLine.addEventListener('pointerenter', () => this.emit('activate', this._argument));
+            nameLine.addEventListener('pointerleave', () => this.emit('deactivate', this._argument));
             this._element.appendChild(nameLine);
         } else if (this._hasCategory) {
             this._bold('category', initializer.category);

@@ -74,7 +74,7 @@
 #arrowhead-hover { fill: #e00; }
 
 .select .node.border { stroke: #e00; stroke-width: 2px; }
-.select.edge-path { stroke: #e00; stroke-width: 2px; marker-end: url("#arrowhead-select"); }
+.select.edge-path { stroke: #e00; stroke-width: 1px; marker-end: url("#arrowhead-select"); }
 #arrowhead-select { fill: #e00; }
 
 .cluster rect { stroke: #000; fill: #000; fill-opacity: 0.02; stroke-opacity: 0.06; stroke-width: 1px; }
