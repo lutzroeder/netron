@@ -64,13 +64,12 @@
 .graph-item-output:hover path { fill: #fff; }
 
 .edge-label { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"; font-size: 10px; }
-.edge-path { stroke: #000; stroke-width: 1px; fill: none; marker-end: url("#arrowhead"); }
+.edge-path { pointer-events: var(--pointer-events, none); stroke: #000; stroke-width: var(--stroke-width, 1px); fill: none; marker-end: url("#arrowhead"); }
 #arrowhead { fill: #000; }
 .edge-path-control-dependency { stroke-dasharray: 3, 2; }
 
-.edge-path-hover { pointer-events: stroke; stroke-width: 0.5em; fill: none; stroke-opacity: 0; }
-.edge-path-hover:hover + .edge-path { stroke: #e00; marker-end: url("#arrowhead-hover"); }
-.edge-path:hover { stroke: #e00; marker-end: url("#arrowhead-hover"); }
+.edge-path-hittest { --pointer-events: auto; --stroke-width: 0.5em; fill: none; stroke-opacity: 0; }
+.edge-path-hittest:hover + .edge-path, edge-path.hover { stroke: #e00; marker-end: url("#arrowhead-hover"); }
 #arrowhead-hover { fill: #e00; }
 
 .select .node.border { stroke: #e00; stroke-width: 2px; }
@@ -87,8 +86,7 @@
     .edge-path { stroke: #888; }
     #arrowhead { fill: #888; }
 
-    .edge-path-hover:hover + .edge-path { stroke: #b00; marker-end: url("#arrowhead-hover"); }
-    .edge-path:hover { stroke: #b00; marker-end: url("#arrowhead-hover"); }
+    .edge-path-hittest:hover + .edge-path, edge-path.hover { stroke: #b00; marker-end: url("#arrowhead-hover"); }
     #arrowhead-hover { fill: #b00; }
 
     .node path { stroke: #1d1d1d; }

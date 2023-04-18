@@ -989,7 +989,7 @@ view.View = class {
                     const edgePathsElement = graphElement.getElementById('edge-paths');
                     let element = edgePathsElement.firstChild;
                     while (element) {
-                        if (element.id == name) {
+                        if (element.getAttribute('data-id') == name) {
                             selection.push(element);
                         }
                         element = element.nextSibling;
@@ -2937,7 +2937,7 @@ view.FindSidebar = class extends view.Control {
         const edgePathsElement = this._graphElement.getElementById('edge-paths');
         let edgePathElement = edgePathsElement.firstChild;
         while (edgePathElement) {
-            if (edgePathElement.id == id) {
+            if (edgePathElement.getAttribute('data-id') == id) {
                 selection.push(edgePathElement);
             }
             edgePathElement = edgePathElement.nextSibling;

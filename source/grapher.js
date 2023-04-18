@@ -125,7 +125,7 @@ grapher.Graph = class {
             element.setAttribute('viewBox', '0 0 10 10');
             element.setAttribute('refX', 9);
             element.setAttribute('refY', 5);
-            element.setAttribute('markerUnits', 'strokeWidth');
+            element.setAttribute('markerUnits', 'userSpaceOnUse');
             element.setAttribute('markerWidth', 8);
             element.setAttribute('markerHeight', 6);
             element.setAttribute('orient', 'auto');
@@ -538,15 +538,23 @@ grapher.Edge = class {
         const createElement = (name) => {
             return document.createElementNS('http://www.w3.org/2000/svg', name);
         };
-        this.hitTestElement = createElement('path');
-        this.hitTestElement.setAttribute('class', 'edge-path-hover');
-        edgePathGroupElement.appendChild(this.hitTestElement);
         this.element = createElement('path');
+        let dataId = '';
+        let elementId = '';
         if (this.id) {
-            this.element.setAttribute('id', this.id);
+            // 'data-id' attribute is used to store plain id
+            dataId = this.id;
+            this.element.setAttribute('data-id', dataId);
+            // The 'id' attribute needs to be unique.
+            elementId = CSS.escape(this.id) + '_' + edgePathGroupElement.children.length
+            this.element.setAttribute('id', elementId);
         }
         this.element.setAttribute('class', this.class ? 'edge-path ' + this.class : 'edge-path');
         edgePathGroupElement.appendChild(this.element);
+        this.hitTestElement = createElement('use');
+        this.hitTestElement.setAttribute('class', 'edge-path-hittest');
+        this.hitTestElement.setAttribute('href', '#' + this.element.id);
+        edgePathGroupElement.insertBefore(this.hitTestElement, this.element);
         if (this.label) {
             const tspan = createElement('tspan');
             tspan.setAttribute('xml:space', 'preserve');
@@ -558,7 +566,7 @@ grapher.Edge = class {
             this.labelElement.style.opacity = 0;
             this.labelElement.setAttribute('class', 'edge-label');
             if (this.id) {
-                this.labelElement.setAttribute('id', 'edge-label-' + this.id);
+                this.labelElement.setAttribute('data-id', 'edge-label-' + dataId);
             }
             edgeLabelGroupElement.appendChild(this.labelElement);
             const edgeBox = this.labelElement.getBBox();
@@ -594,7 +602,6 @@ grapher.Edge = class {
         };
         const edgePath = curvePath(this, this.from, this.to);
         this.element.setAttribute('d', edgePath);
-        this.hitTestElement.setAttribute('d', edgePath);
         if (this.labelElement) {
             this.labelElement.setAttribute('transform', 'translate(' + (this.x - (this.width / 2)) + ',' + (this.y - (this.height / 2)) + ')');
             this.labelElement.style.opacity = 1;
