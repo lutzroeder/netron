@@ -553,7 +553,7 @@ grapher.Edge = class {
         edgePathGroupElement.appendChild(this.element);
         this.hitTestElement = createElement('use');
         this.hitTestElement.setAttribute('class', 'edge-path-hittest');
-        this.hitTestElement.setAttribute('href', '#' + this.element.id);
+        this.hitTestElement.setAttribute('href', '#' + elementId);
         edgePathGroupElement.insertBefore(this.hitTestElement, this.element);
         if (this.label) {
             const tspan = createElement('tspan');
