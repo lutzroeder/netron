@@ -28965,7 +28965,11 @@
           "tensor(string)",
           "tensor(bool)",
           "tensor(complex64)",
-          "tensor(complex128)"
+          "tensor(complex128)",
+          "tensor(float8e4m3fn)",
+          "tensor(float8e4m3fnuz)",
+          "tensor(float8e5m2)",
+          "tensor(float8e5m2fnuz)"
         ]
       }
     ],
