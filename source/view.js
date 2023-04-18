@@ -559,10 +559,11 @@ view.View = class {
     hoverGraphElement(id, isAdd) {
         const graph = this._element('graph');
         for (const elem of graph.querySelectorAll('#' + CSS.escape(id))) {
-            if (isAdd)
+            if (isAdd) {
                 elem.classList.add('hover');
-            else
+            } else {
                 elem.classList.remove('hover');
+            }
         }
     }
 
@@ -2919,11 +2920,11 @@ view.FindSidebar = class extends view.Control {
             this.select(e);
         });
         this._hoveredElement = undefined;
-        this._resultElement.addEventListener('pointerleave', (e) => {
+        this._resultElement.addEventListener('pointerleave', () => {
             this._hover(this._hoveredElement, false);
         });
         this._resultElement.addEventListener('pointermove', (e) => {
-            let elem = document.elementFromPoint(e.clientX, e.clientY);
+            const elem = document.elementFromPoint(e.clientX, e.clientY);
             if (elem != this._hoveredElement) {
                 this._hover(this._hoveredElement, false);
                 this._hover(elem, true);
@@ -2934,8 +2935,9 @@ view.FindSidebar = class extends view.Control {
     }
 
     _hover(elem, isAdd) {
-        if (elem)
+        if (elem) {
             this._graph.hover(elem.id, isAdd);
+        }
         this._hoveredElement = isAdd ? elem : undefined;
     }
 
