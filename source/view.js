@@ -556,6 +556,16 @@ view.View = class {
         }
     }
 
+    hoverGraphElement(id, isAdd) {
+        const graph = this._element('graph');
+        for (const elem of graph.querySelectorAll('#' + CSS.escape(id))) {
+            if (isAdd)
+                elem.classList.add('hover');
+            else
+                elem.classList.remove('hover');
+        }
+    }
+
     error(err, name, screen) {
         if (this._sidebar) {
             this._sidebar.close();
@@ -1698,6 +1708,11 @@ view.Graph = class extends grapher.Graph {
         }
         super.build(document, origin);
     }
+
+    hover(id, isAdd) {
+        this.view.hoverGraphElement(id, isAdd);
+    }
+
 };
 
 view.Node = class extends grapher.Node {
@@ -2903,7 +2918,6 @@ view.FindSidebar = class extends view.Control {
         this._resultElement.addEventListener('click', (e) => {
             this.select(e);
         });
-        this._hoverTargetElements = []
         this._hoveredElement = undefined;
         this._resultElement.addEventListener('pointerleave', (e) => {
             this._hover(this._hoveredElement, false);
@@ -2920,33 +2934,9 @@ view.FindSidebar = class extends view.Control {
     }
 
     _hover(elem, isAdd) {
-        if (!elem) return;
-        const idx = Array.prototype.indexOf.call(elem.parentNode.children, elem);
-        if (idx == -1) return;
-        if (this._hoverTargetElements.length < idx) return;
-        const targets = this._hoverTargetElements[idx];
-        if (!targets) return;
-        if (Array.isArray(targets)) {
-            for (const target of targets) {
-                if (isAdd) {
-                    target.element.classList.add('hover');
-                }else {
-                    target.element.classList.remove('hover');
-                }
-            }
-        }else {
-            const target = targets;
-            if (isAdd) {
-                target.classList.add('hover');
-            }else {
-                target.classList.remove('hover');
-            }
-        }
-        if (isAdd) {
-            this._hoveredElement = elem;
-        }else {
-            this._hoveredElement = undefined;
-        }
+        if (elem)
+            this._graph.hover(elem.id, isAdd);
+        this._hoveredElement = isAdd ? elem : undefined;
     }
 
     on(event, callback) {
@@ -3010,7 +3000,6 @@ view.FindSidebar = class extends view.Control {
 
     update(searchText) {
         this._resultElement.replaceChildren();
-        this._hoverTargetElements = [];
         this._hoveredElement = undefined;
 
         let terms = null;
@@ -3070,7 +3059,6 @@ view.FindSidebar = class extends view.Control {
                                     inputItem.innerText = '\u2192 ' + argument.name.split('\n').shift(); // custom argument id
                                     inputItem.id = 'edge-' + argument.name;
                                     this._resultElement.appendChild(inputItem);
-                                    this._hoverTargetElements.push(this._graph._arguments.get(argument.name)._edges);
                                     edges.add(argument.name);
                                 } else {
                                     initializers.push(argument);
@@ -3089,7 +3077,6 @@ view.FindSidebar = class extends view.Control {
                     nameItem.innerText = '\u25A2 ' + (name || '[' + type + ']');
                     nameItem.id = label.id;
                     this._resultElement.appendChild(nameItem);
-                    this._hoverTargetElements.push(label.element);
                     nodes.add(label.id);
                 }
             }
@@ -3099,7 +3086,6 @@ view.FindSidebar = class extends view.Control {
                     initializeItem.innerText = '\u25A0 ' + argument.name.split('\n').shift(); // custom argument id
                     initializeItem.id = 'initializer-' + argument.name;
                     this._resultElement.appendChild(initializeItem);
-                    this._hoverTargetElements.push(undefined);
                 }
             }
         }
@@ -3114,7 +3100,6 @@ view.FindSidebar = class extends view.Control {
                             outputItem.innerText = '\u2192 ' + argument.name.split('\n').shift(); // custom argument id
                             outputItem.id = 'edge-' + argument.name;
                             this._resultElement.appendChild(outputItem);
-                            this._hoverTargetElements.push(this._graph._arguments.get(argument.name)._edges);
                             edges.add(argument.name);
                         }
                     }
