@@ -70,10 +70,10 @@
 
 .edge-path-hover { pointer-events: stroke; stroke-width: 0.5em; fill: none; stroke-opacity: 0; }
 .edge-path-hover:hover + .edge-path { stroke: #e00; marker-end: url("#arrowhead-hover"); }
-.edge-path:hover { stroke: #e00; marker-end: url("#arrowhead-hover"); }
+.edge-path:hover, .edge-path.hover { stroke: #e00; marker-end: url("#arrowhead-hover"); }
 #arrowhead-hover { fill: #e00; }
 
-.select .node.border { stroke: #e00; stroke-width: 2px; }
+.select .node.border, .hover .node.border { stroke: #e00; stroke-width: 2px; }
 .select.edge-path { stroke: #e00; stroke-width: 1px; marker-end: url("#arrowhead-select"); }
 #arrowhead-select { fill: #e00; }
 
