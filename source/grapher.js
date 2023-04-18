@@ -546,7 +546,7 @@ grapher.Edge = class {
             dataId = this.id;
             this.element.setAttribute('data-id', dataId);
             // The 'id' attribute needs to be unique.
-            elementId = CSS.escape(this.id) + '_' + edgePathGroupElement.children.length
+            elementId = CSS.escape(this.id) + '_' + edgePathGroupElement.children.length;
             this.element.setAttribute('id', elementId);
         }
         this.element.setAttribute('class', this.class ? 'edge-path ' + this.class : 'edge-path');
