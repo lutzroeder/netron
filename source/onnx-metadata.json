@@ -104,7 +104,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Absolute takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the absolute is, y = abs(x), is applied to\nthe tensor elementwise.\n",
+    "description": "Absolute takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where absolute value, y = abs(x), is applied to\nthe tensor elementwise.\n",
     "inputs": [
       {
         "name": "X",
