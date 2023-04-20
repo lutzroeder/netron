@@ -345,8 +345,8 @@ view.View = class {
             this._events = {};
             this._events.scroll = (e) => this._scrollHandler(e);
             this._events.wheel = (e) => this._wheelHandler(e);
-            this._events.mousedown = (e) => this._mouseDownHandler(e);
             this._events.gesturestart = (e) => this._gestureStartHandler(e);
+            this._events.pointerdown = (e) => this._pointerDownHandler(e);
             this._events.touchstart = (e) => this._touchStartHandler(e);
         }
         const graph = this._element('graph');
@@ -355,7 +355,7 @@ view.View = class {
         }
         graph.addEventListener('scroll', this._events.scroll);
         graph.addEventListener('wheel', this._events.wheel, { passive: false });
-        graph.addEventListener('mousedown', this._events.mousedown);
+        graph.addEventListener('pointerdown', this._events.pointerdown);
         if (this._host.environment('agent') === 'safari') {
             graph.addEventListener('gesturestart', this._events.gesturestart, false);
         } else {
@@ -368,7 +368,7 @@ view.View = class {
             const graph = this._element('graph');
             graph.removeEventListener('scroll', this._events.scroll);
             graph.removeEventListener('wheel', this._events.wheel);
-            graph.removeEventListener('mousedown', this._events.mousedown);
+            graph.removeEventListener('pointerdown', this._events.pointerdown);
             graph.removeEventListener('gesturestart', this._events.gesturestart);
             graph.removeEventListener('touchstart', this._events.touchstart);
         }
@@ -397,8 +397,9 @@ view.View = class {
         this._zoom = zoom;
     }
 
-    _mouseDownHandler(e) {
-        if (e.buttons === 1) {
+    _pointerDownHandler(e) {
+        if (e.pointerType !== 'touch' && e.buttons === 1) {
+            e.target.setPointerCapture(e.pointerId);
             const document = this._host.document.documentElement;
             const container = this._element('graph');
             this._mousePosition = {
@@ -407,12 +408,9 @@ view.View = class {
                 x: e.clientX,
                 y: e.clientY
             };
-            const background = this._element('background');
-            if (background) {
-                background.setAttribute('cursor', 'grabbing');
-            }
+            container.style.cursor = 'grabbing';
             e.stopImmediatePropagation();
-            const mouseMoveHandler = (e) => {
+            const pointerMoveHandler = (e) => {
                 e.preventDefault();
                 e.stopImmediatePropagation();
                 const dx = e.clientX - this._mousePosition.x;
@@ -424,13 +422,12 @@ view.View = class {
                     container.scrollLeft = this._mousePosition.left - dx;
                 }
             };
-            const mouseUpHandler = () => {
-                if (background) {
-                    background.setAttribute('cursor', 'default');
-                }
-                container.removeEventListener('mouseup', mouseUpHandler);
-                container.removeEventListener('mouseleave', mouseUpHandler);
-                container.removeEventListener('mousemove', mouseMoveHandler);
+            const pointerUpHandler = () => {
+                e.target.releasePointerCapture(e.pointerId);
+                container.style.removeProperty('cursor');
+                container.removeEventListener('pointerup', pointerUpHandler);
+                container.removeEventListener('pointerleave', pointerUpHandler);
+                container.removeEventListener('pointermove', pointerMoveHandler);
                 if (this._mousePosition && this._mousePosition.moved) {
                     e.preventDefault();
                     e.stopImmediatePropagation();
@@ -442,9 +439,9 @@ view.View = class {
                 e.stopPropagation();
                 document.removeEventListener('click', clickHandler, true);
             };
-            container.addEventListener('mousemove', mouseMoveHandler);
-            container.addEventListener('mouseup', mouseUpHandler);
-            container.addEventListener('mouseleave', mouseUpHandler);
+            container.addEventListener('pointermove', pointerMoveHandler);
+            container.addEventListener('pointerup', pointerUpHandler);
+            container.addEventListener('pointerleave', pointerUpHandler);
         }
     }
 
