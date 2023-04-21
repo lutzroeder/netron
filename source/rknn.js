@@ -593,7 +593,7 @@ rknn.Container = class {
                             }
                             break;
                         default:
-                            throw new rknn.Error("Unsupported container version '" + version + "'.");
+                            throw new rknn.Error("Unsupported RKNN container version '" + version + "'.");
                     }
                     this._next = new rknn.Container(stream, data_size);
                     this._next.read();
