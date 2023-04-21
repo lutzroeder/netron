@@ -128,6 +128,7 @@ class _HTTPServerThread(threading.Thread):
         self.url = 'http://' + address[0] + ':' + str(address[1])
         self.server = _ThreadedHTTPServer(address, _HTTPRequestHandler)
         self.server.timeout = 0.25
+        self.server.block_on_close = False
         self.server.RequestHandlerClass.content = content
         self.server.RequestHandlerClass.verbosity = verbosity
         self.terminate_event = threading.Event()
