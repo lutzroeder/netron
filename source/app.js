@@ -249,6 +249,7 @@ app.Application = class {
             case 'close': window.close(); break;
             case 'quit': electron.app.quit(); break;
             case 'reload': this._reload(); break;
+            case 'fullscreen': this._fullscreen(); break;
             case 'report-issue': electron.shell.openExternal('https://github.com/' + this._package.repository + '/issues/new'); break;
             case 'about': this._about(); break;
             default: {
@@ -266,6 +267,13 @@ app.Application = class {
         if (view && view.path) {
             view.open(view.path);
             this._updateRecents(view.path);
+        }
+    }
+
+    _fullscreen() {
+        const view = this._views.activeView;
+        if (view && view.path) {
+            view.fullscreen();
         }
     }
 
@@ -481,6 +489,13 @@ app.Application = class {
                         label: '&Reload',
                         accelerator: darwin ? 'Cmd+R' : 'F5',
                         click: () => this._reload(),
+                    },
+                    { type: 'separator' },
+                    {
+                        id: 'view.fullscreen',
+                        label: '&Full Screen',
+                        accelerator: darwin ? 'Cmd+F' : 'F11',
+                        click: () => this._fullscreen(),
                     },
                     { type: 'separator' },
                     {
@@ -801,6 +816,21 @@ app.View = class {
             for (const obj of dispatch) {
                 this.execute(obj.command, obj.data);
             }
+        }
+    }
+
+    fullscreen() {
+        if (this._window.fullScreen) {
+            this._window.fullScreen = false;
+            if (!this._wasMaximized) {
+                this._window.unmaximize();
+            }
+        }else {
+            this._wasMaximized = this._window.isMaximized();
+            if (!this._wasMaximized) {
+                this._window.maximize();
+            }
+            this._window.fullScreen = true;
         }
     }
 };

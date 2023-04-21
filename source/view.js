@@ -143,6 +143,12 @@ view.View = class {
                         execute: () => this._host.execute('reload'),
                         enabled: () => this.activeGraph
                     });
+                    view.add({
+                        label: '&Full Screen',
+                        accelerator: this._host.environment('platform') === 'darwin' ? 'CmdOrCtrl+F' : 'F11',
+                        execute: () => this._host.execute('fullscreen'),
+                        enabled: () => this.activeGraph
+                    })
                     view.add({});
                 }
                 view.add({
@@ -1050,7 +1056,7 @@ view.Menu = class {
         this._keyCodes = new Map([
             [ 'Backspace', 0x08 ], [ 'Enter', 0x0D ],
             [ 'Up', 0x26 ], [ 'Down', 0x28 ],
-            [ 'F5', 0x74 ]
+            [ 'F5', 0x74 ], [ 'F11', 0x7A ],
         ]);
         this._symbols = new Map([
             [ 'Backspace', '&#x232B;' ], [ 'Enter', '&#x23ce;' ],
