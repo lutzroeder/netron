@@ -184,7 +184,7 @@ view.View = class {
                     execute: () => this._host.execute('report-issue')
                 });
                 help.add({
-                    label: '&About ' + this._host.document.title,
+                    label: '&About ' + this._host.environment('name'),
                     execute: () => this._host.execute('about')
                 });
             }

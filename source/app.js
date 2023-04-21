@@ -23,7 +23,7 @@ app.Application = class {
         const packageContent = fs.readFileSync(packageFile, 'utf-8');
         this._package = JSON.parse(packageContent);
 
-        electron.app.setAppUserModelId('com.lutzroeder.netron');
+        electron.app.setAppUserModelId(this._package.build.appId);
         electron.app.allowRendererProcessReuse = true;
 
         if (!electron.app.requestSingleInstanceLock()) {
@@ -106,6 +106,7 @@ app.Application = class {
     get environment() {
         this._environment = this._environment || {
             packaged: electron.app.isPackaged,
+            name: this._package.productName,
             version: this._package.version,
             date: this._package.date,
             repository: 'https://github.com' + this._package.repository,

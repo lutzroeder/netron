@@ -18,13 +18,14 @@ host.BrowserHost = class {
             }
         }
         this._environment = {
-            'type': this._meta.type ? this._meta.type[0] : 'Browser',
-            'version': this._meta.version ? this._meta.version[0] : null,
-            'date': Array.isArray(this._meta.date) && this._meta.date.length > 0 && this._meta.date[0] ? new Date(this._meta.date[0].split(' ').join('T') + 'Z') : new Date(),
-            'platform': /(Mac|iPhone|iPod|iPad)/i.test(this._navigator.platform) ? 'darwin' : undefined,
-            'agent': this._navigator.userAgent.toLowerCase().indexOf('safari') !== -1 && this._navigator.userAgent.toLowerCase().indexOf('chrome') === -1 ? 'safari' : '',
-            'repository': this._document.getElementById('logo-github').getAttribute('href'),
-            'menu': true
+            name: this._document.title,
+            type: this._meta.type ? this._meta.type[0] : 'Browser',
+            version: this._meta.version ? this._meta.version[0] : null,
+            date: Array.isArray(this._meta.date) && this._meta.date.length > 0 && this._meta.date[0] ? new Date(this._meta.date[0].split(' ').join('T') + 'Z') : new Date(),
+            platform: /(Mac|iPhone|iPod|iPad)/i.test(this._navigator.platform) ? 'darwin' : undefined,
+            agent: this._navigator.userAgent.toLowerCase().indexOf('safari') !== -1 && this._navigator.userAgent.toLowerCase().indexOf('chrome') === -1 ? 'safari' : '',
+            repository: this._document.getElementById('logo-github').getAttribute('href'),
+            menu: true
         };
         if (!/^\d\.\d\.\d$/.test(this.version)) {
             throw new Error('Invalid version.');
@@ -194,10 +195,11 @@ host.BrowserHost = class {
         const search = this.window.location.search;
         const params = new URLSearchParams(search + (hash ? '&' + hash : ''));
 
-        if (this._meta.file) {
+        if (this._meta.file && this._meta.identifier) {
             const url = this._meta.file[0];
             if (this._view.accept(url)) {
                 this._openModel(this._url(url), null);
+                this._document.title = this._meta.identifier;
                 return;
             }
         }
