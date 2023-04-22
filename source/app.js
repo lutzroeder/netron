@@ -156,6 +156,7 @@ app.Application = class {
         this._views.on('active-view-updated', () => {
             this._menu.update();
         });
+        electron.globalShortcut.register(process.platform === 'darwin' ? 'Ctrl+Cmd+F' : 'F11', () => this.execute('fullscreen'));
     }
 
     _open(path) {
@@ -740,8 +741,10 @@ app.View = class {
         if (this._dispatch) {
             this._dispatch.push({ command: command, data: data });
         } else if (this._window && this._window.webContents) {
-            const contents = this._window.webContents;
+            const window = this._window;
+            const contents = window.webContents;
             switch (command) {
+                case 'fullscreen': window.setFullScreen(!window.isFullScreen()); break;
                 case 'toggle-developer-tools': contents.isDevToolsOpened() ? contents.closeDevTools() : contents.openDevTools(); break;
                 default: contents.send(command, data); break;
             }
