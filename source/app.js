@@ -668,8 +668,8 @@ app.View = class {
         this._window.on('restore', () => this.state());
         this._window.on('maximize', () => this.state());
         this._window.on('unmaximize', () => this.state());
-        this._window.on('enter-full-screen', () => this.state());
-        this._window.on('leave-full-screen', () => this.state());
+        this._window.on('enter-full-screen', () => this.state('enter-full-screen'));
+        this._window.on('leave-full-screen', () => this.state('leave-full-screen'));
         this._window.webContents.on('did-finish-load', () => {
             this._didFinishLoad = true;
         });
@@ -793,11 +793,11 @@ app.View = class {
         }
     }
 
-    state() {
+    state(event) {
         this.execute('window-state', {
             minimized: this._window.isMinimized(),
             maximized: this._window.isMaximized(),
-            fullscreen: this._window.isFullScreen()
+            fullscreen: event === 'enter-full-screen' ? true : event === 'leave-full-screen' ? false : this._window.isFullScreen()
         });
         if (this._dispatch) {
             const dispatch = this._dispatch;
