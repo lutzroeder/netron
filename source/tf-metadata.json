@@ -47711,7 +47711,7 @@
   {
     "name": "SetSize",
     "summary": "Number of unique elements along last dimension of input `set`.",
-    "description": "Input `set` is a `SparseTensor` represented by `set_indices`, `set_values`,\nand `set_shape`. The last dimension contains values in a set, duplicates are\nallowed but ignored.\n\nIf `validate_indices` is `True`, this op validates the order and range of `set`\nindices.",
+    "description": "Input `set` is a `SparseTensor` represented by `set_indices`, `set_values`,\nand `set_shape`. The last dimension contains values in a set, duplicates are\nallowed but ignored.\n\nIf `validate_indices` is `True`, this op validates the order and range of `set`\nindices. Setting is to `False` while passing invalid arguments results in\nundefined behavior.",
     "attributes": [
       {
         "name": "validate_indices",
