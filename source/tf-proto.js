@@ -806,6 +806,9 @@ $root.tensorflow.GraphDef = class GraphDef {
                 case 2:
                     message.library = $root.tensorflow.FunctionDefLibrary.decode(reader, reader.uint32());
                     break;
+                case 5:
+                    message.debug_info = $root.tensorflow.GraphDebugInfo.decode(reader, reader.uint32());
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -832,6 +835,9 @@ $root.tensorflow.GraphDef = class GraphDef {
                 case "library":
                     message.library = $root.tensorflow.FunctionDefLibrary.decodeText(reader);
                     break;
+                case "debug_info":
+                    message.debug_info = $root.tensorflow.GraphDebugInfo.decodeText(reader);
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -844,6 +850,7 @@ $root.tensorflow.GraphDef = class GraphDef {
 $root.tensorflow.GraphDef.prototype.versions = null;
 $root.tensorflow.GraphDef.prototype.version = 0;
 $root.tensorflow.GraphDef.prototype.library = null;
+$root.tensorflow.GraphDef.prototype.debug_info = null;
 
 $root.tensorflow.FunctionDefLibrary = class FunctionDefLibrary {
 
@@ -2521,6 +2528,165 @@ $root.tensorflow.OpList = class OpList {
             switch (tag) {
                 case "op":
                     message.op.push($root.tensorflow.OpDef.decodeText(reader));
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.GraphDebugInfo = class GraphDebugInfo {
+
+    constructor() {
+        this.files = [];
+        this.traces = {};
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.GraphDebugInfo();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.files.push(reader.string());
+                    break;
+                case 2:
+                    reader.entry(message.traces, () => reader.string(), () => $root.tensorflow.GraphDebugInfo.StackTrace.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.GraphDebugInfo();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "files":
+                    reader.array(message.files, () => reader.string());
+                    break;
+                case "traces":
+                    reader.entry(message.traces, () => reader.string(), () => $root.tensorflow.GraphDebugInfo.StackTrace.decodeText(reader));
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.GraphDebugInfo.FileLineCol = class FileLineCol {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.GraphDebugInfo.FileLineCol();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.file_index = reader.int32();
+                    break;
+                case 2:
+                    message.line = reader.int32();
+                    break;
+                case 3:
+                    message.col = reader.int32();
+                    break;
+                case 4:
+                    message.func = reader.string();
+                    break;
+                case 5:
+                    message.code = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.GraphDebugInfo.FileLineCol();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "file_index":
+                    message.file_index = reader.int32();
+                    break;
+                case "line":
+                    message.line = reader.int32();
+                    break;
+                case "col":
+                    message.col = reader.int32();
+                    break;
+                case "func":
+                    message.func = reader.string();
+                    break;
+                case "code":
+                    message.code = reader.string();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.GraphDebugInfo.FileLineCol.prototype.file_index = 0;
+$root.tensorflow.GraphDebugInfo.FileLineCol.prototype.line = 0;
+$root.tensorflow.GraphDebugInfo.FileLineCol.prototype.col = 0;
+$root.tensorflow.GraphDebugInfo.FileLineCol.prototype.func = "";
+$root.tensorflow.GraphDebugInfo.FileLineCol.prototype.code = "";
+
+$root.tensorflow.GraphDebugInfo.StackTrace = class StackTrace {
+
+    constructor() {
+        this.file_line_cols = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.GraphDebugInfo.StackTrace();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.file_line_cols.push($root.tensorflow.GraphDebugInfo.FileLineCol.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.GraphDebugInfo.StackTrace();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "file_line_cols":
+                    message.file_line_cols.push($root.tensorflow.GraphDebugInfo.FileLineCol.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
