@@ -24,14 +24,16 @@ mlir.ModelFactory = class {
     open(context) {
         const stream = context.stream;
         const decoder = text.Decoder.open(stream);
-        new mlir.Parser(decoder);
-        throw new mlir.Error('MLIR support is not implemented.');
+        const parser = new mlir.Parser(decoder);
+        const obj = parser.read();
+        const model = new mlir.Model(obj);
+        return Promise.resolve(model);
     }
 };
 
 mlir.Model = class {
 
-    constructor() {
+    constructor(/* obj */) {
         this._format = 'MLIR';
         this._graphs = [];
     }
@@ -56,6 +58,10 @@ mlir.Parser = class {
 
     constructor(decoder) {
         this._tokenizer = new mlir.Tokenizer(decoder);
+    }
+
+    read() {
+        throw new mlir.Error('MLIR support is not implemented.');
     }
 };
 
