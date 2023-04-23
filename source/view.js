@@ -53,12 +53,14 @@ view.View = class {
             this._host.document.addEventListener('keydown', () => {
                 this.select(null);
             });
+            const platform = this._host.environment('platform');
+            this._menu = new view.Menu(this._host);
+            this._menu.add({
+                accelerator: platform === 'darwin' ? 'Ctrl+Cmd+F' : 'F11',
+                execute: () => this._host.execute('fullscreen')
+            });
             if (this._host.environment('menu')) {
-                const button = this._element('menu-button');
-                const element = this._element('menu');
-                this._menu = new view.Menu(this._host, element, button);
-            }
-            if (this._host.environment('menu')) {
+                this._menu.attach(this._element('menu'), this._element('menu-button'));
                 const file = this._menu.group('&File');
                 file.add({
                     label: '&Open...',
@@ -74,13 +76,13 @@ view.View = class {
                         enabled: () => this.activeGraph
                     });
                     file.add({
-                        label: this._host.environment('platform') === 'darwin' ? '&Close Window' : '&Close',
+                        label: platform === 'darwin' ? '&Close Window' : '&Close',
                         accelerator: 'CmdOrCtrl+W',
                         execute: () => this._host.execute('close'),
                     });
                     file.add({
-                        label: this._host.environment('platform') === 'win32' ? 'E&xit' : '&Quit',
-                        accelerator: this._host.environment('platform') === 'win32' ? '' : 'CmdOrCtrl+Q',
+                        label: platform === 'win32' ? 'E&xit' : '&Quit',
+                        accelerator: platform === 'win32' ? '' : 'CmdOrCtrl+Q',
                         execute: () => this._host.execute('quit'),
                     });
                 } else {
@@ -139,7 +141,7 @@ view.View = class {
                 if (this._host.type === 'Electron') {
                     view.add({
                         label: '&Reload',
-                        accelerator: this._host.environment('platform') === 'darwin' ? 'CmdOrCtrl+R' : 'F5',
+                        accelerator: platform === 'darwin' ? 'CmdOrCtrl+R' : 'F5',
                         execute: () => this._host.execute('reload'),
                         enabled: () => this.activeGraph
                     });
@@ -1038,93 +1040,57 @@ view.View = class {
 
 view.Menu = class {
 
-    constructor(host, element, button) {
+    constructor(host) {
         this.items = [];
-        this._host = host;
-        this._element = element;
-        this._darwin = this._host.environment('platform') === 'darwin';
+        this._darwin = host.environment('platform') === 'darwin';
+        this._document = host.document;
         this._stack = [];
         this._root = [];
         this._buttons = [];
         this._accelerators = new Map();
         this._keyCodes = new Map([
-            [ 'Backspace', 0x08 ], [ 'Enter', 0x0D ],
-            [ 'Up', 0x26 ], [ 'Down', 0x28 ],
-            [ 'F5', 0x74 ]
+            [ 'Backspace', 0x08 ], [ 'Enter', 0x0D ], [ 'Escape', 0x1B ],
+            [ 'Left', 0x25 ], [ 'Up', 0x26 ], [ 'Right', 0x27 ], [ 'Down', 0x28 ],
+            [ 'F5', 0x74 ], [ 'F11', 0x7a ]
         ]);
         this._symbols = new Map([
             [ 'Backspace', '&#x232B;' ], [ 'Enter', '&#x23ce;' ],
             [ 'Up', '&#x2191;' ], [ 'Down', '&#x2193;' ],
         ]);
-        button.addEventListener('click', (e) => {
-            this.toggle();
-            e.preventDefault();
-        });
-        this._host.window.addEventListener('keydown', (e) => {
+        this._keydown = (e) => {
             this._alt = false;
-            let code = e.keyCode;
-            code |= ((e.ctrlKey && !this._darwin) || (e.metaKey && this._darwin)) ? 0x0400 : 0;
-            code |= e.altKey ? 0x0200 : 0;
-            code |= e.shiftKey ? 0x0100 : 0;
-            switch (code) {
-                case 0x001B: { // Escape
-                    this._deactivate();
-                    if (this._stack.length === 0) {
-                        this.close();
-                    }
-                    break;
-                }
-                case 0x0025: { // Left
-                    if (this._stack.length > 1) {
-                        this._deactivate();
-                    }
-                    break;
-                }
-                case 0x0027: { // Right
-                    const button = this._element.ownerDocument.activeElement;
-                    if (button && button.getAttribute('data-type') === 'group') {
-                        button.click();
-                    }
-                    break;
-                }
-                case 0x0026: { // Up
-                    this._previous();
-                    break;
-                }
-                case 0x0028: { // Down
-                    this._next();
-                    break;
-                }
-                case 0x0212: { // Alt
-                    this._alt = true;
-                    break;
-                }
-                default: {
-                    const item = this._accelerators.get(code.toString());
-                    if (item && this._execute(item)) {
+            const code = e.keyCode | (e.altKey ? 0x0200 : 0) | (e.shiftKey ? 0x0100 : 0);
+            const modifier = (e.ctrlKey ? 0x0400 : 0) | (e.metaKey ? 0x0800 : 0);
+            if ((code | modifier) === 0x0212) { // Alt
+                this._alt = true;
+            } else {
+                const action =
+                    this._accelerators.get(code | modifier) ||
+                    this._accelerators.get(code | ((e.ctrlKey && !this._darwin) || (e.metaKey && this._darwin) ? 0x1000 : 0));
+                if (action && this._execute(action)) {
+                    e.preventDefault();
+                } else {
+                    const item = this._mnemonic(code | modifier);
+                    if (item && this._activate(item)) {
                         e.preventDefault();
-                    } else {
-                        const item = this._mnemonic(code);
-                        if (item && this._activate(item)) {
-                            e.preventDefault();
-                        }
                     }
-                    break;
                 }
             }
-        });
-        this._host.window.addEventListener('keyup', (e) => {
+        };
+        this._keyup = (e) => {
             const code = e.keyCode;
             if (code === 0x0012 && this._alt) { // Alt
                 switch (this._stack.length) {
                     case 0: {
-                        this.open();
-                        e.preventDefault();
+                        if (this.open()) {
+                            e.preventDefault();
+                        }
                         break;
                     }
                     case 1: {
-                        this.close();
-                        e.preventDefault();
+                        if (this.close()) {
+                            e.preventDefault();
+                        }
                         break;
                     }
                     default: {
@@ -1140,14 +1106,62 @@ view.Menu = class {
                 }
             }
             this._alt = false;
+        };
+        this._next = () => {
+            const button = this._element.ownerDocument.activeElement;
+            const index = this._buttons.indexOf(button);
+            if (index !== -1 && index < this._buttons.length - 1) {
+                const next = this._buttons[index + 1];
+                next.focus();
+            }
+        };
+        this._previous = () => {
+            const button = this._element.ownerDocument.activeElement;
+            const index = this._buttons.indexOf(button);
+            if (index > 0) {
+                const next = this._buttons[index - 1];
+                next.focus();
+            }
+        };
+        this._push = () => {
+            const button = this._element.ownerDocument.activeElement;
+            if (button && button.getAttribute('data-type') === 'group') {
+                button.click();
+            }
+        };
+        this._pop = () => {
+            if (this._stack.length > 1) {
+                this._deactivate();
+            }
+        };
+        this._exit = () => {
+            this._deactivate();
+            if (this._stack.length === 0) {
+                this.close();
+            }
+        };
+        host.window.addEventListener('keydown', this._keydown);
+        host.window.addEventListener('keyup', this._keyup);
+    }
+
+    attach(element, button) {
+        this._element = element;
+        button.addEventListener('click', (e) => {
+            this.toggle();
+            e.preventDefault();
         });
+    }
+
+    add(value) {
+        const item = new view.Menu.Command(value);
+        this.register(item, item.accelerator);
     }
 
     group(label) {
         const item = new view.Menu.Group(this, label);
         item.identifier = 'menu-item-' + this.items.length.toString();
         this.items.push(item);
-        this.register(item);
+        item.shortcut = this.register(item.accelerator);
         return item;
     }
 
@@ -1161,15 +1175,25 @@ view.Menu = class {
         }
     }
 
-    _execute(item) {
-        switch (item ? item.type : null) {
+    _execute(action) {
+        if (typeof action === 'function') {
+            action();
+            return true;
+        }
+        switch (action ? action.type : null) {
             case 'group': {
-                this._push(item);
+                while (this._stack.length > this._root.length) {
+                    this._stack.pop();
+                }
+                this._root.push({ items: [ action ] });
+                this._stack.push(action);
+                this._rebuild();
+                this._update();
                 return true;
             }
             case 'command': {
                 this.close();
-                setTimeout(() => item.execute(), 10);
+                setTimeout(() => action.execute(), 10);
                 return true;
             }
             default: {
@@ -1231,16 +1255,6 @@ view.Menu = class {
         }
     }
 
-    _push(item) {
-        while (this._stack.length > this._root.length) {
-            this._stack.pop();
-        }
-        this._root.push({ items: [ item ] });
-        this._stack.push(item);
-        this._rebuild();
-        this._update();
-    }
-
     _label(item, mnemonic) {
         delete item.mnemonic;
         const value = item.label;
@@ -1261,7 +1275,7 @@ view.Menu = class {
         this._element.innerHTML = '';
         const root = this._root[this._root.length - 1];
         for (const group of root.items) {
-            const container = this._host.document.createElement('div');
+            const container = this._document.createElement('div');
             container.setAttribute('id', group.identifier);
             container.setAttribute('class', 'menu-group');
             container.innerHTML = "<div class='menu-group-header'></div>";
@@ -1269,28 +1283,28 @@ view.Menu = class {
                 switch (item.type) {
                     case 'group':
                     case 'command': {
-                        const button = this._host.document.createElement('button');
+                        const button = this._document.createElement('button');
                         button.setAttribute('class', 'menu-command');
                         button.setAttribute('id', item.identifier);
                         button.setAttribute('data-type', item.type);
                         button.addEventListener('mouseenter', () => button.focus());
                         button.addEventListener('click', () => this._execute(item));
-                        const accelerator = this._host.document.createElement('span');
+                        const accelerator = this._document.createElement('span');
                         accelerator.setAttribute('class', 'menu-shortcut');
                         if (item.type === 'group') {
                             accelerator.innerHTML = '&#10095;';
-                        } else if (item.accelerator) {
-                            accelerator.innerHTML = item.accelerator;
+                        } else if (item.shortcut) {
+                            accelerator.innerHTML = item.shortcut;
                         }
                         button.appendChild(accelerator);
-                        const content = this._host.document.createElement('span');
+                        const content = this._document.createElement('span');
                         content.setAttribute('class', 'menu-label');
                         button.appendChild(content);
                         container.appendChild(button);
                         break;
                     }
                     case 'separator': {
-                        const element = this._host.document.createElement('div');
+                        const element = this._document.createElement('div');
                         element.setAttribute('class', 'menu-separator');
                         element.setAttribute('id', item.identifier);
                         container.appendChild(element);
@@ -1322,14 +1336,14 @@ view.Menu = class {
             let visible = false;
             let block = false;
             const active = this._stack.length <= 1 || this._stack[1] === group;
-            const container = this._host.document.getElementById(group.identifier);
+            const container = this._document.getElementById(group.identifier);
             container.childNodes[0].innerHTML = this._label(group, this === selected);
             for (const item of group.items) {
                 switch (item.type) {
                     case 'group':
                     case 'command': {
                         const label = this._label(item, group === selected);
-                        const button = this._host.document.getElementById(item.identifier);
+                        const button = this._document.getElementById(item.identifier);
                         button.childNodes[1].innerHTML = label;
                         if (item.enabled) {
                             button.removeAttribute('disabled');
@@ -1346,7 +1360,7 @@ view.Menu = class {
                         break;
                     }
                     case 'separator': {
-                        const element = this._host.document.getElementById(item.identifier);
+                        const element = this._document.getElementById(item.identifier);
                         element.style.display = block ? 'block' : 'none';
                         block = false;
                         break;
@@ -1361,7 +1375,7 @@ view.Menu = class {
                 if ((item.type === 'group' || item.type === 'command') && item.enabled) {
                     break;
                 } else if (item.type === 'separator') {
-                    const element = this._host.document.getElementById(item.identifier);
+                    const element = this._document.getElementById(item.identifier);
                     element.style.display = 'none';
                 }
             }
@@ -1377,56 +1391,56 @@ view.Menu = class {
         }
     }
 
-    _next() {
-        const button = this._element.ownerDocument.activeElement;
-        const index = this._buttons.indexOf(button);
-        if (index !== -1 && index < this._buttons.length - 1) {
-            const next = this._buttons[index + 1];
-            next.focus();
-        }
-    }
-
-    _previous() {
-        const button = this._element.ownerDocument.activeElement;
-        const index = this._buttons.indexOf(button);
-        if (index > 0) {
-            const next = this._buttons[index - 1];
-            next.focus();
-        }
-    }
-
     open() {
-        if (this._stack.length === 0) {
-            this.toggle();
-            this._stack = [ this ];
-            this._rebuild();
-            this._update();
+        if (this._element) {
+            if (this._stack.length === 0) {
+                this.toggle();
+                this._stack = [ this ];
+                this._rebuild();
+                this._update();
+            }
+            this.register(this._exit, 'Escape');
+            this.register(this._previous, 'Up');
+            this.register(this._next, 'Down');
+            this.register(this._pop, 'Left');
+            this.register(this._push, 'Right');
         }
     }
 
     close() {
-        this._element.style.opacity = 0;
-        this._element.style.left = '-200px';
-        const button = this._element.ownerDocument.activeElement;
-        if (this._buttons.indexOf(button) > 0) {
-            button.blur();
+        if (this._element) {
+            this.unregister(this._exit);
+            this.unregister(this._previous);
+            this.unregister(this._next);
+            this.unregister(this._pop);
+            this.unregister(this._push);
+            this._element.style.opacity = 0;
+            this._element.style.left = '-200px';
+            const button = this._element.ownerDocument.activeElement;
+            if (this._buttons.indexOf(button) > 0) {
+                button.blur();
+            }
+            while (this._root.length > 1) {
+                this._deactivate();
+            }
+            this._stack = [];
         }
-        while (this._root.length > 1) {
-            this._deactivate();
-        }
-        this._stack = [];
     }
 
-    register(item) {
+    register(action, accelerator) {
         let shortcut = '';
-        if (item.accelerator) {
-            let cmdOrCtrl = false;
-            let alt = false;
+        if (accelerator) {
             let shift = false;
+            let alt = false;
+            let ctrl = false;
+            let cmd = false;
+            let cmdOrCtrl = false;
             let key = '';
-            for (const part of item.accelerator.split('+')) {
+            for (const part of accelerator.split('+')) {
                 switch (part) {
                     case 'CmdOrCtrl': cmdOrCtrl = true; break;
+                    case 'Cmd': cmd = true; break;
+                    case 'Ctrl': ctrl = true; break;
                     case 'Alt': alt = true; break;
                     case 'Shift': shift = true; break;
                     default: key = part; break;
@@ -1434,28 +1448,27 @@ view.Menu = class {
             }
             if (key !== '') {
                 if (this._darwin) {
+                    shortcut += ctrl ? '&#x2303' : '';
                     shortcut += alt ? '&#x2325;' : '';
                     shortcut += shift ? '&#x21e7;' : '';
-                    shortcut += cmdOrCtrl ? '&#x2318;' : '';
+                    shortcut += cmdOrCtrl || cmd ? '&#x2318;' : '';
                     shortcut += this._symbols.has(key) ? this._symbols.get(key) : key;
                 } else {
-                    shortcut += cmdOrCtrl ? 'Ctrl+' : '';
+                    shortcut += cmdOrCtrl || ctrl ? 'Ctrl+' : '';
                     shortcut += alt ? 'Alt+' : '';
                     shortcut += shift ? 'Shift+' : '';
                     shortcut += key;
                 }
-                let code = this._keyCodes.has(key) ? this._keyCodes.get(key) : key.charCodeAt(0);
-                code |= cmdOrCtrl ? 0x0400 : 0;
-                code |= alt ? 0x0200 : 0;
-                code |= shift ? 0x0100 : 0;
-                this._accelerators.set(code.toString(), item);
+                let code = (cmdOrCtrl ? 0x1000 : 0) | (cmd ? 0x0800 : 0) | (ctrl ? 0x0400 : 0) | (alt ? 0x0200 : 0 | shift ? 0x0100 : 0);
+                code |= this._keyCodes.has(key) ? this._keyCodes.get(key) : key.charCodeAt(0);
+                this._accelerators.set(code, action);
             }
         }
-        item.accelerator = shortcut;
+        return shortcut;
     }
 
-    unregister(item) {
-        this._accelerators = new Map(Array.from(this._accelerators.entries()).filter((entry) => entry.value !== item));
+    unregister(action) {
+        this._accelerators = new Map(Array.from(this._accelerators.entries()).filter((entry) => entry[1] !== action));
     }
 };
 
@@ -1476,14 +1489,14 @@ view.Menu.Group = class {
         const item = Object.keys(value).length > 0 ? new view.Menu.Command(value) : new view.Menu.Separator();
         item.identifier = this.identifier + '-' + this.items.length.toString();
         this.items.push(item);
-        this.parent.register(item);
+        item.shortcut = this.parent.register(item, item.accelerator);
     }
 
     group(label) {
         const item = new view.Menu.Group(this, label);
         item.identifier = this.identifier + '-' + this.items.length.toString();
         this.items.push(item);
-        this.parent.register(item);
+        item.shortcut = this.parent.register(item, item.accelerator);
         return item;
     }
 
@@ -1497,8 +1510,8 @@ view.Menu.Group = class {
         this.items = [];
     }
 
-    register(item) {
-        this.parent.register(item);
+    register(item, accelerator) {
+        return this.parent.register(item, accelerator);
     }
 
     unregister(item) {
