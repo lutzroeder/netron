@@ -260,7 +260,7 @@ view.View = class {
                 this.select(selection);
                 this.scrollTo(selection);
             });
-            this._sidebar.open(content.content, 'Find');
+            this._sidebar.open(content.render(), 'Find');
             content.focus(this._searchText);
         }
     }
@@ -2127,6 +2127,10 @@ view.NodeSidebar = class extends view.Control {
         this._inputs = [];
         this._outputs = [];
 
+        const container = this._host.document.createElement('div');
+        container.className = 'sidebar-node';
+        this._elements.push(container);
+
         if (node.type) {
             let showDocumentation = null;
             const type = node.type;
@@ -2188,10 +2192,6 @@ view.NodeSidebar = class extends view.Control {
                 this._addOutput(output.name, output);
             }
         }
-
-        const separator = this._host.document.createElement('div');
-        separator.className = 'sidebar-separator';
-        this._elements.push(separator);
     }
 
     render() {
@@ -2202,12 +2202,12 @@ view.NodeSidebar = class extends view.Control {
         const element = this._host.document.createElement('div');
         element.className = 'sidebar-header';
         element.innerText = title;
-        this._elements.push(element);
+        this._elements[0].appendChild(element);
     }
 
     _addProperty(name, value) {
         const item = new view.NameValueView(this._host, name, value);
-        this._elements.push(item.render());
+        this._elements[0].appendChild(item.render());
     }
 
     _addAttribute(name, attribute) {
@@ -2217,7 +2217,7 @@ view.NodeSidebar = class extends view.Control {
         });
         const item = new view.NameValueView(this._host, name, value);
         this._attributes.push(item);
-        this._elements.push(item.render());
+        this._elements[0].appendChild(item.render());
     }
 
     _addInput(name, input) {
@@ -2229,7 +2229,7 @@ view.NodeSidebar = class extends view.Control {
             value.on('deactivate', (sender, value) => this.emit('deactivate', value));
             const item = new view.NameValueView(this._host, name, value);
             this._inputs.push(item);
-            this._elements.push(item.render());
+            this._elements[0].appendChild(item.render());
         }
     }
 
@@ -2240,7 +2240,7 @@ view.NodeSidebar = class extends view.Control {
             value.on('deactivate', (sender, value) => this.emit('deactivate', value));
             const item = new view.NameValueView(this._host, name, value);
             this._outputs.push(item);
-            this._elements.push(item.render());
+            this._elements[0].appendChild(item.render());
         }
     }
 
@@ -2678,7 +2678,9 @@ view.ModelSidebar = class extends view.Control {
         super();
         this._host = host;
         this._model = model;
-        this._elements = [];
+
+        this._container = this._host.document.createElement('div');
+        this._container.className = 'sidebar-node';
 
         if (model.format) {
             this._addProperty('format', new view.ValueTextView(this._host, model.format));
@@ -2744,33 +2746,29 @@ view.ModelSidebar = class extends view.Control {
                 }
             }
         }
-
-        const separator = this._host.document.createElement('div');
-        separator.className = 'sidebar-separator';
-        this._elements.push(separator);
     }
 
     render() {
-        return this._elements;
+        return [ this._container ];
     }
 
     _addHeader(title) {
         const element = this._host.document.createElement('div');
         element.className = 'sidebar-header';
         element.innerText = title;
-        this._elements.push(element);
+        this._container.appendChild(element);
     }
 
     _addProperty(name, value) {
         const item = new view.NameValueView(this._host, name, value);
-        this._elements.push(item.render());
+        this._container.appendChild(item.render());
     }
 
     addArgument(name, argument) {
         const value = new view.ParameterView(this._host, argument);
         value.toggle();
         const item = new view.NameValueView(this._host, name, value);
-        this._elements.push(item.render());
+        this._container.appendChild(item.render());
     }
 };
 
@@ -2872,10 +2870,6 @@ view.DocumentationSidebar = class extends view.Control {
             }
 
             this._elements = [ element ];
-
-            const separator = this._host.document.createElement('div');
-            separator.className = 'sidebar-separator';
-            this._elements.push(separator);
         }
         return this._elements;
     }
@@ -2897,24 +2891,22 @@ view.FindSidebar = class extends view.Control {
         this._host = host;
         this._graphElement = element;
         this._graph = graph;
-        this._contentElement = this._host.document.createElement('div');
-        this._contentElement.setAttribute('class', 'sidebar-find');
+
         this._searchElement = this._host.document.createElement('input');
+        this._searchElement.setAttribute('class', 'sidebar-find-search');
         this._searchElement.setAttribute('id', 'search');
         this._searchElement.setAttribute('type', 'text');
         this._searchElement.setAttribute('spellcheck', 'false');
         this._searchElement.setAttribute('placeholder', 'Search...');
-        this._searchElement.setAttribute('style', 'width: 100%');
         this._searchElement.addEventListener('input', (e) => {
             this.update(e.target.value);
             this.emit('search-text-changed', e.target.value);
         });
-        this._resultElement = this._host.document.createElement('ol');
-        this._resultElement.addEventListener('click', (e) => {
+        this._contentElement = this._host.document.createElement('ol');
+        this._contentElement.setAttribute('class', 'sidebar-find-content');
+        this._contentElement.addEventListener('click', (e) => {
             this.select(e);
         });
-        this._contentElement.appendChild(this._searchElement);
-        this._contentElement.appendChild(this._resultElement);
     }
 
     on(event, callback) {
@@ -2977,8 +2969,8 @@ view.FindSidebar = class extends view.Control {
     }
 
     update(searchText) {
-        while (this._resultElement.lastChild) {
-            this._resultElement.removeChild(this._resultElement.lastChild);
+        while (this._contentElement.lastChild) {
+            this._contentElement.removeChild(this._contentElement.lastChild);
         }
 
         let terms = null;
@@ -3037,7 +3029,7 @@ view.FindSidebar = class extends view.Control {
                                     const inputItem = this._host.document.createElement('li');
                                     inputItem.innerText = '\u2192 ' + argument.name.split('\n').shift(); // custom argument id
                                     inputItem.id = 'edge-' + argument.name;
-                                    this._resultElement.appendChild(inputItem);
+                                    this._contentElement.appendChild(inputItem);
                                     edges.add(argument.name);
                                 } else {
                                     initializers.push(argument);
@@ -3055,7 +3047,7 @@ view.FindSidebar = class extends view.Control {
                     const nameItem = this._host.document.createElement('li');
                     nameItem.innerText = '\u25A2 ' + (name || '[' + type + ']');
                     nameItem.id = label.id;
-                    this._resultElement.appendChild(nameItem);
+                    this._contentElement.appendChild(nameItem);
                     nodes.add(label.id);
                 }
             }
@@ -3064,7 +3056,7 @@ view.FindSidebar = class extends view.Control {
                     const initializeItem = this._host.document.createElement('li');
                     initializeItem.innerText = '\u25A0 ' + argument.name.split('\n').shift(); // custom argument id
                     initializeItem.id = 'initializer-' + argument.name;
-                    this._resultElement.appendChild(initializeItem);
+                    this._contentElement.appendChild(initializeItem);
                 }
             }
         }
@@ -3078,7 +3070,7 @@ view.FindSidebar = class extends view.Control {
                             const outputItem = this._host.document.createElement('li');
                             outputItem.innerText = '\u2192 ' + argument.name.split('\n').shift(); // custom argument id
                             outputItem.id = 'edge-' + argument.name;
-                            this._resultElement.appendChild(outputItem);
+                            this._contentElement.appendChild(outputItem);
                             edges.add(argument.name);
                         }
                     }
@@ -3086,11 +3078,11 @@ view.FindSidebar = class extends view.Control {
             }
         }
 
-        this._resultElement.style.display = this._resultElement.childNodes.length != 0 ? 'block' : 'none';
+        this._contentElement.style.display = this._contentElement.childNodes.length != 0 ? 'block' : 'none';
     }
 
-    get content() {
-        return this._contentElement;
+    render() {
+        return [ this._searchElement, this._contentElement ];
     }
 };
 
