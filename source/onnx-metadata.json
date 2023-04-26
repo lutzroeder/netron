@@ -1959,7 +1959,7 @@
       },
       {
         "summary": "averagepool_2d_dilations",
-        "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\nx = (np.arange(16) + 1).astype(np.float32).reshape((1, 1, 4, 4))\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
+        "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\n\n# input shape: [1, 1, 4, 4]\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\n\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
       },
       {
         "summary": "averagepool_2d_pads",
@@ -2087,7 +2087,7 @@
       },
       {
         "summary": "averagepool_2d_dilations",
-        "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\nx = (np.arange(16) + 1).astype(np.float32).reshape((1, 1, 4, 4))\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
+        "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\n\n# input shape: [1, 1, 4, 4]\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\n\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
       },
       {
         "summary": "averagepool_2d_pads",
@@ -2221,7 +2221,7 @@
       },
       {
         "summary": "averagepool_2d_dilations",
-        "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\nx = (np.arange(16) + 1).astype(np.float32).reshape((1, 1, 4, 4))\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
+        "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\n\n# input shape: [1, 1, 4, 4]\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\n\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
       },
       {
         "summary": "averagepool_2d_pads",
@@ -2355,7 +2355,7 @@
       },
       {
         "summary": "averagepool_2d_dilations",
-        "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\nx = (np.arange(16) + 1).astype(np.float32).reshape((1, 1, 4, 4))\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
+        "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\n\n# input shape: [1, 1, 4, 4]\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\n\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
       },
       {
         "summary": "averagepool_2d_pads",
@@ -2405,7 +2405,7 @@
     "module": "ai.onnx",
     "version": 19,
     "support_level": "common",
-    "description": "AveragePool consumes an input tensor X and applies average pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n ```\n or\n ```\n output_spatial_shape[i] = ceil((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n ```\n if ceil_mode is enabled `pad_shape[i]` is the sum of pads along axis `i`.\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - kernel_spatial_shape[i] + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is divided by the number of elements (exclude pad when attribute count_include_pad is zero).\n ",
+    "description": "AveragePool consumes an input tensor X and applies average pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1)) / strides_spatial_shape[i] + 1)\n ```\n or\n ```\n output_spatial_shape[i] = ceil((input_spatial_shape[i] + pad_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1)) / strides_spatial_shape[i] + 1)\n ```\n if ceil_mode is enabled `pad_shape[i]` is the sum of pads along axis `i`.\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) - input_spatial_shape[i]\n ```\n The output of each pooling window is divided by the number of elements (exclude pad when attribute count_include_pad is zero).\n ",
     "attributes": [
       {
         "name": "auto_pad",
@@ -2495,7 +2495,7 @@
       },
       {
         "summary": "averagepool_2d_dilations",
-        "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\nx = (np.arange(16) + 1).astype(np.float32).reshape((1, 1, 4, 4))\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
+        "code": "\"\"\"\ninput_shape: [1, 1, 4, 4]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    strides=[1, 1],\n    dilations=[2, 2],\n    ceil_mode=True,\n)\n\n# input shape: [1, 1, 4, 4]\nx = np.array(\n    [\n        [\n            [\n                [1, 2, 3, 4],\n                [5, 6, 7, 8],\n                [9, 10, 11, 12],\n                [13, 14, 15, 16],\n            ]\n        ]\n    ]\n).astype(np.float32)\n\ny = np.array([[[[6, 7], [10, 11]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_dilations\")"
       },
       {
         "summary": "averagepool_2d_pads",
