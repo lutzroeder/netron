@@ -699,6 +699,7 @@ $root.MNN.StridedSliceParam = class StridedSliceParam {
         $.ellipsisMask = reader.int32_(position, 12, 0);
         $.newAxisMask = reader.int32_(position, 14, 0);
         $.shrinkAxisMask = reader.int32_(position, 16, 0);
+        $.fromType = reader.int32_(position, 18, 0);
         return $;
     }
 };
