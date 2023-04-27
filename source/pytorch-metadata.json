@@ -13054,7 +13054,8 @@
       { "name": "input", "type": "Tensor" },
       { "name": "output_size", "type": "SymInt[]", "optional": true },
       { "name": "align_corners", "type": "boolean" },
-      { "name": "scale_factors", "type": "float32[]", "optional": true }
+      { "name": "scale_factors", "type": "float32[]", "optional": true },
+      { "name": "round_with_scale_factor", "type": "boolean", "default": false }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -13094,7 +13095,8 @@
       { "name": "input", "type": "Tensor" },
       { "name": "output_size", "type": "SymInt[]", "optional": true },
       { "name": "align_corners", "type": "boolean" },
-      { "name": "scale_factors", "type": "float32[]", "optional": true }
+      { "name": "scale_factors", "type": "float32[]", "optional": true },
+      { "name": "round_with_scale_factor", "type": "boolean", "default": false }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -13158,7 +13160,8 @@
       { "name": "input", "type": "Tensor" },
       { "name": "output_size", "type": "SymInt[]", "optional": true },
       { "name": "align_corners", "type": "boolean" },
-      { "name": "scale_factors", "type": "float32[]", "optional": true }
+      { "name": "scale_factors", "type": "float32[]", "optional": true },
+      { "name": "round_with_scale_factor", "type": "boolean", "default": false }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -13193,7 +13196,8 @@
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "output_size", "type": "SymInt[]", "optional": true },
-      { "name": "scale_factors", "type": "float32[]", "optional": true }
+      { "name": "scale_factors", "type": "float32[]", "optional": true },
+      { "name": "round_with_scale_factor", "type": "boolean", "default": false }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -13230,7 +13234,8 @@
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "output_size", "type": "SymInt[]", "optional": true },
-      { "name": "scale_factors", "type": "float32[]", "optional": true }
+      { "name": "scale_factors", "type": "float32[]", "optional": true },
+      { "name": "round_with_scale_factor", "type": "boolean", "default": false }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -13295,7 +13300,8 @@
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "output_size", "type": "SymInt[]", "optional": true },
-      { "name": "scale_factors", "type": "float32[]", "optional": true }
+      { "name": "scale_factors", "type": "float32[]", "optional": true },
+      { "name": "round_with_scale_factor", "type": "boolean", "default": false }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -13335,7 +13341,8 @@
       { "name": "input", "type": "Tensor" },
       { "name": "output_size", "type": "SymInt[]", "optional": true },
       { "name": "align_corners", "type": "boolean" },
-      { "name": "scale_factors", "type": "float32[]", "optional": true }
+      { "name": "scale_factors", "type": "float32[]", "optional": true },
+      { "name": "round_with_scale_factor", "type": "boolean", "default": false }
     ],
     "outputs": [
       { "type": "Tensor" }
