@@ -245,17 +245,16 @@ host.ElectronHost = class {
         return this._environment[name];
     }
 
-    error(message, detail, url) {
+    async error(message, detail) {
         const options = {
             type: 'error',
             message: message,
             detail: detail,
             buttons: [ 'Report', 'Cancel' ]
         };
-        if (electron.ipcRenderer.sendSync('show-message-box', options) === 0) {
-            url = url || this.environment('repository') + '/issues';
-            this.openURL(url);
-        }
+        return electron.ipcRenderer.sendSync('show-message-box', options);
+        // await this._message(message + ': ' + detail, 'Report');
+        // return 0;
     }
 
     confirm(message, detail) {
@@ -286,7 +285,7 @@ host.ElectronHost = class {
         }
     }
 
-    export(file, blob) {
+    async export(file, blob) {
         const reader = new FileReader();
         reader.onload = (e) => {
             const data = new Uint8Array(e.target.result);
@@ -307,7 +306,7 @@ host.ElectronHost = class {
 
         if (err) {
             this.exception(err, false);
-            this.error('Error exporting image.', err.message);
+            await this.error('Error exporting image.', err.message);
         } else {
             reader.readAsArrayBuffer(blob);
         }
@@ -475,13 +474,13 @@ host.ElectronHost = class {
                 } catch (error) {
                     const options = Object.assign({}, this._view.options);
                     if (error) {
-                        this._view.error(error, null, null);
+                        await this._view.error(error, null, null);
                         options.path = null;
                     }
                     this._update(options);
                 }
             } catch (error) {
-                this._view.error(error, 'Error while reading file.', null);
+                await this._view.error(error, 'Error while reading file.', null);
                 this._update({ path: null });
             }
         }

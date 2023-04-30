@@ -273,11 +273,9 @@ host.BrowserHost = class {
         return this._environment[name];
     }
 
-    error(message, detail, url) {
+    error(message, detail) {
         alert((message == 'Error' ? '' : message + ' ') + detail);
-        if (url) {
-            this.openURL(url);
-        }
+        return Promise.resolve(0);
     }
 
     confirm(message, detail) {
@@ -541,8 +539,9 @@ host.BrowserHost = class {
                 }
             });
         }).catch((err) => {
-            this.error('Model load request failed.', err.message);
-            this._view.show('welcome');
+            this.error('Model load request failed.', err.message).then(() => {
+                this._view.show('welcome');
+            });
         });
     }
 
@@ -569,13 +568,11 @@ host.BrowserHost = class {
         this._request(url, { 'Content-Type': 'application/json' }, 'utf-8').then((text) => {
             const json = JSON.parse(text);
             if (json.message) {
-                this.error('Error while loading Gist.', json.message);
-                return;
+                return this.error('Error while loading Gist.', json.message);
             }
             const key = Object.keys(json.files).find((key) => this._view.accept(json.files[key].filename));
             if (!key) {
-                this.error('Error while loading Gist.', 'Gist does not contain a model file.');
-                return;
+                return this.error('Error while loading Gist.', 'Gist does not contain a model file.');
             }
             const base = this.window.base;
             const file = json.files[key];
@@ -591,11 +588,13 @@ host.BrowserHost = class {
                 this.document.title = identifier;
             }).catch((error) => {
                 if (error) {
-                    this._view.error(error, error.name, 'welcome');
+                    return this._view.error(error, error.name, 'welcome');
                 }
+                return Promise.resolve();
             });
+            return Promise.resolve();
         }).catch((err) => {
-            this._view.error(err, 'Model load request failed.', 'welcome');
+            return this._view.error(err, 'Model load request failed.', 'welcome');
         });
     }
 

@@ -590,8 +590,13 @@ view.View = class {
         const known = knowns.find((known) => (known.name.length === 0 || known.name === err.name) && err.message.match(known.message));
         const message = err.message;
         name = name || err.name;
-        this._host.error(name, message, known ? known.url : undefined);
-        this.show(screen !== undefined ? screen : 'welcome');
+        return this._host.error(name, message).then((button) => {
+            const url = known && known.url ? known.url : null;
+            if (button === 0 && (url || this._host.type == 'Electron')) {
+                this._host.openURL(url || this._host.environment('repository') + '/issues');
+            }
+            this.show(screen !== undefined ? screen : 'welcome');
+        });
     }
 
     accept(file, size) {
