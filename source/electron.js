@@ -563,23 +563,23 @@ host.ElectronHost = class {
 
     _message(message, action) {
         return new Promise((resolve) => {
-            const messageText = this._element('message-text');
-            if (messageText) {
-                messageText.innerText = message;
+            const text = this._element('message-text');
+            if (text) {
+                text.innerText = message;
             }
-            const messageButton = this._element('message-button');
-            if (messageButton) {
+            const button = this._element('message-button');
+            if (button) {
                 if (action) {
-                    messageButton.style.removeProperty('display');
-                    messageButton.innerText = action;
-                    messageButton.onclick = () => {
-                        messageButton.onclick = null;
+                    button.style.removeProperty('display');
+                    button.innerText = action;
+                    button.onclick = () => {
+                        button.onclick = null;
                         this._document.body.classList.remove('message');
                         resolve();
                     };
                 } else {
-                    messageButton.style.display = 'none';
-                    messageButton.onclick = null;
+                    button.style.display = 'none';
+                    button.onclick = null;
                 }
             }
             this._document.body.classList.add('message');
