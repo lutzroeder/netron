@@ -2369,7 +2369,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `int64`, `bfloat16`, `uint16`, `float16`, `uint32`, `uint64`, `complex64`, `complex128`, `bool`, `variant`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `int64`, `bfloat16`, `uint16`, `float16`, `uint32`, `uint64`, `complex64`, `complex128`, `bool`, `variant`, `string`."
       },
       {
         "name": "precision",
@@ -12684,6 +12684,72 @@
         "name": "tfdbg_run_id",
         "type": "string",
         "default": ""
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Input tensor, non-Reference type",
+        "typeAttr": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "DebugIdentityV3",
+    "summary": "Provides an identity mapping of the non-Ref type input tensor for debugging.",
+    "description": "Provides an identity mapping of the non-Ref type input tensor for debugging.",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type"
+      },
+      {
+        "name": "device_name",
+        "type": "string",
+        "description": "Name of the device on which the tensor resides.",
+        "default": ""
+      },
+      {
+        "name": "tensor_name",
+        "type": "string",
+        "description": "Name of the input tensor.",
+        "default": ""
+      },
+      {
+        "name": "io_of_node",
+        "type": "string",
+        "description": "Name of the node of which the tensor is an input or output.",
+        "default": ""
+      },
+      {
+        "name": "is_input",
+        "type": "boolean",
+        "description": "If true, the tensor is an input of the node; otherwise the output.",
+        "default": false
+      },
+      {
+        "name": "io_index",
+        "type": "int64",
+        "description": "The index of which the tensor is an input or output of the node.",
+        "default": -1
+      },
+      {
+        "name": "debug_urls",
+        "type": "string[]",
+        "description": "List of URLs to debug targets, e.g.,\n  file:///foo/tfdbg_dump, grpc:://localhost:11011",
+        "default": []
+      },
+      {
+        "name": "gated_grpc",
+        "type": "boolean",
+        "description": "Whether this op will be gated. If any of the debug_urls of this\n  debug node is of the grpc:// scheme, when the value of this attribute is set\n  to True, the data will not actually be sent via the grpc stream unless this\n  debug op has been enabled at the debug_url. If all of the debug_urls of this\n  debug node are of the grpc:// scheme and the debug op is enabled at none of\n  them, the output will be an empty Tensor.",
+        "default": false
       }
     ],
     "inputs": [
@@ -55353,6 +55419,52 @@
     ]
   },
   {
+    "name": "StochasticCastToInt",
+    "summary": "Stochastically cast a given tensor from floats to ints.",
+    "description": "The values are cast with a deterministic pseudo-random tensor from a uniform distribution generated from user given key, counter, algorithm. Values will saturate if out of the specified integer type range, and will become zero if inputs are NaN.  \n\nThe outputs are a deterministic function of `input`, `key`, `counter`, `alg`.\n",
+    "attributes": [
+      {
+        "name": "Tin",
+        "type": "type",
+        "description": "The type of the input. Must be one of the following: `float16`, `bfloat16`, `float32`, `float64`."
+      },
+      {
+        "name": "Tout",
+        "type": "type",
+        "description": "The type of the output. Must be one of the following: `int8`, `int16`, `int32`."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "description": "The operand to stochastically cast to int.",
+        "typeAttr": "Tin"
+      },
+      {
+        "name": "key",
+        "description": "Key for the counter-based RNG algorithm (shape uint64[1]).",
+        "type": 23
+      },
+      {
+        "name": "counter",
+        "description": "Initial counter for the counter-based RNG algorithm (shape uint64[2] or uint64[1] depending on the algorithm). If a larger vector is given, only the needed portion on the left (i.e. [:N]) will be used.",
+        "type": 23
+      },
+      {
+        "name": "alg",
+        "description": "The RNG algorithm (shape int32[]).",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "The cast result with the same shape as the input.",
+        "typeAttr": "Tout"
+      }
+    ]
+  },
+  {
     "name": "StopGradient",
     "summary": "Stops gradient computation.",
     "description": "When executed in a graph, this op outputs its input tensor as-is.\n\nWhen building ops to compute gradients, this op prevents the contribution of\nits inputs to be taken into account.  Normally, the gradient generator adds ops\nto a graph to compute the derivatives of a specified 'loss' by recursively\nfinding out inputs that contributed to its computation.  If you insert this op\nin the graph it inputs are masked from the gradient generator.  They are not\ntaken into account for computing gradients.\n\nThis is useful any time you want to compute a value with TensorFlow but need\nto pretend that the value was a constant. For example, the softmax function\nfor a vector x can be written as\n\n```python\n\n  def softmax(x):\n    numerator = tf.exp(x)\n    denominator = tf.reduce_sum(numerator)\n    return numerator / denominator\n```\n\nThis however is susceptible to overflow if the values in x are large. An\nalternative more stable way is to subtract the maximum of x from each of the\nvalues.\n\n```python\n\n  def stable_softmax(x):\n    z = x - tf.reduce_max(x)\n    numerator = tf.exp(z)\n    denominator = tf.reduce_sum(numerator)\n    return numerator / denominator\n```\n\nHowever, when we backprop through the softmax to x, we dont want to backprop\nthrough the `tf.reduce_max(x)` (if the max values are not unique then the\ngradient could flow to the wrong input) calculation and treat that as a\nconstant. Therefore, we should write this out as\n\n```python\n\n  def stable_softmax(x):\n    z = x - tf.stop_gradient(tf.reduce_max(x))\n    numerator = tf.exp(z)\n    denominator = tf.reduce_sum(numerator)\n    return numerator / denominator\n```\n\nSome other examples include:\n\n*  The *EM* algorithm where the *M-step* should not involve backpropagation\n   through the output of the *E-step*.\n*  Contrastive divergence training of Boltzmann machines where, when\n   differentiating the energy function, the training must not backpropagate\n   through the graph that generated the samples from the model.\n*  Adversarial training, where no backprop should happen through the adversarial\n   example generation process.",
@@ -55641,7 +55753,7 @@
       {
         "name": "N",
         "type": "int64",
-        "minimum": 1
+        "minimum": 0
       },
       {
         "name": "separator",
