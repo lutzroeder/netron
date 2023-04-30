@@ -24,7 +24,7 @@ host.BrowserHost = class {
             date: Array.isArray(this._meta.date) && this._meta.date.length > 0 && this._meta.date[0] ? new Date(this._meta.date[0].split(' ').join('T') + 'Z') : new Date(),
             platform: /(Mac|iPhone|iPod|iPad)/i.test(this._navigator.platform) ? 'darwin' : undefined,
             agent: this._navigator.userAgent.toLowerCase().indexOf('safari') !== -1 && this._navigator.userAgent.toLowerCase().indexOf('chrome') === -1 ? 'safari' : '',
-            repository: this._document.getElementById('logo-github').getAttribute('href'),
+            repository: this._element('logo-github').getAttribute('href'),
             menu: true
         };
         if (!/^\d\.\d\.\d$/.test(this.version)) {
@@ -72,12 +72,15 @@ host.BrowserHost = class {
         if (age <= 180) {
             return Promise.resolve();
         }
-        const callback = () => {
-            const link = this.document.getElementById('logo-github').href;
-            this.openURL(link);
-        };
         this.document.body.classList.remove('spinner');
-        this._message('Please update to the newest version.', 'Download', callback, true);
+        const loop = () => {
+            this._message('Please update to the newest version.', 'Download').then(() => {
+                const link = this._element('logo-github').href;
+                this.openURL(link);
+                loop();
+            });
+        };
+        loop();
         return new Promise(() => {});
     }
 
@@ -88,7 +91,7 @@ host.BrowserHost = class {
         const consent = () => {
             return new Promise((resolve) => {
                 this.document.body.classList.remove('spinner');
-                this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept', () => {
+                this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept').then(() => {
                     this._setCookie('consent', Date.now().toString(), 30);
                     resolve();
                 });
@@ -225,8 +228,8 @@ host.BrowserHost = class {
             return;
         }
 
-        const openFileButton = this.document.getElementById('open-file-button');
-        const openFileDialog = this.document.getElementById('open-file-dialog');
+        const openFileButton = this._element('open-file-button');
+        const openFileDialog = this._element('open-file-dialog');
         if (openFileButton && openFileDialog) {
             openFileButton.addEventListener('click', () => {
                 this.execute('open');
@@ -334,7 +337,7 @@ host.BrowserHost = class {
     execute(name /*, value */) {
         switch (name) {
             case 'open': {
-                const openFileDialog = this.document.getElementById('open-file-dialog');
+                const openFileDialog = this._element('open-file-dialog');
                 if (openFileDialog) {
                     openFileDialog.value = '';
                     openFileDialog.click();
@@ -615,29 +618,37 @@ host.BrowserHost = class {
         return '';
     }
 
-    _message(message, action, callback, modal) {
-        const text = this.document.getElementById('message-text');
-        if (text) {
-            text.innerText = message;
-        }
-        const button = this.document.getElementById('message-button');
-        if (button) {
-            if (action && callback) {
-                button.style.removeProperty('display');
-                button.innerText = action;
-                button.onclick = () => {
-                    if (!modal) {
-                        this._document.body.classList.remove('message');
-                        button.onclick = null;
-                    }
-                    callback();
-                };
-            } else {
-                button.style.display = 'none';
-                button.onclick = null;
+    _element(id) {
+        return this.document.getElementById(id);
+    }
+
+    _message(message, action) {
+        return new Promise((resolve) => {
+            const text = this._element('message-text');
+            if (text) {
+                text.innerText = message;
             }
-        }
-        this._document.body.classList.add('message');
+            const button = this._element('message-button');
+            if (button) {
+                if (action) {
+                    button.style.removeProperty('display');
+                    button.innerText = action;
+                    button.onclick = () => {
+                        button.onclick = null;
+                        this._document.body.classList.remove('message');
+                        resolve();
+                    };
+                    button.focus();
+                } else {
+                    button.style.display = 'none';
+                    button.onclick = null;
+                }
+            }
+            this._document.body.classList.add('message');
+            if (button && action) {
+                button.focus();
+            }
+        });
     }
 };
 
