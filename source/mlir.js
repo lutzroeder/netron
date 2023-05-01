@@ -39,7 +39,7 @@ mlir.Model = class {
 
     constructor(obj) {
         this._format = 'MLIR';
-        const group = ''
+        const group = '';
         this._graphs = obj.functions.map(func => new mlir.Graph(func, group));
     }
 
@@ -85,7 +85,7 @@ mlir.Token = class {
         this.type = type;
         this.value = value;
     }
-}
+};
 
 mlir.Tokenizer = class {
 
@@ -268,9 +268,9 @@ mlir.Tokenizer = class {
         if (wasOpened) {
             if (result.startsWith('dense')) {
                 return new mlir.Token(TokenType.DENSE, result);
-            } else {
-                return new mlir.Token(TokenType.TYPE, result);
             }
+            return new mlir.Token(TokenType.TYPE, result);
+
         }
 
         if (result.endsWith('func')) {
@@ -370,7 +370,7 @@ mlir.Tokenizer = class {
 
     numberOrShape() {
         let result = '';
-        let type = TokenType.INTEGER_LITERAL;
+        const type = TokenType.INTEGER_LITERAL;
 
         while (this.currentChar && /[0-9]/.test(this.currentChar)) {
             result += this.currentChar;
@@ -449,10 +449,10 @@ mlir.Tokenizer = class {
                     this.advance();
                     this.advance();
                     return new mlir.Token(TokenType.EQUAL_EQUAL, '==');
-                } else {
-                    this.advance();
-                    return new mlir.Token(TokenType.EQUAL, '=');
                 }
+                this.advance();
+                return new mlir.Token(TokenType.EQUAL, '=');
+
             }
             if (this.currentChar === ':') {
                 if (this.peek() === ':') {
@@ -500,14 +500,14 @@ mlir.Tokenizer = class {
                 return new mlir.Token(TokenType.GREATER_THAN, '>');
             }
 
-            let result = this.currentChar;
+            const result = this.currentChar;
             this.advance();
             return new mlir.Token(TokenType.KEYWORD, result);
         }
 
         return new mlir.Token(TokenType.EOF, null);
     }
-}
+};
 
 mlir.Parser = class {
 
@@ -616,7 +616,7 @@ mlir.Parser = class {
 
             this.consumeToken(TokenType.VALUE_ID);
             this.consumeToken(TokenType.COLON);
-            input.type = this.currentToken.value
+            input.type = this.currentToken.value;
             if (this.currentToken.type === TokenType.TYPE) {
                 this.consumeToken(TokenType.TYPE);
             } else if (this.currentToken.type === TokenType.IDENTIFIER) {
@@ -846,7 +846,7 @@ mlir.Parser = class {
                 }
             }
 
-            this.consumeToken(this.currentToken.type)
+            this.consumeToken(this.currentToken.type);
         }
 
         bodyContent += '}';
@@ -895,7 +895,9 @@ mlir.Parser = class {
 
     parseAttribute() {
         const attributes = {};
-        if (this.currentToken.type !== TokenType.LBRACE) { return attributes }
+        if (this.currentToken.type !== TokenType.LBRACE) {
+            return attributes;
+        }
         this.consumeToken(TokenType.LBRACE);
 
 
@@ -930,8 +932,8 @@ mlir.Parser = class {
         let value = '';
 
         let openingCount = 0;
-        let openingChars = [TokenType.LBRACKET, TokenType.LBRACE, TokenType.LPAREN];
-        let closingChars = [TokenType.RBRACKET, TokenType.RBRACE, TokenType.RPAREN];
+        const openingChars = [TokenType.LBRACKET, TokenType.LBRACE, TokenType.LPAREN];
+        const closingChars = [TokenType.RBRACKET, TokenType.RBRACE, TokenType.RPAREN];
 
         while (
             !(openingCount === 0 && (this.currentToken.type === TokenType.COMMA || this.currentToken.type === TokenType.RBRACE))
@@ -995,35 +997,35 @@ mlir.Parser = class {
                 outputs: outputs,
                 outputTypes: outputTypes,
                 isConstant: true,
-            }
-
-            return result
-        } else {
-            // -> f32
-            if (this.currentToken.type === TokenType.ARROW) {
-                this.consumeToken(TokenType.ARROW);
-                outputTypes.push(...this.parseOutputType());
-            }
-
-            let body = null;
-            if (this.currentToken.type === TokenType.LBRACE) {
-                body = this.parseOperationBody();
-            }
-
-            attributes = Object.assign(attributes, this.parseAttribute());
-
-            const result = {
-                name: operationName,
-                attributes: attributes,
-                inputs: inputs,
-                inputTypes: inputTypes,
-                outputs: outputs,
-                outputTypes: outputTypes,
-                body: body,
-            }
+            };
 
             return result;
         }
+        // -> f32
+        if (this.currentToken.type === TokenType.ARROW) {
+            this.consumeToken(TokenType.ARROW);
+            outputTypes.push(...this.parseOutputType());
+        }
+
+        let body = null;
+        if (this.currentToken.type === TokenType.LBRACE) {
+            body = this.parseOperationBody();
+        }
+
+        attributes = Object.assign(attributes, this.parseAttribute());
+
+        const result = {
+            name: operationName,
+            attributes: attributes,
+            inputs: inputs,
+            inputTypes: inputTypes,
+            outputs: outputs,
+            outputTypes: outputTypes,
+            body: body,
+        };
+
+        return result;
+
     }
 
     peekNextToken() {
@@ -1043,7 +1045,7 @@ mlir.Parser = class {
             throw new Error(`Expected token of type '${expectedType}', but got '${this.currentToken.type}': ${JSON.stringify(this.currentToken)}`);
         }
     }
-}
+};
 
 mlir.Graph = class {
 
@@ -1095,7 +1097,7 @@ mlir.Graph = class {
             };
 
             // TODO: convert attributes to proper types
-            operation.attributes = op.attributes
+            operation.attributes = op.attributes;
             // for (const entry of Object.entries(op.attributes)) {
             //     const key = entry[0];
             //     const value = entry[1];
@@ -1105,7 +1107,7 @@ mlir.Graph = class {
             for (let j=0; j<(op.inputs ? op.inputs.length : 0); j++) {
                 const input = op.inputs[j];
                 const inputType = op.inputTypes[j];
-                
+
                 const value = arg(input);
                 value.to.push(operation);
                 const args =  [ { name: input, value: inputType } ];
@@ -1113,7 +1115,7 @@ mlir.Graph = class {
                 operation.inputs.push({
                     name: input,
                     arguments: args
-                })
+                });
             }
 
             for (let j=0; j<(op.outputs ? op.outputs.length : 0); j++) {
@@ -1123,11 +1125,11 @@ mlir.Graph = class {
                 const value = arg(output);
                 value.type = mlir.Utility.valueType(outputType);
                 value.from.push(operation);
-                
+
                 operation.outputs.push({
                     name: output,
                     arguments: [ value ]
-                })
+                });
             }
 
             return operation;
@@ -1154,7 +1156,7 @@ mlir.Graph = class {
         //     }
         // }
 
-        // // 
+        // //
         // for (const op of operations) {
         //     for (const input of op.inputs) {
         //         if (input.arguments.length > 1 && input.arguments.some((argument) => argument.const)) {
@@ -1211,7 +1213,7 @@ mlir.Graph = class {
             if (op.delete) {
                 continue;
             }
-            op.inputs  = op.inputs.map( (input)  => new mlir.Parameter(input.name,  true, input.arguments.map((argument)  => tensor(argument))));
+            op.inputs  = op.inputs.map((input)  => new mlir.Parameter(input.name,  true, input.arguments.map((argument)  => tensor(argument))));
             op.outputs = op.outputs.map((output) => new mlir.Parameter(output.name, true, output.arguments.map((argument) => tensor(argument))));
         }
 
@@ -1311,10 +1313,10 @@ mlir.Argument = class {
     get initializer() {
         return this._initializer;
     }
-}
+};
 
 mlir.Node = class {
-    
+
     constructor(group, type, name, description, attributes, inputs, outputs) {
         if (!type) {
             throw new Error('Undefined node type.');
@@ -1322,7 +1324,7 @@ mlir.Node = class {
         if (group) {
             this._group = group;
         }
-        this._type = { name: type }             // string (metadata.type(type) || { name: type }
+        this._type = { name: type };             // string (metadata.type(type) || { name: type }
         this._name = name || '';                // string
         this._description = description || '';  // string
         this._inputs = inputs;                  // [mlir.Parameter]
@@ -1368,8 +1370,8 @@ mlir.Node = class {
 
     get attributes() {
         return this._attributes;
-    }    
-}
+    }
+};
 
 mlir.Attribute = class {
 
@@ -1395,7 +1397,7 @@ mlir.Attribute = class {
     get visible() {
         return this._visible == false ? false : true;
     }
-}
+};
 
 mlir.Tensor = class {
 
@@ -1423,7 +1425,7 @@ mlir.Tensor = class {
     get values() {
         return this._data;
     }
-}
+};
 
 mlir.TensorType = class {
 
@@ -1443,7 +1445,7 @@ mlir.TensorType = class {
     toString() {
         return this.dataType + this._shape.toString();
     }
-}
+};
 
 mlir.TensorShape = class {
 
@@ -1467,11 +1469,13 @@ mlir.TensorShape = class {
 mlir.Utility = class {
 
     static valueType(typeString) {
-        if (typeString === undefined) { return null }
+        if (typeString === undefined) {
+            return null;
+        }
 
         // eg. tensor<?x3x2x2xf32>
         if (typeString.startsWith('tensor<')) {
-            const shapeString = typeString.substring(7, typeString.length - 1)
+            const shapeString = typeString.substring(7, typeString.length - 1);
             if (!/^[0-9xfiq?*]+$/i.test(shapeString)) {
                 return typeString;
             }
@@ -1485,9 +1489,9 @@ mlir.Utility = class {
                 });
             return new mlir.TensorType(dataType, new mlir.TensorShape(shape));
         }
-        return typeString
+        return typeString;
     }
-}
+};
 
 mlir.Error = class extends Error {
 
