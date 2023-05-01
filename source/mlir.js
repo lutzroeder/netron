@@ -1,5 +1,6 @@
 /**
- *  
+ * owner: @lutzroeder
+ * contributors: @tucan9389
  **/
 
 var mlir = {};
