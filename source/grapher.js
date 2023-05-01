@@ -539,7 +539,7 @@ grapher.Edge = class {
             return document.createElementNS('http://www.w3.org/2000/svg', name);
         };
         this.hitTestElement = createElement('path');
-        this.hitTestElement.setAttribute('class', 'edge-path-hover');
+        this.hitTestElement.setAttribute('class', 'edge-path-hit-test');
         edgePathGroupElement.appendChild(this.hitTestElement);
         this.element = createElement('path');
         if (this.id) {
