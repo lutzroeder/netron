@@ -231,10 +231,10 @@ mlir.Tokenizer = class {
         let result = '';
         let opened = 0;
         let wasOpened = false;
-        while (true) {
+        while (this.currentChar) {
             if (!opened) {
                 if (this.currentChar &&
-                    (/[a-zA-Z_$<>\-.\*]/.test(this.currentChar) ||
+                    (/[a-zA-Z_$<>\-.*]/.test(this.currentChar) ||
                         /[0-9]/.test(this.currentChar))) {
                     if (this.currentChar === '<') {
                         opened += 1;
@@ -255,7 +255,7 @@ mlir.Tokenizer = class {
                     if (opened === 0) {
                         break;
                     }
-                } else if (this.currentChar !== '>') {
+                } else {
                     if (this.currentChar === '<') {
                         opened += 1;
                     }
@@ -597,6 +597,7 @@ mlir.Parser = class {
             inputTypes: inputs.map (input => input.type),
             outputTypes: outputs,
             operations: operations,
+            attributes: attributes,
         };
     }
 
@@ -1332,7 +1333,7 @@ mlir.Node = class {
         this._attributes = [];                  // [mlir.Attribute]
         if (attributes) {
             for (const key of Object.keys(attributes)) {
-                const schema = {}; // metadata.attribute(type, key);
+                // const schema = {}; // metadata.attribute(type, key);
                 const value = attributes[key];
                 const attribute = new mlir.Attribute(key, value);
                 this._attributes.push(attribute);
