@@ -29,18 +29,17 @@ mlir.ModelFactory = class {
         const decoder = text.Decoder.open(stream);
         const parser = new mlir.Parser(decoder);
         const obj = parser.read();
-        console.log(JSON.stringify(obj)) // tmp
         const model = new mlir.Model(obj);
-        throw new Error('Not implemented.');
         return Promise.resolve(model);
     }
 };
 
 mlir.Model = class {
 
-    constructor(obj/*tmp*/) {
+    constructor(obj) {
         this._format = 'MLIR';
-        this._graphs = [];
+        const group = ''
+        this._graphs = obj.functions.map(func => new mlir.Graph(func, group));
     }
 
     get format() {
@@ -267,7 +266,6 @@ mlir.Tokenizer = class {
 
         if (wasOpened) {
             if (result.startsWith('dense')) {
-                console.log("result: " + result)
                 return new mlir.Token(TokenType.DENSE, result);
             } else {
                 return new mlir.Token(TokenType.TYPE, result);
@@ -527,8 +525,6 @@ mlir.Parser = class {
             attributes = Object.assign(attributes, this.parseAttribute());
         }
 
-        console.log("attributes: " + JSON.stringify(attributes));
-
         this.consumeToken(TokenType.LBRACE);
 
         const graph = {
@@ -539,18 +535,13 @@ mlir.Parser = class {
 
         // functions or operations
         while (this.currentToken.type !== TokenType.RBRACE) {
-            console.log(this.currentToken)
             if (this.currentToken.type === TokenType.KEYWORD && this.currentToken.value.endsWith('func')) {
                 // function
-                console.log(" >> func ")
                 const func = this.parseFunction();
-                console.log(" >> func: " + JSON.stringify(func));
                 graph.functions.push(func);
             } else {
                 // operation
-                console.log(" >> op ")
                 const op = this.parseOperation();
-                console.log(" >> op: " + JSON.stringify(op));
                 graph.operations.push(op);
             }
         }
@@ -588,16 +579,12 @@ mlir.Parser = class {
             attributes = Object.assign(attributes, this.parseAttribute());
         }
 
-        console.log("------------------------------------------------")
-
         this.consumeToken(TokenType.LBRACE);
 
         // Operations
         const operations = [];
         while (this.currentToken.type !== TokenType.RBRACE) {
-            console.log(this.currentToken)
             const operation = this.parseOperation();
-            console.log(" >> op: " + JSON.stringify(operation));
             operations.push(operation);
         }
 
@@ -605,8 +592,9 @@ mlir.Parser = class {
 
         return {
             name: name,
-            inputs: inputs,
-            outputs: outputs,
+            inputs: inputs.map (input => input.name),
+            inputTypes: inputs.map (input => input.type),
+            outputTypes: outputs,
             operations: operations,
         };
     }
@@ -729,7 +717,6 @@ mlir.Parser = class {
         ];
 
         while (!validTerminatingTokens.includes(this.currentToken.type)) {
-            console.log(this.currentToken)
             if (this.currentToken.type === TokenType.VALUE_ID) {
                 inputs.push(this.currentToken.value);
                 this.consumeToken(TokenType.VALUE_ID);
@@ -871,7 +858,6 @@ mlir.Parser = class {
 
         if (this.currentToken.type === TokenType.LPAREN) {
             this.consumeToken(TokenType.LPAREN);
-            console.log(this.currentToken)
 
             while (this.currentToken.type !== TokenType.RPAREN) {
                 if (this.currentToken.type === TokenType.VALUE_ID) {
@@ -936,8 +922,6 @@ mlir.Parser = class {
 
         this.consumeToken(TokenType.RBRACE);
 
-        console.log("attributes: " + JSON.stringify(attributes));
-
         return attributes;
     }
 
@@ -967,7 +951,6 @@ mlir.Parser = class {
     parseOperation() {
         // %3
         const outputs = this.parseReturnValues();
-        console.log("outputs: " + JSON.stringify(outputs))
         // =
         if (this.currentToken.type == TokenType.EQUAL) {
             this.consumeToken(TokenType.EQUAL);
@@ -975,9 +958,7 @@ mlir.Parser = class {
         // "add"
         const operationName = this.parseOperationName();
         // (%a, %b)
-        console.log("Start parseInputArguments")
         const { inputs } = this.parseInputArguments();
-        console.log(JSON.stringify(inputs))
 
         // TODO: parsing ^bb
         if (this.currentToken.type === TokenType.LPAREN) {
@@ -1014,6 +995,8 @@ mlir.Parser = class {
                 outputTypes: outputTypes,
                 isConstant: true,
             }
+
+            return result
         } else {
             // -> f32
             if (this.currentToken.type === TokenType.ARROW) {
@@ -1063,12 +1046,185 @@ mlir.Parser = class {
 
 mlir.Graph = class {
 
-    constructor() {
+    constructor(func, group) {
         this._inputs = [];  // [mlir.Parameter]
         this._outputs = []; // [mlir.Parameter]
         this._nodes = [];   // [mlir.Node]
 
-        // TODO
+        // ---------------------------------------------------------------------
+        // inputs of function
+        for (let i=0; i<func.inputs.length; i++) {
+            const input = func.inputs[i];
+            const inputType = func.inputTypes[i];
+            const type = mlir.Utility.valueType(inputType);
+            const inputArgument = new mlir.Argument(input, type, "input desc", null);
+            const inputParameter = new mlir.Parameter(input, true, [inputArgument]);
+            this._inputs.push(inputParameter);
+        }
+
+        // outputs of function
+        for (let i=0; i<func.outputTypes.length; i++) {
+            const output = "%return" + "/" + i;
+            const outputType = func.outputTypes[i];
+            const type = mlir.Utility.valueType(outputType);
+            const outputArgument = new mlir.Argument(output, type, "output desc", null);
+            const outputParameter = new mlir.Parameter(output, true, [outputArgument]);
+            this._outputs.push(outputParameter);
+        }
+
+        // ---------------------------------------------------------------------
+        // operations
+        // `args` is map of edges. `args` will be converted to mlir.Arguemnts.
+        const args = new Map();
+        const arg = (name) => {
+            if (!args.has(name)) {
+                args.set(name, { name: name, to: [], from: [] });
+            }
+            return args.get(name);
+        };
+
+        // operations - setup arguments
+        const operations = func.operations.map((op) => {
+            const operation = {
+                type: op.name,
+                attributes: {},
+                inputs: [],
+                outputs: [],
+                delete: false,
+            };
+
+            // TODO: convert attributes to proper types
+            operation.attributes = op.attributes
+            // for (const entry of Object.entries(op.attributes)) {
+            //     const key = entry[0];
+            //     const value = entry[1];
+            //     operation.attributes[key] = convertValue(value);
+            // }
+
+            for (let j=0; j<(op.inputs ? op.inputs.length : 0); j++) {
+                const input = op.inputs[j];
+                const inputType = op.inputTypes[j];
+                
+                const value = arg(input);
+                value.to.push(operation);
+                const args =  [ { name: input, value: inputType } ];
+
+                operation.inputs.push({
+                    name: input,
+                    arguments: args
+                })
+            }
+
+            for (let j=0; j<(op.outputs ? op.outputs.length : 0); j++) {
+                const output = op.outputs[j];
+                const outputType = op.outputTypes[j];
+
+                const value = arg(output);
+                value.type = mlir.Utility.valueType(outputType);
+                value.from.push(operation);
+                
+                operation.outputs.push({
+                    name: output,
+                    arguments: [ value ]
+                })
+            }
+
+            return operation;
+        });
+
+        // // operations - constant ops
+        // for (const op of operations) {
+        //     if (op.type === 'const' && op.inputs.length === 0 &&
+        //         op.outputs.length === 1 && op.outputs[0].arguments.length === 1) {
+        //         const argument = op.outputs[0].arguments[0];
+        //         if (op.attributes && op.attributes.val) {
+        //             const type = argument.type;
+        //             const data = op.attributes.val;
+        //             if (data instanceof Uint8Array && data.length === 2 &&
+        //                 type.dataType === 'float16' && type.shape.dimensions.length === 0) {
+        //                 const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+        //                 argument.value = view.getFloat16(0, true);
+        //             } else {
+        //                 argument.value = data;
+        //             }
+        //             argument.const = true;
+        //             op.delete = true;
+        //         }
+        //     }
+        // }
+
+        // // 
+        // for (const op of operations) {
+        //     for (const input of op.inputs) {
+        //         if (input.arguments.length > 1 && input.arguments.some((argument) => argument.const)) {
+        //             if (input.arguments.every((argument) => argument.value instanceof mlir.Tensor)) {
+        //                 continue;
+        //             }
+        //             for (const argument of input.arguments) {
+        //                 for (const from of argument.from) {
+        //                     from.delete = false;
+        //                 }
+        //                 delete argument.value;
+        //             }
+        //         }
+        //     }
+        // }
+
+        // for (const op of operations) {
+        //     if (op.delete) {
+        //         continue;
+        //     }
+        //     op.inputs = op.inputs.filter((input) => {
+        //         if (input.arguments.every((argument) => argument.value === undefined || argument.value instanceof coreml.Tensor)) {
+        //             return true;
+        //         }
+        //         if (input.arguments.length === 1) {
+        //             const argument = input.arguments[0];
+        //             op.attributes[input.name] = argument.value;
+        //             return false;
+        //         }
+        //         op.attributes[input.name] = input.arguments.map((argument) => argument.value[0]);
+        //         return false;
+        //     });
+        // }
+
+        const tensors = new Map();
+        const tensor = (arg) => {
+            if (!tensors.has(arg.name)) {
+                tensors.set(arg.name, new mlir.Argument(arg.name, arg.type, null, arg.value));
+            }
+            return tensors.get(arg.name);
+        };
+        for (const input of this._inputs) {
+            for (const arg of input.arguments) {
+                tensors.set(arg.name, arg);
+            }
+        }
+        for (const output of this._outputs) {
+            for (const arg of output.arguments) {
+                tensors.set(arg.name, arg);
+            }
+        }
+
+        for (const op of operations) {
+            if (op.delete) {
+                continue;
+            }
+            op.inputs  = op.inputs.map( (input)  => new mlir.Parameter(input.name,  true, input.arguments.map((argument)  => tensor(argument))));
+            op.outputs = op.outputs.map((output) => new mlir.Parameter(output.name, true, output.arguments.map((argument) => tensor(argument))));
+        }
+
+        for (const op of operations.filter((op) => !op.delete)) {
+            const type = op.type; // 'program:' + op.type;
+            // const metadata = this._metadata.type(type);
+            // if (metadata && Array.isArray(metadata.inputs)) {
+            //     let index = 1;
+            //     const map = new Map(metadata.inputs.map((input) => [ input.name, index++ ]));
+            //     op.inputs.sort((a, b) => (map.get(a.name) || map.size) - (map.get(b.name) || map.size));
+            // }
+            const node = new mlir.Node(/*this._metadata, */group, type, null, null, op.attributes, op.inputs, op.outputs);
+            this._nodes.push(node);
+        }
     }
 
     get inputs() {
@@ -1086,9 +1242,10 @@ mlir.Graph = class {
 
 mlir.Parameter = class {
 
-    constructor(name, args) {
-        this._name = name;      // string
-        this._arguments = args; // [mlir.Argument]
+    constructor(name, visible, args) {
+        this._name = name;       // string
+        this._visible = visible; // bool
+        this._arguments = args;  // [mlir.Argument]
     }
 
     get name() {
@@ -1096,7 +1253,7 @@ mlir.Parameter = class {
     }
 
     get visible() {
-        return true;
+        return this._visible == false ? false : true;
     }
 
     get arguments() {
@@ -1105,9 +1262,10 @@ mlir.Parameter = class {
 };
 
 mlir.Argument = class {
-    constructor(name, type, initializer) {
+
+    constructor(name, type, description, initializer) {
         if (typeof name !== 'string') {
-            throw new coreml.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new mlir.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;          // string
         this._type = type || null;  // mlir.TensorType
@@ -1155,22 +1313,48 @@ mlir.Argument = class {
 }
 
 mlir.Node = class {
-    constructor(node) {
-        this._name = 'Node_name';   // string
-        this._type = 'Node_type';   // string
-        this._inputs = [];          // [mlir.Parameter]
-        this._outputs = [];         // [mlir.Parameter]
-        this._attributes = [];      // [mlir.Attributes]
+    
+    constructor(group, type, name, description, attributes, inputs, outputs) {
+        if (!type) {
+            throw new Error('Undefined node type.');
+        }
+        if (group) {
+            this._group = group;
+        }
+        this._type = { name: type }             // string (metadata.type(type) || { name: type }
+        this._name = name || '';                // string
+        this._description = description || '';  // string
+        this._inputs = inputs;                  // [mlir.Parameter]
+        this._outputs = outputs;                // [mlir.Parameter]
+        this._attributes = [];                  // [mlir.Attribute]
+        if (attributes) {
+            for (const key of Object.keys(attributes)) {
+                const schema = {}; // metadata.attribute(type, key);
+                const value = attributes[key];
+                const attribute = new mlir.Attribute(key, value);
+                this._attributes.push(attribute);
+            }
+        }
+    }
 
-        // TODO
+    get type() {
+        return this._type;
     }
 
     get name() {
         return this._name;
     }
 
-    get type() {
-        return this._type;
+    get description() {
+        return this._description;
+    }
+
+    get metadata() {
+        return this._metadata;
+    }
+
+    get group() {
+        return this._group ? this._group : null;
     }
 
     get inputs() {
@@ -1183,17 +1367,16 @@ mlir.Node = class {
 
     get attributes() {
         return this._attributes;
-    }
+    }    
 }
 
-mlir.Attributes = class {
-    constructor() {
-        this._name = 'Attributes_name';
-        this._type = 'Attributes_type';
-        this._value = 'Attributes_value';
-        this._visible = true;
+mlir.Attribute = class {
 
-        // TODO
+    constructor(name, value) {
+        this._name = name;
+        this._type = 'string';
+        this._value = value;
+        this._visible = true;
     }
 
     get name() {
@@ -1216,7 +1399,7 @@ mlir.Attributes = class {
 mlir.Tensor = class {
 
     constructor(type, data) {
-        this._type = type;
+        this._type = type;  // mlir.TensorType
         this._data = data;
     }
 
@@ -1244,8 +1427,8 @@ mlir.Tensor = class {
 mlir.TensorType = class {
 
     constructor(dataType, shape) {
-        this._dataType = dataType;
-        this._shape = shape || new mlir.TensorShape([]);
+        this._dataType = dataType;                       // string
+        this._shape = shape || new mlir.TensorShape([]); // mlir.TensorShape
     }
 
     get dataType() {
@@ -1279,6 +1462,31 @@ mlir.TensorShape = class {
     }
 };
 
+
+mlir.Utility = class {
+
+    static valueType(typeString) {
+        if (typeString === undefined) { return null }
+
+        // eg. tensor<?x3x2x2xf32>
+        if (typeString.startsWith('tensor<')) {
+            const shapeString = typeString.substring(7, typeString.length - 1)
+            if (!/^[0-9xfiq?*]+$/i.test(shapeString)) {
+                return typeString;
+            }
+            const parts = shapeString.split('x');
+            const dataType = parts[parts.length - 1];
+            const shape = parts
+                .slice(0, -1)
+                .map((dimension) => {
+                    const parsedDimension = parseInt(dimension.trim());
+                    return isNaN(parsedDimension) ? '?' : parsedDimension;
+                });
+            return new mlir.TensorType(dataType, new mlir.TensorShape(shape));
+        }
+        return typeString
+    }
+}
 
 mlir.Error = class extends Error {
 
