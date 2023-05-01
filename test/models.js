@@ -291,25 +291,26 @@ const request = async (url, init) => {
         let position = 0;
         const stream = new ReadableStream({
             start(controller) {
-                const read = () => {
-                    reader.read().then((result) => {
+                const read = async () => {
+                    try {
+                        const result = await reader.read();
                         if (result.done) {
                             clearLine();
                             controller.close();
-                            return;
-                        }
-                        position += result.value.length;
-                        if (length >= 0) {
-                            const label = url.length > 70 ? url.substring(0, 66) + '...' : url;
-                            write('  (' + ('  ' + Math.floor(100 * (position / length))).slice(-3) + '%) ' + label + '\r');
                         } else {
-                            write('  ' + position + ' bytes\r');
+                            position += result.value.length;
+                            if (length >= 0) {
+                                const label = url.length > 70 ? url.substring(0, 66) + '...' : url;
+                                write('  (' + ('  ' + Math.floor(100 * (position / length))).slice(-3) + '%) ' + label + '\r');
+                            } else {
+                                write('  ' + position + ' bytes\r');
+                            }
+                            controller.enqueue(result.value);
+                            read();
                         }
-                        controller.enqueue(result.value);
-                        read();
-                    }).catch(error => {
+                    } catch (error) {
                         controller.error(error);
-                    });
+                    }
                 };
                 read();
             }
