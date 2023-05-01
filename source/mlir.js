@@ -245,23 +245,21 @@ mlir.Tokenizer = class {
                 } else {
                     break;
                 }
-            } else { // opened
-                if (!this.currentChar) {
+            } else if (!this.currentChar) {
+                break;
+            } else if (this.currentChar === '>') {
+                result += this.currentChar;
+                this.advance();
+                opened -= 1;
+                if (opened === 0) {
                     break;
-                } else if (this.currentChar === '>') {
-                    result += this.currentChar;
-                    this.advance();
-                    opened -= 1;
-                    if (opened === 0) {
-                        break;
-                    }
-                } else {
-                    if (this.currentChar === '<') {
-                        opened += 1;
-                    }
-                    result += this.currentChar;
-                    this.advance();
                 }
+            } else {
+                if (this.currentChar === '<') {
+                    opened += 1;
+                }
+                result += this.currentChar;
+                this.advance();
             }
         }
 
