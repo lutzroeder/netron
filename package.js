@@ -64,20 +64,21 @@ const request = async (url, init, status) => {
         let position = 0;
         const stream = new ReadableStream({
             start(controller) {
-                const read = () => {
-                    reader.read().then((result) => {
+                const read = async () => {
+                    try {
+                        const result = await reader.read();
                         if (result.done) {
                             clearLine();
                             controller.close();
-                            return;
+                        } else {
+                            position += result.value.length;
+                            write('  ' + position + ' bytes\r');
+                            controller.enqueue(result.value);
+                            read();
                         }
-                        position += result.value.length;
-                        write('  ' + position + ' bytes\r');
-                        controller.enqueue(result.value);
-                        read();
-                    }).catch(error => {
+                    } catch (error) {
                         controller.error(error);
-                    });
+                    }
                 };
                 read();
             }
