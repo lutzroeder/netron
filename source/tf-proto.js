@@ -682,6 +682,7 @@ $root.tensorflow.SignatureDef = class SignatureDef {
     constructor() {
         this.inputs = {};
         this.outputs = {};
+        this.defaults = {};
     }
 
     static decode(reader, length) {
@@ -698,6 +699,9 @@ $root.tensorflow.SignatureDef = class SignatureDef {
                     break;
                 case 3:
                     message.method_name = reader.string();
+                    break;
+                case 4:
+                    reader.entry(message.defaults, () => reader.string(), () => $root.tensorflow.TensorProto.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -721,6 +725,9 @@ $root.tensorflow.SignatureDef = class SignatureDef {
                     break;
                 case "method_name":
                     message.method_name = reader.string();
+                    break;
+                case "defaults":
+                    reader.entry(message.defaults, () => reader.string(), () => $root.tensorflow.TensorProto.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
