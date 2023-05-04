@@ -7,6 +7,14 @@ host.BrowserHost = class {
         this._window = window;
         this._navigator = window.navigator;
         this._document = window.document;
+        this._window.addEventListener('error', (event) => {
+            const error = event instanceof ErrorEvent && event.error && event.error instanceof Error ? event.error : new Error(event && event.message ? event.message : JSON.stringify(event));
+            this.exception(error, true);
+            this._terminate(error.message);
+        });
+        // if (!Symbol || !Symbol.asyncIterator) {
+        //     throw new Error('Your browser is not supported');
+        // }
         this._window.eval = () => {
             throw new Error('window.eval() not supported.');
         };
@@ -34,15 +42,13 @@ host.BrowserHost = class {
 
     static create() {
         const value = new host.BrowserHost();
-        const preload = (ids) => {
-            return Promise.all(ids.map((id) => value.require(id)));
-        };
+        const preload = (ids) => Promise.all(ids.map((id) => value.require(id)));
         return preload([ 'base', 'text', 'flatbuffers', 'flexbuffers', 'zip',  'tar', 'python', 'dagre' ]).then(() => {
             return preload([ 'json', 'xml', 'protobuf', 'hdf5', 'grapher' ]).then(() => {
                 return preload([ 'view' ]).then(() => value);
             });
         }).catch((error) => {
-            value._message(error.message);
+            value._terminate(error.message);
         });
     }
 
@@ -69,19 +75,15 @@ host.BrowserHost = class {
 
     _age() {
         const age = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
-        if (age <= 180) {
-            return Promise.resolve();
-        }
-        this.document.body.classList.remove('spinner');
-        const loop = () => {
-            this._message('Please update to the newest version.', 'Download').then(() => {
+        if (age > 180) {
+            this.document.body.classList.remove('spinner');
+            this._terminate('Please update to the newest version.', 'Download', () => {
                 const link = this._element('logo-github').href;
                 this.openURL(link);
-                loop();
             });
-        };
-        loop();
-        return new Promise(() => {});
+            return new Promise(() => {});
+        }
+        return Promise.resolve();
     }
 
     _consent() {
@@ -183,17 +185,13 @@ host.BrowserHost = class {
             browser_capabilities: capabilities.map((capability) => capability.split('.').pop()).join(',')
         });
         if (capabilities.length < list.length) {
-            this._message('Your browser is not supported.');
+            this._terminate('Your browser is not supported.');
             return new Promise(() => {});
         }
         return Promise.resolve();
     }
 
     start() {
-        this.window.addEventListener('error', (event) => {
-            const error = event instanceof ErrorEvent && event.error && event.error instanceof Error ? event.error : new Error(event && event.message ? event.message : JSON.stringify(event));
-            this.exception(error, true);
-        });
 
         const hash = this.window.location.hash ? this.window.location.hash.replace(/^#/, '') : '';
         const search = this.window.location.search;
@@ -619,6 +617,26 @@ host.BrowserHost = class {
 
     _element(id) {
         return this.document.getElementById(id);
+    }
+
+    _terminate(message, action, callback) {
+        const text = this._element('message-text');
+        const button = this._element('message-button');
+        if (text) {
+            text.innerText = message;
+        }
+        if (button) {
+            if (action) {
+                button.style.removeProperty('display');
+                button.innerText = action;
+                button.onclick = () => callback();
+            } else {
+                button.style.display = 'none';
+                button.onclick = null;
+            }
+        }
+        this._document.body.setAttribute('class', 'welcome message');
+        this._element('menu-button').style.opacity = 0;
     }
 
     _message(message, action) {
