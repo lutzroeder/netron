@@ -18,8 +18,7 @@ host.ElectronHost = class {
         this._window = window;
         process.on('uncaughtException', (err) => {
             this.exception(err, true);
-            this._message(err.message);
-            this.document.body.setAttribute('class', 'welcome message');
+            this._terminate(err.message);
         });
         this._window.eval = global.eval = () => {
             throw new Error('window.eval() not supported.');
@@ -39,10 +38,6 @@ host.ElectronHost = class {
         if (!/^\d\.\d\.\d$/.test(this.version)) {
             throw new Error('Invalid version.');
         }
-    }
-
-    static async create() {
-        return new host.ElectronHost();
     }
 
     get window() {
@@ -75,14 +70,13 @@ host.ElectronHost = class {
         const age = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
         if (age > 180) {
             this._view.show('welcome');
-            for (;;) {
-                /* eslint-disable no-await-in-loop */
-                await this._message('Please update to the newest version.', 'Download');
-                /* eslint-enable no-await-in-loop */
+            this._terminate('Please update to the newest version.', 'Download', () => {
                 const link = this._element('logo-github').href;
                 this.openURL(link);
-            }
+            });
+            return new Promise(() => {});
         }
+        return Promise.resolve();
     }
 
     async _consent() {
@@ -560,6 +554,29 @@ host.ElectronHost = class {
         electron.ipcRenderer.send('window-update', data);
     }
 
+    _terminate(message, action, callback) {
+        const text = this._element('message-text');
+        if (text) {
+            text.innerText = message;
+        }
+        const button = this._element('message-button');
+        if (button) {
+            if (action) {
+                button.style.removeProperty('display');
+                button.innerText = action;
+                button.onclick = () => callback();
+            } else {
+                button.style.display = 'none';
+                button.onclick = null;
+            }
+        }
+        const menu = this._element('menu-button');
+        if (menu) {
+            menu.style.opacity = 0;
+        }
+        this._document.body.setAttribute('class', 'welcome message');
+    }
+
     _message(message, action) {
         return new Promise((resolve) => {
             const text = this._element('message-text');
@@ -778,8 +795,7 @@ host.ElectronHost.Context = class {
 window.addEventListener('load', () => {
     global.protobuf = require('./protobuf');
     global.flatbuffers = require('./flatbuffers');
-    host.ElectronHost.create().then((host) => {
-        const view = require('./view');
-        window.__view__ = new view.View(host);
-    });
+    const value = new host.ElectronHost();
+    const view = require('./view');
+    window.__view__ = new view.View(value);
 });
