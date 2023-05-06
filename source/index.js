@@ -834,7 +834,7 @@ if (!('scrollBehavior' in window.document.documentElement.style)) {
     };
 }
 
-if (!window.location.hostname.endsWith('.github.io')) {
+if (window.location.hostname.endsWith('.github.io')) {
     window.location.replace('https://netron.app');
 } else {
     window.require = (id) => {
