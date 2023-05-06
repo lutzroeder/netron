@@ -40,15 +40,14 @@ host.BrowserHost = class {
         }
     }
 
-    static create() {
-        const value = new host.BrowserHost();
-        const preload = (ids) => Promise.all(ids.map((id) => value.require(id)));
+    create() {
+        const preload = (ids) => Promise.all(ids.map((id) => this.require(id)));
         return preload([ 'base', 'text', 'flatbuffers', 'flexbuffers', 'zip',  'tar', 'python', 'dagre' ]).then(() => {
             return preload([ 'json', 'xml', 'protobuf', 'hdf5', 'grapher' ]).then(() => {
-                return preload([ 'view' ]).then(() => value);
+                return preload([ 'view' ]);
             });
         }).catch((error) => {
-            value._terminate(error.message);
+            this._terminate(error.message);
         });
     }
 
@@ -119,7 +118,7 @@ host.BrowserHost = class {
     _telemetry() {
         if (this._environment.version && this._environment.version !== '0.0.0') {
             const ga4 = () => {
-                const base = this.window.base;
+                const base = require('./base');
                 const measurement_id = '848W2NVWVH';
                 const user = this._getCookie('_ga').replace(/^(GA1\.\d\.)*/, '');
                 const session = this._getCookie('_ga' + measurement_id);
@@ -171,6 +170,7 @@ host.BrowserHost = class {
             'TextDecoder', 'TextEncoder',
             'fetch', 'URLSearchParams',
             'HTMLCanvasElement.prototype.toBlob',
+            'Promise',
             'Symbol.asyncIterator'
         ];
         const capabilities = list.filter((capability) => {
@@ -234,7 +234,8 @@ host.BrowserHost = class {
             });
             const mobileSafari = this.environment('platform') === 'darwin' && navigator.maxTouchPoints && navigator.maxTouchPoints > 1;
             if (!mobileSafari) {
-                const extensions = new this.window.base.Metadata().extensions.map((extension) => '.' + extension);
+                const base = require('./base');
+                const extensions = new base.Metadata().extensions.map((extension) => '.' + extension);
                 openFileDialog.setAttribute('accept', extensions.join(', '));
             }
             openFileDialog.addEventListener('change', (e) => {
@@ -469,7 +470,7 @@ host.BrowserHost = class {
                 progress(0);
                 if (request.status == 200) {
                     if (request.responseType == 'arraybuffer') {
-                        const base = this.window.base;
+                        const base = require('./base');
                         const buffer = new Uint8Array(request.response);
                         const stream = new base.BinaryStream(buffer);
                         resolve(stream);
@@ -572,7 +573,7 @@ host.BrowserHost = class {
             if (!key) {
                 return this.error('Error while loading Gist.', 'Gist does not contain a model file.');
             }
-            const base = this.window.base;
+            const base = require('./base');
             const file = json.files[key];
             const identifier = file.filename;
             const encoder = new TextEncoder();
@@ -621,10 +622,10 @@ host.BrowserHost = class {
 
     _terminate(message, action, callback) {
         const text = this._element('message-text');
-        const button = this._element('message-button');
         if (text) {
             text.innerText = message;
         }
+        const button = this._element('message-button');
         if (button) {
             if (action) {
                 button.style.removeProperty('display');
@@ -635,8 +636,11 @@ host.BrowserHost = class {
                 button.onclick = null;
             }
         }
+        const menu = this._element('message-button');
+        if (menu) {
+            menu.style.opacity = 0;
+        }
         this._document.body.setAttribute('class', 'welcome message');
-        this._element('menu-button').style.opacity = 0;
     }
 
     _message(message, action) {
@@ -702,7 +706,7 @@ host.BrowserHost.BrowserFileContext = class {
                 if (encoding) {
                     resolve(e.target.result);
                 } else {
-                    const base = this._host.window.base;
+                    const base = require('./base');
                     const buffer = new Uint8Array(e.target.result);
                     const stream = new base.BinaryStream(buffer);
                     resolve(stream);
@@ -830,7 +834,7 @@ if (!('scrollBehavior' in window.document.documentElement.style)) {
     };
 }
 
-if (window.location.hostname.endsWith('.github.io')) {
+if (!window.location.hostname.endsWith('.github.io')) {
     window.location.replace('https://netron.app');
 } else {
     window.require = (id) => {
@@ -842,9 +846,10 @@ if (window.location.hostname.endsWith('.github.io')) {
         throw new Error("Module '" + id + "' not found.");
     };
     window.addEventListener('load', () => {
-        host.BrowserHost.create().then((host) => {
+        const value = new host.BrowserHost();
+        value.create().then(() => {
             const view = require('./view');
-            window.__view__ = new view.View(host);
+            window.__view__ = new view.View(value);
         });
     });
 }
