@@ -50,20 +50,20 @@ const TokenType = {
 	SYMBOL_REF_ID: 'SYMBOL_REF_ID',
 	TYPE: 'TYPE',
 	DENSE: 'DENSE',
-	VALUE_ID: 'VALUE_ID',
-	CARET_ID: 'CARET_ID',
-	COLON: 'COLON',
-	COMMA: 'COMMA',
-	EQUAL: 'EQUAL',
-	LPAREN: 'LPAREN',
-	RPAREN: 'RPAREN',
-	ARROW: 'ARROW',
-	LBRACKET: 'LBRACKET',
-	RBRACKET: 'RBRACKET',
-	LBRACE: 'LBRACE',
-	RBRACE: 'RBRACE',
-	LESS_THAN: 'LESS_THAN',
-	GREATER_THAN: 'GREATER_THAN',
+	VALUE_ID: 'VALUE_ID', // %
+	CARET_ID: 'CARET_ID', // ^
+	COLON: 'COLON', // :
+	COMMA: 'COMMA', // ,
+	EQUAL: 'EQUAL', // =
+	LPAREN: 'LPAREN', // (
+	RPAREN: 'RPAREN', // )
+	ARROW: 'ARROW', // ->
+	LBRACKET: 'LBRACKET', // [
+	RBRACKET: 'RBRACKET', // ]
+	LBRACE: 'LBRACE', // {
+	RBRACE: 'RBRACE', // }
+	LESS_THAN: 'LESS_THAN', // <
+	GREATER_THAN: 'GREATER_THAN', // >
 	KEYWORD: 'KEYWORD',
 	EOF: 'EOF',
 };
@@ -503,8 +503,6 @@ mlir.Parser = class {
 	}
 
 	read() {
-		console.log(this.currentToken)
-		
 		const hasModule = this.currentToken.type === TokenType.KEYWORD && this.currentToken.value === 'module';
 		
 		let attributes = {};
@@ -671,6 +669,131 @@ mlir.Parser = class {
 			}
 
 			outputs.push(output);
+		}
+
+		return outputs;
+	}
+
+	parseOperation() {
+		// %3
+		const outputs = this.parseReturnValues();
+		// =
+		if (this.currentToken.type == TokenType.EQUAL) {
+			this.consumeToken(TokenType.EQUAL);
+		}
+		// "add"
+		const operationName = this.parseOperationName();
+
+		if (this.currentToken.type === TokenType.RBRACE) {
+			// early return
+			return {
+				outputs: outputs,
+				operationName: operationName,
+			};
+		}
+
+		// (%a, %b)
+		const { inputs } = this.parseInputArguments();
+
+		// TODO: parsing ^bb
+		if (this.currentToken.type === TokenType.LPAREN) {
+			this.consumeToken(TokenType.LPAREN);
+			let count = 1;
+			while (count > 0) {
+				if (this.currentToken.type === TokenType.LPAREN) {
+					count++;
+				} else if (this.currentToken.type === TokenType.RPAREN) {
+					count--;
+				}
+				this.consumeToken(this.currentToken.type);
+			}
+		}
+
+		// : (f32, tensor<1xf32>)
+		let inputTypes = [];
+		let attributes = {};
+
+		attributes = Object.assign(attributes, this.parseAttribute());
+		if (this.currentToken.type === TokenType.COLON) {
+			this.consumeToken(TokenType.COLON);
+			({ inputTypes } = this.parseInputArgumentTypes());
+		}
+
+		const outputTypes = [];
+		if (operationName.endsWith('constant') && this.currentToken.type !== TokenType.ARROW) {
+			// constant
+			const result = {
+				name: operationName,
+				attributes: attributes,
+				// data: this.parseConstantData(),
+				outputs: outputs,
+				outputTypes: outputTypes,
+				isConstant: true,
+			};
+
+			return result;
+		}
+		// -> f32
+		if (this.currentToken.type === TokenType.ARROW) {
+			this.consumeToken(TokenType.ARROW);
+			outputTypes.push(...this.parseOutputType());
+		}
+
+		let body = null;
+		if (this.currentToken.type === TokenType.LBRACE) {
+			body = this.parseOperationBody();
+		}
+
+		attributes = Object.assign(attributes, this.parseAttribute());
+
+		const result = {
+			name: operationName,
+			attributes: attributes,
+			inputs: inputs,
+			inputTypes: inputTypes,
+			outputs: outputs,
+			outputTypes: outputTypes,
+			body: body,
+		};
+
+		return result;
+
+	}
+
+	parseReturnValues() {
+		const outputs = [];
+
+		if (this.currentToken.type === TokenType.LPAREN) {
+			this.consumeToken(TokenType.LPAREN);
+
+			while (this.currentToken.type !== TokenType.RPAREN) {
+				if (this.currentToken.type === TokenType.VALUE_ID) {
+					outputs.push(this.currentToken.value);
+					this.consumeToken(TokenType.VALUE_ID);
+				}
+
+				if (this.currentToken.type === TokenType.COMMA) {
+					this.consumeToken(TokenType.COMMA);
+				}
+			}
+
+			this.consumeToken(TokenType.RPAREN);
+		} else if (this.currentToken.type === TokenType.VALUE_ID) {
+			outputs.push(this.currentToken.value);
+			this.consumeToken(TokenType.VALUE_ID);
+
+			if (this.currentToken.type === TokenType.COMMA) {
+				this.consumeToken(TokenType.COMMA);
+
+				while (this.currentToken.type === TokenType.VALUE_ID) {
+					outputs.push(this.currentToken.value);
+					this.consumeToken(TokenType.VALUE_ID);
+
+					if (this.currentToken.type === TokenType.COMMA) {
+						this.consumeToken(TokenType.COMMA);
+					}
+				}
+			}
 		}
 
 		return outputs;
@@ -850,45 +973,6 @@ mlir.Parser = class {
 		return bodyContent;
 	}
 
-	parseReturnValues() {
-		const outputs = [];
-
-		if (this.currentToken.type === TokenType.LPAREN) {
-			this.consumeToken(TokenType.LPAREN);
-
-			while (this.currentToken.type !== TokenType.RPAREN) {
-				if (this.currentToken.type === TokenType.VALUE_ID) {
-					outputs.push(this.currentToken.value);
-					this.consumeToken(TokenType.VALUE_ID);
-				}
-
-				if (this.currentToken.type === TokenType.COMMA) {
-					this.consumeToken(TokenType.COMMA);
-				}
-			}
-
-			this.consumeToken(TokenType.RPAREN);
-		} else if (this.currentToken.type === TokenType.VALUE_ID) {
-			outputs.push(this.currentToken.value);
-			this.consumeToken(TokenType.VALUE_ID);
-
-			if (this.currentToken.type === TokenType.COMMA) {
-				this.consumeToken(TokenType.COMMA);
-
-				while (this.currentToken.type === TokenType.VALUE_ID) {
-					outputs.push(this.currentToken.value);
-					this.consumeToken(TokenType.VALUE_ID);
-
-					if (this.currentToken.type === TokenType.COMMA) {
-						this.consumeToken(TokenType.COMMA);
-					}
-				}
-			}
-		}
-
-		return outputs;
-	}
-
 	parseAttribute() {
 		const attributes = {};
 		if (this.currentToken.type !== TokenType.LBRACE) {
@@ -947,82 +1031,7 @@ mlir.Parser = class {
 		return value.trim();
 	}
 
-	parseOperation() {
-		// %3
-		const outputs = this.parseReturnValues();
-		// =
-		if (this.currentToken.type == TokenType.EQUAL) {
-			this.consumeToken(TokenType.EQUAL);
-		}
-		// "add"
-		const operationName = this.parseOperationName();
-		// (%a, %b)
-		const { inputs } = this.parseInputArguments();
-
-		// TODO: parsing ^bb
-		if (this.currentToken.type === TokenType.LPAREN) {
-			this.consumeToken(TokenType.LPAREN);
-			let count = 1;
-			while (count > 0) {
-				if (this.currentToken.type === TokenType.LPAREN) {
-					count++;
-				} else if (this.currentToken.type === TokenType.RPAREN) {
-					count--;
-				}
-				this.consumeToken(this.currentToken.type);
-			}
-		}
-
-		// : (f32, tensor<1xf32>)
-		let inputTypes = [];
-		let attributes = {};
-
-		attributes = Object.assign(attributes, this.parseAttribute());
-		if (this.currentToken.type === TokenType.COLON) {
-			this.consumeToken(TokenType.COLON);
-			({ inputTypes } = this.parseInputArgumentTypes());
-		}
-
-		const outputTypes = [];
-		if (operationName.endsWith('constant') && this.currentToken.type !== TokenType.ARROW) {
-			// constant
-			const result = {
-				name: operationName,
-				attributes: attributes,
-				// data: this.parseConstantData(),
-				outputs: outputs,
-				outputTypes: outputTypes,
-				isConstant: true,
-			};
-
-			return result;
-		}
-		// -> f32
-		if (this.currentToken.type === TokenType.ARROW) {
-			this.consumeToken(TokenType.ARROW);
-			outputTypes.push(...this.parseOutputType());
-		}
-
-		let body = null;
-		if (this.currentToken.type === TokenType.LBRACE) {
-			body = this.parseOperationBody();
-		}
-
-		attributes = Object.assign(attributes, this.parseAttribute());
-
-		const result = {
-			name: operationName,
-			attributes: attributes,
-			inputs: inputs,
-			inputTypes: inputTypes,
-			outputs: outputs,
-			outputTypes: outputTypes,
-			body: body,
-		};
-
-		return result;
-
-	}
+	
 
 	peekNextToken() {
 		const savedToken = this.currentToken;
