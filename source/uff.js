@@ -1,6 +1,4 @@
 
-// Experimental
-
 var uff = {};
 var protobuf = require('./protobuf');
 
