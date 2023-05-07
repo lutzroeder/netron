@@ -2776,14 +2776,14 @@
     "type":     "mlir",
     "target":   "examples.mnist_xla.mlir",
     "source":   "https://github.com/lutzroeder/netron/files/10672271/examples.mnist_xla.mlir.zip[examples.mnist_xla.mlir]",
-    "error":    "MLIR support is not implemented.",
+    "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
     "type":     "mlir",
     "target":   "issue_1043.mlir",
     "source":   "https://github.com/lutzroeder/netron/files/10672270/issue_1043.mlir.zip[issue_1043.mlir]",
-    "error":    "MLIR support is not implemented.",
+    "format":   "MLIR",
     "link":     "https://github.com/lutzroeder/netron/issues/1044"
   },
   {
