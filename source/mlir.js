@@ -312,13 +312,19 @@ mlir.Tokenizer = class {
 		}
 		this.advance();
 		while (
-			this.currentChar &&
-			(/[a-zA-Z_$]/.test(this.currentChar) ||
-				/[0-9]/.test(this.currentChar) ||
-				/[-.]/.test(this.currentChar))
+			this.currentChar
 		) {
-			result += this.currentChar;
-			this.advance();
+			if (/[a-zA-Z_$]/.test(this.currentChar) ||
+			/[0-9]/.test(this.currentChar) ||
+			/[-.#]/.test(this.currentChar)) {
+				result += this.currentChar;
+				this.advance();
+			} else if (/[:]/.test(this.currentChar) && /[0-9]/.test(this.nextChar)) { // %myid:3 case
+				result += this.currentChar;
+				this.advance();
+			} else {
+				break;
+			}
 		}
 		return new mlir.Token(TokenType.VALUE_ID, result);
 	}
@@ -500,6 +506,7 @@ mlir.Parser = class {
 	constructor(decoder) {
 		this.tokenizer = new mlir.Tokenizer(decoder);
 		this.currentToken = this.tokenizer.nextToken();
+		this.nextToken = this.tokenizer.nextToken();
 	}
 
 	read() {
@@ -688,13 +695,22 @@ mlir.Parser = class {
 			// early return
 			return {
 				outputs: outputs,
-				operationName: operationName,
+				name: operationName,
 			};
 		}
 
 		// (%a, %b)
+		// condition: start with `(%`, `%`, or `()`
 		const { inputs } = this.parseInputArguments();
 
+		// successor-list?
+		// condition: start with `[`, end with `]`
+
+		// dictionary-properties?
+		// condition: start with `<`, end with `>`
+
+		// region-list?
+		// condition: start with `(^`, or (operation, end with `)`
 		// TODO: parsing ^bb
 		if (this.currentToken.type === TokenType.LPAREN) {
 			this.consumeToken(TokenType.LPAREN);
@@ -708,6 +724,9 @@ mlir.Parser = class {
 				this.consumeToken(this.currentToken.type);
 			}
 		}
+
+		// dictionary-attribute?
+		// condition: start with `{`, end with `}`
 
 		// : (f32, tensor<1xf32>)
 		let inputTypes = [];
@@ -796,7 +815,19 @@ mlir.Parser = class {
 			}
 		}
 
-		return outputs;
+		const result = []
+		outputs.forEach((output) => {
+			if (output.split(':').length == 2) {
+				const [valueId, length] = output.split(':');
+				for (let i = 0; i < length; i++) {
+					result.push(`${valueId}#${i}`);
+				}
+			} else {
+				result.push(output);
+			}
+		})
+
+		return result;
 	}
 
 
@@ -1031,21 +1062,14 @@ mlir.Parser = class {
 		return value.trim();
 	}
 
-	
-
-	peekNextToken() {
-		const savedToken = this.currentToken;
-		const nextToken = this.tokenizer.nextToken();
-		this.currentToken = savedToken;
-		return nextToken;
-	}
-
 	consumeToken(expectedType, expectedValue) {
 		if (this.currentToken.type === expectedType) {
 			if (expectedValue !== undefined && this.currentToken.value !== expectedValue) {
 				throw new Error(`Expected token with value '${expectedValue}', but got '${this.currentToken.value}': ${JSON.stringify(this.currentToken)}`);
 			}
-			this.currentToken = this.tokenizer.nextToken();
+			this.currentToken = this.nextToken;
+			this.nextToken = this.tokenizer.nextToken();
+			// this.currentToken = this.tokenizer.nextToken();
 		} else {
 			throw new Error(`Expected token of type '${expectedType}', but got '${this.currentToken.type}': ${JSON.stringify(this.currentToken)}`);
 		}
@@ -1329,11 +1353,11 @@ mlir.Node = class {
 		if (group) {
 			this._group = group;
 		}
-		this._type = { name: type };             // string (metadata.type(type) || { name: type }
+		this._type = { name: type || '' };      // string (metadata.type(type) || { name: type }
 		this._name = name || '';                // string
 		this._description = description || '';  // string
-		this._inputs = inputs;                  // [mlir.Parameter]
-		this._outputs = outputs;                // [mlir.Parameter]
+		this._inputs = inputs || [];            // [mlir.Parameter]
+		this._outputs = outputs || [];          // [mlir.Parameter]
 		this._attributes = [];                  // [mlir.Attribute]
 		if (attributes) {
 			for (const key of Object.keys(attributes)) {
