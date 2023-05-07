@@ -323,7 +323,7 @@ flatc.Parser = class {
 
     constructor(text, file, root) {
         // https://google.github.io/flatbuffers/flatbuffers_grammar.html
-        this._tokenizer = new flatc.Parser.Tokenizer(text, file);
+        this._tokenizer = new flatc.Tokenizer(text, file);
         this._root = root;
         this._context = root.defineNamespace('');
     }
@@ -524,7 +524,7 @@ flatc.Parser = class {
     }
 };
 
-flatc.Parser.Tokenizer = class {
+flatc.Tokenizer = class {
 
     constructor(text, file) {
         this._text = text;
@@ -549,7 +549,7 @@ flatc.Parser.Tokenizer = class {
         }
         const next = this._position + this._token.token.length;
         while (this._position < next) {
-            if (flatc.Parser.Tokenizer._isNewline(this._get(this._position))) {
+            if (flatc.Tokenizer._isNewline(this._get(this._position))) {
                 this._position = this._newLine(this._position);
                 this._lineStart = this._position;
                 this._line++;
@@ -690,7 +690,7 @@ flatc.Parser.Tokenizer = class {
 
     _skipLine() {
         while (this._position < this._text.length) {
-            if (flatc.Parser.Tokenizer._isNewline(this._get(this._position))) {
+            if (flatc.Tokenizer._isNewline(this._get(this._position))) {
                 break;
             }
             this._position++;
@@ -700,11 +700,11 @@ flatc.Parser.Tokenizer = class {
     _skipWhitespace() {
         while (this._position < this._text.length) {
             const c = this._get(this._position);
-            if (flatc.Parser.Tokenizer._isSpace(c)) {
+            if (flatc.Tokenizer._isSpace(c)) {
                 this._position++;
                 continue;
             }
-            if (flatc.Parser.Tokenizer._isNewline(c)) {
+            if (flatc.Tokenizer._isNewline(c)) {
                 // Implicit Line Continuation
                 this._position = this._newLine(this._position);
                 this._lineStart = this._position;
