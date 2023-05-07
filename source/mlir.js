@@ -555,11 +555,17 @@ mlir.Parser = class {
 	parseFunction() {
 		// func keyword
 		this.consumeToken(TokenType.KEYWORD);
+		
+		let visibility = null;
+		if (this.currentToken.type != TokenType.SYMBOL_REF_ID) {
+			visibility = this.currentToken.value;
+			this.consumeToken(this.currentToken.type)
+		}
 
 		const name = this.parseFunctionName();
 
 		const inputs = this.parseFunctionInputs();
-
+	
 		let attributes = {};
 
 		// Attributes
@@ -598,6 +604,7 @@ mlir.Parser = class {
 			outputTypes: outputs,
 			operations: operations,
 			attributes: attributes,
+			visibility: visibility,
 		};
 	}
 
@@ -862,7 +869,7 @@ mlir.Parser = class {
 			TokenType.RPAREN,
 			TokenType.COLON,
 			TokenType.ARROW,
-			TokenType.LBRACE,
+			TokenType.RBRACE,
 			TokenType.IDENTIFIER,
 			TokenType.STRING_LITERAL
 		];
@@ -947,11 +954,14 @@ mlir.Parser = class {
 			this.consumeToken(TokenType.LPAREN);
 
 			while (this.currentToken.type !== TokenType.RPAREN) {
+
 				outputTypes.push(this.currentToken.value);
 				if (this.currentToken.type === TokenType.TYPE) {
 					this.consumeToken(TokenType.TYPE);
-				} else if (this.currentToken.type === TokenType.IDENTIFIER && this.currentToken.value === 'none') {
-					this.consumeToken(TokenType.IDENTIFIER);
+				} else if (this.currentToken.type === TokenType.IDENTIFIER) {
+					if (this.currentToken.value === 'none' || /[^f\\d+$]/.test(this.currentToken.value) || /[^i\\d+$]/.test(this.currentToken.value)) {
+						this.consumeToken(TokenType.IDENTIFIER);
+					}
 				}
 
 				if (this.currentToken.type === TokenType.COMMA) {
@@ -964,8 +974,10 @@ mlir.Parser = class {
 			outputTypes.push(this.currentToken.value);
 			if (this.currentToken.type === TokenType.TYPE) {
 				this.consumeToken(TokenType.TYPE);
-			} else if (this.currentToken.type === TokenType.IDENTIFIER && this.currentToken.value === 'none') {
-				this.consumeToken(TokenType.IDENTIFIER);
+			} else if (this.currentToken.type === TokenType.IDENTIFIER) {
+				if (this.currentToken.value === 'none' || /[^f\\d+$]/.test(this.currentToken.value) || /[^i\\d+$]/.test(this.currentToken.value)) {
+					this.consumeToken(TokenType.IDENTIFIER);
+				}
 			}
 		}
 
