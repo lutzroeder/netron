@@ -391,7 +391,7 @@ protoc.Parser = class {
 
     constructor(text, file, root) {
         this._context = root;
-        this._tokenizer = new protoc.Parser.Tokenizer(text, file);
+        this._tokenizer = new protoc.Tokenizer(text, file);
         this._head = true;
         this._imports = [];
         this._weakImports = [];
@@ -922,7 +922,7 @@ protoc.Parser = class {
     }
 };
 
-protoc.Parser.Tokenizer = class {
+protoc.Tokenizer = class {
 
     constructor(text, file) {
         this._text = text;
@@ -1087,7 +1087,7 @@ protoc.Parser.Tokenizer = class {
         this._position = re.lastIndex;
         this.push(this._delimiter);
         this._delimiter = null;
-        return protoc.Parser.Tokenizer._unescape(match[1]);
+        return protoc.Tokenizer._unescape(match[1]);
     }
 
     _readError(message) {
