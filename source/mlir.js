@@ -645,6 +645,21 @@ mlir.Parser = class {
 		return inputs;
 	}
 
+	skipSymbolBetween(openingTokenType, closingTokenType) {
+		if (this.currentToken.type === openingTokenType) {
+			this.consumeToken(openingTokenType);
+			let count = 1;
+			while (count > 0) {
+				if (this.currentToken.type === openingTokenType) {
+					count++;
+				} else if (this.currentToken.type === closingTokenType) {
+					count--;
+				}
+				this.consumeToken(this.currentToken.type);
+			}
+		}
+	}
+
 	parseFunctionOutputs() {
 		this.consumeToken(TokenType.ARROW);
 		const outputs = [];
@@ -712,34 +727,29 @@ mlir.Parser = class {
 
 		// successor-list?
 		// condition: start with `[`, end with `]`
+		if (this.currentToken.type === TokenType.LBRACKET) {
+			this.skipSymbolBetween(TokenType.LBRACKET, TokenType.RBRACKET); // TODO
+		}
 
 		// dictionary-properties?
 		// condition: start with `<`, end with `>`
+		if (this.currentToken.type === TokenType.LESS_THAN) {
+			this.skipSymbolBetween(TokenType.LESS_THAN, TokenType.GREATER_THAN); // TODO
+		}
 
 		// region-list?
-		// condition: start with `(^`, or (operation, end with `)`
-		// TODO: parsing ^bb
-		if (this.currentToken.type === TokenType.LPAREN) {
-			this.consumeToken(TokenType.LPAREN);
-			let count = 1;
-			while (count > 0) {
-				if (this.currentToken.type === TokenType.LPAREN) {
-					count++;
-				} else if (this.currentToken.type === TokenType.RPAREN) {
-					count--;
-				}
-				this.consumeToken(this.currentToken.type);
-			}
+		// condition: start with `({^`, or (operation, end with `)`
+		if (this.currentToken.type === TokenType.LPAREN && this.nextToken.type === TokenType.LBRACE) {
+			this.skipSymbolBetween(TokenType.LPAREN, TokenType.RPAREN); // TODO
 		}
 
 		// dictionary-attribute?
 		// condition: start with `{`, end with `}`
+		let attributes = {};
+		attributes = Object.assign(attributes, this.parseAttribute());
 
 		// : (f32, tensor<1xf32>)
 		let inputTypes = [];
-		let attributes = {};
-
-		attributes = Object.assign(attributes, this.parseAttribute());
 		if (this.currentToken.type === TokenType.COLON) {
 			this.consumeToken(TokenType.COLON);
 			({ inputTypes } = this.parseInputArgumentTypes());
@@ -759,6 +769,7 @@ mlir.Parser = class {
 
 			return result;
 		}
+
 		// -> f32
 		if (this.currentToken.type === TokenType.ARROW) {
 			this.consumeToken(TokenType.ARROW);
