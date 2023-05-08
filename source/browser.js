@@ -576,30 +576,22 @@ host.BrowserHost = class {
 
     _message(message, action) {
         return new Promise((resolve) => {
-            const text = this._element('message-text');
-            if (text) {
-                text.innerText = message;
-            }
+            this._element('message-text').innerText = message;
             const button = this._element('message-button');
-            if (button) {
-                if (action) {
-                    button.style.removeProperty('display');
-                    button.innerText = action;
-                    button.onclick = () => {
-                        button.onclick = null;
-                        this._document.body.classList.remove('message');
-                        resolve();
-                    };
-                    button.focus();
-                } else {
-                    button.style.display = 'none';
+            if (action) {
+                button.style.removeProperty('display');
+                button.innerText = action;
+                button.onclick = () => {
                     button.onclick = null;
-                }
+                    this._document.body.classList.remove('message');
+                    resolve();
+                };
+                button.focus();
+            } else {
+                button.style.display = 'none';
+                button.onclick = null;
             }
             this._document.body.classList.add('message');
-            if (button && action) {
-                button.focus();
-            }
         });
     }
 };

@@ -77,26 +77,18 @@ window.preload = function(callback) {
 };
 
 window.terminate = function(message, action, callback) {
-    var text = document.getElementById('message-text');
-    if (text) {
-        text.innerText = message;
-    }
+    document.getElementById('message-text').innerText = message;
     var button = document.getElementById('message-button');
-    if (button) {
-        if (action) {
-            button.style.removeProperty('display');
-            button.innerText = action;
-            button.onclick = function() {
-                callback();
-            };
-        } else {
-            button.style.display = 'none';
-            button.onclick = null;
-        }
-    }
-    var menu = document.getElementById('menu-button');
-    if (menu) {
-        menu.style.opacity = 0;
+    if (action) {
+        button.style.removeProperty('display');
+        button.innerText = action;
+        button.onclick = function() {
+            callback();
+        };
+        button.focus();
+    } else {
+        button.style.display = 'none';
+        button.onclick = null;
     }
     document.body.setAttribute('class', 'welcome message');
 };
@@ -107,8 +99,8 @@ window.addEventListener('error', (event) => {
 });
 
 window.addEventListener('load', function() {
-    // if (!Symbol || !Symbol.asyncIterator) {
-    //    throw new Error('Your browser is not supported.');
+    // if (true || !Symbol || !Symbol.asyncIterator) {
+    //     throw new Error('Your browser is not supported.');
     // }
     window.preload(function(value, error) {
         if (error) {

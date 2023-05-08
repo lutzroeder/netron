@@ -555,48 +555,36 @@ host.ElectronHost = class {
     }
 
     _terminate(message, action, callback) {
-        const text = this._element('message-text');
-        if (text) {
-            text.innerText = message;
-        }
+        this._element('message-text').innerText = message;
         const button = this._element('message-button');
-        if (button) {
-            if (action) {
-                button.style.removeProperty('display');
-                button.innerText = action;
-                button.onclick = () => callback();
-            } else {
-                button.style.display = 'none';
-                button.onclick = null;
-            }
-        }
-        const menu = this._element('menu-button');
-        if (menu) {
-            menu.style.opacity = 0;
+        if (action && callback) {
+            button.style.removeProperty('display');
+            button.innerText = action;
+            button.onclick = () => callback();
+            button.focus();
+        } else {
+            button.style.display = 'none';
+            button.onclick = null;
         }
         this._document.body.setAttribute('class', 'welcome message');
     }
 
     _message(message, action) {
         return new Promise((resolve) => {
-            const text = this._element('message-text');
-            if (text) {
-                text.innerText = message;
-            }
+            this._element('message-text').innerText = message;
             const button = this._element('message-button');
-            if (button) {
-                if (action) {
-                    button.style.removeProperty('display');
-                    button.innerText = action;
-                    button.onclick = () => {
-                        button.onclick = null;
-                        this._document.body.classList.remove('message');
-                        resolve();
-                    };
-                } else {
-                    button.style.display = 'none';
+            if (action) {
+                button.style.removeProperty('display');
+                button.innerText = action;
+                button.onclick = () => {
                     button.onclick = null;
-                }
+                    this._document.body.classList.remove('message');
+                    resolve();
+                };
+                button.focus();
+            } else {
+                button.style.display = 'none';
+                button.onclick = null;
             }
             this._document.body.classList.add('message');
         });

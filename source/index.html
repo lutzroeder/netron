@@ -66,6 +66,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .welcome .menu { background-color: #ffffff; }
 .welcome.spinner .logo-spinner { display: block; -webkit-animation: orbit 0.5s infinite linear; animation: orbit 0.5s infinite linear; cursor: wait; }
 .welcome.spinner .menu-button { display: none; }
+.welcome.message .menu-button { display: none; }
 .about { overflow: hidden; }
 .about .toolbar { display: none; }
 .about .logo { display: block; background-color: #ececec; color: #666666; }
@@ -462,7 +463,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 </div>
 <div id="message-dialog" class="center message-dialog">
     <span id="message-text" class="center message-text"></span>
-    <button id="message-button" class="center logo-button message-button">Accept</button>
+    <button id="message-button" class="center logo-button message-button" tabindex="0">Accept</button>
 </div>
 <div id="titlebar" class="titlebar">
     <svg style="position: absolute; width: 0px; height: 0px; overflow: hidden;" aria-hidden="true">
