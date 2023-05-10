@@ -39531,7 +39531,7 @@
     ]
   },
   {
-    "name": "RelayoutGrad",
+    "name": "RelayoutLike",
     "attributes": [
       {
         "name": "T",
@@ -39544,7 +39544,7 @@
         "typeAttr": "T"
       },
       {
-        "name": "forward_input",
+        "name": "layout_input",
         "typeAttr": "T"
       }
     ],
