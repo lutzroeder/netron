@@ -1330,3 +1330,20 @@ mlir.Error = class extends Error {
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.ModelFactory = mlir.ModelFactory;
 }
+
+// This code is for the runnable test with a mlir file.
+// Usage: `node source/mlir.js <mlir file path>`
+if (process.argv.length >= 3) {
+    const fs = require('fs');
+
+    function runParser(textContent) {
+        const decoder = text.Decoder.open(textContent);
+        const parser = new mlir.Parser(decoder);
+        const obj = parser.read();
+        const model = new mlir.Model(obj);
+    }
+    
+    const mlirFilePath = process.argv[2];
+    const fileText = fs.readFileSync(mlirFilePath, 'utf8');
+    runParser(fileText);    
+}
