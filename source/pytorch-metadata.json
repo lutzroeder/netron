@@ -10670,6 +10670,21 @@
     ]
   },
   {
+    "name": "aten::scaled_dot_product_attention",
+    "inputs": [
+      { "name": "query", "type": "Tensor" },
+      { "name": "key", "type": "Tensor" },
+      { "name": "value", "type": "Tensor" },
+      { "name": "attn_mask", "type": "Tensor", "optional": true, "default": null },
+      { "name": "dropout_p", "type": "float32", "default": 0.0 },
+      { "name": "is_causal", "type": "boolean", "default": false },
+      { "name": "scale", "type": "float32", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::scatter.dimname_src",
     "inputs": [
       { "name": "self", "type": "Tensor" },
