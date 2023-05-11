@@ -329,9 +329,10 @@ class Target {
     constructor(host, item) {
         Object.assign(this, item);
         this.host = host;
-        this.target = item.target.split(',');
+        const target = item.target.split(',');
+        this.target = item.type ? target : target.map((target) => path.resolve(process.cwd(), target));
         this.action = new Set((this.action || '').split(';'));
-        this.folder = path.normalize(path.join(__dirname, '..', 'third_party' , 'test', item.type));
+        this.folder = item.type ? path.normalize(path.join(__dirname, '..', 'third_party' , 'test', item.type)) : '';
     }
 
     match(patterns) {
@@ -353,7 +354,7 @@ class Target {
     }
 
     async execute() {
-        write(this.type + '/' + this.target[0] + '\n');
+        write((this.type ? this.type + '/' + this.target[0] : this.target[0]) + '\n');
         clearLine();
         await this.download(Array.from(this.target), this.source);
         try {
@@ -373,7 +374,7 @@ class Target {
     }
 
     async download(targets, sources) {
-        if (targets.every((file) => fs.existsSync(this.folder + '/' + file))) {
+        if (targets.every((file) => fs.existsSync(path.join(this.folder, file)))) {
             return;
         }
         if (!sources) {
@@ -642,6 +643,16 @@ const next = async () => {
 
 global.window = new Window();
 global.window.__host__ = new host.TestHost();
+
+if (patterns.length > 0 && patterns.every((path) => fs.existsSync(path))) {
+    targets.splice(0, targets.length);
+    for (const path of patterns) {
+        targets.push({
+            target: path
+        });
+    }
+    patterns.splice(0, patterns.length);
+}
 
 next().catch((error) => {
     /* eslint-disable no-console */
