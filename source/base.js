@@ -105,10 +105,15 @@ base.Int64 = class Int64 {
         }
         if (this.high < 0) {
             if (this.equals(base.Int64.min)) {
-                const r = new base.Int64(radix, 0);
-                const div = this.divide(r);
-                const remainder = div.multiply(r).subtract(this);
-                return div.toString(r) + (remainder.low >>> 0).toString(r);
+                if (radix) {
+                    const r = new base.Int64(radix, 0);
+                    const div = this.divide(r);
+                    const remainder = div.multiply(r).subtract(this);
+                    return div.toString(r) + (remainder.low >>> 0).toString(r);
+                }
+                else {
+                    return "-9223372036854776000"
+                }
             }
             return '-' + this.negate().toString(r);
         }
