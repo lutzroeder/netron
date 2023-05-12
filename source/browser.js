@@ -155,8 +155,8 @@ host.BrowserHost = class {
             'TextDecoder', 'TextEncoder',
             'fetch', 'URLSearchParams',
             'HTMLCanvasElement.prototype.toBlob',
-            'Promise',
-            'Symbol.asyncIterator'
+            'DataView.prototype.getBigInt64',
+            'Worker', 'Promise', 'Symbol.asyncIterator'
         ];
         const capabilities = list.filter((capability) => {
             const path = capability.split('.').reverse();
