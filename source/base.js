@@ -105,10 +105,10 @@ base.Int64 = class Int64 {
         }
         if (this.high < 0) {
             if (this.equals(base.Int64.min)) {
-                const r = new base.Int64(radix, 0);
-                const div = this.divide(r);
-                const remainder = div.multiply(r).subtract(this);
-                return div.toString(r) + (remainder.low >>> 0).toString(r);
+                const radix = new base.Int64(r, 0);
+                const div = this.divide(radix);
+                const remainder = div.multiply(radix).subtract(this);
+                return div.toString(radix) + (remainder.low >>> 0).toString(radix);
             }
             return '-' + this.negate().toString(r);
         }
@@ -122,6 +122,7 @@ base.Int64 = class Int64 {
 base.Int64.min = new base.Int64(0, -2147483648);
 base.Int64.zero = new base.Int64(0, 0);
 base.Int64.one = new base.Int64(1, 0);
+base.Int64.negativeOne = new base.Int64(-1, 0);
 base.Int64.power24 = new base.Int64(1 << 24, 0);
 base.Int64.max = new base.Int64(0, 2147483647);
 
@@ -276,11 +277,11 @@ base.Utility = class {
         }
         if (a.isNegative) {
             if (b.isNegative) {
-                return this.negate().multiply(b.negate());
+                return a.negate().multiply(b.negate());
             }
-            return this.negate().multiply(b).negate();
+            return a.negate().multiply(b).negate();
         } else if (b.isNegative) {
-            return this.multiply(b.negate()).negate();
+            return a.multiply(b.negate()).negate();
         }
         if (a.compare(base.Int64.power24) < 0 && b.compare(base.Int64.power24) < 0) {
             return unsigned ? base.Uint64.create(a.toNumber() * b.toNumber()) : base.Int64.create(a.toNumber() * b.toNumber());
@@ -340,7 +341,7 @@ base.Utility = class {
                 const half = base.Utility._shiftRight(a, unsigned, 1);
                 const halfDivide = half.divide(b);
                 approx = base.Utility._shiftLeft(halfDivide, halfDivide instanceof base.Uint64, 1);
-                if (approx.eq(base.Int64.zero)) {
+                if (approx.equals(base.Int64.zero)) {
                     return b.isNegative ? base.Int64.one : base.Int64.negativeOne;
                 }
                 remainder = a.subtract(b.multiply(approx));
