@@ -35,37 +35,35 @@ megengine.ModelFactory = class {
         return '';
     }
 
-    open(context, match) {
-        return context.metadata('megengine-metadata.json').then((metadata) => {
-            switch (match) {
-                case 'megengine.tm': {
-                    const obj = context.open('pkl');
-                    return new megengine.Model(metadata, obj, match);
-                }
-                case 'megengine.mge': {
-                    return context.require('./megengine-schema').then(() => {
-                        megengine.schema = flatbuffers.get('megengine').mgb.serialization.fbs;
-                        let model = null;
-                        const stream = context.stream;
-                        try {
-                            const buffer = stream.peek(12);
-                            const tag = String.fromCharCode.apply(null, buffer);
-                            stream.skip(tag.startsWith('mgbtest0') ? 12 : 0);
-                            stream.skip(4);
-                            const reader = flatbuffers.BinaryReader.open(stream);
-                            model = megengine.schema.v2.Model.create(reader);
-                        } catch (error) {
-                            const message = error && error.message ? error.message : error.toString();
-                            throw new megengine.Error('File format is not megengine.Model (' + message.replace(/\.$/, '') + ').');
-                        }
-                        return new megengine.Model(metadata, model, match);
-                    });
-                }
-                default: {
-                    throw new megengine.Error("Unsupported MegEngine format '" + match.replace(/^megengine\./, '') + "'.");
-                }
+    async open(context, match) {
+        const metadata = await context.metadata('megengine-metadata.json');
+        switch (match) {
+            case 'megengine.tm': {
+                const obj = context.open('pkl');
+                return new megengine.Model(metadata, obj, match);
             }
-        });
+            case 'megengine.mge': {
+                await context.require('./megengine-schema');
+                megengine.schema = flatbuffers.get('megengine').mgb.serialization.fbs;
+                let model = null;
+                const stream = context.stream;
+                try {
+                    const buffer = stream.peek(12);
+                    const tag = String.fromCharCode.apply(null, buffer);
+                    stream.skip(tag.startsWith('mgbtest0') ? 12 : 0);
+                    stream.skip(4);
+                    const reader = flatbuffers.BinaryReader.open(stream);
+                    model = megengine.schema.v2.Model.create(reader);
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new megengine.Error('File format is not megengine.Model (' + message.replace(/\.$/, '') + ').');
+                }
+                return new megengine.Model(metadata, model, match);
+            }
+            default: {
+                throw new megengine.Error("Unsupported MegEngine format '" + match.replace(/^megengine\./, '') + "'.");
+            }
+        }
     }
 };
 
