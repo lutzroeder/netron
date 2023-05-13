@@ -25,115 +25,112 @@ caffe.ModelFactory = class {
         return undefined;
     }
 
-    open(context, match) {
-        return context.require('./caffe-proto').then(() => {
-            caffe.proto = protobuf.get('caffe').caffe;
-            const openModel = (context, netParameter) => {
-                return context.metadata('caffe-metadata.json').then((metadata) => {
-                    return new caffe.Model(metadata, netParameter);
-                });
-            };
-            const openNetParameterText = (context, identifier, buffer) => {
-                let netParameter = null;
-                try {
-                    const reader = protobuf.TextReader.open(buffer);
-                    reader.field = function(tag, message) {
-                        const type = message.constructor.name;
-                        if (tag.endsWith('_param') && (type == 'LayerParameter' || type == 'V1LayerParameter' || type == 'V0LayerParameter')) {
-                            message[tag] = caffe.ModelFactory._decodeText(reader);
-                            return;
-                        } else if (message.constructor.name.endsWith('Parameter') || message.constructor.name === 'ParamSpec') {
-                            if (message[tag]) {
-                                if (!Array.isArray(message[tag])) {
-                                    message[tag] = [ message[tag] ];
-                                }
-                                message[tag].push(this.read());
-                            } else {
-                                message[tag] = this.read();
+    async open(context, match) {
+        await context.require('./caffe-proto');
+        caffe.proto = protobuf.get('caffe').caffe;
+        const openModel = async (context, netParameter) => {
+            const metadata = await context.metadata('caffe-metadata.json');
+            return new caffe.Model(metadata, netParameter);
+        };
+        const openNetParameterText = (context, identifier, buffer) => {
+            let netParameter = null;
+            try {
+                const reader = protobuf.TextReader.open(buffer);
+                reader.field = function(tag, message) {
+                    const type = message.constructor.name;
+                    if (tag.endsWith('_param') && (type == 'LayerParameter' || type == 'V1LayerParameter' || type == 'V0LayerParameter')) {
+                        message[tag] = caffe.ModelFactory._decodeText(reader);
+                        return;
+                    } else if (message.constructor.name.endsWith('Parameter') || message.constructor.name === 'ParamSpec') {
+                        if (message[tag]) {
+                            if (!Array.isArray(message[tag])) {
+                                message[tag] = [ message[tag] ];
                             }
-                            return;
+                            message[tag].push(this.read());
+                        } else {
+                            message[tag] = this.read();
                         }
-                        throw new Error("Unknown field '" + tag + "'" + this.location());
-                    };
-                    reader.enum = function(type) {
+                        return;
+                    }
+                    throw new Error("Unknown field '" + tag + "'" + this.location());
+                };
+                reader.enum = function(type) {
+                    const token = this.token();
+                    this.next();
+                    this.semicolon();
+                    if (!Object.prototype.hasOwnProperty.call(type, token)) {
+                        const value = Number.parseInt(token, 10);
+                        if (!Number.isNaN(token - value)) {
+                            return value;
+                        }
+                        return token;
+                    }
+                    return type[token];
+                };
+                if (/MobileNetSSD_train_template.prototxt/.exec(identifier)) {
+                    reader.integer = function() {
                         const token = this.token();
+                        const value = Number.parseInt(token, 10);
                         this.next();
                         this.semicolon();
-                        if (!Object.prototype.hasOwnProperty.call(type, token)) {
-                            const value = Number.parseInt(token, 10);
-                            if (!Number.isNaN(token - value)) {
-                                return value;
-                            }
+                        if (Number.isNaN(token - value)) {
                             return token;
                         }
-                        return type[token];
+                        return value;
                     };
-                    if (/MobileNetSSD_train_template.prototxt/.exec(identifier)) {
-                        reader.integer = function() {
-                            const token = this.token();
-                            const value = Number.parseInt(token, 10);
-                            this.next();
-                            this.semicolon();
-                            if (Number.isNaN(token - value)) {
-                                return token;
-                            }
-                            return value;
-                        };
+                }
+                netParameter = caffe.proto.NetParameter.decodeText(reader);
+            } catch (error) {
+                const message = error && error.message ? error.message : error.toString();
+                throw new caffe.Error('File text format is not caffe.NetParameter (' + message.replace(/\.$/, '') + ').');
+            }
+            return openModel(context, netParameter);
+        };
+        switch (match) {
+            case 'caffe.pbtxt.solver': {
+                const stream = context.stream;
+                const reader = protobuf.TextReader.open(stream);
+                reader.field = function(tag, message) {
+                    if (message instanceof caffe.proto.SolverParameter) {
+                        message[tag] = this.read();
+                        return;
                     }
-                    netParameter = caffe.proto.NetParameter.decodeText(reader);
+                    throw new Error("Unknown field '" + tag + "'" + this.location());
+                };
+                const solver = caffe.proto.SolverParameter.decodeText(reader);
+                if (solver.net_param) {
+                    return openModel(context, solver.net_param);
+                }
+                let file = solver.net || solver.train_net;
+                file = file.split('/').pop();
+                try {
+                    const stream = await context.request(file, null);
+                    const buffer = stream.peek();
+                    return openNetParameterText(context, file, buffer);
                 } catch (error) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new caffe.Error('File text format is not caffe.NetParameter (' + message.replace(/\.$/, '') + ').');
-                }
-                return openModel(context, netParameter);
-            };
-            switch (match) {
-                case 'caffe.pbtxt.solver': {
-                    const stream = context.stream;
-                    const reader = protobuf.TextReader.open(stream);
-                    reader.field = function(tag, message) {
-                        if (message instanceof caffe.proto.SolverParameter) {
-                            message[tag] = this.read();
-                            return;
-                        }
-                        throw new Error("Unknown field '" + tag + "'" + this.location());
-                    };
-                    const solver = caffe.proto.SolverParameter.decodeText(reader);
-                    if (solver.net_param) {
-                        return openModel(context, solver.net_param);
-                    }
-                    let file = solver.net || solver.train_net;
-                    file = file.split('/').pop();
-                    return context.request(file, null).then((stream) => {
-                        const buffer = stream.peek();
-                        return openNetParameterText(context, file, buffer);
-                    }).catch((error) => {
-                        if (error) {
-                            const message = error.message ? error.message : error.toString();
-                            throw new caffe.Error("Failed to load '" + file + "' (" + message.replace(/\.$/, '') + ').');
-                        }
-                    });
-                }
-                case 'caffe.pbtxt': {
-                    return openNetParameterText(context, context.identifier, context.stream.peek());
-                }
-                case 'caffe.pb': {
-                    let netParameter = null;
-                    try {
-                        const stream = context.stream;
-                        const reader = protobuf.BinaryReader.open(stream);
-                        netParameter = caffe.proto.NetParameter.decode(reader);
-                    } catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new caffe.Error('File format is not caffe.NetParameter (' + message.replace(/\.$/, '') + ').');
-                    }
-                    return openModel(context, netParameter);
-                }
-                default: {
-                    throw new caffe.Error("Unsupported Caffe format '" + match + "'.");
+                    const message = error.message ? error.message : error.toString();
+                    throw new caffe.Error("Failed to load '" + file + "' (" + message.replace(/\.$/, '') + ').');
                 }
             }
-        });
+            case 'caffe.pbtxt': {
+                return openNetParameterText(context, context.identifier, context.stream.peek());
+            }
+            case 'caffe.pb': {
+                let netParameter = null;
+                try {
+                    const stream = context.stream;
+                    const reader = protobuf.BinaryReader.open(stream);
+                    netParameter = caffe.proto.NetParameter.decode(reader);
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new caffe.Error('File format is not caffe.NetParameter (' + message.replace(/\.$/, '') + ').');
+                }
+                return openModel(context, netParameter);
+            }
+            default: {
+                throw new caffe.Error("Unsupported Caffe format '" + match + "'.");
+            }
+        }
     }
 
     static _decodeText(reader) {
