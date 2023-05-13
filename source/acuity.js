@@ -14,10 +14,9 @@ acuity.ModelFactory = class {
         return null;
     }
 
-    open(context, match) {
-        return context.metadata('acuity-metadata.json').then((metadata) => {
-            return new acuity.Model(metadata, match);
-        });
+    async open(context, match) {
+        const metadata = await context.metadata('acuity-metadata.json');
+        return new acuity.Model(metadata, match);
     }
 };
 
