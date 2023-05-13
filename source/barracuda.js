@@ -17,11 +17,10 @@ barracuda.ModelFactory = class {
         return null;
     }
 
-    open(context) {
-        return barracuda.Metadata.open().then((metadata) => {
-            const nn = new barracuda.NNModel(context.stream.peek());
-            return new barracuda.Model(metadata, nn);
-        });
+    async open(context) {
+        const metadata = barracuda.Metadata.open();
+        const nn = new barracuda.NNModel(context.stream.peek());
+        return new barracuda.Model(metadata, nn);
     }
 };
 
@@ -439,7 +438,7 @@ barracuda.Metadata = class {
 
     static open() {
         barracuda.Metadata._metadata = barracuda.Metadata._metadata || new barracuda.Metadata();
-        return Promise.resolve(barracuda.Metadata._metadata);
+        return barracuda.Metadata._metadata;
     }
 
     constructor() {
