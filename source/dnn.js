@@ -13,22 +13,20 @@ dnn.ModelFactory = class {
         return undefined;
     }
 
-    open(context) {
-        return context.require('./dnn-proto').then(() => {
-            let model = null;
-            try {
-                dnn.proto = protobuf.get('dnn').dnn;
-                const stream = context.stream;
-                const reader = protobuf.BinaryReader.open(stream);
-                model = dnn.proto.Model.decode(reader);
-            } catch (error) {
-                const message = error && error.message ? error.message : error.toString();
-                throw new dnn.Error('File format is not dnn.Graph (' + message.replace(/\.$/, '') + ').');
-            }
-            return context.metadata('dnn-metadata.json').then((metadata) => {
-                return new dnn.Model(metadata, model);
-            });
-        });
+    async open(context) {
+        await context.require('./dnn-proto');
+        let model = null;
+        try {
+            dnn.proto = protobuf.get('dnn').dnn;
+            const stream = context.stream;
+            const reader = protobuf.BinaryReader.open(stream);
+            model = dnn.proto.Model.decode(reader);
+        } catch (error) {
+            const message = error && error.message ? error.message : error.toString();
+            throw new dnn.Error('File format is not dnn.Graph (' + message.replace(/\.$/, '') + ').');
+        }
+        const metadata = await context.metadata('dnn-metadata.json');
+        return new dnn.Model(metadata, model);
     }
 };
 
