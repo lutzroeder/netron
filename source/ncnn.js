@@ -55,63 +55,64 @@ ncnn.ModelFactory = class {
         return undefined;
     }
 
-    open(context, match) {
-        return context.metadata('ncnn-metadata.json').then((metadata) => {
-            const identifier = context.identifier.toLowerCase();
-            const openBinary = (param, bin) => {
-                const reader = new ncnn.BinaryParamReader(metadata, param);
-                return new ncnn.Model(metadata, reader, bin);
-            };
-            const openText = (param, bin) => {
-                const reader = new ncnn.TextParamReader(param);
-                return new ncnn.Model(metadata, reader, bin);
-            };
-            let bin = null;
-            switch (match) {
-                case 'ncnn.model': {
-                    if (identifier.endsWith('.param')) {
-                        bin = context.identifier.substring(0, context.identifier.length - 6) + '.bin';
-                    } else if (identifier.endsWith('.cfg.ncnn')) {
-                        bin = context.identifier.substring(0, context.identifier.length - 9) + '.weights.ncnn';
-                    }
-                    return context.request(bin, null).then((stream) => {
-                        const buffer = stream.read();
-                        return openText(context.stream.peek(), buffer);
-                    }).catch(() => {
-                        return openText(context.stream.peek(), null);
-                    });
+    async open(context, match) {
+        const metadata = await context.metadata('ncnn-metadata.json');
+        const identifier = context.identifier.toLowerCase();
+        const openBinary = (param, bin) => {
+            const reader = new ncnn.BinaryParamReader(metadata, param);
+            return new ncnn.Model(metadata, reader, bin);
+        };
+        const openText = (param, bin) => {
+            const reader = new ncnn.TextParamReader(param);
+            return new ncnn.Model(metadata, reader, bin);
+        };
+        let bin = null;
+        switch (match) {
+            case 'ncnn.model': {
+                if (identifier.endsWith('.param')) {
+                    bin = context.identifier.substring(0, context.identifier.length - 6) + '.bin';
+                } else if (identifier.endsWith('.cfg.ncnn')) {
+                    bin = context.identifier.substring(0, context.identifier.length - 9) + '.weights.ncnn';
                 }
-                case 'ncnn.model.bin': {
-                    bin = context.identifier.substring(0, context.identifier.length - 10) + '.bin';
-                    return context.request(bin, null).then((stream) => {
-                        const buffer = stream.read();
-                        return openBinary(context.stream.peek(), buffer);
-                    }).catch(() => {
-                        return openBinary(context.stream.peek(), null);
-                    });
-                }
-                case 'ncnn.weights': {
-                    let content = null;
-                    if (identifier.endsWith('bin')) {
-                        content = context.identifier.substring(0, context.identifier.length - 4) + '.param';
-                    } else if (identifier.endsWith('.weights.ncnn')) {
-                        content = context.identifier.substring(0, context.identifier.length - 13) + '.cfg.ncnn';
-                    }
-                    return context.request(content, null).then((stream) => {
-                        const buffer = stream.peek();
-                        return openText(buffer, context.stream.peek());
-                    }).catch(() => {
-                        return context.request(content + '.bin', null).then((stream) => {
-                            const buffer = stream.peek();
-                            return openBinary(buffer, context.stream.peek());
-                        });
-                    });
-                }
-                default: {
-                    throw new ncnn.Error("Unsupported ncnn format '" + match + "'.");
+                try {
+                    const stream = await context.request(bin, null);
+                    const buffer = stream.read();
+                    return openText(context.stream.peek(), buffer);
+                } catch (error) {
+                    return openText(context.stream.peek(), null);
                 }
             }
-        });
+            case 'ncnn.model.bin': {
+                bin = context.identifier.substring(0, context.identifier.length - 10) + '.bin';
+                try {
+                    const stream = await context.request(bin, null);
+                    const buffer = stream.read();
+                    return openBinary(context.stream.peek(), buffer);
+                } catch (error) {
+                    return openBinary(context.stream.peek(), null);
+                }
+            }
+            case 'ncnn.weights': {
+                let content = null;
+                if (identifier.endsWith('bin')) {
+                    content = context.identifier.substring(0, context.identifier.length - 4) + '.param';
+                } else if (identifier.endsWith('.weights.ncnn')) {
+                    content = context.identifier.substring(0, context.identifier.length - 13) + '.cfg.ncnn';
+                }
+                try {
+                    const stream = await context.request(content, null);
+                    const buffer = stream.peek();
+                    return openText(buffer, context.stream.peek());
+                } catch (error) {
+                    const stream = await context.request(content + '.bin', null);
+                    const buffer = stream.peek();
+                    return openBinary(buffer, context.stream.peek());
+                }
+            }
+            default: {
+                throw new ncnn.Error("Unsupported ncnn format '" + match + "'.");
+            }
+        }
     }
 };
 
