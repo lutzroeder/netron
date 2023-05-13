@@ -16,46 +16,43 @@ flux.ModelFactory = class {
         return null;
     }
 
-    open(context) {
-        return Promise.resolve().then(() => {
-            let root = null;
-            try {
-                const stream = context.stream;
-                const reader = json.BinaryReader.open(stream);
-                root = reader.read();
-            } catch (error) {
-                const message = error && error.message ? error.message : error.toString();
-                throw new flux.Error('File format is not Flux BSON (' + message.replace(/\.$/, '') + ').');
-            }
-            return context.metadata('flux-metadata.json').then((metadata) => {
-                const backref = (obj, root) => {
-                    if (Array.isArray(obj)) {
-                        for (let i = 0; i < obj.length; i++) {
-                            obj[i] = backref(obj[i], root);
-                        }
-                    } else if (obj === Object(obj)) {
-                        if (obj.tag == 'backref' && obj.ref) {
-                            if (!root._backrefs[obj.ref - 1]) {
-                                throw new flux.Error("Invalid backref '" + obj.ref + "'.");
-                            }
-                            obj = root._backrefs[obj.ref - 1];
-                        }
-                        for (const key of Object.keys(obj)) {
-                            if (obj !== root || key !== '_backrefs') {
-                                obj[key] = backref(obj[key], root);
-                            }
-                        }
-                    }
-                    return obj;
-                };
-                const obj = backref(root, root);
-                const model = obj.model;
-                if (!model) {
-                    throw new flux.Error('File does not contain Flux model.');
+    async open(context) {
+        let root = null;
+        try {
+            const stream = context.stream;
+            const reader = json.BinaryReader.open(stream);
+            root = reader.read();
+        } catch (error) {
+            const message = error && error.message ? error.message : error.toString();
+            throw new flux.Error('File format is not Flux BSON (' + message.replace(/\.$/, '') + ').');
+        }
+        const metadata = context.metadata('flux-metadata.json');
+        const backref = (obj, root) => {
+            if (Array.isArray(obj)) {
+                for (let i = 0; i < obj.length; i++) {
+                    obj[i] = backref(obj[i], root);
                 }
-                return new flux.Model(metadata, model);
-            });
-        });
+            } else if (obj === Object(obj)) {
+                if (obj.tag == 'backref' && obj.ref) {
+                    if (!root._backrefs[obj.ref - 1]) {
+                        throw new flux.Error("Invalid backref '" + obj.ref + "'.");
+                    }
+                    obj = root._backrefs[obj.ref - 1];
+                }
+                for (const key of Object.keys(obj)) {
+                    if (obj !== root || key !== '_backrefs') {
+                        obj[key] = backref(obj[key], root);
+                    }
+                }
+            }
+            return obj;
+        };
+        const obj = backref(root, root);
+        const model = obj.model;
+        if (!model) {
+            throw new flux.Error('File does not contain Flux model.');
+        }
+        return new flux.Model(metadata, model);
     }
 };
 
