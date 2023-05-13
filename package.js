@@ -1,6 +1,4 @@
 
-/* eslint-env es2017 */
-
 const child_process = require('child_process');
 const crypto = require('crypto');
 const fs = require('fs');

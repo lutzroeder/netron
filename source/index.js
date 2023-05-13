@@ -1,5 +1,5 @@
 
-/* eslint-env es5 */
+/* eslint-env es2015 */
 
 if (window.location.hostname.endsWith('.github.io')) {
     window.location.replace('https://netron.app');
@@ -99,9 +99,9 @@ window.addEventListener('error', (event) => {
 });
 
 window.addEventListener('load', function() {
-    // if (true || !Symbol || !Symbol.asyncIterator) {
-    //     throw new Error('Your browser is not supported.');
-    // }
+    if (!Symbol || !Symbol.asyncIterator) {
+        throw new Error('Your browser is not supported.');
+    }
     window.preload(function(value, error) {
         if (error) {
             window.terminate(error.message);

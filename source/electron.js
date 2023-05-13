@@ -1,6 +1,4 @@
 
-/* eslint-env es2017 */
-
 var host = host || {};
 
 const electron = require('electron');
