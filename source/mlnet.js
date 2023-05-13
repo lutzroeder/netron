@@ -17,12 +17,11 @@ mlnet.ModelFactory = class {
         return null;
     }
 
-    open(context) {
-        return context.metadata('mlnet-metadata.json').then((metadata) => {
-            const entries = context.entries('zip');
-            const reader = new mlnet.ModelReader(entries);
-            return new mlnet.Model(metadata, reader);
-        });
+    async open(context) {
+        const metadata = await context.metadata('mlnet-metadata.json');
+        const entries = context.entries('zip');
+        const reader = new mlnet.ModelReader(entries);
+        return new mlnet.Model(metadata, reader);
     }
 };
 
