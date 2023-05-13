@@ -15,10 +15,8 @@ cambricon.ModelFactory = class {
         return '';
     }
 
-    open(/* context, match */) {
-        return Promise.resolve().then(() => {
-            throw new cambricon.Error("File contains undocumented Cambricon data.");
-        });
+    async open(/* context, match */) {
+        throw new cambricon.Error("File contains undocumented Cambricon data.");
     }
 };
 
