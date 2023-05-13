@@ -23,43 +23,41 @@ cntk.ModelFactory = class {
         return undefined;
     }
 
-    open(context, match) {
-        return context.metadata('cntk-metadata.json').then((metadata) => {
-            switch (match) {
-                case 'cntk.v1': {
-                    let obj = null;
-                    try {
-                        const stream = context.stream;
-                        const buffer = stream.peek();
-                        obj = new cntk_v1.ComputationNetwork(buffer);
-                    } catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new cntk.Error('File format is not CNTK v1 (' + message.replace(/\.$/, '') + ').');
-                    }
-                    return new cntk.Model(metadata, 1, obj);
+    async open(context, match) {
+        const metadata = await context.metadata('cntk-metadata.json');
+        switch (match) {
+            case 'cntk.v1': {
+                let obj = null;
+                try {
+                    const stream = context.stream;
+                    const buffer = stream.peek();
+                    obj = new cntk_v1.ComputationNetwork(buffer);
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new cntk.Error('File format is not CNTK v1 (' + message.replace(/\.$/, '') + ').');
                 }
-                case 'cntk.v2': {
-                    return context.require('./cntk-proto').then(() => {
-                        let obj = null;
-                        try {
-                            cntk_v2 = protobuf.get('cntk').CNTK.proto;
-                            cntk_v2.PoolingType = { 0: 'Max', 1: 'Average' };
-                            const stream = context.stream;
-                            const reader = protobuf.BinaryReader.open(stream);
-                            const dictionary = cntk_v2.Dictionary.decode(reader);
-                            obj = cntk.ModelFactory._convertDictionary(dictionary);
-                        } catch (error) {
-                            const message = error && error.message ? error.message : error.toString();
-                            throw new cntk.Error('File format is not cntk.Dictionary (' + message.replace(/\.$/, '') + ').');
-                        }
-                        return new cntk.Model(metadata, 2, obj);
-                    });
-                }
-                default: {
-                    throw new cntk.Error("Unsupported CNTK format '" + match + "'.");
-                }
+                return new cntk.Model(metadata, 1, obj);
             }
-        });
+            case 'cntk.v2': {
+                await context.require('./cntk-proto');
+                let obj = null;
+                try {
+                    cntk_v2 = protobuf.get('cntk').CNTK.proto;
+                    cntk_v2.PoolingType = { 0: 'Max', 1: 'Average' };
+                    const stream = context.stream;
+                    const reader = protobuf.BinaryReader.open(stream);
+                    const dictionary = cntk_v2.Dictionary.decode(reader);
+                    obj = cntk.ModelFactory._convertDictionary(dictionary);
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new cntk.Error('File format is not cntk.Dictionary (' + message.replace(/\.$/, '') + ').');
+                }
+                return new cntk.Model(metadata, 2, obj);
+            }
+            default: {
+                throw new cntk.Error("Unsupported CNTK format '" + match + "'.");
+            }
+        }
     }
 
     static _convertDictionary(dictionary) {
