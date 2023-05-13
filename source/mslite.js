@@ -16,34 +16,32 @@ mslite.ModelFactory = class {
         return '';
     }
 
-    open(context) {
-        return context.require('./mslite-schema').then(() => {
-            const stream = context.stream;
-            const reader = flatbuffers.BinaryReader.open(stream);
-            switch (reader.identifier) {
-                case '': {
-                    throw new mslite.Error('MSL0 format is deprecated.');
-                }
-                case 'MSL1': {
-                    throw new mslite.Error('MSL1 format is deprecated.');
-                }
-                case 'MSL2':
-                    break;
-                default:
-                    throw new mslite.Error("Unsupported file identifier '" + reader.identifier + "'.");
+    async open(context) {
+        await context.require('./mslite-schema');
+        const stream = context.stream;
+        const reader = flatbuffers.BinaryReader.open(stream);
+        switch (reader.identifier) {
+            case '': {
+                throw new mslite.Error('MSL0 format is deprecated.');
             }
-            let model = null;
-            try {
-                mslite.schema = flatbuffers.get('mslite').mindspore.schema;
-                model = mslite.schema.MetaGraph.create(reader);
-            } catch (error) {
-                const message = error && error.message ? error.message : error.toString();
-                throw new mslite.Error('File format is not mslite.MetaGraph (' + message.replace(/\.$/, '') + ').');
+            case 'MSL1': {
+                throw new mslite.Error('MSL1 format is deprecated.');
             }
-            return context.metadata('mslite-metadata.json').then((metadata) => {
-                return new mslite.Model(metadata, model);
-            });
-        });
+            case 'MSL2':
+                break;
+            default:
+                throw new mslite.Error("Unsupported file identifier '" + reader.identifier + "'.");
+        }
+        let model = null;
+        try {
+            mslite.schema = flatbuffers.get('mslite').mindspore.schema;
+            model = mslite.schema.MetaGraph.create(reader);
+        } catch (error) {
+            const message = error && error.message ? error.message : error.toString();
+            throw new mslite.Error('File format is not mslite.MetaGraph (' + message.replace(/\.$/, '') + ').');
+        }
+        const metadata = await context.metadata('mslite-metadata.json');
+        return new mslite.Model(metadata, model);
     }
 };
 
