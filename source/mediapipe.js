@@ -12,22 +12,20 @@ mediapipe.ModelFactory = class {
         return null;
     }
 
-    open(context) {
-        return Promise.resolve().then(() => {
-        // return context.require('./mediapipe-proto').then(() => {
-            mediapipe.proto = protobuf.get('mediapipe');
-            let config = null;
-            try {
-                const stream = context.stream;
-                const reader = protobuf.TextReader.open(stream);
-                // const config = mediapipe.proto.mediapipe.CalculatorGraphConfig.decodeText(reader);
-                config = new mediapipe.Object(reader);
-            } catch (error) {
-                const message = error && error.message ? error.message : error.toString();
-                throw new mediapipe.Error('File text format is not mediapipe.CalculatorGraphConfig (' + message.replace(/\.$/, '') + ').');
-            }
-            return new mediapipe.Model(config);
-        });
+    async open(context) {
+        // await context.require('./mediapipe-proto');
+        mediapipe.proto = protobuf.get('mediapipe');
+        let config = null;
+        try {
+            const stream = context.stream;
+            const reader = protobuf.TextReader.open(stream);
+            // const config = mediapipe.proto.mediapipe.CalculatorGraphConfig.decodeText(reader);
+            config = new mediapipe.Object(reader);
+        } catch (error) {
+            const message = error && error.message ? error.message : error.toString();
+            throw new mediapipe.Error('File text format is not mediapipe.CalculatorGraphConfig (' + message.replace(/\.$/, '') + ').');
+        }
+        return new mediapipe.Model(config);
     }
 };
 
