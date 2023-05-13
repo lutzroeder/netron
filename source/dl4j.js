@@ -24,29 +24,28 @@ dl4j.ModelFactory = class {
         return undefined;
     }
 
-    open(context, match) {
-        return context.metadata('dl4j-metadata.json').then((metadata) => {
-            switch (match) {
-                case 'dl4j.configuration': {
-                    const obj = context.open('json');
-                    return context.request('coefficients.bin', null).then((stream) => {
-                        return new dl4j.Model(metadata, obj, stream.peek());
-                    }).catch(() => {
-                        return new dl4j.Model(metadata, obj, null);
-                    });
-                }
-                case 'dl4j.coefficients': {
-                    return context.request('configuration.json', null).then((stream) => {
-                        const reader = json.TextReader.open(stream);
-                        const obj = reader.read();
-                        return new dl4j.Model(metadata, obj, context.stream.peek());
-                    });
-                }
-                default: {
-                    throw new dl4j.Error("Unsupported Deeplearning4j format '" + match + "'.");
+    async open(context, match) {
+        const metadata = await context.metadata('dl4j-metadata.json');
+        switch (match) {
+            case 'dl4j.configuration': {
+                const obj = context.open('json');
+                try {
+                    const stream = await context.request('coefficients.bin', null);
+                    return new dl4j.Model(metadata, obj, stream.peek());
+                } catch (error) {
+                    return new dl4j.Model(metadata, obj, null);
                 }
             }
-        });
+            case 'dl4j.coefficients': {
+                const stream = await context.request('configuration.json', null);
+                const reader = json.TextReader.open(stream);
+                const obj = reader.read();
+                return new dl4j.Model(metadata, obj, context.stream.peek());
+            }
+            default: {
+                throw new dl4j.Error("Unsupported Deeplearning4j format '" + match + "'.");
+            }
+        }
     }
 };
 
