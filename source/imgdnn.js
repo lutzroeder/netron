@@ -12,13 +12,8 @@ imgdnn.ModelFactory = class {
         return null;
     }
 
-    open(context) {
-        return imgdnn.Metadata.open(context).then((/* metadata */) => {
-            // const stream = context.stream;
-            // const buffer = stream.peek();
-            throw new imgdnn.Error('Invalid file content. File contains undocumented IMGDNN data.');
-            // return new imgdnn.Model(metadata, model);
-        });
+    open(/* context */) {
+        throw new imgdnn.Error('Invalid file content. File contains undocumented IMGDNN data.');
     }
 };
 
@@ -56,26 +51,6 @@ imgdnn.Graph = class {
 
     get nodes() {
         return this._nodes;
-    }
-};
-
-imgdnn.Metadata = class {
-
-    static open(/* context */) {
-        imgdnn.Metadata._metadata = imgdnn.Metadata._metadata || new imgdnn.Metadata(null);
-        return Promise.resolve(imgdnn.Metadata._metadata);
-    }
-
-    constructor(data) {
-        this._map = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            this._map = new Map(metadata.map((item) => [ item.name, item ]));
-        }
-    }
-
-    type(name) {
-        return this._map.get(name);
     }
 };
 
