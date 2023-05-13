@@ -18,52 +18,50 @@ circle.ModelFactory = class {
         return undefined;
     }
 
-    open(context, match) {
-        return context.require('./circle-schema').then(() => {
-            circle.schema = flatbuffers.get('circle').circle;
-            let model = null;
-            const attachments = new Map();
-            switch (match) {
-                case 'circle.flatbuffers.json': {
-                    try {
-                        const obj = context.open('json');
-                        const reader = new flatbuffers.TextReader(obj);
-                        model = circle.schema.Model.createText(reader);
-                    } catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new circle.Error('File text format is not circle.Model (' + message.replace(/\.$/, '') + ').');
-                    }
-                    break;
+    async open(context, match) {
+        await context.require('./circle-schema');
+        circle.schema = flatbuffers.get('circle').circle;
+        let model = null;
+        const attachments = new Map();
+        switch (match) {
+            case 'circle.flatbuffers.json': {
+                try {
+                    const obj = context.open('json');
+                    const reader = new flatbuffers.TextReader(obj);
+                    model = circle.schema.Model.createText(reader);
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new circle.Error('File text format is not circle.Model (' + message.replace(/\.$/, '') + ').');
                 }
-                case 'circle.flatbuffers': {
-                    const stream = context.stream;
-                    try {
-                        const reader = flatbuffers.BinaryReader.open(stream);
-                        model = circle.schema.Model.create(reader);
-                    } catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new circle.Error('File format is not circle.Model (' + message.replace(/\.$/, '') + ').');
-                    }
-                    try {
-                        const archive = zip.Archive.open(stream);
-                        if (archive) {
-                            for (const entry of archive.entries) {
-                                attachments.set(entry[0], entry[1]);
-                            }
-                        }
-                    } catch (error) {
-                        // continue regardless of error
-                    }
-                    break;
-                }
-                default: {
-                    throw new circle.Error("Unsupported Circle format '" + match + "'.");
-                }
+                break;
             }
-            return context.metadata('circle-metadata.json').then((metadata) => {
-                return new circle.Model(metadata, model);
-            });
-        });
+            case 'circle.flatbuffers': {
+                const stream = context.stream;
+                try {
+                    const reader = flatbuffers.BinaryReader.open(stream);
+                    model = circle.schema.Model.create(reader);
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new circle.Error('File format is not circle.Model (' + message.replace(/\.$/, '') + ').');
+                }
+                try {
+                    const archive = zip.Archive.open(stream);
+                    if (archive) {
+                        for (const entry of archive.entries) {
+                            attachments.set(entry[0], entry[1]);
+                        }
+                    }
+                } catch (error) {
+                    // continue regardless of error
+                }
+                break;
+            }
+            default: {
+                throw new circle.Error("Unsupported Circle format '" + match + "'.");
+            }
+        }
+        const metadata = await context.metadata('circle-metadata.json');
+        return new circle.Model(metadata, model);
     }
 };
 
