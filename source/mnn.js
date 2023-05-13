@@ -20,22 +20,20 @@ mnn.ModelFactory = class {
         return null;
     }
 
-    open(context) {
-        return context.require('./mnn-schema').then((/* schema */) => {
-            let net = null;
-            try {
-                mnn.schema = flatbuffers.get('mnn').MNN;
-                const stream = context.stream;
-                const reader = flatbuffers.BinaryReader.open(stream);
-                net = mnn.schema.Net.create(reader);
-            } catch (error) {
-                const message = error && error.message ? error.message : error.toString();
-                throw new mnn.Error('File format is not mnn.Net (' + message.replace(/\.$/, '') + ').');
-            }
-            return context.metadata('mnn-metadata.json').then((metadata) => {
-                return new mnn.Model(metadata, net);
-            });
-        });
+    async open(context) {
+        await context.require('./mnn-schema');
+        let net = null;
+        try {
+            mnn.schema = flatbuffers.get('mnn').MNN;
+            const stream = context.stream;
+            const reader = flatbuffers.BinaryReader.open(stream);
+            net = mnn.schema.Net.create(reader);
+        } catch (error) {
+            const message = error && error.message ? error.message : error.toString();
+            throw new mnn.Error('File format is not mnn.Net (' + message.replace(/\.$/, '') + ').');
+        }
+        const metadata = await context.metadata('mnn-metadata.json');
+        return new mnn.Model(metadata, net);
     }
 };
 
