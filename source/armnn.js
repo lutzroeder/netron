@@ -20,41 +20,39 @@ armnn.ModelFactory = class {
         return undefined;
     }
 
-    open(context, match) {
-        return context.require('./armnn-schema').then((/* schema */) => {
-            armnn.schema = flatbuffers.get('armnn').armnnSerializer;
-            let model = null;
-            switch (match) {
-                case 'armnn.flatbuffers': {
-                    try {
-                        const stream = context.stream;
-                        const reader = flatbuffers.BinaryReader.open(stream);
-                        model = armnn.schema.SerializedGraph.create(reader);
-                    } catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new armnn.Error('File format is not armnn.SerializedGraph (' + message.replace(/\.$/, '') + ').');
-                    }
-                    break;
+    async open(context, match) {
+        await context.require('./armnn-schema');
+        armnn.schema = flatbuffers.get('armnn').armnnSerializer;
+        let model = null;
+        switch (match) {
+            case 'armnn.flatbuffers': {
+                try {
+                    const stream = context.stream;
+                    const reader = flatbuffers.BinaryReader.open(stream);
+                    model = armnn.schema.SerializedGraph.create(reader);
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new armnn.Error('File format is not armnn.SerializedGraph (' + message.replace(/\.$/, '') + ').');
                 }
-                case 'armnn.flatbuffers.json': {
-                    try {
-                        const obj = context.open('json');
-                        const reader = flatbuffers.TextReader.open(obj);
-                        model = armnn.schema.SerializedGraph.createText(reader);
-                    } catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new armnn.Error('File text format is not armnn.SerializedGraph (' + message.replace(/\.$/, '') + ').');
-                    }
-                    break;
-                }
-                default: {
-                    throw new armnn.Error("Unsupported Arm NN '" + match + "'.");
-                }
+                break;
             }
-            return context.metadata('armnn-metadata.json').then((metadata) => {
-                return new armnn.Model(metadata, model);
-            });
-        });
+            case 'armnn.flatbuffers.json': {
+                try {
+                    const obj = context.open('json');
+                    const reader = flatbuffers.TextReader.open(obj);
+                    model = armnn.schema.SerializedGraph.createText(reader);
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new armnn.Error('File text format is not armnn.SerializedGraph (' + message.replace(/\.$/, '') + ').');
+                }
+                break;
+            }
+            default: {
+                throw new armnn.Error("Unsupported Arm NN '" + match + "'.");
+            }
+        }
+        const metadata = await context.metadata('armnn-metadata.json');
+        return new armnn.Model(metadata, model);
     }
 };
 
