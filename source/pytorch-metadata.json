@@ -534,6 +534,19 @@
     ]
   },
   {
+    "name": "aten::_autocast_to_reduced_precision",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "cuda_enabled", "type": "boolean" },
+      { "name": "cpu_enabled", "type": "boolean" },
+      { "name": "cuda_dtype", "type": "ScalarType" },
+      { "name": "cpu_dtype", "type": "ScalarType" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::_cast_Byte",
     "inputs": [
       { "name": "self", "type": "Tensor" },
