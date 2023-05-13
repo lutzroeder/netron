@@ -38,32 +38,33 @@ darknet.ModelFactory = class {
         return undefined;
     }
 
-    open(context, match) {
-        return context.metadata('darknet-metadata.json').then((metadata) => {
-            const openModel = (metadata, cfg, weights) => {
-                return new darknet.Model(metadata, cfg, darknet.Weights.open(weights));
-            };
-            const identifier = context.identifier;
-            const parts = identifier.split('.');
-            parts.pop();
-            const basename = parts.join('.');
-            switch (match) {
-                case 'darknet.weights':
-                    return context.request(basename + '.cfg', null).then((stream) => {
-                        const buffer = stream.read();
-                        return openModel(metadata, buffer, context.stream);
-                    });
-                case 'darknet.model':
-                    return context.request(basename + '.weights', null).then((stream) => {
-                        return openModel(metadata, context.stream.peek(), stream);
-                    }).catch(() => {
-                        return openModel(metadata, context.stream.peek(), null);
-                    });
-                default: {
-                    throw new darknet.Error("Unsupported Darknet format '" + match + "'.");
+    async open(context, match) {
+        const metadata = await context.metadata('darknet-metadata.json');
+        const openModel = (metadata, cfg, weights) => {
+            return new darknet.Model(metadata, cfg, darknet.Weights.open(weights));
+        };
+        const identifier = context.identifier;
+        const parts = identifier.split('.');
+        parts.pop();
+        const basename = parts.join('.');
+        switch (match) {
+            case 'darknet.weights': {
+                const stream = await context.request(basename + '.cfg', null);
+                const buffer = stream.read();
+                return openModel(metadata, buffer, context.stream);
+            }
+            case 'darknet.model': {
+                try {
+                    const stream = await context.request(basename + '.weights', null);
+                    return openModel(metadata, context.stream.peek(), stream);
+                } catch (error) {
+                    return openModel(metadata, context.stream.peek(), null);
                 }
             }
-        });
+            default: {
+                throw new darknet.Error("Unsupported Darknet format '" + match + "'.");
+            }
+        }
     }
 };
 
