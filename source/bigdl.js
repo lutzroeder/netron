@@ -14,23 +14,21 @@ bigdl.ModelFactory = class {
         return '';
     }
 
-    open(context) {
-        return context.require('./bigdl-proto').then(() => {
-            let module = null;
-            try {
-                // https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/resources/serialization/bigdl.proto
-                bigdl.proto = protobuf.get('bigdl').com.intel.analytics.bigdl.serialization;
-                const stream = context.stream;
-                const reader = protobuf.BinaryReader.open(stream);
-                module = bigdl.proto.BigDLModule.decode(reader);
-            } catch (error) {
-                const message = error && error.message ? error.message : error.toString();
-                throw new bigdl.Error('File format is not bigdl.BigDLModule (' + message.replace(/\.$/, '') + ').');
-            }
-            return context.metadata('bigdl-metadata.json').then((metadata) => {
-                return new bigdl.Model(metadata, module);
-            });
-        });
+    async open(context) {
+        await context.require('./bigdl-proto');
+        let module = null;
+        try {
+            // https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/resources/serialization/bigdl.proto
+            bigdl.proto = protobuf.get('bigdl').com.intel.analytics.bigdl.serialization;
+            const stream = context.stream;
+            const reader = protobuf.BinaryReader.open(stream);
+            module = bigdl.proto.BigDLModule.decode(reader);
+        } catch (error) {
+            const message = error && error.message ? error.message : error.toString();
+            throw new bigdl.Error('File format is not bigdl.BigDLModule (' + message.replace(/\.$/, '') + ').');
+        }
+        const metadata = await context.metadata('bigdl-metadata.json');
+        return new bigdl.Model(metadata, module);
     }
 };
 
