@@ -11,13 +11,11 @@ om.ModelFactory = class {
         return om.Container.open(context);
     }
 
-    open(context, match) {
+    async open(context, match) {
         const container = match;
-        return container.open().then(() => {
-            return context.metadata('om-metadata.json').then((metadata) => {
-                return new om.Model(metadata, container);
-            });
-        });
+        await container.open();
+        const metadata = await context.metadata('om-metadata.json');
+        return new om.Model(metadata, container);
     }
 };
 
@@ -465,7 +463,7 @@ om.Container = class {
         this._signature = signature;
     }
 
-    open() {
+    async open() {
         const stream = this._context.stream;
         const reader = new base.BinaryReader(stream);
         const buffer = reader.read(4);
@@ -540,16 +538,16 @@ om.Container = class {
                 if (!this.model) {
                     throw new om.Error('File does not contain a model definition.');
                 }
-                return this._context.require('./om-proto').then(() => {
-                    try {
-                        om.proto = protobuf.get('om').ge.proto;
-                        const reader = protobuf.BinaryReader.open(this.model);
-                        this.model = om.proto.ModelDef.decode(reader);
-                    } catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new om.Error('File format is not ge.proto.ModelDef (' + message.replace(/\.$/, '') + ').');
-                    }
-                });
+                await this._context.require('./om-proto');
+                try {
+                    om.proto = protobuf.get('om').ge.proto;
+                    const reader = protobuf.BinaryReader.open(this.model);
+                    this.model = om.proto.ModelDef.decode(reader);
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new om.Error('File format is not ge.proto.ModelDef (' + message.replace(/\.$/, '') + ').');
+                }
+                break;
             }
             case 'PICO': {
                 this.format = 'DaVinci OM SVP'; // SVP = Smart Vision PICO
@@ -565,10 +563,10 @@ om.Container = class {
                 this.param = reader.read(param_size);
                 const buffer = reader.read(tfm_offset - reader.position);
                 this.model = new svp.ModelDef(buffer);
-                return Promise.resolve();
+                break;
             }
             default: {
-                return Promise.reject(new om.Error('Unsupported DaVinci OM ' + this.signature + ' signature.'));
+                throw new om.Error('Unsupported DaVinci OM ' + this.signature + ' signature.');
             }
         }
     }
