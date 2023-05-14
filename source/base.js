@@ -899,32 +899,31 @@ base.Telemetry = class {
         this.set('screen_resolution', (window.screen ? window.screen.width : 0) + 'x' + (window.screen ? window.screen.height : 0));
     }
 
-    start() {
+    async start() {
         const promise = navigator && navigator.userAgentData && navigator.userAgentData.getHighEntropyValues ? navigator.userAgentData.getHighEntropyValues([ 'platform', 'platformVersion', 'architecture', 'model', 'uaFullVersion', 'bitness', 'fullVersionList', 'wow64' ]) : Promise.resolve();
-        return promise.then((values) => {
-            if (values) {
-                this.set('_user_agent_architecture', values.architecture);
-                this.set('_user_agent_bitness', values.bitness);
-                this.set('_user_agent_full_version_list', Array.isArray(values.fullVersionList) ? values.fullVersionList.map((h) => encodeURIComponent(h.brand || '') + ';' + encodeURIComponent(h.version || '')).join('|') : '');
-                this.set('_user_agent_mobile', values.mobile ? 1 : 0);
-                this.set('_user_agent_model', values.model);
-                this.set('_user_agent_platform', values.platform);
-                this.set('_user_agent_platform_version', values.platformVersion);
-                this.set('_user_agent_wow64', values.wow64 ? 1 : 0);
-            }
-            this.set('hit_count', 1);
-            this.set('session_id', this._session[0]);
-            this.set('session_number', this._session[1]);
-            this.set('session_engaged', 0);
-            this._metadata.is_session_start = 1;
-            this._metadata.is_external_event = 1;
-            window.addEventListener('focus', () => this._update(true, undefined, undefined));
-            window.addEventListener('blur', () => this._update(false, undefined, undefined));
-            window.addEventListener('pageshow', () => this._update(undefined, true, undefined));
-            window.addEventListener('pagehide', () => this._update(undefined, false, undefined));
-            window.addEventListener('visibilitychange', () => this._update(undefined, undefined, window.document.visibilityState !== 'hidden'));
-            window.addEventListener('beforeunload', () => this._update() && this.send('user_engagement', {}));
-        });
+        const values = await promise;
+        if (values) {
+            this.set('_user_agent_architecture', values.architecture);
+            this.set('_user_agent_bitness', values.bitness);
+            this.set('_user_agent_full_version_list', Array.isArray(values.fullVersionList) ? values.fullVersionList.map((h) => encodeURIComponent(h.brand || '') + ';' + encodeURIComponent(h.version || '')).join('|') : '');
+            this.set('_user_agent_mobile', values.mobile ? 1 : 0);
+            this.set('_user_agent_model', values.model);
+            this.set('_user_agent_platform', values.platform);
+            this.set('_user_agent_platform_version', values.platformVersion);
+            this.set('_user_agent_wow64', values.wow64 ? 1 : 0);
+        }
+        this.set('hit_count', 1);
+        this.set('session_id', this._session[0]);
+        this.set('session_number', this._session[1]);
+        this.set('session_engaged', 0);
+        this._metadata.is_session_start = 1;
+        this._metadata.is_external_event = 1;
+        window.addEventListener('focus', () => this._update(true, undefined, undefined));
+        window.addEventListener('blur', () => this._update(false, undefined, undefined));
+        window.addEventListener('pageshow', () => this._update(undefined, true, undefined));
+        window.addEventListener('pagehide', () => this._update(undefined, false, undefined));
+        window.addEventListener('visibilitychange', () => this._update(undefined, undefined, window.document.visibilityState !== 'hidden'));
+        window.addEventListener('beforeunload', () => this._update() && this.send('user_engagement', {}));
     }
 
     get session() {
