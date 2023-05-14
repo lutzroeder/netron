@@ -24,207 +24,209 @@ mxnet.ModelFactory = class {
         return undefined;
     }
 
-    open(context, match) {
-        return context.metadata('mxnet-metadata.json').then((metadata) => {
-            const basename = (base, identifier, extension, suffix, append) => {
-                if (!base) {
-                    if (identifier.toLowerCase().endsWith(extension)) {
-                        const items = identifier.substring(0, identifier.length - extension.length).split('-');
-                        if (items.length >= 2) {
-                            const token = items.pop();
-                            if ((suffix && token === suffix) || /[a-zA-Z0-9]*/.exec(token)) {
-                                return items.join('-') + append;
-                            }
+    async open(context, match) {
+        const metadata = await context.metadata('mxnet-metadata.json');
+        const basename = (base, identifier, extension, suffix, append) => {
+            if (!base) {
+                if (identifier.toLowerCase().endsWith(extension)) {
+                    const items = identifier.substring(0, identifier.length - extension.length).split('-');
+                    if (items.length >= 2) {
+                        const token = items.pop();
+                        if ((suffix && token === suffix) || /[a-zA-Z0-9]*/.exec(token)) {
+                            return items.join('-') + append;
                         }
                     }
-                }
-                return base;
-            };
-            const convertVersion = (value) => {
-                if (Array.isArray(value)) {
-                    if (value.length === 2 && value[0] === 'int') {
-                        const major = Math.floor(value[1] / 10000) % 100;
-                        const minor = Math.floor(value[1] / 100) % 100;
-                        const patch = Math.floor(value[1]) % 100;
-                        return [ major.toString(), minor.toString(), patch.toString() ].join('.');
-                    }
-                }
-                return null;
-            };
-            const requestManifest = () => {
-                const parse = (stream) => {
-                    try {
-                        const manifest = {};
-                        if (stream) {
-                            const reader = json.TextReader.open(stream);
-                            const obj = reader.read();
-                            if (obj.Model) {
-                                const modelFormat = obj.Model['Model-Format'];
-                                if (modelFormat && modelFormat !== 'MXNet-Symbolic') {
-                                    throw new mxnet.Error('Model format \'' + modelFormat + '\' not supported.');
-                                }
-                                manifest.format = 'MXNet Model Server';
-                                if (obj['Model-Archive-Version']) {
-                                    manifest.format += ' v' + obj['Model-Archive-Version'].toString();
-                                }
-                                if (!obj.Model.Symbol) {
-                                    throw new mxnet.Error('Manifest does not contain symbol entry.');
-                                }
-                                manifest.symbol = obj.Model.Symbol;
-                                if (obj.Model.Signature) {
-                                    manifest.signature = obj.Model.Signature;
-                                }
-                                if (obj.Model.Parameters) {
-                                    manifest.params = obj.Model.Parameters;
-                                }
-                                if (obj.Model['Model-Name']) {
-                                    manifest.name = obj.Model['Model-Name'];
-                                }
-                                if (obj.Model.Description && manifest.name !== obj.Model.Description) {
-                                    manifest.description = obj.Model.Description;
-                                }
-                            } else if (obj.model) {
-                                manifest.format = 'MXNet Model Archive';
-                                if (obj.specificationVersion) {
-                                    manifest.format += ' v' + obj.specificationVersion.toString();
-                                }
-                                if (obj.model.modelName) {
-                                    manifest.symbol = obj.model.modelName + '-symbol.json';
-                                }
-                                if (obj.model.modelName) {
-                                    manifest.name = obj.model.modelName;
-                                }
-                                if (manifest.model && obj.model.modelVersion) {
-                                    manifest.version = obj.model.modelVersion;
-                                }
-                                if (manifest.model && manifest.model.modelName && manifest.name != obj.model.description) {
-                                    manifest.description = obj.model.description;
-                                }
-                            } else {
-                                throw new mxnet.Error('Manifest does not contain model.');
-                            }
-                            if (obj.Engine && obj.Engine.MXNet) {
-                                const version = convertVersion(obj.Engine.MXNet);
-                                manifest.runtime = 'MXNet v' + (version ? version : obj.Engine.MXNet.toString());
-                            }
-                            if (obj.License) {
-                                manifest.license = obj.License;
-                            }
-                            if (obj.runtime) {
-                                manifest.runtime = obj.runtime;
-                            }
-                            if (obj.engine && obj.engine.engineName) {
-                                const engine = obj.engine.engineVersion ? obj.engine.engineName + ' ' + obj.engine.engineVersion : obj.engine.engineName;
-                                manifest.runtime = manifest.runtime ? (manifest.runtime + ' (' + engine + ')') : engine;
-                            }
-                            if (obj.publisher && obj.publisher.author) {
-                                manifest.author = obj.publisher.author;
-                                if (obj.publisher.email) {
-                                    manifest.author = manifest.author + ' <' + obj.publisher.email + '>';
-                                }
-                            }
-                            if (obj.license) {
-                                manifest.license = obj.license;
-                            }
-                            if (obj.Model && obj.Model.Signature) {
-                                return context.request(obj.Model.Signature).then((stream) => {
-                                    const reader = json.TextReader.open(stream);
-                                    manifest.signature = reader.read();
-                                    return manifest;
-                                }).catch (() => {
-                                    return manifest;
-                                });
-                            }
-                        }
-                        return manifest;
-                    } catch (err) {
-                        throw new mxnet.Error('Failed to read manifest. ' + err.message);
-                    }
-                };
-                return context.request('MANIFEST.json').then((stream) => {
-                    return parse(stream);
-                }).catch (() => {
-                    return context.request('MAR-INF/MANIFEST.json').then((stream) => {
-                        return parse(stream);
-                    }).catch(() => {
-                        return parse(null);
-                    });
-                });
-            };
-            const createModel = (metadata, manifest, symbol, params) => {
-                const parameters = new Map();
-                if (params) {
-                    try {
-                        for (const entry of mxnet.ndarray.load(params)) {
-                            const key = entry[0];
-                            const array = entry[1];
-                            const name = (key.startsWith('arg:') || key.startsWith('aux:')) ? key.substring(4) : key;
-                            parameters.set(name, array);
-                        }
-                    } catch (error) {
-                        // continue regardless of error
-                    }
-                }
-                if (symbol) {
-                    if (!manifest.format) {
-                        const version = convertVersion(symbol.attrs && symbol.attrs.mxnet_version ? symbol.attrs.mxnet_version : null);
-                        manifest.format = 'MXNet' + (version ? ' v' + version : '');
-                    }
-                    if (symbol.nodes && symbol.nodes.some((node) => node && node.op == 'tvm_op')) {
-                        manifest.producer  = 'TVM';
-                    }
-                }
-                return new mxnet.Model(metadata, manifest, symbol, parameters);
-            };
-            const identifier = context.identifier;
-            switch (match) {
-                case 'mxnet.json': {
-                    let symbol = null;
-                    try {
-                        symbol = context.open('json');
-                    } catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new mxnet.Error("Failed to load symbol entry (" + message.replace(/\.$/, '') + ').');
-                    }
-                    const requestParams = (manifest) => {
-                        const file = basename(manifest.params, identifier, '.json', 'symbol', '-0000.params');
-                        if (file) {
-                            return context.request(file, null).then((stream) => {
-                                const buffer = stream.peek();
-                                return createModel(metadata, manifest, symbol, buffer);
-                            }).catch(() => {
-                                return createModel(metadata, manifest, symbol, null);
-                            });
-                        }
-                        return createModel(metadata, manifest, symbol, null);
-                    };
-                    return requestManifest().then((manifest) => {
-                        return requestParams(manifest);
-                    });
-                }
-                case 'mxnet.params': {
-                    const params = context.stream.peek();
-                    const requestSymbol = (manifest) => {
-                        const file = basename(manifest.symbol, identifier, '.params', null, '-symbol.json');
-                        if (file) {
-                            return context.request(file, 'utf-8').then((text) => {
-                                const symbol = JSON.parse(text);
-                                return createModel(metadata, manifest, symbol, params);
-                            }).catch(() => {
-                                return createModel(metadata, manifest, null, params);
-                            });
-                        }
-                        return createModel(metadata, manifest, null, params);
-                    };
-                    return requestManifest().then((manifest) => {
-                        return requestSymbol(manifest);
-                    });
-                }
-                default: {
-                    throw new mxnet.Error("Unsupported MXNet format '" + match + "'.");
                 }
             }
-        });
+            return base;
+        };
+        const convertVersion = (value) => {
+            if (Array.isArray(value)) {
+                if (value.length === 2 && value[0] === 'int') {
+                    const major = Math.floor(value[1] / 10000) % 100;
+                    const minor = Math.floor(value[1] / 100) % 100;
+                    const patch = Math.floor(value[1]) % 100;
+                    return [ major.toString(), minor.toString(), patch.toString() ].join('.');
+                }
+            }
+            return null;
+        };
+        const requestManifest = async () => {
+            const parse = async (stream) => {
+                try {
+                    const manifest = {};
+                    if (stream) {
+                        const reader = json.TextReader.open(stream);
+                        const obj = reader.read();
+                        if (obj.Model) {
+                            const modelFormat = obj.Model['Model-Format'];
+                            if (modelFormat && modelFormat !== 'MXNet-Symbolic') {
+                                throw new mxnet.Error('Model format \'' + modelFormat + '\' not supported.');
+                            }
+                            manifest.format = 'MXNet Model Server';
+                            if (obj['Model-Archive-Version']) {
+                                manifest.format += ' v' + obj['Model-Archive-Version'].toString();
+                            }
+                            if (!obj.Model.Symbol) {
+                                throw new mxnet.Error('Manifest does not contain symbol entry.');
+                            }
+                            manifest.symbol = obj.Model.Symbol;
+                            if (obj.Model.Signature) {
+                                manifest.signature = obj.Model.Signature;
+                            }
+                            if (obj.Model.Parameters) {
+                                manifest.params = obj.Model.Parameters;
+                            }
+                            if (obj.Model['Model-Name']) {
+                                manifest.name = obj.Model['Model-Name'];
+                            }
+                            if (obj.Model.Description && manifest.name !== obj.Model.Description) {
+                                manifest.description = obj.Model.Description;
+                            }
+                        } else if (obj.model) {
+                            manifest.format = 'MXNet Model Archive';
+                            if (obj.specificationVersion) {
+                                manifest.format += ' v' + obj.specificationVersion.toString();
+                            }
+                            if (obj.model.modelName) {
+                                manifest.symbol = obj.model.modelName + '-symbol.json';
+                            }
+                            if (obj.model.modelName) {
+                                manifest.name = obj.model.modelName;
+                            }
+                            if (manifest.model && obj.model.modelVersion) {
+                                manifest.version = obj.model.modelVersion;
+                            }
+                            if (manifest.model && manifest.model.modelName && manifest.name != obj.model.description) {
+                                manifest.description = obj.model.description;
+                            }
+                        } else {
+                            throw new mxnet.Error('Manifest does not contain model.');
+                        }
+                        if (obj.Engine && obj.Engine.MXNet) {
+                            const version = convertVersion(obj.Engine.MXNet);
+                            manifest.runtime = 'MXNet v' + (version ? version : obj.Engine.MXNet.toString());
+                        }
+                        if (obj.License) {
+                            manifest.license = obj.License;
+                        }
+                        if (obj.runtime) {
+                            manifest.runtime = obj.runtime;
+                        }
+                        if (obj.engine && obj.engine.engineName) {
+                            const engine = obj.engine.engineVersion ? obj.engine.engineName + ' ' + obj.engine.engineVersion : obj.engine.engineName;
+                            manifest.runtime = manifest.runtime ? (manifest.runtime + ' (' + engine + ')') : engine;
+                        }
+                        if (obj.publisher && obj.publisher.author) {
+                            manifest.author = obj.publisher.author;
+                            if (obj.publisher.email) {
+                                manifest.author = manifest.author + ' <' + obj.publisher.email + '>';
+                            }
+                        }
+                        if (obj.license) {
+                            manifest.license = obj.license;
+                        }
+                        if (obj.Model && obj.Model.Signature) {
+                            try {
+                                const stream = await context.request(obj.Model.Signature);
+                                const reader = json.TextReader.open(stream);
+                                manifest.signature = reader.read();
+                                return manifest;
+                            } catch (error) {
+                                return manifest;
+                            }
+                        }
+                    }
+                    return manifest;
+                } catch (err) {
+                    throw new mxnet.Error('Failed to read manifest. ' + err.message);
+                }
+            };
+            try {
+                const stream = await context.request('MANIFEST.json');
+                return parse(stream);
+            } catch (error) {
+                try {
+                    const stream = await context.request('MAR-INF/MANIFEST.json');
+                    return parse(stream);
+                } catch (error) {
+                    return parse(null);
+                }
+            }
+        };
+        const createModel = (metadata, manifest, symbol, params) => {
+            const parameters = new Map();
+            if (params) {
+                try {
+                    for (const entry of mxnet.ndarray.load(params)) {
+                        const key = entry[0];
+                        const array = entry[1];
+                        const name = (key.startsWith('arg:') || key.startsWith('aux:')) ? key.substring(4) : key;
+                        parameters.set(name, array);
+                    }
+                } catch (error) {
+                    // continue regardless of error
+                }
+            }
+            if (symbol) {
+                if (!manifest.format) {
+                    const version = convertVersion(symbol.attrs && symbol.attrs.mxnet_version ? symbol.attrs.mxnet_version : null);
+                    manifest.format = 'MXNet' + (version ? ' v' + version : '');
+                }
+                if (symbol.nodes && symbol.nodes.some((node) => node && node.op == 'tvm_op')) {
+                    manifest.producer  = 'TVM';
+                }
+            }
+            return new mxnet.Model(metadata, manifest, symbol, parameters);
+        };
+        const identifier = context.identifier;
+        switch (match) {
+            case 'mxnet.json': {
+                let symbol = null;
+                try {
+                    symbol = context.open('json');
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new mxnet.Error("Failed to load symbol entry (" + message.replace(/\.$/, '') + ').');
+                }
+                const requestParams = async (manifest) => {
+                    const file = basename(manifest.params, identifier, '.json', 'symbol', '-0000.params');
+                    if (file) {
+                        try {
+                            const stream = await context.request(file, null);
+                            const buffer = stream.peek();
+                            return createModel(metadata, manifest, symbol, buffer);
+                        } catch (error) {
+                            return createModel(metadata, manifest, symbol, null);
+                        }
+                    }
+                    return createModel(metadata, manifest, symbol, null);
+                };
+                const manifest = await requestManifest();
+                return requestParams(manifest);
+            }
+            case 'mxnet.params': {
+                const params = context.stream.peek();
+                const requestSymbol = async (manifest) => {
+                    const file = basename(manifest.symbol, identifier, '.params', null, '-symbol.json');
+                    if (file) {
+                        try {
+                            const text = await context.request(file, 'utf-8');
+                            const symbol = JSON.parse(text);
+                            return createModel(metadata, manifest, symbol, params);
+                        } catch (error) {
+                            return createModel(metadata, manifest, null, params);
+                        }
+                    }
+                    return createModel(metadata, manifest, null, params);
+                };
+                const manifest = await requestManifest();
+                return requestSymbol(manifest);
+            }
+            default: {
+                throw new mxnet.Error("Unsupported MXNet format '" + match + "'.");
+            }
+        }
     }
 };
 
