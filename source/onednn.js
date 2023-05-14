@@ -13,13 +13,9 @@ onednn.ModelFactory = class {
         return null;
     }
 
-    open(context, match) {
-        return context.metadata('onednn-metadata.json').then((metadata) => {
-            if (match) {
-                return new onednn.Model(metadata, match);
-            }
-            throw new onednn.Error("Unsupported oneDNN Graph format '" + match + "'.");
-        });
+    async open(context, match) {
+        const metadata = await context.metadata('onednn-metadata.json');
+        return new onednn.Model(metadata, match);
     }
 };
 
