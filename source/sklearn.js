@@ -38,11 +38,10 @@ sklearn.ModelFactory = class {
         return null;
     }
 
-    open(context, match) {
-        return context.metadata('sklearn-metadata.json').then((metadata) => {
-            const obj = context.open('pkl');
-            return new sklearn.Model(metadata, match, obj);
-        });
+    async open(context, match) {
+        const metadata = await context.metadata('sklearn-metadata.json');
+        const obj = context.open('pkl');
+        return new sklearn.Model(metadata, match, obj);
     }
 };
 
