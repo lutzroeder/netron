@@ -17,37 +17,31 @@ lightgbm.ModelFactory = class {
         return null;
     }
 
-    open(context, match) {
-        return new Promise((resolve, reject) => {
-            try {
-                let obj;
-                let format;
-                switch (match) {
-                    case 'lightgbm.pickle': {
-                        obj = context.open('pkl');
-                        format = 'LightGBM Pickle';
-                        break;
-                    }
-                    case 'lightgbm.text': {
-                        const stream = context.stream;
-                        const buffer = stream.peek();
-                        const decoder = new TextDecoder('utf-8');
-                        const model_str = decoder.decode(buffer);
-                        const execution = new python.Execution();
-                        obj = execution.invoke('lightgbm.basic.Booster', []);
-                        obj.LoadModelFromString(model_str);
-                        format = 'LightGBM';
-                        break;
-                    }
-                    default: {
-                        throw new lightgbm.Error("Unsupported LightGBM format '" + match + "'.");
-                    }
-                }
-                resolve(new lightgbm.Model(obj, format));
-            } catch (err) {
-                reject(err);
+    async open(context, match) {
+        let obj;
+        let format;
+        switch (match) {
+            case 'lightgbm.pickle': {
+                obj = context.open('pkl');
+                format = 'LightGBM Pickle';
+                break;
             }
-        });
+            case 'lightgbm.text': {
+                const stream = context.stream;
+                const buffer = stream.peek();
+                const decoder = new TextDecoder('utf-8');
+                const model_str = decoder.decode(buffer);
+                const execution = new python.Execution();
+                obj = execution.invoke('lightgbm.basic.Booster', []);
+                obj.LoadModelFromString(model_str);
+                format = 'LightGBM';
+                break;
+            }
+            default: {
+                throw new lightgbm.Error("Unsupported LightGBM format '" + match + "'.");
+            }
+        }
+        return new lightgbm.Model(obj, format);
     }
 };
 
