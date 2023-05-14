@@ -27,40 +27,38 @@ uff.ModelFactory = class {
         return undefined;
     }
 
-    open(context, match) {
-        return context.require('./uff-proto').then(() => {
-            uff.proto = protobuf.get('uff').uff;
-            let meta_graph = null;
-            switch (match) {
-                case 'uff.pb': {
-                    try {
-                        const stream = context.stream;
-                        const reader = protobuf.BinaryReader.open(stream);
-                        meta_graph = uff.proto.MetaGraph.decode(reader);
-                    } catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw  new uff.Error('File format is not uff.MetaGraph (' + message.replace(/\.$/, '') + ').');
-                    }
-                    break;
+    async open(context, match) {
+        await context.require('./uff-proto');
+        uff.proto = protobuf.get('uff').uff;
+        let meta_graph = null;
+        switch (match) {
+            case 'uff.pb': {
+                try {
+                    const stream = context.stream;
+                    const reader = protobuf.BinaryReader.open(stream);
+                    meta_graph = uff.proto.MetaGraph.decode(reader);
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw  new uff.Error('File format is not uff.MetaGraph (' + message.replace(/\.$/, '') + ').');
                 }
-                case 'uff.pbtxt': {
-                    try {
-                        const stream = context.stream;
-                        const reader = protobuf.TextReader.open(stream);
-                        meta_graph = uff.proto.MetaGraph.decodeText(reader);
-                    } catch (error) {
-                        throw new uff.Error('File text format is not uff.MetaGraph (' + error.message + ').');
-                    }
-                    break;
-                }
-                default: {
-                    throw new uff.Error("Unsupported UFF format '" + match + "'.");
-                }
+                break;
             }
-            return context.metadata('uff-metadata.json').then((metadata) => {
-                return new uff.Model(metadata, meta_graph);
-            });
-        });
+            case 'uff.pbtxt': {
+                try {
+                    const stream = context.stream;
+                    const reader = protobuf.TextReader.open(stream);
+                    meta_graph = uff.proto.MetaGraph.decodeText(reader);
+                } catch (error) {
+                    throw new uff.Error('File text format is not uff.MetaGraph (' + error.message + ').');
+                }
+                break;
+            }
+            default: {
+                throw new uff.Error("Unsupported UFF format '" + match + "'.");
+            }
+        }
+        const metadata = await context.metadata('uff-metadata.json');
+        return new uff.Model(metadata, meta_graph);
     }
 };
 
