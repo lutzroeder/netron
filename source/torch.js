@@ -7,26 +7,25 @@ torch.ModelFactory = class {
         return torch.T7Reader.open(context);
     }
 
-    open(context, match) {
-        return context.metadata('torch-metadata.json').then((metadata) => {
-            const reader = match;
-            reader.callback = (name) => {
-                if (name && name != 'nn.JointTrainModule' && !name.startsWith('nn.MSDNet_') && !name.startsWith('onmt.')) {
-                    context.exception(new torch.Error("Unsupported type '" + name + "'."));
-                }
-                return null;
-            };
-            const obj = reader.read();
-            let graphs = [];
-            if (obj && Array.isArray(obj) && obj.length >= 2 &&
-                obj.slice(0, obj.length - 1).every((item) => item.__class__) &&
-                !obj[obj.length - 1].__class__) {
-                graphs = obj.slice(0, obj.length - 1);
-            } else {
-                graphs = [ obj ];
+    async open(context, match) {
+        const metadata = await context.metadata('torch-metadata.json');
+        const reader = match;
+        reader.callback = (name) => {
+            if (name && name != 'nn.JointTrainModule' && !name.startsWith('nn.MSDNet_') && !name.startsWith('onmt.')) {
+                context.exception(new torch.Error("Unsupported type '" + name + "'."));
             }
-            return new torch.Model(metadata, graphs);
-        });
+            return null;
+        };
+        const obj = reader.read();
+        let graphs = [];
+        if (obj && Array.isArray(obj) && obj.length >= 2 &&
+            obj.slice(0, obj.length - 1).every((item) => item.__class__) &&
+            !obj[obj.length - 1].__class__) {
+            graphs = obj.slice(0, obj.length - 1);
+        } else {
+            graphs = [ obj ];
+        }
+        return new torch.Model(metadata, graphs);
     }
 };
 
