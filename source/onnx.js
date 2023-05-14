@@ -161,121 +161,114 @@ onnx.ModelFactory = class {
         return undefined;
     }
 
-    open(context, match) {
-        const open = (model, format) => {
-            return onnx.Metadata.open(context).then((metadata) => {
-                return new onnx.Model(metadata, model, format);
-            });
+    async open(context, match) {
+        const open = async (model, format) => {
+            const metadata = await onnx.Metadata.open(context);
+            return new onnx.Model(metadata, model, format);
         };
         switch (match) {
             case 'onnx.pbtxt.ModelProto':
-                return context.require('./onnx-proto').then(() => {
-                    try {
-                        onnx.proto = protobuf.get('onnx').onnx;
-                        const stream = context.stream;
-                        const reader = protobuf.TextReader.open(stream);
-                        const model = onnx.proto.ModelProto.decodeText(reader);
-                        const format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
-                        return open(model, format);
-                    } catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new onnx.Error('File text format is not onnx.ModelProto (' + message.replace(/\.$/, '') + ').');
-                    }
-                });
+                await context.require('./onnx-proto');
+                try {
+                    onnx.proto = protobuf.get('onnx').onnx;
+                    const stream = context.stream;
+                    const reader = protobuf.TextReader.open(stream);
+                    const model = onnx.proto.ModelProto.decodeText(reader);
+                    const format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
+                    return open(model, format);
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new onnx.Error('File text format is not onnx.ModelProto (' + message.replace(/\.$/, '') + ').');
+                }
             case 'onnx.pb.TensorProto':
-                return context.require('./onnx-proto').then(() => {
-                    // TensorProto
-                    // input_0.pb, output_0.pb
-                    try {
-                        onnx.proto = protobuf.get('onnx').onnx;
-                        const stream = context.stream;
-                        const reader = protobuf.BinaryReader.open(stream);
-                        const tensor = onnx.proto.TensorProto.decode(reader);
-                        tensor.name = tensor.name || context.identifier;
-                        const model = new onnx.proto.ModelProto();
-                        model.graph = new onnx.proto.GraphProto();
-                        model.graph.initializer = [ tensor ];
-                        model.graph.value_info = [ new onnx.proto.ValueInfoProto() ];
-                        model.graph.value_info[0].name = tensor.name;
-                        model.graph.node = [ new onnx.proto.NodeProto() ];
-                        model.graph.node[0].op_type = 'Constant';
-                        model.graph.node[0].attribute = [ new onnx.proto.AttributeProto() ];
-                        model.graph.node[0].attribute[0].name = 'value';
-                        model.graph.node[0].attribute[0].type = onnx.AttributeType.TENSOR;
-                        model.graph.node[0].attribute[0].t = tensor;
-                        const format = 'ONNX Tensor';
-                        return open(model, format);
-                    } catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new onnx.Error('File format is not onnx.TensorProto (' + message.replace(/\.$/, '') + ').');
-                    }
-                });
+                await context.require('./onnx-proto');
+                // TensorProto
+                // input_0.pb, output_0.pb
+                try {
+                    onnx.proto = protobuf.get('onnx').onnx;
+                    const stream = context.stream;
+                    const reader = protobuf.BinaryReader.open(stream);
+                    const tensor = onnx.proto.TensorProto.decode(reader);
+                    tensor.name = tensor.name || context.identifier;
+                    const model = new onnx.proto.ModelProto();
+                    model.graph = new onnx.proto.GraphProto();
+                    model.graph.initializer = [ tensor ];
+                    model.graph.value_info = [ new onnx.proto.ValueInfoProto() ];
+                    model.graph.value_info[0].name = tensor.name;
+                    model.graph.node = [ new onnx.proto.NodeProto() ];
+                    model.graph.node[0].op_type = 'Constant';
+                    model.graph.node[0].attribute = [ new onnx.proto.AttributeProto() ];
+                    model.graph.node[0].attribute[0].name = 'value';
+                    model.graph.node[0].attribute[0].type = onnx.AttributeType.TENSOR;
+                    model.graph.node[0].attribute[0].t = tensor;
+                    const format = 'ONNX Tensor';
+                    return open(model, format);
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new onnx.Error('File format is not onnx.TensorProto (' + message.replace(/\.$/, '') + ').');
+                }
             case 'onnx.pb.GraphProto':
-                return context.require('./onnx-proto').then(() => {
-                    // GraphProto
-                    try {
-                        onnx.proto = protobuf.get('onnx').onnx;
-                        const stream = context.stream;
-                        const reader = protobuf.BinaryReader.open(stream);
-                        const model = new onnx.proto.ModelProto();
-                        model.graph = onnx.proto.GraphProto.decode(reader);
-                        const format = 'ONNX';
-                        return open(model, format);
-                    } catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new onnx.Error('File format is not onnx.GraphProto (' + message.replace(/\.$/, '') + ').');
-                    }
-                });
+                await context.require('./onnx-proto');
+                // GraphProto
+                try {
+                    onnx.proto = protobuf.get('onnx').onnx;
+                    const stream = context.stream;
+                    const reader = protobuf.BinaryReader.open(stream);
+                    const model = new onnx.proto.ModelProto();
+                    model.graph = onnx.proto.GraphProto.decode(reader);
+                    const format = 'ONNX';
+                    return open(model, format);
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new onnx.Error('File format is not onnx.GraphProto (' + message.replace(/\.$/, '') + ').');
+                }
             case 'onnx.pb.ModelProto':
-                return context.require('./onnx-proto').then(() => {
-                    // ModelProto
-                    try {
-                        onnx.proto = protobuf.get('onnx').onnx;
-                        const stream = context.stream;
-                        const reader = protobuf.BinaryReader.open(stream);
-                        const model = onnx.proto.ModelProto.decode(reader);
-                        const format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
-                        return open(model, format);
-                    } catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new onnx.Error('File format is not onnx.ModelProto (' + message.replace(/\.$/, '') + ').');
-                    }
-                });
+                await context.require('./onnx-proto');
+                // ModelProto
+                try {
+                    onnx.proto = protobuf.get('onnx').onnx;
+                    const stream = context.stream;
+                    const reader = protobuf.BinaryReader.open(stream);
+                    const model = onnx.proto.ModelProto.decode(reader);
+                    const format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
+                    return open(model, format);
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new onnx.Error('File format is not onnx.ModelProto (' + message.replace(/\.$/, '') + ').');
+                }
             case 'onnx.ort': {
-                return context.require('./onnx-schema').then((/* schema */) => {
-                    try {
-                        onnx.schema = flatbuffers.get('ort').onnxruntime.fbs;
-                        const stream = context.stream;
-                        const reader = onnx.Reader.ort.open(stream, 'ort');
-                        const model = reader.read();
-                        const format = 'ONNX Runtime' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
-                        return open(model, format);
-                    } catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new onnx.Error('File format is not ort.Model (' + message.replace(/\.$/, '') + ').');
-                    }
-                });
+                await context.require('./onnx-schema');
+                try {
+                    onnx.schema = flatbuffers.get('ort').onnxruntime.fbs;
+                    const stream = context.stream;
+                    const reader = onnx.Reader.ort.open(stream, 'ort');
+                    const model = reader.read();
+                    const format = 'ONNX Runtime' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
+                    return open(model, format);
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new onnx.Error('File format is not ort.Model (' + message.replace(/\.$/, '') + ').');
+                }
             }
             case 'onnx.text': {
-                return context.require('./onnx-proto').then(() => {
-                    try {
-                        onnx.proto = protobuf.get('onnx').onnx;
-                        const stream = context.stream;
-                        const reader = onnx.Reader.text.open(stream);
-                        const model = reader.read();
-                        const format = 'ONNX Text' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
-                        return open(model, format);
-                    } catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new onnx.Error('File format is not onnx.ModelProto (' + message.replace(/\.$/, '') + ').');
-                    }
-                });
+                await context.require('./onnx-proto');
+                try {
+                    onnx.proto = protobuf.get('onnx').onnx;
+                    const stream = context.stream;
+                    const reader = onnx.Reader.text.open(stream);
+                    const model = reader.read();
+                    const format = 'ONNX Text' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
+                    return open(model, format);
+                } catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new onnx.Error('File format is not onnx.ModelProto (' + message.replace(/\.$/, '') + ').');
+                }
             }
             case 'onnx.pickle': {
-                return Promise.reject(new onnx.Error('Unsupported Pickle content.'));
+                throw new onnx.Error('Unsupported Pickle content.');
             }
             default: {
-                return Promise.reject(new onnx.Error("Unsupported ONNX format '" + match + "'."));
+                throw new onnx.Error("Unsupported ONNX format '" + match + "'.");
             }
         }
     }
@@ -1156,17 +1149,18 @@ onnx.GraphMetadata = class {
 
 onnx.Metadata = class {
 
-    static open(context) {
+    static async open(context) {
         if (onnx.Metadata._metadata) {
             return Promise.resolve(onnx.Metadata._metadata);
         }
-        return context.request('onnx-metadata.json', 'utf-8', null).then((data) => {
+        try {
+            const data = await context.request('onnx-metadata.json', 'utf-8', null);
             onnx.Metadata._metadata = new onnx.Metadata(data);
             return onnx.Metadata._metadata;
-        }).catch(() => {
+        } catch (error) {
             onnx.Metadata._metadata = new onnx.Metadata(null);
             return onnx.Metadata._metadata;
-        });
+        }
     }
 
     constructor(data) {
