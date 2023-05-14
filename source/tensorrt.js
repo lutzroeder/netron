@@ -9,8 +9,8 @@ tensorrt.ModelFactory = class {
         return tensorrt.Engine.open(stream) || tensorrt.Container.open(stream);
     }
 
-    open(context, match) {
-        return Promise.resolve().then(() => new tensorrt.Model(null, match));
+    async open(context, match) {
+        return new tensorrt.Model(null, match);
     }
 };
 
