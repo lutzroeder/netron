@@ -11,9 +11,8 @@ hickle.ModelFactory = class {
         return null;
     }
 
-    open(context, match) {
-        const model = new hickle.Model(match);
-        return Promise.resolve(model);
+    async open(context, match) {
+        return new hickle.Model(match);
     }
 };
 
