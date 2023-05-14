@@ -25,12 +25,10 @@ weka.ModelFactory = class {
         return undefined;
     }
 
-    open(context) {
-        return Promise.resolve().then(() => {
-            const reader = new java.io.InputObjectStream(context.stream);
-            const obj = reader.read();
-            throw new weka.Error("Unsupported type '" + obj.$class.name + "'.");
-        });
+    async open(context) {
+        const reader = new java.io.InputObjectStream(context.stream);
+        const obj = reader.read();
+        throw new weka.Error("Unsupported type '" + obj.$class.name + "'.");
     }
 };
 
