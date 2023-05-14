@@ -11,13 +11,12 @@ mlir.ModelFactory = class {
         return 'mlir';
     }
 
-    open(context) {
+    async open(context) {
         const stream = context.stream;
         const decoder = text.Decoder.open(stream);
         const parser = new mlir.Parser(decoder);
         const obj = parser.read();
-        const model = new mlir.Model(obj);
-        return Promise.resolve(model);
+        return new mlir.Model(obj);
     }
 };
 
