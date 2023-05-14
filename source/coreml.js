@@ -64,118 +64,115 @@ coreml.ModelFactory = class {
         return undefined;
     }
 
-    open(context, match) {
-        return context.require('./coreml-proto').then(() => {
-            return context.metadata('coreml-metadata.json').then((metadata) => {
-                const openModel = (stream, context, path, format) => {
-                    let model = null;
-                    try {
-                        coreml.proto = protobuf.get('coreml').CoreML.Specification;
-                        const reader = protobuf.BinaryReader.open(stream);
-                        model = coreml.proto.Model.decode(reader);
-                    } catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new coreml.Error('File format is not coreml.Model (' + message.replace(/\.$/, '') + ').');
-                    }
-                    const weightPaths = new Set();
-                    const walkProgram = (program) => {
-                        for (const entry of Object.entries(program.functions)) {
-                            const func = entry[1];
-                            for (const entry of Object.entries(func.block_specializations)) {
-                                const block = entry[1];
-                                for (const operation of block.operations) {
-                                    for (const entry of Object.entries(operation.attributes)) {
-                                        const value = entry[1];
-                                        if (value.blobFileValue && value.blobFileValue.fileName) {
-                                            weightPaths.add(value.blobFileValue.fileName);
-                                        }
-                                    }
+    async open(context, match) {
+        await context.require('./coreml-proto');
+        const metadata = await context.metadata('coreml-metadata.json');
+        const openModel = async (stream, context, path, format) => {
+            let model = null;
+            try {
+                coreml.proto = protobuf.get('coreml').CoreML.Specification;
+                const reader = protobuf.BinaryReader.open(stream);
+                model = coreml.proto.Model.decode(reader);
+            } catch (error) {
+                const message = error && error.message ? error.message : error.toString();
+                throw new coreml.Error('File format is not coreml.Model (' + message.replace(/\.$/, '') + ').');
+            }
+            const weightPaths = new Set();
+            const walkProgram = (program) => {
+                for (const entry of Object.entries(program.functions)) {
+                    const func = entry[1];
+                    for (const entry of Object.entries(func.block_specializations)) {
+                        const block = entry[1];
+                        for (const operation of block.operations) {
+                            for (const entry of Object.entries(operation.attributes)) {
+                                const value = entry[1];
+                                if (value.blobFileValue && value.blobFileValue.fileName) {
+                                    weightPaths.add(value.blobFileValue.fileName);
                                 }
                             }
                         }
-                    };
-                    const walkModel = (model) => {
-                        if (model.mlProgram) {
-                            walkProgram(model.mlProgram);
-                        }
-                        if (model.pipeline && model.pipeline.models) {
-                            for (const node of model.pipeline.models) {
-                                walkModel(node);
-                            }
-                        }
-                        if (model.pipelineClassifier && model.pipelineClassifier.pipeline && model.pipelineClassifier.pipeline.models) {
-                            for (const node of model.pipelineClassifier.pipeline.models) {
-                                walkModel(node);
-                            }
-                        }
-                        if (model.pipelineRegressor && model.pipelineRegressor.pipeline && model.pipelineRegressor.pipeline.models) {
-                            for (const node of model.pipelineRegressor.pipeline.models) {
-                                walkModel(node);
-                            }
-                        }
-                    };
-                    walkModel(model);
-                    if (weightPaths.size > 0) {
-                        const items = path.split('/');
-                        items.pop();
-                        const folder = items.join('/');
-                        const keys = Array.from(weightPaths);
-                        const paths = keys.map((path) => {
-                            const items = path.split('/');
-                            if (items[0] === '@model_path') {
-                                items[0] = folder;
-                            }
-                            return items.join('/');
-                        });
-                        const promises = paths.map((path) => context.request(path, null));
-                        return Promise.all(promises).then((streams) => {
-                            const weights = new Map();
-                            for (let i = 0; i < keys.length; i++) {
-                                weights.set(keys[i], streams[i]);
-                            }
-                            return new coreml.Model(metadata, format, model, weights);
-                        }).catch((/* err */) => {
-                            return new coreml.Model(metadata, format, model, new Map());
-                        });
-                    }
-                    return new coreml.Model(metadata, format, model, new Map());
-                };
-                const openManifest = (obj, context, path) => {
-                    const entries = Object.keys(obj.itemInfoEntries).map((key) => obj.itemInfoEntries[key]);
-                    const entry = entries.filter((entry) => entry.path.toLowerCase().endsWith('.mlmodel'))[0];
-                    const file = path + 'Data/' + entry.path;
-                    return context.request(file, null).then((stream) => {
-                        return openModel(stream, context, file, 'Core ML Package');
-                    });
-                };
-                const openManifestStream = (context, path) => {
-                    return context.request(path + 'Manifest.json', null).then((stream) => {
-                        const reader = json.TextReader.open(stream);
-                        const obj = reader.read();
-                        return openManifest(obj, context, path);
-                    });
-                };
-                switch (match) {
-                    case 'coreml.pb': {
-                        return openModel(context.stream, context, context.identifier);
-                    }
-                    case 'coreml.manifest': {
-                        const obj = context.open('json');
-                        return openManifest(obj, context, '');
-                    }
-                    case 'coreml.featuredescriptions':
-                    case 'coreml.metadata': {
-                        return openManifestStream(context, '../../');
-                    }
-                    case 'coreml.weights': {
-                        return openManifestStream(context, '../../../');
-                    }
-                    default: {
-                        throw new coreml.Error("Unsupported Core ML format '" + match + "'.");
                     }
                 }
-            });
-        });
+            };
+            const walkModel = (model) => {
+                if (model.mlProgram) {
+                    walkProgram(model.mlProgram);
+                }
+                if (model.pipeline && model.pipeline.models) {
+                    for (const node of model.pipeline.models) {
+                        walkModel(node);
+                    }
+                }
+                if (model.pipelineClassifier && model.pipelineClassifier.pipeline && model.pipelineClassifier.pipeline.models) {
+                    for (const node of model.pipelineClassifier.pipeline.models) {
+                        walkModel(node);
+                    }
+                }
+                if (model.pipelineRegressor && model.pipelineRegressor.pipeline && model.pipelineRegressor.pipeline.models) {
+                    for (const node of model.pipelineRegressor.pipeline.models) {
+                        walkModel(node);
+                    }
+                }
+            };
+            walkModel(model);
+            if (weightPaths.size > 0) {
+                const items = path.split('/');
+                items.pop();
+                const folder = items.join('/');
+                const keys = Array.from(weightPaths);
+                const paths = keys.map((path) => {
+                    const items = path.split('/');
+                    if (items[0] === '@model_path') {
+                        items[0] = folder;
+                    }
+                    return items.join('/');
+                });
+                const promises = paths.map((path) => context.request(path, null));
+                try {
+                    const streams = await Promise.all(promises);
+                    const weights = new Map();
+                    for (let i = 0; i < keys.length; i++) {
+                        weights.set(keys[i], streams[i]);
+                    }
+                    return new coreml.Model(metadata, format, model, weights);
+                } catch (error) {
+                    return new coreml.Model(metadata, format, model, new Map());
+                }
+            }
+            return new coreml.Model(metadata, format, model, new Map());
+        };
+        const openManifest = async (obj, context, path) => {
+            const entries = Object.keys(obj.itemInfoEntries).map((key) => obj.itemInfoEntries[key]);
+            const entry = entries.filter((entry) => entry.path.toLowerCase().endsWith('.mlmodel'))[0];
+            const file = path + 'Data/' + entry.path;
+            const stream = await context.request(file, null);
+            return openModel(stream, context, file, 'Core ML Package');
+        };
+        const openManifestStream = async (context, path) => {
+            const stream = await context.request(path + 'Manifest.json', null);
+            const reader = json.TextReader.open(stream);
+            const obj = reader.read();
+            return openManifest(obj, context, path);
+        };
+        switch (match) {
+            case 'coreml.pb': {
+                return openModel(context.stream, context, context.identifier);
+            }
+            case 'coreml.manifest': {
+                const obj = context.open('json');
+                return openManifest(obj, context, '');
+            }
+            case 'coreml.featuredescriptions':
+            case 'coreml.metadata': {
+                return openManifestStream(context, '../../');
+            }
+            case 'coreml.weights': {
+                return openManifestStream(context, '../../../');
+            }
+            default: {
+                throw new coreml.Error("Unsupported Core ML format '" + match + "'.");
+            }
+        }
     }
 };
 
