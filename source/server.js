@@ -21,10 +21,8 @@ message.ModelFactory = class {
         return null;
     }
 
-    open(context, match) {
-        return Promise.resolve().then(() => {
-            return new message.Model(match);
-        });
+    async open(context, match) {
+        return new message.Model(match);
     }
 };
 
