@@ -10,10 +10,9 @@ tengine.ModelFactory = class {
         return tengine.Reader.open(context.stream);
     }
 
-    open(context, match) {
-        return tengine.Metadata.open(context).then((metadata) => {
-            return new tengine.Model(metadata, match);
-        });
+    async open(context, match) {
+        const metadata = await tengine.Metadata.open(context);
+        return new tengine.Model(metadata, match);
     }
 };
 
@@ -310,17 +309,18 @@ tengine.TensorShape = class {
 
 tengine.Metadata = class {
 
-    static open(context) {
+    static async open(context) {
         if (tengine.Metadata._metadata) {
             return Promise.resolve(tengine.Metadata._metadata);
         }
-        return context.request('tengine-metadata.json', 'utf-8', null).then((data) => {
+        try {
+            const data = await context.request('tengine-metadata.json', 'utf-8', null);
             tengine.Metadata._metadata = new tengine.Metadata(data);
             return tengine.Metadata._metadata;
-        }).catch(() => {
+        } catch (error) {
             tengine.Metadata._metadata = new tengine.Metadata(null);
             return tengine.Metadata._metadata;
-        });
+        }
     }
 
     constructor(data) {
