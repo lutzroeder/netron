@@ -36,30 +36,29 @@ tnn.ModelFactory = class {
         return '';
     }
 
-    open(context, match) {
-        return context.metadata('tnn-metadata.json').then((metadata) => {
-            switch (match) {
-                case 'tnn.model': {
-                    const tnnmodel = context.identifier.substring(0, context.identifier.length - 9) + '.tnnmodel';
-                    return context.request(tnnmodel, null).then((stream) => {
-                        const buffer = stream.peek();
-                        return new tnn.Model(metadata, context.stream.peek(), buffer);
-                    }).catch(() => {
-                        return new tnn.Model(metadata, context.stream.peek(), null);
-                    });
-                }
-                case 'tnn.params': {
-                    const tnnproto = context.identifier.substring(0, context.identifier.length - 9) + '.tnnproto';
-                    return context.request(tnnproto, null).then((stream) => {
-                        const buffer = stream.peek();
-                        return new tnn.Model(metadata, buffer, context.stream.peek());
-                    });
-                }
-                default: {
-                    throw new tnn.Error("Unsupported TNN format '" + match + "'.");
+    async open(context, match) {
+        const metadata = await context.metadata('tnn-metadata.json');
+        switch (match) {
+            case 'tnn.model': {
+                const tnnmodel = context.identifier.substring(0, context.identifier.length - 9) + '.tnnmodel';
+                try {
+                    const stream = await context.request(tnnmodel, null);
+                    const buffer = stream.peek();
+                    return new tnn.Model(metadata, context.stream.peek(), buffer);
+                } catch (error) {
+                    return new tnn.Model(metadata, context.stream.peek(), null);
                 }
             }
-        });
+            case 'tnn.params': {
+                const tnnproto = context.identifier.substring(0, context.identifier.length - 9) + '.tnnproto';
+                const stream = await context.request(tnnproto, null);
+                const buffer = stream.peek();
+                return new tnn.Model(metadata, buffer, context.stream.peek());
+            }
+            default: {
+                throw new tnn.Error("Unsupported TNN format '" + match + "'.");
+            }
+        }
     }
 };
 
