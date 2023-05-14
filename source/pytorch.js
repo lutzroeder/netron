@@ -12,17 +12,15 @@ pytorch.ModelFactory = class {
         return pytorch.Container.open(context);
     }
 
-    open(context, match) {
-        return pytorch.Metadata.open(context).then((metadata) => {
-            const container = match;
-            container.metadata = metadata;
-            container.on('resolve', (_, name) => {
-                context.exception(new pytorch.Error("Unknown type name '" + name + "'."), false);
-            });
-            return container.read().then(() => {
-                return new pytorch.Model(metadata, container);
-            });
+    async open(context, match) {
+        const metadata = await pytorch.Metadata.open(context);
+        const container = match;
+        container.metadata = metadata;
+        container.on('resolve', (_, name) => {
+            context.exception(new pytorch.Error("Unknown type name '" + name + "'."), false);
         });
+        await container.read();
+        return new pytorch.Model(metadata, container);
     }
 };
 
@@ -992,24 +990,23 @@ pytorch.Container.Mobile = class extends pytorch.Container {
         this._context = context;
     }
 
-    read() {
-        return this._context.require('./pytorch-schema').then(() => {
-            this._modules = new Map();
-            const execution = new pytorch.jit.Execution(null, this._metadata);
-            for (const event in this._events) {
-                execution.on(event[0], event[1]);
-            }
-            const stream = this._context.stream;
-            const torch = execution.__import__('torch');
-            const module = torch.jit.jit_module_from_flatbuffer(stream);
-            this._version = pytorch.Utility.version(module._c._bytecode_version);
-            if (module && module.forward) {
-                this._modules = new Map([ ['', module] ]);
-            } else {
-                this._modules = pytorch.Utility.find(module);
-            }
-            delete this._context;
-        });
+    async read() {
+        await this._context.require('./pytorch-schema');
+        this._modules = new Map();
+        const execution = new pytorch.jit.Execution(null, this._metadata);
+        for (const event in this._events) {
+            execution.on(event[0], event[1]);
+        }
+        const stream = this._context.stream;
+        const torch = execution.__import__('torch');
+        const module = torch.jit.jit_module_from_flatbuffer(stream);
+        this._version = pytorch.Utility.version(module._c._bytecode_version);
+        if (module && module.forward) {
+            this._modules = new Map([ ['', module] ]);
+        } else {
+            this._modules = pytorch.Utility.find(module);
+        }
+        delete this._context;
     }
 
     get format() {
@@ -4226,17 +4223,18 @@ pytorch.nnapi.Tensor = class {
 
 pytorch.Metadata = class {
 
-    static open(context) {
+    static async open(context) {
         if (pytorch.Metadata._metadata) {
             return Promise.resolve(pytorch.Metadata._metadata);
         }
-        return context.request('pytorch-metadata.json', 'utf-8', null).then((data) => {
+        try {
+            const data = await context.request('pytorch-metadata.json', 'utf-8', null);
             pytorch.Metadata._metadata = new pytorch.Metadata(data);
             return pytorch.Metadata._metadata;
-        }).catch(() => {
+        } catch (error) {
             pytorch.Metadata._metadata = new pytorch.Metadata(null);
             return pytorch.Metadata._metadata;
-        });
+        }
     }
 
     constructor(data) {
