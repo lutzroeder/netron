@@ -12,20 +12,19 @@ xmodel.ModelFactory = class {
         return undefined;
     }
 
-    open(context) {
-        return context.require('./xmodel-proto').then(() => {
-            let graph = null;
-            try {
-                xmodel.proto = protobuf.get('xmodel').serial_v2;
-                const stream = context.stream;
-                const reader = protobuf.BinaryReader.open(stream);
-                graph = xmodel.proto.Graph.decode(reader);
-            } catch (error) {
-                const message = error && error.message ? error.message : error.toString();
-                throw new xmodel.Error('File format is not serial_v2.Graph (' + message.replace(/\.$/, '') + ').');
-            }
-            return new xmodel.Model(graph);
-        });
+    async open(context) {
+        await context.require('./xmodel-proto');
+        let graph = null;
+        try {
+            xmodel.proto = protobuf.get('xmodel').serial_v2;
+            const stream = context.stream;
+            const reader = protobuf.BinaryReader.open(stream);
+            graph = xmodel.proto.Graph.decode(reader);
+        } catch (error) {
+            const message = error && error.message ? error.message : error.toString();
+            throw new xmodel.Error('File format is not serial_v2.Graph (' + message.replace(/\.$/, '') + ').');
+        }
+        return new xmodel.Model(graph);
     }
 };
 
