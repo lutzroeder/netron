@@ -33,11 +33,10 @@ keras.ModelFactory = class {
         return null;
     }
 
-    open(context, match) {
-        const openModel = (format, producer, backend, config, weights) => {
-            return context.metadata('keras-metadata.json').then((metadata) => {
-                return new keras.Model(metadata, format, producer, backend, config, weights);
-            });
+    async open(context, match) {
+        const openModel = async (format, producer, backend, config, weights) => {
+            const metadata = await context.metadata('keras-metadata.json');
+            return new keras.Model(metadata, format, producer, backend, config, weights);
         };
         switch (match) {
             case 'keras.h5': {
@@ -219,9 +218,8 @@ keras.ModelFactory = class {
             }
             case 'tfjs.json': {
                 const container = tfjs.Container.open(context);
-                return container.open().then(() => {
-                    return openModel(container.format, container.producer, container.backend, container.config, container.weights);
-                });
+                await container.open();
+                return openModel(container.format, container.producer, container.backend, container.config, container.weights);
             }
             case 'keras.pickle': {
                 const execution = new python.Execution();
@@ -1123,7 +1121,7 @@ tfjs.Container = class {
         return this._weights;
     }
 
-    open() {
+    async open() {
         switch (this._type) {
             case '': {
                 const obj = this._context.open('json');
@@ -1144,11 +1142,10 @@ tfjs.Container = class {
                 return this._openManifests(manifests);
             }
             case 'metadata': {
-                return this._context.request('model.json').then((stream) => {
-                    const reader = json.TextReader.open(stream);
-                    const obj = reader.read();
-                    return this._openModelJson(obj);
-                });
+                const stream = await this._context.request('model.json');
+                const reader = json.TextReader.open(stream);
+                const obj = reader.read();
+                return this._openModelJson(obj);
             }
             default: {
                 throw new tfjs.Error("Unsupported TensorFlow.js format '" + this._type + "'.");
@@ -1191,7 +1188,7 @@ tfjs.Container = class {
         }
     }
 
-    _openManifests(manifests) {
+    async _openManifests(manifests) {
         const shards = new Map();
         for (const manifest of manifests) {
             for (const path of manifest.paths) {
@@ -1202,17 +1199,18 @@ tfjs.Container = class {
             }
         }
         const promises = shards.values();
-        return Promise.all(promises).then((streams) => {
+        try {
+            const streams = await Promise.all(promises);
             for (const key of shards.keys()) {
                 shards.set(key, streams.shift().peek());
             }
             this._openShards(manifests, shards);
             return;
-        }).catch(() => {
+        } catch (error) {
             shards.clear();
             this._openShards(manifests, shards);
             return;
-        });
+        }
     }
 
     _openModelJson(obj) {
