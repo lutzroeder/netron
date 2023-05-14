@@ -10,36 +10,34 @@ rknn.ModelFactory = class {
         return rknn.Container.open(context);
     }
 
-    open(context, match) {
-        return context.require('./rknn-schema').then(() => {
-            rknn.schema = flatbuffers.get('rknn').rknn;
-            return context.metadata('rknn-metadata.json').then((metadata) => {
-                const container = match;
-                const type = container.type;
-                switch (type) {
-                    case 'json': {
-                        const buffer = container.value;
-                        const reader = json.TextReader.open(buffer);
-                        const model = reader.read();
-                        return new rknn.Model(metadata, type, model, container.next);
-                    }
-                    case 'flatbuffers': {
-                        const buffer = container.value;
-                        const reader = flatbuffers.BinaryReader.open(buffer);
-                        const model = rknn.schema.Model.create(reader);
-                        return new rknn.Model(metadata, type, model, null);
-                    }
-                    case 'openvx': {
-                        const buffer = container.value;
-                        const model = new openvx.Model(buffer);
-                        return new rknn.Model(metadata, type, model, null);
-                    }
-                    default: {
-                        throw new rknn.Error("Unsupported RKNN format '" + container.type + "'.");
-                    }
-                }
-            });
-        });
+    async open(context, match) {
+        await context.require('./rknn-schema');
+        rknn.schema = flatbuffers.get('rknn').rknn;
+        const metadata = await context.metadata('rknn-metadata.json');
+        const container = match;
+        const type = container.type;
+        switch (type) {
+            case 'json': {
+                const buffer = container.value;
+                const reader = json.TextReader.open(buffer);
+                const model = reader.read();
+                return new rknn.Model(metadata, type, model, container.next);
+            }
+            case 'flatbuffers': {
+                const buffer = container.value;
+                const reader = flatbuffers.BinaryReader.open(buffer);
+                const model = rknn.schema.Model.create(reader);
+                return new rknn.Model(metadata, type, model, null);
+            }
+            case 'openvx': {
+                const buffer = container.value;
+                const model = new openvx.Model(buffer);
+                return new rknn.Model(metadata, type, model, null);
+            }
+            default: {
+                throw new rknn.Error("Unsupported RKNN format '" + container.type + "'.");
+            }
+        }
     }
 };
 
