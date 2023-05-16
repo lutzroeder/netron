@@ -311,7 +311,7 @@ tengine.Metadata = class {
 
     static async open(context) {
         if (tengine.Metadata._metadata) {
-            return Promise.resolve(tengine.Metadata._metadata);
+            return tengine.Metadata._metadata;
         }
         try {
             const data = await context.request('tengine-metadata.json', 'utf-8', null);
