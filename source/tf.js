@@ -1430,7 +1430,7 @@ tf.TensorBundle = class {
             throw new tf.Error('Bundle header not available.');
         }
         if (format === 1) {
-            return Promise.resolve(new tf.TensorBundle(format, table.entries, []));
+            return new tf.TensorBundle(format, table.entries, []);
         }
         const buffer = table.entries.get('');
         const reader = protobuf.BinaryReader.open(buffer);
