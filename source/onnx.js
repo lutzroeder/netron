@@ -1151,7 +1151,7 @@ onnx.Metadata = class {
 
     static async open(context) {
         if (onnx.Metadata._metadata) {
-            return Promise.resolve(onnx.Metadata._metadata);
+            return onnx.Metadata._metadata;
         }
         try {
             const data = await context.request('onnx-metadata.json', 'utf-8', null);
