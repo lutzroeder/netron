@@ -308,7 +308,7 @@ host.ElectronHost = class {
         electron.ipcRenderer.send('execute', { name: name, value: value });
     }
 
-    request(file, encoding, basename) {
+    async request(file, encoding, basename) {
         return new Promise((resolve, reject) => {
             const pathname = path.join(basename || __dirname, file);
             fs.stat(pathname, (err, stat) => {
