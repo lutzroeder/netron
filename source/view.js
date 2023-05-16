@@ -318,11 +318,9 @@ view.View = class {
         }
     }
 
-    _timeout(time) {
+    _timeout(delay) {
         return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve();
-            }, time);
+            setTimeout(resolve, delay);
         });
     }
 
@@ -555,12 +553,11 @@ view.View = class {
         }
     }
 
-    error(err, name, screen) {
+    async error(err, name, screen) {
         if (this._sidebar) {
             this._sidebar.close();
         }
         this._host.exception(err, false);
-
         const knowns = [
             { name: '', message: /^Invalid argument identifier/, url: 'https://github.com/lutzroeder/netron/issues/540' },
             { name: '', message: /^Cannot read property/, url: 'https://github.com/lutzroeder/netron/issues/647' },
@@ -590,62 +587,61 @@ view.View = class {
         const known = knowns.find((known) => (known.name.length === 0 || known.name === err.name) && err.message.match(known.message));
         const message = err.message;
         name = name || err.name;
-        return this._host.error(name, message).then((button) => {
-            const url = known && known.url ? known.url : null;
-            if (button === 0 && (url || this._host.type == 'Electron')) {
-                this._host.openURL(url || this._host.environment('repository') + '/issues');
-            }
-            this.show(screen !== undefined ? screen : 'welcome');
-        });
+        const button = await this._host.error(name, message);
+        const url = known && known.url ? known.url : null;
+        if (button === 0 && (url || this._host.type == 'Electron')) {
+            this._host.openURL(url || this._host.environment('repository') + '/issues');
+        }
+        this.show(screen !== undefined ? screen : 'welcome');
     }
 
     accept(file, size) {
         return this._modelFactoryService.accept(file, size);
     }
 
-    open(context) {
+    async open(context) {
         this._sidebar.close();
-        return this._timeout(2).then(() => {
-            return this._modelFactoryService.open(context).then((model) => {
-                const format = [];
-                if (model.format) {
-                    format.push(model.format);
-                }
-                if (model.producer) {
-                    format.push('(' + model.producer + ')');
-                }
-                if (format.length > 0) {
-                    this._host.event_ua('Model', 'Format', format.join(' '));
-                    this._host.event('model_open', {
-                        model_format: model.format || '',
-                        model_producer: model.producer || ''
-                    });
-                }
-                return this._timeout(20).then(() => {
-                    const graphs = Array.isArray(model.graphs) && model.graphs.length > 0 ? [ model.graphs[0] ] : [];
-                    return this._updateGraph(model, graphs);
+        await this._timeout(2);
+        try {
+            const model = await this._modelFactoryService.open(context);
+            const format = [];
+            if (model.format) {
+                format.push(model.format);
+            }
+            if (model.producer) {
+                format.push('(' + model.producer + ')');
+            }
+            if (format.length > 0) {
+                this._host.event_ua('Model', 'Format', format.join(' '));
+                this._host.event('model_open', {
+                    model_format: model.format || '',
+                    model_producer: model.producer || ''
                 });
-            }).catch((error) => {
-                if (error && context.identifier) {
-                    error.context = context.identifier;
-                }
-                throw error;
-            });
-        });
+            }
+            await this._timeout(20);
+            const graphs = Array.isArray(model.graphs) && model.graphs.length > 0 ? [ model.graphs[0] ] : [];
+            return await this._updateGraph(model, graphs);
+        } catch (error) {
+            if (error && context.identifier) {
+                error.context = context.identifier;
+            }
+            throw error;
+        }
     }
 
-    _updateActiveGraph(graph) {
+    async _updateActiveGraph(graph) {
         this._sidebar.close();
         if (this._model) {
             const model = this._model;
             this.show('welcome spinner');
-            this._timeout(200).then(() => {
-                return this._updateGraph(model, [ graph ]).catch((error) => {
-                    if (error) {
-                        this.error(error, 'Graph update failed.', 'welcome');
-                    }
-                });
-            });
+            await this._timeout(200);
+            try {
+                await this._updateGraph(model, [ graph ]);
+            } catch (error) {
+                if (error) {
+                    this.error(error, 'Graph update failed.', 'welcome');
+                }
+            }
         }
     }
 
@@ -653,57 +649,56 @@ view.View = class {
         return Array.isArray(this._graphs) && this._graphs.length > 0 ? this._graphs[0] : null;
     }
 
-    _updateGraph(model, graphs) {
-        return this._timeout(100).then(() => {
-            const graph = Array.isArray(graphs) && graphs.length > 0 ? graphs[0] : null;
-            if (graph && graph != this._graphs[0]) {
-                const nodes = graph.nodes;
-                if (nodes.length > 2048) {
-                    if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
-                        this._host.event('graph_view', {
-                            graph_node_count: nodes.length,
-                            graph_skip: 1 }
-                        );
-                        this.show(null);
-                        return null;
-                    }
+    async _updateGraph(model, graphs) {
+        await this._timeout(100);
+        const graph = Array.isArray(graphs) && graphs.length > 0 ? graphs[0] : null;
+        if (graph && graph != this._graphs[0]) {
+            const nodes = graph.nodes;
+            if (nodes.length > 2048) {
+                if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
+                    this._host.event('graph_view', {
+                        graph_node_count: nodes.length,
+                        graph_skip: 1 }
+                    );
+                    this.show(null);
+                    return null;
                 }
             }
-            const update = () => {
-                const nameButton = this._element('name-button');
-                const backButton = this._element('back-button');
-                if (this._graphs.length > 1) {
-                    const graph = this.activeGraph;
-                    nameButton.innerHTML = graph ? graph.name : '';
-                    backButton.style.opacity = 1;
-                    nameButton.style.opacity = 1;
-                } else {
-                    backButton.style.opacity = 0;
-                    nameButton.style.opacity = 0;
-                }
-            };
-            const lastModel = this._model;
-            const lastGraphs = this._graphs;
-            this._model = model;
-            this._graphs = graphs;
-            return this.renderGraph(this._model, this.activeGraph).then(() => {
-                if (this._page !== 'default') {
-                    this.show('default');
-                }
-                update();
-                return this._model;
-            }).catch((error) => {
-                this._model = lastModel;
-                this._graphs = lastGraphs;
-                return this.renderGraph(this._model, this.activeGraph).then(() => {
-                    if (this._page !== 'default') {
-                        this.show('default');
-                    }
-                    update();
-                    throw error;
-                });
-            });
-        });
+        }
+        const update = () => {
+            const nameButton = this._element('name-button');
+            const backButton = this._element('back-button');
+            if (this._graphs.length > 1) {
+                const graph = this.activeGraph;
+                nameButton.innerHTML = graph ? graph.name : '';
+                backButton.style.opacity = 1;
+                nameButton.style.opacity = 1;
+            } else {
+                backButton.style.opacity = 0;
+                nameButton.style.opacity = 0;
+            }
+        };
+        const lastModel = this._model;
+        const lastGraphs = this._graphs;
+        this._model = model;
+        this._graphs = graphs;
+        try {
+            await this.renderGraph(this._model, this.activeGraph);
+            if (this._page !== 'default') {
+                this.show('default');
+            }
+            update();
+            return this._model;
+        } catch (error) {
+            this._model = lastModel;
+            this._graphs = lastGraphs;
+            await this.renderGraph(this._model, this.activeGraph);
+            if (this._page !== 'default') {
+                this.show('default');
+            }
+            update();
+            throw error;
+        }
     }
 
     pushGraph(graph) {
@@ -721,120 +716,113 @@ view.View = class {
         return null;
     }
 
-    renderGraph(model, graph) {
-        try {
-            this._graph = null;
+    async renderGraph(model, graph) {
+        this._graph = null;
 
-            const canvas = this._element('canvas');
-            while (canvas.lastChild) {
-                canvas.removeChild(canvas.lastChild);
-            }
-            if (!graph) {
-                return Promise.resolve();
-            }
-            this._zoom = 1;
-
-            const groups = graph.groups;
-            const nodes = graph.nodes;
-            this._host.event('graph_view', {
-                graph_node_count: nodes.length,
-                graph_skip: 0
-            });
-
-            const options = {};
-            options.nodesep = 20;
-            options.ranksep = 20;
-            const rotate = graph.nodes.every((node) => node.inputs.filter((input) => input.arguments.every((argument) => !argument.initializer)).length === 0 && node.outputs.length === 0);
-            const horizontal = rotate ? this._options.direction === 'vertical' : this._options.direction !== 'vertical';
-            if (horizontal) {
-                options.rankdir = "LR";
-            }
-            if (nodes.length > 3000) {
-                options.ranker = 'longest-path';
-            }
-
-            const viewGraph = new view.Graph(this, model, groups, options);
-            viewGraph.add(graph);
-
-            // Workaround for Safari background drag/zoom issue:
-            // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
-            const background = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            background.setAttribute('id', 'background');
-            background.setAttribute('fill', 'none');
-            background.setAttribute('pointer-events', 'all');
-            canvas.appendChild(background);
-
-            const origin = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            origin.setAttribute('id', 'origin');
-            canvas.appendChild(origin);
-
-            viewGraph.build(this._host.document, origin);
-
-            this._zoom = 1;
-
-            return this._timeout(20).then(() => {
-
-                viewGraph.update();
-
-                const elements = Array.from(canvas.getElementsByClassName('graph-input') || []);
-                if (elements.length === 0) {
-                    const nodeElements = Array.from(canvas.getElementsByClassName('graph-node') || []);
-                    if (nodeElements.length > 0) {
-                        elements.push(nodeElements[0]);
-                    }
-                }
-
-                const size = canvas.getBBox();
-                const margin = 100;
-                const width = Math.ceil(margin + size.width + margin);
-                const height = Math.ceil(margin + size.height + margin);
-                origin.setAttribute('transform', 'translate(' + margin.toString() + ', ' + margin.toString() + ') scale(1)');
-                background.setAttribute('width', width);
-                background.setAttribute('height', height);
-                this._width = width;
-                this._height = height;
-                delete this._scrollLeft;
-                delete this._scrollRight;
-                canvas.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
-                canvas.setAttribute('width', width);
-                canvas.setAttribute('height', height);
-
-                this._zoom = 1;
-                this._updateZoom(this._zoom);
-
-                const container = this._element('graph');
-                if (elements && elements.length > 0) {
-                    // Center view based on input elements
-                    const xs = [];
-                    const ys = [];
-                    for (let i = 0; i < elements.length; i++) {
-                        const element = elements[i];
-                        const rect = element.getBoundingClientRect();
-                        xs.push(rect.left + (rect.width / 2));
-                        ys.push(rect.top + (rect.height / 2));
-                    }
-                    let x = xs[0];
-                    const y = ys[0];
-                    if (ys.every(y => y === ys[0])) {
-                        x = xs.reduce((a, b) => a + b, 0) / xs.length;
-                    }
-                    const graphRect = container.getBoundingClientRect();
-                    const left = (container.scrollLeft + x - graphRect.left) - (graphRect.width / 2);
-                    const top = (container.scrollTop + y - graphRect.top) - (graphRect.height / 2);
-                    container.scrollTo({ left: left, top: top, behavior: 'auto' });
-                } else {
-                    const canvasRect = canvas.getBoundingClientRect();
-                    const graphRect = container.getBoundingClientRect();
-                    const left = (container.scrollLeft + (canvasRect.width / 2) - graphRect.left) - (graphRect.width / 2);
-                    const top = (container.scrollTop + (canvasRect.height / 2) - graphRect.top) - (graphRect.height / 2);
-                    container.scrollTo({ left: left, top: top, behavior: 'auto' });
-                }
-                this._graph = viewGraph;
-                return;
-            });
-        } catch (error) {
-            return Promise.reject(error);
+        const canvas = this._element('canvas');
+        while (canvas.lastChild) {
+            canvas.removeChild(canvas.lastChild);
         }
+        if (!graph) {
+            return;
+        }
+        this._zoom = 1;
+
+        const groups = graph.groups;
+        const nodes = graph.nodes;
+        this._host.event('graph_view', {
+            graph_node_count: nodes.length,
+            graph_skip: 0
+        });
+
+        const options = {};
+        options.nodesep = 20;
+        options.ranksep = 20;
+        const rotate = graph.nodes.every((node) => node.inputs.filter((input) => input.arguments.every((argument) => !argument.initializer)).length === 0 && node.outputs.length === 0);
+        const horizontal = rotate ? this._options.direction === 'vertical' : this._options.direction !== 'vertical';
+        if (horizontal) {
+            options.rankdir = "LR";
+        }
+        if (nodes.length > 3000) {
+            options.ranker = 'longest-path';
+        }
+
+        const viewGraph = new view.Graph(this, model, groups, options);
+        viewGraph.add(graph);
+
+        // Workaround for Safari background drag/zoom issue:
+        // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
+        const background = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        background.setAttribute('id', 'background');
+        background.setAttribute('fill', 'none');
+        background.setAttribute('pointer-events', 'all');
+        canvas.appendChild(background);
+
+        const origin = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        origin.setAttribute('id', 'origin');
+        canvas.appendChild(origin);
+
+        viewGraph.build(this._host.document, origin);
+
+        this._zoom = 1;
+
+        await this._timeout(20);
+
+        viewGraph.update();
+
+        const elements = Array.from(canvas.getElementsByClassName('graph-input') || []);
+        if (elements.length === 0) {
+            const nodeElements = Array.from(canvas.getElementsByClassName('graph-node') || []);
+            if (nodeElements.length > 0) {
+                elements.push(nodeElements[0]);
+            }
+        }
+        const size = canvas.getBBox();
+        const margin = 100;
+        const width = Math.ceil(margin + size.width + margin);
+        const height = Math.ceil(margin + size.height + margin);
+        origin.setAttribute('transform', 'translate(' + margin.toString() + ', ' + margin.toString() + ') scale(1)');
+        background.setAttribute('width', width);
+        background.setAttribute('height', height);
+        this._width = width;
+        this._height = height;
+        delete this._scrollLeft;
+        delete this._scrollRight;
+        canvas.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+        canvas.setAttribute('width', width);
+        canvas.setAttribute('height', height);
+
+        this._zoom = 1;
+        this._updateZoom(this._zoom);
+
+        const container = this._element('graph');
+        if (elements && elements.length > 0) {
+            // Center view based on input elements
+            const xs = [];
+            const ys = [];
+            for (let i = 0; i < elements.length; i++) {
+                const element = elements[i];
+                const rect = element.getBoundingClientRect();
+                xs.push(rect.left + (rect.width / 2));
+                ys.push(rect.top + (rect.height / 2));
+            }
+            let x = xs[0];
+            const y = ys[0];
+            if (ys.every(y => y === ys[0])) {
+                x = xs.reduce((a, b) => a + b, 0) / xs.length;
+            }
+            const graphRect = container.getBoundingClientRect();
+            const left = (container.scrollLeft + x - graphRect.left) - (graphRect.width / 2);
+            const top = (container.scrollTop + y - graphRect.top) - (graphRect.height / 2);
+            container.scrollTo({ left: left, top: top, behavior: 'auto' });
+        } else {
+            const canvasRect = canvas.getBoundingClientRect();
+            const graphRect = container.getBoundingClientRect();
+            const left = (container.scrollLeft + (canvasRect.width / 2) - graphRect.left) - (graphRect.width / 2);
+            const top = (container.scrollTop + (canvasRect.height / 2) - graphRect.top) - (graphRect.height / 2);
+            container.scrollTo({ left: left, top: top, behavior: 'auto' });
+        }
+        this._graph = viewGraph;
     }
 
     applyStyleSheet(element, name) {
@@ -4826,19 +4814,19 @@ view.EntryContext = class {
         return this._stream;
     }
 
-    request(file, encoding, base) {
+    async request(file, encoding, base) {
         if (base === undefined) {
             const stream = this._entries.get(file);
             if (!stream) {
-                return Promise.reject(new Error('File not found.'));
+                throw new view.Error('File not found.');
             }
             if (encoding) {
                 const decoder = new TextDecoder(encoding);
                 const buffer = stream.peek();
                 const value = decoder.decode(buffer);
-                return Promise.resolve(value);
+                return value;
             }
-            return Promise.resolve(stream);
+            return stream;
         }
         return this._host.request(file, encoding, base);
     }
@@ -4931,32 +4919,29 @@ view.ModelFactoryService = class {
         }
     }
 
-    open(context) {
-        return this._openSignature(context).then((context) => {
+    async open(context) {
+        try {
+            await this._openSignature(context);
             const modelContext = new view.ModelContext(context);
-            /* eslint-disable consistent-return */
-            return this._openContext(modelContext).then((model) => {
-                if (model) {
-                    return model;
-                }
+            const model = await this._openContext(modelContext);
+            if (!model) {
                 const entries = modelContext.entries();
-                if (entries && entries.size > 0) {
-                    return this._openEntries(entries).then((context) => {
-                        if (context) {
-                            return this._openContext(context);
-                        }
-                        this._unsupported(modelContext);
-                    });
+                if (!entries || entries.size === 0) {
+                    this._unsupported(modelContext);
                 }
-                this._unsupported(modelContext);
-            });
-            /* eslint-enable consistent-return */
-        }).catch((error) => {
+                const context = await this._openEntries(entries);
+                if (!context) {
+                    this._unsupported(modelContext);
+                }
+                return this._openContext(context);
+            }
+            return model;
+        } catch (error) {
             if (error && context.identifier) {
                 error.context = context.identifier;
             }
             throw error;
-        });
+        }
     }
 
     _unsupported(context) {
@@ -5158,63 +5143,56 @@ view.ModelFactoryService = class {
         unknown();
     }
 
-    _openContext(context) {
+    async _openContext(context) {
         const modules = this._filter(context).filter((module) => module && module.length > 0);
         const errors = [];
         let success = false;
-        const nextModule = () => {
+        const nextModule = async () => {
             if (modules.length > 0) {
                 const id = modules.shift();
-                return this._host.require(id).then((module) => {
-                    if (!module.ModelFactory) {
-                        throw new view.Error("Failed to load module '" + id + "'.");
-                    }
-                    const modelFactory = new module.ModelFactory();
-                    let match = undefined;
-                    try {
-                        match = modelFactory.match(context);
-                        if (!match) {
-                            return nextModule();
+                const module = await this._host.require(id);
+                if (!module.ModelFactory) {
+                    throw new view.Error("Failed to load module '" + id + "'.");
+                }
+                const modelFactory = new module.ModelFactory();
+                const match = modelFactory.match(context);
+                if (!match) {
+                    return await nextModule();
+                }
+                success = true;
+                try {
+                    return modelFactory.open(context, match).then((model) => {
+                        if (!model.identifier) {
+                            model.identifier = context.identifier;
                         }
-                    } catch (error) {
-                        return Promise.reject(error);
-                    }
-                    success = true;
-                    try {
-                        return modelFactory.open(context, match).then((model) => {
-                            if (!model.identifier) {
-                                model.identifier = context.identifier;
-                            }
-                            return model;
-                        }).catch((error) => {
-                            if (context.stream && context.stream.position !== 0) {
-                                context.stream.seek(0);
-                            }
-                            errors.push(error);
-                            return nextModule();
-                        });
-                    } catch (error) {
+                        return model;
+                    }).catch((error) => {
                         if (context.stream && context.stream.position !== 0) {
                             context.stream.seek(0);
                         }
                         errors.push(error);
                         return nextModule();
+                    });
+                } catch (error) {
+                    if (context.stream && context.stream.position !== 0) {
+                        context.stream.seek(0);
                     }
-                });
+                    errors.push(error);
+                    return await nextModule();
+                }
             }
             if (success) {
                 if (errors.length === 1) {
-                    const error = errors[0];
-                    return Promise.reject(error);
+                    throw errors[0];
                 }
-                return Promise.reject(new view.Error(errors.map((err) => err.message).join('\n')));
+                throw new view.Error(errors.map((err) => err.message).join('\n'));
             }
-            return Promise.resolve(null);
+            return null;
         };
-        return nextModule();
+        return await nextModule();
     }
 
-    _openEntries(entries) {
+    async _openEntries(entries) {
         try {
             const rootFolder = (files) => {
                 const map = files.map((file) => file.split('/').slice(0, -1));
@@ -5224,7 +5202,7 @@ view.ModelFactoryService = class {
                 const folder = rotate(map).filter(equals).map(at(0)).join('/');
                 return folder.length === 0 ? folder : folder + '/';
             };
-            const filter = (queue) => {
+            const filter = async (queue) => {
                 let matches = [];
                 const nextEntry = () => {
                     if (queue.length > 0) {
@@ -5332,15 +5310,14 @@ view.ModelFactoryService = class {
             });
             const folder = rootFolder(files.map((entry) => entry.name));
             const queue = files.slice(0).filter((entry) => entry.name.substring(folder.length).indexOf('/') < 0);
-            return filter(queue).then((context) => {
-                if (context) {
-                    return Promise.resolve(context);
-                }
+            const context = await filter(queue);
+            if (!context) {
                 const queue = files.slice(0).filter((entry) => entry.name.substring(folder.length).indexOf('/') >= 0);
-                return filter(queue);
-            });
+                return await filter(queue);
+            }
+            return context;
         } catch (error) {
-            return Promise.reject(new view.ArchiveError(error.message));
+            throw new view.ArchiveError(error.message);
         }
     }
 
@@ -5370,7 +5347,7 @@ view.ModelFactoryService = class {
         return Array.from(new Set(list.map((entry) => entry.id)));
     }
 
-    _openSignature(context) {
+    async _openSignature(context) {
         const stream = context.stream;
         if (stream) {
             let empty = true;
@@ -5385,7 +5362,7 @@ view.ModelFactoryService = class {
             }
             stream.seek(0);
             if (empty) {
-                return Promise.reject(new view.Error('File has no content.'));
+                throw new view.Error('File has no content.');
             }
             /* eslint-disable no-control-regex */
             const entries = [
@@ -5416,30 +5393,30 @@ view.ModelFactoryService = class {
             const content = String.fromCharCode.apply(null, buffer);
             for (const entry of entries) {
                 if (content.match(entry.value) && (!entry.identifier || entry.identifier === context.identifier)) {
-                    return Promise.reject(new view.Error('Invalid file content. File contains ' + entry.name + '.'));
+                    throw new view.Error('Invalid file content. File contains ' + entry.name + '.');
                 }
             }
         }
-        return Promise.resolve(context);
     }
 };
 
 view.Metadata = class {
 
-    static open(context, name) {
+    static async open(context, name) {
         view.Metadata._metadata = view.Metadata._metadata || new Map();
         if (view.Metadata._metadata.has(name)) {
-            return Promise.resolve(view.Metadata._metadata.get(name));
+            return view.Metadata._metadata.get(name);
         }
-        return context.request(name, 'utf-8', null).then((data) => {
+        try {
+            const data = await context.request(name, 'utf-8', null);
             const library = new view.Metadata(data);
             view.Metadata._metadata.set(name, library);
             return library;
-        }).catch(() => {
+        } catch (error) {
             const library = new view.Metadata(null);
             view.Metadata._metadata.set(name, library);
             return library;
-        });
+        }
     }
 
     constructor(data) {
