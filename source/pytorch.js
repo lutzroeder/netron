@@ -810,8 +810,7 @@ pytorch.Container = class {
         this._events = [];
     }
 
-    read() {
-        return Promise.resolve();
+    async read() {
     }
 
     set metadata(value) {
@@ -846,7 +845,7 @@ pytorch.Container.Tar = class extends pytorch.Container {
         this._entries = entries;
     }
 
-    read() {
+    async read() {
         const entries = this._entries;
         delete this._entries;
         const execution = new pytorch.Execution();
@@ -856,10 +855,9 @@ pytorch.Container.Tar = class extends pytorch.Container {
         const torch = execution.__import__('torch');
         const obj = torch.load(entries);
         this._modules = pytorch.Utility.findWeights(obj);
-        if (this._modules) {
-            return Promise.resolve();
+        if (!this._modules) {
+            throw new pytorch.Error('File does not contain root module or state dictionary.');
         }
-        throw new pytorch.Error('File does not contain root module or state dictionary.');
     }
 
     get format() {
@@ -887,7 +885,7 @@ pytorch.Container.Pickle = class extends pytorch.Container {
         this._stream = stream;
     }
 
-    read() {
+    async read() {
         const data = this._stream.length < 0x7ffff000 ? this._stream.peek() : this._stream;
         delete this._stream;
         const execution = new pytorch.Execution();
@@ -897,7 +895,6 @@ pytorch.Container.Pickle = class extends pytorch.Container {
         const torch = execution.__import__('torch');
         const obj = torch.load(data);
         this._modules = pytorch.Utility.find(obj);
-        return Promise.resolve();
     }
 
     get format() {
@@ -960,10 +957,9 @@ pytorch.Container.torch_utils = class extends pytorch.Container {
         this._obj = obj;
     }
 
-    read() {
+    async read() {
         this._modules = pytorch.Utility.find(this._obj);
         delete this._obj;
-        return Promise.resolve();
     }
 
     get format() {
@@ -1067,7 +1063,7 @@ pytorch.Container.Zip = class extends pytorch.Container {
         }
     }
 
-    read() {
+    async read() {
         const execution = new pytorch.jit.Execution(null, this._metadata);
         for (const event in this._events) {
             execution.on(event[0], event[1]);
@@ -1086,7 +1082,6 @@ pytorch.Container.Zip = class extends pytorch.Container {
             this._modules = pytorch.Utility.find(module);
         }
         delete this._reader;
-        return Promise.resolve();
     }
 
     get format() {
@@ -3185,7 +3180,7 @@ pytorch.Container.Package = class extends pytorch.Container {
         this._format = 'PyTorch Package ' + pytorch.Utility.version(reader.version());
     }
 
-    read() {
+    async read() {
         this._modules = new Map();
         const pickles = this._reader.getAllRecords().filter((name) => !name.startsWith('.data/') && !name.endsWith('py'));
         if (pickles.length > 0) {
@@ -3207,7 +3202,6 @@ pytorch.Container.Package = class extends pytorch.Container {
                 this._modules.set(name, module);
             }
         }
-        return Promise.resolve();
     }
 
     get format() {
@@ -4225,7 +4219,7 @@ pytorch.Metadata = class {
 
     static async open(context) {
         if (pytorch.Metadata._metadata) {
-            return Promise.resolve(pytorch.Metadata._metadata);
+            return pytorch.Metadata._metadata;
         }
         try {
             const data = await context.request('pytorch-metadata.json', 'utf-8', null);
