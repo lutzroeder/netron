@@ -48,12 +48,15 @@ host.BrowserHost = class {
         return this._environment.type;
     }
 
-    view(view) {
+    async view(view) {
         this._view = view;
-        return this._age().then(() => this._consent()).then(() => this._telemetry()).then(() => this._capabilities());
+        await this._age();
+        await this._consent();
+        await this._telemetry();
+        await this._capabilities();
     }
 
-    _age() {
+    async _age() {
         const age = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
         if (age > 180) {
             this.document.body.classList.remove('spinner');
@@ -66,66 +69,57 @@ host.BrowserHost = class {
         return Promise.resolve();
     }
 
-    _consent() {
+    async _consent() {
         if (this._getCookie('consent') || this._getCookie('_ga')) {
-            return Promise.resolve();
+            return;
         }
-        const consent = () => {
-            return new Promise((resolve) => {
-                this.document.body.classList.remove('spinner');
-                this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept').then(() => {
-                    this._setCookie('consent', Date.now().toString(), 30);
-                    resolve();
-                });
-            });
-        };
-        return this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', null, 2000).then((text) => {
-            try {
-                const json = JSON.parse(text);
-                const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
-                if (json && json.country && countries.indexOf(json.country) === -1) {
-                    this._setCookie('consent', Date.now().toString(), 30);
-                    return Promise.resolve();
-                }
-                return consent();
-            } catch (err) {
-                return consent();
+        let consent = true;
+        try {
+            const text = await this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', null, 2000);
+            const json = JSON.parse(text);
+            const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
+            if (json && json.country && countries.indexOf(json.country) === -1) {
+                consent = false;
             }
-        }).catch(() => {
-            return consent();
-        });
+        } catch (error) {
+            // continue regardless of error
+        }
+        if (consent) {
+            this.document.body.classList.remove('spinner');
+            await this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept');
+        }
+        this._setCookie('consent', Date.now().toString(), 30);
     }
 
-    _telemetry() {
+    async _telemetry() {
         if (this._environment.version && this._environment.version !== '0.0.0') {
             this._window.addEventListener('error', (event) => {
                 const error = event instanceof ErrorEvent && event.error && event.error instanceof Error ? event.error : new Error(event && event.message ? event.message : JSON.stringify(event));
                 this.exception(error, true);
             });
-            const ga4 = () => {
+            const ga4 = async () => {
                 const base = require('./base');
                 const measurement_id = '848W2NVWVH';
                 const user = this._getCookie('_ga').replace(/^(GA1\.\d\.)*/, '');
                 const session = this._getCookie('_ga' + measurement_id);
                 this._telemetry_ga4 = new base.Telemetry(this._window, 'G-' + measurement_id, user, session);
-                return this._telemetry_ga4.start().then(() => {
-                    this._telemetry_ga4.set('page_location', this._document.location && this._document.location.href ? this._document.location.href : null);
-                    this._telemetry_ga4.set('page_title', this._document.title ? this._document.title : null);
-                    this._telemetry_ga4.set('page_referrer', this._document.referrer ? this._document.referrer : null);
-                    this._telemetry_ga4.send('page_view', {
-                        app_name: this.type,
-                        app_version: this.version,
-                    });
-                    this._telemetry_ga4.send('scroll', {
-                        percent_scrolled: 90,
-                        app_name: this.type,
-                        app_version: this.version
-                    });
-                    this._setCookie('_ga', 'GA1.2.' + this._telemetry_ga4.get('client_id'), 1200);
-                    this._setCookie('_ga' + measurement_id, 'GS1.1.' + this._telemetry_ga4.session, 1200);
+                await this._telemetry_ga4.start();
+                this._telemetry_ga4.set('page_location', this._document.location && this._document.location.href ? this._document.location.href : null);
+                this._telemetry_ga4.set('page_title', this._document.title ? this._document.title : null);
+                this._telemetry_ga4.set('page_referrer', this._document.referrer ? this._document.referrer : null);
+                this._telemetry_ga4.send('page_view', {
+                    app_name: this.type,
+                    app_version: this.version,
                 });
+                this._telemetry_ga4.send('scroll', {
+                    percent_scrolled: 90,
+                    app_name: this.type,
+                    app_version: this.version
+                });
+                this._setCookie('_ga', 'GA1.2.' + this._telemetry_ga4.get('client_id'), 1200);
+                this._setCookie('_ga' + measurement_id, 'GS1.1.' + this._telemetry_ga4.session, 1200);
             };
-            const ua = () => {
+            const ua = async () => {
                 return new Promise((resolve) => {
                     this._telemetry_ua = true;
                     const script = this.document.createElement('script');
@@ -145,12 +139,12 @@ host.BrowserHost = class {
                     this.document.body.appendChild(script);
                 });
             };
-            return ga4().then(() => ua());
+            await ga4();
+            await ua();
         }
-        return Promise.resolve();
     }
 
-    _capabilities() {
+    async _capabilities() {
         const list = [
             'TextDecoder', 'TextEncoder',
             'fetch', 'URLSearchParams',
@@ -176,7 +170,7 @@ host.BrowserHost = class {
         return Promise.resolve();
     }
 
-    start() {
+    async start() {
 
         const hash = this.window.location.hash ? this.window.location.hash.replace(/^#/, '') : '';
         const search = this.window.location.search;
@@ -198,9 +192,10 @@ host.BrowserHost = class {
                 .replace(new RegExp('^https://github.com/([\\w]*/[\\w]*)/blob/([\\w/_.]*)(\\?raw=true)?$'), 'https://raw.githubusercontent.com/$1/$2')
                 .replace(new RegExp('^https://huggingface.co/(.*)/blob/(.*)$'), 'https://huggingface.co/$1/resolve/$2');
             if (this._view.accept(identifier || location)) {
-                this._openModel(location, identifier).then((identifier) => {
+                const identifier = await this._openModel(location, identifier);
+                if (identifier) {
                     this.document.title = identifier;
-                });
+                }
                 return;
             }
         }
@@ -257,9 +252,9 @@ host.BrowserHost = class {
         return this._environment[name];
     }
 
-    error(message, detail) {
+    async error(message, detail) {
         alert((message == 'Error' ? '' : message + ' ') + detail);
-        return Promise.resolve(0);
+        return 0;
     }
 
     confirm(message, detail) {
@@ -473,59 +468,63 @@ host.BrowserHost = class {
         return location.protocol + '//' + location.host + pathname + file;
     }
 
-    _openModel(url, identifier) {
+    async _openModel(url, identifier) {
         url = url.startsWith('data:') ? url : url + ((/\?/).test(url) ? '&' : '?') + 'cb=' + (new Date()).getTime();
         this._view.show('welcome spinner');
         const progress = (value) => {
             this._view.progress(value);
         };
-        return this._request(url, null, null, progress).then((stream) => {
+        try {
+            const stream = await this._request(url, null, null, progress);
             const context = new host.BrowserHost.Context(this, url, identifier, stream);
             if (this._telemetry_ga4) {
                 this._telemetry_ga4.set('session_engaged', 1);
             }
-            return this._view.open(context).then(() => {
+            try {
+                await this._view.open(context);
                 return identifier || context.identifier;
-            }).catch((err) => {
+            } catch (err) {
                 if (err) {
                     this._view.error(err, null, 'welcome');
                 }
-            });
-        }).catch((err) => {
-            this.error('Model load request failed.', err.message).then(() => {
-                this._view.show('welcome');
-            });
-        });
+            }
+        } catch (error) {
+            await this.error('Model load request failed.', error.message);
+            this._view.show('welcome');
+        }
+        return null;
     }
 
-    _open(file, files) {
+    async _open(file, files) {
         this._view.show('welcome spinner');
         const context = new host.BrowserHost.BrowserFileContext(this, file, files);
-        context.open().then(() => {
+        try {
+            await context.open();
             if (this._telemetry_ga4) {
                 this._telemetry_ga4.set('session_engaged', 1);
             }
-            return this._view.open(context).then((model) => {
-                this._view.show(null);
-                this.document.title = files[0].name;
-                return model;
-            });
-        }).catch((error) => {
+            await this._view.open(context);
+            this._view.show(null);
+            this.document.title = files[0].name;
+        } catch (error) {
             this._view.error(error, null, null);
-        });
+        }
     }
 
-    _openGist(gist) {
+    async _openGist(gist) {
         this._view.show('welcome spinner');
         const url = 'https://api.github.com/gists/' + gist;
-        this._request(url, { 'Content-Type': 'application/json' }, 'utf-8').then((text) => {
+        try {
+            const text = await this._request(url, { 'Content-Type': 'application/json' }, 'utf-8');
             const json = JSON.parse(text);
             if (json.message) {
-                return this.error('Error while loading Gist.', json.message);
+                this.error('Error while loading Gist.', json.message);
+                return;
             }
             const key = Object.keys(json.files).find((key) => this._view.accept(json.files[key].filename));
             if (!key) {
-                return this.error('Error while loading Gist.', 'Gist does not contain a model file.');
+                this.error('Error while loading Gist.', 'Gist does not contain a model file.');
+                return;
             }
             const base = require('./base');
             const file = json.files[key];
@@ -537,18 +536,17 @@ host.BrowserHost = class {
             if (this._telemetry_ga4) {
                 this._telemetry_ga4.set('session_engaged', 1);
             }
-            this._view.open(context).then(() => {
+            try {
+                await this._view.open(context);
                 this.document.title = identifier;
-            }).catch((error) => {
+            } catch (error) {
                 if (error) {
-                    return this._view.error(error, error.name, 'welcome');
+                    this._view.error(error, error.name, 'welcome');
                 }
-                return Promise.resolve();
-            });
-            return Promise.resolve();
-        }).catch((err) => {
-            return this._view.error(err, 'Model load request failed.', 'welcome');
-        });
+            }
+        } catch (error) {
+            this._view.error(error, 'Model load request failed.', 'welcome');
+        }
     }
 
     _setCookie(name, value, days) {
@@ -615,13 +613,13 @@ host.BrowserHost.BrowserFileContext = class {
         return this._stream;
     }
 
-    request(file, encoding, basename) {
+    async request(file, encoding, basename) {
         if (basename !== undefined) {
             return this._host.request(file, encoding, basename);
         }
         const blob = this._blobs[file];
         if (!blob) {
-            return Promise.reject(new Error("File not found '" + file + "'."));
+            throw new Error("File not found '" + file + "'.");
         }
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -671,10 +669,8 @@ host.BrowserHost.BrowserFileContext = class {
         this._host.exception(error, fatal);
     }
 
-    open() {
-        return this.request(this._file.name, null).then((stream) => {
-            this._stream = stream;
-        });
+    async open() {
+        this._stream = await this.request(this._file.name, null);
     }
 };
 
