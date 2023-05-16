@@ -900,17 +900,18 @@ base.Telemetry = class {
     }
 
     async start() {
-        const promise = navigator && navigator.userAgentData && navigator.userAgentData.getHighEntropyValues ? navigator.userAgentData.getHighEntropyValues([ 'platform', 'platformVersion', 'architecture', 'model', 'uaFullVersion', 'bitness', 'fullVersionList', 'wow64' ]) : Promise.resolve();
-        const values = await promise;
-        if (values) {
-            this.set('_user_agent_architecture', values.architecture);
-            this.set('_user_agent_bitness', values.bitness);
-            this.set('_user_agent_full_version_list', Array.isArray(values.fullVersionList) ? values.fullVersionList.map((h) => encodeURIComponent(h.brand || '') + ';' + encodeURIComponent(h.version || '')).join('|') : '');
-            this.set('_user_agent_mobile', values.mobile ? 1 : 0);
-            this.set('_user_agent_model', values.model);
-            this.set('_user_agent_platform', values.platform);
-            this.set('_user_agent_platform_version', values.platformVersion);
-            this.set('_user_agent_wow64', values.wow64 ? 1 : 0);
+        if (navigator && navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
+            const values = await navigator.userAgentData.getHighEntropyValues([ 'platform', 'platformVersion', 'architecture', 'model', 'uaFullVersion', 'bitness', 'fullVersionList', 'wow64' ]);
+            if (values) {
+                this.set('_user_agent_architecture', values.architecture);
+                this.set('_user_agent_bitness', values.bitness);
+                this.set('_user_agent_full_version_list', Array.isArray(values.fullVersionList) ? values.fullVersionList.map((h) => encodeURIComponent(h.brand || '') + ';' + encodeURIComponent(h.version || '')).join('|') : '');
+                this.set('_user_agent_mobile', values.mobile ? 1 : 0);
+                this.set('_user_agent_model', values.model);
+                this.set('_user_agent_platform', values.platform);
+                this.set('_user_agent_platform_version', values.platformVersion);
+                this.set('_user_agent_wow64', values.wow64 ? 1 : 0);
+            }
         }
         this.set('hit_count', 1);
         this.set('session_id', this._session[0]);
