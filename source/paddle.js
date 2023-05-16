@@ -38,195 +38,197 @@ paddle.ModelFactory = class {
         return undefined;
     }
 
-    open(context, match) {
-        return context.metadata('paddle-metadata.json').then((metadata) => {
-            switch (match) {
-                case 'paddle.naive': {
-                    return context.require('./paddle-schema').then(() => {
-                        paddle.schema = flatbuffers.get('paddlelite').paddle.lite.fbs.proto;
-                        const file = paddle.NaiveBuffer.open(context);
-                        return new paddle.Model(metadata, file.format, file.model, file.weights);
-                    });
-                }
-                default: {
-                    return context.require('./paddle-proto').then(() => {
-                        paddle.proto = protobuf.get('paddle').paddle.framework.proto;
-                        const identifier = context.identifier;
-                        const parts = identifier.split('.');
-                        const extension = parts.pop().toLowerCase();
-                        const base = parts.join('.');
-                        const openProgram = (stream, match) => {
-                            const program = {};
-                            switch (match) {
-                                case 'paddle.pbtxt': {
-                                    try {
-                                        const reader = protobuf.TextReader.open(stream);
-                                        program.desc = paddle.proto.ProgramDesc.decodeText(reader);
-                                    } catch (error) {
-                                        const message = error && error.message ? error.message : error.toString();
-                                        throw new paddle.Error('File text format is not paddle.ProgramDesc (' + message.replace(/\.$/, '') + ').');
-                                    }
-                                    break;
-                                }
-                                case 'paddle.pb': {
-                                    try {
-                                        const reader = protobuf.BinaryReader.open(stream);
-                                        program.desc = paddle.proto.ProgramDesc.decode(reader);
-                                    } catch (error) {
-                                        const message = error && error.message ? error.message : error.toString();
-                                        throw new paddle.Error('File format is not paddle.ProgramDesc (' + message.replace(/\.$/, '') + ').');
-                                    }
-                                    break;
-                                }
-                                default: {
-                                    throw new paddle.Error("Unsupported Paddle format '" + match + "'.");
-                                }
+    async open(context, match) {
+        const metadata = await context.metadata('paddle-metadata.json');
+        switch (match) {
+            case 'paddle.naive': {
+                await context.require('./paddle-schema');
+                paddle.schema = flatbuffers.get('paddlelite').paddle.lite.fbs.proto;
+                const file = paddle.NaiveBuffer.open(context);
+                return new paddle.Model(metadata, file.format, file.model, file.weights);
+            }
+            default: {
+                await context.require('./paddle-proto');
+                paddle.proto = protobuf.get('paddle').paddle.framework.proto;
+                const identifier = context.identifier;
+                const parts = identifier.split('.');
+                const extension = parts.pop().toLowerCase();
+                const base = parts.join('.');
+                const openProgram = (stream, match) => {
+                    const program = {};
+                    switch (match) {
+                        case 'paddle.pbtxt': {
+                            try {
+                                const reader = protobuf.TextReader.open(stream);
+                                program.desc = paddle.proto.ProgramDesc.decodeText(reader);
+                            } catch (error) {
+                                const message = error && error.message ? error.message : error.toString();
+                                throw new paddle.Error('File text format is not paddle.ProgramDesc (' + message.replace(/\.$/, '') + ').');
                             }
-                            const formatVersion = (version) => {
-                                if (version && version.version && version.version.toNumber) {
-                                    const number = version.version.toNumber();
-                                    if (number > 0) {
-                                        const list = [ Math.floor(number / 1000000) % 1000, Math.floor(number / 1000) % 1000, number % 1000 ];
-                                        if (list.slice(-1).pop() === 0) {
-                                            list.pop();
-                                            if (list.slice(-1).pop() === 0) {
-                                                list.pop();
-                                            }
-                                        }
-                                        return ' v' + list.map((item) => item.toString()).join('.');
+                            break;
+                        }
+                        case 'paddle.pb': {
+                            try {
+                                const reader = protobuf.BinaryReader.open(stream);
+                                program.desc = paddle.proto.ProgramDesc.decode(reader);
+                            } catch (error) {
+                                const message = error && error.message ? error.message : error.toString();
+                                throw new paddle.Error('File format is not paddle.ProgramDesc (' + message.replace(/\.$/, '') + ').');
+                            }
+                            break;
+                        }
+                        default: {
+                            throw new paddle.Error("Unsupported Paddle format '" + match + "'.");
+                        }
+                    }
+                    const formatVersion = (version) => {
+                        if (version && version.version && version.version.toNumber) {
+                            const number = version.version.toNumber();
+                            if (number > 0) {
+                                const list = [ Math.floor(number / 1000000) % 1000, Math.floor(number / 1000) % 1000, number % 1000 ];
+                                if (list.slice(-1).pop() === 0) {
+                                    list.pop();
+                                    if (list.slice(-1).pop() === 0) {
+                                        list.pop();
                                     }
                                 }
-                                return '';
-                            };
-                            program.format = 'PaddlePaddle' + formatVersion(program.desc.version);
-                            const variables = new Set();
-                            for (const block of program.desc.blocks) {
-                                const blockVars = new Set();
-                                for (const variable of block.vars) {
-                                    if (variable.persistable && variable.type &&
-                                        variable.type.type != paddle.DataType.FETCH_LIST &&
-                                        variable.type.type != paddle.DataType.FEED_MINIBATCH) {
-                                        blockVars.add(variable.name);
-                                    }
-                                }
-                                for (const op of block.ops) {
-                                    for (const input of op.inputs) {
-                                        for (const argument of input.arguments) {
-                                            if (blockVars.has(argument)) {
-                                                variables.add(argument);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            program.vars = Array.from(variables).sort();
-                            return program;
-                        };
-                        const createModel = (metadata, format, desc, tensors) => {
-                            return new paddle.Model(metadata, format, desc, tensors);
-                        };
-                        const loadParams = (stream) => {
-                            const params = [];
-                            while (stream.position < stream.length) {
-                                const tensor = paddle.Utility.openTensorDesc(stream);
-                                params.push(tensor);
-                            }
-                            return params;
-                        };
-                        const mapParams = (params, program) => {
-                            const weights = new Map();
-                            const vars = program.vars.slice();
-                            for (const param of params) {
-                                weights.set(vars.shift(), param);
-                            }
-                            return weights;
-                        };
-                        switch (match) {
-                            case 'paddle.pickle': {
-                                const container = paddle.Pickle.open(context);
-                                return createModel(metadata, container.format, null, container.weights);
-                            }
-                            case 'paddle.entries': {
-                                const container = paddle.Entries.open(context);
-                                return createModel(metadata, container.format, null, container.weights);
-                            }
-                            case 'paddle.params': {
-                                const file = identifier !== 'params' ? base + '.pdmodel' : 'model';
-                                const params = loadParams(context.stream);
-                                return context.request(file, null).then((stream) => {
-                                    const program = openProgram(stream, 'paddle.pb');
-                                    const weights = mapParams(params, program);
-                                    return createModel(metadata, program.format, program.desc, weights);
-                                }).catch(() => {
-                                    const weights = new Map(params.map((param, index) => [ index.toString(), param ]));
-                                    return createModel(metadata, 'PaddlePaddle Inference Weights', null, weights);
-                                });
-                            }
-                            case 'paddle.pb':
-                            case 'paddle.pbtxt': {
-                                const loadEntries = (context, program) => {
-                                    const promises = program.vars.map((name) => context.request(name, null).then((stream) => stream).catch(() => null));
-                                    return Promise.all(promises).then((streams) => {
-                                        const params = streams.map((stream) => stream ? paddle.Utility.openTensorDesc(stream) : null);
-                                        const weights = mapParams(params, program);
-                                        return createModel(metadata, program.format, program.desc, weights);
-                                    });
-                                };
-                                const openNumPyArrayPickle = (stream) => {
-                                    const execution = new python.Execution();
-                                    const unpickler = execution.invoke('pickle.Unpickler', [ stream ]);
-                                    const obj = unpickler.load();
-                                    const container = new paddle.Pickle(obj);
-                                    return container.weights || new Map();
-                                };
-                                const program = openProgram(context.stream, match);
-                                if (extension === 'pdmodel') {
-                                    return context.request(base + '.pdiparams', null).then((stream) => {
-                                        const params = loadParams(stream);
-                                        const weights = mapParams(params, program);
-                                        return createModel(metadata, program.format, program.desc, weights);
-                                    }).catch((/* err */) => {
-                                        return context.request(base + '.pdparams', null).then((stream) => {
-                                            const weights = openNumPyArrayPickle(stream);
-                                            return context.request(base + '.pdopt', null).then((stream) => {
-                                                for (const entry of openNumPyArrayPickle(stream)) {
-                                                    if (!weights.has(entry[0])) {
-                                                        weights.set(entry[0], entry[1]);
-                                                    }
-                                                }
-                                                return createModel(metadata, program.format, program.desc, weights);
-                                            }).catch((/* err */) => {
-                                                return createModel(metadata, program.format, program.desc, weights);
-                                            });
-                                        }).catch((/* err */) => {
-                                            return context.request(base + '.pdopt', null).then((stream) => {
-                                                const weights = openNumPyArrayPickle(stream);
-                                                return createModel(metadata, program.format, program.desc, weights);
-                                            }).catch((/* err */) => {
-                                                return loadEntries(context, program);
-                                            });
-                                        });
-                                    });
-                                }
-                                if (identifier === 'model') {
-                                    return context.request('params', null).then((stream) => {
-                                        const params = loadParams(stream);
-                                        const weights = mapParams(params, program);
-                                        return createModel(metadata, program.format, program.desc, weights);
-                                    }).catch((/* err */) => {
-                                        return loadEntries(context, program);
-                                    });
-                                }
-                                return loadEntries(context, program);
-                            }
-                            default: {
-                                throw new paddle.Error("Unsupported PaddlePaddle format '" + match + "'.");
+                                return ' v' + list.map((item) => item.toString()).join('.');
                             }
                         }
-                    });
+                        return '';
+                    };
+                    program.format = 'PaddlePaddle' + formatVersion(program.desc.version);
+                    const variables = new Set();
+                    for (const block of program.desc.blocks) {
+                        const blockVars = new Set();
+                        for (const variable of block.vars) {
+                            if (variable.persistable && variable.type &&
+                                variable.type.type != paddle.DataType.FETCH_LIST &&
+                                variable.type.type != paddle.DataType.FEED_MINIBATCH) {
+                                blockVars.add(variable.name);
+                            }
+                        }
+                        for (const op of block.ops) {
+                            for (const input of op.inputs) {
+                                for (const argument of input.arguments) {
+                                    if (blockVars.has(argument)) {
+                                        variables.add(argument);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    program.vars = Array.from(variables).sort();
+                    return program;
+                };
+                const createModel = (metadata, format, desc, tensors) => {
+                    return new paddle.Model(metadata, format, desc, tensors);
+                };
+                const loadParams = (stream) => {
+                    const params = [];
+                    while (stream.position < stream.length) {
+                        const tensor = paddle.Utility.openTensorDesc(stream);
+                        params.push(tensor);
+                    }
+                    return params;
+                };
+                const mapParams = (params, program) => {
+                    const weights = new Map();
+                    const vars = program.vars.slice();
+                    for (const param of params) {
+                        weights.set(vars.shift(), param);
+                    }
+                    return weights;
+                };
+                switch (match) {
+                    case 'paddle.pickle': {
+                        const container = paddle.Pickle.open(context);
+                        return createModel(metadata, container.format, null, container.weights);
+                    }
+                    case 'paddle.entries': {
+                        const container = paddle.Entries.open(context);
+                        return createModel(metadata, container.format, null, container.weights);
+                    }
+                    case 'paddle.params': {
+                        const file = identifier !== 'params' ? base + '.pdmodel' : 'model';
+                        const params = loadParams(context.stream);
+                        try {
+                            const stream = await context.request(file, null);
+                            const program = openProgram(stream, 'paddle.pb');
+                            const weights = mapParams(params, program);
+                            return createModel(metadata, program.format, program.desc, weights);
+                        } catch (error) {
+                            const weights = new Map(params.map((param, index) => [ index.toString(), param ]));
+                            return createModel(metadata, 'PaddlePaddle Inference Weights', null, weights);
+                        }
+                    }
+                    case 'paddle.pb':
+                    case 'paddle.pbtxt': {
+                        const loadEntries = async (context, program) => {
+                            const promises = program.vars.map((name) => context.request(name, null).then((stream) => stream).catch(() => null));
+                            const streams = await Promise.all(promises);
+                            const params = streams.map((stream) => stream ? paddle.Utility.openTensorDesc(stream) : null);
+                            const weights = mapParams(params, program);
+                            return createModel(metadata, program.format, program.desc, weights);
+                        };
+                        const openNumPyArrayPickle = (stream) => {
+                            const execution = new python.Execution();
+                            const unpickler = execution.invoke('pickle.Unpickler', [ stream ]);
+                            const obj = unpickler.load();
+                            const container = new paddle.Pickle(obj);
+                            return container.weights || new Map();
+                        };
+                        const program = openProgram(context.stream, match);
+                        if (extension === 'pdmodel') {
+                            try {
+                                const stream = await context.request(base + '.pdiparams', null);
+                                const params = loadParams(stream);
+                                const weights = mapParams(params, program);
+                                return createModel(metadata, program.format, program.desc, weights);
+                            } catch (error) {
+                                try {
+                                    const stream = await context.request(base + '.pdparams', null);
+                                    const weights = openNumPyArrayPickle(stream);
+                                    try {
+                                        const stream = await context.request(base + '.pdopt', null);
+                                        for (const entry of openNumPyArrayPickle(stream)) {
+                                            if (!weights.has(entry[0])) {
+                                                weights.set(entry[0], entry[1]);
+                                            }
+                                        }
+                                        return createModel(metadata, program.format, program.desc, weights);
+                                    } catch (error) {
+                                        return createModel(metadata, program.format, program.desc, weights);
+                                    }
+                                } catch (error) {
+                                    try {
+                                        const stream = await context.request(base + '.pdopt', null);
+                                        const weights = openNumPyArrayPickle(stream);
+                                        return createModel(metadata, program.format, program.desc, weights);
+                                    } catch (error) {
+                                        return loadEntries(context, program);
+                                    }
+                                }
+                            }
+                        }
+                        if (identifier === 'model') {
+                            try {
+                                const stream = await context.request('params', null);
+                                const params = loadParams(stream);
+                                const weights = mapParams(params, program);
+                                return createModel(metadata, program.format, program.desc, weights);
+                            } catch (error) {
+                                return loadEntries(context, program);
+                            }
+                        }
+                        return loadEntries(context, program);
+                    }
+                    default: {
+                        throw new paddle.Error("Unsupported PaddlePaddle format '" + match + "'.");
+                    }
                 }
             }
-        });
+        }
     }
 };
 
