@@ -32,7 +32,7 @@ numpy.ModelFactory = class {
         return undefined;
     }
 
-    open(context, match) {
+    async open(context, match) {
         let format = '';
         const graphs = [];
         switch (match.name) {
@@ -151,8 +151,7 @@ numpy.ModelFactory = class {
                 throw new numpy.Error("Unsupported NumPy format '" + match.name + "'.");
             }
         }
-        const model = new numpy.Model(format, graphs);
-        return Promise.resolve(model);
+        return new numpy.Model(format, graphs);
     }
 };
 
