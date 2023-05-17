@@ -5147,39 +5147,31 @@ view.ModelFactoryService = class {
         const modules = this._filter(context).filter((module) => module && module.length > 0);
         const errors = [];
         let success = false;
-        const nextModule = async () => {
+        const next = async () => {
             if (modules.length > 0) {
-                const id = modules.shift();
-                const module = await this._host.require(id);
-                if (!module.ModelFactory) {
-                    throw new view.Error("Failed to load module '" + id + "'.");
-                }
-                const modelFactory = new module.ModelFactory();
-                const match = modelFactory.match(context);
-                if (!match) {
-                    return await nextModule();
-                }
-                success = true;
                 try {
-                    return modelFactory.open(context, match).then((model) => {
+                    const id = modules.shift();
+                    const module = await this._host.require(id);
+                    if (!module.ModelFactory) {
+                        throw new view.Error("Failed to load module '" + id + "'.");
+                    }
+                    const modelFactory = new module.ModelFactory();
+                    const match = modelFactory.match(context);
+                    if (match) {
+                        success = true;
+                        const model = await modelFactory.open(context, match);
                         if (!model.identifier) {
                             model.identifier = context.identifier;
                         }
                         return model;
-                    }).catch((error) => {
-                        if (context.stream && context.stream.position !== 0) {
-                            context.stream.seek(0);
-                        }
-                        errors.push(error);
-                        return nextModule();
-                    });
+                    }
                 } catch (error) {
                     if (context.stream && context.stream.position !== 0) {
                         context.stream.seek(0);
                     }
                     errors.push(error);
-                    return await nextModule();
                 }
+                return await next();
             }
             if (success) {
                 if (errors.length === 1) {
@@ -5189,7 +5181,7 @@ view.ModelFactoryService = class {
             }
             return null;
         };
-        return await nextModule();
+        return await next();
     }
 
     async _openEntries(entries) {
@@ -5204,32 +5196,31 @@ view.ModelFactoryService = class {
             };
             const filter = async (queue) => {
                 let matches = [];
-                const nextEntry = () => {
+                const nextEntry = async () => {
                     if (queue.length > 0) {
                         const entry = queue.shift();
                         const context = new view.ModelContext(new view.EntryContext(this._host, entries, folder, entry.name, entry.stream));
-                        let modules = this._filter(context);
-                        const nextModule = () => {
+                        const modules = this._filter(context);
+                        const nextModule = async () => {
                             if (modules.length > 0) {
                                 const id = modules.shift();
-                                return this._host.require(id).then((module) => {
-                                    if (!module.ModelFactory) {
-                                        throw new view.ArchiveError("Failed to load module '" + id + "'.", null);
-                                    }
-                                    const factory = new module.ModelFactory();
-                                    if (factory.match(context)) {
-                                        matches.push(context);
-                                        modules = [];
-                                    }
-                                    return nextModule();
-                                });
+                                const module = await this._host.require(id);
+                                if (!module.ModelFactory) {
+                                    throw new view.ArchiveError("Failed to load module '" + id + "'.", null);
+                                }
+                                const modelFactory = new module.ModelFactory();
+                                if (modelFactory.match(context)) {
+                                    matches.push(context);
+                                    modules.splice(0, modules.length);
+                                }
+                                return await nextModule();
                             }
-                            return nextEntry();
+                            return await nextEntry();
                         };
-                        return nextModule();
+                        return await nextModule();
                     }
                     if (matches.length === 0) {
-                        return Promise.resolve(null);
+                        return null;
                     }
                     // MXNet
                     if (matches.length === 2 &&
@@ -5286,12 +5277,12 @@ view.ModelFactoryService = class {
                         matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() !== 'keras_metadata.pb');
                     }
                     if (matches.length > 1) {
-                        return Promise.reject(new view.ArchiveError('Archive contains multiple model files.'));
+                        throw new view.ArchiveError('Archive contains multiple model files.');
                     }
                     const match = matches.shift();
-                    return Promise.resolve(match);
+                    return match;
                 };
-                return nextEntry();
+                return await nextEntry();
             };
             const list = Array.from(entries).map((entry) => {
                 return { name: entry[0], stream: entry[1] };
