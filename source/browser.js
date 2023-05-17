@@ -145,25 +145,33 @@ host.BrowserHost = class {
     }
 
     async _capabilities() {
-        const list = [
+        const filter = (list) => {
+            return list.filter((capability) => {
+                const path = capability.split('.').reverse();
+                let obj = this.window[path.pop()];
+                while (obj && path.length > 0) {
+                    obj = obj[path.pop()];
+                }
+                return obj;
+            });
+        };
+        const required = [
             'TextDecoder', 'TextEncoder',
-            'fetch', 'URLSearchParams',
+            'URLSearchParams',
             'HTMLCanvasElement.prototype.toBlob',
-            'DataView.prototype.getBigInt64',
-            'Worker', 'Promise', 'Symbol.asyncIterator'
+            'Promise', 'Symbol.asyncIterator'
         ];
-        const capabilities = list.filter((capability) => {
-            const path = capability.split('.').reverse();
-            let obj = this.window[path.pop()];
-            while (obj && path.length > 0) {
-                obj = obj[path.pop()];
-            }
-            return obj;
-        });
+        const optional = [
+            'fetch',
+            'DataView.prototype.getBigInt64',
+            'Worker',
+        ];
+        const available = filter(required);
+        const capabilities = available.concat(filter(optional));
         this.event('browser_open', {
             browser_capabilities: capabilities.map((capability) => capability.split('.').pop()).join(',')
         });
-        if (capabilities.length < list.length) {
+        if (required.length > available.length) {
             this.window.terminate('Your browser is not supported.');
             return new Promise(() => {});
         }
