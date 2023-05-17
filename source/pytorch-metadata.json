@@ -3089,7 +3089,7 @@
       { "name": "weight", "type": "Tensor" },
       { "name": "bias", "type": "Tensor", "optional": true, "default": null },
       { "name": "stride", "type": "int64[1]", "default": 1 },
-      { "name": "padding", "type": "int64[1]", "default": 0 },
+      { "name": "padding", "type": "SymInt[1]", "default": 0 },
       { "name": "dilation", "type": "int64[1]", "default": 1 },
       { "name": "groups", "type": "int64", "default": 1 }
     ],
@@ -3121,7 +3121,7 @@
       { "name": "weight", "type": "Tensor" },
       { "name": "bias", "type": "Tensor", "optional": true, "default": null },
       { "name": "stride", "type": "int64[2]", "default": 1 },
-      { "name": "padding", "type": "int64[2]", "default": 0 },
+      { "name": "padding", "type": "SymInt[2]", "default": 0 },
       { "name": "dilation", "type": "int64[2]", "default": 1 },
       { "name": "groups", "type": "int64", "default": 1 }
     ],
@@ -3153,7 +3153,7 @@
       { "name": "weight", "type": "Tensor" },
       { "name": "bias", "type": "Tensor", "optional": true, "default": null },
       { "name": "stride", "type": "int64[3]", "default": 1 },
-      { "name": "padding", "type": "int64[3]", "default": 0 },
+      { "name": "padding", "type": "SymInt[3]", "default": 0 },
       { "name": "dilation", "type": "int64[3]", "default": 1 },
       { "name": "groups", "type": "int64", "default": 1 }
     ],
@@ -3185,8 +3185,8 @@
       { "name": "weight", "type": "Tensor" },
       { "name": "bias", "type": "Tensor", "optional": true, "default": null },
       { "name": "stride", "type": "int64[1]", "default": 1 },
-      { "name": "padding", "type": "int64[1]", "default": 0 },
-      { "name": "output_padding", "type": "int64[1]", "default": 0 },
+      { "name": "padding", "type": "SymInt[1]", "default": 0 },
+      { "name": "output_padding", "type": "SymInt[1]", "default": 0 },
       { "name": "groups", "type": "int64", "default": 1 },
       { "name": "dilation", "type": "int64[1]", "default": 1 }
     ],
@@ -3202,8 +3202,8 @@
       { "name": "weight", "type": "Tensor" },
       { "name": "bias", "type": "Tensor", "optional": true, "default": null },
       { "name": "stride", "type": "int64[2]", "default": 1 },
-      { "name": "padding", "type": "int64[2]", "default": 0 },
-      { "name": "output_padding", "type": "int64[2]", "default": 0 },
+      { "name": "padding", "type": "SymInt[2]", "default": 0 },
+      { "name": "output_padding", "type": "SymInt[2]", "default": 0 },
       { "name": "groups", "type": "int64", "default": 1 },
       { "name": "dilation", "type": "int64[2]", "default": 1 }
     ],
@@ -3219,8 +3219,8 @@
       { "name": "weight", "type": "Tensor" },
       { "name": "bias", "type": "Tensor", "optional": true, "default": null },
       { "name": "stride", "type": "int64[3]", "default": 1 },
-      { "name": "padding", "type": "int64[3]", "default": 0 },
-      { "name": "output_padding", "type": "int64[3]", "default": 0 },
+      { "name": "padding", "type": "SymInt[3]", "default": 0 },
+      { "name": "output_padding", "type": "SymInt[3]", "default": 0 },
       { "name": "groups", "type": "int64", "default": 1 },
       { "name": "dilation", "type": "int64[3]", "default": 1 }
     ],
