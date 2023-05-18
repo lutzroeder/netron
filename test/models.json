@@ -5329,6 +5329,13 @@
   },
   {
     "type":     "rknn",
+    "target":   "mobilenet_v1_rknnv4.rknn",
+    "source":   "https://github.com/lutzroeder/netron/files/11508437/mobilenet_v1_rknnv4.rknn.zip[mobilenet_v1_rknnv4.rknn]",
+    "format":   "RKNN v1.4.6",
+    "link":     "https://github.com/lutzroeder/netron/pull/1099"
+  },
+  {
+    "type":     "rknn",
     "target":   "mobilenetv2.rknn",
     "source":   "https://github.com/lutzroeder/netron/files/8886972/mobilenetv2.rknn.zip[mobilenetv2.rknn]",
     "format":   "RKNN v1.2.0",
