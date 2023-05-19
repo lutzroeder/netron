@@ -3734,7 +3734,7 @@ $root.tensorflow.StructuredValue = class StructuredValue {
     }
 
     get kind() {
-        $root.tensorflow.StructuredValue.kindSet = $root.tensorflow.StructuredValue.kindSet || new Set([ "none_value", "float64_value", "int64_value", "string_value", "bool_value", "tensor_shape_value", "tensor_dtype_value", "tensor_spec_value", "type_spec_value", "bounded_tensor_spec_value", "list_value", "tuple_value", "dict_value", "named_tuple_value", "tensor_value"]);
+        $root.tensorflow.StructuredValue.kindSet = $root.tensorflow.StructuredValue.kindSet || new Set([ "none_value", "float64_value", "int64_value", "string_value", "bool_value", "tensor_shape_value", "tensor_dtype_value", "tensor_spec_value", "type_spec_value", "bounded_tensor_spec_value", "list_value", "tuple_value", "dict_value", "named_tuple_value", "tensor_value", "numpy_value"]);
         return Object.keys(this).find((key) => $root.tensorflow.StructuredValue.kindSet.has(key) && this[key] != null);
     }
 
@@ -3788,6 +3788,9 @@ $root.tensorflow.StructuredValue = class StructuredValue {
                     break;
                 case 55:
                     message.tensor_value = $root.tensorflow.TensorProto.decode(reader, reader.uint32());
+                    break;
+                case 56:
+                    message.numpy_value = $root.tensorflow.TensorProto.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -3847,6 +3850,9 @@ $root.tensorflow.StructuredValue = class StructuredValue {
                     break;
                 case "tensor_value":
                     message.tensor_value = $root.tensorflow.TensorProto.decodeText(reader);
+                    break;
+                case "numpy_value":
+                    message.numpy_value = $root.tensorflow.TensorProto.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -9075,6 +9081,9 @@ $root.tensorflow.RewriterConfig = class RewriterConfig {
                 case 19:
                     message.disable_meta_optimizer = reader.bool();
                     break;
+                case 32:
+                    message.disable_tfg_optimizer = reader.bool();
+                    break;
                 case 28:
                     message.use_plugin_optimizers = reader.int32();
                     break;
@@ -9197,6 +9206,9 @@ $root.tensorflow.RewriterConfig = class RewriterConfig {
                 case "disable_meta_optimizer":
                     message.disable_meta_optimizer = reader.bool();
                     break;
+                case "disable_tfg_optimizer":
+                    message.disable_tfg_optimizer = reader.bool();
+                    break;
                 case "use_plugin_optimizers":
                     message.use_plugin_optimizers = reader.enum($root.tensorflow.RewriterConfig.Toggle);
                     break;
@@ -9274,6 +9286,7 @@ $root.tensorflow.RewriterConfig.prototype.auto_mixed_precision_mkl = 0;
 $root.tensorflow.RewriterConfig.prototype.auto_mixed_precision_onednn_bfloat16 = 0;
 $root.tensorflow.RewriterConfig.prototype.auto_mixed_precision_cpu = 0;
 $root.tensorflow.RewriterConfig.prototype.disable_meta_optimizer = false;
+$root.tensorflow.RewriterConfig.prototype.disable_tfg_optimizer = false;
 $root.tensorflow.RewriterConfig.prototype.use_plugin_optimizers = 0;
 $root.tensorflow.RewriterConfig.prototype.experimental_conditional_code_motion = 0;
 $root.tensorflow.RewriterConfig.prototype.meta_optimizer_iterations = 0;
