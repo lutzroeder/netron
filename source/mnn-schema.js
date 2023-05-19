@@ -182,6 +182,9 @@ $root.MNN.IDSTQuan = class IDSTQuan {
         $.aMin = reader.int32_(position, 20, 0);
         $.readType = reader.int32_(position, 22, 0);
         $.has_scaleInt = reader.bool_(position, 24, false);
+        $.shapeInt32 = reader.bool_(position, 26, false);
+        $.weightSize = reader.uint32_(position, 28, 0);
+        $.index = reader.typedArray(position, 30, Uint32Array);
         return $;
     }
 };
