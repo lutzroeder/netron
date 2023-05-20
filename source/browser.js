@@ -200,9 +200,9 @@ host.BrowserHost = class {
                 .replace(new RegExp('^https://github.com/([\\w]*/[\\w]*)/blob/([\\w/_.]*)(\\?raw=true)?$'), 'https://raw.githubusercontent.com/$1/$2')
                 .replace(new RegExp('^https://huggingface.co/(.*)/blob/(.*)$'), 'https://huggingface.co/$1/resolve/$2');
             if (this._view.accept(identifier || location)) {
-                const identifier = await this._openModel(location, identifier);
-                if (identifier) {
-                    this.document.title = identifier;
+                const title = await this._openModel(location, identifier);
+                if (title) {
+                    this.document.title = title;
                 }
                 return;
             }
@@ -479,10 +479,10 @@ host.BrowserHost = class {
     async _openModel(url, identifier) {
         url = url.startsWith('data:') ? url : url + ((/\?/).test(url) ? '&' : '?') + 'cb=' + (new Date()).getTime();
         this._view.show('welcome spinner');
-        const progress = (value) => {
-            this._view.progress(value);
-        };
         try {
+            const progress = (value) => {
+                this._view.progress(value);
+            };
             const stream = await this._request(url, null, null, progress);
             const context = new host.BrowserHost.Context(this, url, identifier, stream);
             if (this._telemetry_ga4) {
