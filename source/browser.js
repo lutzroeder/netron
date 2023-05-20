@@ -22,6 +22,7 @@ host.BrowserHost = class {
             type: this._meta.type ? this._meta.type[0] : 'Browser',
             version: this._meta.version ? this._meta.version[0] : null,
             date: Array.isArray(this._meta.date) && this._meta.date.length > 0 && this._meta.date[0] ? new Date(this._meta.date[0].split(' ').join('T') + 'Z') : new Date(),
+            packaged: this._meta.version && this._meta.version[0] !== '0.0.0',
             platform: /(Mac|iPhone|iPod|iPad)/i.test(this._navigator.platform) ? 'darwin' : undefined,
             agent: this._navigator.userAgent.toLowerCase().indexOf('safari') !== -1 && this._navigator.userAgent.toLowerCase().indexOf('chrome') === -1 ? 'safari' : '',
             repository: this._element('logo-github').getAttribute('href'),
@@ -92,7 +93,7 @@ host.BrowserHost = class {
     }
 
     async _telemetry() {
-        if (this._environment.version && this._environment.version !== '0.0.0') {
+        if (this._environment.packaged) {
             this._window.addEventListener('error', (event) => {
                 const error = event instanceof ErrorEvent && event.error && event.error instanceof Error ? event.error : new Error(event && event.message ? event.message : JSON.stringify(event));
                 this.exception(error, true);
