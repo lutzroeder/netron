@@ -350,9 +350,7 @@ view.View = class {
             this._events.touchstart = (e) => this._touchStartHandler(e);
         }
         const graph = this._element('graph');
-        if (graph) {
-            graph.focus();
-        }
+        graph.focus();
         graph.addEventListener('scroll', this._events.scroll);
         graph.addEventListener('wheel', this._events.wheel, { passive: false });
         graph.addEventListener('pointerdown', this._events.pointerdown);
