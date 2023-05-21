@@ -730,8 +730,8 @@ onnx.Group = class {
             }
         }
         const set = new Set();
-        const inputs = new Array();
-        const outputs = new Array();
+        const inputs = [];
+        const outputs = [];
         for (const node of this._nodes) {
             if (node instanceof onnx.Group) {
                 node.freeze();
