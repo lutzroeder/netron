@@ -62,6 +62,7 @@
             "no-constructor-return": "error",
             "no-duplicate-imports": "error",
             "no-else-return": "error",
+            "no-extra-semi": "error",
             "no-invalid-this": "error",
             "no-iterator": "error",
             "no-labels": "error",
