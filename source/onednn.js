@@ -65,6 +65,38 @@ onednn.Graph = class {
                 this._nodes.push(new onednn.Node(this._metadata, node, symbol.engine_kind, initializers));
             }
         }
+
+        const values = [];
+        for (const node of symbol.graph) {
+            for (const input of node.inputs) {
+                values.push(input);
+            }
+            for (const output of node.outputs) {
+                values.push(output);
+            }
+        }
+        let inputIndex = 0;
+        const inputs = symbol.input_ports || [];
+        for (const input_id of inputs) {
+            const input = values.find((value) => value.id == input_id);
+            const shape = !input.shape || (input.shape.length === 1 && input.shape[0] === -1) ? null : new onednn.TensorShape(input.shape);
+            const type = new onednn.TensorType(input.dtype, shape);
+            const inputName = (inputs.length == 1) ? 'input' : ('input' + (inputIndex)).toString();
+            this._inputs.push(new onednn.Parameter(inputName, [
+                new onednn.Argument(input.id.toString(), type, initializers.includes(input.id) ? new onednn.Tensor(type, input.property_type) : null)
+            ]));
+            inputIndex += 1;
+        }
+        let outputIndex = 0;
+        const outputs = symbol.output_ports || [];
+        for (const output_id of outputs) {
+            const output = values.find((value) => value.id == output_id);
+            const shape = !output.shape || (output.shape.length === 1 && output.shape[0] === -1) ? null : new onednn.TensorShape(output.shape);
+            const type = new onednn.TensorType(output.dtype, shape);
+            const outputName = (outputs.length == 1) ? 'output' : ('output' + (outputIndex)).toString();
+            this._outputs.push(new onednn.Parameter(outputName, [new onednn.Argument(output.id.toString(), type)]));
+            outputIndex += 1;
+        }
     }
 
     get name() {

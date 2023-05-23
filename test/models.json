@@ -3347,6 +3347,13 @@
     "link":     "https://github.com/lutzroeder/netron/issues/1006"
   },
   {
+    "type":     "onednn",
+    "target":   "sample-graph-with-ports-100001.json",
+    "source":   "https://github.com/lutzroeder/netron/files/11544591/sample-graph-with-ports-100001.json.zip[sample-graph-with-ports-100001.json]",
+    "format":   "oneDNN Graph v3.1.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1006"
+  },
+  {
     "type":     "onnx",
     "target":   "arcface-resnet100.onnx",
     "source":   "https://s3.amazonaws.com/onnx-model-zoo/arcface/resnet100/resnet100.onnx",
