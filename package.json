@@ -71,6 +71,7 @@
             "no-promise-executor-return": "error",
             "no-proto": "error",
             "no-self-compare": "error",
+            "no-sequences": "error",
             "no-template-curly-in-string": "error",
             "no-trailing-spaces": "error",
             "no-unmodified-loop-condition": "error",

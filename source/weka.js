@@ -107,7 +107,7 @@ java.io.InputObjectStream = class {
         switch (code) {
             case 0x72: { // TC_CLASSDESC
                 const classDesc = {};
-                classDesc.name = this._reader.string(),
+                classDesc.name = this._reader.string();
                 classDesc.id = this._reader.uint64().toString();
                 this._newHandle(classDesc);
                 classDesc.flags = this._reader.byte();

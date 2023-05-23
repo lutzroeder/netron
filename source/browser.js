@@ -398,8 +398,8 @@ host.BrowserHost = class {
 
     event(name, params) {
         if (this._telemetry_ga4 && name && params) {
-            params.app_name = this.type,
-            params.app_version = this.version,
+            params.app_name = this.type;
+            params.app_version = this.version;
             this._telemetry_ga4.send(name, params);
         }
     }

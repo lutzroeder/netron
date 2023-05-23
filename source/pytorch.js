@@ -1787,7 +1787,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 return value;
             }
             addBlock() {
-                const block = execution.invoke('torch.Block' [ this._graph, this ]);
+                const block = execution.invoke('torch.Block', [ this._graph, this ]);
                 this._blocks.push(block);
                 return block;
             }
@@ -3944,8 +3944,8 @@ pytorch.nnapi.Metadata = class {
     register(index, name, category, inputs, attributes, outputs) {
         const type = {};
         type.name = name;
-        type.inputs = (inputs || []).map((name) => ({ name: name, type: 'Tensor' })),
-        type.outputs = (outputs || []).map((name) => ({ name: name, type: 'Tensor' })),
+        type.inputs = (inputs || []).map((name) => ({ name: name, type: 'Tensor' }));
+        type.outputs = (outputs || []).map((name) => ({ name: name, type: 'Tensor' }));
         type.attributes = (attributes || []).map((pair) => ({ name: pair[0], type: pair[1] }));
         if (category) {
             type.category = category;
