@@ -4503,7 +4503,7 @@
   {
     "name": "aten::eye",
     "inputs": [
-      { "name": "n", "type": "int64" },
+      { "name": "n", "type": "SymInt" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
       { "name": "device", "type": "Device", "optional": true, "default": null },
@@ -4516,8 +4516,8 @@
   {
     "name": "aten::eye.m",
     "inputs": [
-      { "name": "n", "type": "int64" },
-      { "name": "m", "type": "int64" },
+      { "name": "n", "type": "SymInt" },
+      { "name": "m", "type": "SymInt" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
       { "name": "device", "type": "Device", "optional": true, "default": null },
@@ -4530,8 +4530,8 @@
   {
     "name": "aten::eye.m_out",
     "inputs": [
-      { "name": "n", "type": "int64" },
-      { "name": "m", "type": "int64" }
+      { "name": "n", "type": "SymInt" },
+      { "name": "m", "type": "SymInt" }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -4540,7 +4540,7 @@
   {
     "name": "aten::eye.out",
     "inputs": [
-      { "name": "n", "type": "int64" }
+      { "name": "n", "type": "SymInt" }
     ],
     "outputs": [
       { "type": "Tensor" }
