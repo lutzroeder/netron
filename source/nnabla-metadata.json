@@ -39,7 +39,7 @@
   },
   {
     "name": "RNN",
-    "description": "RNN function implements Elman RNN with nonlineraity to input sequence.\nRNN function is defined as following:\n\n.. math::\n    {\\mathbf h_t} = {\\mathbf \\tanh}( {\\mathbf w_{ih}} *{\\mathbf x_t} + {\\mathbf b_{ih}} + {\\mathbf w_{hh}}* {\\mathbf h_{(t-1)}} + {\\mathbf b_{hh}}).\n\nWe use the following notations to describe the inputs and outputs below.\n:math:`T`: sequcne length, :math:`B`: batch size, :math:`I`: input size, :math:`L`: number of layers, :math:`D`: number of directions, can be either 1 or 2, :math:`H`: hidden size.\n\nReferences:\n    * `Jeffrey Elman, Finding Structure in Time. <https://crl.ucsd.edu/~elman/Papers/fsit.pdf>`_",
+    "description": "RNN function implements Elman RNN with nonlinearity to input sequence.\nRNN function is defined as following:\n\n.. math::\n    {\\mathbf h_t} = {\\mathbf \\tanh}( {\\mathbf w_{ih}} *{\\mathbf x_t} + {\\mathbf b_{ih}} + {\\mathbf w_{hh}}* {\\mathbf h_{(t-1)}} + {\\mathbf b_{hh}}).\n\nWe use the following notations to describe the inputs and outputs below.\n:math:`T`: sequcne length, :math:`B`: batch size, :math:`I`: input size, :math:`L`: number of layers, :math:`D`: number of directions, can be either 1 or 2, :math:`H`: hidden size.\n\nReferences:\n    * `Jeffrey Elman, Finding Structure in Time. <https://crl.ucsd.edu/~elman/Papers/fsit.pdf>`_",
     "inputs": [
       {
         "name": "x",
@@ -4691,7 +4691,7 @@
   },
   {
     "name": "Sort",
-    "description": "Sorts the elements of `x` along a given `axis` in ascending\norder by value. A negative `axis` counts from the last dimension\nof `x`, so the default of -1 sorts along the last dimension. If\n`reverse` is True, then the elements are soreted in descending\norder.\n\nIf `with_index` is True, result is a tuple ``(sorted, indices)``\nor only ``indices`` if `only_index` is True. Setting\n`only_index` to True implies that `with_index` is also True.",
+    "description": "Sorts the elements of `x` along a given `axis` in ascending\norder by value. A negative `axis` counts from the last dimension\nof `x`, so the default of -1 sorts along the last dimension. If\n`reverse` is True, then the elements are sorted in descending\norder.\n\nIf `with_index` is True, result is a tuple ``(sorted, indices)``\nor only ``indices`` if `only_index` is True. Setting\n`only_index` to True implies that `with_index` is also True.",
     "inputs": [
       {
         "name": "x",
@@ -4978,7 +4978,7 @@
   },
   {
     "name": "Gather",
-    "description": "Gather from the input data according to the index.\n\nGiven the input data :math:`X` of :math:`(D_{0}, \\ldots, D_{N-1})` shape and\nthe indices :math:`IDX` of :math:`(I_{0}, \\ldots, I_{M-1})` shape, in case of `batch_dims = 0`,\nthe gather outputs\n\n.. math::\n  && Y[d_{0}, \\ldots, d_{axis - 1}, i_{0}, \\ldots, i_{M-1}, d_{axis + 1}, \\ldots, d_{N-1}] = \\\\\n  && X[d_{0}, \\ldots, d_{axis - 1}, IDX[i_{0}, \\ldots, i_{M-1}], d_{axis + 1}, \\ldots, d_{N-1}].\n\nGenerally, the gather ouptuts\n\n.. math::\n  && Y[d_{0}, \\ldots, d_{axis - 1}, i_{B}, \\ldots, i_{M-1}, d_{axis + 1}, \\ldots, d_{N-1}] = \\\\\n  && X[d_{0}, \\ldots, d_{axis - 1}, IDX[i_{0}, \\ldots, i_{B - 1}, i_{B} \\ldots, i_{M-1}], d_{axis + 1}, \\ldots d_{N-1}].\n\nwhere :math:`B` = `batch_dims`.\n\n`x.shape[:batch_dims]` must be equal to `indices.shape[:batch_dims]`.\n\nOutput shape is `x.shape[:axis] + indices.shape[batch_dims:] + x.shape[axis + 1]`.",
+    "description": "Gather from the input data according to the index.\n\nGiven the input data :math:`X` of :math:`(D_{0}, \\ldots, D_{N-1})` shape and\nthe indices :math:`IDX` of :math:`(I_{0}, \\ldots, I_{M-1})` shape, in case of `batch_dims = 0`,\nthe gather outputs\n\n.. math::\n  && Y[d_{0}, \\ldots, d_{axis - 1}, i_{0}, \\ldots, i_{M-1}, d_{axis + 1}, \\ldots, d_{N-1}] = \\\\\n  && X[d_{0}, \\ldots, d_{axis - 1}, IDX[i_{0}, \\ldots, i_{M-1}], d_{axis + 1}, \\ldots, d_{N-1}].\n\nGenerally, the gather outputs\n\n.. math::\n  && Y[d_{0}, \\ldots, d_{axis - 1}, i_{B}, \\ldots, i_{M-1}, d_{axis + 1}, \\ldots, d_{N-1}] = \\\\\n  && X[d_{0}, \\ldots, d_{axis - 1}, IDX[i_{0}, \\ldots, i_{B - 1}, i_{B} \\ldots, i_{M-1}], d_{axis + 1}, \\ldots d_{N-1}].\n\nwhere :math:`B` = `batch_dims`.\n\n`x.shape[:batch_dims]` must be equal to `indices.shape[:batch_dims]`.\n\nOutput shape is `x.shape[:axis] + indices.shape[batch_dims:] + x.shape[axis + 1]`.",
     "inputs": [
       {
         "name": "x",
@@ -7781,14 +7781,14 @@
         "name": "padding",
         "type": "shape",
         "default": "(0, 0, 0, 0)",
-        "description": "A tuple of top, bottom, left and right padding extent. A tuple of two values yields identical top/bottom and left/right padding from the first and second tuple value. A single integer expands to indential padding extent for all sides."
+        "description": "A tuple of top, bottom, left and right padding extent. A tuple of two values yields identical top/bottom and left/right padding from the first and second tuple value. A single integer expands to identical padding extent for all sides."
       }
     ],
     "outputs": [
       {
         "name": "y",
         "type": "nnabla.Variable",
-        "description": "N-D array with shape :math:`(N, C_y, C_x, H_o, W_o)`.\n\nA spatial size of the output is calculated as\n\n.. math::\n\n  H_o = \\frac{H + (top\\_pad + bottom\\_pad) - patch_v }{patch\\_step_v} + 1.\n\nA channel size of the ouptut is calculated as\n\n.. math::\n\n  C_y = \\frac{2 \\times shift_v}{shift\\_step_v} + 1.\n\n:math:`W_o` and :math:`C_x` are the same calculation with differenct components."
+        "description": "N-D array with shape :math:`(N, C_y, C_x, H_o, W_o)`.\n\nA spatial size of the output is calculated as\n\n.. math::\n\n  H_o = \\frac{H + (top\\_pad + bottom\\_pad) - patch_v }{patch\\_step_v} + 1.\n\nA channel size of the output is calculated as\n\n.. math::\n\n  C_y = \\frac{2 \\times shift_v}{shift\\_step_v} + 1.\n\n:math:`W_o` and :math:`C_x` are the same calculation with differenct components."
       }
     ]
   }
