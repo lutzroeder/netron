@@ -9163,6 +9163,15 @@
         "name": "N",
         "type": "int64",
         "minimum": 2
+      },
+      {
+        "name": "shape_type",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `int64`.",
+        "default": {
+          "type": "type",
+          "value": 3
+        }
       }
     ],
     "inputs": [
@@ -9173,17 +9182,17 @@
       },
       {
         "name": "shape",
-        "description": "The `N` int32 vectors representing shape of tensors being concatenated.",
+        "description": "The `N` int32 or int64 vectors representing shape of tensors being concatenated.",
         "numberAttr": "N",
-        "type": 3
+        "typeAttr": "shape_type"
       }
     ],
     "outputs": [
       {
         "name": "offset",
-        "description": "The `N` int32 vectors representing the starting offset\nof input tensors within the concatenated output.",
+        "description": "The `N` vectors representing the starting offset\nof input tensors within the concatenated output with type matching `shape`.",
         "numberAttr": "N",
-        "type": 3
+        "typeAttr": "shape_type"
       }
     ]
   },
