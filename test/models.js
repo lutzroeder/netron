@@ -8,13 +8,6 @@ const view = require('../source/view');
 const zip = require('../source/zip');
 const tar = require('../source/tar');
 
-global.protobuf = require('../source/protobuf');
-global.flatbuffers = require('../source/flatbuffers');
-global.TextDecoder = TextDecoder;
-
-const patterns = process.argv.length > 2 ? process.argv.slice(2) : [];
-const targets = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8')).reverse();
-
 const host = {};
 
 host.TestHost = class {
@@ -628,35 +621,39 @@ class Target {
     }
 }
 
-const next = async () => {
-    if (targets.length > 0) {
-        const item = targets.pop();
-        const target = new Target(global.window.__host__, item);
-        if (target.match(patterns)) {
-            await target.execute();
+const main = async () => {
+    try {
+        let patterns = process.argv.length > 2 ? process.argv.slice(2) : [];
+        let targets = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8')).reverse();
+        if (patterns.length > 0 && patterns.every((path) => fs.existsSync(path))) {
+            targets = patterns.map((path) => {
+                return { target: path };
+            });
+            patterns = [];
         }
-        next();
+        const __host__ = new host.TestHost();
+        while (targets.length > 0) {
+            const item = targets.pop();
+            const target = new Target(__host__, item);
+            if (target.match(patterns)) {
+                /* eslint-disable no-await-in-loop */
+                await target.execute();
+                /* eslint-enable no-await-in-loop */
+            }
+        }
+    } catch (error) {
+        /* eslint-disable no-console */
+        console.error(error.name + ': ' + error.message);
+        if (error.cause) {
+            console.error('  ' + error.cause.name + ': ' + error.cause.message);
+        }
+        /* eslint-enable no-console */
     }
 };
 
+global.protobuf = require('../source/protobuf');
+global.flatbuffers = require('../source/flatbuffers');
+global.TextDecoder = TextDecoder;
 global.window = new Window();
-global.window.__host__ = new host.TestHost();
 
-if (patterns.length > 0 && patterns.every((path) => fs.existsSync(path))) {
-    targets.splice(0, targets.length);
-    for (const path of patterns) {
-        targets.push({
-            target: path
-        });
-    }
-    patterns.splice(0, patterns.length);
-}
-
-next().catch((error) => {
-    /* eslint-disable no-console */
-    console.error(error.name + ': ' + error.message);
-    if (error.cause) {
-        console.error('  ' + error.cause.name + ': ' + error.cause.message);
-    }
-    /* eslint-enable no-console */
-});
+main();
