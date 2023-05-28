@@ -4879,6 +4879,9 @@ python.Execution = class {
             }
             return [];
         });
+        this.registerFunction('torch.sqrt', function(x) {
+            return Math.sqrt(x);
+        });
         this.registerFunction('torch.slice', function(l, start, end, step) {
             if (!Array.isArray(l)) {
                 throw new python.Error('Slicing expected array');

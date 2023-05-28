@@ -4394,6 +4394,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "gpt2.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/11585383/gpt2.pt.zip[gpt2.pt]",
+    "format":   "TorchScript v1.12",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
+  },
+  {
+    "type":     "pytorch",
     "target":   "inception_v3_traced.pt",
     "source":   "https://github.com/lutzroeder/netron/files/6096627/inception_v3_traced.pt.zip[inception_v3_traced.pt]",
     "link":     "https://github.com/lutzroeder/netron/issues/281"
