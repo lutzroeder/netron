@@ -879,7 +879,6 @@ base.Telemetry = class {
         this._session[1] = parseInt(this._session[1], 10) + 1;
         this._engagement_time_msec = 0;
         this._navigator = window.navigator;
-        const navigator = this._navigator;
         this.set('protocol_version', 2);
         this.set('tracking_id', measurement_id);
         this.set('hash_info', '2oebu0');
@@ -895,13 +894,13 @@ base.Telemetry = class {
             this._metadata.is_first_visit = 1;
             this._metadata.is_new_to_site = 1;
         }
-        this.set('language', ((navigator && (navigator.language || navigator.browserLanguage)) || '').toLowerCase());
+        this.set('language', ((this._navigator && (this._navigator.language || this._navigator.browserLanguage)) || '').toLowerCase());
         this.set('screen_resolution', (window.screen ? window.screen.width : 0) + 'x' + (window.screen ? window.screen.height : 0));
     }
 
     async start() {
-        if (navigator && navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
-            const values = await navigator.userAgentData.getHighEntropyValues([ 'platform', 'platformVersion', 'architecture', 'model', 'uaFullVersion', 'bitness', 'fullVersionList', 'wow64' ]);
+        if (this._navigator && this._navigator.userAgentData && this._navigator.userAgentData.getHighEntropyValues) {
+            const values = await this._navigator.userAgentData.getHighEntropyValues([ 'platform', 'platformVersion', 'architecture', 'model', 'uaFullVersion', 'bitness', 'fullVersionList', 'wow64' ]);
             if (values) {
                 this.set('_user_agent_architecture', values.architecture);
                 this.set('_user_agent_bitness', values.bitness);
