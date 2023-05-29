@@ -198,14 +198,15 @@ host.BrowserHost = class {
         if (url) {
             const identifier = params.get('identifier') || null;
             const location = url
-                .replace(new RegExp('^https://github.com/([\\w]*/[\\w]*)/blob/([\\w/_.]*)(\\?raw=true)?$'), 'https://raw.githubusercontent.com/$1/$2')
-                .replace(new RegExp('^https://huggingface.co/(.*)/blob/(.*)$'), 'https://huggingface.co/$1/resolve/$2');
+                .replace(/^https:\/\/github\.com\/([\w-]*\/[\w-]*)\/blob\/([\w/\-_.]*)(\?raw=true)?$/, 'https://raw.githubusercontent.com/$1/$2')
+                .replace(/^https:\/\/github\.com\/([\w-]*\/[\w-]*)\/raw\/([\w/\-_.]*)$/, 'https://raw.githubusercontent.com/$1/$2')
+                .replace(/^https:\/\/huggingface.co\/(.*)\/blob\/(.*)$/, 'https://huggingface.co/$1/resolve/$2');
             if (this._view.accept(identifier || location)) {
                 const title = await this._openModel(location, identifier);
                 if (title) {
                     this.document.title = title;
+                    return;
                 }
-                return;
             }
         }
 
@@ -480,26 +481,35 @@ host.BrowserHost = class {
     async _openModel(url, identifier) {
         url = url.startsWith('data:') ? url : url + ((/\?/).test(url) ? '&' : '?') + 'cb=' + (new Date()).getTime();
         this._view.show('welcome spinner');
+        let context = null;
         try {
             const progress = (value) => {
                 this._view.progress(value);
             };
-            const stream = await this._request(url, null, null, progress);
-            const context = new host.BrowserHost.Context(this, url, identifier, stream);
+            let stream = await this._request(url, null, null, progress);
+            if (url.startsWith('https://raw.githubusercontent.com/') && stream.length < 150) {
+                const buffer = stream.peek();
+                const content = Array.from(buffer).map((c) => String.fromCodePoint(c)).join('');
+                if (content.split('\n')[0] === 'version https://git-lfs.github.com/spec/v1') {
+                    url = url.replace('https://raw.githubusercontent.com/', 'https://media.githubusercontent.com/media/');
+                    stream = await this._request(url, null, null, progress);
+                }
+            }
+            context = new host.BrowserHost.Context(this, url, identifier, stream);
             if (this._telemetry_ga4) {
                 this._telemetry_ga4.set('session_engaged', 1);
-            }
-            try {
-                await this._view.open(context);
-                return identifier || context.identifier;
-            } catch (err) {
-                if (err) {
-                    this._view.error(err, null, 'welcome');
-                }
             }
         } catch (error) {
             await this.error('Model load request failed.', error.message);
             this._view.show('welcome');
+        }
+        try {
+            await this._view.open(context);
+            return identifier || context.identifier;
+        } catch (err) {
+            if (err) {
+                this._view.error(err, null, 'welcome');
+            }
         }
         return null;
     }
