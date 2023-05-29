@@ -2699,7 +2699,7 @@
   {
     "type":     "mlnet",
     "target":   "ngram.zip",
-    "source":   "https://github.com/lutzroeder/netron/files/4216079/ngram.zip?raw=true",
+    "source":   "https://github.com/lutzroeder/netron/files/4216079/ngram.zip",
     "format":   "ML.NET v3.10.29.504",
     "link":     "https://github.com/lutzroeder/netron/issues/170"
   },
@@ -2762,7 +2762,7 @@
   {
     "type":     "mlnet",
     "target":   "termlookup_with_key.zip",
-    "source":   "https://github.com/lutzroeder/netron/files/4216237/termlookup_with_key.zip?raw=true",
+    "source":   "https://github.com/lutzroeder/netron/files/4216237/termlookup_with_key.zip",
     "format":   "ML.NET v1.0.0.0",
     "link":     "https://github.com/lutzroeder/netron/issues/170"
   },
