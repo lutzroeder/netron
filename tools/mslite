@@ -11,9 +11,9 @@ clean() {
 sync() {
     echo "mslite sync"
     mkdir -p "./third_party/source/mindspore/mindspore/lite/schema/"
-    curl --silent --location --output "./third_party/source/mindspore/mindspore/lite/schema/model.fbs" "https://github.com/mindspore-ai/mindspore/blob/master/mindspore/lite/schema/model.fbs?raw=true"
-    curl --silent --location --output "./third_party/source/mindspore/mindspore/lite/schema/ops.fbs" "https://github.com/mindspore-ai/mindspore/blob/master/mindspore/lite/schema/ops.fbs?raw=true"
-    curl --silent --location --output "./third_party/source/mindspore/mindspore/lite/schema/ops_types.fbs" "https://github.com/mindspore-ai/mindspore/blob/master/mindspore/lite/schema/ops_types.fbs?raw=true"
+    curl --silent --location --output "./third_party/source/mindspore/mindspore/lite/schema/model.fbs" "https://github.com/mindspore-ai/mindspore/raw/master/mindspore/lite/schema/model.fbs"
+    curl --silent --location --output "./third_party/source/mindspore/mindspore/lite/schema/ops.fbs" "https://github.com/mindspore-ai/mindspore/raw/master/mindspore/lite/schema/ops.fbs"
+    curl --silent --location --output "./third_party/source/mindspore/mindspore/lite/schema/ops_types.fbs" "https://github.com/mindspore-ai/mindspore/raw/master/mindspore/lite/schema/ops_types.fbs"
 }
 
 schema() {

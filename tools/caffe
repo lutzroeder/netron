@@ -12,7 +12,7 @@ clean() {
 sync() {
     echo "caffe sync"
     mkdir -p "./third_party/source/caffe/src/caffe/proto"
-    curl --silent --location --output "./third_party/source/caffe/src/caffe/proto/caffe.proto" "https://github.com/BVLC/caffe/blob/master/src/caffe/proto/caffe.proto?raw=true"
+    curl --silent --location --output "./third_party/source/caffe/src/caffe/proto/caffe.proto" "https://github.com/BVLC/caffe/raw/master/src/caffe/proto/caffe.proto"
 }
 
 schema() {

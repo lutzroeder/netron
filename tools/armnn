@@ -11,7 +11,7 @@ clean() {
 sync() {
     echo "armnn sync"
     mkdir -p "./third_party/source/armnn/src/armnnSerializer"
-    curl --silent --location --output "./third_party/source/armnn/src/armnnSerializer/ArmnnSchema.fbs" "https://github.com/ARM-software/armnn/raw/branches/armnn_20_08/src/armnnSerializer/ArmnnSchema.fbs?raw=true"
+    curl --silent --location --output "./third_party/source/armnn/src/armnnSerializer/ArmnnSchema.fbs" "https://github.com/ARM-software/armnn/raw/branches/armnn_20_08/src/armnnSerializer/ArmnnSchema.fbs"
 }
 
 schema() {

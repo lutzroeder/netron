@@ -11,7 +11,7 @@ clean() {
 sync() {
     echo "cntk sync"
     mkdir -p "./third_party/source/cntk/Source/CNTKv2LibraryDll/proto"
-    curl --silent --location --output "./third_party/source/cntk/Source/CNTKv2LibraryDll/proto/CNTK.proto" "https://github.com/microsoft/CNTK/blob/master/Source/CNTKv2LibraryDll/proto/CNTK.proto?raw=true"
+    curl --silent --location --output "./third_party/source/cntk/Source/CNTKv2LibraryDll/proto/CNTK.proto" "https://github.com/microsoft/CNTK/raw/master/Source/CNTKv2LibraryDll/proto/CNTK.proto"
 }
 
 schema() {

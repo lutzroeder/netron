@@ -13,7 +13,7 @@ sync() {
     download() {
         echo ${1}
         mkdir -p "./third_party/source/mediapipe/$(dirname ${1})"
-        curl --silent --location --output "./third_party/source/mediapipe/${1}" "https://github.com/google/mediapipe/blob/master/${1}?raw=true"
+        curl --silent --location --output "./third_party/source/mediapipe/${1}" "https://github.com/google/mediapipe/raw/master/${1}"
     }
     download "mediapipe/framework/calculator.proto"
     download "mediapipe/framework/calculator_options.proto"

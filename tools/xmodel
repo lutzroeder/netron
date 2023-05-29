@@ -12,7 +12,7 @@ clean() {
 sync() {
     echo "xmodel sync"
     mkdir -p ./third_party/source/xmodel/src/vai_library/usefultools/src
-    curl --silent --location --output "./third_party/source/xmodel/src/vai_library/usefultools/src/xir_graph_proto_v2.proto" "https://github.com/Xilinx/Vitis-AI/blob/master/src/vai_library/usefultools/src/xir_graph_proto_v2.proto?raw=true"
+    curl --silent --location --output "./third_party/source/xmodel/src/vai_library/usefultools/src/xir_graph_proto_v2.proto" "https://github.com/Xilinx/Vitis-AI/raw/master/src/vai_library/usefultools/src/xir_graph_proto_v2.proto"
 }
 
 

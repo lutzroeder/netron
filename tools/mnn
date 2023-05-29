@@ -11,14 +11,14 @@ clean() {
 sync() {
     echo "mnn sync"
     mkdir -p "./third_party/source/mnn/schema/default"
-    curl --silent --location --output "./third_party/source/mnn/schema/default/CaffeOp.fbs" "https://github.com/alibaba/MNN/blob/master/schema/default/CaffeOp.fbs?raw=true"
-    curl --silent --location --output "./third_party/source/mnn/schema/default/ExtraInfo.fbs" "https://github.com/alibaba/MNN/blob/master/schema/default/ExtraInfo.fbs?raw=true"
-    curl --silent --location --output "./third_party/source/mnn/schema/default/MNN.fbs" "https://github.com/alibaba/MNN/blob/master/schema/default/MNN.fbs?raw=true"
-    curl --silent --location --output "./third_party/source/mnn/schema/default/Tensor.fbs" "https://github.com/alibaba/MNN/blob/master/schema/default/Tensor.fbs?raw=true"
-    curl --silent --location --output "./third_party/source/mnn/schema/default/TensorflowOp.fbs" "https://github.com/alibaba/MNN/blob/master/schema/default/TensorflowOp.fbs?raw=true"
-    curl --silent --location --output "./third_party/source/mnn/schema/default/TFQuantizeOp.fbs" "https://github.com/alibaba/MNN/blob/master/schema/default/TFQuantizeOp.fbs?raw=true"
-    curl --silent --location --output "./third_party/source/mnn/schema/default/Type.fbs" "https://github.com/alibaba/MNN/blob/master/schema/default/Type.fbs?raw=true"
-    curl --silent --location --output "./third_party/source/mnn/schema/default/UserDefine.fbs" "https://github.com/alibaba/MNN/blob/master/schema/default/UserDefine.fbs?raw=true"
+    curl --silent --location --output "./third_party/source/mnn/schema/default/CaffeOp.fbs" "https://github.com/alibaba/MNN/raw/master/schema/default/CaffeOp.fbs"
+    curl --silent --location --output "./third_party/source/mnn/schema/default/ExtraInfo.fbs" "https://github.com/alibaba/MNN/raw/master/schema/default/ExtraInfo.fbs"
+    curl --silent --location --output "./third_party/source/mnn/schema/default/MNN.fbs" "https://github.com/alibaba/MNN/raw/master/schema/default/MNN.fbs"
+    curl --silent --location --output "./third_party/source/mnn/schema/default/Tensor.fbs" "https://github.com/alibaba/MNN/raw/master/schema/default/Tensor.fbs"
+    curl --silent --location --output "./third_party/source/mnn/schema/default/TensorflowOp.fbs" "https://github.com/alibaba/MNN/raw/master/schema/default/TensorflowOp.fbs"
+    curl --silent --location --output "./third_party/source/mnn/schema/default/TFQuantizeOp.fbs" "https://github.com/alibaba/MNN/raw/master/schema/default/TFQuantizeOp.fbs"
+    curl --silent --location --output "./third_party/source/mnn/schema/default/Type.fbs" "https://github.com/alibaba/MNN/raw/master/schema/default/Type.fbs"
+    curl --silent --location --output "./third_party/source/mnn/schema/default/UserDefine.fbs" "https://github.com/alibaba/MNN/raw/master/schema/default/UserDefine.fbs"
 }
 
 schema() {

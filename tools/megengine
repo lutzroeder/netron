@@ -11,11 +11,11 @@ clean() {
 sync() {
     echo "megengine sync"
     mkdir -p "./third_party/source/megengine/src/serialization/fbs"
-    curl --silent --location --output "./third_party/source/megengine/src/serialization/fbs/dtype.fbs" "https://github.com/MegEngine/MegEngine/blob/master/ci/compatibility/fbs/V2-backup/dtype.fbs?raw=true"
-    curl --silent --location --output "./third_party/source/megengine/src/serialization/fbs/mgb_opr_param_defs.fbs" "https://github.com/MegEngine/MegEngine/blob/master/ci/compatibility/fbs/V2-backup/mgb_opr_param_defs.fbs?raw=true"
-    curl --silent --location --output "./third_party/source/megengine/src/serialization/fbs/mgb_cpp_opr.fbs" "https://github.com/MegEngine/MegEngine/blob/master/ci/compatibility/fbs/V2-backup/mgb_cpp_opr.fbs?raw=true"
-    curl --silent --location --output "./third_party/source/megengine/src/serialization/fbs/opr_param_defs.fbs" "https://github.com/MegEngine/MegEngine/blob/master/ci/compatibility/fbs/V2-backup/opr_param_defs.fbs?raw=true"
-    curl --silent --location --output "./third_party/source/megengine/src/serialization/fbs/schema_v2.fbs" "https://github.com/MegEngine/MegEngine/blob/master/ci/compatibility/fbs/V2-backup/schema_v2.fbs?raw=true"
+    curl --silent --location --output "./third_party/source/megengine/src/serialization/fbs/dtype.fbs" "https://github.com/MegEngine/MegEngine/raw/master/ci/compatibility/fbs/V2-backup/dtype.fbs"
+    curl --silent --location --output "./third_party/source/megengine/src/serialization/fbs/mgb_opr_param_defs.fbs" "https://github.com/MegEngine/MegEngine/raw/master/ci/compatibility/fbs/V2-backup/mgb_opr_param_defs.fbs"
+    curl --silent --location --output "./third_party/source/megengine/src/serialization/fbs/mgb_cpp_opr.fbs" "https://github.com/MegEngine/MegEngine/raw/master/ci/compatibility/fbs/V2-backup/mgb_cpp_opr.fbs"
+    curl --silent --location --output "./third_party/source/megengine/src/serialization/fbs/opr_param_defs.fbs" "https://github.com/MegEngine/MegEngine/raw/master/ci/compatibility/fbs/V2-backup/opr_param_defs.fbs"
+    curl --silent --location --output "./third_party/source/megengine/src/serialization/fbs/schema_v2.fbs" "https://github.com/MegEngine/MegEngine/raw/master/ci/compatibility/fbs/V2-backup/schema_v2.fbs"
 }
 
 schema() {

@@ -34,7 +34,7 @@ sync() {
     git submodule update --quiet --init --recursive
     popd > /dev/null
     mkdir -p "./third_party/source/onnxruntime/core/flatbuffers/schema"
-    curl --silent --location --output "./third_party/source/onnxruntime/core/flatbuffers/schema/ort.fbs" "https://github.com/microsoft/onnxruntime/blob/main/onnxruntime/core/flatbuffers/schema/ort.fbs?raw=true"
+    curl --silent --location --output "./third_party/source/onnxruntime/core/flatbuffers/schema/ort.fbs" "https://github.com/microsoft/onnxruntime/raw/main/onnxruntime/core/flatbuffers/schema/ort.fbs"
 }
 
 install() {

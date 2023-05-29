@@ -30,7 +30,7 @@ sync() {
     [ -d "./third_party/source/tensorflow" ] || git clone --quiet https://github.com/tensorflow/tensorflow.git "./third_party/source/tensorflow"
     git -C "./third_party/source/tensorflow" pull --quiet --prune
     mkdir -p "./third_party/source/tflite-support/tensorflow_lite_support/metadata"
-    curl --silent --location --output "./third_party/source/tflite-support/tensorflow_lite_support/metadata/metadata_schema.fbs" "https://github.com/tensorflow/tflite-support/blob/master/tensorflow_lite_support/metadata/metadata_schema.fbs?raw=true"
+    curl --silent --location --output "./third_party/source/tflite-support/tensorflow_lite_support/metadata/metadata_schema.fbs" "https://github.com/tensorflow/tflite-support/raw/master/tensorflow_lite_support/metadata/metadata_schema.fbs"
 }
 
 install() {

@@ -11,7 +11,7 @@ clean() {
 sync() {
     echo "circle sync"
     mkdir -p "./third_party/source/circle/nnpackage/schema"
-    curl --silent --location --output "./third_party/source/circle/nnpackage/schema/circle_schema.fbs" "https://github.com/Samsung/ONE/blob/master/nnpackage/schema/circle_schema.fbs?raw=true"
+    curl --silent --location --output "./third_party/source/circle/nnpackage/schema/circle_schema.fbs" "https://github.com/Samsung/ONE/raw/master/nnpackage/schema/circle_schema.fbs"
 }
 
 schema() {

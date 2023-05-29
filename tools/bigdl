@@ -11,7 +11,7 @@ clean() {
 sync() {
     echo "bigdl sync"
     mkdir -p "./third_party/source/bigdl/spark/dl/src/main/resources/serialization"
-    curl --silent --location --output "./third_party/source/bigdl/spark/dl/src/main/resources/serialization/bigdl.proto" "https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/resources/serialization/bigdl.proto?raw=true"
+    curl --silent --location --output "./third_party/source/bigdl/spark/dl/src/main/resources/serialization/bigdl.proto" "https://github.com/intel-analytics/BigDL/raw/master/spark/dl/src/main/resources/serialization/bigdl.proto"
 }
 
 schema() {

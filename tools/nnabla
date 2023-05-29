@@ -27,10 +27,10 @@ clean() {
 sync() {
     echo "nnabla sync"
     mkdir -p "./third_party/source/nnabla/build-tools/code_generator"
-    curl --silent --location --output "./third_party/source/nnabla/build-tools/code_generator/functions.yaml" "https://github.com/sony/nnabla/blob/master/build-tools/code_generator/functions.yaml?raw=true"
-    curl --silent --location --output "./third_party/source/nnabla/build-tools/code_generator/solvers.yaml" "https://github.com/sony/nnabla/blob/master/build-tools/code_generator/solvers.yaml?raw=true"
+    curl --silent --location --output "./third_party/source/nnabla/build-tools/code_generator/functions.yaml" "https://github.com/sony/nnabla/raw/master/build-tools/code_generator/functions.yaml"
+    curl --silent --location --output "./third_party/source/nnabla/build-tools/code_generator/solvers.yaml" "https://github.com/sony/nnabla/raw/master/build-tools/code_generator/solvers.yaml"
     mkdir -p "./third_party/source/nnabla/src/nbla/proto"
-    curl --silent --location --output "./third_party/source/nnabla/src/nbla/proto/nnabla.proto.tmpl" "https://github.com/sony/nnabla/blob/master/src/nbla/proto/nnabla.proto.tmpl?raw=true"
+    curl --silent --location --output "./third_party/source/nnabla/src/nbla/proto/nnabla.proto.tmpl" "https://github.com/sony/nnabla/raw/master/src/nbla/proto/nnabla.proto.tmpl"
     echo 'package nnabla;' | cat - ./third_party/source/nnabla/src/nbla/proto/nnabla.proto.tmpl > ./third_party/source/nnabla/src/nbla/proto/nnabla.proto.tmpl.temp
     mv ./third_party/source/nnabla/src/nbla/proto/nnabla.proto.tmpl.temp ./third_party/source/nnabla/src/nbla/proto/nnabla.proto.tmpl
 }

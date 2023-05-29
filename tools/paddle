@@ -12,10 +12,10 @@ clean() {
 sync() {
     echo "paddle sync"
     mkdir -p "./third_party/source/paddle/paddle/fluid/framework"
-    curl --silent --location --output "./third_party/source/paddle/paddle/fluid/framework/framework.proto" "https://github.com/PaddlePaddle/Paddle/blob/develop/paddle/fluid/framework/framework.proto?raw=true"
+    curl --silent --location --output "./third_party/source/paddle/paddle/fluid/framework/framework.proto" "https://github.com/PaddlePaddle/Paddle/raw/develop/paddle/fluid/framework/framework.proto"
     mkdir -p "./third_party/source/paddle-lite/lite/model_parser/flatbuffers"
-    curl --silent --location --output "./third_party/source/paddle-lite/lite/model_parser/flatbuffers/framework.fbs" "https://github.com/PaddlePaddle/Paddle-Lite/blob/develop/lite/model_parser/flatbuffers/framework.fbs?raw=true"
-    curl --silent --location --output "./third_party/source/paddle-lite/lite/model_parser/flatbuffers/param.fbs" "https://github.com/PaddlePaddle/Paddle-Lite/blob/develop/lite/model_parser/flatbuffers/param.fbs?raw=true"
+    curl --silent --location --output "./third_party/source/paddle-lite/lite/model_parser/flatbuffers/framework.fbs" "https://github.com/PaddlePaddle/Paddle-Lite/raw/develop/lite/model_parser/flatbuffers/framework.fbs"
+    curl --silent --location --output "./third_party/source/paddle-lite/lite/model_parser/flatbuffers/param.fbs" "https://github.com/PaddlePaddle/Paddle-Lite/raw/develop/lite/model_parser/flatbuffers/param.fbs"
 }
 
 schema() {
