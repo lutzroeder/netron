@@ -844,7 +844,8 @@
       { "name": "end_mask", "type": "int32", "default": 0 },
       { "name": "ellipsis_mask", "type": "int32", "default": 0 },
       { "name": "new_axis_mask", "type": "int32", "default": 0 },
-      { "name": "shrink_axis_mask", "type": "int32", "default": 0 }
+      { "name": "shrink_axis_mask", "type": "int32", "default": 0 },
+      { "name": "offset", "type": "boolean", "default": false }
     ]
   },
   {

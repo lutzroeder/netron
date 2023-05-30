@@ -1475,6 +1475,7 @@ $root.tflite.StridedSliceOptions = class StridedSliceOptions {
         $.ellipsis_mask = reader.int32_(position, 8, 0);
         $.new_axis_mask = reader.int32_(position, 10, 0);
         $.shrink_axis_mask = reader.int32_(position, 12, 0);
+        $.offset = reader.bool_(position, 14, false);
         return $;
     }
 
@@ -1485,6 +1486,7 @@ $root.tflite.StridedSliceOptions = class StridedSliceOptions {
         $.ellipsis_mask = reader.value(json.ellipsis_mask, 0);
         $.new_axis_mask = reader.value(json.new_axis_mask, 0);
         $.shrink_axis_mask = reader.value(json.shrink_axis_mask, 0);
+        $.offset = reader.value(json.offset, false);
         return $;
     }
 };
