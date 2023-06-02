@@ -39545,6 +39545,10 @@
       {
         "name": "T",
         "type": "type"
+      },
+      {
+        "name": "U",
+        "type": "type"
       }
     ],
     "inputs": [
@@ -39554,7 +39558,7 @@
       },
       {
         "name": "layout_input",
-        "typeAttr": "T"
+        "typeAttr": "U"
       }
     ],
     "outputs": [
