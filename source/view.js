@@ -1161,9 +1161,89 @@ view.Menu = class {
             this.close();
         } else {
             this._root = [ this ];
+            this._stack = [ this ];
+            this.open();
+        }
+    }
+
+    open() {
+        if (this._element) {
+            if (this._stack.length === 0) {
+                this.toggle();
+                this._stack = [ this ];
+            }
             this._rebuild();
             this._update();
+            this.register(this._exit, 'Escape');
+            this.register(this._previous, 'Up');
+            this.register(this._next, 'Down');
+            this.register(this._pop, 'Left');
+            this.register(this._push, 'Right');
         }
+    }
+
+    close() {
+        if (this._element) {
+            this.unregister(this._exit);
+            this.unregister(this._previous);
+            this.unregister(this._next);
+            this.unregister(this._pop);
+            this.unregister(this._push);
+            this._element.style.opacity = 0;
+            this._element.style.left = '-200px';
+            const button = this._element.ownerDocument.activeElement;
+            if (this._buttons.indexOf(button) > 0) {
+                button.blur();
+            }
+            while (this._root.length > 1) {
+                this._deactivate();
+            }
+            this._stack = [];
+        }
+    }
+
+    register(action, accelerator) {
+        let shortcut = '';
+        if (accelerator) {
+            let shift = false;
+            let alt = false;
+            let ctrl = false;
+            let cmd = false;
+            let cmdOrCtrl = false;
+            let key = '';
+            for (const part of accelerator.split('+')) {
+                switch (part) {
+                    case 'CmdOrCtrl': cmdOrCtrl = true; break;
+                    case 'Cmd': cmd = true; break;
+                    case 'Ctrl': ctrl = true; break;
+                    case 'Alt': alt = true; break;
+                    case 'Shift': shift = true; break;
+                    default: key = part; break;
+                }
+            }
+            if (key !== '') {
+                if (this._darwin) {
+                    shortcut += ctrl ? '&#x2303' : '';
+                    shortcut += alt ? '&#x2325;' : '';
+                    shortcut += shift ? '&#x21e7;' : '';
+                    shortcut += cmdOrCtrl || cmd ? '&#x2318;' : '';
+                    shortcut += this._symbols.has(key) ? this._symbols.get(key) : key;
+                } else {
+                    shortcut += cmdOrCtrl || ctrl ? 'Ctrl+' : '';
+                    shortcut += alt ? 'Alt+' : '';
+                    shortcut += shift ? 'Shift+' : '';
+                    shortcut += key;
+                }
+                let code = (cmdOrCtrl ? 0x1000 : 0) | (cmd ? 0x0800 : 0) | (ctrl ? 0x0400 : 0) | (alt ? 0x0200 : 0 | shift ? 0x0100 : 0);
+                code |= this._keyCodes.has(key) ? this._keyCodes.get(key) : key.charCodeAt(0);
+                this._accelerators.set(code, action);
+            }
+        }
+        return shortcut;
+    }
+
+    unregister(action) {
+        this._accelerators = new Map(Array.from(this._accelerators.entries()).filter((entry) => entry[1] !== action));
     }
 
     _execute(action) {
@@ -1380,86 +1460,6 @@ view.Menu = class {
         if (index === -1 && this._buttons.length > 0) {
             this._buttons[0].focus();
         }
-    }
-
-    open() {
-        if (this._element) {
-            if (this._stack.length === 0) {
-                this.toggle();
-                this._stack = [ this ];
-                this._rebuild();
-                this._update();
-            }
-            this.register(this._exit, 'Escape');
-            this.register(this._previous, 'Up');
-            this.register(this._next, 'Down');
-            this.register(this._pop, 'Left');
-            this.register(this._push, 'Right');
-        }
-    }
-
-    close() {
-        if (this._element) {
-            this.unregister(this._exit);
-            this.unregister(this._previous);
-            this.unregister(this._next);
-            this.unregister(this._pop);
-            this.unregister(this._push);
-            this._element.style.opacity = 0;
-            this._element.style.left = '-200px';
-            const button = this._element.ownerDocument.activeElement;
-            if (this._buttons.indexOf(button) > 0) {
-                button.blur();
-            }
-            while (this._root.length > 1) {
-                this._deactivate();
-            }
-            this._stack = [];
-        }
-    }
-
-    register(action, accelerator) {
-        let shortcut = '';
-        if (accelerator) {
-            let shift = false;
-            let alt = false;
-            let ctrl = false;
-            let cmd = false;
-            let cmdOrCtrl = false;
-            let key = '';
-            for (const part of accelerator.split('+')) {
-                switch (part) {
-                    case 'CmdOrCtrl': cmdOrCtrl = true; break;
-                    case 'Cmd': cmd = true; break;
-                    case 'Ctrl': ctrl = true; break;
-                    case 'Alt': alt = true; break;
-                    case 'Shift': shift = true; break;
-                    default: key = part; break;
-                }
-            }
-            if (key !== '') {
-                if (this._darwin) {
-                    shortcut += ctrl ? '&#x2303' : '';
-                    shortcut += alt ? '&#x2325;' : '';
-                    shortcut += shift ? '&#x21e7;' : '';
-                    shortcut += cmdOrCtrl || cmd ? '&#x2318;' : '';
-                    shortcut += this._symbols.has(key) ? this._symbols.get(key) : key;
-                } else {
-                    shortcut += cmdOrCtrl || ctrl ? 'Ctrl+' : '';
-                    shortcut += alt ? 'Alt+' : '';
-                    shortcut += shift ? 'Shift+' : '';
-                    shortcut += key;
-                }
-                let code = (cmdOrCtrl ? 0x1000 : 0) | (cmd ? 0x0800 : 0) | (ctrl ? 0x0400 : 0) | (alt ? 0x0200 : 0 | shift ? 0x0100 : 0);
-                code |= this._keyCodes.has(key) ? this._keyCodes.get(key) : key.charCodeAt(0);
-                this._accelerators.set(code, action);
-            }
-        }
-        return shortcut;
-    }
-
-    unregister(action) {
-        this._accelerators = new Map(Array.from(this._accelerators.entries()).filter((entry) => entry[1] !== action));
     }
 };
 
