@@ -840,7 +840,11 @@ base.BinaryReader = class {
 
 base.Telemetry = class {
 
-    constructor(window, measurement_id, client_id, session) {
+    constructor(window) {
+        this._window = window;
+        this._navigator = window.navigator;
+        this._config = new Map();
+        this._metadata = {};
         this._schema = new Map([
             [ 'protocol_version', 'v' ],
             [ 'tracking_id', 'tid' ],
@@ -871,14 +875,17 @@ base.Telemetry = class {
             [ 'is_session_start', '_ss' ],
             [ 'event_name', 'en' ]
         ]);
-        this._config = new Map();
-        this._metadata = {};
+    }
+
+    async start(measurement_id, client_id, session) {
         this._session = session && typeof session === 'string' ? session.replace(/^GS1\.1\./, '').split('.') : null;
         this._session = Array.isArray(this._session) && this._session.length >= 7 ? this._session : [ '0', '0', '0', '0', '0', '0', '0' ];
         this._session[0] = Date.now();
         this._session[1] = parseInt(this._session[1], 10) + 1;
         this._engagement_time_msec = 0;
-        this._navigator = window.navigator;
+        if (this._config.size > 0) {
+            throw new Error('Invalid session state.');
+        }
         this.set('protocol_version', 2);
         this.set('tracking_id', measurement_id);
         this.set('hash_info', '2oebu0');
@@ -896,9 +903,6 @@ base.Telemetry = class {
         }
         this.set('language', ((this._navigator && (this._navigator.language || this._navigator.browserLanguage)) || '').toLowerCase());
         this.set('screen_resolution', (window.screen ? window.screen.width : 0) + 'x' + (window.screen ? window.screen.height : 0));
-    }
-
-    async start() {
         if (this._navigator && this._navigator.userAgentData && this._navigator.userAgentData.getHighEntropyValues) {
             const values = await this._navigator.userAgentData.getHighEntropyValues([ 'platform', 'platformVersion', 'architecture', 'model', 'uaFullVersion', 'bitness', 'fullVersionList', 'wow64' ]);
             if (values) {
@@ -927,7 +931,7 @@ base.Telemetry = class {
     }
 
     get session() {
-        return this._session.join('.');
+        return this._session ? this._session.join('.') : null;
     }
 
     set(name, value) {
@@ -946,17 +950,23 @@ base.Telemetry = class {
     }
 
     send(name, params) {
-        params = Object.assign({ event_name: name }, this._metadata, /* { debug_mode: true },*/ params);
-        this._metadata = {};
-        this._update() && (params.engagement_time_msec = this._engagement_time_msec) && (this._engagement_time_msec = 0);
-        const build = (entires) => entires.map((entry) => entry[0] + '=' + encodeURIComponent(entry[1])).join('&');
-        this._cache = this._cache || build(Array.from(this._config));
-        const key = (name, value) => this._schema.get(name) || ('number' === typeof value && !isNaN(value) ? 'epn.' : 'ep.') + name;
-        const body = build(Object.entries(params).map((entry) => [ key(entry[0], entry[1]), entry[1] ]));
-        const url = 'https://analytics.google.com/g/collect?' + this._cache;
-        this._navigator.sendBeacon(url, body);
-        this._session[2] = this.get('session_engaged') || '0';
-        this.set('hit_count', this.get('hit_count') + 1);
+        if (this._session) {
+            try {
+                params = Object.assign({ event_name: name }, this._metadata, /* { debug_mode: true },*/ params);
+                this._metadata = {};
+                this._update() && (params.engagement_time_msec = this._engagement_time_msec) && (this._engagement_time_msec = 0);
+                const build = (entires) => entires.map((entry) => entry[0] + '=' + encodeURIComponent(entry[1])).join('&');
+                this._cache = this._cache || build(Array.from(this._config));
+                const key = (name, value) => this._schema.get(name) || ('number' === typeof value && !isNaN(value) ? 'epn.' : 'ep.') + name;
+                const body = build(Object.entries(params).map((entry) => [ key(entry[0], entry[1]), entry[1] ]));
+                const url = 'https://analytics.google.com/g/collect?' + this._cache;
+                this._navigator.sendBeacon(url, body);
+                this._session[2] = this.get('session_engaged') || '0';
+                this.set('hit_count', this.get('hit_count') + 1);
+            } catch (e) {
+                // continue regardless of error
+            }
+        }
     }
 
     _update(focused, page, visible) {

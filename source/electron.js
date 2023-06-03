@@ -14,6 +14,7 @@ host.ElectronHost = class {
     constructor() {
         this._document = window.document;
         this._window = window;
+        this._telemetry = new base.Telemetry(this._window);
         process.on('uncaughtException', (err) => {
             this.exception(err, true);
             this._terminate(err.message);
@@ -59,65 +60,61 @@ host.ElectronHost = class {
         electron.ipcRenderer.on('open', (_, data) => {
             this._open(data);
         });
-        await this._age();
-        await this._consent();
-        await this._telemetry();
-    }
-
-    async _age() {
-        const age = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
-        if (age > 180) {
-            this._view.show('welcome');
-            this._terminate('Please update to the newest version.', 'Download', () => {
-                const link = this._element('logo-github').href;
-                this.openURL(link);
-            });
-            return new Promise(() => {});
-        }
-        return Promise.resolve();
-    }
-
-    async _consent() {
-        const time = this._getConfiguration('consent');
-        if (!time || (Date.now() - time) > 30 * 24 * 60 * 60 * 1000) {
-            let consent = true;
-            try {
-                const content = await this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 2000);
-                const json = JSON.parse(content);
-                const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
-                if (json && json.country && countries.indexOf(json.country) === -1) {
-                    consent = false;
+        const age = async () => {
+            const days = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
+            if (days > 180) {
+                this._view.show('welcome');
+                this._terminate('Please update to the newest version.', 'Download', () => {
+                    const link = this._element('logo-github').href;
+                    this.openURL(link);
+                });
+                return new Promise(() => {});
+            }
+            return Promise.resolve();
+        };
+        const consent = async () => {
+            const time = this._getConfiguration('consent');
+            if (!time || (Date.now() - time) > 30 * 24 * 60 * 60 * 1000) {
+                let consent = true;
+                try {
+                    const content = await this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 2000);
+                    const json = JSON.parse(content);
+                    const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
+                    if (json && json.country && countries.indexOf(json.country) === -1) {
+                        consent = false;
+                    }
+                } catch (error) {
+                    // continue regardless of error
                 }
-            } catch (error) {
-                // continue regardless of error
+                if (consent) {
+                    await this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept');
+                }
+                this._setConfiguration('consent', Date.now());
             }
-            if (consent) {
-                await this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept');
+        };
+        const telemetry = async () => {
+            if (this._environment.packaged) {
+                const measurement_id = '848W2NVWVH';
+                const user = this._getConfiguration('user') || null;
+                const session = this._getConfiguration('session') || null;
+                await this._telemetry.start('G-' + measurement_id, user && user.indexOf('.') !== -1 ? user : null, session);
+                this._telemetry.send('page_view', {
+                    app_name: this.type,
+                    app_version: this.version,
+                });
+                this._telemetry.send('scroll', {
+                    percent_scrolled: 90,
+                    app_name: this.type,
+                    app_version: this.version
+                });
+                this._setConfiguration('user', this._telemetry.get('client_id'));
+                this._setConfiguration('session', this._telemetry.session);
+                this._telemetry_ua = new host.Telemetry('UA-54146-13', this._telemetry.get('client_id'), navigator.userAgent, this.type, this.version);
             }
-            this._setConfiguration('consent', Date.now());
-        }
-    }
-
-    async _telemetry() {
-        if (this._environment.packaged) {
-            const measurement_id = '848W2NVWVH';
-            const user = this._getConfiguration('user') || null;
-            const session = this._getConfiguration('session') || null;
-            this._telemetry_ga4 = new base.Telemetry(this._window, 'G-' + measurement_id, user && user.indexOf('.') !== -1 ? user : null, session);
-            await this._telemetry_ga4.start();
-            this._telemetry_ga4.send('page_view', {
-                app_name: this.type,
-                app_version: this.version,
-            });
-            this._telemetry_ga4.send('scroll', {
-                percent_scrolled: 90,
-                app_name: this.type,
-                app_version: this.version
-            });
-            this._setConfiguration('user', this._telemetry_ga4.get('client_id'));
-            this._setConfiguration('session', this._telemetry_ga4.session);
-            this._telemetry_ua = new host.Telemetry('UA-54146-13', this._telemetry_ga4.get('client_id'), navigator.userAgent, this.type, this.version);
-        }
+        };
+        await age();
+        await consent();
+        await telemetry();
     }
 
     start() {
@@ -340,7 +337,7 @@ host.ElectronHost = class {
     }
 
     exception(error, fatal) {
-        if ((this._telemetry_ua || this._telemetry_ga4) && error) {
+        if ((this._telemetry_ua || this._telemetry) && error) {
             try {
                 const name = error.name ? error.name + ': ' : '';
                 const message = error.message ? error.message : JSON.stringify(error);
@@ -372,17 +369,15 @@ host.ElectronHost = class {
                 if (this._telemetry_ua) {
                     this._telemetry_ua.exception(stack ? description + ' @ ' + stack : description, fatal);
                 }
-                if (this._telemetry_ga4) {
-                    this._telemetry_ga4.send('exception', {
-                        app_name: this.type,
-                        app_version: this.version,
-                        error_name: name,
-                        error_message: message,
-                        error_context: context,
-                        error_stack: stack,
-                        error_fatal: fatal ? true : false
-                    });
-                }
+                this._telemetry.send('exception', {
+                    app_name: this.type,
+                    app_version: this.version,
+                    error_name: name,
+                    error_message: message,
+                    error_context: context,
+                    error_stack: stack,
+                    error_fatal: fatal ? true : false
+                });
             } catch (e) {
                 // continue regardless of error
             }
@@ -400,14 +395,10 @@ host.ElectronHost = class {
     }
 
     event(name, params) {
-        if (this._telemetry_ga4 && name && params) {
-            try {
-                params.app_name = this.type;
-                params.app_version = this.version;
-                this._telemetry_ga4.send(name, params);
-            } catch (e) {
-                // continue regardless of error
-            }
+        if (name && params) {
+            params.app_name = this.type;
+            params.app_version = this.version;
+            this._telemetry.send(name, params);
         }
     }
 
@@ -451,9 +442,7 @@ host.ElectronHost = class {
             this._view.show('welcome spinner');
             try {
                 const context = await this._context(path);
-                if (this._telemetry_ga4) {
-                    this._telemetry_ga4.set('session_engaged', 1);
-                }
+                this._telemetry.set('session_engaged', 1);
                 try {
                     const model = await this._view.open(context);
                     this._view.show(null);

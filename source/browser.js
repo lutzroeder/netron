@@ -7,6 +7,8 @@ host.BrowserHost = class {
         this._window = window;
         this._navigator = window.navigator;
         this._document = window.document;
+        const base = require('./base');
+        this._telemetry = new base.Telemetry(this._window);
         this._window.eval = () => {
             throw new Error('window.eval() not supported.');
         };
@@ -51,132 +53,126 @@ host.BrowserHost = class {
 
     async view(view) {
         this._view = view;
-        await this._age();
-        await this._consent();
-        await this._telemetry();
-        await this._capabilities();
-    }
-
-    async _age() {
-        const age = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
-        if (age > 180) {
-            this.document.body.classList.remove('spinner');
-            this.window.terminate('Please update to the newest version.', 'Download', () => {
-                const link = this._element('logo-github').href;
-                this.openURL(link);
-            });
-            return new Promise(() => {});
-        }
-        return Promise.resolve();
-    }
-
-    async _consent() {
-        if (this._getCookie('consent') || this._getCookie('_ga')) {
-            return;
-        }
-        let consent = true;
-        try {
-            const text = await this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', null, 2000);
-            const json = JSON.parse(text);
-            const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
-            if (json && json.country && countries.indexOf(json.country) === -1) {
-                consent = false;
+        const age = async () => {
+            const days = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
+            if (days > 180) {
+                this.document.body.classList.remove('spinner');
+                this.window.terminate('Please update to the newest version.', 'Download', () => {
+                    const link = this._element('logo-github').href;
+                    this.openURL(link);
+                });
+                return new Promise(() => {});
             }
-        } catch (error) {
-            // continue regardless of error
-        }
-        if (consent) {
-            this.document.body.classList.remove('spinner');
-            await this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept');
-        }
-        this._setCookie('consent', Date.now().toString(), 30);
-    }
-
-    async _telemetry() {
-        if (this._environment.packaged) {
-            this._window.addEventListener('error', (event) => {
-                const error = event instanceof ErrorEvent && event.error && event.error instanceof Error ? event.error : new Error(event && event.message ? event.message : JSON.stringify(event));
-                this.exception(error, true);
-            });
-            const ga4 = async () => {
-                const base = require('./base');
-                const measurement_id = '848W2NVWVH';
-                const user = this._getCookie('_ga').replace(/^(GA1\.\d\.)*/, '');
-                const session = this._getCookie('_ga' + measurement_id);
-                this._telemetry_ga4 = new base.Telemetry(this._window, 'G-' + measurement_id, user, session);
-                await this._telemetry_ga4.start();
-                this._telemetry_ga4.set('page_location', this._document.location && this._document.location.href ? this._document.location.href : null);
-                this._telemetry_ga4.set('page_title', this._document.title ? this._document.title : null);
-                this._telemetry_ga4.set('page_referrer', this._document.referrer ? this._document.referrer : null);
-                this._telemetry_ga4.send('page_view', {
-                    app_name: this.type,
-                    app_version: this.version,
-                });
-                this._telemetry_ga4.send('scroll', {
-                    percent_scrolled: 90,
-                    app_name: this.type,
-                    app_version: this.version
-                });
-                this._setCookie('_ga', 'GA1.2.' + this._telemetry_ga4.get('client_id'), 1200);
-                this._setCookie('_ga' + measurement_id, 'GS1.1.' + this._telemetry_ga4.session, 1200);
-            };
-            const ua = async () => {
-                return new Promise((resolve) => {
-                    this._telemetry_ua = true;
-                    const script = this.document.createElement('script');
-                    script.setAttribute('type', 'text/javascript');
-                    script.setAttribute('src', 'https://www.google-analytics.com/analytics.js');
-                    script.onload = () => {
-                        if (this.window.ga) {
-                            this.window.ga.l = 1 * new Date();
-                            this.window.ga('create', 'UA-54146-13', 'auto');
-                            this.window.ga('set', 'anonymizeIp', true);
-                        }
-                        resolve();
-                    };
-                    script.onerror = () => {
-                        resolve();
-                    };
-                    this.document.body.appendChild(script);
-                });
-            };
-            await ga4();
-            await ua();
-        }
-    }
-
-    async _capabilities() {
-        const filter = (list) => {
-            return list.filter((capability) => {
-                const path = capability.split('.').reverse();
-                let obj = this.window[path.pop()];
-                while (obj && path.length > 0) {
-                    obj = obj[path.pop()];
-                }
-                return obj;
-            });
+            return Promise.resolve();
         };
-        const required = [
-            'TextDecoder', 'TextEncoder',
-            'URLSearchParams',
-            'HTMLCanvasElement.prototype.toBlob',
-            'Promise', 'Symbol.asyncIterator'
-        ];
-        const optional = [
-            'fetch',
-            'DataView.prototype.getBigInt64',
-            'Worker',
-        ];
-        const available = filter(required);
-        const capabilities = available.concat(filter(optional));
-        this.event('browser_open', {
-            browser_capabilities: capabilities.map((capability) => capability.split('.').pop()).join(',')
-        });
-        if (required.length > available.length) {
-            this.window.terminate('Your browser is not supported.');
-            return new Promise(() => {});
-        }
-        return Promise.resolve();
+        const consent = async () => {
+            if (this._getCookie('consent') || this._getCookie('_ga')) {
+                return;
+            }
+            let consent = true;
+            try {
+                const text = await this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', null, 2000);
+                const json = JSON.parse(text);
+                const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
+                if (json && json.country && countries.indexOf(json.country) === -1) {
+                    consent = false;
+                }
+            } catch (error) {
+                // continue regardless of error
+            }
+            if (consent) {
+                this.document.body.classList.remove('spinner');
+                await this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept');
+            }
+            this._setCookie('consent', Date.now().toString(), 30);
+        };
+        const telemetry = async () => {
+            if (this._environment.packaged) {
+                this._window.addEventListener('error', (event) => {
+                    const error = event instanceof ErrorEvent && event.error && event.error instanceof Error ? event.error : new Error(event && event.message ? event.message : JSON.stringify(event));
+                    this.exception(error, true);
+                });
+                const ga4 = async () => {
+                    const measurement_id = '848W2NVWVH';
+                    const user = this._getCookie('_ga').replace(/^(GA1\.\d\.)*/, '');
+                    const session = this._getCookie('_ga' + measurement_id);
+                    await this._telemetry.start('G-' + measurement_id, user, session);
+                    this._telemetry.set('page_location', this._document.location && this._document.location.href ? this._document.location.href : null);
+                    this._telemetry.set('page_title', this._document.title ? this._document.title : null);
+                    this._telemetry.set('page_referrer', this._document.referrer ? this._document.referrer : null);
+                    this._telemetry.send('page_view', {
+                        app_name: this.type,
+                        app_version: this.version,
+                    });
+                    this._telemetry.send('scroll', {
+                        percent_scrolled: 90,
+                        app_name: this.type,
+                        app_version: this.version
+                    });
+                    this._setCookie('_ga', 'GA1.2.' + this._telemetry.get('client_id'), 1200);
+                    this._setCookie('_ga' + measurement_id, 'GS1.1.' + this._telemetry.session, 1200);
+                };
+                const ua = async () => {
+                    return new Promise((resolve) => {
+                        this._telemetry_ua = true;
+                        const script = this.document.createElement('script');
+                        script.setAttribute('type', 'text/javascript');
+                        script.setAttribute('src', 'https://www.google-analytics.com/analytics.js');
+                        script.onload = () => {
+                            if (this.window.ga) {
+                                this.window.ga.l = 1 * new Date();
+                                this.window.ga('create', 'UA-54146-13', 'auto');
+                                this.window.ga('set', 'anonymizeIp', true);
+                            }
+                            resolve();
+                        };
+                        script.onerror = () => {
+                            resolve();
+                        };
+                        this.document.body.appendChild(script);
+                    });
+                };
+                await ga4();
+                await ua();
+            }
+        };
+        const capabilities = async () => {
+            const filter = (list) => {
+                return list.filter((capability) => {
+                    const path = capability.split('.').reverse();
+                    let obj = this.window[path.pop()];
+                    while (obj && path.length > 0) {
+                        obj = obj[path.pop()];
+                    }
+                    return obj;
+                });
+            };
+            const required = [
+                'TextDecoder', 'TextEncoder',
+                'URLSearchParams',
+                'HTMLCanvasElement.prototype.toBlob',
+                'Promise', 'Symbol.asyncIterator'
+            ];
+            const optional = [
+                'fetch',
+                'DataView.prototype.getBigInt64',
+                'Worker',
+            ];
+            const available = filter(required);
+            const capabilities = available.concat(filter(optional));
+            this.event('browser_open', {
+                browser_capabilities: capabilities.map((capability) => capability.split('.').pop()).join(',')
+            });
+            if (required.length > available.length) {
+                this.window.terminate('Your browser is not supported.');
+                return new Promise(() => {});
+            }
+            return Promise.resolve();
+        };
+        await age();
+        await consent();
+        await telemetry();
+        await capabilities();
     }
 
     async start() {
@@ -324,7 +320,7 @@ host.BrowserHost = class {
     }
 
     exception(error, fatal) {
-        if ((this._telemetry_ua || this._telemetry_ga4) && error) {
+        if ((this._telemetry_ua || this._telemetry) && error) {
             const name = error.name ? error.name + ': ' : '';
             const message = error.message ? error.message : JSON.stringify(error);
             const description = name + message;
@@ -370,17 +366,15 @@ host.BrowserHost = class {
                     appVersion: this.version
                 });
             }
-            if (this._telemetry_ga4) {
-                this._telemetry_ga4.send('exception', {
-                    app_name: this.type,
-                    app_version: this.version,
-                    error_name: name,
-                    error_message: message,
-                    error_context: context,
-                    error_stack: stack,
-                    error_fatal: fatal ? true : false
-                });
-            }
+            this._telemetry.send('exception', {
+                app_name: this.type,
+                app_version: this.version,
+                error_name: name,
+                error_message: message,
+                error_context: context,
+                error_stack: stack,
+                error_fatal: fatal ? true : false
+            });
         }
     }
 
@@ -398,10 +392,10 @@ host.BrowserHost = class {
     }
 
     event(name, params) {
-        if (this._telemetry_ga4 && name && params) {
+        if (name && params) {
             params.app_name = this.type;
             params.app_version = this.version;
-            this._telemetry_ga4.send(name, params);
+            this._telemetry.send(name, params);
         }
     }
 
@@ -496,9 +490,7 @@ host.BrowserHost = class {
                 }
             }
             context = new host.BrowserHost.Context(this, url, identifier, stream);
-            if (this._telemetry_ga4) {
-                this._telemetry_ga4.set('session_engaged', 1);
-            }
+            this._telemetry.set('session_engaged', 1);
         } catch (error) {
             await this.error('Model load request failed.', error.message);
             this._view.show('welcome');
@@ -519,9 +511,7 @@ host.BrowserHost = class {
         const context = new host.BrowserHost.BrowserFileContext(this, file, files);
         try {
             await context.open();
-            if (this._telemetry_ga4) {
-                this._telemetry_ga4.set('session_engaged', 1);
-            }
+            this._telemetry.set('session_engaged', 1);
             await this._view.open(context);
             this._view.show(null);
             this.document.title = files[0].name;
@@ -552,9 +542,7 @@ host.BrowserHost = class {
             const buffer = encoder.encode(file.content);
             const stream = new base.BinaryStream(buffer);
             const context = new host.BrowserHost.Context(this, '', identifier, stream);
-            if (this._telemetry_ga4) {
-                this._telemetry_ga4.set('session_engaged', 1);
-            }
+            this._telemetry.set('session_engaged', 1);
             try {
                 await this._view.open(context);
                 this.document.title = identifier;
