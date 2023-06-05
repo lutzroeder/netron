@@ -117,6 +117,26 @@ grapher.Graph = class {
         const edgeLabelGroup = createGroup('edge-labels');
         const nodeGroup = createGroup('nodes');
 
+        /*
+        edgePathGroup.addEventListener('pointerover', (e) => {
+            if (e.target && e.target.getAttribute('class') === 'edge-path-hit-test' && e.target.previousSibling) {
+                const path = e.target.previousSibling;
+                path.classList.add('select');
+                const newPath = path.cloneNode(true);
+                path.parentNode.replaceChild(newPath, path);
+                const element = e.target;
+                const pointerleave = (e) => {
+                    element.removeEventListener('pointerleave', pointerleave);
+                    const path = element.previousSibling;
+                    const newPath = path.cloneNode(true);
+                    newPath.classList.remove('select');
+                    path.parentNode.replaceChild(newPath, path);
+                };
+                element.addEventListener('pointerleave', pointerleave);
+            }
+        });
+        */
+
         const edgePathGroupDefs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
         edgePathGroup.appendChild(edgePathGroupDefs);
         const marker = (id) => {
@@ -540,13 +560,17 @@ grapher.Edge = class {
         };
         this.hitTestElement = createElement('path');
         this.hitTestElement.setAttribute('class', 'edge-path-hit-test');
+        /* TODO */
         edgePathGroupElement.appendChild(this.hitTestElement);
+        /* TODO */
         this.element = createElement('path');
         if (this.id) {
             this.element.setAttribute('id', this.id);
+            // TODO this.hitTestElement.setAttribute('id', this.id + '-X');
         }
         this.element.setAttribute('class', this.class ? 'edge-path ' + this.class : 'edge-path');
         edgePathGroupElement.appendChild(this.element);
+        // TODO edgePathGroupElement.appendChild(this.hitTestElement);
         if (this.label) {
             const tspan = createElement('tspan');
             tspan.setAttribute('xml:space', 'preserve');

@@ -251,14 +251,43 @@ view.View = class {
     find() {
         if (this._graph) {
             this.select(null);
-            const graphElement = this._element('canvas');
-            const content = new view.FindSidebar(this._host, graphElement, this._graph);
+            const content = new view.FindSidebar(this._host, this._graph);
             content.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
             });
-            content.on('select', (sender, selection) => {
-                this.select(selection);
-                this.scrollTo(selection);
+            content.on('select', (sender, identifier) => {
+                const selection = [];
+                const graphElement = this._element('canvas');
+                const nodesElement = graphElement.getElementById('nodes');
+                let nodeElement = nodesElement.firstChild;
+                while (nodeElement) {
+                    if (nodeElement.id == identifier) {
+                        selection.push(nodeElement);
+                    }
+                    nodeElement = nodeElement.nextSibling;
+                }
+                const edgePathsElement = graphElement.getElementById('edge-paths');
+                let edgePathElement = edgePathsElement.firstChild;
+                while (edgePathElement) {
+                    if (edgePathElement.id == identifier) {
+                        selection.push(edgePathElement);
+                    }
+                    edgePathElement = edgePathElement.nextSibling;
+                }
+                let initializerElement = graphElement.getElementById(identifier);
+                if (initializerElement) {
+                    while (initializerElement.parentElement) {
+                        initializerElement = initializerElement.parentElement;
+                        if (initializerElement.id && initializerElement.id.startsWith('node-')) {
+                            selection.push(initializerElement);
+                            break;
+                        }
+                    }
+                }
+                if (selection.length > 0) {
+                    this.select(selection);
+                    this.scrollTo(selection);
+                }
             });
             this._sidebar.open(content.render(), 'Find');
             content.focus(this._searchText);
@@ -541,12 +570,21 @@ view.View = class {
     select(selection) {
         while (this._selection.length > 0) {
             const element = this._selection.pop();
+            // if (element && element.parentElement) {
             element.classList.remove('select');
+            // const node = element.cloneNode(true);
+            // element.parentElement.replaceChild(node, element);
+            // }
         }
         if (selection && selection.length > 0) {
             for (const element of selection) {
                 element.classList.add('select');
+                /* TODO */
                 this._selection.push(element);
+                /* TODO */
+                // const node = element.cloneNode(true);
+                // element.parentElement.replaceChild(node, element);
+                // this._selection.push(node);
             }
         }
     }
@@ -2877,10 +2915,9 @@ view.DocumentationSidebar = class extends view.Control {
 
 view.FindSidebar = class extends view.Control {
 
-    constructor(host, element, graph) {
+    constructor(host, graph) {
         super();
         this._host = host;
-        this._graphElement = element;
         this._graph = graph;
 
         this._searchElement = this._host.document.createElement('input');
@@ -2896,7 +2933,7 @@ view.FindSidebar = class extends view.Control {
         this._contentElement = this._host.document.createElement('ol');
         this._contentElement.setAttribute('class', 'sidebar-find-content');
         this._contentElement.addEventListener('click', (e) => {
-            this.select(e);
+            this.emit('select', e.target.id);
         });
     }
 
@@ -2911,44 +2948,6 @@ view.FindSidebar = class extends view.Control {
             for (const callback of this._events[event]) {
                 callback(this, data);
             }
-        }
-    }
-
-    select(e) {
-        const selection = [];
-        const id = e.target.id;
-
-        const nodesElement = this._graphElement.getElementById('nodes');
-        let nodeElement = nodesElement.firstChild;
-        while (nodeElement) {
-            if (nodeElement.id == id) {
-                selection.push(nodeElement);
-            }
-            nodeElement = nodeElement.nextSibling;
-        }
-
-        const edgePathsElement = this._graphElement.getElementById('edge-paths');
-        let edgePathElement = edgePathsElement.firstChild;
-        while (edgePathElement) {
-            if (edgePathElement.id == id) {
-                selection.push(edgePathElement);
-            }
-            edgePathElement = edgePathElement.nextSibling;
-        }
-
-        let initializerElement = this._graphElement.getElementById(id);
-        if (initializerElement) {
-            while (initializerElement.parentElement) {
-                initializerElement = initializerElement.parentElement;
-                if (initializerElement.id && initializerElement.id.startsWith('node-')) {
-                    selection.push(initializerElement);
-                    break;
-                }
-            }
-        }
-
-        if (selection.length > 0) {
-            this.emit('select', selection);
         }
     }
 
