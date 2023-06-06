@@ -133,6 +133,7 @@
             { "ext": "pdmodel",     "name": "PaddlePaddle Model"       },
             { "ext": "pdopt",       "name": "PaddlePaddle Model"       },
             { "ext": "pdparams",    "name": "PaddlePaddle Model"       },
+            { "ext": "pkl",         "name": "Pickle Model"             },
             { "ext": "prototxt",    "name": "Text Protocol Buffer"     },
             { "ext": "pt",          "name": "PyTorch Model"            },
             { "ext": "pth",         "name": "PyTorch Model"            },
