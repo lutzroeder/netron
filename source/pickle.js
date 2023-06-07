@@ -115,7 +115,8 @@ pickle.Node = class {
         } else {
             const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'Object';
             this._type = { name: type };
-            for (const entry of Object.entries(obj)) {
+            const entries = obj instanceof Map ? Array.from(obj.entries()) : Object.entries(obj);
+            for (const entry of entries) {
                 const name = entry[0];
                 const value = entry[1];
                 this._attributes.push(new pickle.Attribute(name, value));
