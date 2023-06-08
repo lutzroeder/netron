@@ -41,10 +41,10 @@ install() {
     echo "onnx install"
     protoc_version=3.20.2
     protobuf="protobuf==${protoc_version}"
+    protoc_dir="$(pwd)/third_party/bin/protobuf/v${protoc_version}"
     case "${OSTYPE}" in
         linux*)
             [ -x "$(command -v cmake)" ] || sudo apt install -y cmake
-            protoc_dir="$(pwd)/third_party/bin/protobuf/v${protoc_version}"
             if [ ! -f "${protoc_dir}/bin/protoc" ]; then
                 rm -rf ${protoc_dir}
                 git clone --quiet -c advice.detachedHead=false --quiet --recursive --depth=1 --branch v${protoc_version} https://github.com/protocolbuffers/protobuf.git ${protoc_dir}/src
@@ -58,7 +58,16 @@ install() {
             ;;
         darwin*)
             [ -x "$(command -v cmake)" ] || brew install cmake > /dev/null
-            [ -x "$(command -v protoc)" ] || brew install protobuf > /dev/null
+            if [ ! -f "${protoc_dir}/bin/protoc" ]; then
+                rm -rf ${protoc_dir}
+                git clone --quiet -c advice.detachedHead=false --quiet --recursive --depth=1 --branch v${protoc_version} https://github.com/protocolbuffers/protobuf.git ${protoc_dir}/src
+                pushd "${protoc_dir}/src/cmake" > /dev/null
+                cmake ../cmake -DCMAKE_CXX_FLAGS="-w" -Dprotobuf_BUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="..\.." -DCMAKE_INSTALL_SYSCONFDIR=/etc -DCMAKE_POSITION_INDEPENDENT_CODE=ON -Dprotobuf_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release > /dev/null
+                make > /dev/null
+                make install > /dev/null
+                popd > /dev/null
+            fi
+            export PATH="${protoc_dir}\bin":${PATH}
             ;;
         msys*)
             # winget install -e --id=Microsoft.VisualStudio.2019.BuildTools --override "--passive --wait --add Microsoft.VisualStudio.Workload.VCTools;includeRecommended"
@@ -66,7 +75,6 @@ install() {
             build_tools_dir="${programfiles_x86_dir}\Microsoft Visual Studio\2019\BuildTools"
             cmake_dir="${build_tools_dir}\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin"
             msbuild_dir="${build_tools_dir}\MSBuild\Current\Bin"
-            protoc_dir="$(pwd)/third_party/bin/protobuf/v${protoc_version}"
             if [ ! -f "${protoc_dir}/bin/protoc.exe" ]; then
                 rm -rf ${protoc_dir}
                 git clone --quiet -c advice.detachedHead=false -b v${protoc_version} https://github.com/protocolbuffers/protobuf.git ${protoc_dir}/src
@@ -81,8 +89,7 @@ install() {
             ;;
     esac
     venv
-    ${python} -m pip install --quiet --upgrade ${protobuf}
-    ${python} -m pip install --quiet --upgrade numpy
+    ${python} -m pip install --quiet --upgrade ${protobuf} numpy
     ${python} -m pip install --quiet "./third_party/source/onnx"
     deactivate
 }
