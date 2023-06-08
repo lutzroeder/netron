@@ -3087,6 +3087,16 @@ $root.tflite.TensorMetadata = class TensorMetadata {
     }
 };
 
+$root.tflite.CustomMetadata = class CustomMetadata {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.CustomMetadata();
+        $.name = reader.string_(position, 4, null);
+        $.data = reader.typedArray(position, 6, Uint8Array);
+        return $;
+    }
+};
+
 $root.tflite.SubGraphMetadata = class SubGraphMetadata {
 
     static decode(reader, position) {
@@ -3100,6 +3110,7 @@ $root.tflite.SubGraphMetadata = class SubGraphMetadata {
         $.output_process_units = reader.tableArray(position, 16, $root.tflite.ProcessUnit.decode);
         $.input_tensor_groups = reader.tableArray(position, 18, $root.tflite.TensorGroup.decode);
         $.output_tensor_groups = reader.tableArray(position, 20, $root.tflite.TensorGroup.decode);
+        $.custom_metadata = reader.tableArray(position, 22, $root.tflite.CustomMetadata.decode);
         return $;
     }
 };
