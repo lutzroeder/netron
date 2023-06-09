@@ -78,7 +78,7 @@ pickle.Graph = class {
             for (const item of obj) {
                 this._nodes.push(new pickle.Node(item));
             }
-        } else if (obj && obj instanceof Map) {
+        } else if (obj && obj instanceof Map && !Array.from(obj.values()).some((value) => typeof value === 'string' || typeof value === 'number')) {
             for (const entry of obj) {
                 this._nodes.push(new pickle.Node(entry[1], entry[0]));
             }

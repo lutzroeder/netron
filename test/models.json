@@ -4153,6 +4153,14 @@
   },
   {
     "type":     "pickle",
+    "target":   "model_final_checkpoint.model.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/11707359/model_final_checkpoint.model.pkl.zip[model_final_checkpoint.model.pkl]",
+    "format":   "Pickle",
+    "error":    "Unsupported Pickle type 'collections.OrderedDict'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
+  },
+  {
+    "type":     "pickle",
     "target":   "myModel.model",
     "source":   "https://github.com/lutzroeder/netron/files/8506779/myModel.model.zip[myModel.model]",
     "format":   "cuML",
