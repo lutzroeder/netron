@@ -3534,6 +3534,13 @@
   },
   {
     "type":     "onnx",
+    "target":   "fp8.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/11702419/fp8.onnx.zip[fp8.onnx]",
+    "format":   "ONNX v9",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
     "target":   "gpt2.onnx.zip",
     "source":   "https://github.com/lutzroeder/netron/files/11583198/gpt2.onnx.zip",
     "format":   "ONNX v7",

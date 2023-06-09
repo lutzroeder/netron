@@ -3126,7 +3126,8 @@ view.Tensor = class {
             [ 'int8', 1 ], [ 'int16', 2 ], [ 'int32', 4 ], [ 'int64', 8 ],
             [ 'uint8', 1 ], [ 'uint16', 2 ], [ 'uint32', 4, ], [ 'uint64', 8 ],
             [ 'float16', 2 ], [ 'float32', 4 ], [ 'float64', 8 ], [ 'bfloat16', 2 ],
-            [ 'complex64', 8 ], [ 'complex128', 15 ]
+            [ 'complex64', 8 ], [ 'complex128', 16 ],
+            [ 'float8e4m3fn', 1 ], [ 'float8e4m3fnuz', 1 ], [ 'float8e5m2', 1 ], [ 'float8e5m2fnuz', 1 ]
         ]);
     }
 
@@ -3406,6 +3407,26 @@ view.Tensor = class {
                 case 'complex128':
                     for (; i < size; i += 16) {
                         results.push(view.getComplex128(i, this._littleEndian));
+                    }
+                    break;
+                case 'float8e4m3fn':
+                    for (; i < size; i++) {
+                        results.push(view.getFloat8e4m3(i, true, false));
+                    }
+                    break;
+                case 'float8e4m3fnuz':
+                    for (; i < size; i++) {
+                        results.push(view.getFloat8e4m3(i, true, true));
+                    }
+                    break;
+                case 'float8e5m2':
+                    for (; i < size; i++) {
+                        results.push(view.getFloat8e5m2(i, false, false));
+                    }
+                    break;
+                case 'float8e5m2fnuz':
+                    for (; i < size; i++) {
+                        results.push(view.getFloat8e5m2(i, true, true));
                     }
                     break;
                 default:
