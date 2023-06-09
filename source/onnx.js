@@ -872,6 +872,15 @@ onnx.Tensor = class {
                     case onnx.DataType.COMPLEX64:
                     case onnx.DataType.COMPLEX128:
                         break;
+                    case onnx.DataType.FLOAT8E4M3FN:
+                    case onnx.DataType.FLOAT8E4M3FNUZ:
+                    case onnx.DataType.FLOAT8E5M2:
+                    case onnx.DataType.FLOAT8E5M2FNUZ:
+                        if (tensor.int32_data && tensor.int32_data.length > 0) {
+                            this._data = new Uint8Array(Array.from(tensor.int32_data));
+                            this._layout = '<';
+                        }
+                        break;
                     default:
                         throw new onnx.Error("Unsupported tensor data type '" + tensor.data_type + "'.");
                 }
@@ -1413,7 +1422,7 @@ onnx.GraphContext = class {
                 denotation = 'Text';
                 break;
             default:
-                throw new onnx.Error("Unsuppored tensor type denotation '" + type.denotation + "'.");
+                throw new onnx.Error("Unsupported tensor type denotation '" + type.denotation + "'.");
         }
         if (type.tensor_type) {
             const tensor_type = type.tensor_type;
