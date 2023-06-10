@@ -553,15 +553,11 @@ grapher.Edge = class {
         }
         this.element.setAttribute('class', this.class ? 'edge-path ' + this.class : 'edge-path');
         edgePathGroupElement.appendChild(this.element);
-        this.hitTestElement = createElement('path');
-        this.hitTestElement.setAttribute('class', 'edge-path-hit-test');
-        this.hitTestElement.addEventListener('pointerover', () => {
-            this.select();
-        });
-        this.hitTestElement.addEventListener('pointerleave', () => {
-            this.deselect();
-        });
-        edgePathGroupElement.appendChild(this.hitTestElement);
+        this.hitTest = createElement('path');
+        this.hitTest.setAttribute('class', 'edge-path-hit-test');
+        this.hitTest.addEventListener('pointerover', () => this.emit('pointerover'));
+        this.hitTest.addEventListener('pointerleave', () => this.emit('pointerleave'));
+        edgePathGroupElement.appendChild(this.hitTest);
         if (this.label) {
             const tspan = createElement('tspan');
             tspan.setAttribute('xml:space', 'preserve');
@@ -609,7 +605,7 @@ grapher.Edge = class {
         };
         const edgePath = curvePath(this, this.from, this.to);
         this.element.setAttribute('d', edgePath);
-        this.hitTestElement.setAttribute('d', edgePath);
+        this.hitTest.setAttribute('d', edgePath);
         if (this.labelElement) {
             this.labelElement.setAttribute('transform', 'translate(' + (this.x - (this.width / 2)) + ',' + (this.y - (this.height / 2)) + ')');
             this.labelElement.style.opacity = 1;

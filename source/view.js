@@ -1571,11 +1571,6 @@ view.Graph = class extends grapher.Graph {
         return this._arguments.get(name);
     }
 
-    createEdge(from, to) {
-        const value = new view.Edge(from, to);
-        return value;
-    }
-
     add(graph) {
         const clusters = new Set();
         const clusterParentMap = new Map();
@@ -1930,7 +1925,7 @@ view.Argument = class {
 
     constructor(context, argument) {
         this.context = context;
-        this._argument = argument;
+        this.value = argument;
     }
 
     from(node) {
@@ -1952,8 +1947,7 @@ view.Argument = class {
             for (let i = 0; i < this._to.length; i++) {
                 const to = this._to[i];
                 let content = '';
-                const type = this._argument.type;
-
+                const type = this.value.type;
                 if (type &&
                     type.shape &&
                     type.shape.dimensions &&
@@ -1963,15 +1957,15 @@ view.Argument = class {
                     content = content.length > 16 ? '' : content;
                 }
                 if (this.context.view.options.names) {
-                    content = this._argument.name.split('\n').shift(); // custom argument id
+                    content = this.value.name.split('\n').shift(); // custom argument id
                 }
-                const edge = this.context.createEdge(this._from, to);
+                const edge = new view.Edge(this, this._from, to);
                 edge.v = this._from.name;
                 edge.w = to.name;
                 if (content) {
                     edge.label = content;
                 }
-                edge.id = 'edge-' + this._argument.name;
+                edge.id = 'edge-' + this.value.name;
                 if (this._controlDependencies && this._controlDependencies.has(i)) {
                     edge.class = 'edge-path-control-dependency';
                 }
@@ -1998,8 +1992,9 @@ view.Argument = class {
 
 view.Edge = class extends grapher.Edge {
 
-    constructor(from, to) {
+    constructor(argument, from, to) {
         super(from, to);
+        this.argument = argument;
     }
 
     get minlen() {
@@ -2007,6 +2002,19 @@ view.Edge = class extends grapher.Edge {
             return 2;
         }
         return 1;
+    }
+
+    emit(event) {
+        switch (event) {
+            case 'pointerover':
+                this.argument.context.focus([ this.argument.value ]);
+                break;
+            case 'pointerleave':
+                this.argument.context.blur([ this.argument.value ]);
+                break;
+            default:
+                break;
+        }
     }
 };
 
