@@ -51,7 +51,9 @@ view.View = class {
                 }
             }, { passive: true });
             this._host.document.addEventListener('keydown', () => {
-                this.select(null);
+                if (this._graph) {
+                    this._graph.select(null);
+                }
             });
             const platform = this._host.environment('platform');
             this._menu = new view.Menu(this._host);
@@ -250,44 +252,13 @@ view.View = class {
 
     find() {
         if (this._graph) {
-            this.select(null);
-            const content = new view.FindSidebar(this._host, this._graph);
+            this._graph.select(null);
+            const content = new view.FindSidebar(this._host, this.activeGraph);
             content.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
             });
-            content.on('select', (sender, identifier) => {
-                const selection = [];
-                const graphElement = this._element('canvas');
-                const nodesElement = graphElement.getElementById('nodes');
-                let nodeElement = nodesElement.firstChild;
-                while (nodeElement) {
-                    if (nodeElement.id == identifier) {
-                        selection.push(nodeElement);
-                    }
-                    nodeElement = nodeElement.nextSibling;
-                }
-                const edgePathsElement = graphElement.getElementById('edge-paths');
-                let edgePathElement = edgePathsElement.firstChild;
-                while (edgePathElement) {
-                    if (edgePathElement.id == identifier) {
-                        selection.push(edgePathElement);
-                    }
-                    edgePathElement = edgePathElement.nextSibling;
-                }
-                let initializerElement = graphElement.getElementById(identifier);
-                if (initializerElement) {
-                    while (initializerElement.parentElement) {
-                        initializerElement = initializerElement.parentElement;
-                        if (initializerElement.id && initializerElement.id.startsWith('node-')) {
-                            selection.push(initializerElement);
-                            break;
-                        }
-                    }
-                }
-                if (selection.length > 0) {
-                    this.select(selection);
-                    this.scrollTo(selection);
-                }
+            content.on('select', (sender, selection) => {
+                this.scrollTo(this._graph.select([ selection ]));
             });
             this._sidebar.open(content.render(), 'Find');
             content.focus(this._searchText);
@@ -564,28 +535,6 @@ view.View = class {
             const left = (container.scrollLeft + x - rect.left) - (rect.width / 2);
             const top = (container.scrollTop + y - rect.top) - (rect.height / 2);
             container.scrollTo({ left: left, top: top, behavior: 'smooth' });
-        }
-    }
-
-    select(selection) {
-        while (this._selection.length > 0) {
-            const element = this._selection.pop();
-            // if (element && element.parentElement) {
-            element.classList.remove('select');
-            // const node = element.cloneNode(true);
-            // element.parentElement.replaceChild(node, element);
-            // }
-        }
-        if (selection && selection.length > 0) {
-            for (const element of selection) {
-                element.classList.add('select');
-                /* TODO */
-                this._selection.push(element);
-                /* TODO */
-                // const node = element.cloneNode(true);
-                // element.parentElement.replaceChild(node, element);
-                // this._selection.push(node);
-            }
         }
     }
 
@@ -1011,21 +960,10 @@ view.View = class {
                     this.error(error, null, null);
                 });
                 nodeSidebar.on('activate', (sender, argument) => {
-                    const name = 'edge-' + argument.name;
-                    const selection = [];
-                    const graphElement = this._element('canvas');
-                    const edgePathsElement = graphElement.getElementById('edge-paths');
-                    let element = edgePathsElement.firstChild;
-                    while (element) {
-                        if (element.id == name) {
-                            selection.push(element);
-                        }
-                        element = element.nextSibling;
-                    }
-                    this.select(selection);
+                    this._graph.select([ argument ]);
                 });
                 nodeSidebar.on('deactivate', () => {
-                    this.select(null);
+                    this._graph.select(null);
                 });
                 if (input) {
                     nodeSidebar.toggleInput(input.name);
@@ -1581,22 +1519,23 @@ view.Menu.Separator = class {
     }
 };
 
-
 view.Graph = class extends grapher.Graph {
 
     constructor(view, model, compound, options) {
         super(compound, options);
         this.view = view;
         this.model = model;
-        this._arguments = new Map();
         this._nodeKey = 0;
+        this._arguments = new Map();
+        this._table = new Map();
+        this._selection = [];
     }
 
     createNode(node) {
         const value = new view.Node(this, node);
         value.name = (this._nodeKey++).toString();
-        // value.name = node.name;
         this.setNode(value);
+        this._table.set(node, value);
         return value;
     }
 
@@ -1604,6 +1543,7 @@ view.Graph = class extends grapher.Graph {
         const value = new view.Input(this, input);
         value.name = (this._nodeKey++).toString();
         this.setNode(value);
+        this._table.set(input, value);
         return value;
     }
 
@@ -1611,13 +1551,16 @@ view.Graph = class extends grapher.Graph {
         const value = new view.Output(this, output);
         value.name = (this._nodeKey++).toString();
         this.setNode(value);
+        this._table.set(output, value);
         return value;
     }
 
     createArgument(argument) {
         const name = argument.name;
         if (!this._arguments.has(name)) {
-            this._arguments.set(name, new view.Argument(this, argument));
+            const value = new view.Argument(this, argument);
+            this._arguments.set(name, value);
+            this._table.set(argument, value);
         }
         return this._arguments.get(name);
     }
@@ -1643,18 +1586,14 @@ view.Graph = class extends grapher.Graph {
                 }
             }
         }
-
         for (const input of graph.inputs) {
             const viewInput = this.createInput(input);
             for (const argument of input.arguments) {
                 this.createArgument(argument).from(viewInput);
             }
         }
-
         for (const node of graph.nodes) {
-
             const viewNode = this.createNode(node);
-
             const inputs = node.inputs;
             for (const input of inputs) {
                 for (const argument of input.arguments) {
@@ -1688,7 +1627,6 @@ view.Graph = class extends grapher.Graph {
                     this.createArgument(argument).to(viewNode, true);
                 }
             }
-
             const createCluster = (name) => {
                 if (!clusters.has(name)) {
                     this.setNode({ name: name, rx: 5, ry: 5 });
@@ -1700,7 +1638,6 @@ view.Graph = class extends grapher.Graph {
                     }
                 }
             };
-
             if (groups) {
                 let groupName = node.group;
                 if (groupName && groupName.length > 0) {
@@ -1722,7 +1659,6 @@ view.Graph = class extends grapher.Graph {
                 }
             }
         }
-
         for (const output of graph.outputs) {
             const viewOutput = this.createOutput(output);
             for (const argument of output.arguments) {
@@ -1736,6 +1672,24 @@ view.Graph = class extends grapher.Graph {
             argument.build();
         }
         super.build(document, origin);
+    }
+
+    select(selection) {
+        while (this._selection.length > 0) {
+            const element = this._selection.pop();
+            element.deselect();
+        }
+        let array = [];
+        if (selection) {
+            for (const value of selection) {
+                if (this._table.has(value)) {
+                    const element = this._table.get(value);
+                    array = array.concat(element.select());
+                    this._selection.push(element);
+                }
+            }
+        }
+        return array;
     }
 };
 
@@ -2000,6 +1954,20 @@ view.Argument = class {
                 this.context.setEdge(edge);
                 this._edges.push(edge);
             }
+        }
+    }
+
+    select() {
+        let array = [];
+        for (const edge of this._edges) {
+            array = array.concat(edge.select());
+        }
+        return array;
+    }
+
+    deselect() {
+        for (const edge of this._edges) {
+            edge.deselect();
         }
     }
 };
@@ -2919,7 +2887,7 @@ view.FindSidebar = class extends view.Control {
         super();
         this._host = host;
         this._graph = graph;
-
+        this._table = new Map();
         this._searchElement = this._host.document.createElement('input');
         this._searchElement.setAttribute('class', 'sidebar-find-search');
         this._searchElement.setAttribute('id', 'search');
@@ -2933,7 +2901,10 @@ view.FindSidebar = class extends view.Control {
         this._contentElement = this._host.document.createElement('ol');
         this._contentElement.setAttribute('class', 'sidebar-find-content');
         this._contentElement.addEventListener('click', (e) => {
-            this.emit('select', e.target.id);
+            const identifier = e.target.getAttribute('data');
+            if (this._table.has(identifier)) {
+                this.emit('select', this._table.get(identifier));
+            }
         });
     }
 
@@ -2962,112 +2933,107 @@ view.FindSidebar = class extends view.Control {
         while (this._contentElement.lastChild) {
             this._contentElement.removeChild(this._contentElement.lastChild);
         }
-
+        this._table.clear();
+        let index = 0;
+        const add = (value, content) => {
+            const key = index.toString();
+            index++;
+            this._table.set(key, value);
+            const element = this._host.document.createElement('li');
+            element.innerText = content;
+            element.setAttribute('data', key);
+            this._contentElement.appendChild(element);
+        };
         let terms = null;
-        let callback = null;
+        let match = null;
         const unquote = searchText.match(new RegExp(/^'(.*)'|"(.*)"$/));
         if (unquote) {
             const term = unquote[1] || unquote[2];
             terms = [ term ];
-            callback = (name) => {
+            match = (name) => {
                 return term == name;
             };
         } else {
             terms = searchText.trim().toLowerCase().split(' ').map((term) => term.trim()).filter((term) => term.length > 0);
-            callback = (name) => {
+            match = (name) => {
                 return terms.every((term) => name.toLowerCase().indexOf(term) !== -1);
             };
         }
-
-        const nodes = new Set();
         const edges = new Set();
-
-        for (const node of this._graph.nodes.values()) {
-            const label = node.label;
-            const initializers = [];
-            if (label.class === 'graph-node' || label.class === 'graph-input') {
-                for (const input of label.inputs) {
-                    for (const argument of input.arguments) {
-                        if (argument.name && !edges.has(argument.name)) {
-                            const match = (argument, term) => {
-                                if (argument.name && argument.name.toLowerCase().indexOf(term) !== -1) {
-                                    return true;
-                                }
-                                if (argument.type) {
-                                    if (argument.type.dataType && term === argument.type.dataType.toLowerCase()) {
-                                        return true;
-                                    }
-                                    if (argument.type.shape) {
-                                        if (term === argument.type.shape.toString().toLowerCase()) {
-                                            return true;
-                                        }
-                                        if (argument.type.shape && Array.isArray(argument.type.shape.dimensions)) {
-                                            const dimensions = argument.type.shape.dimensions.map((dimension) => dimension ? dimension.toString().toLowerCase() : '');
-                                            if (term === dimensions.join(',')) {
-                                                return true;
-                                            }
-                                            if (dimensions.some((dimension) => term === dimension)) {
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-                                return false;
-                            };
-                            if (terms.every((term) => match(argument, term))) {
-                                if (!argument.initializer) {
-                                    const inputItem = this._host.document.createElement('li');
-                                    inputItem.innerText = '\u2192 ' + argument.name.split('\n').shift(); // custom argument id
-                                    inputItem.id = 'edge-' + argument.name;
-                                    this._contentElement.appendChild(inputItem);
-                                    edges.add(argument.name);
-                                } else {
-                                    initializers.push(argument);
-                                }
+        const arg = (argument) => {
+            if (terms.length === 0) {
+                return true;
+            }
+            let match = false;
+            for (const term of terms) {
+                if (argument.name && argument.name.toLowerCase().indexOf(term) !== -1) {
+                    match = true;
+                    break;
+                }
+                if (argument.type) {
+                    if (argument.type.dataType && term === argument.type.dataType.toLowerCase()) {
+                        match = true;
+                        break;
+                    }
+                    if (argument.type.shape) {
+                        if (term === argument.type.shape.toString().toLowerCase()) {
+                            match = true;
+                            break;
+                        }
+                        if (argument.type.shape && Array.isArray(argument.type.shape.dimensions)) {
+                            const dimensions = argument.type.shape.dimensions.map((dimension) => dimension ? dimension.toString().toLowerCase() : '');
+                            if (term === dimensions.join(',')) {
+                                match = true;
+                                break;
+                            }
+                            if (dimensions.some((dimension) => term === dimension)) {
+                                match = true;
+                                break;
                             }
                         }
                     }
                 }
             }
-            if (label.class === 'graph-node') {
-                const name = label.value.name;
-                const type = label.value.type.name;
-                if (!nodes.has(label.id) &&
-                    ((name && callback(name) || (type && callback(type))))) {
-                    const nameItem = this._host.document.createElement('li');
-                    nameItem.innerText = '\u25A2 ' + (name || '[' + type + ']');
-                    nameItem.id = label.id;
-                    this._contentElement.appendChild(nameItem);
-                    nodes.add(label.id);
-                }
+            return match;
+        };
+        const edge = (argument) => {
+            if (argument.name && !edges.has(argument.name) && arg(argument)) {
+                add(argument, '\u2192 ' + argument.name.split('\n').shift()); // split custom argument id
+                edges.add(argument.name);
             }
-            for (const argument of initializers) {
-                if (argument.name) {
-                    const initializeItem = this._host.document.createElement('li');
-                    initializeItem.innerText = '\u25A0 ' + argument.name.split('\n').shift(); // custom argument id
-                    initializeItem.id = 'initializer-' + argument.name;
-                    this._contentElement.appendChild(initializeItem);
-                }
+        };
+        for (const input of this._graph.inputs) {
+            for (const argument of input.arguments) {
+                edge(argument);
             }
         }
-
-        for (const node of this._graph.nodes.values()) {
-            const label = node.label;
-            if (label.class === 'graph-node' || label.class === 'graph-output') {
-                for (const output of label.outputs) {
-                    for (const argument of output.arguments) {
-                        if (argument.name && !edges.has(argument.name) && terms.every((term) => argument.name.toLowerCase().indexOf(term) != -1)) {
-                            const outputItem = this._host.document.createElement('li');
-                            outputItem.innerText = '\u2192 ' + argument.name.split('\n').shift(); // custom argument id
-                            outputItem.id = 'edge-' + argument.name;
-                            this._contentElement.appendChild(outputItem);
-                            edges.add(argument.name);
-                        }
+        for (const node of this._graph.nodes) {
+            const initializers = [];
+            for (const input of node.inputs) {
+                for (const argument of input.arguments) {
+                    if (argument.initializer) {
+                        initializers.push(argument);
+                    } else {
+                        edge(argument);
                     }
                 }
             }
+            const name = node.name;
+            const type = node.type.name;
+            if ((name && match(name)) || (type && match(type))) {
+                add(node, '\u25A2 ' + (name || '[' + type + ']'));
+            }
+            for (const argument of initializers) {
+                if (argument.name && !edges.has(argument.name) && arg(argument)) {
+                    add(node, '\u25A0 ' + argument.name.split('\n').shift()); // split custom argument id
+                }
+            }
         }
-
+        for (const output of this._graph.outputs) {
+            for (const argument of output.arguments) {
+                edge(argument);
+            }
+        }
         this._contentElement.style.display = this._contentElement.childNodes.length != 0 ? 'block' : 'none';
     }
 

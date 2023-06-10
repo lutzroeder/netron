@@ -272,6 +272,15 @@ grapher.Node = class {
         this.element.style.opacity = 1;
     }
 
+    select() {
+        this.element.classList.add('select');
+        return [ this.element ];
+    }
+
+    deselect() {
+        this.element.classList.remove('select');
+    }
+
     static roundedRect(x, y, width, height, r1, r2, r3, r4) {
         const radius = 5;
         r1 = r1 ? radius : 0;
@@ -414,9 +423,9 @@ grapher.Node.Header.Entry = class {
             this.element.addEventListener('click', () => this.emit('click'));
         }
         if (this.tooltip) {
-            const titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-            titleElement.textContent = this.tooltip;
-            this.element.appendChild(titleElement);
+            const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+            title.textContent = this.tooltip;
+            this.element.appendChild(title);
         }
         if (this.content) {
             this.text.textContent = this.content;
@@ -622,6 +631,25 @@ grapher.Edge = class {
         if (this.labelElement) {
             this.labelElement.setAttribute('transform', 'translate(' + (this.x - (this.width / 2)) + ',' + (this.y - (this.height / 2)) + ')');
             this.labelElement.style.opacity = 1;
+        }
+    }
+
+    select() {
+        if (!this.element.classList.contains('select')) {
+            const path = this.element;
+            path.classList.add('select');
+            this.element = path.cloneNode(true);
+            path.parentNode.replaceChild(this.element, path);
+        }
+        return [ this.element ];
+    }
+
+    deselect() {
+        if (this.element.classList.contains('select')) {
+            const path = this.element;
+            path.classList.remove('select');
+            this.element = path.cloneNode(true);
+            path.parentNode.replaceChild(this.element, path);
         }
     }
 };
