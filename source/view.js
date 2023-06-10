@@ -260,6 +260,12 @@ view.View = class {
             content.on('select', (sender, selection) => {
                 this.scrollTo(this._graph.select([ selection ]));
             });
+            content.on('focus', (sender, selection) => {
+                this._graph.focus([ selection ]);
+            });
+            content.on('blur', (sender, selection) => {
+                this._graph.blur([ selection ]);
+            });
             this._sidebar.open(content.render(), 'Find');
             content.focus(this._searchText);
         }
@@ -1528,7 +1534,7 @@ view.Graph = class extends grapher.Graph {
         this._nodeKey = 0;
         this._arguments = new Map();
         this._table = new Map();
-        this._selection = [];
+        this._selection = new Set();
     }
 
     createNode(node) {
@@ -1675,21 +1681,39 @@ view.Graph = class extends grapher.Graph {
     }
 
     select(selection) {
-        while (this._selection.length > 0) {
-            const element = this._selection.pop();
+        for (const element of this._selection) {
             element.deselect();
         }
+        this._selection.clear();
         let array = [];
         if (selection) {
             for (const value of selection) {
                 if (this._table.has(value)) {
                     const element = this._table.get(value);
                     array = array.concat(element.select());
-                    this._selection.push(element);
+                    this._selection.add(element);
                 }
             }
         }
         return array;
+    }
+
+    focus(selection) {
+        for (const value of selection) {
+            const element = this._table.get(value);
+            if (element && !this._selection.has(element)) {
+                element.select();
+            }
+        }
+    }
+
+    blur(selection) {
+        for (const value of selection) {
+            const element = this._table.get(value);
+            if (element && !this._selection.has(element)) {
+                element.deselect();
+            }
+        }
     }
 };
 
@@ -2942,6 +2966,18 @@ view.FindSidebar = class extends view.Control {
             const element = this._host.document.createElement('li');
             element.innerText = content;
             element.setAttribute('data', key);
+            element.addEventListener('pointerover', (e) => {
+                const identifier = e.target.getAttribute('data');
+                if (this._table.has(identifier)) {
+                    this.emit('focus', this._table.get(identifier));
+                }
+            });
+            element.addEventListener('pointerleave', (e) => {
+                const identifier = e.target.getAttribute('data');
+                if (this._table.has(identifier)) {
+                    this.emit('blur', this._table.get(identifier));
+                }
+            });
             this._contentElement.appendChild(element);
         };
         let terms = null;
