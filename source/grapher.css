@@ -64,20 +64,10 @@
 .graph-item-output:hover path { fill: #fff; }
 
 #arrowhead { fill: #000; }
-/* TODO */
-#arrowhead-hover { fill: #e00; }
-/* TODO */
 #arrowhead-select { fill: #e00; }
 
 .edge-path { stroke: #000; stroke-width: 1px; fill: none; marker-end: url("#arrowhead"); }
-/* .edge-path-hit-test { pointer-events: stroke; stroke-width: 0.5em; fill: none; stroke: #000; stroke-opacity: 0.001; } */
-
-/* TODO */
-.edge-path:hover { stroke: #e00; marker-end: url("#arrowhead-hover"); }
-
-.edge-path-hit-test { pointer-events: stroke; stroke-width: 0.5em; fill: none; stroke-opacity: 0; }
-.edge-path-hit-test:hover + .edge-path { stroke: #e00; marker-end: url("#arrowhead-hover"); }
-/* TODO */
+.edge-path-hit-test { pointer-events: stroke; stroke-width: 0.5em; fill: none; stroke: #000; stroke-opacity: 0.001; }
 
 .select .node.border { stroke: #e00; stroke-width: 2px; }
 .select.edge-path { stroke: #e00; stroke-width: 1px; marker-end: url("#arrowhead-select"); }
@@ -92,11 +82,6 @@
 @media (prefers-color-scheme: dark) {
 
     .edge-path { stroke: #888; }
-    /* TODO */
-    .edge-path:hover { stroke: #b00; marker-end: url("#arrowhead-hover"); }
-
-    .edge-path-hit-test:hover + .edge-path { stroke: #b00; marker-end: url("#arrowhead-hover"); }
-    /* TODO */
 
     .node path { stroke: #1d1d1d; }
     .node line { stroke: #1d1d1d; }
