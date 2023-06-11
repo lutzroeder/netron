@@ -1172,7 +1172,7 @@ view.Menu = class {
             this.unregister(this._pop);
             this.unregister(this._push);
             this._element.style.opacity = 0;
-            this._element.style.left = '-200px';
+            this._element.style.left = '-16em';
             const button = this._element.ownerDocument.activeElement;
             if (this._buttons.indexOf(button) > 0) {
                 button.blur();
@@ -2078,7 +2078,7 @@ view.Sidebar = class {
     _hide() {
         const sidebar = this._element('sidebar');
         if (sidebar) {
-            sidebar.style.right = 'calc(0px - min(calc(100% * 0.6), 500px))';
+            sidebar.style.right = 'calc(0px - min(calc(100% * 0.6), 42em))';
             sidebar.style.opacity = 0;
         }
         const container = this._element('graph');
@@ -2116,14 +2116,14 @@ view.Sidebar = class {
                 content.innerHTML = '';
                 content.appendChild(item.content);
             }
-            sidebar.style.width = 'min(calc(100% * 0.6), 500px)';
+            sidebar.style.width = 'min(calc(100% * 0.6), 42em)';
             sidebar.style.right = 0;
             sidebar.style.opacity = 1;
             this._host.document.addEventListener('keydown', this._closeSidebarKeyDownHandler);
         }
         const container = this._element('graph');
         if (container) {
-            container.style.width = 'max(40vw, calc(100vw - 500px))';
+            container.style.width = 'max(40vw, calc(100vw - 42em))';
         }
     }
 };
