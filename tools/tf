@@ -35,10 +35,6 @@ sync() {
 
 install() {
     echo "tf install"
-    if [ "$(uname -sm)" = "Darwin arm64" ]; then
-        echo "- arm64 [skip]"
-        return
-    fi
     venv
     ${python} -m pip install --quiet --upgrade wheel
     ${python} -m pip install --quiet --upgrade tf-nightly
@@ -75,10 +71,6 @@ metadata() {
         unix2dos --quiet --newfile ./source/tflite-metadata.json ./source/tflite-metadata.json
     fi
     echo "tf metadata"
-    if [ "$(uname -sm)" = "Darwin arm64" ]; then
-        echo "- arm64 [skip]"
-        return
-    fi
     venv
     if [[ $(grep -U $'\x0D' ./source/tf-metadata.json) ]]; then crlf=1; else crlf=; fi
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
