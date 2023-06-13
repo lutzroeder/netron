@@ -1777,7 +1777,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
             }
             addInput(value) {
                 const use = execution.invoke('torch.Use', [ this ]);
-                value._uses.push(use);
+                value.uses().push(use);
                 this._inputs.push(value);
                 return value;
             }
@@ -1817,7 +1817,6 @@ pytorch.jit.Execution = class extends pytorch.Execution {
         this.registerType('torch.Use', class {
             constructor(node) {
                 this._node = node;
-                this._uses = [];
             }
             get user() {
                 return this._node;
