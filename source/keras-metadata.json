@@ -4024,7 +4024,7 @@
         "name": "rate"
       },
       {
-        "description": "'channels_first' or 'channels_last'. In 'channels_first'\n    mode, the channels dimension (the depth) is at index 1, in\n    'channels_last' mode is it at index 3. When unspecified, uses\n    `image_data_format` value found in your Keras config file at\n    `~/.keras/keras.json` (if exists) else 'channels_last'.\n    Defaults to 'channels_last'.",
+        "description": "'channels_first' or 'channels_last'. In 'channels_first'\n    mode, the channels dimension (the depth) is at index 1, in\n    'channels_last' mode is it at index 3. It defaults to the\n    `image_data_format` value found in your Keras config file at\n    `~/.keras/keras.json`. If you never set it, then it will be\n    \"channels_last\".",
         "name": "data_format"
       }
     ],
@@ -4057,7 +4057,7 @@
         "name": "rate"
       },
       {
-        "description": "'channels_first' or 'channels_last'. In 'channels_first'\n    mode, the channels dimension (the depth) is at index 1, in\n    'channels_last' mode is it at index 4. When unspecified, uses\n    `image_data_format` value found in your Keras config file at\n    `~/.keras/keras.json` (if exists) else 'channels_last'.\n    Defaults to 'channels_last'.",
+        "description": "'channels_first' or 'channels_last'. In 'channels_first'\n    mode, the channels dimension (the depth) is at index 1, in\n    'channels_last' mode is it at index 4. It defaults to the\n    `image_data_format` value found in your Keras config file at\n    `~/.keras/keras.json`. If you never set it, then it will be\n    \"channels_last\".",
         "name": "data_format"
       }
     ],
