@@ -42,8 +42,8 @@ jobs:
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
-          API_KEY_ID: ${{ secrets.API_KEY_ID }}
-          API_KEY_ISSUER_ID: ${{ secrets.API_KEY_ISSUER_ID }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_KEY_ISSUER_ID: ${{ secrets.APPLE_API_KEY_ISSUER_ID }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
@@ -54,7 +54,7 @@ jobs:
           case "${{ matrix.os }}" in
             macos*)
               mkdir -p ~/.private_keys
-              echo '${{ secrets.API_KEY }}' > ~/.private_keys/AuthKey_${{ secrets.API_KEY_ID }}.p8
+              echo '${{ secrets.APPLE_API_KEY }}' > ~/.private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
               npx electron-builder --mac --universal --publish always
               ;;
             ubuntu*)
