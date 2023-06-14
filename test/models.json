@@ -3377,6 +3377,21 @@
   },
   {
     "type":     "onnx",
+    "target":   "bfloat16.int32_data.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/11740995/bfloat16.onnx.zip[bfloat16.int32_data.onnx]",
+    "format":   "ONNX v8",
+    "producer": "onnx-example",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
+    "target":   "bfloat16.raw_data.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/11740995/bfloat16.onnx.zip[bfloat16.raw_data.onnx]",
+    "format":   "ONNX v8",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
     "target":   "bidaf-9.onnx.zip",
     "source":   "https://github.com/lutzroeder/netron/files/6572387/bidaf-9.onnx.zip",
     "format":   "ONNX v4",
@@ -3632,14 +3647,6 @@
     "source":   "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/MNIST/Tutorial/cs/Assets/mnist.onnx",
     "format":   "ONNX v3",
     "link":     "https://github.com/Microsoft/Windows-Machine-Learning/tree/master/Samples/MNIST/Tutorial/cs/Assets"
-  },
-  {
-    "type":     "onnx",
-    "target":   "mnist_bfloat16.onnx",
-    "source":   "https://github.com/lutzroeder/netron/files/8556399/mnist_bfloat16.onnx.zip[mnist_bfloat16.onnx]",
-    "format":   "ONNX v4",
-    "producer": "pytorch 1.12.0",
-    "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
     "type":     "onnx",

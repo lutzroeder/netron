@@ -805,18 +805,6 @@ onnx.Tensor = class {
                     case onnx.DataType.UNDEFINED: {
                         break;
                     }
-                    case onnx.DataType.FLOAT16:
-                        if (tensor.int32_data && tensor.int32_data.length > 0) {
-                            const buffer = new Uint8Array(tensor.int32_data.length << 1);
-                            const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-                            const array = tensor.int32_data;
-                            for (let i = 0; i < array.length; i++) {
-                                view.setUint16(i << 1, array[i], true);
-                            }
-                            this._data = buffer;
-                            this._layout = '<';
-                        }
-                        break;
                     case onnx.DataType.FLOAT:
                         this._data = new Float32Array(tensor.float_data);
                         this._layout = '|';
@@ -868,9 +856,21 @@ onnx.Tensor = class {
                         this._data = tensor.string_data;
                         this._layout = '|';
                         break;
-                    case onnx.DataType.BFLOAT16:
                     case onnx.DataType.COMPLEX64:
                     case onnx.DataType.COMPLEX128:
+                        break;
+                    case onnx.DataType.FLOAT16:
+                    case onnx.DataType.BFLOAT16:
+                        if (tensor.int32_data && tensor.int32_data.length > 0) {
+                            const array = tensor.int32_data;
+                            const buffer = new Uint8Array(array.length << 1);
+                            const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+                            for (let i = 0; i < array.length; i++) {
+                                view.setUint16(i << 1, array[i], true);
+                            }
+                            this._data = buffer;
+                            this._layout = '<';
+                        }
                         break;
                     case onnx.DataType.FLOAT8E4M3FN:
                     case onnx.DataType.FLOAT8E4M3FNUZ:
