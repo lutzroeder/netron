@@ -494,6 +494,7 @@ host.BrowserHost = class {
         } catch (error) {
             await this.error('Model load request failed.', error.message);
             this._view.show('welcome');
+            return null;
         }
         try {
             await this._view.open(context);
@@ -502,8 +503,8 @@ host.BrowserHost = class {
             if (err) {
                 this._view.error(err, null, 'welcome');
             }
+            return null;
         }
-        return null;
     }
 
     async _open(file, files) {
