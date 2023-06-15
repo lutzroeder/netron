@@ -5274,10 +5274,23 @@ python.Execution = class {
                 return this._shape[0];
             }
             __setstate__(state) {
-                this._storage = state[0];
-                this._storage_offset = state[1];
-                this._shape = state[2];
-                this._stride = state[3];
+                switch (state.length) {
+                    case 3:
+                        break;
+                    case 4:
+                        this._storage = state[0];
+                        this._storage_offset = state[1];
+                        this._shape = state[2];
+                        this._stride = state[3];
+                        break;
+                    case 5:
+                        this.data = state[0];
+                        this._backward_hooks = state[2];
+                        this.requires_grad = state[3];
+                        break;
+                    default:
+                        throw new python.Error("Unsupported tensor state length '" + state.length + "'.");
+                }
             }
             __bool__() {
                 return true;
@@ -5314,21 +5327,6 @@ python.Execution = class {
                 }
                 this.data = data;
                 this.requires_grad = requires_grad !== undefined ? requires_grad : true;
-            }
-            __setstate__(state) {
-                switch (state.length) {
-                    case 3:
-                        this.data = null;
-                        break;
-                    case 4:
-                        this.data = state[0];
-                        break;
-                    case 5:
-                        this.data = state[0];
-                        break;
-                    default:
-                        throw new python.Error("Unsupported parameter state length '" + state.length + "'.");
-                }
             }
         });
         this.registerType('torch.nn.parameter.UninitializedParameter', class extends torch.nn.parameter.Parameter {

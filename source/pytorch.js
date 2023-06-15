@@ -204,9 +204,8 @@ pytorch.Graph = class {
         const inputName = inputSchema.shift().name;
         const inputs = [];
         if (args.length > 0) {
-            inputs.push(new pytorch.Parameter(inputName, true, args.map((argument) => {
-                return new pytorch.Argument(argument, null, null);
-            })));
+            const parameter = new pytorch.Parameter(inputName, true, args.map((argument) => new pytorch.Argument(argument, null, null)));
+            inputs.push(parameter);
         }
         const filterParameters = (obj) => {
             const entries = Object.entries(obj).filter((entry) => {
@@ -229,7 +228,7 @@ pytorch.Graph = class {
                 visible = input.visible === false ? false : true;
             }
             if (list) {
-                const args = list.map((value) => {
+                const args = list.filter((value) => value !== null).map((value) => {
                     const identifier = value && value.name ? value.name : '';
                     const initializer = value ? new pytorch.Tensor(identifier, value) : null;
                     return new pytorch.Argument(identifier, null, initializer);
