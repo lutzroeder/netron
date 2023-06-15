@@ -787,7 +787,8 @@ keras.Node = class {
         for (let i = 0; i < outputs.length; i++) {
             const output = outputs[i];
             const outputName = (this._type && this._type.outputs && i < this._type.outputs.length && this._type.outputs[i] && this._type.outputs[i].name) ? this._type.outputs[i].name : i.toString();
-            const parameter = new keras.Parameter(outputName, true, [ new keras.Argument(output, null, null) ]);
+            const args = output.length === 0 ? [] : [ new keras.Argument(output, null, null) ];
+            const parameter = new keras.Parameter(outputName, true, args);
             this._outputs.push(parameter);
         }
 
