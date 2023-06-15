@@ -440,29 +440,31 @@ host.ElectronHost = class {
         const size = stat && stat.isFile() ? stat.size : 0;
         if (path && this._view.accept(path, size)) {
             this._view.show('welcome spinner');
+            let context = null;
             try {
-                const context = await this._context(path);
+                context = await this._context(path);
                 this._telemetry.set('session_engaged', 1);
-                try {
-                    const model = await this._view.open(context);
-                    this._view.show(null);
-                    const options = Object.assign({}, this._view.options);
-                    if (model) {
-                        options.path = path;
-                        this._title(location.label);
-                    }
-                    this._update(options);
-                } catch (error) {
-                    const options = Object.assign({}, this._view.options);
-                    if (error) {
-                        await this._view.error(error, null, null);
-                        options.path = null;
-                    }
-                    this._update(options);
-                }
             } catch (error) {
                 await this._view.error(error, 'Error while reading file.', null);
                 this._update({ path: null });
+                return;
+            }
+            try {
+                const model = await this._view.open(context);
+                this._view.show(null);
+                const options = Object.assign({}, this._view.options);
+                if (model) {
+                    options.path = path;
+                    this._title(location.label);
+                }
+                this._update(options);
+            } catch (error) {
+                const options = Object.assign({}, this._view.options);
+                if (error) {
+                    await this._view.error(error, null, null);
+                    options.path = null;
+                }
+                this._update(options);
             }
         }
     }
