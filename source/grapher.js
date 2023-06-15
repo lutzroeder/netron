@@ -613,17 +613,20 @@ grapher.Edge = class {
     }
 
     select() {
-        if (!this.element.classList.contains('select')) {
-            const path = this.element;
-            path.classList.add('select');
-            this.element = path.cloneNode(true);
-            path.parentNode.replaceChild(this.element, path);
+        if (this.element) {
+            if (!this.element.classList.contains('select')) {
+                const path = this.element;
+                path.classList.add('select');
+                this.element = path.cloneNode(true);
+                path.parentNode.replaceChild(this.element, path);
+            }
+            return [ this.element ];
         }
-        return [ this.element ];
+        return [];
     }
 
     deselect() {
-        if (this.element.classList.contains('select')) {
+        if (this.element && this.element.classList.contains('select')) {
             const path = this.element;
             path.classList.remove('select');
             this.element = path.cloneNode(true);

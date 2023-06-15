@@ -505,29 +505,69 @@ class Target {
             // continue
         }
         for (const graph of this.model.graphs) {
+            const args = new Map();
+            const arg = (argument) => {
+                argument.name.toString();
+                argument.name.length;
+                argument.description;
+                argument.quantization;
+                if (argument.type) {
+                    argument.type.toString();
+                }
+                if (argument.initializer) {
+                    argument.initializer.type.toString();
+                    const tensor = new view.Tensor(argument.initializer);
+                    if (tensor.layout !== '<' && tensor.layout !== '>' && tensor.layout !== '|' && tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo') {
+                        throw new Error("Tensor layout '" + tensor.layout + "' is not implemented.");
+                    }
+                    if (!tensor.empty) {
+                        if (tensor.type && tensor.type.dataType === '?') {
+                            throw new Error('Tensor data type is not defined.');
+                        } else if (tensor.type && !tensor.type.shape) {
+                            throw new Error('Tensor shape is not defined.');
+                        } else {
+                            tensor.toString();
+                            /*
+                            const python = require('../source/python');
+                            const tensor = argument.initializer;
+                            if (tensor.type && tensor.type.dataType !== '?') {
+                                let data_type = tensor.type.dataType;
+                                switch (data_type) {
+                                    case 'boolean': data_type = 'bool'; break;
+                                }
+                                const execution = new python.Execution();
+                                const bytes = execution.invoke('io.BytesIO', []);
+                                const dtype = execution.invoke('numpy.dtype', [ data_type ]);
+                                const array = execution.invoke('numpy.asarray', [ tensor.value, dtype ]);
+                                execution.invoke('numpy.save', [ bytes, array ]);
+                            }
+                            */
+                        }
+                    }
+                } else if (argument.name.length === 0) {
+                    throw new Error('Empty argument name.');
+                }
+                if (argument.name.length > 0) {
+                    if (!args.has(argument.name)) {
+                        args.set(argument.name, argument);
+                    } else if (argument !== args.get(argument.name)) {
+                        // TODO #1109 duplicate argument name
+                        // throw new Error("Duplicate argument name '" + argument.name + "'.");
+                    }
+                }
+            };
             for (const input of graph.inputs) {
                 input.name.toString();
                 input.name.length;
                 for (const argument of input.arguments) {
-                    argument.name.toString();
-                    argument.name.length;
-                    if (argument.type) {
-                        argument.type.toString();
-                    }
-                    if (argument.quantization || argument.initializer) {
-                        // continue
-                    }
+                    arg(argument);
                 }
             }
             for (const output of graph.outputs) {
                 output.name.toString();
                 output.name.length;
                 for (const argument of output.arguments) {
-                    argument.name.toString();
-                    argument.name.length;
-                    if (argument.type) {
-                        argument.type.toString();
-                    }
+                    arg(argument);
                 }
             }
             for (const node of graph.nodes) {
@@ -552,54 +592,14 @@ class Target {
                     input.name.toString();
                     input.name.length;
                     for (const argument of input.arguments) {
-                        argument.name.toString();
-                        argument.name.length;
-                        argument.description;
-                        if (argument.type) {
-                            argument.type.toString();
-                        }
-                        if (argument.initializer) {
-                            argument.initializer.type.toString();
-                            const tensor = new view.Tensor(argument.initializer);
-                            if (tensor.layout !== '<' && tensor.layout !== '>' && tensor.layout !== '|' && tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo') {
-                                throw new Error("Tensor layout '" + tensor.layout + "' is not implemented.");
-                            }
-                            if (!tensor.empty) {
-                                if (tensor.type && tensor.type.dataType === '?') {
-                                    throw new Error('Tensor data type is not defined.');
-                                } else if (tensor.type && !tensor.type.shape) {
-                                    throw new Error('Tensor shape is not defined.');
-                                } else {
-                                    tensor.toString();
-                                    /*
-                                    const python = require('../source/python');
-                                    const tensor = argument.initializer;
-                                    if (tensor.type && tensor.type.dataType !== '?') {
-                                        let data_type = tensor.type.dataType;
-                                        switch (data_type) {
-                                            case 'boolean': data_type = 'bool'; break;
-                                        }
-                                        const execution = new python.Execution();
-                                        const bytes = execution.invoke('io.BytesIO', []);
-                                        const dtype = execution.invoke('numpy.dtype', [ data_type ]);
-                                        const array = execution.invoke('numpy.asarray', [ tensor.value, dtype ]);
-                                        execution.invoke('numpy.save', [ bytes, array ]);
-                                    }
-                                    */
-                                }
-                            }
-                        }
+                        arg(argument);
                     }
                 }
                 for (const output of node.outputs) {
                     output.name.toString();
                     output.name.length;
                     for (const argument of output.arguments) {
-                        argument.name.toString();
-                        argument.name.length;
-                        if (argument.type) {
-                            argument.type.toString();
-                        }
+                        arg(argument);
                     }
                 }
                 if (node.chain) {

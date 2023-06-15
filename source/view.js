@@ -1567,6 +1567,10 @@ view.Graph = class extends grapher.Graph {
             const value = new view.Argument(this, argument);
             this._arguments.set(name, value);
             this._table.set(argument, value);
+        } else {
+            // TODO #1109 duplicate argument name
+            const value = this._arguments.get(name);
+            this._table.set(argument, value);
         }
         return this._arguments.get(name);
     }
