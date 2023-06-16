@@ -140,7 +140,7 @@ cntk.Graph = class {
         const args = new Map();
         const arg = (name, version, obj) => {
             if (obj && args.has(name)) {
-                throw new cntk.Error("Duplicate argument identifier '" + name + "'.");
+                throw new cntk.Error("Duplicate argument '" + name + "'.");
             }
             if (!args.has(name)) {
                 switch (version) {
@@ -162,9 +162,7 @@ cntk.Graph = class {
                     const node = obj.nodes[name];
                     switch (node.__type__) {
                         case 'InputValue':
-                            this._inputs.push(new cntk.Parameter(node.name, [
-                                new cntk.Argument(version, node)
-                            ]));
+                            this._inputs.push(new cntk.Parameter(node.name, [ arg(node.name, version, node) ]));
                             break;
                         case 'LearnableParameter':
                             arg(node.name, version, node);
