@@ -324,6 +324,10 @@ class Target {
         this.target = item.type ? target : target.map((target) => path.resolve(process.cwd(), target));
         this.action = new Set((this.action || '').split(';'));
         this.folder = item.type ? path.normalize(path.join(__dirname, '..', 'third_party' , 'test', item.type)) : '';
+        // TODO #1109 duplicate argument name
+        this.skip1109 = [ 'caffe', 'caffe2', 'cntk', 'coreml', 'dl4j',
+            'hailo', 'keras', 'kmodel', 'mediapipe', 'megengine', 'mlnet', 'mxnet', 'ncnn',
+            'onednn', 'om', 'openvino', 'pytorch', 'sklearn', 'tnn', 'tf', 'tfjs' , 'torch' ].includes(this.type);
     }
 
     match(patterns) {
@@ -550,9 +554,8 @@ class Target {
                 if (argument.name.length > 0) {
                     if (!args.has(argument.name)) {
                         args.set(argument.name, argument);
-                    } else if (argument !== args.get(argument.name)) {
-                        // TODO #1109 duplicate argument name
-                        // throw new Error("Duplicate argument name '" + argument.name + "'.");
+                    } else if (argument !== args.get(argument.name) && !this.skip1109) {
+                        throw new Error("Duplicate argument name '" + argument.name + "'.");
                     }
                 }
             };
