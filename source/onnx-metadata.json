@@ -1947,7 +1947,7 @@
     "examples": [
       {
         "summary": "averagepool_1d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_1d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_1d_default\")"
       },
       {
         "summary": "averagepool_2d_ceil",
@@ -1955,7 +1955,7 @@
       },
       {
         "summary": "averagepool_2d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_default\")"
       },
       {
         "summary": "averagepool_2d_dilations",
@@ -1963,11 +1963,11 @@
       },
       {
         "summary": "averagepool_2d_pads",
-        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_pads\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"NOTSET\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_pads\")"
       },
       {
         "summary": "averagepool_2d_pads_count_include_pad",
-        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n    count_include_pad=1,\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=0,\n)\ny = pool(\n    padded,\n    x_shape,\n    kernel_shape,\n    strides,\n    out_shape,\n    pad_shape,\n    \"AVG\",\n    count_include_pad=1,\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_2d_pads_count_include_pad\",\n)"
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n    count_include_pad=1,\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"NOTSET\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=0,\n)\ny = pool(\n    padded,\n    x_shape,\n    kernel_shape,\n    strides,\n    out_shape,\n    pad_shape,\n    \"AVG\",\n    count_include_pad=1,\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_2d_pads_count_include_pad\",\n)"
       },
       {
         "summary": "averagepool_2d_precomputed_pads",
@@ -1995,11 +1995,11 @@
       },
       {
         "summary": "averagepool_2d_strides",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    strides=[3, 3],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_strides\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    strides=[3, 3],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"NOTSET)\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_strides\")"
       },
       {
         "summary": "averagepool_3d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_3d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_3d_default\")"
       }
     ],
     "category": "Pool"
@@ -2075,7 +2075,7 @@
     "examples": [
       {
         "summary": "averagepool_1d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_1d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_1d_default\")"
       },
       {
         "summary": "averagepool_2d_ceil",
@@ -2083,7 +2083,7 @@
       },
       {
         "summary": "averagepool_2d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_default\")"
       },
       {
         "summary": "averagepool_2d_dilations",
@@ -2091,11 +2091,11 @@
       },
       {
         "summary": "averagepool_2d_pads",
-        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_pads\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"NOTSET\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_pads\")"
       },
       {
         "summary": "averagepool_2d_pads_count_include_pad",
-        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n    count_include_pad=1,\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=0,\n)\ny = pool(\n    padded,\n    x_shape,\n    kernel_shape,\n    strides,\n    out_shape,\n    pad_shape,\n    \"AVG\",\n    count_include_pad=1,\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_2d_pads_count_include_pad\",\n)"
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n    count_include_pad=1,\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"NOTSET\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=0,\n)\ny = pool(\n    padded,\n    x_shape,\n    kernel_shape,\n    strides,\n    out_shape,\n    pad_shape,\n    \"AVG\",\n    count_include_pad=1,\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_2d_pads_count_include_pad\",\n)"
       },
       {
         "summary": "averagepool_2d_precomputed_pads",
@@ -2123,11 +2123,11 @@
       },
       {
         "summary": "averagepool_2d_strides",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    strides=[3, 3],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_strides\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    strides=[3, 3],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"NOTSET)\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_strides\")"
       },
       {
         "summary": "averagepool_3d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_3d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_3d_default\")"
       }
     ],
     "category": "Pool"
@@ -2209,7 +2209,7 @@
     "examples": [
       {
         "summary": "averagepool_1d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_1d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_1d_default\")"
       },
       {
         "summary": "averagepool_2d_ceil",
@@ -2217,7 +2217,7 @@
       },
       {
         "summary": "averagepool_2d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_default\")"
       },
       {
         "summary": "averagepool_2d_dilations",
@@ -2225,11 +2225,11 @@
       },
       {
         "summary": "averagepool_2d_pads",
-        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_pads\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"NOTSET\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_pads\")"
       },
       {
         "summary": "averagepool_2d_pads_count_include_pad",
-        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n    count_include_pad=1,\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=0,\n)\ny = pool(\n    padded,\n    x_shape,\n    kernel_shape,\n    strides,\n    out_shape,\n    pad_shape,\n    \"AVG\",\n    count_include_pad=1,\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_2d_pads_count_include_pad\",\n)"
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n    count_include_pad=1,\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"NOTSET\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=0,\n)\ny = pool(\n    padded,\n    x_shape,\n    kernel_shape,\n    strides,\n    out_shape,\n    pad_shape,\n    \"AVG\",\n    count_include_pad=1,\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_2d_pads_count_include_pad\",\n)"
       },
       {
         "summary": "averagepool_2d_precomputed_pads",
@@ -2257,11 +2257,11 @@
       },
       {
         "summary": "averagepool_2d_strides",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    strides=[3, 3],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_strides\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    strides=[3, 3],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"NOTSET)\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_strides\")"
       },
       {
         "summary": "averagepool_3d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_3d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_3d_default\")"
       }
     ],
     "category": "Pool"
@@ -2271,7 +2271,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "AveragePool consumes an input tensor X and applies average pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1)) / strides_spatial_shape[i] + 1)\n ```\n or\n ```\n output_spatial_shape[i] = ceil((input_spatial_shape[i] + pad_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1)) / strides_spatial_shape[i] + 1)\n ```\n if ceil_mode is enabled\n\n ```\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) - input_spatial_shape[i]\n ```\n The output of each pooling window is divided by the number of elements (exclude pad when attribute count_include_pad is zero).\n ",
+    "description": "AveragePool consumes an input tensor X and applies average pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1)) / strides_spatial_shape[i] + 1)\n ```\n or\n ```\n output_spatial_shape[i] = ceil((input_spatial_shape[i] + pad_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1)) / strides_spatial_shape[i] + 1)\n ```\n if ceil_mode is enabled\n\n ```\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following when ceil_mode is enabled:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\nor when ceil_mode is disabled:\n ```\n VALID: output_spatial_shape[i] = floor((input_spatial_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = floor(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) - input_spatial_shape[i]\n ```\n The output of each pooling window is divided by the number of elements (exclude pad when attribute count_include_pad is zero).\n ",
     "attributes": [
       {
         "name": "auto_pad",
@@ -2343,7 +2343,7 @@
     "examples": [
       {
         "summary": "averagepool_1d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_1d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_1d_default\")"
       },
       {
         "summary": "averagepool_2d_ceil",
@@ -2351,7 +2351,7 @@
       },
       {
         "summary": "averagepool_2d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_default\")"
       },
       {
         "summary": "averagepool_2d_dilations",
@@ -2359,11 +2359,11 @@
       },
       {
         "summary": "averagepool_2d_pads",
-        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_pads\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"NOTSET\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_pads\")"
       },
       {
         "summary": "averagepool_2d_pads_count_include_pad",
-        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n    count_include_pad=1,\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=0,\n)\ny = pool(\n    padded,\n    x_shape,\n    kernel_shape,\n    strides,\n    out_shape,\n    pad_shape,\n    \"AVG\",\n    count_include_pad=1,\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_2d_pads_count_include_pad\",\n)"
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n    count_include_pad=1,\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"NOTSET\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=0,\n)\ny = pool(\n    padded,\n    x_shape,\n    kernel_shape,\n    strides,\n    out_shape,\n    pad_shape,\n    \"AVG\",\n    count_include_pad=1,\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_2d_pads_count_include_pad\",\n)"
       },
       {
         "summary": "averagepool_2d_precomputed_pads",
@@ -2391,11 +2391,11 @@
       },
       {
         "summary": "averagepool_2d_strides",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    strides=[3, 3],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_strides\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    strides=[3, 3],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"NOTSET)\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_strides\")"
       },
       {
         "summary": "averagepool_3d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_3d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_3d_default\")"
       }
     ],
     "category": "Pool"
@@ -2405,7 +2405,7 @@
     "module": "ai.onnx",
     "version": 19,
     "support_level": "common",
-    "description": "AveragePool consumes an input tensor X and applies average pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1)) / strides_spatial_shape[i] + 1)\n ```\n or\n ```\n output_spatial_shape[i] = ceil((input_spatial_shape[i] + pad_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1)) / strides_spatial_shape[i] + 1)\n ```\n if ceil_mode is enabled `pad_shape[i]` is the sum of pads along axis `i`.\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) - input_spatial_shape[i]\n ```\n The output of each pooling window is divided by the number of elements (exclude pad when attribute count_include_pad is zero).\n ",
+    "description": "AveragePool consumes an input tensor X and applies average pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1)) / strides_spatial_shape[i] + 1)\n ```\n or\n ```\n output_spatial_shape[i] = ceil((input_spatial_shape[i] + pad_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1)) / strides_spatial_shape[i] + 1)\n ```\n if ceil_mode is enabled `pad_shape[i]` is the sum of pads along axis `i`.\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following when ceil_mode is enabled:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n or when ceil_mode is disabled:\n ```\n VALID: output_spatial_shape[i] = floor((input_spatial_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = floor(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) - input_spatial_shape[i]\n ```\n The output of each pooling window is divided by the number of elements (exclude pad when attribute count_include_pad is zero).\n ",
     "attributes": [
       {
         "name": "auto_pad",
@@ -2483,7 +2483,7 @@
     "examples": [
       {
         "summary": "averagepool_1d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_1d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_1d_default\")"
       },
       {
         "summary": "averagepool_2d_ceil",
@@ -2491,7 +2491,7 @@
       },
       {
         "summary": "averagepool_2d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_default\")"
       },
       {
         "summary": "averagepool_2d_dilations",
@@ -2499,11 +2499,11 @@
       },
       {
         "summary": "averagepool_2d_pads",
-        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_pads\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"NOTSET\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_pads\")"
       },
       {
         "summary": "averagepool_2d_pads_count_include_pad",
-        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n    count_include_pad=1,\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=0,\n)\ny = pool(\n    padded,\n    x_shape,\n    kernel_shape,\n    strides,\n    out_shape,\n    pad_shape,\n    \"AVG\",\n    count_include_pad=1,\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_2d_pads_count_include_pad\",\n)"
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n    count_include_pad=1,\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"NOTSET\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=0,\n)\ny = pool(\n    padded,\n    x_shape,\n    kernel_shape,\n    strides,\n    out_shape,\n    pad_shape,\n    \"AVG\",\n    count_include_pad=1,\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_averagepool_2d_pads_count_include_pad\",\n)"
       },
       {
         "summary": "averagepool_2d_precomputed_pads",
@@ -2531,11 +2531,11 @@
       },
       {
         "summary": "averagepool_2d_strides",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    strides=[3, 3],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_strides\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    strides=[3, 3],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"NOTSET)\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_2d_strides\")"
       },
       {
         "summary": "averagepool_3d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_3d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"AveragePool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"AVG\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_averagepool_3d_default\")"
       }
     ],
     "category": "Pool"
@@ -17913,11 +17913,11 @@
     "examples": [
       {
         "summary": "lppool_1d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\np = 3\nkernel_shape = [2]\nstrides = [1]\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=kernel_shape,\n    strides=strides,\n    p=p,\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"LPPOOL\", p=p)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_1d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\np = 3\nkernel_shape = [2]\nstrides = [1]\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=kernel_shape,\n    strides=strides,\n    p=p,\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"LPPOOL\", p=p)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_1d_default\")"
       },
       {
         "summary": "lppool_2d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\np = 4\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\np = 4\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_default\")"
       },
       {
         "summary": "lppool_2d_dilations",
@@ -17925,7 +17925,7 @@
       },
       {
         "summary": "lppool_2d_pads",
-        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\np = 3\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=0,\n)\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_pads\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\np = 3\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"NOTSET\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=0,\n)\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_pads\")"
       },
       {
         "summary": "lppool_2d_same_lower",
@@ -17937,11 +17937,11 @@
       },
       {
         "summary": "lppool_2d_strides",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\np = 2\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    strides=[3, 3],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_strides\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\np = 2\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    strides=[3, 3],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_strides\")"
       },
       {
         "summary": "lppool_3d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\np = 3\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_3d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\np = 3\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_3d_default\")"
       }
     ],
     "category": "Pool"
@@ -18018,11 +18018,11 @@
     "examples": [
       {
         "summary": "lppool_1d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\np = 3\nkernel_shape = [2]\nstrides = [1]\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=kernel_shape,\n    strides=strides,\n    p=p,\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"LPPOOL\", p=p)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_1d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\np = 3\nkernel_shape = [2]\nstrides = [1]\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=kernel_shape,\n    strides=strides,\n    p=p,\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"LPPOOL\", p=p)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_1d_default\")"
       },
       {
         "summary": "lppool_2d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\np = 4\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\np = 4\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_default\")"
       },
       {
         "summary": "lppool_2d_dilations",
@@ -18030,7 +18030,7 @@
       },
       {
         "summary": "lppool_2d_pads",
-        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\np = 3\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=0,\n)\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_pads\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\np = 3\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"NOTSET\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=0,\n)\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_pads\")"
       },
       {
         "summary": "lppool_2d_same_lower",
@@ -18042,11 +18042,11 @@
       },
       {
         "summary": "lppool_2d_strides",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\np = 2\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    strides=[3, 3],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_strides\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\np = 2\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    strides=[3, 3],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_strides\")"
       },
       {
         "summary": "lppool_3d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\np = 3\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_3d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\np = 3\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_3d_default\")"
       }
     ],
     "category": "Pool"
@@ -18123,11 +18123,11 @@
     "examples": [
       {
         "summary": "lppool_1d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\np = 3\nkernel_shape = [2]\nstrides = [1]\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=kernel_shape,\n    strides=strides,\n    p=p,\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"LPPOOL\", p=p)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_1d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\np = 3\nkernel_shape = [2]\nstrides = [1]\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=kernel_shape,\n    strides=strides,\n    p=p,\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"LPPOOL\", p=p)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_1d_default\")"
       },
       {
         "summary": "lppool_2d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\np = 4\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\np = 4\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_default\")"
       },
       {
         "summary": "lppool_2d_dilations",
@@ -18135,7 +18135,7 @@
       },
       {
         "summary": "lppool_2d_pads",
-        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\np = 3\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=0,\n)\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_pads\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\np = 3\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"NOTSET\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=0,\n)\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_pads\")"
       },
       {
         "summary": "lppool_2d_same_lower",
@@ -18147,11 +18147,11 @@
       },
       {
         "summary": "lppool_2d_strides",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\np = 2\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    strides=[3, 3],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_strides\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\np = 2\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    strides=[3, 3],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_strides\")"
       },
       {
         "summary": "lppool_3d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\np = 3\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_3d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\np = 3\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_3d_default\")"
       }
     ],
     "category": "Pool"
@@ -18240,11 +18240,11 @@
     "examples": [
       {
         "summary": "lppool_1d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\np = 3\nkernel_shape = [2]\nstrides = [1]\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=kernel_shape,\n    strides=strides,\n    p=p,\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"LPPOOL\", p=p)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_1d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\np = 3\nkernel_shape = [2]\nstrides = [1]\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=kernel_shape,\n    strides=strides,\n    p=p,\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"LPPOOL\", p=p)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_1d_default\")"
       },
       {
         "summary": "lppool_2d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\np = 4\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\np = 4\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_default\")"
       },
       {
         "summary": "lppool_2d_dilations",
@@ -18252,7 +18252,7 @@
       },
       {
         "summary": "lppool_2d_pads",
-        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\np = 3\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=0,\n)\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_pads\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\np = 3\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"NOTSET\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=0,\n)\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_pads\")"
       },
       {
         "summary": "lppool_2d_same_lower",
@@ -18264,11 +18264,11 @@
       },
       {
         "summary": "lppool_2d_strides",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\np = 2\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    strides=[3, 3],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_strides\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\np = 2\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[5, 5],\n    strides=[3, 3],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_2d_strides\")"
       },
       {
         "summary": "lppool_3d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\np = 3\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_3d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\np = 3\nnode = onnx.helper.make_node(\n    \"LpPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n    p=p,\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(\n    padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"LPPOOL\", p=p\n)\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_lppool_3d_default\")"
       }
     ],
     "category": "Pool"
@@ -18827,7 +18827,7 @@
     "examples": [
       {
         "summary": "maxpool_1d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_1d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_1d_default\")"
       },
       {
         "summary": "maxpool_2d_ceil",
@@ -18835,7 +18835,7 @@
       },
       {
         "summary": "maxpool_2d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_default\")"
       },
       {
         "summary": "maxpool_2d_dilations",
@@ -18843,7 +18843,7 @@
       },
       {
         "summary": "maxpool_2d_pads",
-        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_pads\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"NOTSET\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_pads\")"
       },
       {
         "summary": "maxpool_2d_precomputed_pads",
@@ -18867,7 +18867,7 @@
       },
       {
         "summary": "maxpool_2d_strides",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\", inputs=[\"x\"], outputs=[\"y\"], kernel_shape=[5, 5], strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_strides\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\", inputs=[\"x\"], outputs=[\"y\"], kernel_shape=[5, 5], strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_strides\")"
       },
       {
         "summary": "maxpool_2d_uint8",
@@ -18875,7 +18875,7 @@
       },
       {
         "summary": "maxpool_3d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_3d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_3d_default\")"
       },
       {
         "summary": "maxpool_with_argmax_2d_precomputed_pads",
@@ -18973,7 +18973,7 @@
     "examples": [
       {
         "summary": "maxpool_1d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_1d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_1d_default\")"
       },
       {
         "summary": "maxpool_2d_ceil",
@@ -18981,7 +18981,7 @@
       },
       {
         "summary": "maxpool_2d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_default\")"
       },
       {
         "summary": "maxpool_2d_dilations",
@@ -18989,7 +18989,7 @@
       },
       {
         "summary": "maxpool_2d_pads",
-        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_pads\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"NOTSET\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_pads\")"
       },
       {
         "summary": "maxpool_2d_precomputed_pads",
@@ -19013,7 +19013,7 @@
       },
       {
         "summary": "maxpool_2d_strides",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\", inputs=[\"x\"], outputs=[\"y\"], kernel_shape=[5, 5], strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_strides\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\", inputs=[\"x\"], outputs=[\"y\"], kernel_shape=[5, 5], strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_strides\")"
       },
       {
         "summary": "maxpool_2d_uint8",
@@ -19021,7 +19021,7 @@
       },
       {
         "summary": "maxpool_3d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_3d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_3d_default\")"
       },
       {
         "summary": "maxpool_with_argmax_2d_precomputed_pads",
@@ -19131,7 +19131,7 @@
     "examples": [
       {
         "summary": "maxpool_1d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_1d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_1d_default\")"
       },
       {
         "summary": "maxpool_2d_ceil",
@@ -19139,7 +19139,7 @@
       },
       {
         "summary": "maxpool_2d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_default\")"
       },
       {
         "summary": "maxpool_2d_dilations",
@@ -19147,7 +19147,7 @@
       },
       {
         "summary": "maxpool_2d_pads",
-        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_pads\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"NOTSET\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_pads\")"
       },
       {
         "summary": "maxpool_2d_precomputed_pads",
@@ -19171,7 +19171,7 @@
       },
       {
         "summary": "maxpool_2d_strides",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\", inputs=[\"x\"], outputs=[\"y\"], kernel_shape=[5, 5], strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_strides\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\", inputs=[\"x\"], outputs=[\"y\"], kernel_shape=[5, 5], strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_strides\")"
       },
       {
         "summary": "maxpool_2d_uint8",
@@ -19179,7 +19179,7 @@
       },
       {
         "summary": "maxpool_3d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_3d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_3d_default\")"
       },
       {
         "summary": "maxpool_with_argmax_2d_precomputed_pads",
@@ -19289,7 +19289,7 @@
     "examples": [
       {
         "summary": "maxpool_1d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_1d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_1d_default\")"
       },
       {
         "summary": "maxpool_2d_ceil",
@@ -19297,7 +19297,7 @@
       },
       {
         "summary": "maxpool_2d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_default\")"
       },
       {
         "summary": "maxpool_2d_dilations",
@@ -19305,7 +19305,7 @@
       },
       {
         "summary": "maxpool_2d_pads",
-        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_pads\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"NOTSET\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_pads\")"
       },
       {
         "summary": "maxpool_2d_precomputed_pads",
@@ -19329,7 +19329,7 @@
       },
       {
         "summary": "maxpool_2d_strides",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\", inputs=[\"x\"], outputs=[\"y\"], kernel_shape=[5, 5], strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_strides\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\", inputs=[\"x\"], outputs=[\"y\"], kernel_shape=[5, 5], strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_strides\")"
       },
       {
         "summary": "maxpool_2d_uint8",
@@ -19337,7 +19337,7 @@
       },
       {
         "summary": "maxpool_3d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_3d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_3d_default\")"
       },
       {
         "summary": "maxpool_with_argmax_2d_precomputed_pads",
@@ -19355,7 +19355,7 @@
     "module": "ai.onnx",
     "version": 12,
     "support_level": "common",
-    "description": "MaxPool consumes an input tensor X and applies max pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1)) / strides_spatial_shape[i] + 1)\n ```\n or\n ```\n output_spatial_shape[i] = ceil((input_spatial_shape[i] + pad_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1)) / strides_spatial_shape[i] + 1)\n ```\n if ceil_mode is enabled `pad_shape[i]` is the sum of pads along axis `i`.\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) - input_spatial_shape[i]\n ```\n The output of each pooling window is maximum number of elements exclude pad. \n ",
+    "description": "MaxPool consumes an input tensor X and applies max pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1)) / strides_spatial_shape[i] + 1)\n ```\n or\n ```\n output_spatial_shape[i] = ceil((input_spatial_shape[i] + pad_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1)) / strides_spatial_shape[i] + 1)\n ```\n if ceil_mode is enabled `pad_shape[i]` is the sum of pads along axis `i`.\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following when ceil_mode is enabled:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n or when ceil_mode is disabled:\n ```\n VALID: output_spatial_shape[i] = floor((input_spatial_shape[i] - ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = floor(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + ((kernel_spatial_shape[i] - 1) * dilations[i] + 1) - input_spatial_shape[i]\n ```\n The output of each pooling window is maximum number of elements exclude pad. \n ",
     "attributes": [
       {
         "name": "auto_pad",
@@ -19449,7 +19449,7 @@
     "examples": [
       {
         "summary": "maxpool_1d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_1d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_1d_default\")"
       },
       {
         "summary": "maxpool_2d_ceil",
@@ -19457,7 +19457,7 @@
       },
       {
         "summary": "maxpool_2d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_default\")"
       },
       {
         "summary": "maxpool_2d_dilations",
@@ -19465,7 +19465,7 @@
       },
       {
         "summary": "maxpool_2d_pads",
-        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"VALID\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_pads\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2],\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape(\n    \"NOTSET\", np.add(x_shape[2:], pad_shape), kernel_shape, strides\n)\npadded = np.pad(\n    x,\n    ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)),\n    mode=\"constant\",\n    constant_values=np.nan,\n)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_pads\")"
       },
       {
         "summary": "maxpool_2d_precomputed_pads",
@@ -19489,7 +19489,7 @@
       },
       {
         "summary": "maxpool_2d_strides",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\", inputs=[\"x\"], outputs=[\"y\"], kernel_shape=[5, 5], strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_strides\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\", inputs=[\"x\"], outputs=[\"y\"], kernel_shape=[5, 5], strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_2d_strides\")"
       },
       {
         "summary": "maxpool_2d_uint8",
@@ -19497,7 +19497,7 @@
       },
       {
         "summary": "maxpool_3d_default",
-        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"VALID\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_3d_default\")"
+        "code": "\"\"\"\ninput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    \"MaxPool\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape(\"NOTSET\", x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], \"MAX\")\n\nexpect(node, inputs=[x], outputs=[y], name=\"test_maxpool_3d_default\")"
       },
       {
         "summary": "maxpool_with_argmax_2d_precomputed_pads",
