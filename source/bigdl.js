@@ -56,29 +56,33 @@ bigdl.Graph = class {
         this._outputs = [];
         this._nodes = [];
         const tensors = module.attr && module.attr.global_storage && module.attr.global_storage.nameAttrListValue && module.attr.global_storage.nameAttrListValue.attr ? module.attr.global_storage.nameAttrListValue.attr : {};
-        this._loadModule(metadata, module, tensors);
-    }
-
-    _loadModule(metadata, module, tensors) {
-        switch (module.moduleType) {
-            case 'com.intel.analytics.bigdl.nn.StaticGraph':
-            case 'com.intel.analytics.bigdl.nn.Sequential': {
-                for (const submodule of module.subModules) {
-                    this._loadModule(metadata, submodule, tensors);
+        const args = new Map();
+        const arg = (name) => {
+            if (!args.has(name)) {
+                args.set(name, new bigdl.Argument(name));
+            }
+            return args.get(name);
+        };
+        const loadModule = (metadata, module, tensors) => {
+            switch (module.moduleType) {
+                case 'com.intel.analytics.bigdl.nn.StaticGraph':
+                case 'com.intel.analytics.bigdl.nn.Sequential': {
+                    for (const submodule of module.subModules) {
+                        loadModule(metadata, submodule, tensors);
+                    }
+                    break;
                 }
-                break;
+                case 'com.intel.analytics.bigdl.nn.Input': {
+                    this._inputs.push(new bigdl.Parameter(module.name, [ arg(module.name) ]));
+                    break;
+                }
+                default: {
+                    this._nodes.push(new bigdl.Node(metadata, module, tensors, arg));
+                    break;
+                }
             }
-            case 'com.intel.analytics.bigdl.nn.Input': {
-                this._inputs.push(new bigdl.Parameter(module.name, [
-                    new bigdl.Argument(module.name)
-                ]));
-                break;
-            }
-            default: {
-                this._nodes.push(new bigdl.Node(metadata, module, tensors));
-                break;
-            }
-        }
+        };
+        loadModule(metadata, module, tensors);
     }
 
     get type() {
@@ -147,13 +151,13 @@ bigdl.Argument = class {
 
 bigdl.Node = class {
 
-    constructor(metadata, module, tensors) {
+    constructor(metadata, module, tensors, arg) {
         const type = module.moduleType;
         this._name = module.name;
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
-        this._inputs.push(new bigdl.Parameter('input', module.preModules.map((id) => new bigdl.Argument(id, null, null))));
+        this._inputs.push(new bigdl.Parameter('input', module.preModules.map((id) => arg(id))));
         this._type =  metadata.type(type) || { name: type };
         const inputs = (this._type && this._type.inputs) ? this._type.inputs.slice() : [];
         inputs.shift();
@@ -199,9 +203,7 @@ bigdl.Node = class {
             this._attributes.push(new bigdl.Attribute(key, value));
         }
         const output = this._name || this._type + module.namePostfix;
-        this._outputs.push(new bigdl.Parameter('output', [
-            new bigdl.Argument(output, null, null)
-        ]));
+        this._outputs.push(new bigdl.Parameter('output', [ arg(output) ]));
     }
 
     get type() {
