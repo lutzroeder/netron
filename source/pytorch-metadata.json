@@ -6588,6 +6588,17 @@
     ]
   },
   {
+    "name": "aten::l1_loss",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "target", "type": "Tensor" },
+      { "name": "reduction", "type": "int64", "default": "Mean" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::layer_norm",
     "category": "Normalization",
     "inputs": [
