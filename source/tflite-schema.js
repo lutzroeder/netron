@@ -2685,8 +2685,8 @@ $root.tflite.Operator = class Operator {
         $.custom_options_format = reader.int8_(position, 16, 0);
         $.mutating_variable_inputs = reader.bools_(position, 18);
         $.intermediates = reader.typedArray(position, 20, Int32Array);
-        $.custom_options_offset = reader.uint64_(position, 22, 0);
-        $.custom_options_size = reader.uint64_(position, 24, 0);
+        $.large_custom_options_offset = reader.uint64_(position, 22, 0);
+        $.large_custom_options_size = reader.uint64_(position, 24, 0);
         return $;
     }
 
@@ -2700,8 +2700,8 @@ $root.tflite.Operator = class Operator {
         $.custom_options_format = $root.tflite.CustomOptionsFormat[json.custom_options_format];
         $.mutating_variable_inputs = reader.array(json.mutating_variable_inputs);
         $.intermediates = reader.typedArray(json.intermediates, Int32Array);
-        $.custom_options_offset = reader.value(json.custom_options_offset, 0);
-        $.custom_options_size = reader.value(json.custom_options_size, 0);
+        $.large_custom_options_offset = reader.value(json.large_custom_options_offset, 0);
+        $.large_custom_options_size = reader.value(json.large_custom_options_size, 0);
         return $;
     }
 };
