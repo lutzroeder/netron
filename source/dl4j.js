@@ -68,31 +68,33 @@ dl4j.Model = class {
 dl4j.Graph = class {
 
     constructor(metadata, configuration, coefficients) {
-
         this._inputs = [];
         this._outputs =[];
         this._nodes = [];
-
         const dataType = coefficients ? new dl4j.NDArrayReader(coefficients).dataType : '?';
-
+        const args = new Map();
+        const arg = (name, type, tensor) => {
+            if (name.length === 0 && tensor) {
+                return new dl4j.Argument(name, type || null, tensor || null);
+            }
+            if (!args.has(name)) {
+                args.set(name, new dl4j.Argument(name, type || null, tensor || null));
+            } else if (type || tensor) {
+                throw new dl4j.Error("Duplicate argument '" + name + "'.");
+            }
+            return args.get(name);
+        };
         if (configuration.networkInputs) {
             for (const input of configuration.networkInputs) {
-                this._inputs.push(new dl4j.Parameter(input, true, [
-                    new dl4j.Argument(input, null, null)
-                ]));
+                this._inputs.push(new dl4j.Parameter(input, true, [ arg(input) ]));
             }
         }
-
         if (configuration.networkOutputs) {
             for (const output of configuration.networkOutputs) {
-                this._outputs.push(new dl4j.Parameter(output, true, [
-                    new dl4j.Argument(output, null, null)
-                ]));
+                this._outputs.push(new dl4j.Parameter(output, true, [ arg(output) ]));
             }
         }
-
         let inputs = null;
-
         // Computation Graph
         if (configuration.vertices) {
             for (const name in configuration.vertices) {
@@ -100,7 +102,6 @@ dl4j.Graph = class {
                 inputs = configuration.vertexInputs[name];
                 let variables = [];
                 let layer = null;
-
                 switch (vertex.__type__) {
                     case 'LayerVertex':
                         layer = dl4j.Node._object(vertex.layerConf.layer);
@@ -118,25 +119,19 @@ dl4j.Graph = class {
                     default:
                         throw new dl4j.Error("Unsupported vertex class '" + vertex['@class'] + "'.");
                 }
-
-                this._nodes.push(new dl4j.Node(metadata, layer, inputs, dataType, variables));
+                this._nodes.push(new dl4j.Node(metadata, layer, inputs, dataType, variables, arg));
             }
         }
-
         // Multi Layer Network
         if (configuration.confs) {
             inputs = [ 'input' ];
-            this._inputs.push(new dl4j.Parameter('input', true, [
-                new dl4j.Argument('input', null, null)
-            ]));
+            this._inputs.push(new dl4j.Parameter('input', true, [ arg('input') ]));
             for (const conf of configuration.confs) {
                 const layer = dl4j.Node._object(conf.layer);
-                this._nodes.push(new dl4j.Node(metadata, layer, inputs, dataType, conf.variables));
+                this._nodes.push(new dl4j.Node(metadata, layer, inputs, dataType, conf.variables, arg));
                 inputs = [ layer.layerName ];
             }
-            this._outputs.push(new dl4j.Parameter('output', true, [
-                new dl4j.Argument(inputs[0], null, null)
-            ]));
+            this._outputs.push(new dl4j.Parameter('output', true, [ arg(inputs[0]) ]));
         }
     }
 
@@ -203,19 +198,17 @@ dl4j.Argument = class {
 
 dl4j.Node = class {
 
-    constructor(metadata, layer, inputs, dataType, variables) {
+    constructor(metadata, layer, inputs, dataType, variables, arg) {
         this._name = layer.layerName || '';
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
         const type = layer.__type__;
         this._type = metadata.type(type) || { name: type };
-
         if (inputs && inputs.length > 0) {
-            const args = inputs.map((input) => new dl4j.Argument(input, null, null));
+            const args = inputs.map((input) => arg(input));
             this._inputs.push(new dl4j.Parameter(args.length < 2 ? 'input' : 'inputs', true, args));
         }
-
         if (variables) {
             for (const variable of variables) {
                 let tensor = null;
@@ -263,20 +256,13 @@ dl4j.Node = class {
                     default:
                         throw new dl4j.Error("Unsupported '" + this._type + "' variable '" + variable + "'.");
                 }
-                this._inputs.push(new dl4j.Parameter(variable, true, [
-                    new dl4j.Argument(variable, null, tensor)
-                ]));
+                this._inputs.push(new dl4j.Parameter(variable, true, [ arg('', null, tensor) ]));
             }
         }
-
         if (this._name) {
-            this._outputs.push(new dl4j.Parameter('output', true, [
-                new dl4j.Argument(this._name, null, null)
-            ]));
+            this._outputs.push(new dl4j.Parameter('output', true, [ arg(this._name) ]));
         }
-
         let attributes = layer;
-
         if (layer.activationFn) {
             const activation = dl4j.Node._object(layer.activationFn);
             if (activation.__type__ !== 'ActivationIdentity' && activation.__type__ !== 'Identity') {
@@ -288,11 +274,10 @@ dl4j.Node = class {
                     attributes = activation;
                 } else {
                     this._chain = this._chain || [];
-                    this._chain.push(new dl4j.Node(metadata, activation, [], null, null));
+                    this._chain.push(new dl4j.Node(metadata, activation, [], null, null, arg));
                 }
             }
         }
-
         for (const key in attributes) {
             switch (key) {
                 case '__type__':
@@ -307,7 +292,6 @@ dl4j.Node = class {
             }
             this._attributes.push(new dl4j.Attribute(metadata.attribute(type, key), key, attributes[key]));
         }
-
         if (layer.idropout) {
             const dropout = dl4j.Node._object(layer.idropout);
             if (dropout.p !== 1.0) {
@@ -448,47 +432,45 @@ dl4j.NDArrayReader = class {
 
     constructor(buffer) {
         const reader = new dl4j.BinaryReader(buffer);
-        /* let shape = */ dl4j.NDArrayReader._header(reader);
-        const data = dl4j.NDArrayReader._header(reader);
+        const dataTypes = new Map([
+            [ 'INT', [ 'int32', 4 ] ],
+            [ 'FLOAT', [ 'float32', 4 ] ],
+            [ 'DOUBLE', [ 'float64', 8 ] ]
+        ]);
+        const read = (reader) => {
+            const header = {};
+            header.alloc = reader.string();
+            header.length = 0;
+            switch (header.alloc) {
+                case 'DIRECT':
+                case 'HEAP':
+                case 'JAVACPP':
+                    header.length = reader.int32();
+                    break;
+                case 'LONG_SHAPE':
+                case 'MIXED_DATA_TYPES':
+                    header.length = reader.int64();
+                    break;
+                default:
+                    throw new dl4j.Error("Unsupported header alloc '" + header.alloc + "'.");
+            }
+            const type = reader.string();
+            if (!dataTypes.has(type)) {
+                throw new dl4j.Error("Unsupported header type '" + type + "'.");
+            }
+            const entry = dataTypes.get(type);
+            header.type = entry[0];
+            header.itemsize = entry[1];
+            header.data = reader.read(header.itemsize * header.length);
+            return header;
+        };
+        /* let shape = */ read(reader);
+        const data = read(reader);
         this._dataType = data.type;
     }
 
     get dataType() {
         return this._dataType;
-    }
-
-    static _header(reader) {
-        const header = {};
-        header.alloc = reader.string();
-        header.length = 0;
-        switch (header.alloc) {
-            case 'DIRECT':
-            case 'HEAP':
-            case 'JAVACPP':
-                header.length = reader.int32();
-                break;
-            case 'LONG_SHAPE':
-            case 'MIXED_DATA_TYPES':
-                header.length = reader.int64();
-                break;
-            default:
-                throw new dl4j.Error("Unsupported header alloc '" + header.alloc + "'.");
-        }
-        header.type = reader.string();
-        switch (header.type) {
-            case 'INT':
-                header.type = 'int32';
-                header.itemsize = 4;
-                break;
-            case 'FLOAT':
-                header.type = 'float32';
-                header.itemsize = 4;
-                break;
-            default:
-                throw new dl4j.Error("Unsupported header type '" + header.type + "'.");
-        }
-        header.data = reader.read(header.itemsize * header.length);
-        return header;
     }
 };
 
