@@ -327,7 +327,7 @@ class Target {
         // TODO #1109 duplicate argument name
         this.skip1109 = [ 'caffe2', 'coreml',
             'hailo', 'keras', 'kmodel', 'mediapipe', 'megengine', 'mlnet', 'mxnet', 'ncnn',
-            'onednn', 'om', 'openvino', 'pytorch', 'sklearn', 'tnn', 'tf', 'tfjs' ].includes(this.type);
+            'onednn', 'om', 'openvino', 'pytorch', 'sklearn', 'tf', 'tfjs' ].includes(this.type);
     }
 
     match(patterns) {
