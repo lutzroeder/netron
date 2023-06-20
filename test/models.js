@@ -325,7 +325,7 @@ class Target {
         this.action = new Set((this.action || '').split(';'));
         this.folder = item.type ? path.normalize(path.join(__dirname, '..', 'third_party' , 'test', item.type)) : '';
         // TODO #1109 duplicate argument name
-        this.skip1109 = [ 'caffe2', 'coreml',
+        this.skip1109 = [ 'coreml',
             'hailo', 'keras', 'kmodel', 'mediapipe', 'megengine', 'mlnet', 'mxnet', 'ncnn',
             'onednn', 'om', 'openvino', 'pytorch', 'sklearn', 'tf', 'tfjs' ].includes(this.type);
     }
