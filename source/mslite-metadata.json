@@ -1023,7 +1023,10 @@
     "name": "DynamicQuant",
     "attributes": [
       { "name": "symmetric", "type": "boolean", "default": false },
-      { "name": "dst_type", "type": "int64", "default": 32 }
+      { "name": "dst_type", "type": "int64", "default": 32 },
+      { "name": "activation_channel", "type": "boolean", "default": false },
+      { "name": "prefer_axis", "type": "int64", "default": 0 },
+      { "name": "transpose", "type": "boolean", "default": false }
     ]
   },
   {
