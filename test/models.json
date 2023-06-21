@@ -3070,6 +3070,7 @@
     "target":   "centerface.param,centerface.bin",
     "source":   "https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.param,https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.bin",
     "format":   "ncnn",
+    "assert":   [ "model.graphs[0].nodes[0].type.name=Convolution" ],
     "link":     "https://github.com/MirrorYuChen/ncnn_example"
   },
   {
@@ -3133,6 +3134,7 @@
     "target":   "MobileNetSSD_deploy.param.bin,MobileNetSSD_deploy.bin",
     "source":   "https://raw.githubusercontent.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd/master/MobileNetSSD_demo/app/src/main/assets/MobileNetSSD_deploy.param.bin,https://raw.githubusercontent.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd/master/MobileNetSSD_demo/app/src/main/assets/MobileNetSSD_deploy.bin",
     "format":   "ncnn",
+    "assert":   [ "model.graphs[0].nodes[1].type.name=Convolution" ],
     "link":     "https://github.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd"
   },
   {
@@ -5751,8 +5753,8 @@
     "target":   "events.out.tfevents.1606692323.b5c8f88cc7ee.58.2",
     "source":   "https://github.com/lutzroeder/netron/files/5613448/events.out.tfevents.1606692323.b5c8f88cc7ee.58.2.zip[events.out.tfevents.1606692323.b5c8f88cc7ee.58.2]",
     "format":   "TensorFlow Event File v2",
-    "assert":   [ "model.graphs[0].nodes[0].type.name=aten::_convolution" ],
     "producer": "PyTorch",
+    "assert":   [ "model.graphs[0].nodes[0].type.name=aten::_convolution" ],
     "link":     "https://github.com/lutzroeder/netron/issues/638"
   },
   {

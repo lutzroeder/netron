@@ -326,7 +326,7 @@ class Target {
         this.folder = item.type ? path.normalize(path.join(__dirname, '..', 'third_party' , 'test', item.type)) : '';
         // TODO #1109 duplicate argument name
         this.skip1109 = [ 'coreml',
-            'hailo', 'keras', 'kmodel', 'mediapipe', 'megengine', 'mlnet', 'mxnet', 'ncnn',
+            'hailo', 'keras', 'kmodel', 'mediapipe', 'megengine', 'mlnet', 'mxnet',
             'onednn', 'om', 'openvino', 'pytorch', 'sklearn', 'tf', 'tfjs' ].includes(this.type);
     }
 
@@ -501,7 +501,7 @@ class Target {
                     throw new Error("Invalid property path: '" + parts[0]);
                 }
                 if (context !== value.toString()) {
-                    throw new Error("Invalid '" + value.toString() + "' != '" + assert + "'.");
+                    throw new Error("Invalid '" + context.toString() + "' != '" + assert + "'.");
                 }
             }
         }
