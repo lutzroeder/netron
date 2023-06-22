@@ -326,7 +326,7 @@ class Target {
         this.folder = item.type ? path.normalize(path.join(__dirname, '..', 'third_party' , 'test', item.type)) : '';
         // TODO #1109 duplicate argument name
         this.skip1109 = [ 'coreml', 'kmodel', 'mediapipe', 'megengine', 'mxnet',
-            'onednn', 'om', 'openvino', 'pytorch', 'sklearn', 'tf', 'tfjs' ].includes(this.type);
+            'onednn', 'om', 'openvino', 'sklearn', 'tf', 'tfjs' ].includes(this.type);
     }
 
     match(patterns) {
@@ -550,7 +550,7 @@ class Target {
                 } else if (argument.name.length === 0) {
                     throw new Error('Empty argument name.');
                 }
-                if (argument.name.length > 0) {
+                if (argument.name.length > 0 && argument.initializer === null) {
                     if (!args.has(argument.name)) {
                         args.set(argument.name, argument);
                     } else if (argument !== args.get(argument.name) && !this.skip1109) {
