@@ -71,7 +71,7 @@ xmodel.Graph = class {
         const args = new Map();
         const arg = (name, node, initializer) => {
             if (!args.has(name)) {
-                args.set(name, new xmodel.Argument(name, node, initializer));
+                args.set(name, new xmodel.Value(name, node, initializer));
             }
             return args.get(name);
         };
@@ -79,8 +79,8 @@ xmodel.Graph = class {
         for (const node of graph.op_node) {
             if (node.args.length === 0) {
                 if (node.op_type === 'data' || node.op_type === 'data-fix') {
-                    const argument = arg(node.op_name, node);
-                    this._inputs.push(new xmodel.Parameter(node.op_name, [ argument ]));
+                    const value = arg(node.op_name, node);
+                    this._inputs.push(new xmodel.Parameter(node.op_name, [ value ]));
                     continue;
                 }
             }
@@ -111,9 +111,9 @@ xmodel.Graph = class {
 
 xmodel.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -124,16 +124,16 @@ xmodel.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-xmodel.Argument = class {
+xmodel.Value = class {
 
     constructor(name, node, initializer) {
         if (typeof name !== 'string') {
-            throw new xmodel.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new xmodel.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         if (node) {

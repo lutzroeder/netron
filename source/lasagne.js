@@ -44,7 +44,7 @@ lasagne.Graph = class {
         const args = new Map();
         const arg = (name, type, initializer) => {
             if (!args.has(name)) {
-                args.set(name, new lasagne.Argument(name, type));
+                args.set(name, new lasagne.Value(name, type));
             }
             const value = args.get(name);
             if (!value.type && type) {
@@ -88,17 +88,17 @@ lasagne.Graph = class {
 
 lasagne.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
         return this._name;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 
     get visible() {
@@ -106,11 +106,11 @@ lasagne.Parameter = class {
     }
 };
 
-lasagne.Argument = class {
+lasagne.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new lasagne.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new lasagne.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name= name;
         this._type = type || null;

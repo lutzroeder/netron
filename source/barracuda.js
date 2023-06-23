@@ -50,10 +50,9 @@ barracuda.Graph = class {
         const arg = (name, type, tensor) => {
             if (!args.has(name)) {
                 type = tensor ? tensor.type : type;
-                const argument = new barracuda.Argument(name, type, tensor);
-                args.set(name, argument);
+                args.set(name, new barracuda.Value(name, type, tensor));
             } else if (type || tensor) {
-                throw new barracuda.Error("Duplicate argument '" + name + "'.");
+                throw new barracuda.Error("Duplicate value '" + name + "'.");
             }
             return args.get(name);
         };
@@ -101,9 +100,9 @@ barracuda.Graph = class {
 
 barracuda.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -114,12 +113,12 @@ barracuda.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-barracuda.Argument = class {
+barracuda.Value = class {
 
     constructor(name, type, initializer) {
         this._name = name;

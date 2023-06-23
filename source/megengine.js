@@ -119,8 +119,8 @@ megengine.Graph = class {
                         const initializer = i.initializer !== undefined ? i.initializer : null;
                         const inpName = 'inp' + inpIdx;
                         const type = getTensorType(i._dtype, i._shape);
-                        const argument = new megengine.Argument(i._fullname, type, initializer);
-                        const parameter = new megengine.Parameter(inpName, true, [ argument ]);
+                        const value = new megengine.Value(i._fullname, type, initializer);
+                        const parameter = new megengine.Parameter(inpName, true, [ value ]);
                         op._inputs.push(parameter);
                         inpIdx += 1;
                     }
@@ -132,8 +132,8 @@ megengine.Graph = class {
                         qparams = o._qparams[1];
                     }
                     const type = getTensorType(o._dtype, o._shape);
-                    const argument = new megengine.Argument(o._fullname, type, null);
-                    const parameter = new megengine.Parameter('out' + outIdx, true, [ argument ]);
+                    const value = new megengine.Value(o._fullname, type, null);
+                    const parameter = new megengine.Parameter('out' + outIdx, true, [ value ]);
                     op._outputs.push(parameter);
                 }
                 if (qparams !== null) {
@@ -156,8 +156,8 @@ megengine.Graph = class {
                                 const type = getTensorType(tensor.dtype, tensor.data.shape);
                                 const data = tensor.data.data;
                                 const initializer = new megengine.Tensor(key, type, data);
-                                const argument = new megengine.Argument('', type, initializer);
-                                const parameter = new megengine.Parameter(key, true, [ argument ]);
+                                const value = new megengine.Value('', type, initializer);
+                                const parameter = new megengine.Parameter(key, true, [ value ]);
                                 op._inputs.push(parameter);
                             }
                         }
@@ -169,15 +169,15 @@ megengine.Graph = class {
                 for (const node of igraph._inputs) {
                     if (node.__class__.__name__ !== 'ModuleNode') {
                         const type = getTensorType(node._dtype, node._shape);
-                        const argument = new megengine.Argument(node._name, type, null);
-                        const parameter = new megengine.Parameter(node._name, true, [ argument ]);
+                        const value = new megengine.Value(node._name, type, null);
+                        const parameter = new megengine.Parameter(node._name, true, [ value ]);
                         this._inputs.push(parameter);
                     }
                 }
                 for (const node of igraph._outputs) {
                     const type = getTensorType(node._dtype, node._shape);
-                    const argument = new megengine.Argument(node._name, type, null);
-                    const parameter = new megengine.Parameter(node._name, true, [ argument ]);
+                    const value = new megengine.Value(node._name, type, null);
+                    const parameter = new megengine.Parameter(node._name, true, [ value ]);
                     this._outputs.push(parameter);
                 }
             }
@@ -412,14 +412,14 @@ megengine.Graph = class {
                 if (tensor.dtype.param) {
                     quantization = { scale: tensor.dtype.param.scale, zeroPoint: tensor.dtype.param.zero_point };
                 }
-                const argument = new megengine.Argument(name, type, initializer, quantization);
-                args.push(argument);
+                const value = new megengine.Value(name, type, initializer, quantization);
+                args.push(value);
             } else if (opr.shape) {
                 const type = new megengine.TensorType('?', new megengine.TensorShape(opr.shape));
-                args.push(new megengine.Argument(name, type));
+                args.push(new megengine.Value(name, type));
             } else {
-                const argument = new megengine.Argument(name);
-                args.push(argument);
+                const value = new megengine.Value(name);
+                args.push(value);
             }
             return { name: name, type: type, args: args };
         };
@@ -490,10 +490,10 @@ megengine.Graph = class {
 
 megengine.Parameter = class {
 
-    constructor(name, visible, args) {
+    constructor(name, visible, value) {
         this._name = name;
         this._visible = visible;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -504,16 +504,16 @@ megengine.Parameter = class {
         return this._visible;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-megengine.Argument = class {
+megengine.Value = class {
 
     constructor(name, type, initializer, quantization) {
         if (typeof name !== 'string') {
-            throw new megengine.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new megengine.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._initializer = initializer;

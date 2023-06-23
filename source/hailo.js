@@ -55,14 +55,14 @@ hailo.Graph = class {
         const args = new Map();
         const arg = (name, type, tensor) => {
             if (name.length === 0 && tensor) {
-                return new hailo.Argument(name, type || null, tensor);
+                return new hailo.Value(name, type || null, tensor);
             }
             if (!args.has(name)) {
-                args.set(name, new hailo.Argument(name, type || null, tensor || null));
+                args.set(name, new hailo.Value(name, type || null, tensor || null));
             } else if (tensor) {
-                throw new hailo.Error("Duplicate argument '" + name + "'.");
+                throw new hailo.Error("Duplicate value '" + name + "'.");
             } else if (type && !type.equals(args.get(name).type)) {
-                return new hailo.Argument(name, type, null);
+                return new hailo.Value(name, type, null);
             }
             return args.get(name);
         };
@@ -114,10 +114,10 @@ hailo.Graph = class {
 
 hailo.Parameter = class {
 
-    constructor(name, visible, args) {
+    constructor(name, visible, value) {
         this._name = name;
         this._visible = visible;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -128,16 +128,16 @@ hailo.Parameter = class {
         return this._visible;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-hailo.Argument = class {
+hailo.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new hailo.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new hailo.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type;

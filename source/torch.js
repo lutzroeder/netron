@@ -55,12 +55,12 @@ torch.Graph = class {
         const args = new Map();
         const arg = (name, type, tensor) => {
             if (name.length === 0 && tensor) {
-                return new torch.Argument(name, type || null, tensor || null);
+                return new torch.Value(name, type || null, tensor || null);
             }
             if (!args.has(name)) {
-                args.set(name, new torch.Argument(name, type || null, tensor || null));
+                args.set(name, new torch.Value(name, type || null, tensor || null));
             } else if (type || tensor) {
-                throw new torch.Error("Duplicate argument '" + name + "'.");
+                throw new torch.Error("Duplicate value '" + name + "'.");
             }
             return args.get(name);
         };
@@ -197,10 +197,10 @@ torch.Graph = class {
 
 torch.Parameter = class {
 
-    constructor(name, visible, args) {
+    constructor(name, visible, value) {
         this._name = name;
         this._visible = visible;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -211,16 +211,16 @@ torch.Parameter = class {
         return this._visible;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-torch.Argument = class {
+torch.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new torch.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new torch.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type;

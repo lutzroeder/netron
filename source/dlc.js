@@ -80,7 +80,7 @@ dlc.Graph = class {
         const args = new Map();
         const arg = (name) => {
             if (!args.has(name)) {
-                args.set(name, new dlc.Argument(name));
+                args.set(name, new dlc.Value(name));
             }
             return args.get(name);
         };
@@ -113,10 +113,9 @@ dlc.Graph = class {
                 }
             }
             for (const entry of args) {
-                const value = entry[1];
-                const type = value.shape ? new dlc.TensorType(null, value.shape) : null;
-                const argument = new dlc.Argument(entry[0], type);
-                args.set(entry[0], argument);
+                const type = entry[1].shape ? new dlc.TensorType(null, entry[1].shape) : null;
+                const value = new dlc.Value(entry[0], type);
+                args.set(entry[0], value);
             }
             this._nodes = [];
             const weights = new Map(params ? params.weights.map((weights) => [ weights.name, weights ]) : []);
@@ -147,9 +146,9 @@ dlc.Graph = class {
 
 dlc.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -160,16 +159,16 @@ dlc.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-dlc.Argument = class {
+dlc.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new dlc.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new dlc.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type;
@@ -210,8 +209,8 @@ dlc.Node = class {
             if (weights) {
                 for (const tensor of weights.tensors) {
                     const type = new dlc.TensorType(tensor.data.data_type, tensor.shape);
-                    const argument = new dlc.Argument('', type, new dlc.Tensor(type, tensor.data));
-                    this._inputs.push(new dlc.Parameter(tensor.name, [ argument ]));
+                    const value = new dlc.Value('', type, new dlc.Tensor(type, tensor.data));
+                    this._inputs.push(new dlc.Parameter(tensor.name, [ value ]));
                 }
             }
         } else {
@@ -219,8 +218,8 @@ dlc.Node = class {
             this._name = weights.name;
             this._inputs = weights.tensors.map((tensor) => {
                 const type = new dlc.TensorType(tensor.data.data_type, tensor.shape);
-                const argument = new dlc.Argument('', type, new dlc.Tensor(type, tensor.data));
-                return new dlc.Parameter(tensor.name, [ argument ]);
+                const value = new dlc.Value('', type, new dlc.Tensor(type, tensor.data));
+                return new dlc.Parameter(tensor.name, [ value ]);
             });
             this._outputs = [];
             this._attributes = [];

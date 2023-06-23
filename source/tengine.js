@@ -46,7 +46,7 @@ tengine.Graph = class {
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
-        const tensors = graph.tensors.map((tensor) => new tengine.Argument(tensor));
+        const tensors = graph.tensors.map((tensor) => new tengine.Value(tensor));
         for (const input of graph.inputs) {
             const node = graph.nodes[input];
             this._inputs.push(new tengine.Parameter(node.name, true, node.outputs.map((output) => tensors[output])));
@@ -86,10 +86,10 @@ tengine.Graph = class {
 
 tengine.Parameter = class {
 
-    constructor(name, visible, args) {
+    constructor(name, visible, value) {
         this._name = name;
         this._visible = visible;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -100,12 +100,12 @@ tengine.Parameter = class {
         return this._visible;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-tengine.Argument = class {
+tengine.Value = class {
 
     constructor(tensor) {
         this._name = tensor.name;

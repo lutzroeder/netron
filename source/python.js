@@ -613,7 +613,7 @@ python.Parser = class {
                 } else {
                     node = this._node('call');
                     node.target = stack.pop();
-                    node.arguments = this._arguments();
+                    node.args = this._arguments();
                     stack.push(node);
                 }
                 continue;
@@ -5899,13 +5899,13 @@ python.Execution = class {
                 throw new python.Error("Unsupported field expression.");
             }
             case 'call': {
-                if (expression.target.type === 'id' && expression.target.value === 'unchecked_cast' && expression.arguments.length === 2) {
-                    return this.expression(expression.arguments[1], context);
+                if (expression.target.type === 'id' && expression.target.value === 'unchecked_cast' && expression.args.length === 2) {
+                    return this.expression(expression.args[1], context);
                 }
                 if (expression.target.type === '.') {
-                    return this.call(expression.target.target, expression.target.member.value, expression.arguments, context);
+                    return this.call(expression.target.target, expression.target.member.value, expression.args, context);
                 }
-                return this.call(expression.target, null, expression.arguments, context);
+                return this.call(expression.target, null, expression.args, context);
             }
             case 'id': {
                 switch (expression.value) {

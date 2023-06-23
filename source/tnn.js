@@ -90,12 +90,12 @@ tnn.Graph = class {
         const args = new Map();
         const arg = (name, type, tensor) => {
             if (name.length === 0) {
-                return new tnn.Argument(name, type || null, tensor || null);
+                return new tnn.Value(name, type || null, tensor || null);
             }
             if (!args.has(name)) {
-                args.set(name, new tnn.Argument(name, type || null, tensor || null));
+                args.set(name, new tnn.Value(name, type || null, tensor || null));
             } else if (type || tensor) {
-                throw new tnn.Argument("Duplicate argument '" + name + "'.");
+                throw new tnn.Value("Duplicate value '" + name + "'.");
             }
             return args.get(name);
         };
@@ -127,9 +127,9 @@ tnn.Graph = class {
 
 tnn.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -140,16 +140,16 @@ tnn.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-tnn.Argument = class {
+tnn.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new tnn.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new tnn.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;

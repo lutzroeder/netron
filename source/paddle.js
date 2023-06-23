@@ -263,7 +263,7 @@ paddle.Graph = class {
             for (const variable of block.vars) {
                 const type = variable.type && variable.type.type && variable.type.lod_tensor && variable.type.lod_tensor.tensor ? paddle.Utility.createTensorType(variable.type.lod_tensor.tensor.data_type, variable.type.lod_tensor.tensor.dims) : null;
                 const tensor = variable.persistable && variable.type && variable.type.type != paddle.DataType.FETCH_LIST && variable.type.type != paddle.DataType.FEED_MINIBATCH ? (tensors.get(variable.name) || new paddle.Tensor(type)) : null;
-                args.set(variable.name, new paddle.Argument(variable.name, type, tensor));
+                args.set(variable.name, new paddle.Value(variable.name, type, tensor));
             }
 
             const scope = {};
@@ -289,7 +289,7 @@ paddle.Graph = class {
                     for (const argument of input.arguments) {
                         const name = argument;
                         if (!args.has(name)) {
-                            args.set(name, new paddle.Argument(name, null, null));
+                            args.set(name, new paddle.Value(name, null, null));
                         }
                     }
                 }
@@ -297,7 +297,7 @@ paddle.Graph = class {
                     for (const argument of output.arguments) {
                         const name = argument;
                         if (!args.has(name)) {
-                            args.set(name, new paddle.Argument(name, null, null));
+                            args.set(name, new paddle.Value(name, null, null));
                         }
                     }
                 }
@@ -337,7 +337,7 @@ paddle.Graph = class {
             for (const pair of tensors) {
                 const name = pair[0];
                 const tensor = pair[1];
-                args.set(name, new paddle.Argument(name, tensor.type, tensor));
+                args.set(name, new paddle.Value(name, tensor.type, tensor));
                 const separator = name.indexOf('.') !== -1 ? '.' : '_';
                 const regex = /(.*)_((w_attr|scale|weights|offset|b|w|b_attr)_(moment|beta|velocity|mean_square|mean_grad).*)/;
                 const parts = separator === '.' ? name.split(separator) : (regex.test(name) ? regex.exec(name).slice(1, 3) : [ '', name ]);
@@ -375,9 +375,9 @@ paddle.Graph = class {
 
 paddle.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -388,16 +388,16 @@ paddle.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-paddle.Argument = class {
+paddle.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new paddle.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new paddle.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;

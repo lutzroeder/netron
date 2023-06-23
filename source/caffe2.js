@@ -269,9 +269,9 @@ caffe2.Graph = class {
         const args = new Map();
         const arg = (name, type, tensor) => {
             if (!args.has(name)) {
-                args.set(name, new caffe2.Argument(name, type || null, tensor || null));
+                args.set(name, new caffe2.Value(name, type || null, tensor || null));
             } else if (type || tensor) {
-                throw new caffe2.Argument("Duplicate argument '" + name + "'.");
+                throw new caffe2.Value("Duplicate value '" + name + "'.");
             }
             return args.get(name);
         };
@@ -280,7 +280,7 @@ caffe2.Graph = class {
             for (const name of op.input) {
                 if (index > 0 && tensors.has(name)) {
                     if (!args.has(name)) {
-                        args.set(name, new caffe2.Argument(name, null, tensors.get(name)));
+                        args.set(name, new caffe2.Value(name, null, tensors.get(name)));
                     }
                     initializers.add(name);
                 }
@@ -350,9 +350,9 @@ caffe2.Graph = class {
 
 caffe2.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -363,16 +363,16 @@ caffe2.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-caffe2.Argument = class {
+caffe2.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new caffe2.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new caffe2.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;

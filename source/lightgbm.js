@@ -73,10 +73,10 @@ lightgbm.Graph = class {
         for (let i = 0; i < feature_names.length; i++) {
             const name = feature_names[i];
             const info = model.feature_infos && i < model.feature_infos.length ? model.feature_infos[i] : null;
-            const argument = new lightgbm.Argument(name, info);
-            args.push(argument);
+            const value = new lightgbm.Value(name, info);
+            args.push(value);
             if (feature_names.length < 1000) {
-                this._inputs.push(new lightgbm.Parameter(name, [ argument ]));
+                this._inputs.push(new lightgbm.Parameter(name, [ value ]));
             }
         }
         this._nodes.push(new lightgbm.Node(model, args));
@@ -97,9 +97,9 @@ lightgbm.Graph = class {
 
 lightgbm.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -110,16 +110,16 @@ lightgbm.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-lightgbm.Argument = class {
+lightgbm.Value = class {
 
     constructor(name, quantization) {
         if (typeof name !== 'string') {
-            throw new lightgbm.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new lightgbm.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._quantization = quantization;

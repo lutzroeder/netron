@@ -99,7 +99,7 @@ armnn.Graph = class {
                 const layer = graph.layers[layerIndex];
                 const base = layerIndex < graph.layers.length ? armnn.Node.getBase(layer) : null;
                 const tensorInfo = base && slotIndex < base.outputSlots.length ? base.outputSlots[slotIndex].tensorInfo : null;
-                args.set(name, new armnn.Argument(name, tensorInfo, tensor));
+                args.set(name, new armnn.Value(name, tensorInfo, tensor));
             }
             return args.get(name);
         };
@@ -128,8 +128,8 @@ armnn.Graph = class {
                 case armnn.schema.LayerType.Input: {
                     const name = base ? base.layerName : '';
                     for (const slot of base.outputSlots) {
-                        const argument = arg(base.index, slot.index);
-                        this._inputs.push(new armnn.Parameter(name, [ argument ]));
+                        const value = arg(base.index, slot.index);
+                        this._inputs.push(new armnn.Parameter(name, [ value ]));
                     }
                     break;
                 }
@@ -137,8 +137,8 @@ armnn.Graph = class {
                     const base = armnn.Node.getBase(layer);
                     const name = base ? base.layerName : '';
                     for (const slot of base.inputSlots) {
-                        const argument = arg(slot.connection.sourceLayerIndex, slot.connection.outputSlotIndex);
-                        this._outputs.push(new armnn.Parameter(name, [ argument ]));
+                        const value = arg(slot.connection.sourceLayerIndex, slot.connection.outputSlotIndex);
+                        this._outputs.push(new armnn.Parameter(name, [ value ]));
                     }
                     break;
                 }
@@ -210,8 +210,8 @@ armnn.Node = class {
             for (const entry of Object.entries(layer.layer).filter((entry) => entry[1] instanceof armnn.schema.ConstTensor)) {
                 const name = entry[0];
                 const tensor = entry[1];
-                const argument = new armnn.Argument('', tensor.info, new armnn.Tensor(tensor));
-                this._inputs.push(new armnn.Parameter(name, [ argument ]));
+                const value = new armnn.Value('', tensor.info, new armnn.Tensor(tensor));
+                this._inputs.push(new armnn.Parameter(name, [ value ]));
             }
         }
     }
@@ -275,9 +275,9 @@ armnn.Attribute = class {
 
 armnn.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -288,16 +288,16 @@ armnn.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-armnn.Argument = class {
+armnn.Value = class {
 
     constructor(name, tensorInfo, initializer) {
         if (typeof name !== 'string') {
-            throw new armnn.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new armnn.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = new armnn.TensorType(tensorInfo);

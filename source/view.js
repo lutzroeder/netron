@@ -550,7 +550,7 @@ view.View = class {
         }
         this._host.exception(err, false);
         const knowns = [
-            { name: '', message: /^Invalid argument identifier/, url: 'https://github.com/lutzroeder/netron/issues/540' },
+            { name: '', message: /^Invalid value identifier/, url: 'https://github.com/lutzroeder/netron/issues/540' },
             { name: '', message: /^Cannot read property/, url: 'https://github.com/lutzroeder/netron/issues/647' },
             { name: '', message: /^Failed to render tensor/, url: 'https://github.com/lutzroeder/netron/issues/681' },
             { name: 'Error', message: /^EPERM: operation not permitted/, url: 'https://github.com/lutzroeder/netron/issues/551' },
@@ -729,7 +729,7 @@ view.View = class {
         const options = {};
         options.nodesep = 20;
         options.ranksep = 20;
-        const rotate = graph.nodes.every((node) => node.inputs.filter((input) => input.arguments.every((argument) => !argument.initializer)).length === 0 && node.outputs.length === 0);
+        const rotate = graph.nodes.every((node) => node.inputs.filter((input) => input.value.every((argument) => !argument.initializer)).length === 0 && node.outputs.length === 0);
         const horizontal = rotate ? this._options.direction === 'vertical' : this._options.direction !== 'vertical';
         if (horizontal) {
             options.rankdir = "LR";
@@ -1532,7 +1532,7 @@ view.Graph = class extends grapher.Graph {
         this.view = view;
         this.model = model;
         this._nodeKey = 0;
-        this._arguments = new Map();
+        this._values = new Map();
         this._table = new Map();
         this._selection = new Set();
     }
@@ -1561,18 +1561,18 @@ view.Graph = class extends grapher.Graph {
         return value;
     }
 
-    createArgument(argument) {
+    createValue(argument) {
         const name = argument.name;
-        if (!this._arguments.has(name)) {
-            const value = new view.Argument(this, argument);
-            this._arguments.set(name, value);
+        if (!this._values.has(name)) {
+            const value = new view.Value(this, argument);
+            this._values.set(name, value);
             this._table.set(argument, value);
         } else {
             // TODO #1109 duplicate argument name
-            const value = this._arguments.get(name);
+            const value = this._values.get(name);
             this._table.set(argument, value);
         }
-        return this._arguments.get(name);
+        return this._values.get(name);
     }
 
     add(graph) {
@@ -1593,17 +1593,17 @@ view.Graph = class extends grapher.Graph {
         }
         for (const input of graph.inputs) {
             const viewInput = this.createInput(input);
-            for (const argument of input.arguments) {
-                this.createArgument(argument).from(viewInput);
+            for (const value of input.value) {
+                this.createValue(value).from(viewInput);
             }
         }
         for (const node of graph.nodes) {
             const viewNode = this.createNode(node);
             const inputs = node.inputs;
             for (const input of inputs) {
-                for (const argument of input.arguments) {
-                    if (argument.name != '' && !argument.initializer) {
-                        this.createArgument(argument).to(viewNode);
+                for (const value of input.value) {
+                    if (value.name != '' && !value.initializer) {
+                        this.createValue(value).to(viewNode);
                     }
                 }
             }
@@ -1615,21 +1615,21 @@ view.Graph = class extends grapher.Graph {
                 }
             }
             for (const output of outputs) {
-                for (const argument of output.arguments) {
-                    if (!argument) {
+                for (const value of output.value) {
+                    if (!value) {
                         const error = new view.Error('Invalid null argument.');
                         error.context = this.model.identifier;
                         throw error;
                     }
-                    if (argument.name != '') {
-                        this.createArgument(argument).from(viewNode);
+                    if (value.name != '') {
+                        this.createValue(value).from(viewNode);
                     }
                 }
             }
 
             if (node.controlDependencies && node.controlDependencies.length > 0) {
-                for (const argument of node.controlDependencies) {
-                    this.createArgument(argument).to(viewNode, true);
+                for (const value of node.controlDependencies) {
+                    this.createValue(value).to(viewNode, true);
                 }
             }
             const createCluster = (name) => {
@@ -1666,15 +1666,15 @@ view.Graph = class extends grapher.Graph {
         }
         for (const output of graph.outputs) {
             const viewOutput = this.createOutput(output);
-            for (const argument of output.arguments) {
-                this.createArgument(argument).to(viewOutput);
+            for (const value of output.value) {
+                this.createValue(value).to(viewOutput);
             }
         }
     }
 
     build(document, origin) {
-        for (const argument of this._arguments.values()) {
-            argument.build();
+        for (const value of this._values.values()) {
+            value.build();
         }
         super.build(document, origin);
     }
@@ -1770,11 +1770,11 @@ view.Node = class extends grapher.Node {
         let hiddenInitializers = false;
         if (this.context.view.options.weights) {
             for (const input of node.inputs) {
-                if (input.visible && input.arguments.length === 1 && input.arguments[0].initializer != null) {
+                if (input.visible && input.value.length === 1 && input.value[0].initializer != null) {
                     initializers.push(input);
                 }
-                if ((!input.visible || input.arguments.length > 1) &&
-                    input.arguments.some((argument) => argument.initializer != null)) {
+                if ((!input.visible || input.value.length > 1) &&
+                    input.value.some((argument) => argument.initializer != null)) {
                     hiddenInitializers = true;
                 }
             }
@@ -1793,15 +1793,15 @@ view.Node = class extends grapher.Node {
             const list = this.list();
             list.on('click', () => this.context.view.showNodeProperties(node));
             for (const initializer of initializers) {
-                const argument = initializer.arguments[0];
-                const type = argument.type;
+                const value = initializer.value[0];
+                const type = value.type;
                 let shape = '';
                 let separator = '';
                 if (type && type.shape && type.shape.dimensions && Array.isArray(type.shape.dimensions)) {
                     shape = '\u3008' + type.shape.dimensions.map((d) => (d !== null && d !== undefined) ? d : '?').join('\u00D7') + '\u3009';
-                    if (type.shape.dimensions.length === 0 && argument.initializer) {
+                    if (type.shape.dimensions.length === 0 && value.initializer) {
                         try {
-                            const initializer = argument.initializer;
+                            const initializer = value.initializer;
                             const tensor = new view.Tensor(initializer);
                             if ((tensor.layout === '<' || tensor.layout === '>' || tensor.layout === '|') && !tensor.empty && tensor.type.dataType !== '?') {
                                 shape = tensor.toString();
@@ -1813,7 +1813,7 @@ view.Node = class extends grapher.Node {
                         } catch (err) {
                             let type = '?';
                             try {
-                                type = argument.initializer.type.toString();
+                                type = value.initializer.type.toString();
                             } catch (error) {
                                 // continue regardless of error
                             }
@@ -1825,7 +1825,7 @@ view.Node = class extends grapher.Node {
                         }
                     }
                 }
-                list.add(argument.name ? 'initializer-' + argument.name : '', initializer.name, shape, type ? type.toString() : '', separator);
+                list.add(value.name ? 'initializer-' + value.name : '', initializer.name, shape, type ? type.toString() : '', separator);
             }
             if (hiddenInitializers) {
                 list.add(null, '\u3008' + '\u2026' + '\u3009', '', null, '');
@@ -1876,7 +1876,7 @@ view.Input = class extends grapher.Node {
         this.context = context;
         this.value = value;
         view.Input.counter = view.Input.counter || 0;
-        const types = value.arguments.map((argument) => argument.type || '').join('\n');
+        const types = value.value.map((argument) => argument.type || '').join('\n');
         let name = value.name || '';
         if (name.length > 16) {
             name = name.split('/').pop();
@@ -1906,7 +1906,7 @@ view.Output = class extends grapher.Node {
         super();
         this.context = context;
         this.value = value;
-        const types = value.arguments.map((argument) => argument.type || '').join('\n');
+        const types = value.value.map((argument) => argument.type || '').join('\n');
         let name = value.name || '';
         if (name.length > 16) {
             name = name.split('/').pop();
@@ -1925,7 +1925,7 @@ view.Output = class extends grapher.Node {
     }
 };
 
-view.Argument = class {
+view.Value = class {
 
     constructor(context, argument) {
         this.context = context;
@@ -2002,7 +2002,7 @@ view.Edge = class extends grapher.Edge {
     }
 
     get minlen() {
-        if (this.from.inputs.every((parameter) => parameter.arguments.every((argument) => argument.initializer))) {
+        if (this.from.inputs.every((parameter) => parameter.value.every((argument) => argument.initializer))) {
             return 2;
         }
         return 1;
@@ -2254,7 +2254,7 @@ view.NodeSidebar = class extends view.Control {
     }
 
     _addInput(name, input) {
-        if (input.arguments.length > 0) {
+        if (input.value.length > 0) {
             const value = new view.ParameterView(this._host, input);
             value.on('export-tensor', (sender, value) => this.emit('export-tensor', value));
             value.on('error', (sender, value) => this.emit('error', value));
@@ -2267,7 +2267,7 @@ view.NodeSidebar = class extends view.Control {
     }
 
     _addOutput(name, output) {
-        if (output.arguments.length > 0) {
+        if (output.value.length > 0) {
             const value = new view.ParameterView(this._host, output);
             value.on('activate', (sender, value) => this.emit('activate', value));
             value.on('deactivate', (sender, value) => this.emit('deactivate', value));
@@ -2571,8 +2571,8 @@ view.ParameterView = class extends view.Control {
         this._list = list;
         this._elements = [];
         this._items = [];
-        for (const argument of list.arguments) {
-            const item = new view.ArgumentView(host, argument);
+        for (const value of list.value) {
+            const item = new view.ArgumentView(host, value);
             item.on('export-tensor', (sender, value) => this.emit('export-tensor', value));
             item.on('error', (sender, value) => this.emit('error', value));
             item.on('activate', (sender, value) => this.emit('activate', value));
@@ -2630,7 +2630,7 @@ view.ArgumentView = class extends view.ValueView {
             const nameLine = this._host.document.createElement('div');
             nameLine.className = 'sidebar-item-value-line';
             if (typeof name !== 'string') {
-                throw new Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+                throw new Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
             }
             nameLine.innerHTML = '<span class=\'sidebar-item-value-line-content\'>name: <b>' + (name || ' ') + '</b></span>';
             nameLine.addEventListener('pointerenter', () => this.emit('activate', this._argument));
@@ -3051,18 +3051,18 @@ view.FindSidebar = class extends view.Control {
             }
         };
         for (const input of this._graph.inputs) {
-            for (const argument of input.arguments) {
-                edge(argument);
+            for (const value of input.value) {
+                edge(value);
             }
         }
         for (const node of this._graph.nodes) {
             const initializers = [];
             for (const input of node.inputs) {
-                for (const argument of input.arguments) {
-                    if (argument.initializer) {
-                        initializers.push(argument);
+                for (const value of input.value) {
+                    if (value.initializer) {
+                        initializers.push(value);
                     } else {
-                        edge(argument);
+                        edge(value);
                     }
                 }
             }
@@ -3071,15 +3071,15 @@ view.FindSidebar = class extends view.Control {
             if ((name && match(name)) || (type && match(type))) {
                 add(node, '\u25A2 ' + (name || '[' + type + ']'));
             }
-            for (const argument of initializers) {
-                if (argument.name && !edges.has(argument.name) && arg(argument)) {
-                    add(node, '\u25A0 ' + argument.name.split('\n').shift()); // split custom argument id
+            for (const value of initializers) {
+                if (value.name && !edges.has(value.name) && arg(value)) {
+                    add(node, '\u25A0 ' + value.name.split('\n').shift()); // split custom argument id
                 }
             }
         }
         for (const output of this._graph.outputs) {
-            for (const argument of output.arguments) {
-                edge(argument);
+            for (const value of output.value) {
+                edge(value);
             }
         }
         this._contentElement.style.display = this._contentElement.childNodes.length != 0 ? 'block' : 'none';

@@ -66,7 +66,7 @@ acuity.Graph = class {
                 return arg(input);
             });
             layer.outputs = layer.outputs.map((port) => {
-                const argument = arg("@" + layerName + ":" + port);
+                const value = arg("@" + layerName + ":" + port);
                 let shape = null;
                 if (layer.op.toLowerCase() == 'input' ||
                     layer.op.toLowerCase() == 'variable') {
@@ -80,8 +80,8 @@ acuity.Graph = class {
                         shape[0] = 1;
                     }
                 }
-                argument.shape = shape;
-                return argument;
+                value.shape = shape;
+                return value;
             });
         }
 
@@ -89,7 +89,7 @@ acuity.Graph = class {
 
         for (const pair of args) {
             const type = new acuity.TensorType(null, new acuity.TensorShape(pair[1].shape));
-            const arg = new acuity.Argument(pair[0], type, null, null);
+            const arg = new acuity.Value(pair[0], type, null, null);
             args.set(pair[0], arg);
         }
 
@@ -157,8 +157,8 @@ acuity.Node = class {
             for (const constant of this._type.constants) {
                 // const name = "@" + this._name + ":" + constant.name;
                 const type = new acuity.TensorType(null, new acuity.TensorShape(null));
-                const argument = new acuity.Argument('', type, null, new acuity.Tensor(type));
-                this._inputs.push(new acuity.Parameter(constant.name, true, [ argument ]));
+                const value = new acuity.Value('', type, null, new acuity.Tensor(type));
+                this._inputs.push(new acuity.Parameter(constant.name, true, [ value ]));
             }
         }
 
@@ -226,13 +226,10 @@ acuity.Attribute = class {
 
 acuity.Parameter = class {
 
-    constructor(name, visible, args) {
+    constructor(name, visible, value) {
         this._name = name;
         this._visible = visible;
-        this._arguments = args;
-        if (this._arguments.some((arg) => !arg)) {
-            throw "";
-        }
+        this._value = value;
     }
 
     get name() {
@@ -243,16 +240,16 @@ acuity.Parameter = class {
         return this._visible;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-acuity.Argument = class {
+acuity.Value = class {
 
     constructor(name, type, quantization, initializer) {
         if (typeof name !== 'string') {
-            throw new acuity.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new acuity.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;

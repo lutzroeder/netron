@@ -59,7 +59,7 @@ mediapipe.Graph = class {
                     const type = (parts.length > 1) ? parts.shift() : '';
                     const name = parts.shift();
                     this._inputs.push(new mediapipe.Parameter(name, [
-                        new mediapipe.Argument(name, type, null)
+                        new mediapipe.Value(name, type, null)
                     ]));
                 }
             }
@@ -70,7 +70,7 @@ mediapipe.Graph = class {
                     const type = (parts.length > 1) ? parts.shift() : '';
                     const name = parts.shift();
                     this._outputs.push(new mediapipe.Parameter(name, [
-                        new mediapipe.Argument(name, type, null)
+                        new mediapipe.Value(name, type, null)
                     ]));
                 }
             }
@@ -81,7 +81,7 @@ mediapipe.Graph = class {
                     const type = (parts.length > 1) ? parts.shift() : '';
                     const name = parts.shift();
                     this._inputs.push(new mediapipe.Parameter(name, [
-                        new mediapipe.Argument(name, type, null)
+                        new mediapipe.Value(name, type, null)
                     ]));
                 }
             }
@@ -92,7 +92,7 @@ mediapipe.Graph = class {
                     const type = (parts.length > 1) ? parts.shift() : '';
                     const name = parts.shift();
                     this._outputs.push(new mediapipe.Parameter(output, [
-                        new mediapipe.Argument(name, type, null)
+                        new mediapipe.Value(name, type, null)
                     ]));
                 }
             }
@@ -134,7 +134,7 @@ mediapipe.Node = class {
                 const parts = input.split(':');
                 const type = (parts.length > 1) ? parts.shift() : '';
                 const name = parts.shift();
-                args.push(new mediapipe.Argument(name, type, null));
+                args.push(new mediapipe.Value(name, type, null));
             }
             this._inputs.push(new mediapipe.Parameter('input_stream', args));
         }
@@ -145,7 +145,7 @@ mediapipe.Node = class {
                 const parts = output.split(':');
                 const type = (parts.length > 1) ? parts.shift() : '';
                 const name = parts.shift();
-                args.push(new mediapipe.Argument(name, type, null));
+                args.push(new mediapipe.Value(name, type, null));
             }
             this._outputs.push(new mediapipe.Parameter('output_stream', args));
         }
@@ -156,7 +156,7 @@ mediapipe.Node = class {
                 const parts = input.split(':');
                 const type = (parts.length > 1) ? parts.shift() : '';
                 const name = parts.shift();
-                args.push(new mediapipe.Argument(name, type, null));
+                args.push(new mediapipe.Value(name, type, null));
             }
             this._inputs.push(new mediapipe.Parameter('input_side_packet', args));
         }
@@ -167,7 +167,7 @@ mediapipe.Node = class {
                 const parts = output.split(':');
                 const type = (parts.length > 1) ? parts.shift() : '';
                 const name = parts.shift();
-                args.push(new mediapipe.Argument(name, type, null));
+                args.push(new mediapipe.Value(name, type, null));
             }
             this._outputs.push(new mediapipe.Parameter('output_side_packet', args));
         }
@@ -255,9 +255,9 @@ mediapipe.Attribute = class {
 
 mediapipe.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -268,16 +268,16 @@ mediapipe.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-mediapipe.Argument = class {
+mediapipe.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new mediapipe.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new mediapipe.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;

@@ -166,8 +166,8 @@ darknet.Graph = class {
             const data = weights ? weights.read(4 * shape.reduce((a, b) => a * b, 1)) : null;
             const type = new darknet.TensorType('float32', make_shape(shape, 'load_weights'));
             const initializer = new darknet.Tensor(type, data);
-            const argument = new darknet.Argument('', null, initializer);
-            return new darknet.Parameter(name, visible === false ? false : true, [ argument ]);
+            const value = new darknet.Value('', null, initializer);
+            return new darknet.Parameter(name, visible === false ? false : true, [ value ]);
         };
 
         const load_batch_normalize_weights = (layer, prefix, size) => {
@@ -242,8 +242,8 @@ darknet.Graph = class {
             new darknet.TensorType('float32', make_shape([ params.w, params.h, params.c ], 'params-if')) :
             new darknet.TensorType('float32', make_shape([ params.inputs ], 'params-else'));
         const inputName = 'input';
-        params.arguments = [ new darknet.Argument(inputName, inputType, null) ];
-        this._inputs.push(new darknet.Parameter(inputName, true, params.arguments));
+        params.value = [ new darknet.Value(inputName, inputType, null) ];
+        this._inputs.push(new darknet.Parameter(inputName, true, params.value));
 
         for (let i = 0; i < sections.length; i++) {
             const section = sections[i];
@@ -251,7 +251,7 @@ darknet.Graph = class {
             section.layer = {
                 inputs: [],
                 weights: [],
-                outputs: [ new darknet.Argument(section.name, null, null) ],
+                outputs: [ new darknet.Value(section.name, null, null) ],
                 chain: []
             };
         }
@@ -261,7 +261,7 @@ darknet.Graph = class {
             const section = sections[i];
             const options = section.options;
             const layer = section.layer;
-            layer.inputs.push(...params.arguments);
+            layer.inputs.push(...params.value);
             switch (section.type) {
                 case 'shortcut': {
                     let remove = true;
@@ -453,9 +453,9 @@ darknet.Graph = class {
                         const pad = option_find_int(options, 'pad', 0);
                         const padding = pad ? (size >> 1) : option_find_int(options, 'padding', 0);
                         const batch_normalize = option_find_int(options, 'batch_normalize', 0);
-                        layer.input_layer = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                        layer.input_layer = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                         make_convolutional_layer(layer.input_layer, 'input_', params.h, params.w, params.c, hidden_filters, groups, size, stride, stride, padding, batch_normalize);
-                        layer.self_layer = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                        layer.self_layer = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                         make_convolutional_layer(layer.self_layer, 'self_', params.h, params.w, hidden_filters, hidden_filters, groups, size, stride, stride, padding, batch_normalize);
                         layer.output_layer = { weights: [], outputs: layer.outputs, chain: [] };
                         make_convolutional_layer(layer.output_layer, 'output_', params.h, params.w, hidden_filters, output_filters, groups, size, stride, stride, padding, batch_normalize);
@@ -473,9 +473,9 @@ darknet.Graph = class {
                         const hidden = option_find_int(options, 'hidden', 1);
                         const batch_normalize = option_find_int(options, 'batch_normalize', 0);
                         const inputs = params.inputs;
-                        layer.input_layer = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                        layer.input_layer = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                         make_connected_layer(layer.input_layer, 'input_', inputs, hidden, batch_normalize);
-                        layer.self_layer = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                        layer.self_layer = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                         make_connected_layer(layer.self_layer, 'self_', hidden, hidden, batch_normalize);
                         layer.output_layer = { weights: [], outputs: layer.outputs, chain: [] };
                         make_connected_layer(layer.output_layer, 'output_', hidden, outputs, batch_normalize);
@@ -492,17 +492,17 @@ darknet.Graph = class {
                         const inputs = params.inputs;
                         const outputs = option_find_int(options, 'output', 1);
                         const batch_normalize = option_find_int(options, 'batch_normalize', 0);
-                        layer.input_z_layer = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                        layer.input_z_layer = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                         make_connected_layer(layer.input_z_layer, 'input_z', inputs, outputs, batch_normalize);
-                        layer.state_z_layer = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                        layer.state_z_layer = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                         make_connected_layer(layer.state_z_layer, 'state_z', outputs, outputs, batch_normalize);
-                        layer.input_r_layer = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                        layer.input_r_layer = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                         make_connected_layer(layer.input_r_layer, 'input_r', inputs, outputs, batch_normalize);
-                        layer.state_r_layer = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                        layer.state_r_layer = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                         make_connected_layer(layer.state_r_layer, 'state_r', outputs, outputs, batch_normalize);
-                        layer.input_h_layer = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                        layer.input_h_layer = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                         make_connected_layer(layer.input_h_layer, 'input_h', inputs, outputs, batch_normalize);
-                        layer.state_h_layer = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                        layer.state_h_layer = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                         make_connected_layer(layer.state_h_layer, 'state_h', outputs, outputs, batch_normalize);
                         layer.weights = layer.weights.concat(layer.input_z_layer.weights);
                         layer.weights = layer.weights.concat(layer.state_z_layer.weights);
@@ -518,21 +518,21 @@ darknet.Graph = class {
                         const inputs = params.inputs;
                         const outputs = option_find_int(options, 'output', 1);
                         const batch_normalize = option_find_int(options, 'batch_normalize', 0);
-                        layer.uf = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                        layer.uf = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                         make_connected_layer(layer.uf, 'uf_', inputs, outputs, batch_normalize);
-                        layer.ui = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                        layer.ui = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                         make_connected_layer(layer.ui, 'ui_', inputs, outputs, batch_normalize);
-                        layer.ug = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                        layer.ug = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                         make_connected_layer(layer.ug, 'ug_', inputs, outputs, batch_normalize);
-                        layer.uo = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                        layer.uo = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                         make_connected_layer(layer.uo, 'uo_', inputs, outputs, batch_normalize);
-                        layer.wf = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                        layer.wf = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                         make_connected_layer(layer.wf, 'wf_', outputs, outputs, batch_normalize);
-                        layer.wi = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                        layer.wi = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                         make_connected_layer(layer.wi, 'wi_', outputs, outputs, batch_normalize);
-                        layer.wg = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                        layer.wg = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                         make_connected_layer(layer.wg, 'wg_', outputs, outputs, batch_normalize);
-                        layer.wo = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                        layer.wo = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                         make_connected_layer(layer.wo, 'wo_', outputs, outputs, batch_normalize);
                         layer.weights = layer.weights.concat(layer.uf.weights);
                         layer.weights = layer.weights.concat(layer.ui.weights);
@@ -560,30 +560,30 @@ darknet.Graph = class {
                         const batch_normalize = option_find_int(options, 'batch_normalize', 0);
                         const bottleneck = option_find_int(options, "bottleneck", 0);
                         const peephole = option_find_int(options, "peephole", 0);
-                        layer.uf = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                        layer.uf = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                         make_convolutional_layer(layer.uf, 'uf_', params.h, params.w, params.c, output_filters, groups, size, stride, stride, padding, batch_normalize);
-                        layer.ui = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: []  };
+                        layer.ui = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: []  };
                         make_convolutional_layer(layer.ui, 'ui_', params.h, params.w, params.c, output_filters, groups, size, stride, stride, padding, batch_normalize);
-                        layer.ug = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: []  };
+                        layer.ug = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: []  };
                         make_convolutional_layer(layer.ug, 'ug_', params.h, params.w, params.c, output_filters, groups, size, stride, stride, padding, batch_normalize);
-                        layer.uo = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: []  };
+                        layer.uo = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: []  };
                         make_convolutional_layer(layer.uo, 'uo_', params.h, params.w, params.c, output_filters, groups, size, stride, stride, padding, batch_normalize);
                         layer.weights = layer.weights.concat(layer.uf.weights);
                         layer.weights = layer.weights.concat(layer.ui.weights);
                         layer.weights = layer.weights.concat(layer.ug.weights);
                         layer.weights = layer.weights.concat(layer.uo.weights);
                         if (bottleneck) {
-                            layer.wf = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                            layer.wf = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                             make_convolutional_layer(layer.wf, 'wf_', params.h, params.w, output_filters * 2, output_filters, groups, size, stride, stride, padding, batch_normalize);
                             layer.weights = layer.weights.concat(layer.wf.weights);
                         } else {
-                            layer.wf = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                            layer.wf = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                             make_convolutional_layer(layer.wf, 'wf_', params.h, params.w, output_filters, output_filters, groups, size, stride, stride, padding, batch_normalize);
-                            layer.wi = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                            layer.wi = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                             make_convolutional_layer(layer.wi, 'wi_', params.h, params.w, output_filters, output_filters, groups, size, stride, stride, padding, batch_normalize);
-                            layer.wg = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                            layer.wg = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                             make_convolutional_layer(layer.wg, 'wg_', params.h, params.w, output_filters, output_filters, groups, size, stride, stride, padding, batch_normalize);
-                            layer.wo = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                            layer.wo = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                             make_convolutional_layer(layer.wo, 'wo_', params.h, params.w, output_filters, output_filters, groups, size, stride, stride, padding, batch_normalize);
                             layer.weights = layer.weights.concat(layer.wf.weights);
                             layer.weights = layer.weights.concat(layer.wi.weights);
@@ -591,11 +591,11 @@ darknet.Graph = class {
                             layer.weights = layer.weights.concat(layer.wo.weights);
                         }
                         if (peephole) {
-                            layer.vf = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                            layer.vf = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                             make_convolutional_layer(layer.vf, 'vf_', params.h, params.w, output_filters, output_filters, groups, size, stride, stride, padding, batch_normalize);
-                            layer.vi = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                            layer.vi = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                             make_convolutional_layer(layer.vi, 'vi_', params.h, params.w, output_filters, output_filters, groups, size, stride, stride, padding, batch_normalize);
-                            layer.vo = { weights: [], outputs: [ new darknet.Argument('', null, null) ], chain: [] };
+                            layer.vo = { weights: [], outputs: [ new darknet.Value('', null, null) ], chain: [] };
                             make_convolutional_layer(layer.vo, 'vo_', params.h, params.w, output_filters, output_filters, groups, size, stride, stride, padding, batch_normalize);
                             layer.weights = layer.weights.concat(layer.vf.weights);
                             layer.weights = layer.weights.concat(layer.vi.weights);
@@ -787,7 +787,7 @@ darknet.Graph = class {
                 params.inputs = layer.out;
                 params.last = section;
             }
-            params.arguments = layer.outputs;
+            params.value = layer.outputs;
         }
 
         for (let i = 0; i < sections.length; i++) {
@@ -814,10 +814,10 @@ darknet.Graph = class {
 
 darknet.Parameter = class {
 
-    constructor(name, visible, args) {
+    constructor(name, visible, value) {
         this._name = name;
         this._visible = visible;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -828,16 +828,16 @@ darknet.Parameter = class {
         return this._visible;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-darknet.Argument = class {
+darknet.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new darknet.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new darknet.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type;

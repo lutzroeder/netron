@@ -815,9 +815,9 @@ tf.Graph = class {
 
 tf.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -828,16 +828,16 @@ tf.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-tf.Argument = class {
+tf.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new tf.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new tf.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;
@@ -878,8 +878,8 @@ tf.Function = class {
 
         if (input_arg) {
             for (const input of input_arg) {
-                const argument = new tf.Argument(input.name, new tf.TensorType(input.type, null), null);
-                this._inputs.push(new tf.Parameter(input.name, [ argument ]));
+                const value = new tf.Value(input.name, new tf.TensorType(input.type, null), null);
+                this._inputs.push(new tf.Parameter(input.name, [ value ]));
             }
         }
         const output_arg_map = new Map();
@@ -893,7 +893,7 @@ tf.Function = class {
             for (const output of output_arg) {
                 const name = ret_map.get(output.name);
                 this._outputs.push(new tf.Parameter(output.name, [
-                    new tf.Argument(name, new tf.TensorType(output.type, null), null)
+                    new tf.Value(name, new tf.TensorType(output.type, null), null)
                 ]));
                 output_arg_map.set(name, output.name);
             }
@@ -967,7 +967,7 @@ tf.Node = class {
         if (tensors) {
             for (const tensor of tensors) {
                 this._inputs.push(new tf.Parameter(tensor.name, [
-                    new tf.Argument(tensor.value.name, null, tensor.value)
+                    new tf.Value(tensor.value.name, null, tensor.value)
                 ]));
             }
         } else {
@@ -996,7 +996,7 @@ tf.Node = class {
                         }
                     }
                     const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).map((input) => {
-                        return initializers.has(input.name) ? initializers.get(input.name) : new tf.Argument(input.name, null, null);
+                        return initializers.has(input.name) ? initializers.get(input.name) : new tf.Value(input.name, null, null);
                     });
                     this._inputs.push(new tf.Parameter(input.name, inputArguments));
                     inputIndex += inputCount;
@@ -1004,7 +1004,7 @@ tf.Node = class {
             }
             this._inputs.push(...inputs.slice(inputIndex).map((input, index) => {
                 return new tf.Parameter(input.label ? input.label : (inputIndex + index).toString(), [
-                    initializers.has(input.name) ? initializers.get(input.name) : new tf.Argument(input.name, null, null)
+                    initializers.has(input.name) ? initializers.get(input.name) : new tf.Value(input.name, null, null)
                 ]);
             }));
             let outputIndex = 0;
@@ -1024,7 +1024,7 @@ tf.Node = class {
                         }
                     }
                     const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((output) => {
-                        return new tf.Argument(output.name ? output.name : '-', null, null);
+                        return new tf.Value(output.name ? output.name : '-', null, null);
                     });
                     const name = output.name ? output.name : 'output' + (this._outputs.length == 0 ? '' : this._outputs.length.toString());
                     this._outputs.push(new tf.Parameter(name, outputArguments));
@@ -1033,11 +1033,11 @@ tf.Node = class {
             }
             this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
                 return new tf.Parameter((outputIndex + index).toString(), [
-                    new tf.Argument(output.name ? output.name : '-', null, null)
+                    new tf.Value(output.name ? output.name : '-', null, null)
                 ]);
             }));
             const controlDependencies = node.controlDependencies || [];
-            this._controlDependencies = controlDependencies.map((input) => new tf.Argument(input.name));
+            this._controlDependencies = controlDependencies.map((input) => new tf.Value(input.name));
         }
     }
 
@@ -1996,7 +1996,7 @@ tf.Utility = class {
                 const value = node.attr.value;
                 if (value && Object.prototype.hasOwnProperty.call(value, 'tensor')) {
                     const tensor = new tf.Tensor(value.tensor, name, kind);
-                    return new tf.Argument(name, tensor.type, tensor);
+                    return new tf.Value(name, tensor.type, tensor);
                 }
             }
             return null;
@@ -2005,7 +2005,7 @@ tf.Utility = class {
             if (node && node.op === 'Placeholder' && node.input.length === 0 && node.output.length === 1 && node.controlDependencies.length === 0) {
                 const dtype = node.attr.dtype.type;
                 if (dtype === tf.proto.tensorflow.DataType.DT_RESOURCE) {
-                    return new tf.Argument(name, null, tensor);
+                    return new tf.Value(name, null, tensor);
                 }
             }
             return null;
@@ -2063,8 +2063,8 @@ tf.Utility = class {
                 if (dtype && dtype.type && shape && shape.shape) {
                     const name = node.name;
                     const type = new tf.TensorType(dtype.type, shape.shape);
-                    const argument = new tf.Argument(name, type, null);
-                    input_map.set(name, new tf.Parameter(name, [ argument ]));
+                    const value = new tf.Value(name, type, null);
+                    input_map.set(name, new tf.Parameter(name, [ value ]));
                     node_map.delete(name);
                 }
             }
@@ -2094,13 +2094,13 @@ tf.Utility = class {
                     const type = shape ? new tf.TensorType('?', shape) : null;
                     if (node.input.length === 0 && node.output.length === 1) {
                         context.inputs.push(new tf.Parameter(node.name, [
-                            new tf.Argument(node.output[0].name, type, null)
+                            new tf.Value(node.output[0].name, type, null)
                         ]));
                         node_map.delete(node.name);
                     }
                     if (node.input.length === 1 && node.output.length === 0) {
                         context.outputs.push(new tf.Parameter(node.name, [
-                            new tf.Argument(node.input[0].name, type, null)
+                            new tf.Value(node.input[0].name, type, null)
                         ]));
                         node_map.delete(node.name);
                     }
@@ -2145,8 +2145,8 @@ tf.Utility = class {
                             remove_input(input, node);
                             input.label = from.value;
                             const tensor = new tf.Tensor(null, input.name, from.op);
-                            const argument = new tf.Argument(input.name, null, tensor);
-                            initializers.set(input.name, argument);
+                            const value = new tf.Value(input.name, null, tensor);
+                            initializers.set(input.name, value);
                         }
                         if (from.op === 'prim::Constant' && from.input.length === 0 && from.controlDependencies.length === 0 && from.value !== undefined) {
                             input.constant = from.value;

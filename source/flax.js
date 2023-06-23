@@ -107,9 +107,9 @@ flax.Graph = class {
 
 flax.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -120,16 +120,16 @@ flax.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-flax.Argument = class {
+flax.Value = class {
 
     constructor(name, initializer) {
         if (typeof name !== 'string') {
-            throw new flax.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new flax.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._initializer = initializer || null;
@@ -160,8 +160,7 @@ flax.Node = class {
             const value = entry[1];
             if (flax.Utility.isTensor(value)) {
                 const tensor = new flax.Tensor(value);
-                const argument = new flax.Argument(this._name + '.' + name, tensor);
-                const parameter = new flax.Parameter(name, [ argument ]);
+                const parameter = new flax.Parameter(name, [ new flax.Value(this._name + '.' + name, tensor) ]);
                 this._inputs.push(parameter);
             } else if (Array.isArray(value)) {
                 const attribute = new flax.Attribute(name, value);

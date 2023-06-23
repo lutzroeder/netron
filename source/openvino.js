@@ -108,7 +108,6 @@ openvino.Graph = class {
         this._inputs = [];
         this._outputs = [];
         this._arguments = {};
-
         const layers = new Map(net.layers.map((entry) => [ entry.id, entry ]));
         for (const layer of this._const(net.layers, net.edges)) {
             const inputs = layer.inputs.map((input) => {
@@ -151,34 +150,32 @@ openvino.Graph = class {
                 }
             }
         }
-
         this._replaceTensorIteratorWithSubgraph(metadata, bin, net.layers, net.edges);
         delete this._arguments;
-
         // Validation
         // all graph elements are split between inputs and nodes
         // by definition IR is a graph can have inputs of two types: "Input" and "Const"
         // "Input" layers are already moved to inputs when we parse a graph
-        // if there are any layers that do not have input arguments and they are no Const ones
+        // if there are any layers that do not have input value and they are no Const ones
         // this means that this graph was not properly processed by the graph building logic
         const outputSet = new Set();
         for (const node of this._nodes) {
             for (const output of node.outputs) {
-                for (const argument of output.arguments) {
-                    outputSet.add(argument.name);
+                for (const value of output.value) {
+                    outputSet.add(value.name);
                 }
             }
         }
         for (const input of this.inputs) {
-            for (const argument of input.arguments) {
-                outputSet.add(argument.name);
+            for (const value of input.value) {
+                outputSet.add(value.name);
             }
         }
         const nodesWithNonExistentInputs = new Set();
         for (const node of this._nodes) {
             for (const input of node.inputs) {
-                for (const argument of input.arguments) {
-                    if (!argument.initializer && !outputSet.has(argument.name)) {
+                for (const value of input.value) {
+                    if (!value.initializer && !outputSet.has(value.name)) {
                         nodesWithNonExistentInputs.add(node);
                     }
                 }
@@ -213,7 +210,7 @@ openvino.Graph = class {
         let argument = this._arguments[id];
         if (!argument) {
             const shape = port.dims.length == 0 ? null : new openvino.TensorShape(port.dims);
-            argument = new openvino.Argument(id, new openvino.TensorType(precision, shape), null);
+            argument = new openvino.Value(id, new openvino.TensorType(precision, shape), null);
         }
         return argument;
     }
@@ -234,23 +231,23 @@ openvino.Graph = class {
                 const nestedNode = new openvino.Node(metadata, bin, nestedLayer, inputs, outputs);
                 nestedNode._id = singleTensorIteratorNodeId + '_' + nestedLayer.id;
                 for (const input of nestedNode._inputs) {
-                    for (const input_argument of input.arguments) {
+                    for (const value of input.value) {
                         // we had a argument with id: 0:1  - meaning from layer "0" and its port "1"
                         // now as we rename all internal nodes to have an id of the TI included
                         // e.g. internal layer with id "0" and TI with id "14" results in internal layer to get id "14_0"
-                        if (input_argument.name) {
-                            input_argument._name = singleTensorIteratorNodeId + '_' + input_argument.name;
+                        if (value.name) {
+                            value._name = singleTensorIteratorNodeId + '_' + value.name;
                         }
                     }
                 }
 
                 for (const output of nestedNode._outputs) {
-                    for (const output_argument of output.arguments) {
+                    for (const value of output.value) {
                         // we had a argument with id: 1:1  - meaning from me with id "1" and my port "1"
                         // now as we rename all internal nodes to have an id of the TI included
                         // e.g. my layer with id "1" and TI with id "14" results in internal layer to get id "14_1"
-                        if (output_argument.name) {
-                            output_argument._name = singleTensorIteratorNodeId + '_' + output_argument.name;
+                        if (value.name) {
+                            value._name = singleTensorIteratorNodeId + '_' + value.name;
                         }
                     }
                 }
@@ -276,12 +273,12 @@ openvino.Graph = class {
                             return;
                         }
                         const inputWithoutId = nestedNode._inputs.find((input) => {
-                            return Boolean(input.arguments.find((argument) => !argument.name));
+                            return Boolean(input.value.find((argument) => !argument.name));
                         });
                         if (inputWithoutId) {
-                            const argumentWithoutId = inputWithoutId.arguments.find((argument) => !argument.name);
+                            const argumentWithoutId = inputWithoutId.value.find((argument) => !argument.name);
                             if (argumentWithoutId) {
-                                argumentWithoutId._name = potentialParentInput.arguments[0].name;
+                                argumentWithoutId._name = potentialParentInput.value[0].name;
                             }
                         }
                     } else {
@@ -291,17 +288,17 @@ openvino.Graph = class {
 
                         const newId = parentLayerID + ':' + parentPortID;
                         const inputWithoutId = nestedNode._inputs.find((input) => {
-                            return Boolean(input.arguments.find((argument) => !argument.name));
+                            return Boolean(input.value.find((argument) => !argument.name));
                         });
                         if (inputWithoutId) {
-                            const argumentWithoutId = inputWithoutId._arguments.find((argument) => !argument._name);
+                            const argumentWithoutId = inputWithoutId._value.find((argument) => !argument._name);
                             if (argumentWithoutId) {
                                 argumentWithoutId._name = newId;
                             }
                         } else {
                             // TODO: no tensor information in the new argument - passed as null for now
                             nestedNode._inputs.push(new openvino.Parameter((nestedNode._inputs.length + 1).toString(), [
-                                new openvino.Argument(newId, null, null)
+                                new openvino.Value(newId, null, null)
                             ]));
                         }
                     }
@@ -319,7 +316,7 @@ openvino.Graph = class {
                         continue;
                     }
                     for (const child_input of child._inputs) {
-                        for (const argument of child_input._arguments) {
+                        for (const argument of child_input._value) {
                             if (!argument.name || (argument.name && argument.name.split(':')[0] !== singleTensorIteratorNodeId)) {
                                 continue;
                             }
@@ -332,10 +329,10 @@ openvino.Graph = class {
                                 const myPort = 0;
                                 const newId = nestedNode.id + ':' + myPort;
                                 nestedNode._outputs.push(new openvino.Parameter('output', [
-                                    new openvino.Argument(newId, null, null)
+                                    new openvino.Value(newId, null, null)
                                 ]));
                             }
-                            const myPort = nestedNode.outputs[0].arguments[0].name.split(':')[1];
+                            const myPort = nestedNode.outputs[0].value[0].name.split(':')[1];
                             argument._name = nestedNode.id + ':' + myPort;
                         }
                     }
@@ -514,7 +511,7 @@ openvino.Node = class {
             const weight = (data, name, dimensions) => {
                 const shape = dimensions ? new openvino.TensorShape(dimensions) : null;
                 this._inputs.push(new openvino.Parameter(name, [
-                    new openvino.Argument(id, null, new openvino.Tensor(dataType, shape, data, kind))
+                    new openvino.Value(id, null, new openvino.Tensor(dataType, shape, data, kind))
                 ]));
                 const size = dimensions.reduce((a, b) => a * b, 1) * itemSize;
                 if (data && data.length !== size) {
@@ -535,7 +532,7 @@ openvino.Node = class {
                     }
                     case 'Convolution:weights':
                     case 'Deconvolution:weights': {
-                        const c = this.inputs[0].arguments[0].type.shape.dimensions[1];
+                        const c = this.inputs[0].value[0].type.shape.dimensions[1];
                         const group = parseInt(attributes['group'] || '1', 10);
                         const kernel = attributes['kernel-x'] && attributes['kernel-y'] ?
                             [ parseInt(attributes['kernel-x'], 10), parseInt(attributes['kernel-y'], 10) ] :
@@ -580,11 +577,11 @@ openvino.Node = class {
                     }
                     case 'Const:custom': {
                         if (this._outputs.length > 0 &&
-                            this._outputs[0].arguments.length > 0 &&
-                            this._outputs[0].arguments[0].type &&
-                            this._outputs[0].arguments[0].type.shape &&
-                            this._outputs[0].arguments[0].type.shape.dimensions) {
-                            dimensions = this._outputs[0].arguments[0].type.shape.dimensions;
+                            this._outputs[0].value.length > 0 &&
+                            this._outputs[0].value[0].type &&
+                            this._outputs[0].value[0].type.shape &&
+                            this._outputs[0].value[0].type.shape.dimensions) {
+                            dimensions = this._outputs[0].value[0].type.shape.dimensions;
                         }
                         break;
                     }
@@ -629,9 +626,9 @@ openvino.Node = class {
 
 openvino.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -642,16 +639,16 @@ openvino.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-openvino.Argument = class {
+openvino.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new openvino.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new openvino.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;

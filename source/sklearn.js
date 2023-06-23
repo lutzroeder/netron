@@ -185,9 +185,9 @@ sklearn.Graph = class {
 };
 
 sklearn.Parameter = class {
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -198,16 +198,16 @@ sklearn.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-sklearn.Argument = class {
+sklearn.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new sklearn.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new sklearn.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;
@@ -237,20 +237,18 @@ sklearn.Node = class {
         this._name = name || '';
         const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'Object';
         this._type = metadata.type(type) || { name: type };
-        this._inputs = inputs.map((input) => new sklearn.Parameter(input, [ new sklearn.Argument(input, null, null) ]));
-        this._outputs = outputs.map((output) => new sklearn.Parameter(output, [ new sklearn.Argument(output, null, null) ]));
+        this._inputs = inputs.map((input) => new sklearn.Parameter(input, [ new sklearn.Value(input, null, null) ]));
+        this._outputs = outputs.map((output) => new sklearn.Parameter(output, [ new sklearn.Value(output, null, null) ]));
         this._attributes = [];
 
         for (const entry of Object.entries(obj)) {
             const name = entry[0];
             const value = entry[1];
             if (value && sklearn.Utility.isTensor(value)) {
-                const argument = new sklearn.Argument('', null, new sklearn.Tensor(value));
-                const paramter = new sklearn.Parameter(name, [ argument ]);
+                const paramter = new sklearn.Parameter(name, [ new sklearn.Value('', null, new sklearn.Tensor(value)) ]);
                 this._inputs.push(paramter);
             } else if (Array.isArray(value) && value.every((obj) => sklearn.Utility.isTensor(obj))) {
-                const args = value.map((obj) => new sklearn.Argument('', null, new sklearn.Tensor(obj)));
-                const paramter = new sklearn.Parameter(name, args);
+                const paramter = new sklearn.Parameter(name, value.map((obj) => new sklearn.Value('', null, new sklearn.Tensor(obj))));
                 this._inputs.push(paramter);
             } else if (!name.startsWith('_')) {
                 const attribute = new sklearn.Attribute(metadata.attribute(type, name), name, value);

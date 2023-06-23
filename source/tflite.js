@@ -198,9 +198,9 @@ tflite.Graph = class {
                     const is_variable = tensor.is_variable;
                     const data = buffer ? buffer.data : null;
                     const initializer = (data && data.length > 0) || is_variable ? new tflite.Tensor(index, tensor, buffer, is_variable) : null;
-                    tensors.set(index, new tflite.Argument(index, tensor, initializer));
+                    tensors.set(index, new tflite.Value(index, tensor, initializer));
                 } else {
-                    tensors.set(index, new tflite.Argument(index, { name: '' }, null));
+                    tensors.set(index, new tflite.Value(index, { name: '' }, null));
                 }
             }
             return tensors.get(index);
@@ -245,20 +245,20 @@ tflite.Graph = class {
         const inputs = subgraph.inputs;
         for (let i = 0; i < inputs.length; i++) {
             const input = inputs[i];
-            const argument = args(input);
+            const value = args(input);
             if (subgraphMetadata && i < subgraphMetadata.input_tensor_metadata.length) {
-                applyTensorMetadata(argument, subgraphMetadata.input_tensor_metadata[i]);
+                applyTensorMetadata(value, subgraphMetadata.input_tensor_metadata[i]);
             }
-            this._inputs.push(new tflite.Parameter(argument ? argument.name : '?', true, argument ? [ argument ] : []));
+            this._inputs.push(new tflite.Parameter(value ? value.name : '?', true, value ? [ value ] : []));
         }
         const outputs = subgraph.outputs;
         for (let i = 0; i < outputs.length; i++) {
             const output = outputs[i];
-            const argument = args(output);
+            const value = args(output);
             if (subgraphMetadata && i < subgraphMetadata.output_tensor_metadata.length) {
-                applyTensorMetadata(argument, subgraphMetadata.output_tensor_metadata[i]);
+                applyTensorMetadata(value, subgraphMetadata.output_tensor_metadata[i]);
             }
-            this._outputs.push(new tflite.Parameter(argument ? argument.name : '?', true, argument ? [ argument ] : []));
+            this._outputs.push(new tflite.Parameter(value ? value.name : '?', true, value ? [ value ] : []));
         }
     }
 
@@ -310,9 +310,9 @@ tflite.Node = class {
                 }
                 const inputArray = inputs.slice(inputIndex, inputIndex + count);
                 for (const index of inputArray) {
-                    const argument = args(index);
-                    if (argument) {
-                        inputArguments.push(argument);
+                    const value = args(index);
+                    if (value) {
+                        inputArguments.push(value);
                     }
                 }
                 inputIndex += count;
@@ -322,9 +322,9 @@ tflite.Node = class {
             for (let k = 0; k < outputs.length; k++) {
                 const index = outputs[k];
                 const outputArguments = [];
-                const argument = args(index);
-                if (argument) {
-                    outputArguments.push(argument);
+                const value = args(index);
+                if (value) {
+                    outputArguments.push(value);
                 }
                 let outputName = k.toString();
                 if (this._type && this._type.outputs && k < this._type.outputs.length) {
@@ -461,10 +461,10 @@ tflite.Attribute = class {
 
 tflite.Parameter = class {
 
-    constructor(name, visible, args) {
+    constructor(name, visible, value) {
         this._name = name;
         this._visible = visible;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -475,12 +475,12 @@ tflite.Parameter = class {
         return this._visible;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-tflite.Argument = class {
+tflite.Value = class {
 
     constructor(index, tensor, initializer) {
         const name = tensor.name || '';

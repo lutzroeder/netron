@@ -548,28 +548,28 @@ class Target {
                         }
                     }
                 } else if (argument.name.length === 0) {
-                    throw new Error('Empty argument name.');
+                    throw new Error('Empty value name.');
                 }
                 if (argument.name.length > 0 && argument.initializer === null) {
                     if (!args.has(argument.name)) {
                         args.set(argument.name, argument);
                     } else if (argument !== args.get(argument.name) && !this.skip1109) {
-                        throw new Error("Duplicate argument '" + argument.name + "'.");
+                        throw new Error("Duplicate value '" + argument.name + "'.");
                     }
                 }
             };
             for (const input of graph.inputs) {
                 input.name.toString();
                 input.name.length;
-                for (const argument of input.arguments) {
-                    arg(argument);
+                for (const value of input.value) {
+                    arg(value);
                 }
             }
             for (const output of graph.outputs) {
                 output.name.toString();
                 output.name.length;
-                for (const argument of output.arguments) {
-                    arg(argument);
+                for (const value of output.value) {
+                    arg(value);
                 }
             }
             for (const node of graph.nodes) {
@@ -593,15 +593,15 @@ class Target {
                 for (const input of node.inputs) {
                     input.name.toString();
                     input.name.length;
-                    for (const argument of input.arguments) {
-                        arg(argument);
+                    for (const value of input.value) {
+                        arg(value);
                     }
                 }
                 for (const output of node.outputs) {
                     output.name.toString();
                     output.name.length;
-                    for (const argument of output.arguments) {
-                        arg(argument);
+                    for (const value of output.value) {
+                        arg(value);
                     }
                 }
                 if (node.chain) {

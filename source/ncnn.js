@@ -143,12 +143,12 @@ ncnn.Graph = class {
         const args = new Map();
         const arg = (name, type, tensor) => {
             if (name.length === 0 && tensor) {
-                return new ncnn.Argument(name, type, tensor);
+                return new ncnn.Value(name, type, tensor);
             }
             if (!args.has(name)) {
-                args.set(name, new ncnn.Argument(name, type || null, tensor || null));
+                args.set(name, new ncnn.Value(name, type || null, tensor || null));
             } else if (tensor || (type && !type.equals(args.get(name).type))) {
-                throw new ncnn.Error("Duplicate argument '" + name + "'.");
+                throw new ncnn.Error("Duplicate value '" + name + "'.");
             }
             return args.get(name);
         };
@@ -203,10 +203,10 @@ ncnn.Graph = class {
 
 ncnn.Parameter = class {
 
-    constructor(name, visible, args) {
+    constructor(name, visible, value) {
         this._name = name;
         this._visible = visible;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -217,16 +217,16 @@ ncnn.Parameter = class {
         return this._visible;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-ncnn.Argument = class {
+ncnn.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new ncnn.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new ncnn.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;

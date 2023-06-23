@@ -358,7 +358,7 @@ mxnet.Graph = class {
                 if (outputSignature && outputSignature.data_shape) {
                     outputType = new mxnet.TensorType(-1, new mxnet.TensorShape(outputSignature.data_shape));
                 }
-                this._outputs.push(new mxnet.Parameter(outputName, [ new mxnet.Argument('[' + outputId.join(',') + ']', outputType, null) ]));
+                this._outputs.push(new mxnet.Parameter(outputName, [ new mxnet.Value('[' + outputId.join(',') + ']', outputType, null) ]));
             }
 
             const initializerMap = {};
@@ -376,7 +376,7 @@ mxnet.Graph = class {
                     if (inputSignature && inputSignature.data_shape) {
                         inputType = new mxnet.TensorType(-1, new mxnet.TensorShape(inputSignature.data_shape));
                     }
-                    this._inputs.push(new mxnet.Parameter(inputName, [ new mxnet.Argument('[' + inputId.join(',') + ']', inputType) ]));
+                    this._inputs.push(new mxnet.Parameter(inputName, [ new mxnet.Value('[' + inputId.join(',') + ']', inputType) ]));
                 }
             }
         } else if (params) {
@@ -440,9 +440,9 @@ mxnet.Graph = class {
 
 mxnet.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -453,16 +453,16 @@ mxnet.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-mxnet.Argument = class {
+mxnet.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new mxnet.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new mxnet.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;
@@ -583,7 +583,7 @@ mxnet.Node = class {
                         for (const input of inputs.slice(inputIndex, inputIndex + inputCount)) {
                             const inputId = '[' + input.join(',') + ']';
                             if (inputId != '' || inputDef.option != 'optional') {
-                                inputArguments.push(new mxnet.Argument(inputId, inputDef.type, initializers[inputId]));
+                                inputArguments.push(new mxnet.Value(inputId, inputDef.type, initializers[inputId]));
                             }
                         }
                         this._inputs.push(new mxnet.Parameter(inputDef.name, inputArguments));
@@ -595,7 +595,7 @@ mxnet.Node = class {
                 this._inputs.push(...inputs.slice(inputIndex).map((input, index) => {
                     const inputId = '[' + input.join(',') + ']';
                     return new mxnet.Parameter((inputIndex + index).toString(), [
-                        new mxnet.Argument(inputId, null, initializers[inputId])
+                        new mxnet.Value(inputId, null, initializers[inputId])
                     ]);
                 }));
             }
@@ -610,7 +610,7 @@ mxnet.Node = class {
                         const outputArguments = [];
                         const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                         for (const output of outputs.slice(outputIndex, outputIndex + outputCount)) {
-                            outputArguments.push(new mxnet.Argument('[' + output.join(',') + ']', null, null));
+                            outputArguments.push(new mxnet.Value('[' + output.join(',') + ']', null, null));
                         }
                         this._outputs.push(new mxnet.Parameter(outputDef.name, outputArguments));
                         outputIndex += outputCount;
@@ -620,7 +620,7 @@ mxnet.Node = class {
             if (outputIndex < outputs.length) {
                 this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
                     return new mxnet.Parameter((outputIndex + index).toString(), [
-                        new mxnet.Argument('[' + output.join(',') + ']', null, null)
+                        new mxnet.Value('[' + output.join(',') + ']', null, null)
                     ]);
                 }));
             }
@@ -629,7 +629,7 @@ mxnet.Node = class {
         if (node.params) {
             for (const param of node.params) {
                 this._inputs.push(new mxnet.Parameter(param.name, [
-                    new mxnet.Argument(param.id, null, tensors.get(param.id) || null)
+                    new mxnet.Value(param.id, null, tensors.get(param.id) || null)
                 ]));
             }
         }

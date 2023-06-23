@@ -197,9 +197,9 @@ numpy.Graph = class {
 
 numpy.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -210,16 +210,16 @@ numpy.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-numpy.Argument = class {
+numpy.Value = class {
 
     constructor(name, initializer) {
         if (typeof name !== 'string') {
-            throw new numpy.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new numpy.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._initializer = initializer || null;
@@ -247,7 +247,7 @@ numpy.Node = class {
         for (const parameter of layer.parameters) {
             const initializer = new numpy.Tensor(parameter.tensor.array);
             this._inputs.push(new numpy.Parameter(parameter.name, [
-                new numpy.Argument(parameter.tensor.name || '', initializer)
+                new numpy.Value(parameter.tensor.name || '', initializer)
             ]));
         }
     }

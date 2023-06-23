@@ -59,12 +59,12 @@ pytorch.Graph = class {
         const args = new Map();
         const arg = (name, type, tensor) => {
             if (tensor) {
-                return new pytorch.Argument(name, type || null, tensor);
+                return new pytorch.Value(name, type || null, tensor);
             }
             if (!args.has(name)) {
-                args.set(name, new pytorch.Argument(name, type || null, tensor || null));
+                args.set(name, new pytorch.Value(name, type || null, tensor || null));
             } else if (type || tensor) {
-                throw new pytorch.Error("Duplicate argument '" + name + "'.");
+                throw new pytorch.Error("Duplicate value '" + name + "'.");
             }
             return args.get(name);
         };
@@ -105,7 +105,7 @@ pytorch.Graph = class {
                     const args = list.filter((value) => value !== null).map((value) => {
                         const identifier = value && value.name ? value.name : '';
                         const initializer = value ? new pytorch.Tensor(identifier, value) : null;
-                        return new pytorch.Argument(identifier, null, initializer);
+                        return new pytorch.Value(identifier, null, initializer);
                     });
                     const parameter = new pytorch.Parameter(name || key, visible, args);
                     inputs.push(parameter);
@@ -337,10 +337,10 @@ pytorch.Graph = class {
 
 pytorch.Parameter = class {
 
-    constructor(name, visible, args) {
+    constructor(name, visible, value) {
         this._name = name;
         this._visible = visible;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -351,16 +351,16 @@ pytorch.Parameter = class {
         return this._visible;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-pytorch.Argument = class {
+pytorch.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new pytorch.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new pytorch.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type;
@@ -417,8 +417,8 @@ pytorch.Node = class {
                     const name = entry[0];
                     const tensor = entry[1];
                     const initializer = initializers.get(tensor) || (tensor ? new pytorch.Tensor('', tensor) : null);
-                    const argument = arg('', null, initializer || null);
-                    this._inputs.push(new pytorch.Parameter(name, true, [ argument ]));
+                    const value = arg('', null, initializer || null);
+                    this._inputs.push(new pytorch.Parameter(name, true, [ value ]));
                     if (tensor.__variable__) {
                         this._outputs.push(new pytorch.Parameter(name, true, [ arg(tensor.__variable__) ]));
                     }
@@ -532,7 +532,7 @@ pytorch.Node = class {
                                         identifier = initializer ? initializer.name : identifier;
                                     }
                                     if (initializer) {
-                                        return new pytorch.Argument(identifier, null, initializer);
+                                        return new pytorch.Value(identifier, null, initializer);
                                     }
                                     return arg(identifier);
                                 });
@@ -2333,7 +2333,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 const arg = args[0];
                 moduleName = pytorch.Utility.target(arg.target.target);
                 name = arg.target.member.value;
-                args = arg.arguments;
+                args = arg.args;
                 outputTypes = [ 'int64' ];
                 type = moduleName + '.' + name;
             }
@@ -2501,13 +2501,13 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                     condition.type === 'if' &&
                     pytorch.Utility.isEqual(assign.target, condition.condition) &&
                     pytorch.Utility.isCall(assign.expression, 'torch.ne', 2) &&
-                    pytorch.Utility.isCall(assign.expression.arguments[0], 'torch.len', 1) &&
-                    pytorch.Utility.isCall(assign.expression.arguments[0].arguments[0], 'torch.size', 1) &&
+                    pytorch.Utility.isCall(assign.expression.args[0], 'torch.len', 1) &&
+                    pytorch.Utility.isCall(assign.expression.args[0].args[0], 'torch.size', 1) &&
                     condition.then.statements.length == 1 &&
                     pytorch.Utility.isCall(condition.then.statements[0], 'ops.prim.RaiseException', 1)) {
-                    const tensor = this.expression(assign.expression.arguments[0].arguments[0].arguments[0], context);
+                    const tensor = this.expression(assign.expression.args[0].args[0].args[0], context);
                     if (pytorch.Utility.isTensor(tensor) && tensor.size) {
-                        const number = this.expression(assign.expression.arguments[1], context);
+                        const number = this.expression(assign.expression.args[1], context);
                         const size = tensor.size();
                         if (number >= 3 && number <= 5) {
                             if (!Array.isArray(size) || size.length !== number) {
@@ -2523,12 +2523,12 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                     condition.type === 'if' &&
                     pytorch.Utility.isEqual(assign.target, condition.condition) &&
                     pytorch.Utility.isCall(assign.expression, 'torch.ne', 2) &&
-                    pytorch.Utility.isCall(assign.expression.arguments[0], 'torch.dim', 1) &&
+                    pytorch.Utility.isCall(assign.expression.args[0], 'torch.dim', 1) &&
                     condition.then.statements.length > 0 &&
                     pytorch.Utility.isCall(condition.then.statements[condition.then.statements.length - 1], 'ops.prim.RaiseException', 1)) {
-                    const tensor = this.expression(assign.expression.arguments[0].arguments[0], context);
+                    const tensor = this.expression(assign.expression.args[0].args[0], context);
                     if (pytorch.Utility.isTensor(tensor)) {
-                        const size = this.expression(assign.expression.arguments[1], context);
+                        const size = this.expression(assign.expression.args[1], context);
                         tensor.resize_(Array(size).fill(NaN));
                     }
                 }
@@ -2541,13 +2541,13 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                     condition.type === 'if' &&
                     pytorch.Utility.isEqual(assign.target, condition.condition) &&
                     pytorch.Utility.isCall(assign.expression, 'torch.eq', 2) &&
-                    pytorch.Utility.isCall(assign.expression.arguments[0], 'torch.len', 1) &&
-                    pytorch.Utility.isCall(assign.expression.arguments[0].arguments[0], 'torch.size', 1) &&
+                    pytorch.Utility.isCall(assign.expression.args[0], 'torch.len', 1) &&
+                    pytorch.Utility.isCall(assign.expression.args[0].args[0], 'torch.size', 1) &&
                     condition.else.statements.length == 1 &&
                     pytorch.Utility.isCall(condition.else.statements[0], 'ops.prim.RaiseException', 1)) {
-                    const tensor = this.expression(assign.expression.arguments[0].arguments[0].arguments[0], context);
+                    const tensor = this.expression(assign.expression.args[0].args[0].args[0], context);
                     if (pytorch.Utility.isTensor(tensor) && tensor.shape === undefined) {
-                        const number = this.expression(assign.expression.arguments[1], context);
+                        const number = this.expression(assign.expression.args[1], context);
                         tensor.resize_(Array(number).fill(NaN));
                     }
                 }
@@ -2559,16 +2559,16 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 if (assign.type === '=' &&
                     condition.type === 'if' &&
                     pytorch.Utility.isCall(assign.expression, 'torch.slice', 2) &&
-                    pytorch.Utility.isCall(assign.expression.arguments[0], 'torch.size', 1) &&
+                    pytorch.Utility.isCall(assign.expression.args[0], 'torch.size', 1) &&
                     pytorch.Utility.isCall(condition.condition, 'torch.eq', 2) &&
-                    pytorch.Utility.isCall(condition.condition.arguments[0], 'torch.len', 1) &&
-                    pytorch.Utility.isEqual(condition.condition.arguments[0].arguments[0], assign.target) &&
+                    pytorch.Utility.isCall(condition.condition.args[0], 'torch.len', 1) &&
+                    pytorch.Utility.isEqual(condition.condition.args[0].args[0], assign.target) &&
                     condition.else.statements.length == 1 &&
                     pytorch.Utility.isCall(condition.else.statements[0], 'ops.prim.RaiseException', 1)) {
-                    const tensor = this.expression(assign.expression.arguments[0].arguments[0], context);
+                    const tensor = this.expression(assign.expression.args[0].args[0], context);
                     if (pytorch.Utility.isTensor(tensor) && tensor.shape === undefined) {
-                        const start = this.expression(assign.expression.arguments[1], context);
-                        const value = this.expression(condition.condition.arguments[1], context);
+                        const start = this.expression(assign.expression.args[1], context);
+                        const value = this.expression(condition.condition.args[1], context);
                         if (Number.isInteger(start) && start < 0 && Number.isInteger(value) && value > 0) {
                             tensor.resize_(Array(value - start).fill(NaN));
                         }
@@ -2643,8 +2643,8 @@ pytorch.jit.Execution = class extends pytorch.Execution {
             // input_shape = torch.slice(torch.size(x), -2, 9223372036854775807, 1)
             if (statement.type === '=' &&
                 pytorch.Utility.isCall(statement.expression, 'torch.slice', 4) &&
-                pytorch.Utility.isCall(statement.expression.arguments[0], 'torch.size', 1)) {
-                const tensor = this.expression(statement.expression.arguments[0].arguments[0], context);
+                pytorch.Utility.isCall(statement.expression.args[0], 'torch.size', 1)) {
+                const tensor = this.expression(statement.expression.args[0].args[0], context);
                 if (pytorch.Utility.isTensor(tensor) && tensor.shape === undefined) {
                     tensor.resize_([ 1, 3, 299, 299 ]);
                 }
@@ -2652,8 +2652,8 @@ pytorch.jit.Execution = class extends pytorch.Execution {
             // torch.slice(ops.prim.shape(input), 0, 2, 1)
             if (statement.type === '=' &&
                 pytorch.Utility.isCall(statement.expression, 'torch.slice', 4) &&
-                pytorch.Utility.isCall(statement.expression.arguments[0], 'ops.prim.shape', 1)) {
-                const tensor = this.expression(statement.expression.arguments[0].arguments[0], context);
+                pytorch.Utility.isCall(statement.expression.args[0], 'ops.prim.shape', 1)) {
+                const tensor = this.expression(statement.expression.args[0].args[0], context);
                 if (pytorch.Utility.isTensor(tensor) && tensor.__origin__ === 'graph-input' && tensor.shape === undefined) {
                     tensor.resize_([ NaN, NaN, NaN, NaN ]);
                 }
@@ -2661,8 +2661,8 @@ pytorch.jit.Execution = class extends pytorch.Execution {
             // _3 = torch.le(xxxx, torch.dim(f0))
             if (statement.type === '=' &&
                 pytorch.Utility.isCall(statement.expression, 'torch.le', 2) &&
-                pytorch.Utility.isCall(statement.expression.arguments[1], 'torch.dim', 1)) {
-                const tensor = this.expression(statement.expression.arguments[1].arguments[0], context);
+                pytorch.Utility.isCall(statement.expression.args[1], 'torch.dim', 1)) {
+                const tensor = this.expression(statement.expression.args[1].args[0], context);
                 if (pytorch.Utility.isTensor(tensor) && tensor.__origin__ === 'graph-input' && tensor.shape === undefined) {
                     tensor.resize_([ NaN, NaN, NaN, NaN ]);
                 }
@@ -2672,11 +2672,11 @@ pytorch.jit.Execution = class extends pytorch.Execution {
             //   ops.prim.RaiseException(_7)
             if (statement.type === 'if' &&
                 pytorch.Utility.isCall(statement.condition, 'torch.ne', 2) &&
-                pytorch.Utility.isCall(statement.condition.arguments[0], 'torch.dim', 1) &&
+                pytorch.Utility.isCall(statement.condition.args[0], 'torch.dim', 1) &&
                 statement.then.statements.length > 0 &&
                 pytorch.Utility.isCall(statement.then.statements.slice(-1).pop(), 'ops.prim.RaiseException', 1)) {
-                const tensor = this.expression(statement.condition.arguments[0].arguments[0], context);
-                const size = this.expression(statement.condition.arguments[1], context);
+                const tensor = this.expression(statement.condition.args[0].args[0], context);
+                const size = this.expression(statement.condition.args[1], context);
                 if (pytorch.Utility.isTensor(tensor) && Number.isInteger(size) && size < 10) {
                     tensor.resize_(Array.isArray(tensor.shape) && tensor.shape.length > size ? tensor.shape.slice(-size) : Array(size).fill(NaN));
                 }
@@ -2695,8 +2695,8 @@ pytorch.jit.Execution = class extends pytorch.Execution {
             if (statement.type === '=' &&
                 statement.target.type === 'id' && statement.target.value === 'dim' &&
                 pytorch.Utility.isCall(statement.expression, 'torch.sub', 2) &&
-                pytorch.Utility.isCall(statement.expression.arguments[0], 'torch.dim', 1)) {
-                const tensor = this.expression(statement.expression.arguments[0].arguments[0], context);
+                pytorch.Utility.isCall(statement.expression.args[0], 'torch.dim', 1)) {
+                const tensor = this.expression(statement.expression.args[0].args[0], context);
                 if (pytorch.Utility.isTensor(tensor) && tensor.__origin__ === 'graph-input' && tensor.shape === undefined) {
                     tensor.resize_([ NaN, NaN, NaN, NaN ]);
                 }
@@ -2706,13 +2706,13 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 statement.target.type === 'tuple' &&
                 (pytorch.Utility.isCall(statement.expression, 'torch.unbind', 1) ||
                  pytorch.Utility.isCall(statement.expression, 'torch.unbind', 2))) {
-                statement.expression.arguments[0].__tuple__ = statement.target.value.length;
+                statement.expression.args[0].__tuple__ = statement.target.value.length;
             }
             // a, b, c = torch.size(input)
             if (statement.type === '=' &&
                 statement.target.type === 'tuple' &&
                 pytorch.Utility.isCall(statement.expression, 'torch.size', 1)) {
-                const tensor = this.expression(statement.expression.arguments[0], context);
+                const tensor = this.expression(statement.expression.args[0], context);
                 if (pytorch.Utility.isTensor(tensor) && tensor.__origin__ === 'graph-input' && tensor.shape === undefined) {
                     const dim = statement.target.value.length;
                     tensor.resize_(Array(dim).fill(NaN));
@@ -2722,16 +2722,16 @@ pytorch.jit.Execution = class extends pytorch.Execution {
             if (statement.type === '=' &&
                 statement.target.type === 'id' &&
                 pytorch.Utility.isCall(statement.expression, 'torch.len', 1)) {
-                const tensor = this.expression(statement.expression.arguments[0], context);
+                const tensor = this.expression(statement.expression.args[0], context);
                 if (pytorch.Utility.isTensor(tensor) && tensor.__origin__ === 'graph-input' && tensor.shape === undefined) {
                     tensor.resize_([ NaN, NaN, NaN, NaN ]);
                 }
             }
             if (statement.type === '=' &&
-                statement.expression.type === 'call' && statement.expression.arguments.length > 0 &&
-                pytorch.Utility.isCall(statement.expression.arguments[0], 'torch.size', 2)) {
-                const tensor = this.expression(statement.expression.arguments[0].arguments[0], context);
-                const dim = this.expression(statement.expression.arguments[0].arguments[1], context);
+                statement.expression.type === 'call' && statement.expression.args.length > 0 &&
+                pytorch.Utility.isCall(statement.expression.args[0], 'torch.size', 2)) {
+                const tensor = this.expression(statement.expression.args[0].args[0], context);
+                const dim = this.expression(statement.expression.args[0].args[1], context);
                 if (pytorch.Utility.isTensor(tensor) && Number.isInteger(dim)) {
                     if (tensor.shape === undefined) {
                         tensor.resize_(Array(dim + 1).fill(NaN));
@@ -2741,9 +2741,9 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                 }
             }
             if (statement.type === '=' && statement.target.type === 'tuple' &&
-                statement.expression.type === 'call' && statement.expression.arguments.length > 0 &&
+                statement.expression.type === 'call' && statement.expression.args.length > 0 &&
                 pytorch.Utility.isCall(statement.expression, 'torch.size', 1)) {
-                const tensor = this.expression(statement.expression.arguments[0], context);
+                const tensor = this.expression(statement.expression.args[0], context);
                 if (pytorch.Utility.isTensor(tensor) && tensor.__origin__ === 'graph-input') {
                     if (tensor.shape === undefined) {
                         tensor.resize_(Array(statement.target.value.length).fill(NaN));
@@ -3363,7 +3363,7 @@ pytorch.Utility = class {
 
     static isCall(expression, name, size) {
         if (expression.type === 'call' &&
-            expression.arguments.length === size &&
+            expression.args.length === size &&
             pytorch.Utility.target(expression.target) === name) {
             return true;
         }
@@ -3992,8 +3992,8 @@ pytorch.nnapi.Graph = class {
         const args = new Map();
         const arg = (operand) => {
             if (!args.has(operand.index)) {
-                const argument = new pytorch.nnapi.Argument(operand);
-                args.set(operand.index, argument);
+                const value = new pytorch.nnapi.Argument(operand);
+                args.set(operand.index, value);
             }
             return args.get(operand.index);
         };
@@ -4006,15 +4006,15 @@ pytorch.nnapi.Graph = class {
 
         for (let i = 0; i < model.inputs.length; i++) {
             const operand = model.inputs[i];
-            const argument = arg(operand);
-            const parameter = new pytorch.Parameter(i.toString(), true, [ argument ]);
+            const value = arg(operand);
+            const parameter = new pytorch.Parameter(i.toString(), true, [ value ]);
             this._inputs.push(parameter);
         }
 
         for (let i = 0; i < model.outputs.length; i++) {
             const operand = model.outputs[i];
-            const argument = arg(operand);
-            const parameter = new pytorch.Parameter(i.toString(), true, [ argument ]);
+            const value = arg(operand);
+            const parameter = new pytorch.Parameter(i.toString(), true, [ value ]);
             this._outputs.push(parameter);
         }
     }
@@ -4120,8 +4120,8 @@ pytorch.nnapi.Node = class {
                 const name = i < inputs.length ? inputs[i].name : i.toString();
                 const operand = operation.inputs[i];
                 if (operand.dimensions.length > 0) {
-                    const argument = arg(operand);
-                    const parameter = new pytorch.Parameter(name, true, [ argument ]);
+                    const value = arg(operand);
+                    const parameter = new pytorch.Parameter(name, true, [ value ]);
                     this._inputs.push(parameter);
                 } else if (name === 'activation') {
                     const activation = new Map([ [ 1, 19 ], [ 2, 20 ], [ 3, 21 ] ]).get(operand.value) || 0;
@@ -4139,8 +4139,8 @@ pytorch.nnapi.Node = class {
             for (let i = 0; i < operation.outputs.length; i++) {
                 const name = i < inputs.length ? inputs[i].name : i.toString();
                 const operand = operation.outputs[i];
-                const argument = arg(operand);
-                const parameter = new pytorch.Parameter(name, true, [ argument ]);
+                const value = arg(operand);
+                const parameter = new pytorch.Parameter(name, true, [ value ]);
                 this._outputs.push(parameter);
             }
         }

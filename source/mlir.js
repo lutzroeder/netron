@@ -69,8 +69,8 @@ mlir.Graph = class {
             const input = func.inputs[i];
             const inputType = func.inputTypes[i];
             const type = valueType(inputType);
-            const argument = new mlir.Argument(input, type, "input desc", null);
-            const parameter = new mlir.Parameter(input, true, [ argument ]);
+            const value = new mlir.Value(input, type, "input desc", null);
+            const parameter = new mlir.Parameter(input, true, [ value ]);
             this._inputs.push(parameter);
         }
         // outputs of function
@@ -78,8 +78,8 @@ mlir.Graph = class {
             const output = "%return" + "/" + i;
             const outputType = func.outputTypes[i];
             const type = valueType(outputType);
-            const argument = new mlir.Argument(output, type, "output desc", null);
-            const parameter = new mlir.Parameter(output, true, [ argument ]);
+            const value = new mlir.Value(output, type, "output desc", null);
+            const parameter = new mlir.Parameter(output, true, [ value ]);
             this._outputs.push(parameter);
         }
         // operations
@@ -190,17 +190,17 @@ mlir.Graph = class {
         const tensors = new Map();
         const tensor = (arg) => {
             if (!tensors.has(arg.name)) {
-                tensors.set(arg.name, new mlir.Argument(arg.name, arg.type, null, arg.value));
+                tensors.set(arg.name, new mlir.Value(arg.name, arg.type, null, arg.value));
             }
             return tensors.get(arg.name);
         };
         for (const input of this._inputs) {
-            for (const arg of input.arguments) {
+            for (const arg of input.value) {
                 tensors.set(arg.name, arg);
             }
         }
         for (const output of this._outputs) {
-            for (const arg of output.arguments) {
+            for (const arg of output.value) {
                 tensors.set(arg.name, arg);
             }
         }
@@ -239,10 +239,10 @@ mlir.Graph = class {
 
 mlir.Parameter = class {
 
-    constructor(name, visible, args) {
-        this._name = name;       // string
-        this._visible = visible; // bool
-        this._arguments = args;  // [mlir.Argument]
+    constructor(name, visible, value) {
+        this._name = name;
+        this._visible = visible;
+        this._value = value;
     }
 
     get name() {
@@ -253,16 +253,16 @@ mlir.Parameter = class {
         return this._visible == false ? false : true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-mlir.Argument = class {
+mlir.Value = class {
 
     constructor(name, type, description, initializer) {
         if (typeof name !== 'string') {
-            throw new mlir.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new mlir.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;          // string
         this._type = type || null;  // mlir.TensorType

@@ -59,7 +59,7 @@ bigdl.Graph = class {
         const args = new Map();
         const arg = (name) => {
             if (!args.has(name)) {
-                args.set(name, new bigdl.Argument(name));
+                args.set(name, new bigdl.Value(name));
             }
             return args.get(name);
         };
@@ -104,9 +104,9 @@ bigdl.Graph = class {
 
 bigdl.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -117,16 +117,16 @@ bigdl.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-bigdl.Argument = class {
+bigdl.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new bigdl.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new bigdl.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;
@@ -164,13 +164,13 @@ bigdl.Node = class {
         if (module.weight) {
             inputs.shift();
             this._inputs.push(new bigdl.Parameter('weight', [
-                new bigdl.Argument('', null, new bigdl.Tensor(module.weight, tensors))
+                new bigdl.Value('', null, new bigdl.Tensor(module.weight, tensors))
             ]));
         }
         if (module.bias) {
             inputs.shift();
             this._inputs.push(new bigdl.Parameter('bias', [
-                new bigdl.Argument('', null, new bigdl.Tensor(module.bias, tensors))
+                new bigdl.Value('', null, new bigdl.Tensor(module.bias, tensors))
             ]));
         }
         if (module.parameters && module.parameters.length > 0) {
@@ -178,7 +178,7 @@ bigdl.Node = class {
                 const input = inputs.shift();
                 const inputName = input ? input.name : this._inputs.length.toString();
                 this._inputs.push(new bigdl.Parameter(inputName, [
-                    new bigdl.Argument('', null, new bigdl.Tensor(parameter, tensors))
+                    new bigdl.Value('', null, new bigdl.Tensor(parameter, tensors))
                 ]));
             }
         }
@@ -189,7 +189,7 @@ bigdl.Node = class {
             }
             if (value.dataType === bigdl.proto.DataType.TENSOR) {
                 if (value.value) {
-                    this._inputs.push(new bigdl.Parameter(key, [ new bigdl.Argument('', null, new bigdl.Tensor(value.tensorValue, tensors)) ]));
+                    this._inputs.push(new bigdl.Parameter(key, [ new bigdl.Value('', null, new bigdl.Tensor(value.tensorValue, tensors)) ]));
                 }
                 continue;
             }
@@ -197,7 +197,7 @@ bigdl.Node = class {
                 continue;
             }
             if (value.dataType === bigdl.proto.DataType.ARRAY_VALUE && value.arrayValue.datatype === bigdl.proto.DataType.TENSOR) {
-                this._inputs.push(new bigdl.Parameter(key, value.arrayValue.tensor.map((tensor) => new bigdl.Argument('', null, new bigdl.Tensor(tensor, tensors)))));
+                this._inputs.push(new bigdl.Parameter(key, value.arrayValue.tensor.map((tensor) => new bigdl.Value('', null, new bigdl.Tensor(tensor, tensors)))));
                 continue;
             }
             this._attributes.push(new bigdl.Attribute(key, value));

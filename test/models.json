@@ -3462,7 +3462,7 @@
     "target":   "denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx]",
     "format":   "ONNX v3",
-    "assert":   [ "model.graphs[0].nodes[0].outputs[0].arguments[0].type.denotation = Image(Bgr8,SRGB,NominalRange_0_255)" ],
+    "assert":   [ "model.graphs[0].nodes[0].outputs[0].value[0].type.denotation = Image(Bgr8,SRGB,NominalRange_0_255)" ],
     "link":     "https://github.com/lutzroeder/netron/issues/183"
   },
   {

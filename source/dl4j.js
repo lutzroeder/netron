@@ -75,12 +75,12 @@ dl4j.Graph = class {
         const args = new Map();
         const arg = (name, type, tensor) => {
             if (name.length === 0 && tensor) {
-                return new dl4j.Argument(name, type || null, tensor || null);
+                return new dl4j.Value(name, type || null, tensor);
             }
             if (!args.has(name)) {
-                args.set(name, new dl4j.Argument(name, type || null, tensor || null));
+                args.set(name, new dl4j.Value(name, type || null, tensor || null));
             } else if (type || tensor) {
-                throw new dl4j.Error("Duplicate argument '" + name + "'.");
+                throw new dl4j.Error("Duplicate value '" + name + "'.");
             }
             return args.get(name);
         };
@@ -150,10 +150,10 @@ dl4j.Graph = class {
 
 dl4j.Parameter = class {
 
-    constructor(name, visible, args) {
+    constructor(name, visible, value) {
         this._name = name;
         this._visible = visible;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -164,16 +164,16 @@ dl4j.Parameter = class {
         return this._visible;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-dl4j.Argument = class {
+dl4j.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new dl4j.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new dl4j.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type;

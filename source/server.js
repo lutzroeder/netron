@@ -70,7 +70,7 @@ message.Graph = class {
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
-        const args = data.arguments ? data.arguments.map((argument) => new message.Argument(argument)) : [];
+        const args = data.arguments ? data.arguments.map((argument) => new message.Value(argument)) : [];
         for (const parameter of data.inputs || []) {
             parameter.arguments = parameter.arguments.map((index) => args[index]).filter((argument) => !argument.initializer);
             if (parameter.arguments.filter((argument) => !argument.initializer).length > 0) {
@@ -111,15 +111,15 @@ message.Parameter = class {
 
     constructor(data) {
         this._name = data.name || '';
-        this._arguments = (data.arguments || []);
+        this._value = (data.arguments || []);
     }
 
     get name() {
         return this._name;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 
     get visible() {
@@ -127,7 +127,7 @@ message.Parameter = class {
     }
 };
 
-message.Argument = class {
+message.Value = class {
 
     constructor(data) {
         this._name= data.name || '';

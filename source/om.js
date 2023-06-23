@@ -93,7 +93,7 @@ om.Node = class {
                 const name = pos === 0 ? 'internal_unnamed' : op.input[i].slice(0, pos);
                 const src_index = op.input[i].slice(pos + 1);
                 if (src_index === '-1') {
-                    this._controlDependencies.push(new om.Argument(name));
+                    this._controlDependencies.push(new om.Value(name));
                     continue;
                 }
                 const parameterName = this._type.inputs && i < this._type.inputs.length ? this._type.inputs[i].name : 'input' + (i === 0 ? '' : i.toString());
@@ -125,15 +125,13 @@ om.Node = class {
                     const dataType = desc && desc.dtype ? om.Utility.dtype(value.desc.dtype) : '?';
                     const tensorType = new om.TensorType(dataType, shape, layout, value.desc.layout);
                     const tensor = new om.Tensor('Constant', tensorType, data);
-                    const argument = new om.Argument(name, null, tensor);
-                    this._inputs.push(new om.Parameter(parameterName, true, [ argument ]));
+                    this._inputs.push(new om.Parameter(parameterName, true, [ new om.Value(name, null, tensor) ]));
                 } else {
                     const dataType = desc && desc.dtype ? om.Utility.dtype(desc.dtype) : '?';
                     const shape = desc.shape ? desc.shape.dim : undefined;
                     const tensorType = new om.TensorType(dataType, shape, layout, null);
                     const identifier = src_index === '0' ? name : name + ':' + src_index;
-                    const argument = new om.Argument(identifier, tensorType, null);
-                    this._inputs.push(new om.Parameter(parameterName, true, [ argument ]));
+                    this._inputs.push(new om.Parameter(parameterName, true, [ new om.Value(identifier, tensorType, null) ]));
                 }
             }
         }
@@ -146,11 +144,11 @@ om.Node = class {
                 }
                 const dataType = desc && desc.dtype ? om.Utility.dtype(desc.dtype) : '?';
                 const format = desc.layout;
-                const tensorType = new om.TensorType(dataType, shape, format);
+                const type = new om.TensorType(dataType, shape, format);
                 const identifier = i === 0 ? this._name : this._name + ':' + i;
-                const argument = new om.Argument(identifier, tensorType, null);
+                const value = new om.Value(identifier, type, null);
                 const outputName = this._type.outputs && i < this._type.outputs.length ? this._type.outputs[i].name : 'output' + (i === 0 ? '' : i.toString());
-                this._outputs.push(new om.Parameter(outputName, true, [ argument ]));
+                this._outputs.push(new om.Parameter(outputName, true, [ value ]));
             }
         }
         if (op.attr) {
@@ -327,10 +325,10 @@ om.Attribute = class {
 
 om.Parameter = class {
 
-    constructor(name, visible, args) {
+    constructor(name, visible, value) {
         this._name = name;
         this._visible = visible;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -341,16 +339,16 @@ om.Parameter = class {
         return this._visible;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-om.Argument = class {
+om.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new om.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new om.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;

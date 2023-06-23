@@ -85,7 +85,7 @@ nnabla.Graph = class {
         const args = new Map();
         const arg = (name) => {
             if (!args.has(name)) {
-                args.set(name, new nnabla.Argument(name, dataTypes.get(name), tensors.get(name)));
+                args.set(name, new nnabla.Value(name, dataTypes.get(name), tensors.get(name)));
             }
             return args.get(name);
         };
@@ -150,9 +150,9 @@ nnabla.Graph = class {
 
 nnabla.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -163,12 +163,12 @@ nnabla.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-nnabla.Argument = class {
+nnabla.Value = class {
 
     constructor(name, type, initializer) {
         this._name = name;

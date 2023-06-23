@@ -105,14 +105,12 @@ mnn.Graph = class {
                 const op = consts.get(index);
                 if (op) {
                     const tensor = op ? mnn.Utility.createTensor(op.main, 'Const') : null;
-                    const argument = new mnn.Argument(name, null, tensor);
-                    args.set(index, argument);
+                    args.set(index, new mnn.Value(name, null, tensor));
                 } else {
                     const extraTensorDescribe = net.extraTensorDescribe[index];
                     const blob = extraTensorDescribe ? extraTensorDescribe.blob : null;
                     const type = blob && blob.dims && blob.dims.length > 0 ? new mnn.TensorType(blob.dataType, new mnn.TensorShape(blob.dims), blob.dataFormat) : null;
-                    const argument = new mnn.Argument(name, type, null);
-                    args.set(index, argument);
+                    args.set(index, new mnn.Value(name, type, null));
                 }
             }
             return args.get(index);
@@ -129,8 +127,8 @@ mnn.Graph = class {
 
         for (let i = 0; i < net.tensorName.length; i++) {
             if (!inputs.has(i)) {
-                const argument = arg(i);
-                const parameter = new mnn.Parameter(argument.name, true, [ argument ]);
+                const value = arg(i);
+                const parameter = new mnn.Parameter(value.name, true, [ value ]);
                 this._outputs.push(parameter);
             }
         }
@@ -174,8 +172,8 @@ mnn.Node = class {
             const parameters = [ param ];
             if (param instanceof mnn.schema.Blob) {
                 const tensor = mnn.Utility.createTensor(param, 'Blob');
-                const argument = new mnn.Argument('', null, tensor);
-                const parameter = new mnn.Parameter('value', true, [ argument ]);
+                const value = new mnn.Value('', null, tensor);
+                const parameter = new mnn.Parameter('value', true, [ value ]);
                 this._inputs.push(parameter);
                 parameters.splice(0, parameters.length);
             } else if (param instanceof mnn.schema.Convolution2D) {
@@ -242,8 +240,7 @@ mnn.Node = class {
         const shape = new mnn.TensorShape(dimensions);
         const type = new mnn.TensorType(dataType, shape);
         const tensor = new mnn.Tensor('Weight', type, value);
-        const argument = new mnn.Argument('', null, tensor);
-        const parameter = new mnn.Parameter(name, true, [ argument ]);
+        const parameter = new mnn.Parameter(name, true, [ new mnn.Value('', null, tensor) ]);
         this._inputs.push(parameter);
     }
 
@@ -313,10 +310,10 @@ mnn.Attribute = class {
 
 mnn.Parameter = class {
 
-    constructor(name, visible, args) {
+    constructor(name, visible, value) {
         this._name = name;
         this._visible = visible;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -327,12 +324,12 @@ mnn.Parameter = class {
         return this._visible;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-mnn.Argument = class {
+mnn.Value = class {
 
     constructor(name, type, initializer) {
         this._name = name;

@@ -250,9 +250,9 @@ caffe.Graph = class {
         const args = new Map();
         const arg = (name, type) => {
             if (!args.has(name)) {
-                args.set(name, new caffe.Argument(name, type));
+                args.set(name, new caffe.Value(name, type));
             } else if (type) {
-                throw new caffe.Error("Duplicate argument '" + name + "'.");
+                throw new caffe.Error("Duplicate value '" + name + "'.");
             }
             return args.get(name);
         };
@@ -350,9 +350,9 @@ caffe.Graph = class {
 
 caffe.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -363,16 +363,16 @@ caffe.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-caffe.Argument = class {
+caffe.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new caffe.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new caffe.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;
@@ -477,7 +477,7 @@ caffe.Node = class {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     const inputCount = inputDef.option == 'variadic' ? inputs.length - inputIndex : 1;
                     this._inputs.push(new caffe.Parameter(inputDef.name, inputs.slice(inputIndex, inputIndex + inputCount).filter((input) => input !== '' || inputDef.option != 'optional').map((input) => {
-                        return input instanceof caffe.Tensor ? new caffe.Argument('', input.type, input) : arg(input, null, null);
+                        return input instanceof caffe.Tensor ? new caffe.Value('', input.type, input) : arg(input, null, null);
                     })));
                     inputIndex += inputCount;
                 }
@@ -485,7 +485,7 @@ caffe.Node = class {
         }
         this._inputs.push(...inputs.slice(inputIndex).map((input) => {
             return new caffe.Parameter(inputIndex.toString(), [
-                input instanceof caffe.Tensor ? new caffe.Argument('', input.type, input) : arg(input, null, null)
+                input instanceof caffe.Tensor ? new caffe.Value('', input.type, input) : arg(input, null, null)
             ]);
         }));
 

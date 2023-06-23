@@ -55,9 +55,9 @@ mlnet.Graph = class {
         const args = new Map();
         const arg = (name, type) => {
             if (!args.has(name)) {
-                args.set(name, new mlnet.Argument(name, type || null));
+                args.set(name, new mlnet.Value(name, type || null));
             } else if (type) {
-                throw new mlnet.Error("Duplicate argument '" + name + "'.");
+                throw new mlnet.Error("Duplicate value '" + name + "'.");
             }
             return args.get(name);
         };
@@ -136,9 +136,9 @@ mlnet.Graph = class {
 
 mlnet.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -149,16 +149,16 @@ mlnet.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-mlnet.Argument = class {
+mlnet.Value = class {
 
     constructor(name, type) {
         if (typeof name !== 'string') {
-            throw new mlnet.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new mlnet.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type;

@@ -236,8 +236,7 @@ coreml.Graph = class {
         const args = new Map();
         args.input = (name) => {
             if (!args.has(name)) {
-                const argument = new coreml.Argument(name);
-                args.set(name, { counter: 0, argument: argument });
+                args.set(name, { counter: 0, argument: new coreml.Value(name) });
             }
             return args.get(name).argument;
         };
@@ -246,10 +245,9 @@ coreml.Graph = class {
                 const value = args.get(name);
                 value.counter++;
                 const next = name + '\n' + value.counter.toString(); // custom argument id
-                value.argument = new coreml.Argument(next);
+                value.argument = new coreml.Value(next);
             } else {
-                const argument = new coreml.Argument(name);
-                const value = { counter: 0, argument: argument };
+                const value = { counter: 0, argument: new coreml.Value(name) };
                 args.set(name, value);
             }
             return args.get(name).argument;
@@ -265,17 +263,17 @@ coreml.Graph = class {
         };
         if (this._description) {
             this._inputs = this._description.input.map((input) => {
-                const argument = args.output(input.name);
-                update(argument, input);
-                return new coreml.Parameter(input.name, true, [ argument ]);
+                const value = args.output(input.name);
+                update(value, input);
+                return new coreml.Parameter(input.name, true, [ value ]);
             });
         }
         this._type = this._loadModel(model, args, '', weights);
         if (this._description) {
             this._outputs = this._description.output.map((output) => {
-                const argument = args.input(output.name);
-                update(argument, output);
-                return new coreml.Parameter(output.name, true, [ argument ]);
+                const value = args.input(output.name);
+                update(value, output);
+                return new coreml.Parameter(output.name, true, [ value ]);
             });
         }
     }
@@ -307,9 +305,9 @@ coreml.Graph = class {
     _updateOutput(name, newName) {
         for (const node of this._nodes) {
             for (const output of node.outputs) {
-                for (const argument of output.arguments) {
-                    if (argument.name === name) {
-                        argument.name = newName;
+                for (const value of output.value) {
+                    if (value.name === name) {
+                        value.name = newName;
                     }
                 }
             }
@@ -321,8 +319,8 @@ coreml.Graph = class {
         let labelProbabilityLayerName = classifier.labelProbabilityLayerName;
         if (!labelProbabilityLayerName && this._nodes.length > 0) {
             const node = this._nodes.slice(-1).pop();
-            if (node && node.outputs.length == 1 && node.outputs[0].arguments.length == 1) {
-                labelProbabilityLayerName = node.outputs[0].arguments[0].name;
+            if (node && node.outputs.length == 1 && node.outputs[0].value.length == 1) {
+                labelProbabilityLayerName = node.outputs[0].value[0].name;
             }
         }
         let predictedFeatureName = this._description.predictedFeatureName;
@@ -333,7 +331,7 @@ coreml.Graph = class {
             const labelProbabilityInput = this._updateOutput(labelProbabilityLayerName, labelProbabilityLayerName + ':labelProbabilityLayerName');
             const type = classifier.ClassLabels;
             const inputs = [
-                new coreml.Parameter('input', true, [ new coreml.Argument(labelProbabilityInput) ])
+                new coreml.Parameter('input', true, [ new coreml.Value(labelProbabilityInput) ])
             ];
             const outputs = [
                 new coreml.Parameter('probabilities', true, [ args.output(predictedProbabilitiesName) ]),
@@ -349,7 +347,7 @@ coreml.Graph = class {
             const preprocessingInput = this._description.input[0].name;
             const inputNodes = [];
             for (const node of this._nodes) {
-                if (node.inputs.some((input) => input.arguments.some((arg) => arg.name == preprocessingInput))) {
+                if (node.inputs.some((input) => input.value.some((arg) => arg.name == preprocessingInput))) {
                     inputNodes.push(node);
                 }
             }
@@ -360,14 +358,14 @@ coreml.Graph = class {
                 const input = p.featureName ? p.featureName : currentOutput;
                 currentOutput = preprocessingInput + ':' + preprocessorIndex.toString();
                 const node = this._createNode(args, group, p.preprocessor, null, '', p[p.preprocessor], [ input ], [ currentOutput ]);
-                preprocessorOutput = node.outputs[0].arguments[0];
+                preprocessorOutput = node.outputs[0].value[0];
                 preprocessorIndex++;
             }
             for (const node of inputNodes) {
                 for (const input of node.inputs) {
-                    for (let i = 0; i < input.arguments.length; i++) {
-                        if (input.arguments[i].name === preprocessingInput) {
-                            input.arguments[i] = preprocessorOutput;
+                    for (let i = 0; i < input.value.length; i++) {
+                        if (input.value[i].name === preprocessingInput) {
+                            input.value[i] = preprocessorOutput;
                         }
                     }
                 }
@@ -779,18 +777,18 @@ coreml.Graph = class {
         for (const op of operations) {
             if (op.type === 'const' && op.inputs.length === 0 &&
                 op.outputs.length === 1 && op.outputs[0].arguments.length === 1) {
-                const argument = op.outputs[0].arguments[0];
+                const value = op.outputs[0].arguments[0];
                 if (op.attributes && op.attributes.val) {
-                    const type = argument.type;
+                    const type = value.type;
                     const data = op.attributes.val;
                     if (data instanceof Uint8Array && data.length === 2 &&
                         type.dataType === 'float16' && type.shape.dimensions.length === 0) {
                         const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
-                        argument.value = view.getFloat16(0, true);
+                        value.value = view.getFloat16(0, true);
                     } else {
-                        argument.value = data;
+                        value.value = data;
                     }
-                    argument.const = true;
+                    value.const = true;
                     op.delete = true;
                 }
             }
@@ -833,7 +831,7 @@ coreml.Graph = class {
         const tensors = new Map();
         const tensor = (arg) => {
             if (!tensors.has(arg.name)) {
-                tensors.set(arg.name, new coreml.Argument(arg.name, arg.type, null, arg.value));
+                tensors.set(arg.name, new coreml.Value(arg.name, arg.type, null, arg.value));
             }
             return tensors.get(arg.name);
         };
@@ -944,10 +942,10 @@ coreml.Graph = class {
         }
         const tensorType = new coreml.TensorType(dataType, new coreml.TensorShape(shape));
         const tensor = new coreml.Tensor(kind, tensorType, values, quantization);
-        const argument = new coreml.Argument('', null, null, tensor);
+        const value = new coreml.Value('', null, null, tensor);
         const input = this._metadata.input(type, name);
         const visible = input && input.visible === false ? false : true;
-        initializers.push(new coreml.Parameter(name, visible, [ argument ]));
+        initializers.push(new coreml.Parameter(name, visible, [ value ]));
     }
 
     _initialize(type, data, initializers) {
@@ -1087,10 +1085,10 @@ coreml.Graph = class {
 
 coreml.Parameter = class {
 
-    constructor(name, visible, args) {
+    constructor(name, visible, value) {
         this._name = name;
         this._visible = visible;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -1101,16 +1099,16 @@ coreml.Parameter = class {
         return this._visible;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-coreml.Argument = class {
+coreml.Value = class {
 
     constructor(name, type, description, initializer) {
         if (typeof name !== 'string') {
-            throw new coreml.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new coreml.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;

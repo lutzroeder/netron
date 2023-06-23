@@ -304,12 +304,12 @@ keras.Graph = class {
         const args = new Map();
         const arg = (name, type, tensor) => {
             if (name.length === 0 && tensor) {
-                return new keras.Argument(name, type || null, tensor);
+                return new keras.Value(name, type || null, tensor);
             }
             if (!args.has(name)) {
-                args.set(name, new keras.Argument(name, type || null, tensor || null));
+                args.set(name, new keras.Value(name, type || null, tensor || null));
             } else if (type || tensor) {
-                throw new keras.Error("Duplicate argument '" + name + "'.");
+                throw new keras.Error("Duplicate value '" + name + "'.");
             }
             return args.get(name);
         };
@@ -351,12 +351,12 @@ keras.Graph = class {
                     const outputs = null;
                     const inputName = 'input';
                     let inputType = null;
-                    let argument = inputName;
+                    let value = inputName;
                     let index = 0;
                     const layers = config.layers ? config.layers : config;
                     for (const layer of layers) {
                         let name = index.toString();
-                        const nodeInputs = [ { name: argument } ];
+                        const nodeInputs = [ { name: value } ];
                         if (index == 0) {
                             inputType = getInputType(layer);
                             this._inputs.push(new keras.Parameter(inputName, true, [ arg(inputName, inputType) ]));
@@ -365,18 +365,18 @@ keras.Graph = class {
                         if (layer.config && layer.config.name) {
                             name = layer.config.name;
                         }
-                        argument = name;
-                        let nodeOutputs = [ argument ];
+                        value = name;
+                        let nodeOutputs = [ value ];
                         if (index == layers.length) {
                             if (outputs && outputs.length > 0) {
                                 nodeOutputs = [ outputs[0] ];
-                                argument = null;
+                                value = null;
                             }
                         }
                         this.nodes.push(loadNode(layer, nodeInputs, nodeOutputs, weights, group));
                     }
-                    if (argument) {
-                        this._outputs.push(new keras.Parameter(argument, true, [ arg(argument) ]));
+                    if (value) {
+                        this._outputs.push(new keras.Parameter(value, true, [ arg(value) ]));
                     }
                     break;
                 }
@@ -554,10 +554,10 @@ keras.Graph = class {
 
 keras.Parameter = class {
 
-    constructor(name, visible, args) {
+    constructor(name, visible, value) {
         this._name = name;
         this._visible = visible;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -568,16 +568,16 @@ keras.Parameter = class {
         return this._visible;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-keras.Argument = class {
+keras.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new keras.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new keras.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name= name;
         this._type = type || null;

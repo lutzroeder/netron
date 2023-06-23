@@ -87,7 +87,7 @@ mslite.Graph = class {
             const data = tensor.data;
             const type = new mslite.TensorType(tensor.dataType, tensor.dims);
             const initializer = (data && data.length > 0) ? new mslite.Tensor(type, tensor.data) : null;
-            return new mslite.Argument(name, tensor, initializer);
+            return new mslite.Value(name, tensor, initializer);
         });
         if (subgraph === model) {
             for (let i = 0; i < subgraph.inputIndex.length; i++) {
@@ -242,10 +242,10 @@ mslite.Attribute = class {
 
 mslite.Parameter = class {
 
-    constructor(name, visible, args) {
+    constructor(name, visible, value) {
         this._name = name;
         this._visible = visible;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -256,12 +256,12 @@ mslite.Parameter = class {
         return this._visible;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-mslite.Argument = class {
+mslite.Value = class {
 
     constructor(name, tensor, initializer) {
         this._name = name;

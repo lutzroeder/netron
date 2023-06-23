@@ -72,7 +72,7 @@ dnn.Graph = class {
         const args = new Map();
         const arg = (name, type) => {
             if (!args.has(name)) {
-                args.set(name, new dnn.Argument(name, type));
+                args.set(name, new dnn.Value(name, type));
             }
             return args.get(name);
         };
@@ -123,9 +123,9 @@ dnn.Graph = class {
 
 dnn.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -136,16 +136,16 @@ dnn.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-dnn.Argument = class {
+dnn.Value = class {
 
     constructor(name, type, initializer, quantization) {
         if (typeof name !== 'string') {
-            throw new dnn.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new dnn.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;
@@ -196,7 +196,7 @@ dnn.Node = class {
                 }
             }
             const initializer = new dnn.Tensor(weight, quantization);
-            inputs.push(new dnn.Argument('', initializer.type, initializer, quantization));
+            inputs.push(new dnn.Value('', initializer.type, initializer, quantization));
         }
         const outputs = node.output.map((output) => arg(output));
 

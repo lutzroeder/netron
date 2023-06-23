@@ -106,10 +106,10 @@ uff.Graph = class {
         for (const node of graph.nodes) {
             for (const input of node.inputs) {
                 counts.set(input, counts.has(input) ? counts.get(input) + 1 : 1);
-                args.set(input, new uff.Argument(input));
+                args.set(input, new uff.Value(input));
             }
             if (!args.has(node.id)) {
-                args.set(node.id, new uff.Argument(node.id));
+                args.set(node.id, new uff.Value(node.id));
             }
         }
         for (let i = graph.nodes.length - 1; i >= 0; i--) {
@@ -121,7 +121,7 @@ uff.Graph = class {
                 }
                 if (fields.dtype && fields.shape && fields.values) {
                     const tensor = new uff.Tensor(fields.dtype.dtype, fields.shape, fields.values);
-                    args.set(node.id, new uff.Argument(node.id, tensor.type, tensor));
+                    args.set(node.id, new uff.Value(node.id, tensor.type, tensor));
                     graph.nodes.splice(i, 1);
                 }
             }
@@ -131,7 +131,7 @@ uff.Graph = class {
                     fields[field.key] = field.value;
                 }
                 const type = fields.dtype && fields.shape ? new uff.TensorType(fields.dtype.dtype, fields.shape) : null;
-                args.set(node.id, new uff.Argument(node.id, type, null));
+                args.set(node.id, new uff.Value(node.id, type, null));
             }
         }
 
@@ -167,9 +167,9 @@ uff.Graph = class {
 
 uff.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -180,16 +180,16 @@ uff.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-uff.Argument = class {
+uff.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new uff.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new uff.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;

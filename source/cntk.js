@@ -140,15 +140,15 @@ cntk.Graph = class {
         const args = new Map();
         const arg = (name, version, obj) => {
             if (obj && args.has(name)) {
-                throw new cntk.Error("Duplicate argument '" + name + "'.");
+                throw new cntk.Error("Duplicate value '" + name + "'.");
             }
             if (!args.has(name)) {
                 switch (version) {
                     case 1:
-                        args.set(name, new cntk.Argument(version, obj ? obj : { name: name }));
+                        args.set(name, new cntk.Value(version, obj ? obj : { name: name }));
                         break;
                     case 2:
-                        args.set(name, new cntk.Argument(version, obj ? obj : { uid: name }));
+                        args.set(name, new cntk.Value(version, obj ? obj : { uid: name }));
                         break;
                     default:
                         throw new cntk.Error("Unsupported CNTK version '" + version + "'.");
@@ -187,11 +187,11 @@ cntk.Graph = class {
             case 2: {
                 const map = new Map(obj.primitive_functions.map((node) => [ node.uid, node ]));
                 for (const input of obj.inputs) {
-                    const argument = arg(input.uid, version, input);
+                    const value = arg(input.uid, version, input);
                     // VariableKind { 0: 'input', 1: 'output', 2: 'parameter', 3: 'constant', 4: 'placeholder' }
                     if (input.kind == 0) {
                         const inputName = input.name || input.uid;
-                        this._inputs.push(new cntk.Parameter(inputName, [ argument ]));
+                        this._inputs.push(new cntk.Parameter(inputName, [ value ]));
                     }
                 }
                 for (const block of obj.primitive_functions) {
@@ -254,9 +254,9 @@ cntk.Graph = class {
 
 cntk.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -267,12 +267,12 @@ cntk.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-cntk.Argument = class {
+cntk.Value = class {
 
     constructor(version, obj) {
         switch (version) {

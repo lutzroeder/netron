@@ -136,25 +136,24 @@ rknn.Graph = class {
                     const shape = new rknn.TensorShape(const_tensor.size);
                     const type = new rknn.TensorType(dataType(const_tensor.dtype), shape);
                     const tensor = new rknn.Tensor(type, const_tensor.offset, next.value);
-                    const argument = new rknn.Argument(name, type, tensor);
-                    args.set(name, argument);
+                    const value = new rknn.Value(name, type, tensor);
+                    args.set(name, value);
                 }
                 for (const virtual_tensor of model.virtual_tensor) {
                     const name = virtual_tensor.node_id.toString() + ':' + virtual_tensor.output_port.toString();
-                    const argument = new rknn.Argument(name, null, null);
-                    args.set(name, argument);
+                    const value = new rknn.Value(name, null, null);
+                    args.set(name, value);
                 }
                 for (const norm_tensor of model.norm_tensor) {
                     const name = 'norm_tensor:' + norm_tensor.tensor_id.toString();
                     const shape = new rknn.TensorShape(norm_tensor.size);
                     const type = new rknn.TensorType(dataType(norm_tensor.dtype), shape);
-                    const argument = new rknn.Argument(name, type, null);
-                    args.set(name, argument);
+                    const value = new rknn.Value(name, type, null);
+                    args.set(name, value);
                 }
                 const arg = (name) => {
                     if (!args.has(name)) {
-                        const argument = new rknn.Argument(name, null, null);
-                        args.set(name, argument);
+                        args.set(name, new rknn.Value(name, null, null));
                     }
                     return args.get(name);
                 };
@@ -179,9 +178,9 @@ rknn.Graph = class {
                 }
                 for (const graph of model.graph) {
                     const key = graph.right + ':' + graph.right_tensor_id.toString();
-                    const argument = arg(key);
+                    const value = arg(key);
                     const name = graph.left + (graph.left_tensor_id === 0 ? '' : graph.left_tensor_id.toString());
-                    const parameter = new rknn.Parameter(name, [ argument ]);
+                    const parameter = new rknn.Parameter(name, [ value ]);
                     switch (graph.left) {
                         case 'input':
                             this._inputs.push(parameter);
@@ -207,7 +206,7 @@ rknn.Graph = class {
                     }
                     const type = new rknn.TensorType(dataType, shape);
                     const initializer = tensor.kind !== 4 && tensor.kind !== 5 ? null : new rknn.Tensor(type, 0, null);
-                    return new rknn.Argument(tensor.name, type, initializer);
+                    return new rknn.Value(tensor.name, type, initializer);
                 });
                 const arg = (index) => {
                     if (index >= args.length) {
@@ -248,9 +247,9 @@ rknn.Graph = class {
 
 rknn.Parameter = class {
 
-    constructor(name, args) {
+    constructor(name, value) {
         this._name = name;
-        this._arguments = args;
+        this._value = value;
     }
 
     get name() {
@@ -261,16 +260,16 @@ rknn.Parameter = class {
         return true;
     }
 
-    get arguments() {
-        return this._arguments;
+    get value() {
+        return this._value;
     }
 };
 
-rknn.Argument = class {
+rknn.Value = class {
 
     constructor(name, type, initializer) {
         if (typeof name !== 'string') {
-            throw new rknn.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new rknn.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;
@@ -367,8 +366,8 @@ rknn.Node = class {
                         this._inputs = [new rknn.Parameter(inputs[0].name, Array.from(node.inputs).map((input) => arg(input))) ];
                     } else {
                         this._inputs = Array.from(node.inputs).map((input, index) => {
-                            const argument = arg(input);
-                            return new rknn.Parameter(index < inputs.length ? inputs[index].name : index.toString(), [ argument ]);
+                            const value = arg(input);
+                            return new rknn.Parameter(index < inputs.length ? inputs[index].name : index.toString(), [ value ]);
                         });
                     }
                 }
@@ -378,8 +377,8 @@ rknn.Node = class {
                         this._outputs = [ new rknn.Parameter(outputs[0].name, Array.from(node.outputs).map((output) => arg(output))) ];
                     } else {
                         this._outputs = Array.from(node.outputs).map((output, index) => {
-                            const argument = arg(output);
-                            return new rknn.Parameter(index < outputs.length ? outputs[index].name : index.toString(), [ argument ]);
+                            const value = arg(output);
+                            return new rknn.Parameter(index < outputs.length ? outputs[index].name : index.toString(), [ value ]);
                         });
                     }
                 }
