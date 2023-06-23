@@ -7731,7 +7731,7 @@
         ]
       },
       {
-        "description": "'y_scale' determines the output type.",
+        "description": "'x_scale' determines the output type.",
         "type_param_str": "T2",
         "allowed_type_strs": [
           "tensor(float)",
