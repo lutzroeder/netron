@@ -56636,6 +56636,45 @@
     ]
   },
   {
+    "name": "TFRecordDatasetV2",
+    "summary": "Creates a dataset that emits the records from one or more TFRecord files.",
+    "attributes": [
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
+      }
+    ],
+    "inputs": [
+      {
+        "name": "filenames",
+        "description": "A scalar or vector containing the name(s) of the file(s) to be\nread.",
+        "type": 7
+      },
+      {
+        "name": "compression_type",
+        "description": "A scalar containing either (i) the empty string (no\ncompression), (ii) \"ZLIB\", or (iii) \"GZIP\".",
+        "type": 7
+      },
+      {
+        "name": "buffer_size",
+        "description": "A scalar representing the number of bytes to buffer. A value of\n0 means no buffering will be performed.",
+        "type": 9
+      },
+      {
+        "name": "byte_offsets",
+        "description": "A scalar or vector containing the number of bytes for each file\nthat will be skipped prior to reading.",
+        "type": 9
+      }
+    ],
+    "outputs": [
+      {
+        "name": "handle",
+        "type": 21
+      }
+    ]
+  },
+  {
     "name": "TFRecordReader",
     "summary": "A Reader that outputs the records from a TensorFlow Records file.",
     "attributes": [
