@@ -31,7 +31,7 @@
         "electron-updater": "6.1.1"
     },
     "devDependencies": {
-        "electron": "25.1.1",
+        "electron": "25.2.0",
         "electron-builder": "24.4.0",
         "@electron/notarize": "1.2.4",
         "eslint": "8.43.0"
