@@ -70,8 +70,8 @@ mlir.Graph = class {
             const inputType = func.inputTypes[i];
             const type = valueType(inputType);
             const value = new mlir.Value(input, type, "input desc", null);
-            const parameter = new mlir.Parameter(input, true, [ value ]);
-            this._inputs.push(parameter);
+            const argument = new mlir.Argument(input, true, [ value ]);
+            this._inputs.push(argument);
         }
         // outputs of function
         for (let i = 0; i < func.outputTypes.length; i++) {
@@ -79,8 +79,8 @@ mlir.Graph = class {
             const outputType = func.outputTypes[i];
             const type = valueType(outputType);
             const value = new mlir.Value(output, type, "output desc", null);
-            const parameter = new mlir.Parameter(output, true, [ value ]);
-            this._outputs.push(parameter);
+            const argument = new mlir.Argument(output, true, [ value ]);
+            this._outputs.push(argument);
         }
         // operations
         // args is map of edges. args will be converted to mlir.Arguemnts.
@@ -208,8 +208,8 @@ mlir.Graph = class {
             if (op.delete) {
                 continue;
             }
-            op.inputs = op.inputs.map((input) => new mlir.Parameter(input.name, true, input.arguments.map((argument) => tensor(argument))));
-            op.outputs = op.outputs.map((output) => new mlir.Parameter(output.name, true, output.arguments.map((argument) => tensor(argument))));
+            op.inputs = op.inputs.map((input) => new mlir.Argument(input.name, true, input.arguments.map((argument) => tensor(argument))));
+            op.outputs = op.outputs.map((output) => new mlir.Argument(output.name, true, output.arguments.map((argument) => tensor(argument))));
         }
         for (const op of operations.filter((op) => !op.delete)) {
             const type = op.type; // 'program:' + op.type;
@@ -237,7 +237,7 @@ mlir.Graph = class {
     }
 };
 
-mlir.Parameter = class {
+mlir.Argument = class {
 
     constructor(name, visible, value) {
         this._name = name;

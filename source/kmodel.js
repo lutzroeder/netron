@@ -59,7 +59,7 @@ kmodel.Graph = class {
                 case 'INPUT':
                 case 'input': {
                     for (const input of layer.outputs) {
-                        this._inputs.push(new kmodel.Parameter('input', input.value.map((argument) => {
+                        this._inputs.push(new kmodel.Argument('input', input.value.map((argument) => {
                             return new kmodel.Value(argument.name);
                         })));
                     }
@@ -68,7 +68,7 @@ kmodel.Graph = class {
                 case 'OUTPUT':
                 case 'output': {
                     for (const output of layer.inputs) {
-                        this._outputs.push(new kmodel.Parameter(output.name, output.value.map((argument) => {
+                        this._outputs.push(new kmodel.Argument(output.name, output.value.map((argument) => {
                             return new kmodel.Value(argument.name);
                         })));
                     }
@@ -102,7 +102,7 @@ kmodel.Graph = class {
     }
 };
 
-kmodel.Parameter = class {
+kmodel.Argument = class {
 
     constructor(name, value) {
         this._name = name;
@@ -223,14 +223,14 @@ kmodel.Node = class {
             this._attributes.push(attribute);
         }
         for (const input of layer.inputs || []) {
-            this._inputs.push(new kmodel.Parameter(input.name, input.value.map((argument) => {
+            this._inputs.push(new kmodel.Argument(input.name, input.value.map((argument) => {
                 const type = argument.shape ? new kmodel.TensorType(argument.datatype || '?', argument.shape) : null;
                 const tensor = argument.data ? new kmodel.Tensor(type, argument.data) : null;
                 return new kmodel.Value(argument.name, type, tensor);
             })));
         }
         for (const output of layer.outputs || []) {
-            this._outputs.push(new kmodel.Parameter(output.name, output.value.map((argument) => {
+            this._outputs.push(new kmodel.Argument(output.name, output.value.map((argument) => {
                 const type = argument.shape ? new kmodel.TensorType(argument.datatype || '?', argument.shape) : null;
                 return new kmodel.Value(argument.name, type);
             })));

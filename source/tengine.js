@@ -49,11 +49,11 @@ tengine.Graph = class {
         const tensors = graph.tensors.map((tensor) => new tengine.Value(tensor));
         for (const input of graph.inputs) {
             const node = graph.nodes[input];
-            this._inputs.push(new tengine.Parameter(node.name, true, node.outputs.map((output) => tensors[output])));
+            this._inputs.push(new tengine.Argument(node.name, true, node.outputs.map((output) => tensors[output])));
         }
         for (const output of graph.outputs) {
             const node = graph.nodes[output];
-            this._outputs.push(new tengine.Parameter(node.name, true, node.outputs.map((output) => tensors[output])));
+            this._outputs.push(new tengine.Argument(node.name, true, node.outputs.map((output) => tensors[output])));
         }
         for (const node of graph.nodes) {
             switch (node.type) {
@@ -84,7 +84,7 @@ tengine.Graph = class {
     }
 };
 
-tengine.Parameter = class {
+tengine.Argument = class {
 
     constructor(name, visible, value) {
         this._name = name;
@@ -158,14 +158,14 @@ tengine.Node = class {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     const inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
                     const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => tensors[id]);
-                    this._inputs.push(new tengine.Parameter(inputDef.name, true, inputArguments));
+                    this._inputs.push(new tengine.Argument(inputDef.name, true, inputArguments));
                     inputIndex += inputCount;
                 }
             }
         } else {
             this._inputs.push(...inputs.slice(inputIndex).map((id, index) => {
                 const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
-                return new tengine.Parameter(inputName, true, [ tensors[id] ]);
+                return new tengine.Argument(inputName, true, [ tensors[id] ]);
             }));
         }
 
@@ -176,14 +176,14 @@ tengine.Node = class {
                 if (outputIndex < outputs.length || outputDef.option != 'optional') {
                     const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => tensors[id]);
-                    this._outputs.push(new tengine.Parameter(outputDef.name, true, outputArguments));
+                    this._outputs.push(new tengine.Argument(outputDef.name, true, outputArguments));
                     outputIndex += outputCount;
                 }
             }
         } else {
             this._outputs.push(...outputs.slice(outputIndex).map((id, index) => {
                 const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
-                return new tengine.Parameter(outputName, true, [ tensors[id] ]);
+                return new tengine.Argument(outputName, true, [ tensors[id] ]);
             }));
         }
     }

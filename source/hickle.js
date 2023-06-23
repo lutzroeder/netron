@@ -101,7 +101,7 @@ hickle.Graph = class {
     }
 };
 
-hickle.Parameter = class {
+hickle.Argument = class {
 
     constructor(name, value) {
         this._name = name;
@@ -154,7 +154,7 @@ hickle.Node = class {
         this._type = { name: 'Weights' };
         this._name = name;
         this._inputs = parameters.map((parameter) => {
-            return new hickle.Parameter(parameter.name, [
+            return new hickle.Argument(parameter.name, [
                 new hickle.Value(parameter.value.name, null, parameter.value)
             ]);
         });

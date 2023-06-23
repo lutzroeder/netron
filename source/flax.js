@@ -105,7 +105,7 @@ flax.Graph = class {
     }
 };
 
-flax.Parameter = class {
+flax.Argument = class {
 
     constructor(name, value) {
         this._name = name;
@@ -160,8 +160,8 @@ flax.Node = class {
             const value = entry[1];
             if (flax.Utility.isTensor(value)) {
                 const tensor = new flax.Tensor(value);
-                const parameter = new flax.Parameter(name, [ new flax.Value(this._name + '.' + name, tensor) ]);
-                this._inputs.push(parameter);
+                const argument = new flax.Argument(name, [ new flax.Value(this._name + '.' + name, tensor) ]);
+                this._inputs.push(argument);
             } else if (Array.isArray(value)) {
                 const attribute = new flax.Attribute(name, value);
                 this._attributes.push(attribute);

@@ -76,8 +76,8 @@ hailo.Graph = class {
                     for (let i = 0; i < layer.output.length; i++) {
                         const shape = layer.output_shapes ? layer.output_shapes[i] : null;
                         const type = shape ? new hailo.TensorType('?', new hailo.TensorShape(shape)) : null;
-                        const parameter = new hailo.Parameter('input', true, [ arg(layer.name, type) ]);
-                        this._inputs.push(parameter);
+                        const argument = new hailo.Argument('input', true, [ arg(layer.name, type) ]);
+                        this._inputs.push(argument);
                     }
                     break;
                 }
@@ -85,8 +85,8 @@ hailo.Graph = class {
                     for (let i = 0; i < layer.input.length; i++) {
                         const shape = layer.input_shapes ? layer.input_shapes[i] : null;
                         const type = shape ? new hailo.TensorType('?', new hailo.TensorShape(shape)) : null;
-                        const parameter = new hailo.Parameter('output', true, [ arg(layer.input[i], type) ]);
-                        this._outputs.push(parameter);
+                        const argument = new hailo.Argument('output', true, [ arg(layer.input[i], type) ]);
+                        this._outputs.push(argument);
                     }
                     break;
                 }
@@ -112,7 +112,7 @@ hailo.Graph = class {
     }
 };
 
-hailo.Parameter = class {
+hailo.Argument = class {
 
     constructor(name, visible, value) {
         this._name = name;
@@ -171,7 +171,7 @@ hailo.Node = class {
         this._inputs = layer.input.map((name, index) => {
             const shape = layer.input_shapes ? layer.input_shapes[index] : null;
             const type = shape ? new hailo.TensorType('?', new hailo.TensorShape(shape)) : null;
-            return new hailo.Parameter("input", true, [ arg(name, type) ]);
+            return new hailo.Argument("input", true, [ arg(name, type) ]);
         });
         const getParams = (params_array) => {
             return params_array.reduce((acc, obj) => {
@@ -183,7 +183,7 @@ hailo.Node = class {
                     const shape = new hailo.TensorShape(value);
                     const type = new hailo.TensorType('?', shape);
                     const tensor = new hailo.Tensor(type, value);
-                    acc.push(new hailo.Parameter(label, true, [ arg('', type, tensor) ]));
+                    acc.push(new hailo.Argument(label, true, [ arg('', type, tensor) ]));
                 }
                 return acc;
             }, []);
@@ -193,7 +193,7 @@ hailo.Node = class {
         this._outputs = (layer.output || []).map((_, index) => {
             const shape = layer.output_shapes ? layer.output_shapes[index] : null;
             const type = shape ? new hailo.TensorType('?', new hailo.TensorShape(shape)) : null;
-            return new hailo.Parameter("output", true, [ arg(layer.name, type) ]);
+            return new hailo.Argument("output", true, [ arg(layer.name, type) ]);
         });
         const attrs = Object.assign(layer.params || {}, { original_names: layer.original_names || [] });
         this._attributes = Object.entries(attrs).map((entry) => new hailo.Attribute(metadata.attribute(layer.type, entry[0]), entry[0], entry[1]));

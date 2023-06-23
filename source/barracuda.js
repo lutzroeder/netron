@@ -67,12 +67,12 @@ barracuda.Graph = class {
             }
         }
         for (const input of model.inputs) {
-            this._inputs.push(new barracuda.Parameter(input.name, [
+            this._inputs.push(new barracuda.Argument(input.name, [
                 arg(input.name, new barracuda.TensorType(4, new barracuda.TensorShape(input.shape)))
             ]));
         }
         for (const output of model.outputs) {
-            this._outputs.push(new barracuda.Parameter(output, [
+            this._outputs.push(new barracuda.Argument(output, [
                 arg(output)
             ]));
         }
@@ -98,7 +98,7 @@ barracuda.Graph = class {
     }
 };
 
-barracuda.Parameter = class {
+barracuda.Argument = class {
 
     constructor(name, value) {
         this._name = name;
@@ -150,26 +150,26 @@ barracuda.Node = class {
         this._attributes = [];
         const inputs = Array.prototype.slice.call(this._type.inputs || [ 'input' ]);
         if (this._type.inputs && this._type.inputs.length === 1 && this._type.inputs[0].name === 'inputs') {
-            this._inputs.push(new barracuda.Parameter('inputs', layer.inputs.map((input) => arg(input))));
+            this._inputs.push(new barracuda.Argument('inputs', layer.inputs.map((input) => arg(input))));
         } else if (layer.inputs) {
             for (let i = 0; i < layer.inputs.length; i++) {
                 const input = layer.inputs[i];
                 const name = inputs.length > 0 ? inputs.shift().name : i.toString();
-                const parameter = new barracuda.Parameter(name, [ arg(input) ]);
-                this._inputs.push(parameter);
+                const argument = new barracuda.Argument(name, [ arg(input) ]);
+                this._inputs.push(argument);
             }
         }
         if (layer.tensors) {
             for (let i = 0; i < layer.tensors.length; i++) {
                 const tensor = layer.tensors[i];
                 const initializer = new barracuda.Tensor(tensor);
-                this._inputs.push(new barracuda.Parameter(inputs.length > 0 ? inputs.shift().name : i.toString(), [
+                this._inputs.push(new barracuda.Argument(inputs.length > 0 ? inputs.shift().name : i.toString(), [
                     arg(tensor.name, initializer.type, initializer)
                 ]));
             }
         }
         if (layer.inputs !== undefined) {
-            this._outputs.push(new barracuda.Parameter('output', [ arg(this._name) ]));
+            this._outputs.push(new barracuda.Argument('output', [ arg(this._name) ]));
         }
         if (layer.activation !== undefined && (layer.type === 50 || layer.activation !== 0)) {
             const type = barracuda.Activation[layer.activation];

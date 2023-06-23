@@ -456,13 +456,13 @@ onnx.Graph = class {
         for (const input of graph.input) {
             const value = context.value(input.name);
             if (!value.initializer) {
-                this._inputs.push(new onnx.Parameter(input.name, [ value ]));
+                this._inputs.push(new onnx.Argument(input.name, [ value ]));
             }
         }
         for (const output of graph.output) {
             const value = context.value(output.name);
             if (!value.initializer) {
-                this._outputs.push(new onnx.Parameter(output.name, [ value ]));
+                this._outputs.push(new onnx.Argument(output.name, [ value ]));
             }
         }
     }
@@ -492,7 +492,7 @@ onnx.Graph = class {
     }
 };
 
-onnx.Parameter = class {
+onnx.Argument = class {
 
     constructor(name, value) {
         this._name = name;
@@ -754,8 +754,8 @@ onnx.Group = class {
                 }
             }
         }
-        this._inputs = [ new onnx.Parameter('inputs', inputs) ];
-        this._outputs = [ new onnx.Parameter('outputs', outputs) ];
+        this._inputs = [ new onnx.Argument('inputs', inputs) ];
+        this._outputs = [ new onnx.Argument('outputs', outputs) ];
         this._attributes = [];
     }
 
@@ -1057,13 +1057,13 @@ onnx.Function = class {
         for (const input of func.input) {
             const value = context.value(input.name);
             if (!value.initializer) {
-                this._inputs.push(new onnx.Parameter(input.name, [ value ]));
+                this._inputs.push(new onnx.Argument(input.name, [ value ]));
             }
         }
         for (const output of func.output) {
             const value = context.value(output.name);
             if (!value.initializer) {
-                this._outputs.push(new onnx.Parameter(output.name, [ value ]));
+                this._outputs.push(new onnx.Argument(output.name, [ value ]));
             }
         }
     }
@@ -1524,7 +1524,7 @@ onnx.GraphContext = class {
                 const count = input.list ? node.input.length - i : 1;
                 const list = node.input.slice(i, i + count).filter((arg) => arg.name !== '' || arg.initializer);
                 const args = list.map((input) => this.value(input.name));
-                inputs.push(new onnx.Parameter(input.name, args));
+                inputs.push(new onnx.Argument(input.name, args));
                 i += count;
             }
             const outputs = [];
@@ -1534,7 +1534,7 @@ onnx.GraphContext = class {
                 const count = output.list ? node.output.length - i : 1;
                 const list = node.output.slice(i, i + count).filter((arg) => arg.name !== '' || arg.initializer);
                 const args = list.map((output) => this.value(output.name));
-                outputs.push(new onnx.Parameter(output.name, args));
+                outputs.push(new onnx.Argument(output.name, args));
                 i += count;
             }
             node = new onnx.Node(this, node.op_type, node.domain, node.name, node.doc_string, node.attribute, inputs, outputs);

@@ -97,13 +97,13 @@ acuity.Graph = class {
             const layer = model.Layers[layerName];
             switch (layer.op.toLowerCase()) {
                 case 'input': {
-                    this._inputs.push(new acuity.Parameter(layerName, true, [
+                    this._inputs.push(new acuity.Argument(layerName, true, [
                         args.get(layer.outputs[0].name)
                     ]));
                     break;
                 }
                 case 'output': {
-                    this._outputs.push(new acuity.Parameter(layerName, true, [
+                    this._outputs.push(new acuity.Argument(layerName, true, [
                         args.get(layer.inputs[0].name)
                     ]));
                     break;
@@ -150,7 +150,7 @@ acuity.Node = class {
             const input = layer.inputs[i];
             const arg = args.get(input.name);
             const name = this._type && this._type.inputs && i < this._type.inputs.length ? this._type.inputs[i].name : 'input' + i.toString();
-            this._inputs.push(new acuity.Parameter(name, true, [ arg ]));
+            this._inputs.push(new acuity.Argument(name, true, [ arg ]));
         }
 
         if (this._type && this._type.constants) {
@@ -158,7 +158,7 @@ acuity.Node = class {
                 // const name = "@" + this._name + ":" + constant.name;
                 const type = new acuity.TensorType(null, new acuity.TensorShape(null));
                 const value = new acuity.Value('', type, null, new acuity.Tensor(type));
-                this._inputs.push(new acuity.Parameter(constant.name, true, [ value ]));
+                this._inputs.push(new acuity.Argument(constant.name, true, [ value ]));
             }
         }
 
@@ -166,7 +166,7 @@ acuity.Node = class {
             const output = layer.outputs[i];
             const arg = args.get(output.name);
             const name = this._type && this._type.outputs && i < this._type.outputs.length ? this._type.outputs[i].name : 'output' + i.toString();
-            this._outputs.push(new acuity.Parameter(name, true, [arg]));
+            this._outputs.push(new acuity.Argument(name, true, [arg]));
         }
     }
 
@@ -224,7 +224,7 @@ acuity.Attribute = class {
     }
 };
 
-acuity.Parameter = class {
+acuity.Argument = class {
 
     constructor(name, visible, value) {
         this._name = name;

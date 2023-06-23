@@ -76,7 +76,7 @@ lightgbm.Graph = class {
             const value = new lightgbm.Value(name, info);
             args.push(value);
             if (feature_names.length < 1000) {
-                this._inputs.push(new lightgbm.Parameter(name, [ value ]));
+                this._inputs.push(new lightgbm.Argument(name, [ value ]));
             }
         }
         this._nodes.push(new lightgbm.Node(model, args));
@@ -95,7 +95,7 @@ lightgbm.Graph = class {
     }
 };
 
-lightgbm.Parameter = class {
+lightgbm.Argument = class {
 
     constructor(name, value) {
         this._name = name;
@@ -150,7 +150,7 @@ lightgbm.Node = class {
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
-        this._inputs.push(new lightgbm.Parameter('features', args));
+        this._inputs.push(new lightgbm.Argument('features', args));
         for (const entry of Object.entries(model)) {
             const key = entry[0];
             const value = entry[1];

@@ -125,13 +125,13 @@ om.Node = class {
                     const dataType = desc && desc.dtype ? om.Utility.dtype(value.desc.dtype) : '?';
                     const tensorType = new om.TensorType(dataType, shape, layout, value.desc.layout);
                     const tensor = new om.Tensor('Constant', tensorType, data);
-                    this._inputs.push(new om.Parameter(parameterName, true, [ new om.Value(name, null, tensor) ]));
+                    this._inputs.push(new om.Argument(parameterName, true, [ new om.Value(name, null, tensor) ]));
                 } else {
                     const dataType = desc && desc.dtype ? om.Utility.dtype(desc.dtype) : '?';
                     const shape = desc.shape ? desc.shape.dim : undefined;
                     const tensorType = new om.TensorType(dataType, shape, layout, null);
                     const identifier = src_index === '0' ? name : name + ':' + src_index;
-                    this._inputs.push(new om.Parameter(parameterName, true, [ new om.Value(identifier, tensorType, null) ]));
+                    this._inputs.push(new om.Argument(parameterName, true, [ new om.Value(identifier, tensorType, null) ]));
                 }
             }
         }
@@ -148,7 +148,7 @@ om.Node = class {
                 const identifier = i === 0 ? this._name : this._name + ':' + i;
                 const value = new om.Value(identifier, type, null);
                 const outputName = this._type.outputs && i < this._type.outputs.length ? this._type.outputs[i].name : 'output' + (i === 0 ? '' : i.toString());
-                this._outputs.push(new om.Parameter(outputName, true, [ value ]));
+                this._outputs.push(new om.Argument(outputName, true, [ value ]));
             }
         }
         if (op.attr) {
@@ -323,7 +323,7 @@ om.Attribute = class {
     }
 };
 
-om.Parameter = class {
+om.Argument = class {
 
     constructor(name, visible, value) {
         this._name = name;

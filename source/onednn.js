@@ -82,7 +82,7 @@ onednn.Graph = class {
             const shape = !input.shape || (input.shape.length === 1 && input.shape[0] === -1) ? null : new onednn.TensorShape(input.shape);
             const type = new onednn.TensorType(input.dtype, shape);
             const inputName = (inputs.length == 1) ? 'input' : ('input' + (inputIndex)).toString();
-            this._inputs.push(new onednn.Parameter(inputName, [
+            this._inputs.push(new onednn.Argument(inputName, [
                 new onednn.Value(input.id.toString(), type, initializers.includes(input.id) ? new onednn.Tensor(type, input.property_type) : null)
             ]));
             inputIndex += 1;
@@ -94,7 +94,7 @@ onednn.Graph = class {
             const shape = !output.shape || (output.shape.length === 1 && output.shape[0] === -1) ? null : new onednn.TensorShape(output.shape);
             const type = new onednn.TensorType(output.dtype, shape);
             const outputName = (outputs.length == 1) ? 'output' : ('output' + (outputIndex)).toString();
-            this._outputs.push(new onednn.Parameter(outputName, [new onednn.Value(output.id.toString(), type)]));
+            this._outputs.push(new onednn.Argument(outputName, [new onednn.Value(output.id.toString(), type)]));
             outputIndex += 1;
         }
     }
@@ -147,7 +147,7 @@ onednn.Node = class {
             if (this._type && this._type.inputs && this._type.inputs.length > 0) {
                 inputName = this._type.inputs[inputIndex].name;
             }
-            this._inputs.push(new onednn.Parameter(inputName, [
+            this._inputs.push(new onednn.Argument(inputName, [
                 new onednn.Value(input.id.toString(), type, initializers.includes(input.id) ? new onednn.Tensor(type, input.property_type) : null)
             ]));
             inputIndex += 1;
@@ -161,7 +161,7 @@ onednn.Node = class {
             if (this._type && this._type.outputs && this._type.outputs.length > 0) {
                 outputName = this._type.outputs[outputIndex].name;
             }
-            this._outputs.push(new onednn.Parameter(outputName, [new onednn.Value(output.id.toString(), type)]));
+            this._outputs.push(new onednn.Argument(outputName, [new onednn.Value(output.id.toString(), type)]));
             outputIndex += 1;
         }
     }
@@ -286,7 +286,7 @@ onednn.Attribute = class {
     }
 };
 
-onednn.Parameter = class {
+onednn.Argument = class {
 
     constructor(name, value) {
         this._name = name;

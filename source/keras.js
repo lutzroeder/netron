@@ -359,7 +359,7 @@ keras.Graph = class {
                         const nodeInputs = [ { name: value } ];
                         if (index == 0) {
                             inputType = getInputType(layer);
-                            this._inputs.push(new keras.Parameter(inputName, true, [ arg(inputName, inputType) ]));
+                            this._inputs.push(new keras.Argument(inputName, true, [ arg(inputName, inputType) ]));
                         }
                         index++;
                         if (layer.config && layer.config.name) {
@@ -376,7 +376,7 @@ keras.Graph = class {
                         this.nodes.push(loadNode(layer, nodeInputs, nodeOutputs, weights, group));
                     }
                     if (value) {
-                        this._outputs.push(new keras.Parameter(value, true, [ arg(value) ]));
+                        this._outputs.push(new keras.Argument(value, true, [ arg(value) ]));
                     }
                     break;
                 }
@@ -488,8 +488,8 @@ keras.Graph = class {
                                 type = getInputType(node);
                                 nodes.delete(name);
                             }
-                            const parameter = new keras.Parameter(name, true, [ arg(name, type) ]);
-                            this._inputs.push(parameter);
+                            const argument = new keras.Argument(name, true, [ arg(name, type) ]);
+                            this._inputs.push(argument);
                         }
                     }
                     const output_layers = is_connection(config.output_layers) ? [ config.output_layers ] : config.output_layers;
@@ -508,8 +508,8 @@ keras.Graph = class {
                                 }
                                 outputNode.outputs[outputIndex] = outputName;
                             }
-                            const parameter = new keras.Parameter(outputName, true, [ arg(outputName) ]);
-                            this._outputs.push(parameter);
+                            const argument = new keras.Argument(outputName, true, [ arg(outputName) ]);
+                            this._outputs.push(argument);
                         }
                     }
                     if (config.layers) {
@@ -552,7 +552,7 @@ keras.Graph = class {
     }
 };
 
-keras.Parameter = class {
+keras.Argument = class {
 
     constructor(name, visible, value) {
         this._name = name;
@@ -636,8 +636,8 @@ keras.Node = class {
                     delete config.input_layers;
                     delete config.output_layers;
                 }
-                this._inputs = [ new keras.Parameter('inputs', true, inputs.map((input) => arg(input.name))) ];
-                this._outputs = [ new keras.Parameter('outputs', true, outputs.map((name) => arg(name))) ];
+                this._inputs = [ new keras.Argument('inputs', true, inputs.map((input) => arg(input.name))) ];
+                this._outputs = [ new keras.Argument('outputs', true, outputs.map((name) => arg(name))) ];
                 inputs = [];
                 outputs = [];
                 break;
@@ -783,7 +783,7 @@ keras.Node = class {
                     inputName = inputNames.has(inputName2) ? inputName2 : inputName1;
                 }
             }
-            this._inputs.push(new keras.Parameter(inputName || inputIndex.toString(), visible, inputArguments));
+            this._inputs.push(new keras.Argument(inputName || inputIndex.toString(), visible, inputArguments));
             inputIndex++;
         }
 
@@ -791,8 +791,8 @@ keras.Node = class {
             const output = outputs[i];
             const outputName = (this._type && this._type.outputs && i < this._type.outputs.length && this._type.outputs[i] && this._type.outputs[i].name) ? this._type.outputs[i].name : i.toString();
             const args = output.length === 0 ? [] : [ arg(output) ];
-            const parameter = new keras.Parameter(outputName, true, args);
-            this._outputs.push(parameter);
+            const argument = new keras.Argument(outputName, true, args);
+            this._outputs.push(argument);
         }
 
         const inputTypes = new Map((this._type.inputs || []).map((input) => [ input.name, input.type ]));
@@ -802,12 +802,12 @@ keras.Node = class {
             if (name !== 'name') {
                 if (value.name || (inputTypes.has(name) && inputTypes.get(name) === 'Tensor' && value)) {
                     if (value.name) {
-                        const parameter = new keras.Parameter(name, true, [ arg(value.name) ]);
-                        this._inputs.push(parameter);
+                        const argument = new keras.Argument(name, true, [ arg(value.name) ]);
+                        this._inputs.push(argument);
                     } else {
                         const tensor = new keras.Tensor('', value.shape, config.dtype || '?', null, '|', value.value);
-                        const parameter = new keras.Parameter(name, true, [ arg('', null, tensor) ]);
-                        this._inputs.push(parameter);
+                        const argument = new keras.Argument(name, true, [ arg('', null, tensor) ]);
+                        this._inputs.push(argument);
                     }
                 } else {
                     const attribute = new keras.Attribute(metadata.attribute(type, name), name, value);

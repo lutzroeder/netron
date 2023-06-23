@@ -184,7 +184,7 @@ sklearn.Graph = class {
     }
 };
 
-sklearn.Parameter = class {
+sklearn.Argument = class {
     constructor(name, value) {
         this._name = name;
         this._value = value;
@@ -237,19 +237,19 @@ sklearn.Node = class {
         this._name = name || '';
         const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'Object';
         this._type = metadata.type(type) || { name: type };
-        this._inputs = inputs.map((input) => new sklearn.Parameter(input, [ new sklearn.Value(input, null, null) ]));
-        this._outputs = outputs.map((output) => new sklearn.Parameter(output, [ new sklearn.Value(output, null, null) ]));
+        this._inputs = inputs.map((input) => new sklearn.Argument(input, [ new sklearn.Value(input, null, null) ]));
+        this._outputs = outputs.map((output) => new sklearn.Argument(output, [ new sklearn.Value(output, null, null) ]));
         this._attributes = [];
 
         for (const entry of Object.entries(obj)) {
             const name = entry[0];
             const value = entry[1];
             if (value && sklearn.Utility.isTensor(value)) {
-                const paramter = new sklearn.Parameter(name, [ new sklearn.Value('', null, new sklearn.Tensor(value)) ]);
-                this._inputs.push(paramter);
+                const argument = new sklearn.Argument(name, [ new sklearn.Value('', null, new sklearn.Tensor(value)) ]);
+                this._inputs.push(argument);
             } else if (Array.isArray(value) && value.every((obj) => sklearn.Utility.isTensor(obj))) {
-                const paramter = new sklearn.Parameter(name, value.map((obj) => new sklearn.Value('', null, new sklearn.Tensor(obj))));
-                this._inputs.push(paramter);
+                const argument = new sklearn.Argument(name, value.map((obj) => new sklearn.Value('', null, new sklearn.Tensor(obj))));
+                this._inputs.push(argument);
             } else if (!name.startsWith('_')) {
                 const attribute = new sklearn.Attribute(metadata.attribute(type, name), name, value);
                 this._attributes.push(attribute);

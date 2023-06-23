@@ -102,10 +102,10 @@ tnn.Graph = class {
         for (const input of reader.inputs) {
             const shape = new tnn.TensorShape(input.shape);
             const type = new tnn.TensorType(input.data_type, shape);
-            this._inputs.push(new tnn.Parameter(input.name, [ arg(input.name, type) ]));
+            this._inputs.push(new tnn.Argument(input.name, [ arg(input.name, type) ]));
         }
         for (const output of reader.outputs) {
-            this._outputs.push(new tnn.Parameter(output.name, [ arg(output.name) ]));
+            this._outputs.push(new tnn.Argument(output.name, [ arg(output.name) ]));
         }
         for (const layer of reader.layers) {
             this._nodes.push(new tnn.Node(metadata, resources, layer, arg));
@@ -125,7 +125,7 @@ tnn.Graph = class {
     }
 };
 
-tnn.Parameter = class {
+tnn.Argument = class {
 
     constructor(name, value) {
         this._name = name;
@@ -204,14 +204,14 @@ tnn.Node = class {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     const inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
                     const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => arg(id));
-                    this._inputs.push(new tnn.Parameter(inputDef.name, inputArguments));
+                    this._inputs.push(new tnn.Argument(inputDef.name, inputArguments));
                     inputIndex += inputCount;
                 }
             }
         } else {
             this._inputs.push(...inputs.slice(inputIndex).map((input, index) => {
                 const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
-                return new tnn.Parameter(inputName, [ arg(input) ]);
+                return new tnn.Argument(inputName, [ arg(input) ]);
             }));
         }
 
@@ -222,14 +222,14 @@ tnn.Node = class {
                 if (outputIndex < outputs.length || outputDef.option != 'optional') {
                     const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => arg(id));
-                    this._outputs.push(new tnn.Parameter(outputDef.name, outputArguments));
+                    this._outputs.push(new tnn.Argument(outputDef.name, outputArguments));
                     outputIndex += outputCount;
                 }
             }
         } else {
             this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
                 const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
-                return new tnn.Parameter(outputName, [ arg(output) ]);
+                return new tnn.Argument(outputName, [ arg(output) ]);
             }));
         }
         const weight = (resource, name, shape) => {
@@ -238,7 +238,7 @@ tnn.Node = class {
                 throw new tnn.Error("Layer initializer'" + resource.type + "." + name + "' not found '");
             }
             const tensor = new tnn.Tensor(new tnn.TensorType(initializer.dataType, new tnn.TensorShape(shape)), initializer.value);
-            this._inputs.push(new tnn.Parameter(name, [ arg('', null, tensor) ]));
+            this._inputs.push(new tnn.Argument(name, [ arg('', null, tensor) ]));
         };
         switch (this._type.name) {
             case 'Convolution':

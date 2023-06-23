@@ -236,7 +236,7 @@ circle.Graph = class {
             if (subgraphMetadata && i < subgraphMetadata.input_tensor_metadata.length) {
                 applyTensorMetadata(value, subgraphMetadata.input_tensor_metadata[i]);
             }
-            this._inputs.push(new circle.Parameter(value ? value.name : '?', true, value ? [ value ] : []));
+            this._inputs.push(new circle.Argument(value ? value.name : '?', true, value ? [ value ] : []));
         }
         const outputs = subgraph.outputs;
         for (let i = 0; i < outputs.length; i++) {
@@ -245,7 +245,7 @@ circle.Graph = class {
             if (subgraphMetadata && i < subgraphMetadata.output_tensor_metadata.length) {
                 applyTensorMetadata(value, subgraphMetadata.output_tensor_metadata[i]);
             }
-            this._outputs.push(new circle.Parameter(value ? value.name : '?', true, value ? [ value ] : []));
+            this._outputs.push(new circle.Argument(value ? value.name : '?', true, value ? [ value ] : []));
         }
     }
 
@@ -304,7 +304,7 @@ circle.Node = class {
                 }
                 inputIndex += count;
                 inputName = inputName ? inputName : inputIndex.toString();
-                this._inputs.push(new circle.Parameter(inputName, inputVisible, inputArguments));
+                this._inputs.push(new circle.Argument(inputName, inputVisible, inputArguments));
             }
             for (let k = 0; k < outputs.length; k++) {
                 const index = outputs[k];
@@ -320,7 +320,7 @@ circle.Node = class {
                         outputName = output.name;
                     }
                 }
-                this._outputs.push(new circle.Parameter(outputName, true, outputArguments));
+                this._outputs.push(new circle.Argument(outputName, true, outputArguments));
             }
             if (type.custom && node.custom_options.length > 0) {
                 let decoded = false;
@@ -446,7 +446,7 @@ circle.Attribute = class {
     }
 };
 
-circle.Parameter = class {
+circle.Argument = class {
 
     constructor(name, visible, value) {
         this._name = name;

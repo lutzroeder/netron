@@ -63,7 +63,7 @@ mlnet.Graph = class {
         };
         if (reader.schema && reader.schema.inputs) {
             for (const input of reader.schema.inputs) {
-                this._inputs.push(new mlnet.Parameter(input.name, [ arg(input.name, new mlnet.TensorType(input.type)) ]));
+                this._inputs.push(new mlnet.Argument(input.name, [ arg(input.name, new mlnet.TensorType(input.type)) ]));
             }
         }
         const createNode = (scope, group, transformer) => {
@@ -134,7 +134,7 @@ mlnet.Graph = class {
     }
 };
 
-mlnet.Parameter = class {
+mlnet.Argument = class {
 
     constructor(name, value) {
         this._name = name;
@@ -187,14 +187,14 @@ mlnet.Node = class {
         if (transformer.inputs) {
             let i = 0;
             for (const input of transformer.inputs) {
-                this._inputs.push(new mlnet.Parameter(i.toString(), [ arg(input.name) ]));
+                this._inputs.push(new mlnet.Argument(i.toString(), [ arg(input.name) ]));
                 i++;
             }
         }
         if (transformer.outputs) {
             let i = 0;
             for (const output of transformer.outputs) {
-                this._outputs.push(new mlnet.Parameter(i.toString(), [ arg(output.name) ]));
+                this._outputs.push(new mlnet.Argument(i.toString(), [ arg(output.name) ]));
                 i++;
             }
         }

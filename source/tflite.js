@@ -249,7 +249,7 @@ tflite.Graph = class {
             if (subgraphMetadata && i < subgraphMetadata.input_tensor_metadata.length) {
                 applyTensorMetadata(value, subgraphMetadata.input_tensor_metadata[i]);
             }
-            this._inputs.push(new tflite.Parameter(value ? value.name : '?', true, value ? [ value ] : []));
+            this._inputs.push(new tflite.Argument(value ? value.name : '?', true, value ? [ value ] : []));
         }
         const outputs = subgraph.outputs;
         for (let i = 0; i < outputs.length; i++) {
@@ -258,7 +258,7 @@ tflite.Graph = class {
             if (subgraphMetadata && i < subgraphMetadata.output_tensor_metadata.length) {
                 applyTensorMetadata(value, subgraphMetadata.output_tensor_metadata[i]);
             }
-            this._outputs.push(new tflite.Parameter(value ? value.name : '?', true, value ? [ value ] : []));
+            this._outputs.push(new tflite.Argument(value ? value.name : '?', true, value ? [ value ] : []));
         }
     }
 
@@ -317,7 +317,7 @@ tflite.Node = class {
                 }
                 inputIndex += count;
                 inputName = inputName ? inputName : inputIndex.toString();
-                this._inputs.push(new tflite.Parameter(inputName, inputVisible, inputArguments));
+                this._inputs.push(new tflite.Argument(inputName, inputVisible, inputArguments));
             }
             for (let k = 0; k < outputs.length; k++) {
                 const index = outputs[k];
@@ -333,7 +333,7 @@ tflite.Node = class {
                         outputName = output.name;
                     }
                 }
-                this._outputs.push(new tflite.Parameter(outputName, true, outputArguments));
+                this._outputs.push(new tflite.Argument(outputName, true, outputArguments));
             }
             if (type.custom && node.custom_options.length > 0) {
                 let decoded = false;
@@ -459,7 +459,7 @@ tflite.Attribute = class {
     }
 };
 
-tflite.Parameter = class {
+tflite.Argument = class {
 
     constructor(name, visible, value) {
         this._name = name;

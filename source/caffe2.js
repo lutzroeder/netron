@@ -319,11 +319,11 @@ caffe2.Graph = class {
             if (netDef.external_input.length > 1 && initializers.has(input)) {
                 continue;
             }
-            this._inputs.push(new caffe2.Parameter(input, [ arg(input) ]));
+            this._inputs.push(new caffe2.Argument(input, [ arg(input) ]));
         }
         this._outputs = [];
         for (const output of netDef.external_output) {
-            this._outputs.push(new caffe2.Parameter(output, [ arg(output) ]));
+            this._outputs.push(new caffe2.Argument(output, [ arg(output) ]));
         }
     }
 
@@ -348,7 +348,7 @@ caffe2.Graph = class {
     }
 };
 
-caffe2.Parameter = class {
+caffe2.Argument = class {
 
     constructor(name, value) {
         this._name = name;
@@ -420,14 +420,14 @@ caffe2.Node = class {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     const inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
                     const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => arg(id));
-                    this._inputs.push(new caffe2.Parameter(inputDef.name, inputArguments));
+                    this._inputs.push(new caffe2.Argument(inputDef.name, inputArguments));
                     inputIndex += inputCount;
                 }
             }
         } else {
             this._inputs.push(...inputs.slice(inputIndex).map((input, index) => {
                 const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
-                return new caffe2.Parameter(inputName, [ arg(input) ]);
+                return new caffe2.Argument(inputName, [ arg(input) ]);
             }));
         }
         this._outputs = [];
@@ -437,14 +437,14 @@ caffe2.Node = class {
                 if (outputIndex < outputs.length || outputDef.option != 'optional') {
                     const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => arg(id));
-                    this._outputs.push(new caffe2.Parameter(outputDef.name, outputArguments));
+                    this._outputs.push(new caffe2.Argument(outputDef.name, outputArguments));
                     outputIndex += outputCount;
                 }
             }
         } else {
             this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
                 const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
-                return new caffe2.Parameter(outputName, [ arg(output) ]);
+                return new caffe2.Argument(outputName, [ arg(output) ]);
             }));
         }
     }

@@ -137,11 +137,11 @@ uff.Graph = class {
 
         for (const node of graph.nodes) {
             if (node.operation === 'Input') {
-                this._inputs.push(new uff.Parameter(node.id, [ args.get(node.id) ]));
+                this._inputs.push(new uff.Argument(node.id, [ args.get(node.id) ]));
                 continue;
             }
             if (node.operation === 'MarkOutput' && node.inputs.length === 1) {
-                this._outputs.push(new uff.Parameter(node.id, [ args.get(node.inputs[0]) ]));
+                this._outputs.push(new uff.Argument(node.id, [ args.get(node.inputs[0]) ]));
                 continue;
             }
             this._nodes.push(new uff.Node(metadata, node, args));
@@ -165,7 +165,7 @@ uff.Graph = class {
     }
 };
 
-uff.Parameter = class {
+uff.Argument = class {
 
     constructor(name, value) {
         this._name = name;
@@ -228,17 +228,17 @@ uff.Node = class {
                             return args.get(id);
                         });
                         inputIndex += inputCount;
-                        this._inputs.push(new uff.Parameter(inputSchema.name, inputArguments));
+                        this._inputs.push(new uff.Argument(inputSchema.name, inputArguments));
                     }
                 }
             }
             this._inputs.push(...node.inputs.slice(inputIndex).map((id, index) => {
                 const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
-                return new uff.Parameter(inputName, [ args.get(id) ]);
+                return new uff.Argument(inputName, [ args.get(id) ]);
             }));
         }
 
-        this._outputs.push(new uff.Parameter('output', [
+        this._outputs.push(new uff.Argument('output', [
             args.get(node.id)
         ]));
 

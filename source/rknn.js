@@ -180,13 +180,13 @@ rknn.Graph = class {
                     const key = graph.right + ':' + graph.right_tensor_id.toString();
                     const value = arg(key);
                     const name = graph.left + (graph.left_tensor_id === 0 ? '' : graph.left_tensor_id.toString());
-                    const parameter = new rknn.Parameter(name, [ value ]);
+                    const argument = new rknn.Argument(name, [ value ]);
                     switch (graph.left) {
                         case 'input':
-                            this._inputs.push(parameter);
+                            this._inputs.push(argument);
                             break;
                         case 'output':
-                            this._outputs.push(parameter);
+                            this._outputs.push(argument);
                             break;
                         default:
                             throw new rknn.Error("Unsupported left graph connection '" + graph.left + "'.");
@@ -245,7 +245,7 @@ rknn.Graph = class {
     }
 };
 
-rknn.Parameter = class {
+rknn.Argument = class {
 
     constructor(name, value) {
         this._name = name;
@@ -326,7 +326,7 @@ rknn.Node = class {
                         }
                         throw new rknn.Error('Invalid input argument.');
                     });
-                    this._inputs.push(new rknn.Parameter(input.name, list));
+                    this._inputs.push(new rknn.Argument(input.name, list));
                     i += count;
                 }
                 node.output = node.output || [];
@@ -342,7 +342,7 @@ rknn.Node = class {
                         }
                         throw new rknn.Error('Invalid output argument.');
                     });
-                    this._outputs.push(new rknn.Parameter(output.name, list));
+                    this._outputs.push(new rknn.Argument(output.name, list));
                     i += count;
                 }
                 if (node.nn) {
@@ -363,22 +363,22 @@ rknn.Node = class {
                 if (node.inputs.length > 0) {
                     const inputs = this._type.inputs || (node.inputs.length === 1 ? [ { name: "input" } ] : [ { name: "inputs", list: true } ]);
                     if (Array.isArray(inputs) && inputs.length > 0 && inputs[0].list === true) {
-                        this._inputs = [new rknn.Parameter(inputs[0].name, Array.from(node.inputs).map((input) => arg(input))) ];
+                        this._inputs = [new rknn.Argument(inputs[0].name, Array.from(node.inputs).map((input) => arg(input))) ];
                     } else {
                         this._inputs = Array.from(node.inputs).map((input, index) => {
                             const value = arg(input);
-                            return new rknn.Parameter(index < inputs.length ? inputs[index].name : index.toString(), [ value ]);
+                            return new rknn.Argument(index < inputs.length ? inputs[index].name : index.toString(), [ value ]);
                         });
                     }
                 }
                 if (node.outputs.length > 0) {
                     const outputs = this._type.outputs || (node.outputs.length === 1 ? [ { name: "output" } ] : [ { name: "outputs", list: true } ]);
                     if (Array.isArray(outputs) && outputs.length > 0 && outputs[0].list === true) {
-                        this._outputs = [ new rknn.Parameter(outputs[0].name, Array.from(node.outputs).map((output) => arg(output))) ];
+                        this._outputs = [ new rknn.Argument(outputs[0].name, Array.from(node.outputs).map((output) => arg(output))) ];
                     } else {
                         this._outputs = Array.from(node.outputs).map((output, index) => {
                             const value = arg(output);
-                            return new rknn.Parameter(index < outputs.length ? outputs[index].name : index.toString(), [ value ]);
+                            return new rknn.Argument(index < outputs.length ? outputs[index].name : index.toString(), [ value ]);
                         });
                     }
                 }

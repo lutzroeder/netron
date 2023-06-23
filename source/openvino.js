@@ -136,12 +136,12 @@ openvino.Graph = class {
                     // in order not to break compatibility with the overall approach
                     // with openvino.Parameter for inputs and openvino.Node for outputs
                     // input openvino.Node would be stored as an optional attribute of openvino.Parameter
-                    this._inputs.push(new openvino.Parameter(name, outputs));
+                    this._inputs.push(new openvino.Argument(name, outputs));
                     break;
                 }
                 case 'Parameter': {
                     const name = layer.name || '';
-                    this._inputs.push(new openvino.Parameter(name, outputs));
+                    this._inputs.push(new openvino.Argument(name, outputs));
                     break;
                 }
                 default: {
@@ -297,7 +297,7 @@ openvino.Graph = class {
                             }
                         } else {
                             // TODO: no tensor information in the new argument - passed as null for now
-                            nestedNode._inputs.push(new openvino.Parameter((nestedNode._inputs.length + 1).toString(), [
+                            nestedNode._inputs.push(new openvino.Argument((nestedNode._inputs.length + 1).toString(), [
                                 new openvino.Value(newId, null, null)
                             ]));
                         }
@@ -328,7 +328,7 @@ openvino.Graph = class {
                                 // with a layer from the main IR.
                                 const myPort = 0;
                                 const newId = nestedNode.id + ':' + myPort;
-                                nestedNode._outputs.push(new openvino.Parameter('output', [
+                                nestedNode._outputs.push(new openvino.Argument('output', [
                                     new openvino.Value(newId, null, null)
                                 ]));
                             }
@@ -477,14 +477,14 @@ openvino.Node = class {
             const input = this._type && this._type.inputs && i < this._type.inputs.length ? this._type.inputs[i] : inputs.length === 1 ? { name: 'input' } : { name: i.toString() };
             const count = input.list ? inputs.length - i : 1;
             const list = inputs.slice(i, i + count);
-            this._inputs.push(new openvino.Parameter(input.name, list));
+            this._inputs.push(new openvino.Argument(input.name, list));
             i += count;
         }
         for (let i = 0; i < outputs.length;) {
             const output = this._type && this._type.outputs && i < this._type.outputs.length ? this._type.outputs[i] : outputs.length === 1 ? { name: 'output' } : { name: i.toString() };
             const count = output.list ? outputs.length - i : 1;
             const list = outputs.slice(i, i + count);
-            this._outputs.push(new openvino.Parameter(output.name, list));
+            this._outputs.push(new openvino.Argument(output.name, list));
             i += count;
         }
         const attributes = {};
@@ -510,7 +510,7 @@ openvino.Node = class {
             const itemSize = precisionMap[dataType];
             const weight = (data, name, dimensions) => {
                 const shape = dimensions ? new openvino.TensorShape(dimensions) : null;
-                this._inputs.push(new openvino.Parameter(name, [
+                this._inputs.push(new openvino.Argument(name, [
                     new openvino.Value(id, null, new openvino.Tensor(dataType, shape, data, kind))
                 ]));
                 const size = dimensions.reduce((a, b) => a * b, 1) * itemSize;
@@ -624,7 +624,7 @@ openvino.Node = class {
     }
 };
 
-openvino.Parameter = class {
+openvino.Argument = class {
 
     constructor(name, value) {
         this._name = name;

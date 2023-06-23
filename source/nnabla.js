@@ -92,11 +92,11 @@ nnabla.Graph = class {
 
         this._inputs = executor.data_variable.map((item) => {
             const name = item.variable_name;
-            return new nnabla.Parameter(name, [ arg(name) ]);
+            return new nnabla.Argument(name, [ arg(name) ]);
         });
         this._outputs = executor.output_variable.map((item) => {
             const name = item.variable_name;
-            return new nnabla.Parameter(name, [ arg(name) ]);
+            return new nnabla.Argument(name, [ arg(name) ]);
         });
 
         const get_parameters = (func) => {
@@ -120,7 +120,7 @@ nnabla.Graph = class {
                 const input = func_type.inputs && index < func_type.inputs.length ? func_type.inputs[index] : { name: index.toString() };
                 const count = input.list ? func.input.length - index : 1;
                 const args = func.input.slice(index, index + count).map((input) => arg(input));
-                inputs.push(new nnabla.Parameter(input.name, args));
+                inputs.push(new nnabla.Argument(input.name, args));
                 index += count;
             }
             const outputs = [];
@@ -128,7 +128,7 @@ nnabla.Graph = class {
                 const output = func_type.outputs && index < func_type.outputs.length ? func_type.outputs[index] : { name: index.toString() };
                 const count = output.list ? func.output.length - index : 1;
                 const args = func.output.slice(index, index + count).map((output) => arg(output));
-                outputs.push(new nnabla.Parameter(output.name, args));
+                outputs.push(new nnabla.Argument(output.name, args));
                 index += count;
             }
             return new nnabla.Node(metadata, func, attributes, inputs, outputs);
@@ -148,7 +148,7 @@ nnabla.Graph = class {
     }
 };
 
-nnabla.Parameter = class {
+nnabla.Argument = class {
 
     constructor(name, value) {
         this._name = name;

@@ -86,12 +86,12 @@ dl4j.Graph = class {
         };
         if (configuration.networkInputs) {
             for (const input of configuration.networkInputs) {
-                this._inputs.push(new dl4j.Parameter(input, true, [ arg(input) ]));
+                this._inputs.push(new dl4j.Argument(input, true, [ arg(input) ]));
             }
         }
         if (configuration.networkOutputs) {
             for (const output of configuration.networkOutputs) {
-                this._outputs.push(new dl4j.Parameter(output, true, [ arg(output) ]));
+                this._outputs.push(new dl4j.Argument(output, true, [ arg(output) ]));
             }
         }
         let inputs = null;
@@ -125,13 +125,13 @@ dl4j.Graph = class {
         // Multi Layer Network
         if (configuration.confs) {
             inputs = [ 'input' ];
-            this._inputs.push(new dl4j.Parameter('input', true, [ arg('input') ]));
+            this._inputs.push(new dl4j.Argument('input', true, [ arg('input') ]));
             for (const conf of configuration.confs) {
                 const layer = dl4j.Node._object(conf.layer);
                 this._nodes.push(new dl4j.Node(metadata, layer, inputs, dataType, conf.variables, arg));
                 inputs = [ layer.layerName ];
             }
-            this._outputs.push(new dl4j.Parameter('output', true, [ arg(inputs[0]) ]));
+            this._outputs.push(new dl4j.Argument('output', true, [ arg(inputs[0]) ]));
         }
     }
 
@@ -148,7 +148,7 @@ dl4j.Graph = class {
     }
 };
 
-dl4j.Parameter = class {
+dl4j.Argument = class {
 
     constructor(name, visible, value) {
         this._name = name;
@@ -207,7 +207,7 @@ dl4j.Node = class {
         this._type = metadata.type(type) || { name: type };
         if (inputs && inputs.length > 0) {
             const args = inputs.map((input) => arg(input));
-            this._inputs.push(new dl4j.Parameter(args.length < 2 ? 'input' : 'inputs', true, args));
+            this._inputs.push(new dl4j.Argument(args.length < 2 ? 'input' : 'inputs', true, args));
         }
         if (variables) {
             for (const variable of variables) {
@@ -256,11 +256,11 @@ dl4j.Node = class {
                     default:
                         throw new dl4j.Error("Unsupported '" + this._type + "' variable '" + variable + "'.");
                 }
-                this._inputs.push(new dl4j.Parameter(variable, true, [ arg('', null, tensor) ]));
+                this._inputs.push(new dl4j.Argument(variable, true, [ arg('', null, tensor) ]));
             }
         }
         if (this._name) {
-            this._outputs.push(new dl4j.Parameter('output', true, [ arg(this._name) ]));
+            this._outputs.push(new dl4j.Argument('output', true, [ arg(this._name) ]));
         }
         let attributes = layer;
         if (layer.activationFn) {

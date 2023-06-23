@@ -167,10 +167,10 @@ torch.Graph = class {
         const outputs = [];
         loadModule(metadata, root, [], '', inputs, outputs);
         this._inputs = this._inputs.concat(inputs.map((input, index) => {
-            return new torch.Parameter('input' + (index != 0 ? (index + 1).toString() : ''), true, [ input ]);
+            return new torch.Argument('input' + (index != 0 ? (index + 1).toString() : ''), true, [ input ]);
         }));
         this._outputs = this._outputs.concat(outputs.map((output, index) => {
-            return new torch.Parameter('output' + (index != 0 ? (index + 1).toString() : ''), true, [ output ]);
+            return new torch.Argument('output' + (index != 0 ? (index + 1).toString() : ''), true, [ output ]);
         }));
     }
 
@@ -195,7 +195,7 @@ torch.Graph = class {
     }
 };
 
-torch.Parameter = class {
+torch.Argument = class {
 
     constructor(name, visible, value) {
         this._name = name;
@@ -363,7 +363,7 @@ torch.Node = class {
                     continue;
                 }
                 if (obj.__class__ && obj.__class__.__module__ === 'torch' && obj.__class__.__name__.endsWith('Tensor')) {
-                    initializers.push(new torch.Parameter(key, true, [ arg('', null, new torch.Tensor(obj)) ]));
+                    initializers.push(new torch.Argument(key, true, [ arg('', null, new torch.Tensor(obj)) ]));
                     continue;
                 }
                 if (key == 'modules') {
@@ -380,12 +380,12 @@ torch.Node = class {
         if (inputs.length == 0 && this._name) {
             inputs.push(arg(this._name + ':in'));
         }
-        this._inputs.push(new torch.Parameter('input', true, inputs));
+        this._inputs.push(new torch.Argument('input', true, inputs));
         if (outputs.length == 0 && this._name) {
             outputs.push(arg(this._name));
         }
         this._outputs = [];
-        this._outputs.push(new torch.Parameter('output', true, outputs));
+        this._outputs.push(new torch.Argument('output', true, outputs));
         initializers = initializers.filter((argument) => {
             if (argument.name == 'weight') {
                 this._inputs.push(argument);

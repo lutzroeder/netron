@@ -121,7 +121,7 @@ dlc.Graph = class {
             const weights = new Map(params ? params.weights.map((weights) => [ weights.name, weights ]) : []);
             for (const node of model.nodes) {
                 if (node.type === 'Input') {
-                    this._inputs.push(new dlc.Parameter(node.name, node.inputs.map((input) => arg(input))));
+                    this._inputs.push(new dlc.Argument(node.name, node.inputs.map((input) => arg(input))));
                     continue;
                 }
                 this._nodes.push(new dlc.Node(metadata, node, weights.get(node.name), arg));
@@ -144,7 +144,7 @@ dlc.Graph = class {
     }
 };
 
-dlc.Parameter = class {
+dlc.Argument = class {
 
     constructor(name, value) {
         this._name = name;
@@ -195,9 +195,9 @@ dlc.Node = class {
             this._type = metadata.type(node.type);
             this._name = node.name;
             const inputs = Array.from(node.inputs).map((input) => arg(input));
-            this._inputs = inputs.length === 0 ? [] : [ new dlc.Parameter(inputs.length === 1 ? 'input' : 'inputs', inputs) ];
+            this._inputs = inputs.length === 0 ? [] : [ new dlc.Argument(inputs.length === 1 ? 'input' : 'inputs', inputs) ];
             const outputs = Array.from(node.outputs).map((output) => arg(output));
-            this._outputs = outputs.length === 0 ? [] : [ new dlc.Parameter(outputs.length === 1 ? 'output' : 'outputs', outputs) ];
+            this._outputs = outputs.length === 0 ? [] : [ new dlc.Argument(outputs.length === 1 ? 'output' : 'outputs', outputs) ];
             this._attributes = [];
             for (const attr of node.attributes) {
                 if (attr.name === 'OutputDims') {
@@ -210,7 +210,7 @@ dlc.Node = class {
                 for (const tensor of weights.tensors) {
                     const type = new dlc.TensorType(tensor.data.data_type, tensor.shape);
                     const value = new dlc.Value('', type, new dlc.Tensor(type, tensor.data));
-                    this._inputs.push(new dlc.Parameter(tensor.name, [ value ]));
+                    this._inputs.push(new dlc.Argument(tensor.name, [ value ]));
                 }
             }
         } else {
@@ -219,7 +219,7 @@ dlc.Node = class {
             this._inputs = weights.tensors.map((tensor) => {
                 const type = new dlc.TensorType(tensor.data.data_type, tensor.shape);
                 const value = new dlc.Value('', type, new dlc.Tensor(type, tensor.data));
-                return new dlc.Parameter(tensor.name, [ value ]);
+                return new dlc.Argument(tensor.name, [ value ]);
             });
             this._outputs = [];
             this._attributes = [];

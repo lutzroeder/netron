@@ -195,7 +195,7 @@ numpy.Graph = class {
     }
 };
 
-numpy.Parameter = class {
+numpy.Argument = class {
 
     constructor(name, value) {
         this._name = name;
@@ -246,7 +246,7 @@ numpy.Node = class {
         this._inputs = [];
         for (const parameter of layer.parameters) {
             const initializer = new numpy.Tensor(parameter.tensor.array);
-            this._inputs.push(new numpy.Parameter(parameter.name, [
+            this._inputs.push(new numpy.Argument(parameter.name, [
                 new numpy.Value(parameter.tensor.name || '', initializer)
             ]));
         }

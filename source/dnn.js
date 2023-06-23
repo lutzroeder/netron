@@ -80,19 +80,19 @@ dnn.Graph = class {
         for (const input of model.input) {
             const shape = input.shape;
             const type = new dnn.TensorType('float32', new dnn.TensorShape([ shape.dim0, shape.dim1, shape.dim2, shape.dim3 ]));
-            this._inputs.push(new dnn.Parameter(input.name, [ arg(input.name, type) ]));
+            this._inputs.push(new dnn.Argument(input.name, [ arg(input.name, type) ]));
         }
         for (const output of model.output) {
             const shape = output.shape;
             const type = new dnn.TensorType('float32', new dnn.TensorShape([ shape.dim0, shape.dim1, shape.dim2, shape.dim3 ]));
-            this._outputs.push(new dnn.Parameter(output.name, [ arg(output.name, type) ]));
+            this._outputs.push(new dnn.Argument(output.name, [ arg(output.name, type) ]));
         }
         if (this._inputs.length === 0 && model.input_name && model.input_shape && model.input_shape.length === model.input_name.length * 4) {
             for (let i = 0; i < model.input_name.length; i++) {
                 const name = model.input_name[i];
                 const shape = model.input_shape.slice(i * 4, (i * 4 + 4));
                 const type = new dnn.TensorType('float32', new dnn.TensorShape([ shape[1], shape[3], shape[2], shape[0] ]));
-                this._inputs.push(new dnn.Parameter(name, [ arg(name, type) ]));
+                this._inputs.push(new dnn.Argument(name, [ arg(name, type) ]));
             }
         }
         if (this._inputs.length === 0 &&  model.input_shape && model.input_shape.length === 4 &&
@@ -100,7 +100,7 @@ dnn.Graph = class {
             const name = model.node[0].input[0];
             const shape = model.input_shape;
             const type = new dnn.TensorType('float32', new dnn.TensorShape([ shape[1], shape[3], shape[2], shape[0] ]));
-            this._inputs.push(new dnn.Parameter(name, [ arg(name, type) ]));
+            this._inputs.push(new dnn.Argument(name, [ arg(name, type) ]));
         }
 
         for (const node of model.node) {
@@ -121,7 +121,7 @@ dnn.Graph = class {
     }
 };
 
-dnn.Parameter = class {
+dnn.Argument = class {
 
     constructor(name, value) {
         this._name = name;
@@ -207,20 +207,20 @@ dnn.Node = class {
                     if (inputIndex < inputs.length || inputSchema.option != 'optional') {
                         const inputCount = (inputSchema.option == 'variadic') ? (node.input.length - inputIndex) : 1;
                         const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount);
-                        this._inputs.push(new dnn.Parameter(inputSchema.name, inputArguments));
+                        this._inputs.push(new dnn.Argument(inputSchema.name, inputArguments));
                         inputIndex += inputCount;
                     }
                 }
             }
             this._inputs.push(...inputs.slice(inputIndex).map((input, index) => {
                 const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
-                return new dnn.Parameter(inputName, [ input ]);
+                return new dnn.Argument(inputName, [ input ]);
             }));
         }
         if (outputs.length > 0) {
             this._outputs = outputs.map((output, index) => {
                 const inputName = (index == 0) ? 'output' : index.toString();
-                return new dnn.Parameter(inputName, [ output ]);
+                return new dnn.Argument(inputName, [ output ]);
             });
         }
 

@@ -73,7 +73,7 @@ bigdl.Graph = class {
                     break;
                 }
                 case 'com.intel.analytics.bigdl.nn.Input': {
-                    this._inputs.push(new bigdl.Parameter(module.name, [ arg(module.name) ]));
+                    this._inputs.push(new bigdl.Argument(module.name, [ arg(module.name) ]));
                     break;
                 }
                 default: {
@@ -102,7 +102,7 @@ bigdl.Graph = class {
     }
 };
 
-bigdl.Parameter = class {
+bigdl.Argument = class {
 
     constructor(name, value) {
         this._name = name;
@@ -157,19 +157,19 @@ bigdl.Node = class {
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
-        this._inputs.push(new bigdl.Parameter('input', module.preModules.map((id) => arg(id))));
+        this._inputs.push(new bigdl.Argument('input', module.preModules.map((id) => arg(id))));
         this._type =  metadata.type(type) || { name: type };
         const inputs = (this._type && this._type.inputs) ? this._type.inputs.slice() : [];
         inputs.shift();
         if (module.weight) {
             inputs.shift();
-            this._inputs.push(new bigdl.Parameter('weight', [
+            this._inputs.push(new bigdl.Argument('weight', [
                 new bigdl.Value('', null, new bigdl.Tensor(module.weight, tensors))
             ]));
         }
         if (module.bias) {
             inputs.shift();
-            this._inputs.push(new bigdl.Parameter('bias', [
+            this._inputs.push(new bigdl.Argument('bias', [
                 new bigdl.Value('', null, new bigdl.Tensor(module.bias, tensors))
             ]));
         }
@@ -177,7 +177,7 @@ bigdl.Node = class {
             for (const parameter of module.parameters) {
                 const input = inputs.shift();
                 const inputName = input ? input.name : this._inputs.length.toString();
-                this._inputs.push(new bigdl.Parameter(inputName, [
+                this._inputs.push(new bigdl.Argument(inputName, [
                     new bigdl.Value('', null, new bigdl.Tensor(parameter, tensors))
                 ]));
             }
@@ -189,7 +189,7 @@ bigdl.Node = class {
             }
             if (value.dataType === bigdl.proto.DataType.TENSOR) {
                 if (value.value) {
-                    this._inputs.push(new bigdl.Parameter(key, [ new bigdl.Value('', null, new bigdl.Tensor(value.tensorValue, tensors)) ]));
+                    this._inputs.push(new bigdl.Argument(key, [ new bigdl.Value('', null, new bigdl.Tensor(value.tensorValue, tensors)) ]));
                 }
                 continue;
             }
@@ -197,13 +197,13 @@ bigdl.Node = class {
                 continue;
             }
             if (value.dataType === bigdl.proto.DataType.ARRAY_VALUE && value.arrayValue.datatype === bigdl.proto.DataType.TENSOR) {
-                this._inputs.push(new bigdl.Parameter(key, value.arrayValue.tensor.map((tensor) => new bigdl.Value('', null, new bigdl.Tensor(tensor, tensors)))));
+                this._inputs.push(new bigdl.Argument(key, value.arrayValue.tensor.map((tensor) => new bigdl.Value('', null, new bigdl.Tensor(tensor, tensors)))));
                 continue;
             }
             this._attributes.push(new bigdl.Attribute(key, value));
         }
         const output = this._name || this._type + module.namePostfix;
-        this._outputs.push(new bigdl.Parameter('output', [ arg(output) ]));
+        this._outputs.push(new bigdl.Argument('output', [ arg(output) ]));
     }
 
     get type() {

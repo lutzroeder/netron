@@ -129,7 +129,7 @@ armnn.Graph = class {
                     const name = base ? base.layerName : '';
                     for (const slot of base.outputSlots) {
                         const value = arg(base.index, slot.index);
-                        this._inputs.push(new armnn.Parameter(name, [ value ]));
+                        this._inputs.push(new armnn.Argument(name, [ value ]));
                     }
                     break;
                 }
@@ -138,7 +138,7 @@ armnn.Graph = class {
                     const name = base ? base.layerName : '';
                     for (const slot of base.inputSlots) {
                         const value = arg(slot.connection.sourceLayerIndex, slot.connection.outputSlotIndex);
-                        this._outputs.push(new armnn.Parameter(name, [ value ]));
+                        this._outputs.push(new armnn.Argument(name, [ value ]));
                     }
                     break;
                 }
@@ -185,7 +185,7 @@ armnn.Node = class {
             while (inputSlots.length > 0) {
                 const inputSchema = inputSchemas.length > 0 ? inputSchemas.shift() : { name: '?' };
                 const inputCount = inputSchema.list ? inputSlots.length : 1;
-                this._inputs.push(new armnn.Parameter(inputSchema.name, inputSlots.splice(0, inputCount).map((inputSlot) => {
+                this._inputs.push(new armnn.Argument(inputSchema.name, inputSlots.splice(0, inputCount).map((inputSlot) => {
                     return arg(inputSlot.connection.sourceLayerIndex, inputSlot.connection.outputSlotIndex);
                 })));
             }
@@ -193,7 +193,7 @@ armnn.Node = class {
             while (outputSlots.length > 0) {
                 const outputSchema = outputSchemas.length > 0 ? outputSchemas.shift() : { name: '?' };
                 const outputCount = outputSchema.list ? outputSlots.length : 1;
-                this._outputs.push(new armnn.Parameter(outputSchema.name, outputSlots.splice(0, outputCount).map((outputSlot) => {
+                this._outputs.push(new armnn.Argument(outputSchema.name, outputSlots.splice(0, outputCount).map((outputSlot) => {
                     return arg(base.index, outputSlot.index);
                 })));
             }
@@ -211,7 +211,7 @@ armnn.Node = class {
                 const name = entry[0];
                 const tensor = entry[1];
                 const value = new armnn.Value('', tensor.info, new armnn.Tensor(tensor));
-                this._inputs.push(new armnn.Parameter(name, [ value ]));
+                this._inputs.push(new armnn.Argument(name, [ value ]));
             }
         }
     }
@@ -273,7 +273,7 @@ armnn.Attribute = class {
     }
 };
 
-armnn.Parameter = class {
+armnn.Argument = class {
 
     constructor(name, value) {
         this._name = name;

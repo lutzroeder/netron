@@ -80,7 +80,7 @@ xmodel.Graph = class {
             if (node.args.length === 0) {
                 if (node.op_type === 'data' || node.op_type === 'data-fix') {
                     const value = arg(node.op_name, node);
-                    this._inputs.push(new xmodel.Parameter(node.op_name, [ value ]));
+                    this._inputs.push(new xmodel.Argument(node.op_name, [ value ]));
                     continue;
                 }
             }
@@ -109,7 +109,7 @@ xmodel.Graph = class {
     }
 };
 
-xmodel.Parameter = class {
+xmodel.Argument = class {
 
     constructor(name, value) {
         this._name = name;
@@ -205,11 +205,11 @@ xmodel.Node = class {
         if (op_node.args) {
             for (const input of op_node.args) {
                 const args = input.arg_ops.map((arg_op) => arg(arg_op));
-                this._inputs.push(new xmodel.Parameter(input.arg_name, args));
+                this._inputs.push(new xmodel.Argument(input.arg_name, args));
             }
         }
         if (op_node.op_name) {
-            this._outputs.push(new xmodel.Parameter('output', [ arg(op_node.op_name) ]));
+            this._outputs.push(new xmodel.Argument('output', [ arg(op_node.op_name) ]));
         }
     }
 

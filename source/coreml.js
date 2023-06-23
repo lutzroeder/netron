@@ -265,7 +265,7 @@ coreml.Graph = class {
             this._inputs = this._description.input.map((input) => {
                 const value = args.output(input.name);
                 update(value, input);
-                return new coreml.Parameter(input.name, true, [ value ]);
+                return new coreml.Argument(input.name, true, [ value ]);
             });
         }
         this._type = this._loadModel(model, args, '', weights);
@@ -273,7 +273,7 @@ coreml.Graph = class {
             this._outputs = this._description.output.map((output) => {
                 const value = args.input(output.name);
                 update(value, output);
-                return new coreml.Parameter(output.name, true, [ value ]);
+                return new coreml.Argument(output.name, true, [ value ]);
             });
         }
     }
@@ -331,11 +331,11 @@ coreml.Graph = class {
             const labelProbabilityInput = this._updateOutput(labelProbabilityLayerName, labelProbabilityLayerName + ':labelProbabilityLayerName');
             const type = classifier.ClassLabels;
             const inputs = [
-                new coreml.Parameter('input', true, [ new coreml.Value(labelProbabilityInput) ])
+                new coreml.Argument('input', true, [ new coreml.Value(labelProbabilityInput) ])
             ];
             const outputs = [
-                new coreml.Parameter('probabilities', true, [ args.output(predictedProbabilitiesName) ]),
-                new coreml.Parameter('feature', true, [ args.output(predictedFeatureName) ])
+                new coreml.Argument('probabilities', true, [ args.output(predictedProbabilitiesName) ]),
+                new coreml.Argument('feature', true, [ args.output(predictedFeatureName) ])
             ];
             const node = new coreml.Node(this._metadata, this._group, type, null, '', classifier[type], inputs, outputs);
             this._nodes.push(node);
@@ -840,8 +840,8 @@ coreml.Graph = class {
             if (op.delete) {
                 continue;
             }
-            op.inputs = op.inputs.map((input) => new coreml.Parameter(input.name, true, input.arguments.map((argument) => tensor(argument))));
-            op.outputs = op.outputs.map((output) => new coreml.Parameter(output.name, true, output.arguments.map((argument) => tensor(argument))));
+            op.inputs = op.inputs.map((input) => new coreml.Argument(input.name, true, input.arguments.map((argument) => tensor(argument))));
+            op.outputs = op.outputs.map((output) => new coreml.Argument(output.name, true, output.arguments.map((argument) => tensor(argument))));
         }
 
         for (const op of operations.filter((op) => !op.delete)) {
@@ -899,7 +899,7 @@ coreml.Graph = class {
             const input = metadata && metadata.inputs && i < metadata.inputs.length ? metadata.inputs[i] : { name: i === 0 ? 'input' : i.toString() };
             const count = input.type === 'Tensor[]' ? inputs.length - i : 1;
             const args = inputs.slice(i, i + count);
-            inputParams.push(new coreml.Parameter(input.name, true, args));
+            inputParams.push(new coreml.Argument(input.name, true, args));
             i += count;
         }
 
@@ -910,7 +910,7 @@ coreml.Graph = class {
             const output = metadata && metadata.outputs && i < metadata.outputs.length ? metadata.outputs[i] : { name: i === 0 ? 'output' : i.toString() };
             const count = output.type === 'Tensor[]' ? outputs.length - i : 1;
             const args = outputs.slice(i, i + count);
-            outputParams.push(new coreml.Parameter(output.name, true, args));
+            outputParams.push(new coreml.Argument(output.name, true, args));
             i += count;
         }
 
@@ -945,7 +945,7 @@ coreml.Graph = class {
         const value = new coreml.Value('', null, null, tensor);
         const input = this._metadata.input(type, name);
         const visible = input && input.visible === false ? false : true;
-        initializers.push(new coreml.Parameter(name, visible, [ value ]));
+        initializers.push(new coreml.Argument(name, visible, [ value ]));
     }
 
     _initialize(type, data, initializers) {
@@ -1083,7 +1083,7 @@ coreml.Graph = class {
     }
 };
 
-coreml.Parameter = class {
+coreml.Argument = class {
 
     constructor(name, visible, value) {
         this._name = name;

@@ -162,7 +162,7 @@ cntk.Graph = class {
                     const node = obj.nodes[name];
                     switch (node.__type__) {
                         case 'InputValue':
-                            this._inputs.push(new cntk.Parameter(node.name, [ arg(node.name, version, node) ]));
+                            this._inputs.push(new cntk.Argument(node.name, [ arg(node.name, version, node) ]));
                             break;
                         case 'LearnableParameter':
                             arg(node.name, version, node);
@@ -179,7 +179,7 @@ cntk.Graph = class {
                 }
                 if (obj.output) {
                     for (const output of obj.output) {
-                        this._outputs.push(new cntk.Parameter(output, [ arg(output, version) ]));
+                        this._outputs.push(new cntk.Argument(output, [ arg(output, version) ]));
                     }
                 }
                 break;
@@ -191,7 +191,7 @@ cntk.Graph = class {
                     // VariableKind { 0: 'input', 1: 'output', 2: 'parameter', 3: 'constant', 4: 'placeholder' }
                     if (input.kind == 0) {
                         const inputName = input.name || input.uid;
-                        this._inputs.push(new cntk.Parameter(inputName, [ value ]));
+                        this._inputs.push(new cntk.Argument(inputName, [ value ]));
                     }
                 }
                 for (const block of obj.primitive_functions) {
@@ -204,8 +204,8 @@ cntk.Graph = class {
                         if (!Array.isArray(keys) || !Array.isArray(values) || keys.length !== values.length) {
                             throw new cntk.Error('Invalid block function composite arguments.');
                         }
-                        const inputs = keys.map((key) => new cntk.Parameter(key, [ arg(key, version) ]));
-                        const outputs = [ new cntk.Parameter('output', [ arg(output.uid + '_Output_0', version) ]) ];
+                        const inputs = keys.map((key) => new cntk.Argument(key, [ arg(key, version) ]));
+                        const outputs = [ new cntk.Argument('output', [ arg(output.uid + '_Output_0', version) ]) ];
                         const nodes = [];
                         while (list.length > 0) {
                             const name = list.shift();
@@ -252,7 +252,7 @@ cntk.Graph = class {
     }
 };
 
-cntk.Parameter = class {
+cntk.Argument = class {
 
     constructor(name, value) {
         this._name = name;
@@ -401,13 +401,13 @@ cntk.Node = class {
                             inputArguments.push(inputArgument);
                         }
                     }
-                    this._inputs.push(new cntk.Parameter(inputSchema.name, inputArguments));
+                    this._inputs.push(new cntk.Argument(inputSchema.name, inputArguments));
                     inputIndex += inputCount;
                 }
             }
         }
         this._inputs.push(...inputs.slice(inputIndex).map((argument, index) => {
-            return new cntk.Parameter((inputIndex + index).toString(), [ argument ]);
+            return new cntk.Argument((inputIndex + index).toString(), [ argument ]);
         }));
 
         let outputIndex = 0;
@@ -415,13 +415,13 @@ cntk.Node = class {
             for (const outputSchema of this._type.outputs) {
                 if (outputIndex < outputs.length || !outputSchema.optional) {
                     const outputCount = outputSchema.type === 'Tensor[]' ? (outputs.length - outputIndex) : 1;
-                    this._outputs.push(new cntk.Parameter(outputSchema.name, outputs.slice(outputIndex, outputIndex + outputCount)));
+                    this._outputs.push(new cntk.Argument(outputSchema.name, outputs.slice(outputIndex, outputIndex + outputCount)));
                     outputIndex += outputCount;
                 }
             }
         }
         this._outputs.push(...outputs.slice(outputIndex).map((argument) => {
-            return new cntk.Parameter(outputIndex.toString(), [ argument ]);
+            return new cntk.Argument(outputIndex.toString(), [ argument ]);
         }));
     }
 

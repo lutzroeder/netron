@@ -120,8 +120,8 @@ megengine.Graph = class {
                         const inpName = 'inp' + inpIdx;
                         const type = getTensorType(i._dtype, i._shape);
                         const value = new megengine.Value(i._fullname, type, initializer);
-                        const parameter = new megengine.Parameter(inpName, true, [ value ]);
-                        op._inputs.push(parameter);
+                        const argument = new megengine.Argument(inpName, true, [ value ]);
+                        op._inputs.push(argument);
                         inpIdx += 1;
                     }
                 }
@@ -133,8 +133,8 @@ megengine.Graph = class {
                     }
                     const type = getTensorType(o._dtype, o._shape);
                     const value = new megengine.Value(o._fullname, type, null);
-                    const parameter = new megengine.Parameter('out' + outIdx, true, [ value ]);
-                    op._outputs.push(parameter);
+                    const argument = new megengine.Argument('out' + outIdx, true, [ value ]);
+                    op._outputs.push(argument);
                 }
                 if (qparams !== null) {
                     state = state === null ? {} : state;
@@ -157,8 +157,8 @@ megengine.Graph = class {
                                 const data = tensor.data.data;
                                 const initializer = new megengine.Tensor(key, type, data);
                                 const value = new megengine.Value('', type, initializer);
-                                const parameter = new megengine.Parameter(key, true, [ value ]);
-                                op._inputs.push(parameter);
+                                const argument = new megengine.Argument(key, true, [ value ]);
+                                op._inputs.push(argument);
                             }
                         }
                     }
@@ -170,15 +170,15 @@ megengine.Graph = class {
                     if (node.__class__.__name__ !== 'ModuleNode') {
                         const type = getTensorType(node._dtype, node._shape);
                         const value = new megengine.Value(node._name, type, null);
-                        const parameter = new megengine.Parameter(node._name, true, [ value ]);
-                        this._inputs.push(parameter);
+                        const argument = new megengine.Argument(node._name, true, [ value ]);
+                        this._inputs.push(argument);
                     }
                 }
                 for (const node of igraph._outputs) {
                     const type = getTensorType(node._dtype, node._shape);
                     const value = new megengine.Value(node._name, type, null);
-                    const parameter = new megengine.Parameter(node._name, true, [ value ]);
-                    this._outputs.push(parameter);
+                    const argument = new megengine.Argument(node._name, true, [ value ]);
+                    this._outputs.push(argument);
                 }
             }
             const parseGetAttr = (tmodule, getAttrExpr) => {
@@ -457,8 +457,8 @@ megengine.Graph = class {
         for (const pair of allOprAndTensor) {
             const opr = pair[1];
             if (opr.type === 'Host2DeviceCopy') {
-                const parameter = new megengine.Parameter('input', true, opr.extraInfo.args);
-                this._inputs.push(parameter);
+                const argument = new megengine.Argument('input', true, opr.extraInfo.args);
+                this._inputs.push(argument);
             } else if (opr.type !== 'ImmutableTensor') {
                 this._nodes.push(new megengine.Node(metadata, opr, allOprAndTensor));
             }
@@ -466,8 +466,8 @@ megengine.Graph = class {
         for (let i = 0; i < obj.output_vars_idx.length; i++) {
             const id = obj.output_vars_idx[i].compact_id;
             const out_type = 'output' + (i === 0 ? '' : i);
-            const parameter = new megengine.Parameter(out_type, true, allOprAndTensor.get(id).extraInfo.args);
-            this._outputs.push(parameter);
+            const argument = new megengine.Argument(out_type, true, allOprAndTensor.get(id).extraInfo.args);
+            this._outputs.push(argument);
         }
     }
 
@@ -488,7 +488,7 @@ megengine.Graph = class {
     }
 };
 
-megengine.Parameter = class {
+megengine.Argument = class {
 
     constructor(name, visible, value) {
         this._name = name;
@@ -568,15 +568,15 @@ megengine.Node = class {
             for (let i = 0; i < item.inputs.length; i++) {
                 const inputOpr = allOprAndTensor.get(item.inputs[i]);
                 const inputSchema = inputSchemas.length > 0 ? inputSchemas.shift() : { name: ('input' + i) };
-                const parameter = new megengine.Parameter(inputSchema.name, true, inputOpr.extraInfo.args);
-                this._inputs.push(parameter);
+                const argument = new megengine.Argument(inputSchema.name, true, inputOpr.extraInfo.args);
+                this._inputs.push(argument);
             }
             const outputSchemas = this._type && this._type.outputs ? [ ...this._type.outputs ] : [];
             for (let i = 0; i < item.outputs.length; i++) {
                 const outputOpr = allOprAndTensor.get(item.outputs[i]);
                 const outputSchema = outputSchemas.length > 0 ? outputSchemas.shift() : { name: ('output' + i) };
-                const parameter = new megengine.Parameter(outputSchema.name, true, outputOpr.extraInfo.args);
-                this._outputs.push(parameter);
+                const argument = new megengine.Argument(outputSchema.name, true, outputOpr.extraInfo.args);
+                this._outputs.push(argument);
             }
             if (item.param) {
                 for (const pair of Object.entries(item.param)) {

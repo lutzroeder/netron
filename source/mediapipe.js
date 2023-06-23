@@ -58,7 +58,7 @@ mediapipe.Graph = class {
                     const parts = input.split(':');
                     const type = (parts.length > 1) ? parts.shift() : '';
                     const name = parts.shift();
-                    this._inputs.push(new mediapipe.Parameter(name, [
+                    this._inputs.push(new mediapipe.Argument(name, [
                         new mediapipe.Value(name, type, null)
                     ]));
                 }
@@ -69,7 +69,7 @@ mediapipe.Graph = class {
                     const parts = output.split(':');
                     const type = (parts.length > 1) ? parts.shift() : '';
                     const name = parts.shift();
-                    this._outputs.push(new mediapipe.Parameter(name, [
+                    this._outputs.push(new mediapipe.Argument(name, [
                         new mediapipe.Value(name, type, null)
                     ]));
                 }
@@ -80,7 +80,7 @@ mediapipe.Graph = class {
                     const parts = input.split(':');
                     const type = (parts.length > 1) ? parts.shift() : '';
                     const name = parts.shift();
-                    this._inputs.push(new mediapipe.Parameter(name, [
+                    this._inputs.push(new mediapipe.Argument(name, [
                         new mediapipe.Value(name, type, null)
                     ]));
                 }
@@ -91,7 +91,7 @@ mediapipe.Graph = class {
                     const parts = output.split(':');
                     const type = (parts.length > 1) ? parts.shift() : '';
                     const name = parts.shift();
-                    this._outputs.push(new mediapipe.Parameter(output, [
+                    this._outputs.push(new mediapipe.Argument(output, [
                         new mediapipe.Value(name, type, null)
                     ]));
                 }
@@ -136,7 +136,7 @@ mediapipe.Node = class {
                 const name = parts.shift();
                 args.push(new mediapipe.Value(name, type, null));
             }
-            this._inputs.push(new mediapipe.Parameter('input_stream', args));
+            this._inputs.push(new mediapipe.Argument('input_stream', args));
         }
         if (node.output_stream) {
             const args = [];
@@ -147,7 +147,7 @@ mediapipe.Node = class {
                 const name = parts.shift();
                 args.push(new mediapipe.Value(name, type, null));
             }
-            this._outputs.push(new mediapipe.Parameter('output_stream', args));
+            this._outputs.push(new mediapipe.Argument('output_stream', args));
         }
         if (node.input_side_packet) {
             const args = [];
@@ -158,7 +158,7 @@ mediapipe.Node = class {
                 const name = parts.shift();
                 args.push(new mediapipe.Value(name, type, null));
             }
-            this._inputs.push(new mediapipe.Parameter('input_side_packet', args));
+            this._inputs.push(new mediapipe.Argument('input_side_packet', args));
         }
         if (node.output_side_packet) {
             const args = [];
@@ -169,7 +169,7 @@ mediapipe.Node = class {
                 const name = parts.shift();
                 args.push(new mediapipe.Value(name, type, null));
             }
-            this._outputs.push(new mediapipe.Parameter('output_side_packet', args));
+            this._outputs.push(new mediapipe.Argument('output_side_packet', args));
         }
         const options = new Map();
         if (node.options) {
@@ -253,7 +253,7 @@ mediapipe.Attribute = class {
     }
 };
 
-mediapipe.Parameter = class {
+mediapipe.Argument = class {
 
     constructor(name, value) {
         this._name = name;

@@ -274,7 +274,7 @@ caffe.Graph = class {
                         layer.input_param.shape.length == 1 && layer.input_param.shape[0].dim) {
                         const shape = new caffe.TensorShape(layer.input_param.shape[0].dim.map((dim) => dim.toNumber()));
                         const type = new caffe.TensorType(null, shape);
-                        this._inputs.push(new caffe.Parameter(layer.output[0], [ arg(layer.output[0], type) ]));
+                        this._inputs.push(new caffe.Argument(layer.output[0], [ arg(layer.output[0], type) ]));
                         layer = null;
                     }
                 }
@@ -308,7 +308,7 @@ caffe.Graph = class {
                     const shape = new caffe.TensorShape(net.input_dim.slice(dim, dim + 4));
                     inputType = new caffe.TensorType(null, shape);
                 }
-                this._inputs.push(new caffe.Parameter(input, [ arg(input, inputType, null) ]));
+                this._inputs.push(new caffe.Argument(input, [ arg(input, inputType, null) ]));
             }
         }
 
@@ -323,7 +323,7 @@ caffe.Graph = class {
         }
 
         if (this._inputs.length === 0 && unusedInputs.length === 1) {
-            this._inputs.push(new caffe.Parameter(unusedInputs[0], [ arg(unusedInputs[0], null) ]));
+            this._inputs.push(new caffe.Argument(unusedInputs[0], [ arg(unusedInputs[0], null) ]));
         }
     }
 
@@ -348,7 +348,7 @@ caffe.Graph = class {
     }
 };
 
-caffe.Parameter = class {
+caffe.Argument = class {
 
     constructor(name, value) {
         this._name = name;
@@ -476,7 +476,7 @@ caffe.Node = class {
             for (const inputDef of this._type.inputs) {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     const inputCount = inputDef.option == 'variadic' ? inputs.length - inputIndex : 1;
-                    this._inputs.push(new caffe.Parameter(inputDef.name, inputs.slice(inputIndex, inputIndex + inputCount).filter((input) => input !== '' || inputDef.option != 'optional').map((input) => {
+                    this._inputs.push(new caffe.Argument(inputDef.name, inputs.slice(inputIndex, inputIndex + inputCount).filter((input) => input !== '' || inputDef.option != 'optional').map((input) => {
                         return input instanceof caffe.Tensor ? new caffe.Value('', input.type, input) : arg(input, null, null);
                     })));
                     inputIndex += inputCount;
@@ -484,7 +484,7 @@ caffe.Node = class {
             }
         }
         this._inputs.push(...inputs.slice(inputIndex).map((input) => {
-            return new caffe.Parameter(inputIndex.toString(), [
+            return new caffe.Argument(inputIndex.toString(), [
                 input instanceof caffe.Tensor ? new caffe.Value('', input.type, input) : arg(input, null, null)
             ]);
         }));
@@ -496,13 +496,13 @@ caffe.Node = class {
             for (const outputDef of this._type.outputs) {
                 if (outputIndex < outputs.length) {
                     const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
-                    this._outputs.push(new caffe.Parameter(outputDef.name, outputs.slice(outputIndex, outputIndex + outputCount).map((output) => arg(output, null, null))));
+                    this._outputs.push(new caffe.Argument(outputDef.name, outputs.slice(outputIndex, outputIndex + outputCount).map((output) => arg(output, null, null))));
                     outputIndex += outputCount;
                 }
             }
         }
         this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
-            return new caffe.Parameter((outputIndex + index).toString(), [ arg(output, null, null) ]);
+            return new caffe.Argument((outputIndex + index).toString(), [ arg(output, null, null) ]);
         }));
     }
 

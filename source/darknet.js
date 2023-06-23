@@ -167,7 +167,7 @@ darknet.Graph = class {
             const type = new darknet.TensorType('float32', make_shape(shape, 'load_weights'));
             const initializer = new darknet.Tensor(type, data);
             const value = new darknet.Value('', null, initializer);
-            return new darknet.Parameter(name, visible === false ? false : true, [ value ]);
+            return new darknet.Argument(name, visible === false ? false : true, [ value ]);
         };
 
         const load_batch_normalize_weights = (layer, prefix, size) => {
@@ -243,7 +243,7 @@ darknet.Graph = class {
             new darknet.TensorType('float32', make_shape([ params.inputs ], 'params-else'));
         const inputName = 'input';
         params.value = [ new darknet.Value(inputName, inputType, null) ];
-        this._inputs.push(new darknet.Parameter(inputName, true, params.value));
+        this._inputs.push(new darknet.Argument(inputName, true, params.value));
 
         for (let i = 0; i < sections.length; i++) {
             const section = sections[i];
@@ -812,7 +812,7 @@ darknet.Graph = class {
     }
 };
 
-darknet.Parameter = class {
+darknet.Argument = class {
 
     constructor(name, visible, value) {
         this._name = name;
@@ -880,13 +880,13 @@ darknet.Node = class {
         this._type = metadata.type(type) || { name: type };
         const layer = section.layer;
         if (layer && layer.inputs && layer.inputs.length > 0) {
-            this._inputs.push(new darknet.Parameter(layer.inputs.length <= 1 ? 'input' : 'inputs', true, layer.inputs));
+            this._inputs.push(new darknet.Argument(layer.inputs.length <= 1 ? 'input' : 'inputs', true, layer.inputs));
         }
         if (layer && layer.weights && layer.weights.length > 0) {
             this._inputs = this._inputs.concat(layer.weights);
         }
         if (layer && layer.outputs && layer.outputs.length > 0) {
-            this._outputs.push(new darknet.Parameter(layer.outputs.length <= 1 ? 'output' : 'outputs', true, layer.outputs));
+            this._outputs.push(new darknet.Argument(layer.outputs.length <= 1 ? 'output' : 'outputs', true, layer.outputs));
         }
         if (layer && layer.chain) {
             for (const chain of layer.chain) {

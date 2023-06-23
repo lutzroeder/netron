@@ -308,10 +308,10 @@ paddle.Graph = class {
             for (const op of block.ops) {
                 if (op.type == 'feed') {
                     const inputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
-                    this._inputs.push(new paddle.Parameter(inputName, op.outputs[0].arguments.map((id) => args.get(id))));
+                    this._inputs.push(new paddle.Argument(inputName, op.outputs[0].arguments.map((id) => args.get(id))));
                 } else if (op.type == 'fetch') {
                     const outputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
-                    this._outputs.push(new paddle.Parameter(outputName, op.inputs[0].arguments.map((id) => args.get(id))));
+                    this._outputs.push(new paddle.Argument(outputName, op.inputs[0].arguments.map((id) => args.get(id))));
                 } else {
                     const node = new paddle.Node(metadata, op, args);
                     if (op.inputs.length == 1 && op.inputs[0].arguments.length == 1 &&
@@ -373,7 +373,7 @@ paddle.Graph = class {
     }
 };
 
-paddle.Parameter = class {
+paddle.Argument = class {
 
     constructor(name, value) {
         this._name = name;
@@ -439,14 +439,14 @@ paddle.Node = class {
         if (op.inputs) {
             for (const input of op.inputs) {
                 if (input.arguments.length > 0) {
-                    this._inputs.push(new paddle.Parameter(input.parameter, input.arguments.map((name) => args.get(name))));
+                    this._inputs.push(new paddle.Argument(input.parameter, input.arguments.map((name) => args.get(name))));
                 }
             }
         }
         if (op.outputs) {
             for (const output of op.outputs) {
                 if (output.arguments.length > 0) {
-                    this._outputs.push(new paddle.Parameter(output.parameter, output.arguments.map((name) => args.get(name))));
+                    this._outputs.push(new paddle.Argument(output.parameter, output.arguments.map((name) => args.get(name))));
                 }
             }
         }

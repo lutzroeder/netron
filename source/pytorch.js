@@ -78,8 +78,8 @@ pytorch.Graph = class {
             const inputName = inputSchema.shift().name;
             const inputs = [];
             if (args.length > 0) {
-                const parameter = new pytorch.Parameter(inputName, true, args.map((argument) => arg(argument)));
-                inputs.push(parameter);
+                const argument = new pytorch.Argument(inputName, true, args.map((argument) => arg(argument)));
+                inputs.push(argument);
             }
             const filterParameters = (obj) => {
                 const entries = Object.entries(obj).filter((entry) => {
@@ -107,13 +107,13 @@ pytorch.Graph = class {
                         const initializer = value ? new pytorch.Tensor(identifier, value) : null;
                         return new pytorch.Value(identifier, null, initializer);
                     });
-                    const parameter = new pytorch.Parameter(name || key, visible, args);
-                    inputs.push(parameter);
+                    const argument = new pytorch.Argument(name || key, visible, args);
+                    inputs.push(argument);
                 }
             }
             const group = groups.join('/');
             const name = group ? (group + '/' + key) : key;
-            const outputs = output ? [ new pytorch.Parameter('output', true, [ arg(name) ]) ] : [];
+            const outputs = output ? [ new pytorch.Argument('output', true, [ arg(name) ]) ] : [];
             const attributes = [];
             for (const entry of Object.entries(obj)) {
                 const name = entry[0];
@@ -254,11 +254,11 @@ pytorch.Graph = class {
             for (const value of graph.inputs()) {
                 const identifier = value.unique().toString();
                 const name = value.debugName() || identifier;
-                this._inputs.push(new pytorch.Parameter(name, true, [ arg(identifier) ]));
+                this._inputs.push(new pytorch.Argument(name, true, [ arg(identifier) ]));
             }
             for (const value of graph.outputs()) {
                 const identifier = value.unique().toString();
-                this._outputs.push(new pytorch.Parameter(identifier, true, [ arg(identifier) ]));
+                this._outputs.push(new pytorch.Argument(identifier, true, [ arg(identifier) ]));
             }
             for (const node of graph.nodes()) {
                 if (node === graph.param_node() ||
@@ -335,7 +335,7 @@ pytorch.Graph = class {
     }
 };
 
-pytorch.Parameter = class {
+pytorch.Argument = class {
 
     constructor(name, visible, value) {
         this._name = name;
@@ -418,9 +418,9 @@ pytorch.Node = class {
                     const tensor = entry[1];
                     const initializer = initializers.get(tensor) || (tensor ? new pytorch.Tensor('', tensor) : null);
                     const value = arg('', null, initializer || null);
-                    this._inputs.push(new pytorch.Parameter(name, true, [ value ]));
+                    this._inputs.push(new pytorch.Argument(name, true, [ value ]));
                     if (tensor.__variable__) {
-                        this._outputs.push(new pytorch.Parameter(name, true, [ arg(tensor.__variable__) ]));
+                        this._outputs.push(new pytorch.Argument(name, true, [ arg(tensor.__variable__) ]));
                     }
                 }
             }
@@ -504,8 +504,8 @@ pytorch.Node = class {
                                 if (pytorch.Utility.isTensor(value)) {
                                     const initializer = initializers.get(value);
                                     const identifier = initializer ? initializer.name : input.unique().toString();
-                                    const parameter = new pytorch.Parameter(key, true, [ arg(identifier, null, initializer) ]);
-                                    this._inputs.push(parameter);
+                                    const argument = new pytorch.Argument(key, true, [ arg(identifier, null, initializer) ]);
+                                    this._inputs.push(argument);
                                 } else {
                                     const attribute = new pytorch.Attribute(null, key, value);
                                     this._attributes.push(attribute);
@@ -536,8 +536,8 @@ pytorch.Node = class {
                                     }
                                     return arg(identifier);
                                 });
-                                const parameter = new pytorch.Parameter(name, true, args);
-                                this._inputs.push(parameter);
+                                const argument = new pytorch.Argument(name, true, args);
+                                this._inputs.push(argument);
                             } else {
                                 const attribute = new pytorch.Attribute(metadata, metadata.name, input.value);
                                 this._attributes.push(attribute);
@@ -560,8 +560,8 @@ pytorch.Node = class {
                         list = output.uses()[0].user.outputs();
                     }
                     const args = list.map((output) => arg(output.unique().toString()));
-                    const parameter = new pytorch.Parameter(name, true, args);
-                    this._outputs.push(parameter);
+                    const argument = new pytorch.Argument(name, true, args);
+                    this._outputs.push(argument);
                 }
             }
             if (module) {
@@ -4007,15 +4007,15 @@ pytorch.nnapi.Graph = class {
         for (let i = 0; i < model.inputs.length; i++) {
             const operand = model.inputs[i];
             const value = arg(operand);
-            const parameter = new pytorch.Parameter(i.toString(), true, [ value ]);
-            this._inputs.push(parameter);
+            const argument = new pytorch.Argument(i.toString(), true, [ value ]);
+            this._inputs.push(argument);
         }
 
         for (let i = 0; i < model.outputs.length; i++) {
             const operand = model.outputs[i];
             const value = arg(operand);
-            const parameter = new pytorch.Parameter(i.toString(), true, [ value ]);
-            this._outputs.push(parameter);
+            const argument = new pytorch.Argument(i.toString(), true, [ value ]);
+            this._outputs.push(argument);
         }
     }
 
@@ -4121,8 +4121,8 @@ pytorch.nnapi.Node = class {
                 const operand = operation.inputs[i];
                 if (operand.dimensions.length > 0) {
                     const value = arg(operand);
-                    const parameter = new pytorch.Parameter(name, true, [ value ]);
-                    this._inputs.push(parameter);
+                    const argument = new pytorch.Argument(name, true, [ value ]);
+                    this._inputs.push(argument);
                 } else if (name === 'activation') {
                     const activation = new Map([ [ 1, 19 ], [ 2, 20 ], [ 3, 21 ] ]).get(operand.value) || 0;
                     if (activation !== 0) {
@@ -4140,8 +4140,8 @@ pytorch.nnapi.Node = class {
                 const name = i < inputs.length ? inputs[i].name : i.toString();
                 const operand = operation.outputs[i];
                 const value = arg(operand);
-                const parameter = new pytorch.Parameter(name, true, [ value ]);
-                this._outputs.push(parameter);
+                const argument = new pytorch.Argument(name, true, [ value ]);
+                this._outputs.push(argument);
             }
         }
     }

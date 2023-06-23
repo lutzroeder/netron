@@ -61,7 +61,7 @@ lasagne.Graph = class {
             const layer = model.layers_[name];
             if (layer && layer.__class__ && layer.__class__.__module__ === 'lasagne.layers.input' && layer.__class__.__name__ === 'InputLayer') {
                 const type = new lasagne.TensorType(layer.input_var.type.dtype, new lasagne.TensorShape(layer.shape));
-                this._inputs.push(new lasagne.Parameter(layer.name, [ arg(layer.name, type) ]));
+                this._inputs.push(new lasagne.Argument(layer.name, [ arg(layer.name, type) ]));
                 continue;
             }
             this._nodes.push(new lasagne.Node(metadata, layer, arg));
@@ -69,7 +69,7 @@ lasagne.Graph = class {
 
         if (model._output_layer) {
             const output_layer = model._output_layer;
-            this._outputs.push(new lasagne.Parameter(output_layer.name, [ arg(output_layer.name) ]));
+            this._outputs.push(new lasagne.Argument(output_layer.name, [ arg(output_layer.name) ]));
         }
     }
 
@@ -86,7 +86,7 @@ lasagne.Graph = class {
     }
 };
 
-lasagne.Parameter = class {
+lasagne.Argument = class {
 
     constructor(name, value) {
         this._name = name;
@@ -167,7 +167,7 @@ lasagne.Node = class {
         if (layer.input_layer && layer.input_layer.name) {
             const input_layer = layer.input_layer;
             const type = layer.input_shape ? new lasagne.TensorType('?', new lasagne.TensorShape(layer.input_shape)) : undefined;
-            this._inputs.push(new lasagne.Parameter('input', [ arg(input_layer.name, type) ]));
+            this._inputs.push(new lasagne.Argument('input', [ arg(input_layer.name, type) ]));
         }
 
         if (layer.params) {
@@ -176,12 +176,12 @@ lasagne.Node = class {
                 const param_key = params.get(param.name);
                 if (param_key) {
                     const initializer = new lasagne.Tensor(param.container.storage[0]);
-                    this._inputs.push(new lasagne.Parameter(param_key, [ arg(param.name, null, initializer) ]));
+                    this._inputs.push(new lasagne.Argument(param_key, [ arg(param.name, null, initializer) ]));
                 }
             }
         }
 
-        this._outputs.push(new lasagne.Parameter('output', [ arg(this.name) ]));
+        this._outputs.push(new lasagne.Argument('output', [ arg(this.name) ]));
     }
 
     get type() {
