@@ -77,18 +77,18 @@ dlc.Graph = class {
     constructor(metadata, model, params) {
         this._inputs = [];
         this._outputs = [];
-        const args = new Map();
-        const arg = (name) => {
-            if (!args.has(name)) {
-                args.set(name, new dlc.Value(name));
+        const values = new Map();
+        const value = (name) => {
+            if (!values.has(name)) {
+                values.set(name, new dlc.Value(name));
             }
-            return args.get(name);
+            return values.get(name);
         };
         if (model) {
             for (const node of model.nodes) {
                 for (const input of node.inputs) {
-                    if (!args.has(input)) {
-                        args.set(input, {});
+                    if (!values.has(input)) {
+                        values.set(input, {});
                     }
                 }
                 const shapes = new Array(node.outputs.length);
@@ -103,31 +103,31 @@ dlc.Graph = class {
                 }
                 for (let i = 0; i < node.outputs.length; i++) {
                     const output = node.outputs[i];
-                    if (!args.has(output)) {
-                        args.set(output, {});
+                    if (!values.has(output)) {
+                        values.set(output, {});
                     }
-                    const value = args.get(output);
+                    const value = values.get(output);
                     if (i < shapes.length) {
                         value.shape = shapes[i];
                     }
                 }
             }
-            for (const entry of args) {
+            for (const entry of values) {
                 const type = entry[1].shape ? new dlc.TensorType(null, entry[1].shape) : null;
                 const value = new dlc.Value(entry[0], type);
-                args.set(entry[0], value);
+                values.set(entry[0], value);
             }
             this._nodes = [];
             const weights = new Map(params ? params.weights.map((weights) => [ weights.name, weights ]) : []);
             for (const node of model.nodes) {
                 if (node.type === 'Input') {
-                    this._inputs.push(new dlc.Argument(node.name, node.inputs.map((input) => arg(input))));
+                    this._inputs.push(new dlc.Argument(node.name, node.inputs.map((input) => value(input))));
                     continue;
                 }
-                this._nodes.push(new dlc.Node(metadata, node, weights.get(node.name), arg));
+                this._nodes.push(new dlc.Node(metadata, node, weights.get(node.name), value));
             }
         } else {
-            this._nodes = params.weights.map((weights) => new dlc.Node(metadata, null, weights, arg));
+            this._nodes = params.weights.map((weights) => new dlc.Node(metadata, null, weights, value));
         }
     }
 
@@ -190,13 +190,13 @@ dlc.Value = class {
 
 dlc.Node = class {
 
-    constructor(metadata, node, weights, arg) {
+    constructor(metadata, node, weights, value) {
         if (node) {
             this._type = metadata.type(node.type);
             this._name = node.name;
-            const inputs = Array.from(node.inputs).map((input) => arg(input));
+            const inputs = Array.from(node.inputs).map((input) => value(input));
             this._inputs = inputs.length === 0 ? [] : [ new dlc.Argument(inputs.length === 1 ? 'input' : 'inputs', inputs) ];
-            const outputs = Array.from(node.outputs).map((output) => arg(output));
+            const outputs = Array.from(node.outputs).map((output) => value(output));
             this._outputs = outputs.length === 0 ? [] : [ new dlc.Argument(outputs.length === 1 ? 'output' : 'outputs', outputs) ];
             this._attributes = [];
             for (const attr of node.attributes) {

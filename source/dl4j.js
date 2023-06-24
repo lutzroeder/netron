@@ -72,26 +72,26 @@ dl4j.Graph = class {
         this._outputs =[];
         this._nodes = [];
         const dataType = coefficients ? new dl4j.NDArrayReader(coefficients).dataType : '?';
-        const args = new Map();
-        const arg = (name, type, tensor) => {
+        const values = new Map();
+        const value = (name, type, tensor) => {
             if (name.length === 0 && tensor) {
                 return new dl4j.Value(name, type || null, tensor);
             }
-            if (!args.has(name)) {
-                args.set(name, new dl4j.Value(name, type || null, tensor || null));
+            if (!values.has(name)) {
+                values.set(name, new dl4j.Value(name, type || null, tensor || null));
             } else if (type || tensor) {
                 throw new dl4j.Error("Duplicate value '" + name + "'.");
             }
-            return args.get(name);
+            return values.get(name);
         };
         if (configuration.networkInputs) {
             for (const input of configuration.networkInputs) {
-                this._inputs.push(new dl4j.Argument(input, true, [ arg(input) ]));
+                this._inputs.push(new dl4j.Argument(input, true, [ value(input) ]));
             }
         }
         if (configuration.networkOutputs) {
             for (const output of configuration.networkOutputs) {
-                this._outputs.push(new dl4j.Argument(output, true, [ arg(output) ]));
+                this._outputs.push(new dl4j.Argument(output, true, [ value(output) ]));
             }
         }
         let inputs = null;
@@ -119,19 +119,19 @@ dl4j.Graph = class {
                     default:
                         throw new dl4j.Error("Unsupported vertex class '" + vertex['@class'] + "'.");
                 }
-                this._nodes.push(new dl4j.Node(metadata, layer, inputs, dataType, variables, arg));
+                this._nodes.push(new dl4j.Node(metadata, layer, inputs, dataType, variables, value));
             }
         }
         // Multi Layer Network
         if (configuration.confs) {
             inputs = [ 'input' ];
-            this._inputs.push(new dl4j.Argument('input', true, [ arg('input') ]));
+            this._inputs.push(new dl4j.Argument('input', true, [ value('input') ]));
             for (const conf of configuration.confs) {
                 const layer = dl4j.Node._object(conf.layer);
-                this._nodes.push(new dl4j.Node(metadata, layer, inputs, dataType, conf.variables, arg));
+                this._nodes.push(new dl4j.Node(metadata, layer, inputs, dataType, conf.variables, value));
                 inputs = [ layer.layerName ];
             }
-            this._outputs.push(new dl4j.Argument('output', true, [ arg(inputs[0]) ]));
+            this._outputs.push(new dl4j.Argument('output', true, [ value(inputs[0]) ]));
         }
     }
 
@@ -198,7 +198,7 @@ dl4j.Value = class {
 
 dl4j.Node = class {
 
-    constructor(metadata, layer, inputs, dataType, variables, arg) {
+    constructor(metadata, layer, inputs, dataType, variables, value) {
         this._name = layer.layerName || '';
         this._inputs = [];
         this._outputs = [];
@@ -206,8 +206,9 @@ dl4j.Node = class {
         const type = layer.__type__;
         this._type = metadata.type(type) || { name: type };
         if (inputs && inputs.length > 0) {
-            const args = inputs.map((input) => arg(input));
-            this._inputs.push(new dl4j.Argument(args.length < 2 ? 'input' : 'inputs', true, args));
+            const values = inputs.map((input) => value(input));
+            const argument = new dl4j.Argument(values.length < 2 ? 'input' : 'inputs', true, values);
+            this._inputs.push(argument);
         }
         if (variables) {
             for (const variable of variables) {
@@ -256,11 +257,12 @@ dl4j.Node = class {
                     default:
                         throw new dl4j.Error("Unsupported '" + this._type + "' variable '" + variable + "'.");
                 }
-                this._inputs.push(new dl4j.Argument(variable, true, [ arg('', null, tensor) ]));
+                const argument = new dl4j.Argument(variable, true, [ value('', null, tensor) ]);
+                this._inputs.push(argument);
             }
         }
         if (this._name) {
-            this._outputs.push(new dl4j.Argument('output', true, [ arg(this._name) ]));
+            this._outputs.push(new dl4j.Argument('output', true, [ value(this._name) ]));
         }
         let attributes = layer;
         if (layer.activationFn) {
@@ -274,7 +276,7 @@ dl4j.Node = class {
                     attributes = activation;
                 } else {
                     this._chain = this._chain || [];
-                    this._chain.push(new dl4j.Node(metadata, activation, [], null, null, arg));
+                    this._chain.push(new dl4j.Node(metadata, activation, [], null, null, value));
                 }
             }
         }
