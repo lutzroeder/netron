@@ -515,7 +515,7 @@ paddle.Attribute = class {
                 break;
             case paddle.AttributeType.BOOLEANS:
                 this._type = 'boolean[]';
-                this._value = Array.from(attr.bools);
+                this._value = attr.bools ? Array.from(attr.bools) : attr.bools;
                 break;
             case paddle.AttributeType.FLOAT:
                 this._type = 'float32';
@@ -523,7 +523,7 @@ paddle.Attribute = class {
                 break;
             case paddle.AttributeType.FLOATS:
                 this._type = 'float32[]';
-                this._value = Array.from(attr.floats);
+                this._value = attr.floats ? Array.from(attr.floats) : attr.floats;
                 break;
             case paddle.AttributeType.FLOAT64:
                 this._type = 'float64';
@@ -531,7 +531,7 @@ paddle.Attribute = class {
                 break;
             case paddle.AttributeType.FLOAT64S:
                 this._type = 'float64[]';
-                this._value = Array.from(attr.float64s);
+                this._value = attr.float64s ? Array.from(attr.float64s) : attr.float64s;
                 break;
             case paddle.AttributeType.INT:
                 this._type = 'int32';
@@ -539,7 +539,7 @@ paddle.Attribute = class {
                 break;
             case paddle.AttributeType.INTS:
                 this._type = 'int32[]';
-                this._value = Array.from(attr.ints);
+                this._value = attr.ints ? Array.from(attr.ints) : attr.ints;
                 break;
             case paddle.AttributeType.LONG:
                 this._type = 'int64';
