@@ -278,7 +278,7 @@ numpy.Tensor = class  {
     constructor(array) {
         this._type = new numpy.TensorType(array.dtype.__name__, new numpy.TensorShape(array.shape));
         this._byteorder = array.dtype.byteorder;
-        this._data = this._type.dataType == 'string' || this._type.dataType == 'object' ? array.tolist() : array.tobytes();
+        this._data = this._type.dataType == 'string' || this._type.dataType == 'object' ? array.flatten().tolist() : array.tobytes();
     }
 
     get type() {

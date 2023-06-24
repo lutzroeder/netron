@@ -2293,6 +2293,14 @@ python.Execution = class {
                 this.data = state[4];
                 this._read();
             }
+            flatten() {
+                const size = this.shape.reduce((a, b) => a * b, 1);
+                const value = execution.invoke('numpy.ndarray', [
+                    [ size ], this.dtype, this.data, this.offset, this.strides, this.order
+                ]);
+                value.flags = this.flags;
+                return value;
+            }
             tobytes() {
                 return this.data;
             }
