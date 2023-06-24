@@ -426,7 +426,7 @@ view.View = class {
                     container.scrollLeft = this._mousePosition.left - dx;
                 }
             };
-            const pointerUpHandler = () => {
+            const pointerUpHandler = (e) => {
                 e.target.releasePointerCapture(e.pointerId);
                 container.style.removeProperty('cursor');
                 container.removeEventListener('pointerup', pointerUpHandler);
