@@ -397,17 +397,16 @@ tengine.Reader = class {
                 }
                 return null;
             };
-            /* eslint-disable space-in-parens */
-            register( 0, 0, 'Accuracy', []);
-            register( 1, 0, 'BatchNormalization', [ 'f', 'f', 'i' ]);
-            register( 2, 0, 'BilinearResize', [ 'f', 'f', 'i' ]);
-            register( 3, 0, 'Concat', [ 'i' ]);
-            register( 4, 0, 'Const', []);
-            register( 5, 0, 'Convolution', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
-            register( 6, 0, 'Deconvolution', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
-            register( 7, 0, 'DetectionOutput', [ 'i', 'i', 'i', 'f', 'f' ]);
-            register( 8, 0, 'DropOut', []);
-            register( 9, 0, 'Eltwise', [ 'i', 'i' ]);
+            register(0, 0, 'Accuracy', []);
+            register(1, 0, 'BatchNormalization', [ 'f', 'f', 'i' ]);
+            register(2, 0, 'BilinearResize', [ 'f', 'f', 'i' ]);
+            register(3, 0, 'Concat', [ 'i' ]);
+            register(4, 0, 'Const', []);
+            register(5, 0, 'Convolution', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+            register(6, 0, 'Deconvolution', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+            register(7, 0, 'DetectionOutput', [ 'i', 'i', 'i', 'f', 'f' ]);
+            register(8, 0, 'DropOut', []);
+            register(9, 0, 'Eltwise', [ 'i', 'i' ]);
             register(10, 0, 'Flatten', [ 'i' ]);
             register(11, 0, 'FullyConnected', [ 'i' ]);
             register(12, 0, 'INPUT', []);
@@ -503,7 +502,6 @@ tengine.Reader = class {
             register(101, 0, 'L2Normalization', []);
             register(102, 0, 'PackModel', ['i','i']);
             register(103, 0, 'Num', []);
-            /* eslint-enable space-in-parens */
 
             const buffer = this._stream.peek();
             const reader = new tengine.BinaryReader(buffer);
