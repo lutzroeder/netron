@@ -110,57 +110,62 @@ sklearn.Graph = class {
         this._metadata = metadata;
         this._nodes = [];
         this._groups = false;
-        this._process('', '', obj, ['data']);
-    }
-
-    _process(group, name, obj, inputs) {
-        const type = obj.__class__.__module__ + '.' + obj.__class__.__name__;
-        switch (type) {
-            case 'sklearn.pipeline.Pipeline': {
-                this._groups = true;
-                name = name || 'pipeline';
-                const childGroup = this._concat(group, name);
-                for (const step of obj.steps) {
-                    inputs = this._process(childGroup, step[0], step[1], inputs);
-                }
-                return inputs;
+        const values = new Map();
+        const value = (name) => {
+            if (!values.has(name)) {
+                values.set(name, new sklearn.Value(name, null, null));
             }
-            case 'sklearn.pipeline.FeatureUnion': {
-                this._groups = true;
-                const outputs = [];
-                name = name || 'union';
-                const output = this._concat(group, name);
-                const subgroup = this._concat(group, name);
-                this._nodes.push(new sklearn.Node(this._metadata, subgroup, output, obj, inputs, [ output ]));
-                for (const transformer of obj.transformer_list) {
-                    outputs.push(...this._process(subgroup, transformer[0], transformer[1], [ output ]));
-                }
-                return outputs;
-            }
-            case 'sklearn.compose._column_transformer.ColumnTransformer': {
-                this._groups = true;
-                name = name || 'transformer';
-                const output = this._concat(group, name);
-                const subgroup = this._concat(group, name);
-                const outputs = [];
-                this._nodes.push(new sklearn.Node(this._metadata, subgroup, output, obj, inputs, [ output ]));
-                for (const transformer of obj.transformers) {
-                    if (transformer[1] !== 'passthrough') {
-                        outputs.push(...this._process(subgroup, transformer[0], transformer[1], [ output ]));
+            return values.get(name);
+        };
+        const concat = (parent, name) => {
+            return (parent === '' ?  name : `${parent}/${name}`);
+        };
+        const process = (group, name, obj, inputs) => {
+            const type = obj.__class__.__module__ + '.' + obj.__class__.__name__;
+            switch (type) {
+                case 'sklearn.pipeline.Pipeline': {
+                    this._groups = true;
+                    name = name || 'pipeline';
+                    const childGroup = concat(group, name);
+                    for (const step of obj.steps) {
+                        inputs = process(childGroup, step[0], step[1], inputs);
                     }
+                    return inputs;
                 }
-                return outputs;
+                case 'sklearn.pipeline.FeatureUnion': {
+                    this._groups = true;
+                    const outputs = [];
+                    name = name || 'union';
+                    const output = concat(group, name);
+                    const subgroup = concat(group, name);
+                    this._nodes.push(new sklearn.Node(this._metadata, subgroup, output, obj, inputs, [ output ], value));
+                    for (const transformer of obj.transformer_list) {
+                        outputs.push(...process(subgroup, transformer[0], transformer[1], [ output ]));
+                    }
+                    return outputs;
+                }
+                case 'sklearn.compose._column_transformer.ColumnTransformer': {
+                    this._groups = true;
+                    name = name || 'transformer';
+                    const output = concat(group, name);
+                    const subgroup = concat(group, name);
+                    const outputs = [];
+                    this._nodes.push(new sklearn.Node(this._metadata, subgroup, output, obj, inputs, [ output ], value));
+                    for (const transformer of obj.transformers) {
+                        if (transformer[1] !== 'passthrough') {
+                            outputs.push(...process(subgroup, transformer[0], transformer[1], [ output ]));
+                        }
+                    }
+                    return outputs;
+                }
+                default: {
+                    const output = concat(group, name);
+                    this._nodes.push(new sklearn.Node(this._metadata, group, output, obj, inputs, output === '' ? [] : [ output ], value));
+                    return [ output ];
+                }
             }
-            default: {
-                const output = this._concat(group, name);
-                this._nodes.push(new sklearn.Node(this._metadata, group, output, obj, inputs, output === '' ? [] : [ output ]));
-                return [ output ];
-            }
-        }
-    }
-
-    _concat(parent, name) {
-        return (parent === '' ?  name : `${parent}/${name}`);
+        };
+        process('', '', obj, ['data']);
     }
 
     get name() {
@@ -185,6 +190,7 @@ sklearn.Graph = class {
 };
 
 sklearn.Argument = class {
+
     constructor(name, value) {
         this._name = name;
         this._value = value;
@@ -194,12 +200,12 @@ sklearn.Argument = class {
         return this._name;
     }
 
-    get visible() {
-        return true;
-    }
-
     get value() {
         return this._value;
+    }
+
+    get visible() {
+        return true;
     }
 };
 
@@ -232,13 +238,13 @@ sklearn.Value = class {
 
 sklearn.Node = class {
 
-    constructor(metadata, group, name, obj, inputs, outputs) {
+    constructor(metadata, group, name, obj, inputs, outputs, value) {
         this._group = group || '';
         this._name = name || '';
         const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'Object';
         this._type = metadata.type(type) || { name: type };
-        this._inputs = inputs.map((input) => new sklearn.Argument(input, [ new sklearn.Value(input, null, null) ]));
-        this._outputs = outputs.map((output) => new sklearn.Argument(output, [ new sklearn.Value(output, null, null) ]));
+        this._inputs = inputs.map((input) => new sklearn.Argument(input, [ value(input) ]));
+        this._outputs = outputs.map((output) => new sklearn.Argument(output, [ value(output) ]));
         this._attributes = [];
 
         for (const entry of Object.entries(obj)) {
