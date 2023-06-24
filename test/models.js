@@ -1,5 +1,5 @@
 
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
 const process = require('process');
 
@@ -49,13 +49,14 @@ host.TestHost = class {
 
     async request(file, encoding, basename) {
         const pathname = path.join(basename || this._sourceDir, file);
-        if (!fs.existsSync(pathname)) {
+        if (!await exists([ pathname ])) {
             throw new Error("The file '" + file + "' does not exist.");
         }
         if (encoding) {
-            return fs.readFileSync(pathname, encoding);
+            const buffer = await fs.readFile(pathname, encoding);
+            return buffer;
         }
-        const buffer = fs.readFileSync(pathname, null);
+        const buffer = await fs.readFile(pathname, null);
         return new base.BinaryStream(buffer);
     }
 
@@ -271,6 +272,15 @@ const decompress = (buffer) => {
     return archive;
 };
 
+const exists = async (files) => {
+    try {
+        await Promise.all(files.map((file) => fs.access(file)));
+        return true;
+    } catch (error) {
+        return false;
+    }
+};
+
 const request = async (url, init) => {
     const response = await fetch(url, init);
     if (!response.ok) {
@@ -368,7 +378,8 @@ class Target {
     }
 
     async download(targets, sources) {
-        if (targets.every((file) => fs.existsSync(path.join(this.folder, file)))) {
+        const files = targets.map((file) => path.join(this.folder, file));
+        if (await exists(files)) {
             return;
         }
         if (!sources) {
@@ -391,10 +402,10 @@ class Target {
                 sources = '';
             }
         }
-        for (const target of targets) {
+        await Promise.all(targets.map((target) => {
             const dir = path.dirname(this.folder + '/' + target);
-            fs.mkdirSync(dir, { recursive: true });
-        }
+            return fs.mkdir(dir, { recursive: true });
+        }));
         const response = await request(source);
         const buffer = await response.arrayBuffer();
         const data = new Uint8Array(buffer);
@@ -413,11 +424,15 @@ class Target {
                     const target = targets.shift();
                     const buffer = stream.peek();
                     const file = path.join(this.folder, target);
-                    fs.writeFileSync(file, buffer, null);
+                    /* eslint-disable no-await-in-loop */
+                    await fs.writeFile(file, buffer, null);
+                    /* eslint-enable no-await-in-loop */
                 } else {
                     const target = targets.shift();
                     const dir = path.join(this.folder, target);
-                    fs.mkdirSync(dir, { recursive: true });
+                    /* eslint-disable no-await-in-loop */
+                    await fs.mkdir(dir, { recursive: true });
+                    /* eslint-enable no-await-in-loop */
                 }
                 clearLine();
             }
@@ -425,7 +440,7 @@ class Target {
             const target = targets.shift();
             clearLine();
             write('  write ' + target + '\r');
-            fs.writeFileSync(this.folder + '/' + target, data, null);
+            await fs.writeFile(this.folder + '/' + target, data, null);
         }
         clearLine();
         if (sources.length > 0) {
@@ -436,30 +451,35 @@ class Target {
     async load() {
         const target = path.join(this.folder, this.target[0]);
         const identifier = path.basename(target);
-        const stat = fs.statSync(target);
+        const stat = await fs.stat(target);
         let context = null;
         if (stat.isFile()) {
-            const buffer = fs.readFileSync(target, null);
+            const buffer = await fs.readFile(target, null);
             const reader = new base.BinaryStream(buffer);
             const dirname = path.dirname(target);
             context = new host.TestHost.Context(this.host, dirname, identifier, reader);
         } else if (stat.isDirectory()) {
             const entries = new Map();
-            const walk = (dir) => {
-                for (const item of fs.readdirSync(dir)) {
-                    const pathname = path.join(dir, item);
-                    const stat = fs.statSync(pathname);
+            const file = async (pathname) => {
+                const buffer = await fs.readFile(pathname, null);
+                const stream = new base.BinaryStream(buffer);
+                const name = pathname.split(path.sep).join(path.posix.sep);
+                entries.set(name, stream);
+            };
+            const walk = async (dir) => {
+                const stats = await fs.readdir(dir, { withFileTypes: true });
+                const promises = [];
+                for (const stat of stats) {
+                    const pathname = path.join(dir, stat.name);
                     if (stat.isDirectory()) {
-                        walk(pathname);
+                        promises.push(walk(pathname));
                     } else if (stat.isFile()) {
-                        const buffer = fs.readFileSync(pathname, null);
-                        const stream = new base.BinaryStream(buffer);
-                        const name = pathname.split(path.sep).join(path.posix.sep);
-                        entries.set(name, stream);
+                        promises.push(file(pathname));
                     }
                 }
+                await Promise.all(promises);
             };
-            walk(target);
+            await walk(target);
             context = new host.TestHost.Context(this.host, target, identifier, null, entries);
         }
         const modelFactoryService = new view.ModelFactoryService(this.host);
@@ -626,8 +646,9 @@ class Target {
 const main = async () => {
     try {
         let patterns = process.argv.length > 2 ? process.argv.slice(2) : [];
-        let targets = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8')).reverse();
-        if (patterns.length > 0 && patterns.every((path) => fs.existsSync(path))) {
+        const configuration = await fs.readFile(__dirname + '/models.json', 'utf-8');
+        let targets = JSON.parse(configuration).reverse();
+        if (patterns.length > 0 && await exists(patterns)) {
             targets = patterns.map((path) => {
                 return { target: path };
             });
