@@ -3329,6 +3329,14 @@
   },
   {
     "type":     "numpy",
+    "target":   "string_matrix.npy",
+    "source":   "https://github.com/lutzroeder/netron/files/11854272/string_matrix.npy.zip[string_matrix.npy]",
+    "format":   "NumPy Array",
+    "error":    "Unsupported shape '[2,2]'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/711"
+  },
+  {
+    "type":     "numpy",
     "target":   "tensor.npy",
     "source":   "https://github.com/lutzroeder/netron/files/6225732/tensor.npy.zip[tensor.npy]",
     "format":   "NumPy Array",

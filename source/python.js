@@ -2298,7 +2298,7 @@ python.Execution = class {
             }
             tolist() {
                 if (this.shape.length < 0 || this.shape.length > 1) {
-                    throw new Error(JSON.stringify(this.shape));
+                    throw new python.Error("Unsupported shape '" + JSON.stringify(this.shape) + "'.");
                 }
                 const size = this.shape.reduce((a, b) => a * b, 1);
                 const list = new Array(size);
