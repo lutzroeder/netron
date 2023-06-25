@@ -1090,7 +1090,7 @@ base.Metadata = class {
             'mlnet', 'mar',  'meta', 'nn', 'ngf', 'hn', 'har',
             'param', 'params',
             'paddle', 'pdiparams', 'pdmodel', 'pdopt', 'pdparams', 'nb',
-            'pkl', 'joblib',
+            'pkl', 'joblib', 'safetensors',
             'ptl', 't7',
             'dlc', 'uff', 'armnn',
             'mnn', 'ms', 'ncnn', 'om', 'tm', 'mge', 'tmfile', 'tnnproto', 'xmodel', 'kmodel', 'rknn',

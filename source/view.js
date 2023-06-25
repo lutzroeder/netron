@@ -4939,6 +4939,7 @@ view.ModelFactoryService = class {
         this.register('./onednn', [ '.json']);
         this.register('./mlir', [ '.mlir']);
         this.register('./hailo', [ '.hn', '.har' ]);
+        this.register('./safetensors', [ '.safetensors' ]);
     }
 
     register(id, factories, containers) {

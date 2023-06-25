@@ -139,6 +139,7 @@
             { "ext": "pth",         "name": "PyTorch Model"            },
             { "ext": "ptl",         "name": "PyTorch Model"            },
             { "ext": "rknn",        "name": "RKNN Model"               },
+            { "ext": "safetensors", "name": "Safetensors Checkpoint"   },
             { "ext": "t7",          "name": "Torch Model"              },
             { "ext": "tfl",         "name": "TensorFlow Lite Model"    },
             { "ext": "tflite",      "name": "TensorFlow Lite Model"    },
