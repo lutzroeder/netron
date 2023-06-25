@@ -203,10 +203,6 @@ sklearn.Argument = class {
     get value() {
         return this._value;
     }
-
-    get visible() {
-        return true;
-    }
 };
 
 sklearn.Value = class {

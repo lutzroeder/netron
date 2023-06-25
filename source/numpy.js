@@ -206,10 +206,6 @@ numpy.Argument = class {
         return this._name;
     }
 
-    get visible() {
-        return true;
-    }
-
     get value() {
         return this._value;
     }

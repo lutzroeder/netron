@@ -70,7 +70,7 @@ mlir.Graph = class {
             const inputType = func.inputTypes[i];
             const type = valueType(inputType);
             const value = new mlir.Value(input, type, "input desc", null);
-            const argument = new mlir.Argument(input, true, [ value ]);
+            const argument = new mlir.Argument(input, [ value ]);
             this._inputs.push(argument);
         }
         // outputs of function
@@ -79,7 +79,7 @@ mlir.Graph = class {
             const outputType = func.outputTypes[i];
             const type = valueType(outputType);
             const value = new mlir.Value(output, type, "output desc", null);
-            const argument = new mlir.Argument(output, true, [ value ]);
+            const argument = new mlir.Argument(output, [ value ]);
             this._outputs.push(argument);
         }
         // operations
@@ -208,8 +208,8 @@ mlir.Graph = class {
             if (op.delete) {
                 continue;
             }
-            op.inputs = op.inputs.map((input) => new mlir.Argument(input.name, true, input.arguments.map((argument) => tensor(argument))));
-            op.outputs = op.outputs.map((output) => new mlir.Argument(output.name, true, output.arguments.map((argument) => tensor(argument))));
+            op.inputs = op.inputs.map((input) => new mlir.Argument(input.name, input.arguments.map((argument) => tensor(argument))));
+            op.outputs = op.outputs.map((output) => new mlir.Argument(output.name, output.arguments.map((argument) => tensor(argument))));
         }
         for (const op of operations.filter((op) => !op.delete)) {
             const type = op.type; // 'program:' + op.type;
@@ -239,18 +239,13 @@ mlir.Graph = class {
 
 mlir.Argument = class {
 
-    constructor(name, visible, value) {
+    constructor(name, value) {
         this._name = name;
-        this._visible = visible;
         this._value = value;
     }
 
     get name() {
         return this._name;
-    }
-
-    get visible() {
-        return this._visible == false ? false : true;
     }
 
     get value() {

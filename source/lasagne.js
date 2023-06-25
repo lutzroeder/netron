@@ -100,10 +100,6 @@ lasagne.Argument = class {
     get value() {
         return this._value;
     }
-
-    get visible() {
-        return true;
-    }
 };
 
 lasagne.Value = class {

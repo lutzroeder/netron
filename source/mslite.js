@@ -92,11 +92,11 @@ mslite.Graph = class {
         if (subgraph === model) {
             for (let i = 0; i < subgraph.inputIndex.length; i++) {
                 const index = subgraph.inputIndex[i];
-                this._inputs.push(new mslite.Argument(i.toString(), true, [ args[index] ]));
+                this._inputs.push(new mslite.Argument(i.toString(), [ args[index] ]));
             }
             for (let i = 0; i < subgraph.outputIndex.length; i++) {
                 const index = subgraph.outputIndex[i];
-                this._outputs.push(new mslite.Argument(i.toString(), true, [ args[index] ]));
+                this._outputs.push(new mslite.Argument(i.toString(), [ args[index] ]));
             }
             for (let i = 0; i < subgraph.nodes.length; i++) {
                 this._nodes.push(new mslite.Node(metadata, subgraph.nodes[i], args));
@@ -104,11 +104,11 @@ mslite.Graph = class {
         } else {
             for (let i = 0; i < subgraph.inputIndices.length; i++) {
                 const index = subgraph.inputIndices[i];
-                this._inputs.push(new mslite.Argument(i.toString(), true, [args[index]]));
+                this._inputs.push(new mslite.Argument(i.toString(), [args[index]]));
             }
             for (let i = 0; i < subgraph.outputIndices.length; i++) {
                 const index = subgraph.outputIndices[i];
-                this._outputs.push(new mslite.Argument(i.toString(), true, [args[index]]));
+                this._outputs.push(new mslite.Argument(i.toString(), [args[index]]));
             }
             for (let i = 0; i < subgraph.nodeIndices.length; i++) {
                 const nodeId = subgraph.nodeIndices[i];
@@ -158,13 +158,13 @@ mslite.Node = class {
                     break;
                 }
                 const index = op.inputIndex[i];
-                this._inputs.push(new mslite.Argument(input.name, true, [ args[index] ]));
+                this._inputs.push(new mslite.Argument(input.name, [ args[index] ]));
                 i += 1;
             }
         }
         for (let j = i; j < input_num; j++) {
             const index = op.inputIndex[j];
-            this._inputs.push(new mslite.Argument(j.toString(), true, [ args[index] ]));
+            this._inputs.push(new mslite.Argument(j.toString(), [ args[index] ]));
         }
 
         const output_num = op.outputIndex.length;
@@ -175,13 +175,13 @@ mslite.Node = class {
                     break;
                 }
                 const index = op.outputIndex[i];
-                this._outputs.push(new mslite.Argument(output.name, true, [ args[index] ]));
+                this._outputs.push(new mslite.Argument(output.name, [ args[index] ]));
                 i += 1;
             }
         }
         for (let j = i; j < output_num; j++) {
             const index = op.outputIndex[j];
-            this._outputs.push(new mslite.Argument(j.toString(), true, [ args[index] ]));
+            this._outputs.push(new mslite.Argument(j.toString(), [ args[index] ]));
         }
     }
 
@@ -242,18 +242,13 @@ mslite.Attribute = class {
 
 mslite.Argument = class {
 
-    constructor(name, visible, value) {
+    constructor(name, value) {
         this._name = name;
-        this._visible = visible;
         this._value = value;
     }
 
     get name() {
         return this._name;
-    }
-
-    get visible() {
-        return this._visible;
     }
 
     get value() {

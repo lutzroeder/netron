@@ -25,7 +25,7 @@ nnef.ModelFactory = class {
         return null;
     }
 
-    open(context, match) {
+    async open(context, match) {
         switch (match) {
             case 'nnef.graph': {
                 const stream = context.stream;

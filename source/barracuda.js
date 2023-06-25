@@ -108,11 +108,6 @@ barracuda.Argument = class {
     get name() {
         return this._name;
     }
-
-    get visible() {
-        return true;
-    }
-
     get value() {
         return this._value;
     }

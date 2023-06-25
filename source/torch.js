@@ -167,10 +167,10 @@ torch.Graph = class {
         const outputs = [];
         loadModule(metadata, root, [], '', inputs, outputs);
         this._inputs = this._inputs.concat(inputs.map((input, index) => {
-            return new torch.Argument('input' + (index != 0 ? (index + 1).toString() : ''), true, [ input ]);
+            return new torch.Argument('input' + (index != 0 ? (index + 1).toString() : ''), [ input ]);
         }));
         this._outputs = this._outputs.concat(outputs.map((output, index) => {
-            return new torch.Argument('output' + (index != 0 ? (index + 1).toString() : ''), true, [ output ]);
+            return new torch.Argument('output' + (index != 0 ? (index + 1).toString() : ''), [ output ]);
         }));
     }
 
@@ -197,18 +197,13 @@ torch.Graph = class {
 
 torch.Argument = class {
 
-    constructor(name, visible, value) {
+    constructor(name, value) {
         this._name = name;
-        this._visible = visible;
         this._value = value;
     }
 
     get name() {
         return this._name;
-    }
-
-    get visible() {
-        return this._visible;
     }
 
     get value() {
@@ -363,7 +358,7 @@ torch.Node = class {
                     continue;
                 }
                 if (obj.__class__ && obj.__class__.__module__ === 'torch' && obj.__class__.__name__.endsWith('Tensor')) {
-                    initializers.push(new torch.Argument(key, true, [ arg('', null, new torch.Tensor(obj)) ]));
+                    initializers.push(new torch.Argument(key, [ arg('', null, new torch.Tensor(obj)) ]));
                     continue;
                 }
                 if (key == 'modules') {
@@ -380,12 +375,12 @@ torch.Node = class {
         if (inputs.length == 0 && this._name) {
             inputs.push(arg(this._name + ':in'));
         }
-        this._inputs.push(new torch.Argument('input', true, inputs));
+        this._inputs.push(new torch.Argument('input', inputs));
         if (outputs.length == 0 && this._name) {
             outputs.push(arg(this._name));
         }
         this._outputs = [];
-        this._outputs.push(new torch.Argument('output', true, outputs));
+        this._outputs.push(new torch.Argument('output', outputs));
         initializers = initializers.filter((argument) => {
             if (argument.name == 'weight') {
                 this._inputs.push(argument);

@@ -119,7 +119,7 @@ mnn.Graph = class {
         for (const op of oplists) {
             if (op.type === mnn.schema.OpType.Input) {
                 const args = Array.from(op.outputIndexes).map((index) => arg(index));
-                this._inputs.push(new mnn.Argument(op.name, true, args));
+                this._inputs.push(new mnn.Argument(op.name, args));
             } else {
                 this._nodes.push(new mnn.Node(metadata, op, net, arg));
             }
@@ -128,7 +128,7 @@ mnn.Graph = class {
         for (let i = 0; i < net.tensorName.length; i++) {
             if (!inputs.has(i)) {
                 const value = arg(i);
-                const argument = new mnn.Argument(value.name, true, [ value ]);
+                const argument = new mnn.Argument(value.name, [ value ]);
                 this._outputs.push(argument);
             }
         }
@@ -162,10 +162,10 @@ mnn.Node = class {
         this._outputs = [];
         this._chains = [];
         if (op.inputIndexes && op.inputIndexes.length > 0) {
-            this._inputs.push(new mnn.Argument('input', true, Array.from(op.inputIndexes).map((index) => arg(index))));
+            this._inputs.push(new mnn.Argument('input', Array.from(op.inputIndexes).map((index) => arg(index))));
         }
         if (op.outputIndexes && op.outputIndexes.length > 0) {
-            this._outputs.push(new mnn.Argument('output', true, Array.from(op.outputIndexes).map((index) => arg(index))));
+            this._outputs.push(new mnn.Argument('output', Array.from(op.outputIndexes).map((index) => arg(index))));
         }
         const param = op.main;
         if (param) {
@@ -173,7 +173,7 @@ mnn.Node = class {
             if (param instanceof mnn.schema.Blob) {
                 const tensor = mnn.Utility.createTensor(param, 'Blob');
                 const value = new mnn.Value('', null, tensor);
-                const argument = new mnn.Argument('value', true, [ value ]);
+                const argument = new mnn.Argument('value', [ value ]);
                 this._inputs.push(argument);
                 parameters.splice(0, parameters.length);
             } else if (param instanceof mnn.schema.Convolution2D) {
@@ -240,7 +240,7 @@ mnn.Node = class {
         const shape = new mnn.TensorShape(dimensions);
         const type = new mnn.TensorType(dataType, shape);
         const tensor = new mnn.Tensor('Weight', type, value);
-        const argument = new mnn.Argument(name, true, [ new mnn.Value('', null, tensor) ]);
+        const argument = new mnn.Argument(name, [ new mnn.Value('', null, tensor) ]);
         this._inputs.push(argument);
     }
 
@@ -310,18 +310,13 @@ mnn.Attribute = class {
 
 mnn.Argument = class {
 
-    constructor(name, visible, value) {
+    constructor(name, value) {
         this._name = name;
-        this._visible = visible;
         this._value = value;
     }
 
     get name() {
         return this._name;
-    }
-
-    get visible() {
-        return this._visible;
     }
 
     get value() {

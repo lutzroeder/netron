@@ -1770,10 +1770,10 @@ view.Node = class extends grapher.Node {
         let hiddenInitializers = false;
         if (this.context.view.options.weights) {
             for (const input of node.inputs) {
-                if (input.visible && input.value.length === 1 && input.value[0].initializer != null) {
+                if (input.visible !== false && input.value.length === 1 && input.value[0].initializer != null) {
                     initializers.push(input);
                 }
-                if ((!input.visible || input.value.length > 1) &&
+                if ((input.visible === false || input.value.length > 1) &&
                     input.value.some((argument) => argument.initializer != null)) {
                     hiddenInitializers = true;
                 }
@@ -4938,7 +4938,7 @@ view.ModelFactoryService = class {
         this.register('./cambricon', [ '.cambricon' ]);
         this.register('./onednn', [ '.json']);
         this.register('./mlir', [ '.mlir']);
-        this.register('./hailo', ['.hn', '.har']);
+        this.register('./hailo', [ '.hn', '.har' ]);
     }
 
     register(id, factories, containers) {

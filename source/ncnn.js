@@ -179,7 +179,7 @@ ncnn.Graph = class {
                 const dimensions = values.map((value) => !isNaN(parseInt(value, 10)) ? parseInt(value, 10) : value);
                 const shape = new ncnn.TensorShape(dimensions);
                 const type = new ncnn.TensorType('float32', shape);
-                const input = new ncnn.Argument(layer.name, true, layer.outputs.map((output) => arg(output, type)));
+                const input = new ncnn.Argument(layer.name, layer.outputs.map((output) => arg(output, type)));
                 this._inputs.push(input);
             } else {
                 const node = new ncnn.Node(metadata, blobReader, layer, arg);
@@ -203,18 +203,13 @@ ncnn.Graph = class {
 
 ncnn.Argument = class {
 
-    constructor(name, visible, value) {
+    constructor(name, value) {
         this._name = name;
-        this._visible = visible;
         this._value = value;
     }
 
     get name() {
         return this._name;
-    }
-
-    get visible() {
-        return this._visible;
     }
 
     get value() {
@@ -267,14 +262,14 @@ ncnn.Node = class {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     const inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
                     const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => arg(id));
-                    this._inputs.push(new ncnn.Argument(inputDef.name, true, inputArguments));
+                    this._inputs.push(new ncnn.Argument(inputDef.name, inputArguments));
                     inputIndex += inputCount;
                 }
             }
         }
         this._inputs.push(...inputs.slice(inputIndex).map((input, index) => {
             const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
-            return new ncnn.Argument(inputName, true, [ arg(input) ]);
+            return new ncnn.Argument(inputName, [ arg(input) ]);
         }));
 
         const outputs = layer.outputs || [];
@@ -284,14 +279,14 @@ ncnn.Node = class {
                 if (outputIndex < outputs.length || outputDef.option != 'optional') {
                     const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => arg(id));
-                    this._outputs.push(new ncnn.Argument(outputDef.name, true, outputArguments));
+                    this._outputs.push(new ncnn.Argument(outputDef.name, outputArguments));
                     outputIndex += outputCount;
                 }
             }
         }
         this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
             const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
-            return new ncnn.Argument(outputName, true, [ arg(output) ]);
+            return new ncnn.Argument(outputName, [ arg(output) ]);
         }));
         const weight = (blobReader, name, dimensions, dataType) => {
             const blob = blobReader.read(dimensions, dataType);
@@ -299,7 +294,7 @@ ncnn.Node = class {
             const data = blob ? blob.data : null;
             const type = new ncnn.TensorType(dataType, new ncnn.TensorShape(dimensions));
             const tensor = new ncnn.Tensor(type, data);
-            this._inputs.push(new ncnn.Argument(name, true, [ arg('', null, tensor) ]));
+            this._inputs.push(new ncnn.Argument(name, [ arg('', null, tensor) ]));
         };
         switch (this._type.name) {
             case 'BatchNorm': {
