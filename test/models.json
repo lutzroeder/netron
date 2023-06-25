@@ -5422,6 +5422,13 @@
     "link":     "https://github.com/lutzroeder/netron/issues/639"
   },
   {
+    "type":     "safetensors",
+    "target":   "simple.safetensors",
+    "source":   "https://github.com/lutzroeder/netron/files/11858547/simple.safetensors.zip[simple.safetensors]",
+    "format":   "Safetensors",
+    "link":     "https://github.com/lutzroeder/netron/issues/1113"
+  },
+  {
     "type":     "sklearn",
     "target":   "best_boston.pb",
     "source":   "https://github.com/lutzroeder/netron/files/3335715/xgboost_best_boston.zip[best_boston.pkl]",
