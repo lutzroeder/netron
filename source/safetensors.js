@@ -44,10 +44,20 @@ safetensors.Graph = class {
         this.inputs = [];
         this.outputs = [];
         this.nodes = [];
+        const layers = new Map();
         for (const entry of Object.entries(obj)) {
             if (entry[0] === '__metadata__') {
                 continue;
             }
+            const parts = entry[0].split('.');
+            const name = parts.pop();
+            const layer = parts.join('.');
+            if (!layers.has(layer)) {
+                layers.set(layer, []);
+            }
+            layers.get(layer).push([ name, entry[0], entry[1]]);
+        }
+        for (const entry of layers) {
             this.nodes.push(new safetensors.Node(entry[0], entry[1], position, stream));
         }
     }
@@ -75,15 +85,12 @@ safetensors.Value = class {
 
 safetensors.Node = class {
 
-    constructor(key, value, position, stream) {
-        const parts = key.split('.');
-        const name = parts.pop();
-        this.name = parts.join('.');
+    constructor(name, values, position, stream) {
+        this.name = name;
         this.type = { name: 'Module' };
-        const argument = new safetensors.Argument(name, [
-            new safetensors.Value(key, new safetensors.Tensor(value, position, stream))
-        ]);
-        this.inputs = [ argument ];
+        this.inputs = values.map((value) => new safetensors.Argument(value[0], [
+            new safetensors.Value(value[1], new safetensors.Tensor(value[2], position, stream))
+        ]));
         this.outputs = [];
         this.attributes = [];
     }
