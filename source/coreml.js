@@ -232,46 +232,784 @@ coreml.Graph = class {
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
-
-        const args = new Map();
-        args.input = (name) => {
-            if (!args.has(name)) {
-                args.set(name, { counter: 0, argument: new coreml.Value(name) });
+        const loadProgram = (program, _, group, weights) => {
+            // TODO: need to handle functions other than main?
+            const main = program.functions.main;
+            // TODO: need to handle more than one block specialization?
+            const block = main.block_specializations.CoreML5 || main.block_specializations.CoreML6;
+            const convertValue = (value) => {
+                switch (value.value) {
+                    case 'immediateValue': {
+                        const tensor = value.immediateValue.tensor;
+                        let values = null;
+                        switch (tensor.value) {
+                            case 'ints':
+                                values = tensor.ints.values;
+                                break;
+                            case 'strings':
+                                values = tensor.strings.values;
+                                break;
+                            case 'bools':
+                                values = tensor.bools.values;
+                                break;
+                            case 'floats':
+                                values = tensor.floats.values;
+                                break;
+                            case 'bytes':
+                                values = tensor.bytes.values;
+                                break;
+                            default:
+                                throw new coreml.Error("Unsupported tensor value '" + tensor.value + "'.");
+                        }
+                        return values;
+                    }
+                    case 'blobFileValue': {
+                        const type = coreml.Utility.valueType(value.type);
+                        const blob = value.blobFileValue;
+                        const offset = blob.offset.toNumber();
+                        const file = blob.fileName;
+                        let data = null;
+                        const stream = weights.get(file);
+                        if (stream) {
+                            stream.seek(offset);
+                            const buffer = stream.read(32);
+                            const reader = new base.BinaryReader(buffer);
+                            const signature = reader.uint32();
+                            if (signature == 0xdeadbeef) {
+                                reader.uint32(); // dataType
+                                const size = reader.uint64();
+                                stream.seek(reader.uint64());
+                                const length = (type.shape.dimensions || []).reduce((a, b) => a * b, 1);
+                                switch (type.dataType) {
+                                    case 'float32': {
+                                        const buffer = stream.read(size);
+                                        data = new Float32Array(buffer.buffer, buffer.byteOffset, length).slice();
+                                        break;
+                                    }
+                                    case 'float16':
+                                    case 'uint8': {
+                                        data = stream.read(size);
+                                        break;
+                                    }
+                                    default:
+                                        throw new coreml.Error("Unsupported blob data type '" + type.dataType + "'.");
+                                }
+                            }
+                        }
+                        return new coreml.Tensor(type, data, null, 'Blob');
+                    }
+                    default: {
+                        throw new coreml.Error("Unsupported value '" + value.value + "'.");
+                    }
+                }
+            };
+            const args = new Map();
+            const arg = (name) => {
+                if (!args.has(name)) {
+                    args.set(name, { name: name, to: [], from: [] });
+                }
+                return args.get(name);
+            };
+            const operations = block.operations.map((op) => {
+                const operation = {
+                    type: op.type,
+                    attributes: {}
+                };
+                for (const entry of Object.entries(op.attributes)) {
+                    const key = entry[0];
+                    operation.attributes[key] = convertValue(entry[1]);
+                }
+                operation.inputs = Object.entries(op.inputs).map((entry) => {
+                    const args = entry[1].arguments.map((argument) => {
+                        if (argument.name) {
+                            const value = arg(argument.name);
+                            value.to.push(operation);
+                            return value;
+                        }
+                        return { value: argument.value };
+                    });
+                    return { name: entry[0], arguments: args };
+                });
+                operation.outputs = op.outputs.map((output) => {
+                    const value = arg(output.name);
+                    value.type = coreml.Utility.valueType(output.type);
+                    value.from.push(operation);
+                    return { name: 'output', arguments: [ value ] };
+                });
+                return operation;
+            });
+            for (const op of operations) {
+                if (op.type === 'const' && op.inputs.length === 0 &&
+                    op.outputs.length === 1 && op.outputs[0].arguments.length === 1) {
+                    const value = op.outputs[0].arguments[0];
+                    if (op.attributes && op.attributes.val) {
+                        const type = value.type;
+                        const data = op.attributes.val;
+                        if (data instanceof Uint8Array && data.length === 2 &&
+                            type.dataType === 'float16' && type.shape.dimensions.length === 0) {
+                            const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+                            value.value = view.getFloat16(0, true);
+                        } else {
+                            value.value = data;
+                        }
+                        value.const = true;
+                        op.delete = true;
+                    }
+                }
             }
-            return args.get(name).argument;
+            for (const op of operations) {
+                for (const input of op.inputs) {
+                    if (input.arguments.length > 1 && input.arguments.some((argument) => argument.const)) {
+                        if (!input.arguments.every((argument) => argument.value instanceof coreml.Tensor)) {
+                            for (const argument of input.arguments) {
+                                for (const from of argument.from) {
+                                    from.delete = false;
+                                }
+                                delete argument.value;
+                            }
+                        }
+                    }
+                }
+            }
+            for (const op of operations.filter((op) => !op.delete)) {
+                op.inputs = op.inputs.filter((input) => {
+                    if (input.arguments.every((argument) => argument.value === undefined || argument.value instanceof coreml.Tensor)) {
+                        return true;
+                    }
+                    op.attributes[input.name] = input.arguments.length === 1 ?
+                        input.arguments[0].value :
+                        input.arguments.map((argument) => argument.value[0]);
+                    return false;
+                });
+            }
+            const values = new Map();
+            const value = (name, type, description, tensor) => {
+                if (!values.has(name)) {
+                    values.set(name, new coreml.Value(name, type, description, tensor));
+                } else if ((type && !type.equals(values.get(name).type)) || description || tensor) {
+                    throw new coreml.Error("Duplicate value '" + name + "'.");
+                }
+                return values.get(name);
+            };
+            for (const op of operations.filter((op) => !op.delete)) {
+                op.inputs = op.inputs.map((input) => new coreml.Argument(input.name, true, input.arguments.map((v) => value(v.name, v.type, null, v.value))));
+                op.outputs = op.outputs.map((output) => new coreml.Argument(output.name, true, output.arguments.map((v) => value(v.name, v.type, null, v.value))));
+            }
+            for (const op of operations.filter((op) => !op.delete)) {
+                op.group = group;
+                op.type = 'program:' + op.type;
+                const metadata = this._metadata.type(op.type);
+                if (metadata && Array.isArray(metadata.inputs)) {
+                    const map = new Map(metadata.inputs.map((input, index) => [ input.name, index + 1 ]));
+                    op.inputs.sort((a, b) => (map.get(a.name) || map.size) - (map.get(b.name) || map.size));
+                }
+                const node = new coreml.Node(this._metadata, op);
+                this._nodes.push(node);
+            }
+            return 'ML Program';
         };
-        args.output = (name) => {
-            if (args.has(name)) {
-                const value = args.get(name);
-                value.counter++;
-                const next = name + '\n' + value.counter.toString(); // custom argument id
-                value.argument = new coreml.Value(next);
+        const createNode = (values, group, type, name, description, data, inputs, outputs, inputTensors, outputTensors) => {
+            const obj = {
+                group: group,
+                type: type,
+                name: name,
+                description: description,
+                attributes: {},
+                inputs: [],
+                outputs: []
+            };
+            inputs = inputs.map((input, index) => {
+                const value = values.input(input);
+                if (!value.type && inputTensors && index < inputTensors.length) {
+                    const tensor = inputTensors[index];
+                    const shape = tensor && tensor.dimValue ? new coreml.TensorShape(tensor.dimValue) : null;
+                    value.type = new coreml.TensorType('?', shape);
+                }
+                return value;
+            });
+            outputs = outputs.map((output, index) => {
+                const value = values.output(output);
+                if (!value.type && outputTensors && index < outputTensors.length) {
+                    const tensor = outputTensors[index];
+                    const shape = tensor && tensor.dimValue ? new coreml.TensorShape(tensor.dimValue) : null;
+                    value.type = new coreml.TensorType('?', shape);
+                }
+                return value;
+            });
+            const initializers = [];
+            const initializer = (type, name, shape, data) => {
+                let dataType = '?';
+                let quantization = null;
+                let values = null;
+                if (data) {
+                    if (data.floatValue && data.floatValue.length > 0) {
+                        values = data.floatValue;
+                        dataType = 'float32';
+                    } else if (data.float16Value && data.float16Value.length > 0) {
+                        values = data.float16Value; // byte[]
+                        dataType = 'float16';
+                    } else if (data.rawValue && data.rawValue.length > 0) {
+                        if (data.quantization) {
+                            values = data.rawValue;
+                            dataType = 'uint' + data.quantization.numberOfBits.toString();
+                        } else {
+                            shape = [];
+                        }
+                    }
+                    quantization = data.quantization || null;
+                }
+                const tensorType = new coreml.TensorType(dataType, new coreml.TensorShape(shape));
+                const tensor = new coreml.Tensor(tensorType, values, quantization, 'Weights');
+                const value = new coreml.Value('', null, null, tensor);
+                const input = this._metadata.input(type, name);
+                const visible = input && input.visible === false ? false : true;
+                const argument = new coreml.Argument(name, visible, [ value ]);
+                initializers.push(argument);
+            };
+            const vector = (value) => {
+                return (value && Object.keys(value).length == 1 && value.vector) ? value.vector : value;
+            };
+            const weights = (type, data) => {
+                switch (type) {
+                    case 'convolution': {
+                        const weightsShape = [ data.outputChannels, data.kernelChannels, data.kernelSize[0], data.kernelSize[1] ];
+                        if (data.isDeconvolution) {
+                            weightsShape[0] = data.kernelChannels;
+                            weightsShape[1] = Math.floor(data.outputChannels / (data.nGroups != 0 ? data.nGroups : 1));
+                        }
+                        initializer(type, 'weights', weightsShape, data.weights);
+                        if (data.hasBias) {
+                            initializer(type, 'bias', [ data.outputChannels ], data.bias);
+                        }
+                        return { 'weights': true, 'bias': data.hasBias };
+                    }
+                    case 'innerProduct':
+                        initializer(type, 'weights', [ data.outputChannels, data.inputChannels ], data.weights);
+                        if (data.hasBias) {
+                            initializer(type, 'bias', [ data.outputChannels ], data.bias);
+                        }
+                        return { 'weights': true, 'bias': data.hasBias };
+                    case 'batchnorm':
+                        initializer(type, 'gamma', [ data.channels ], data.gamma);
+                        initializer(type, 'beta', [ data.channels ], data.beta);
+                        if (data.mean) {
+                            initializer(type, 'mean', [ data.channels ], data.mean);
+                        }
+                        if (data.variance) {
+                            initializer(type, 'variance', [ data.channels ], data.variance);
+                        }
+                        return { 'gamma': true, 'beta': true, 'mean': true, 'variance': true };
+                    case 'embedding':
+                        initializer(type, 'weights', [ data.inputDim, data.outputChannels ], data.weights);
+                        return { 'weights': true };
+                    case 'loadConstant':
+                    case 'loadConstantND':
+                        initializer(type, 'data', data.shape, data.data);
+                        return { 'data': true };
+                    case 'scale':
+                        initializer(type, 'scale', data.shapeScale, data.scale);
+                        if (data.hasBias) {
+                            initializer(type, 'bias', data.shapeBias, data.bias);
+                        }
+                        return { 'scale': true, 'bias': data.hasBias };
+                    case 'bias':
+                        initializer(type, 'bias', data.shape, data.bias);
+                        return { 'bias': true };
+                    case 'simpleRecurrent':
+                        initializer(type, 'weights', [ data.outputVectorSize, data.inputVectorSize ], data.weightMatrix);
+                        initializer(type, 'recurrent', [ data.outputVectorSize, data.inputVectorSize ], data.recursionMatrix);
+                        if (data.hasBiasVectors) {
+                            initializer(type, 'bias', [ data.outputVectorSize ], data.biasVector);
+                        }
+                        return { 'weightMatrix': true, 'recursionMatrix': true, 'biasVector': data.hasBiasVectors };
+                    case 'gru': {
+                        const recursionMatrixShape = [ data.outputVectorSize, data.outputVectorSize ];
+                        const weightMatrixShape = [ data.outputVectorSize, data.inputVectorSize ];
+                        const biasVectorShape = [ data.outputVectorSize ];
+                        initializer(type, 'updateGateWeightMatrix', weightMatrixShape, data.updateGateWeightMatrix);
+                        initializer(type, 'resetGateWeightMatrix', weightMatrixShape, data.resetGateWeightMatrix);
+                        initializer(type, 'outputGateWeightMatrix', weightMatrixShape, data.outputGateWeightMatrix);
+                        initializer(type, 'updateGateRecursionMatrix', recursionMatrixShape, data.updateGateRecursionMatrix);
+                        initializer(type, 'resetGateRecursionMatrix', recursionMatrixShape, data.resetGateRecursionMatrix);
+                        initializer(type, 'outputGateRecursionMatrix', recursionMatrixShape, data.outputGateRecursionMatrix);
+                        if (data.hasBiasVectors) {
+                            initializer(type, 'updateGateBiasVector', biasVectorShape, data.updateGateBiasVector);
+                            initializer(type, 'resetGateBiasVector', biasVectorShape, data.resetGateBiasVector);
+                            initializer(type, 'outputGateBiasVector', biasVectorShape, data.outputGateBiasVector);
+                        }
+                        return {
+                            'updateGateWeightMatrix': true, 'resetGateWeightMatrix': true, 'outputGateWeightMatrix': true,
+                            'updateGateRecursionMatrix': true, 'resetGateRecursionMatrix': true, 'outputGateRecursionMatrix': true,
+                            'updateGateBiasVector': data.hasBiasVectors, 'resetGateBiasVector': data.hasBiasVectors, 'outputGateBiasVector': data.hasBiasVectors
+                        };
+                    }
+                    case 'uniDirectionalLSTM':
+                    case 'biDirectionalLSTM': {
+                        const count = (type == 'uniDirectionalLSTM') ? 1 : 2;
+                        const h = data.outputVectorSize;
+                        const x = data.inputVectorSize;
+                        for (let i = 0; i < count; i++) {
+                            const weights = count == 1 ? data.weightParams : data.weightParams[i];
+                            const suffix = (i == 0) ? '' : '_rev';
+                            initializer(type, 'inputGateWeightMatrix' + suffix, [h,x], weights.inputGateWeightMatrix);
+                            initializer(type, 'forgetGateWeightMatrix' + suffix, [h,x], weights.forgetGateWeightMatrix);
+                            initializer(type, 'blockInputWeightMatrix' + suffix, [h,x], weights.blockInputWeightMatrix);
+                            initializer(type, 'outputGateWeightMatrix' + suffix, [h,x], weights.outputGateWeightMatrix);
+                            initializer(type, 'inputGateRecursionMatrix' + suffix, [h,h], weights.inputGateRecursionMatrix);
+                            initializer(type, 'forgetGateRecursionMatrix' + suffix, [h,h],weights.forgetGateRecursionMatrix);
+                            initializer(type, 'blockInputRecursionMatrix' + suffix, [h,h], weights.blockInputRecursionMatrix);
+                            initializer(type, 'outputGateRecursionMatrix' + suffix, [h,h], weights.outputGateRecursionMatrix);
+                            if (data.params.hasBiasVectors) {
+                                initializer(type, 'inputGateBiasVector' + suffix, [h], weights.inputGateBiasVector);
+                                initializer(type, 'forgetGateBiasVector' + suffix, [h], weights.forgetGateBiasVector);
+                                initializer(type, 'blockInputBiasVector' + suffix, [h], weights.blockInputBiasVector);
+                                initializer(type, 'outputGateBiasVector' + suffix, [h], weights.outputGateBiasVector);
+                            }
+                            if (data.params.hasPeepholeVectors) {
+                                initializer(type, 'inputGatePeepholeVector' + suffix, [h], weights.inputGatePeepholeVector);
+                                initializer(type, 'forgetGatePeepholeVector' + suffix, [h], weights.forgetGatePeepholeVector);
+                                initializer(type, 'outputGatePeepholeVector' + suffix, [h], weights.outputGatePeepholeVector);
+                            }
+                        }
+                        return { 'weightParams': true };
+                    }
+                    case 'dictVectorizer':
+                        data.stringToIndex = vector(data.stringToIndex);
+                        return {};
+                    case 'wordTagger':
+                        data.modelParameterData = Array.from(data.modelParameterData);
+                        data.stringTags = vector(data.stringTags);
+                        return { tokensOutputFeatureName: true, tokenTagsOutputFeatureName: true, tokenLengthsOutputFeatureName: true, tokenLocationsOutputFeatureName: true };
+                    case 'textClassifier':
+                        data.modelParameterData = Array.from(data.modelParameterData);
+                        data.stringClassLabels = vector(data.stringClassLabels);
+                        return {};
+                    case 'nonMaximumSuppression':
+                        data.stringClassLabels = vector(data.stringClassLabels);
+                        return {};
+                    default:
+                        return {};
+                }
+            };
+            if (data) {
+                const map = weights(type, data, initializers);
+                for (const entry of Object.entries(data)) {
+                    const name = entry[0];
+                    if (!map[name]) {
+                        obj.attributes[name] = entry[1];
+                    }
+                }
+            }
+            const metadata = this._metadata.type(type);
+            for (let i = 0; i < inputs.length;) {
+                const input = metadata && metadata.inputs && i < metadata.inputs.length ? metadata.inputs[i] : { name: i === 0 ? 'input' : i.toString() };
+                const count = input.type === 'Tensor[]' ? inputs.length - i : 1;
+                const values = inputs.slice(i, i + count);
+                obj.inputs.push(new coreml.Argument(input.name, true, values));
+                i += count;
+            }
+            obj.inputs.push(...initializers);
+            for (let i = 0; i < outputs.length;) {
+                const output = metadata && metadata.outputs && i < metadata.outputs.length ? metadata.outputs[i] : { name: i === 0 ? 'output' : i.toString() };
+                const count = output.type === 'Tensor[]' ? outputs.length - i : 1;
+                const args = outputs.slice(i, i + count);
+                obj.outputs.push(new coreml.Argument(output.name, true, args));
+                i += count;
+            }
+            const node = new coreml.Node(this._metadata, obj);
+            this._nodes.push(node);
+            return node;
+        };
+        const updateClassifierOutput = (args, group, classifier) => {
+            let labelProbabilityLayerName = classifier.labelProbabilityLayerName;
+            if (!labelProbabilityLayerName && this._nodes.length > 0) {
+                const node = this._nodes.slice(-1).pop();
+                if (node && node.outputs.length == 1 && node.outputs[0].value.length == 1) {
+                    labelProbabilityLayerName = node.outputs[0].value[0].name;
+                }
+            }
+            let predictedFeatureName = this._description.predictedFeatureName;
+            let predictedProbabilitiesName = this._description.predictedProbabilitiesName;
+            if ((predictedFeatureName || predictedProbabilitiesName) && labelProbabilityLayerName && classifier.ClassLabels) {
+                predictedFeatureName = predictedFeatureName ? predictedFeatureName : '?';
+                predictedProbabilitiesName = predictedProbabilitiesName ? predictedProbabilitiesName : '?';
+                const labelProbabilityInput = labelProbabilityLayerName + ':labelProbabilityLayerName';
+                for (const node of this._nodes) {
+                    for (const output of node.outputs) {
+                        for (const value of output.value) {
+                            if (value.name === labelProbabilityLayerName) {
+                                value.name = labelProbabilityInput;
+                            }
+                        }
+                    }
+                }
+                const type = classifier.ClassLabels;
+                const inputs = [
+                    new coreml.Argument('input', true, [ new coreml.Value(labelProbabilityInput) ])
+                ];
+                const outputs = [
+                    new coreml.Argument('probabilities', true, [ args.output(predictedProbabilitiesName) ]),
+                    new coreml.Argument('feature', true, [ args.output(predictedFeatureName) ])
+                ];
+                const node = new coreml.Node(this._metadata, {
+                    group: this._group,
+                    type: type,
+                    name: null,
+                    description: '',
+                    attributes: classifier[type] || {},
+                    inputs: inputs,
+                    outputs: outputs
+                });
+                this._nodes.push(node);
+            }
+        };
+        const updatePreprocessing = (args, group, preprocessing) => {
+            if (preprocessing && preprocessing.length > 0) {
+                const preprocessingInput = this._description.input[0].name;
+                const inputNodes = [];
+                for (const node of this._nodes) {
+                    if (node.inputs.some((input) => input.value.some((arg) => arg.name == preprocessingInput))) {
+                        inputNodes.push(node);
+                    }
+                }
+                let currentOutput = preprocessingInput;
+                let preprocessorOutput = null;
+                let preprocessorIndex = 0;
+                for (const p of preprocessing) {
+                    const input = p.featureName ? p.featureName : currentOutput;
+                    currentOutput = preprocessingInput + ':' + preprocessorIndex.toString();
+                    const node = createNode(values, group, p.preprocessor, null, '', p[p.preprocessor], [ input ], [ currentOutput ]);
+                    preprocessorOutput = node.outputs[0].value[0];
+                    preprocessorIndex++;
+                }
+                for (const node of inputNodes) {
+                    for (const input of node.inputs) {
+                        for (let i = 0; i < input.value.length; i++) {
+                            if (input.value[i].name === preprocessingInput) {
+                                input.value[i] = preprocessorOutput;
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        const loadModel = (model, values, group, weights) => {
+            this._groups = this._groups | (group.length > 0 ? true : false);
+            const description = model && model.description && model.description.metadata && model.description.metadata.shortDescription ? model.description.metadata.shortDescription : '';
+            switch (model.Type) {
+                case 'neuralNetworkClassifier': {
+                    const neuralNetworkClassifier = model.neuralNetworkClassifier;
+                    for (const layer of neuralNetworkClassifier.layers) {
+                        createNode(values, group, layer.layer, layer.name, group === '' ? '' : description, layer[layer.layer], layer.input, layer.output, layer.inputTensor, layer.outputTensor);
+                    }
+                    updateClassifierOutput(values, group, neuralNetworkClassifier);
+                    updatePreprocessing(values, group, neuralNetworkClassifier.preprocessing);
+                    return 'Neural Network Classifier';
+                }
+                case 'neuralNetwork': {
+                    const neuralNetwork = model.neuralNetwork;
+                    for (const layer of neuralNetwork.layers) {
+                        createNode(values, group, layer.layer, layer.name, group === '' ? '' : description, layer[layer.layer], layer.input, layer.output, layer.inputTensor, layer.outputTensor);
+                    }
+                    updatePreprocessing(values, group, neuralNetwork.preprocessing);
+                    return 'Neural Network';
+                }
+                case 'neuralNetworkRegressor': {
+                    const neuralNetworkRegressor = model.neuralNetworkRegressor;
+                    for (const layer of neuralNetworkRegressor.layers) {
+                        createNode(values, group, layer.layer, layer.name, description, layer[layer.layer], layer.input, layer.output);
+                    }
+                    updatePreprocessing(values, group, neuralNetworkRegressor);
+                    return 'Neural Network Regressor';
+                }
+                case 'pipeline': {
+                    for (let i = 0; i < model.pipeline.models.length; i++) {
+                        loadModel(model.pipeline.models[i], values, (group ? (group + '/') : '') + 'pipeline[' + i.toString() + ']');
+                    }
+                    return 'Pipeline';
+                }
+                case 'pipelineClassifier': {
+                    for (let i = 0; i < model.pipelineClassifier.pipeline.models.length; i++) {
+                        loadModel(model.pipelineClassifier.pipeline.models[i], values, (group ? (group + '/') : '') + 'pipelineClassifier[' + i.toString() + ']');
+                    }
+                    return 'Pipeline Classifier';
+                }
+                case 'pipelineRegressor': {
+                    for (let i = 0; i < model.pipelineRegressor.pipeline.models.length; i++) {
+                        loadModel(model.pipelineRegressor.pipeline.models[i], values, (group ? (group + '/') : '') + 'pipelineRegressor[' + i.toString() + ']');
+                    }
+                    return 'Pipeline Regressor';
+                }
+                case 'glmClassifier': {
+                    createNode(values, group, 'glmClassifier', null, description,
+                        {
+                            classEncoding: model.glmClassifier.classEncoding,
+                            offset: model.glmClassifier.offset,
+                            weights: model.glmClassifier.weights
+                        },
+                        [ model.description.input[0].name ],
+                        [ model.description.predictedProbabilitiesName ]);
+                    updateClassifierOutput(values, group, model.glmClassifier);
+                    return 'Generalized Linear Classifier';
+                }
+                case 'glmRegressor': {
+                    createNode(values, group, 'glmRegressor', null, description,
+                        model.glmRegressor,
+                        [ model.description.input[0].name ],
+                        [ model.description.output[0].name ]);
+                    return 'Generalized Linear Regressor';
+                }
+                case 'treeEnsembleClassifier': {
+                    createNode(values, group, 'treeEnsembleClassifier', null, description,
+                        model.treeEnsembleClassifier.treeEnsemble,
+                        [ model.description.input[0].name ],
+                        [ model.description.output[0].name ]);
+                    updateClassifierOutput(values, group, model.treeEnsembleClassifier);
+                    return 'Tree Ensemble Classifier';
+                }
+                case 'treeEnsembleRegressor': {
+                    createNode(values, group, 'treeEnsembleRegressor', null, description,
+                        model.treeEnsembleRegressor.treeEnsemble,
+                        [ model.description.input[0].name ],
+                        [ model.description.output[0].name ]);
+                    return 'Tree Ensemble Regressor';
+                }
+                case 'supportVectorClassifier': {
+                    createNode(values, group, 'supportVectorClassifier', null, description,
+                        {
+                            coefficients: model.supportVectorClassifier.coefficients,
+                            denseSupportVectors: model.supportVectorClassifier.denseSupportVectors,
+                            kernel: model.supportVectorClassifier.kernel,
+                            numberOfSupportVectorsPerClass: model.supportVectorClassifier.numberOfSupportVectorsPerClass,
+                            probA: model.supportVectorClassifier.probA,
+                            probB: model.supportVectorClassifier.probB,
+                            rho: model.supportVectorClassifier.rho,
+                            supportVectors: model.supportVectorClassifier.supportVectors
+                        },
+                        [ model.description.input[0].name ],
+                        [ model.description.output[0].name ]);
+                    updateClassifierOutput(values, group, model.supportVectorClassifier);
+                    return 'Support Vector Classifier';
+                }
+                case 'supportVectorRegressor': {
+                    createNode(values, group, 'supportVectorRegressor', null, description,
+                        {
+                            coefficients: model.supportVectorRegressor.coefficients,
+                            kernel: model.supportVectorRegressor.kernel,
+                            rho: model.supportVectorRegressor.rho,
+                            supportVectors: model.supportVectorRegressor.supportVectors
+                        },
+                        [ model.description.input[0].name ],
+                        [ model.description.output[0].name ]);
+                    return 'Support Vector Regressor';
+                }
+                case 'oneHotEncoder': {
+                    const categoryType = model.oneHotEncoder.CategoryType;
+                    const oneHotEncoderParams = { outputSparse: model.oneHotEncoder.outputSparse };
+                    oneHotEncoderParams[categoryType] = model.oneHotEncoder[categoryType];
+                    createNode(values, group, 'oneHotEncoder', null, description,
+                        oneHotEncoderParams,
+                        [ model.description.input[0].name ],
+                        [ model.description.output[0].name ]);
+                    return 'One Hot Encoder';
+                }
+                case 'imputer': {
+                    const imputedValue = model.imputer.ImputedValue;
+                    const replaceValue = model.imputer.ReplaceValue;
+                    const imputerParams = {};
+                    imputerParams[imputedValue] = model.imputer[imputedValue];
+                    imputerParams[replaceValue] = model.imputer[replaceValue];
+                    createNode(values, group, 'oneHotEncoder', null, description,
+                        imputerParams,
+                        [ model.description.input[0].name ],
+                        [ model.description.output[0].name ]);
+                    return 'Imputer';
+                }
+                case 'featureVectorizer': {
+                    createNode(values, group, 'featureVectorizer', null, description,
+                        model.featureVectorizer,
+                        model.description.input.map((item) => item.name),
+                        [ model.description.output[0].name ]);
+                    return 'Feature Vectorizer';
+                }
+                case 'dictVectorizer': {
+                    createNode(values, group, 'dictVectorizer', null, description,
+                        model.dictVectorizer,
+                        [ model.description.input[0].name ],
+                        [ model.description.output[0].name ]);
+                    return 'Dictionary Vectorizer';
+                }
+                case 'scaler': {
+                    createNode(values, group, 'scaler', null, description,
+                        model.scaler,
+                        [ model.description.input[0].name ],
+                        [ model.description.output[0].name ]);
+                    return 'Scaler';
+                }
+                case 'categoricalMapping': {
+                    createNode(values, group, 'categoricalMapping', null, description,
+                        model.categoricalMapping,
+                        [ model.description.input[0].name ],
+                        [ model.description.output[0].name ]);
+                    return 'Categorical Mapping';
+                }
+                case 'normalizer': {
+                    createNode(values, group, 'normalizer', null, description,
+                        model.normalizer,
+                        [ model.description.input[0].name ],
+                        [ model.description.output[0].name ]);
+                    return 'Normalizer';
+                }
+                case 'arrayFeatureExtractor': {
+                    createNode(values, group, 'arrayFeatureExtractor', null, description,
+                        { extractIndex: model.arrayFeatureExtractor.extractIndex },
+                        [ model.description.input[0].name ],
+                        [ model.description.output[0].name ]);
+                    return 'Array Feature Extractor';
+                }
+                case 'nonMaximumSuppression': {
+                    const nonMaximumSuppressionParams = {
+                        pickTop: model.nonMaximumSuppression.pickTop,
+                        stringClassLabels: model.nonMaximumSuppression.stringClassLabels,
+                        iouThreshold: model.nonMaximumSuppression.iouThreshold,
+                        confidenceThreshold: model.nonMaximumSuppression.confidenceThreshold
+                    };
+                    createNode(values, group, 'nonMaximumSuppression', null, description,
+                        nonMaximumSuppressionParams,
+                        [
+                            model.nonMaximumSuppression.confidenceInputFeatureName,
+                            model.nonMaximumSuppression.coordinatesInputFeatureName,
+                            model.nonMaximumSuppression.iouThresholdInputFeatureName,
+                            model.nonMaximumSuppression.confidenceThresholdInputFeatureName,
+                        ],
+                        [
+                            model.nonMaximumSuppression.confidenceOutputFeatureName,
+                            model.nonMaximumSuppression.coordinatesOutputFeatureName
+                        ]);
+                    return 'Non Maximum Suppression';
+                }
+                case 'wordTagger': {
+                    createNode(values, group, 'wordTagger', null, description,
+                        model.wordTagger,
+                        [ model.description.input[0].name ],
+                        [
+                            model.wordTagger.tokensOutputFeatureName,
+                            model.wordTagger.tokenTagsOutputFeatureName,
+                            model.wordTagger.tokenLocationsOutputFeatureName,
+                            model.wordTagger.tokenLengthsOutputFeatureName
+                        ]);
+                    return 'Word Tagger';
+                }
+                case 'textClassifier': {
+                    createNode(values, group, 'textClassifier', null, description,
+                        model.textClassifier,
+                        [ model.description.input[0].name ],
+                        [ model.description.output[0].name ]);
+                    return 'Text Classifier';
+                }
+                case 'visionFeaturePrint': {
+                    const visionFeaturePrintParams = {
+                        scene: model.visionFeaturePrint.scene
+                    };
+                    createNode(values, group, 'visionFeaturePrint', null, description,
+                        visionFeaturePrintParams,
+                        [ model.description.input[0].name ],
+                        [ model.description.output[0].name ]);
+                    return 'Vision Feature Print';
+                }
+                case 'soundAnalysisPreprocessing': {
+                    createNode(values, group, 'soundAnalysisPreprocessing', null, description,
+                        model.soundAnalysisPreprocessing,
+                        [ model.description.input[0].name ],
+                        [ model.description.output[0].name ]);
+                    return 'Sound Analysis Preprocessing';
+                }
+                case 'kNearestNeighborsClassifier': {
+                    createNode(values, group, 'kNearestNeighborsClassifier', null, description,
+                        model.kNearestNeighborsClassifier,
+                        [ model.description.input[0].name ],
+                        [ model.description.output[0].name ]);
+                    updateClassifierOutput(values, group, model.kNearestNeighborsClassifier);
+                    return 'Nearest Neighbors Classifier';
+                }
+                case 'itemSimilarityRecommender': {
+                    createNode(values, group, 'itemSimilarityRecommender', null, description,
+                        {
+                            itemStringIds: model.itemSimilarityRecommender.itemStringIds.vector,
+                            itemItemSimilarities: model.itemSimilarityRecommender.itemItemSimilarities
+                        },
+                        model.description.input.map((feature) => feature.name),
+                        model.description.output.map((feature) => feature.name));
+                    return 'Item Similarity Recommender';
+                }
+                case 'audioFeaturePrint': {
+                    createNode(values, group, 'audioFeaturePrint', null, description,
+                        model.audioFeaturePrint,
+                        [ model.description.input[0].name ],
+                        [ model.description.output[0].name ]);
+                    return 'Audio Feature Print';
+                }
+                case 'linkedModel': {
+                    createNode(values, group, 'linkedModel', null, description,
+                        model.linkedModel.linkedModelFile,
+                        [ model.description.input[0].name ],
+                        [ model.description.output[0].name ]);
+                    return 'Linked Model';
+                }
+                case 'customModel': {
+                    createNode(values, group, 'customModel', null, description,
+                        { className: model.customModel.className, parameters: model.customModel.parameters },
+                        [ model.description.input[0].name ],
+                        [ model.description.output[0].name ]);
+                    return 'customModel';
+                }
+                case 'mlProgram': {
+                    return loadProgram(model.mlProgram, values, group, weights);
+                }
+                default: {
+                    throw new coreml.Error("Unsupported model type '" + JSON.stringify(Object.keys(model)) + "'.");
+                }
+            }
+        };
+        const values = new Map();
+        values.input = (name) => {
+            if (!values.has(name)) {
+                values.set(name, { counter: 0, value: new coreml.Value(name) });
+            }
+            return values.get(name).value;
+        };
+        values.output = (name) => {
+            if (!values.has(name)) {
+                const entry = { counter: 0, value: new coreml.Value(name) };
+                values.set(name, entry);
             } else {
-                const value = { counter: 0, argument: new coreml.Value(name) };
-                args.set(name, value);
+                const entry = values.get(name);
+                entry.counter++;
+                const next = name + '\n' + entry.counter.toString(); // custom argument id
+                entry.value = new coreml.Value(next);
             }
-            return args.get(name).argument;
+            return values.get(name).value;
         };
-        const update = (argument, description) => {
-            if (!argument.type) {
-                argument.type = coreml.Utility.featureType(description.type);
+        const update = (value, description) => {
+            if (!value.type) {
+                value.type = coreml.Utility.featureType(description.type);
             }
-            if (!argument.description && description.shortDescription) {
-                argument.description = description.shortDescription;
+            if (!value.description && description.shortDescription) {
+                value.description = description.shortDescription;
             }
-            return argument;
+            return value;
         };
         if (this._description) {
             this._inputs = this._description.input.map((input) => {
-                const value = args.output(input.name);
+                const value = values.output(input.name);
                 update(value, input);
                 return new coreml.Argument(input.name, true, [ value ]);
             });
         }
-        this._type = this._loadModel(model, args, '', weights);
+        this._type = loadModel(model, values, '', weights);
         if (this._description) {
             this._outputs = this._description.output.map((output) => {
-                const value = args.input(output.name);
+                const value = values.input(output.name);
                 update(value, output);
                 return new coreml.Argument(output.name, true, [ value ]);
             });
@@ -300,786 +1038,6 @@ coreml.Graph = class {
 
     get groups() {
         return this._groups;
-    }
-
-    _updateOutput(name, newName) {
-        for (const node of this._nodes) {
-            for (const output of node.outputs) {
-                for (const value of output.value) {
-                    if (value.name === name) {
-                        value.name = newName;
-                    }
-                }
-            }
-        }
-        return newName;
-    }
-
-    _updateClassifierOutput(args, group, classifier) {
-        let labelProbabilityLayerName = classifier.labelProbabilityLayerName;
-        if (!labelProbabilityLayerName && this._nodes.length > 0) {
-            const node = this._nodes.slice(-1).pop();
-            if (node && node.outputs.length == 1 && node.outputs[0].value.length == 1) {
-                labelProbabilityLayerName = node.outputs[0].value[0].name;
-            }
-        }
-        let predictedFeatureName = this._description.predictedFeatureName;
-        let predictedProbabilitiesName = this._description.predictedProbabilitiesName;
-        if ((predictedFeatureName || predictedProbabilitiesName) && labelProbabilityLayerName && classifier.ClassLabels) {
-            predictedFeatureName = predictedFeatureName ? predictedFeatureName : '?';
-            predictedProbabilitiesName = predictedProbabilitiesName ? predictedProbabilitiesName : '?';
-            const labelProbabilityInput = this._updateOutput(labelProbabilityLayerName, labelProbabilityLayerName + ':labelProbabilityLayerName');
-            const type = classifier.ClassLabels;
-            const inputs = [
-                new coreml.Argument('input', true, [ new coreml.Value(labelProbabilityInput) ])
-            ];
-            const outputs = [
-                new coreml.Argument('probabilities', true, [ args.output(predictedProbabilitiesName) ]),
-                new coreml.Argument('feature', true, [ args.output(predictedFeatureName) ])
-            ];
-            const node = new coreml.Node(this._metadata, this._group, type, null, '', classifier[type], inputs, outputs);
-            this._nodes.push(node);
-        }
-    }
-
-    _updatePreprocessing(args, group, preprocessing) {
-        if (preprocessing && preprocessing.length > 0) {
-            const preprocessingInput = this._description.input[0].name;
-            const inputNodes = [];
-            for (const node of this._nodes) {
-                if (node.inputs.some((input) => input.value.some((arg) => arg.name == preprocessingInput))) {
-                    inputNodes.push(node);
-                }
-            }
-            let currentOutput = preprocessingInput;
-            let preprocessorOutput = null;
-            let preprocessorIndex = 0;
-            for (const p of preprocessing) {
-                const input = p.featureName ? p.featureName : currentOutput;
-                currentOutput = preprocessingInput + ':' + preprocessorIndex.toString();
-                const node = this._createNode(args, group, p.preprocessor, null, '', p[p.preprocessor], [ input ], [ currentOutput ]);
-                preprocessorOutput = node.outputs[0].value[0];
-                preprocessorIndex++;
-            }
-            for (const node of inputNodes) {
-                for (const input of node.inputs) {
-                    for (let i = 0; i < input.value.length; i++) {
-                        if (input.value[i].name === preprocessingInput) {
-                            input.value[i] = preprocessorOutput;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    _loadModel(model, args, group, weights) {
-        this._groups = this._groups | (group.length > 0 ? true : false);
-        const description = model && model.description && model.description.metadata && model.description.metadata.shortDescription ? model.description.metadata.shortDescription : '';
-        switch (model.Type) {
-            case 'neuralNetworkClassifier': {
-                const neuralNetworkClassifier = model.neuralNetworkClassifier;
-                for (const layer of neuralNetworkClassifier.layers) {
-                    this._createNode(args, group, layer.layer, layer.name, group === '' ? '' : description, layer[layer.layer], layer.input, layer.output, layer.inputTensor, layer.outputTensor);
-                }
-                this._updateClassifierOutput(args, group, neuralNetworkClassifier);
-                this._updatePreprocessing(args, group, neuralNetworkClassifier.preprocessing);
-                return 'Neural Network Classifier';
-            }
-            case 'neuralNetwork': {
-                const neuralNetwork = model.neuralNetwork;
-                for (const layer of neuralNetwork.layers) {
-                    this._createNode(args, group, layer.layer, layer.name, group === '' ? '' : description, layer[layer.layer], layer.input, layer.output, layer.inputTensor, layer.outputTensor);
-                }
-                this._updatePreprocessing(args, group, neuralNetwork.preprocessing);
-                return 'Neural Network';
-            }
-            case 'neuralNetworkRegressor': {
-                const neuralNetworkRegressor = model.neuralNetworkRegressor;
-                for (const layer of neuralNetworkRegressor.layers) {
-                    this._createNode(args, group, layer.layer, layer.name, description, layer[layer.layer], layer.input, layer.output);
-                }
-                this._updatePreprocessing(args, group, neuralNetworkRegressor);
-                return 'Neural Network Regressor';
-            }
-            case 'pipeline': {
-                for (let i = 0; i < model.pipeline.models.length; i++) {
-                    this._loadModel(model.pipeline.models[i], args, (group ? (group + '/') : '') + 'pipeline[' + i.toString() + ']');
-                }
-                return 'Pipeline';
-            }
-            case 'pipelineClassifier': {
-                for (let i = 0; i < model.pipelineClassifier.pipeline.models.length; i++) {
-                    this._loadModel(model.pipelineClassifier.pipeline.models[i], args, (group ? (group + '/') : '') + 'pipelineClassifier[' + i.toString() + ']');
-                }
-                return 'Pipeline Classifier';
-            }
-            case 'pipelineRegressor': {
-                for (let i = 0; i < model.pipelineRegressor.pipeline.models.length; i++) {
-                    this._loadModel(model.pipelineRegressor.pipeline.models[i], args, (group ? (group + '/') : '') + 'pipelineRegressor[' + i.toString() + ']');
-                }
-                return 'Pipeline Regressor';
-            }
-            case 'glmClassifier': {
-                this._createNode(args, group, 'glmClassifier', null, description,
-                    {
-                        classEncoding: model.glmClassifier.classEncoding,
-                        offset: model.glmClassifier.offset,
-                        weights: model.glmClassifier.weights
-                    },
-                    [ model.description.input[0].name ],
-                    [ model.description.predictedProbabilitiesName ]);
-                this._updateClassifierOutput(args, group, model.glmClassifier);
-                return 'Generalized Linear Classifier';
-            }
-            case 'glmRegressor': {
-                this._createNode(args, group, 'glmRegressor', null, description,
-                    model.glmRegressor,
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                return 'Generalized Linear Regressor';
-            }
-            case 'treeEnsembleClassifier': {
-                this._createNode(args, group, 'treeEnsembleClassifier', null, description,
-                    model.treeEnsembleClassifier.treeEnsemble,
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                this._updateClassifierOutput(args, group, model.treeEnsembleClassifier);
-                return 'Tree Ensemble Classifier';
-            }
-            case 'treeEnsembleRegressor': {
-                this._createNode(args, group, 'treeEnsembleRegressor', null, description,
-                    model.treeEnsembleRegressor.treeEnsemble,
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                return 'Tree Ensemble Regressor';
-            }
-            case 'supportVectorClassifier': {
-                this._createNode(args, group, 'supportVectorClassifier', null, description,
-                    {
-                        coefficients: model.supportVectorClassifier.coefficients,
-                        denseSupportVectors: model.supportVectorClassifier.denseSupportVectors,
-                        kernel: model.supportVectorClassifier.kernel,
-                        numberOfSupportVectorsPerClass: model.supportVectorClassifier.numberOfSupportVectorsPerClass,
-                        probA: model.supportVectorClassifier.probA,
-                        probB: model.supportVectorClassifier.probB,
-                        rho: model.supportVectorClassifier.rho,
-                        supportVectors: model.supportVectorClassifier.supportVectors
-                    },
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                this._updateClassifierOutput(args, group, model.supportVectorClassifier);
-                return 'Support Vector Classifier';
-            }
-            case 'supportVectorRegressor': {
-                this._createNode(args, group, 'supportVectorRegressor', null, description,
-                    {
-                        coefficients: model.supportVectorRegressor.coefficients,
-                        kernel: model.supportVectorRegressor.kernel,
-                        rho: model.supportVectorRegressor.rho,
-                        supportVectors: model.supportVectorRegressor.supportVectors
-                    },
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                return 'Support Vector Regressor';
-            }
-            case 'oneHotEncoder': {
-                const categoryType = model.oneHotEncoder.CategoryType;
-                const oneHotEncoderParams = { outputSparse: model.oneHotEncoder.outputSparse };
-                oneHotEncoderParams[categoryType] = model.oneHotEncoder[categoryType];
-                this._createNode(args, group, 'oneHotEncoder', null, description,
-                    oneHotEncoderParams,
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                return 'One Hot Encoder';
-            }
-            case 'imputer': {
-                const imputedValue = model.imputer.ImputedValue;
-                const replaceValue = model.imputer.ReplaceValue;
-                const imputerParams = {};
-                imputerParams[imputedValue] = model.imputer[imputedValue];
-                imputerParams[replaceValue] = model.imputer[replaceValue];
-                this._createNode(args, group, 'oneHotEncoder', null, description,
-                    imputerParams,
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                return 'Imputer';
-            }
-            case 'featureVectorizer': {
-                this._createNode(args, group, 'featureVectorizer', null, description,
-                    model.featureVectorizer,
-                    coreml.Graph._formatFeatureDescriptionList(model.description.input),
-                    [ model.description.output[0].name ]);
-                return 'Feature Vectorizer';
-            }
-            case 'dictVectorizer': {
-                this._createNode(args, group, 'dictVectorizer', null, description,
-                    model.dictVectorizer,
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                return 'Dictionary Vectorizer';
-            }
-            case 'scaler': {
-                this._createNode(args, group, 'scaler', null, description,
-                    model.scaler,
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                return 'Scaler';
-            }
-            case 'categoricalMapping': {
-                this._createNode(args, group, 'categoricalMapping', null, description,
-                    model.categoricalMapping,
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                return 'Categorical Mapping';
-            }
-            case 'normalizer': {
-                this._createNode(args, group, 'normalizer', null, description,
-                    model.normalizer,
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                return 'Normalizer';
-            }
-            case 'arrayFeatureExtractor': {
-                this._createNode(args, group, 'arrayFeatureExtractor', null, description,
-                    { extractIndex: model.arrayFeatureExtractor.extractIndex },
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                return 'Array Feature Extractor';
-            }
-            case 'nonMaximumSuppression': {
-                const nonMaximumSuppressionParams = {
-                    pickTop: model.nonMaximumSuppression.pickTop,
-                    stringClassLabels: model.nonMaximumSuppression.stringClassLabels,
-                    iouThreshold: model.nonMaximumSuppression.iouThreshold,
-                    confidenceThreshold: model.nonMaximumSuppression.confidenceThreshold
-                };
-                this._createNode(args, group, 'nonMaximumSuppression', null, description,
-                    nonMaximumSuppressionParams,
-                    [
-                        model.nonMaximumSuppression.confidenceInputFeatureName,
-                        model.nonMaximumSuppression.coordinatesInputFeatureName,
-                        model.nonMaximumSuppression.iouThresholdInputFeatureName,
-                        model.nonMaximumSuppression.confidenceThresholdInputFeatureName,
-                    ],
-                    [
-                        model.nonMaximumSuppression.confidenceOutputFeatureName,
-                        model.nonMaximumSuppression.coordinatesOutputFeatureName
-                    ]);
-                return 'Non Maximum Suppression';
-            }
-            case 'wordTagger': {
-                this._createNode(args, group, 'wordTagger', null, description,
-                    model.wordTagger,
-                    [ model.description.input[0].name ],
-                    [
-                        model.wordTagger.tokensOutputFeatureName,
-                        model.wordTagger.tokenTagsOutputFeatureName,
-                        model.wordTagger.tokenLocationsOutputFeatureName,
-                        model.wordTagger.tokenLengthsOutputFeatureName
-                    ]);
-                return 'Word Tagger';
-            }
-            case 'textClassifier': {
-                this._createNode(args, group, 'textClassifier', null, description,
-                    model.textClassifier,
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                return 'Text Classifier';
-            }
-            case 'visionFeaturePrint': {
-                const visionFeaturePrintParams = {
-                    scene: model.visionFeaturePrint.scene
-                };
-                this._createNode(args, group, 'visionFeaturePrint', null, description,
-                    visionFeaturePrintParams,
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                return 'Vision Feature Print';
-            }
-            case 'soundAnalysisPreprocessing': {
-                this._createNode(args, group, 'soundAnalysisPreprocessing', null, description,
-                    model.soundAnalysisPreprocessing,
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                return 'Sound Analysis Preprocessing';
-            }
-            case 'kNearestNeighborsClassifier': {
-                this._createNode(args, group, 'kNearestNeighborsClassifier', null, description,
-                    model.kNearestNeighborsClassifier,
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                this._updateClassifierOutput(args, group, model.kNearestNeighborsClassifier);
-                return 'Nearest Neighbors Classifier';
-            }
-            case 'itemSimilarityRecommender': {
-                this._createNode(args, group, 'itemSimilarityRecommender', null, description,
-                    {
-                        itemStringIds: model.itemSimilarityRecommender.itemStringIds.vector,
-                        itemItemSimilarities: model.itemSimilarityRecommender.itemItemSimilarities
-                    },
-                    model.description.input.map((feature) => feature.name),
-                    model.description.output.map((feature) => feature.name));
-                return 'Item Similarity Recommender';
-            }
-            case 'audioFeaturePrint': {
-                this._createNode(args, group, 'audioFeaturePrint', null, description,
-                    model.audioFeaturePrint,
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                return 'Audio Feature Print';
-            }
-            case 'linkedModel': {
-                this._createNode(args, group, 'linkedModel', null, description,
-                    model.linkedModel.linkedModelFile,
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                return 'Linked Model';
-            }
-            case 'customModel': {
-                this._createNode(args, group, 'customModel', null, description,
-                    { className: model.customModel.className, parameters: model.customModel.parameters },
-                    [ model.description.input[0].name ],
-                    [ model.description.output[0].name ]);
-                return 'customModel';
-            }
-            case 'mlProgram': {
-                return this._loadProgram(model.mlProgram, args, group, weights);
-            }
-            default: {
-                throw new coreml.Error("Unsupported model type '" + JSON.stringify(Object.keys(model)) + "'.");
-            }
-        }
-    }
-
-    _loadProgram(program, _, group, weights) {
-        // TODO: need to handle functions other than main?
-        const main = program.functions.main;
-        // TODO: need to handle more than one block specialization?
-        const block = main.block_specializations.CoreML5 || main.block_specializations.CoreML6;
-
-        const convertValue = (value) => {
-            switch (value.value) {
-                case 'immediateValue': {
-                    const tensor = value.immediateValue.tensor;
-                    let values = null;
-                    switch (tensor.value) {
-                        case 'ints':
-                            values = tensor.ints.values;
-                            break;
-                        case 'strings':
-                            values = tensor.strings.values;
-                            break;
-                        case 'bools':
-                            values = tensor.bools.values;
-                            break;
-                        case 'floats':
-                            values = tensor.floats.values;
-                            break;
-                        case 'bytes':
-                            values = tensor.bytes.values;
-                            break;
-                        default:
-                            throw new coreml.Error("Unsupported tensor value '" + tensor.value + "'.");
-                    }
-                    return values;
-                }
-                case 'blobFileValue': {
-                    const type = coreml.Utility.valueType(value.type);
-                    const blob = value.blobFileValue;
-                    const offset = blob.offset.toNumber();
-                    const file = blob.fileName;
-                    let data = null;
-                    const stream = weights.get(file);
-                    if (stream) {
-                        stream.seek(offset);
-                        const buffer = stream.read(32);
-                        const reader = new base.BinaryReader(buffer);
-                        const signature = reader.uint32();
-                        if (signature == 0xdeadbeef) {
-                            reader.uint32(); // dataType
-                            const size = reader.uint64();
-                            stream.seek(reader.uint64());
-                            const length = (type.shape.dimensions || []).reduce((a, b) => a * b, 1);
-                            switch (type.dataType) {
-                                case 'float32': {
-                                    const buffer = stream.read(size);
-                                    data = new Float32Array(buffer.buffer, buffer.byteOffset, length).slice();
-                                    break;
-                                }
-                                case 'float16': {
-                                    data = stream.read(size);
-                                    break;
-                                }
-                                case 'uint8': {
-                                    data = stream.read(size);
-                                    break;
-                                }
-                                default:
-                                    throw new coreml.Error("Unsupported blob data type '" + type.dataType + "'.");
-                            }
-                        }
-                    }
-                    return new coreml.Tensor('Blob', type, data);
-                }
-                default: {
-                    throw new coreml.Error("Unsupported value '" + value.value + "'.");
-                }
-            }
-        };
-
-        const args = new Map();
-        const arg = (name) => {
-            if (!args.has(name)) {
-                args.set(name, { name: name, to: [], from: [] });
-            }
-            return args.get(name);
-        };
-
-        const operations = block.operations.map((op) => {
-            const operation = {
-                type: op.type,
-                attributes: {}
-            };
-            for (const entry of Object.entries(op.attributes)) {
-                const key = entry[0];
-                const value = entry[1];
-                operation.attributes[key] = convertValue(value);
-            }
-            operation.inputs = Object.entries(op.inputs).map((entry) => {
-                const key = entry[0];
-                const input = entry[1];
-                const args = input.arguments.map((argument) => {
-                    if (argument.name) {
-                        const value = arg(argument.name);
-                        value.to.push(operation);
-                        return value;
-                    }
-                    return { value: argument.value };
-                });
-                return {
-                    name: key,
-                    arguments: args
-                };
-            });
-            operation.outputs = op.outputs.map((output) => {
-                const value = arg(output.name);
-                value.type = coreml.Utility.valueType(output.type);
-                value.from.push(operation);
-                return {
-                    name: 'output',
-                    arguments: [ value ]
-                };
-            });
-            return operation;
-        });
-
-        for (const op of operations) {
-            if (op.type === 'const' && op.inputs.length === 0 &&
-                op.outputs.length === 1 && op.outputs[0].arguments.length === 1) {
-                const value = op.outputs[0].arguments[0];
-                if (op.attributes && op.attributes.val) {
-                    const type = value.type;
-                    const data = op.attributes.val;
-                    if (data instanceof Uint8Array && data.length === 2 &&
-                        type.dataType === 'float16' && type.shape.dimensions.length === 0) {
-                        const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
-                        value.value = view.getFloat16(0, true);
-                    } else {
-                        value.value = data;
-                    }
-                    value.const = true;
-                    op.delete = true;
-                }
-            }
-        }
-
-        for (const op of operations) {
-            for (const input of op.inputs) {
-                if (input.arguments.length > 1 && input.arguments.some((argument) => argument.const)) {
-                    if (input.arguments.every((argument) => argument.value instanceof coreml.Tensor)) {
-                        continue;
-                    }
-                    for (const argument of input.arguments) {
-                        for (const from of argument.from) {
-                            from.delete = false;
-                        }
-                        delete argument.value;
-                    }
-                }
-            }
-        }
-
-        for (const op of operations) {
-            if (op.delete) {
-                continue;
-            }
-            op.inputs = op.inputs.filter((input) => {
-                if (input.arguments.every((argument) => argument.value === undefined || argument.value instanceof coreml.Tensor)) {
-                    return true;
-                }
-                if (input.arguments.length === 1) {
-                    const argument = input.arguments[0];
-                    op.attributes[input.name] = argument.value;
-                    return false;
-                }
-                op.attributes[input.name] = input.arguments.map((argument) => argument.value[0]);
-                return false;
-            });
-        }
-
-        const tensors = new Map();
-        const tensor = (arg) => {
-            if (!tensors.has(arg.name)) {
-                tensors.set(arg.name, new coreml.Value(arg.name, arg.type, null, arg.value));
-            }
-            return tensors.get(arg.name);
-        };
-
-        for (const op of operations) {
-            if (op.delete) {
-                continue;
-            }
-            op.inputs = op.inputs.map((input) => new coreml.Argument(input.name, true, input.arguments.map((argument) => tensor(argument))));
-            op.outputs = op.outputs.map((output) => new coreml.Argument(output.name, true, output.arguments.map((argument) => tensor(argument))));
-        }
-
-        for (const op of operations.filter((op) => !op.delete)) {
-            const type = 'program:' + op.type;
-            const metadata = this._metadata.type(type);
-            if (metadata && Array.isArray(metadata.inputs)) {
-                let index = 1;
-                const map = new Map(metadata.inputs.map((input) => [ input.name, index++ ]));
-                op.inputs.sort((a, b) => (map.get(a.name) || map.size) - (map.get(b.name) || map.size));
-            }
-            const node = new coreml.Node(this._metadata, group, type, null, null, op.attributes, op.inputs, op.outputs);
-            this._nodes.push(node);
-        }
-
-        return 'ML Program';
-    }
-
-    _createNode(args, group, type, name, description, data, inputs, outputs, inputTensors, outputTensors) {
-
-        inputs = inputs.map((input, index) => {
-            const argument = args.input(input);
-            if (!argument.type && inputTensors && index < inputTensors.length) {
-                const tensor = inputTensors[index];
-                const shape = tensor && tensor.dimValue ? new coreml.TensorShape(tensor.dimValue) : null;
-                argument.type = new coreml.TensorType('?', shape);
-            }
-            return argument;
-        });
-
-        outputs = outputs.map((output, index) => {
-            const argument = args.output(output);
-            if (!argument.type && outputTensors && index < outputTensors.length) {
-                const tensor = outputTensors[index];
-                const shape = tensor && tensor.dimValue ? new coreml.TensorShape(tensor.dimValue) : null;
-                argument.type = new coreml.TensorType('?', shape);
-            }
-            return argument;
-        });
-
-        const initializers = [];
-        const attributes = {};
-        if (data) {
-            const map = this._initialize(type, data, initializers);
-            for (const key of Object.keys(data)) {
-                if (map[key]) {
-                    continue;
-                }
-                attributes[key] = data[key];
-            }
-        }
-
-        const metadata = this._metadata.type(type);
-        const inputParams = [];
-        for (let i = 0; i < inputs.length;) {
-            const input = metadata && metadata.inputs && i < metadata.inputs.length ? metadata.inputs[i] : { name: i === 0 ? 'input' : i.toString() };
-            const count = input.type === 'Tensor[]' ? inputs.length - i : 1;
-            const args = inputs.slice(i, i + count);
-            inputParams.push(new coreml.Argument(input.name, true, args));
-            i += count;
-        }
-
-        inputParams.push(...initializers);
-
-        const outputParams = [];
-        for (let i = 0; i < outputs.length;) {
-            const output = metadata && metadata.outputs && i < metadata.outputs.length ? metadata.outputs[i] : { name: i === 0 ? 'output' : i.toString() };
-            const count = output.type === 'Tensor[]' ? outputs.length - i : 1;
-            const args = outputs.slice(i, i + count);
-            outputParams.push(new coreml.Argument(output.name, true, args));
-            i += count;
-        }
-
-        const node = new coreml.Node(this._metadata, group, type, name, description, attributes, inputParams, outputParams);
-        this._nodes.push(node);
-        return node;
-    }
-
-    _initializer(type, initializers, kind, name, shape, data) {
-        let dataType = '?';
-        let quantization = null;
-        let values = null;
-        if (data) {
-            if (data.floatValue && data.floatValue.length > 0) {
-                values = data.floatValue;
-                dataType = 'float32';
-            } else if (data.float16Value && data.float16Value.length > 0) {
-                values = data.float16Value; // byte[]
-                dataType = 'float16';
-            } else if (data.rawValue && data.rawValue.length > 0) {
-                if (data.quantization) {
-                    values = data.rawValue;
-                    dataType = 'uint' + data.quantization.numberOfBits.toString();
-                } else {
-                    shape = [];
-                }
-            }
-            quantization = data.quantization || null;
-        }
-        const tensorType = new coreml.TensorType(dataType, new coreml.TensorShape(shape));
-        const tensor = new coreml.Tensor(kind, tensorType, values, quantization);
-        const value = new coreml.Value('', null, null, tensor);
-        const input = this._metadata.input(type, name);
-        const visible = input && input.visible === false ? false : true;
-        initializers.push(new coreml.Argument(name, visible, [ value ]));
-    }
-
-    _initialize(type, data, initializers) {
-        switch (type) {
-            case 'convolution': {
-                const weightsShape = [ data.outputChannels, data.kernelChannels, data.kernelSize[0], data.kernelSize[1] ];
-                if (data.isDeconvolution) {
-                    weightsShape[0] = data.kernelChannels;
-                    weightsShape[1] = Math.floor(data.outputChannels / (data.nGroups != 0 ? data.nGroups : 1));
-                }
-                this._initializer(type, initializers, 'Weights', 'weights', weightsShape, data.weights);
-                if (data.hasBias) {
-                    this._initializer(type, initializers, 'Weights', 'bias', [ data.outputChannels ], data.bias);
-                }
-                return { 'weights': true, 'bias': data.hasBias };
-            }
-            case 'innerProduct':
-                this._initializer(type, initializers, 'Weights', 'weights', [ data.outputChannels, data.inputChannels ], data.weights);
-                if (data.hasBias) {
-                    this._initializer(type, initializers, 'Weights', 'bias', [ data.outputChannels ], data.bias);
-                }
-                return { 'weights': true, 'bias': data.hasBias };
-            case 'batchnorm':
-                this._initializer(type, initializers, 'Weights', 'gamma', [ data.channels ], data.gamma);
-                this._initializer(type, initializers, 'Weights', 'beta', [ data.channels ], data.beta);
-                if (data.mean) {
-                    this._initializer(type, initializers, 'Weights', 'mean', [ data.channels ], data.mean);
-                }
-                if (data.variance) {
-                    this._initializer(type, initializers, 'Weights', 'variance', [ data.channels ], data.variance);
-                }
-                return { 'gamma': true, 'beta': true, 'mean': true, 'variance': true };
-            case 'embedding':
-                this._initializer(type, initializers, 'Weights', 'weights', [ data.inputDim, data.outputChannels ], data.weights);
-                return { 'weights': true };
-            case 'loadConstant':
-            case 'loadConstantND':
-                this._initializer(type, initializers, 'Weights', 'data', data.shape, data.data);
-                return { 'data': true };
-            case 'scale':
-                this._initializer(type, initializers, 'Weights', 'scale', data.shapeScale, data.scale);
-                if (data.hasBias) {
-                    this._initializer(type, initializers, 'Weights', 'bias', data.shapeBias, data.bias);
-                }
-                return { 'scale': true, 'bias': data.hasBias };
-            case 'bias':
-                this._initializer(type, initializers, 'Weights', 'bias', data.shape, data.bias);
-                return { 'bias': true };
-            case 'simpleRecurrent':
-                this._initializer(type, initializers, 'Weights', 'weights', [ data.outputVectorSize, data.inputVectorSize ], data.weightMatrix);
-                this._initializer(type, initializers, 'Weights', 'recurrent', [ data.outputVectorSize, data.inputVectorSize ], data.recursionMatrix);
-                if (data.hasBiasVectors) {
-                    this._initializer(type, initializers, 'Weights', 'bias', [ data.outputVectorSize ], data.biasVector);
-                }
-                return { 'weightMatrix': true, 'recursionMatrix': true, 'biasVector': data.hasBiasVectors };
-            case 'gru': {
-                const recursionMatrixShape = [ data.outputVectorSize, data.outputVectorSize ];
-                const weightMatrixShape = [ data.outputVectorSize, data.inputVectorSize ];
-                const biasVectorShape = [ data.outputVectorSize ];
-                this._initializer(type, initializers, 'Weights', 'updateGateWeightMatrix', weightMatrixShape, data.updateGateWeightMatrix);
-                this._initializer(type, initializers, 'Weights', 'resetGateWeightMatrix', weightMatrixShape, data.resetGateWeightMatrix);
-                this._initializer(type, initializers, 'Weights', 'outputGateWeightMatrix', weightMatrixShape, data.outputGateWeightMatrix);
-                this._initializer(type, initializers, 'Weights', 'updateGateRecursionMatrix', recursionMatrixShape, data.updateGateRecursionMatrix);
-                this._initializer(type, initializers, 'Weights', 'resetGateRecursionMatrix', recursionMatrixShape, data.resetGateRecursionMatrix);
-                this._initializer(type, initializers, 'Weights', 'outputGateRecursionMatrix', recursionMatrixShape, data.outputGateRecursionMatrix);
-                if (data.hasBiasVectors) {
-                    this._initializer(type, initializers, 'Weights', 'updateGateBiasVector', biasVectorShape, data.updateGateBiasVector);
-                    this._initializer(type, initializers, 'Weights', 'resetGateBiasVector', biasVectorShape, data.resetGateBiasVector);
-                    this._initializer(type, initializers, 'Weights', 'outputGateBiasVector', biasVectorShape, data.outputGateBiasVector);
-                }
-                return {
-                    'updateGateWeightMatrix': true, 'resetGateWeightMatrix': true, 'outputGateWeightMatrix': true,
-                    'updateGateRecursionMatrix': true, 'resetGateRecursionMatrix': true, 'outputGateRecursionMatrix': true,
-                    'updateGateBiasVector': data.hasBiasVectors, 'resetGateBiasVector': data.hasBiasVectors, 'outputGateBiasVector': data.hasBiasVectors
-                };
-            }
-            case 'uniDirectionalLSTM':
-            case 'biDirectionalLSTM': {
-                const count = (type == 'uniDirectionalLSTM') ? 1 : 2;
-                const h = data.outputVectorSize;
-                const x = data.inputVectorSize;
-                for (let i = 0; i < count; i++) {
-                    const weights = count == 1 ? data.weightParams : data.weightParams[i];
-                    const suffix = (i == 0) ? '' : '_rev';
-                    this._initializer(type, initializers, 'Weights', 'inputGateWeightMatrix' + suffix, [h,x], weights.inputGateWeightMatrix);
-                    this._initializer(type, initializers, 'Weights', 'forgetGateWeightMatrix' + suffix, [h,x], weights.forgetGateWeightMatrix);
-                    this._initializer(type, initializers, 'Weights', 'blockInputWeightMatrix' + suffix, [h,x], weights.blockInputWeightMatrix);
-                    this._initializer(type, initializers, 'Weights', 'outputGateWeightMatrix' + suffix, [h,x], weights.outputGateWeightMatrix);
-                    this._initializer(type, initializers, 'Weights', 'inputGateRecursionMatrix' + suffix, [h,h], weights.inputGateRecursionMatrix);
-                    this._initializer(type, initializers, 'Weights', 'forgetGateRecursionMatrix' + suffix, [h,h],weights.forgetGateRecursionMatrix);
-                    this._initializer(type, initializers, 'Weights', 'blockInputRecursionMatrix' + suffix, [h,h], weights.blockInputRecursionMatrix);
-                    this._initializer(type, initializers, 'Weights', 'outputGateRecursionMatrix' + suffix, [h,h], weights.outputGateRecursionMatrix);
-                    if (data.params.hasBiasVectors) {
-                        this._initializer(type, initializers, 'Weights', 'inputGateBiasVector' + suffix, [h], weights.inputGateBiasVector);
-                        this._initializer(type, initializers, 'Weights', 'forgetGateBiasVector' + suffix, [h], weights.forgetGateBiasVector);
-                        this._initializer(type, initializers, 'Weights', 'blockInputBiasVector' + suffix, [h], weights.blockInputBiasVector);
-                        this._initializer(type, initializers, 'Weights', 'outputGateBiasVector' + suffix, [h], weights.outputGateBiasVector);
-                    }
-                    if (data.params.hasPeepholeVectors) {
-                        this._initializer(type, initializers, 'Weights', 'inputGatePeepholeVector' + suffix, [h], weights.inputGatePeepholeVector);
-                        this._initializer(type, initializers, 'Weights', 'forgetGatePeepholeVector' + suffix, [h], weights.forgetGatePeepholeVector);
-                        this._initializer(type, initializers, 'Weights', 'outputGatePeepholeVector' + suffix, [h], weights.outputGatePeepholeVector);
-                    }
-                }
-                return { 'weightParams': true };
-            }
-            case 'dictVectorizer':
-                data.stringToIndex = this._convertVector(data.stringToIndex);
-                return {};
-            case 'wordTagger':
-                data.modelParameterData = Array.from(data.modelParameterData);
-                data.stringTags = this._convertVector(data.stringTags);
-                return { tokensOutputFeatureName: true, tokenTagsOutputFeatureName: true, tokenLengthsOutputFeatureName: true, tokenLocationsOutputFeatureName: true };
-            case 'textClassifier':
-                data.modelParameterData = Array.from(data.modelParameterData);
-                data.stringClassLabels = this._convertVector(data.stringClassLabels);
-                return {};
-            case 'nonMaximumSuppression':
-                data.stringClassLabels = this._convertVector(data.stringClassLabels);
-                return {};
-            default:
-                return {};
-        }
-    }
-
-    _convertVector(value) {
-        if (value && Object.keys(value).length == 1 && value.vector) {
-            return value.vector;
-        }
-        return value;
-    }
-
-    static _formatFeatureDescriptionList(list) {
-        return list.map((item) => item.name);
     }
 };
 
@@ -1157,27 +1115,23 @@ coreml.Value = class {
 
 coreml.Node = class {
 
-    constructor(metadata, group, type, name, description, attributes, inputs, outputs) {
-        if (!type) {
+    constructor(metadata, obj) {
+        if (!obj.type) {
             throw new Error('Undefined node type.');
         }
-        if (group) {
-            this._group = group;
+        if (obj.group) {
+            this._group = obj.group;
         }
-        this._type = Object.assign({}, metadata.type(type) || { name: type });
-        this._type.name = type.split(':').pop();
-        this._name = name || '';
-        this._description = description || '';
-        this._inputs = inputs;
-        this._outputs = outputs;
+        this._type = Object.assign({}, metadata.type(obj.type) || { name: obj.type });
+        this._type.name = obj.type.split(':').pop();
+        this._name = obj.name || '';
+        this._description = obj.description || '';
+        this._inputs = obj.inputs || [];
+        this._outputs = obj.outputs || [];
         this._attributes = [];
-        if (attributes) {
-            for (const key of Object.keys(attributes)) {
-                const schema = metadata.attribute(type, key);
-                const value = attributes[key];
-                const attribute = new coreml.Attribute(schema, key, value);
-                this._attributes.push(attribute);
-            }
+        for (const entry of Object.entries(obj.attributes)) {
+            const attribute = new coreml.Attribute(metadata.attribute(obj.type, entry[0]), entry[0], entry[1]);
+            this._attributes.push(attribute);
         }
     }
 
@@ -1261,11 +1215,11 @@ coreml.Attribute = class {
 
 coreml.Tensor = class {
 
-    constructor(category, type, data, quantization) {
-        this._category = category;
+    constructor(type, data, quantization, category) {
         this._type = type;
         this._data = data;
         this._quantization = quantization;
+        this._category = category;
     }
 
     get category() {
@@ -1319,6 +1273,10 @@ coreml.TensorType = class {
         return this._shape;
     }
 
+    equals(obj) {
+        return obj && this._dataType === obj.dataType && this._shape && this._shape.equals(obj.shape);
+    }
+
     toString() {
         return this.dataType + this._shape.toString();
     }
@@ -1334,6 +1292,12 @@ coreml.TensorShape = class {
         return this._dimensions;
     }
 
+    equals(obj) {
+        return obj && Array.isArray(obj.dimensions) &&
+            Array.isArray(this._dimensions) && this._dimensions.length === obj.dimensions.length
+            && obj.dimensions.every((value, index) => this._dimensions[index] === value);
+    }
+
     toString() {
         if (!this._dimensions || this._dimensions.length == 0) {
             return '';
@@ -1346,6 +1310,14 @@ coreml.ListType = class {
 
     constructor(elementType) {
         this._elementType = elementType;
+    }
+
+    get elementType() {
+        return this._elementType;
+    }
+
+    equals(obj) {
+        return obj instanceof coreml.ListType && this.elementType.equals(obj.elementType);
     }
 
     toString() {
@@ -1525,9 +1497,9 @@ coreml.Utility = class {
         if (!coreml.Utility._dataTypes) {
             coreml.Utility._dataTypes = new Map(Object.entries(coreml.proto.MILSpec.DataType).map((entry => [entry[1], entry[0].toLowerCase()])));
             coreml.Utility._dataTypes.delete(0);
-            coreml.Utility._dataTypes.set(1, 'bool');
+            coreml.Utility._dataTypes.set(1, 'boolean');
         }
-        const shape = (type.dimensions.map(dim => dim.constant ? dim.constant.size : '?'));
+        const shape = type.dimensions.map(dim => dim.constant ? dim.constant.size : '?');
         const dataType = coreml.Utility._dataTypes.get(type.dataType);
         if (!dataType) {
             throw new coreml.Error("Unsupported data type '" + type.dataType + "'.");

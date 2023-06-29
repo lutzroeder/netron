@@ -334,7 +334,7 @@ class Target {
         this.target = item.type ? target : target.map((target) => path.resolve(process.cwd(), target));
         this.action = new Set((this.action || '').split(';'));
         this.folder = item.type ? path.normalize(path.join(__dirname, '..', 'third_party' , 'test', item.type)) : '';
-        // TODO #1109 duplicate argument name
+        // TODO #1109 duplicate value name
         this.skip1109 = [ 'coreml', 'kmodel', 'mediapipe', 'om', 'openvino', 'tf', 'tfjs' ].includes(this.type);
     }
 
@@ -527,18 +527,18 @@ class Target {
             // continue
         }
         for (const graph of this.model.graphs) {
-            const args = new Map();
-            const arg = (argument) => {
-                argument.name.toString();
-                argument.name.length;
-                argument.description;
-                argument.quantization;
-                if (argument.type) {
-                    argument.type.toString();
+            const values = new Map();
+            const validateValue = (value) => {
+                value.name.toString();
+                value.name.length;
+                value.description;
+                value.quantization;
+                if (value.type) {
+                    value.type.toString();
                 }
-                if (argument.initializer) {
-                    argument.initializer.type.toString();
-                    const tensor = new view.Tensor(argument.initializer);
+                if (value.initializer) {
+                    value.initializer.type.toString();
+                    const tensor = new view.Tensor(value.initializer);
                     if (tensor.layout !== '<' && tensor.layout !== '>' && tensor.layout !== '|' && tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo') {
                         throw new Error("Tensor layout '" + tensor.layout + "' is not implemented.");
                     }
@@ -566,14 +566,14 @@ class Target {
                             */
                         }
                     }
-                } else if (argument.name.length === 0) {
+                } else if (value.name.length === 0) {
                     throw new Error('Empty value name.');
                 }
-                if (argument.name.length > 0 && argument.initializer === null) {
-                    if (!args.has(argument.name)) {
-                        args.set(argument.name, argument);
-                    } else if (argument !== args.get(argument.name) && !this.skip1109) {
-                        throw new Error("Duplicate value '" + argument.name + "'.");
+                if (value.name.length > 0 && value.initializer === null) {
+                    if (!values.has(value.name)) {
+                        values.set(value.name, value);
+                    } else if (value !== values.get(value.name) && !this.skip1109) {
+                        throw new Error("Duplicate value '" + value.name + "'.");
                     }
                 }
             };
@@ -581,14 +581,14 @@ class Target {
                 input.name.toString();
                 input.name.length;
                 for (const value of input.value) {
-                    arg(value);
+                    validateValue(value);
                 }
             }
             for (const output of graph.outputs) {
                 output.name.toString();
                 output.name.length;
                 for (const value of output.value) {
-                    arg(value);
+                    validateValue(value);
                 }
             }
             for (const node of graph.nodes) {
@@ -613,14 +613,14 @@ class Target {
                     input.name.toString();
                     input.name.length;
                     for (const value of input.value) {
-                        arg(value);
+                        validateValue(value);
                     }
                 }
                 for (const output of node.outputs) {
                     output.name.toString();
                     output.name.length;
                     for (const value of output.value) {
-                        arg(value);
+                        validateValue(value);
                     }
                 }
                 if (node.chain) {
