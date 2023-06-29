@@ -3751,7 +3751,7 @@
     "examples": [
       {
         "summary": "blackmanwindow",
-        "code": "# Test periodic window\nnode = onnx.helper.make_node(\n    \"BlackmanWindow\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nsize = np.int32(10)\na0 = 0.42\na1 = -0.5\na2 = 0.08\ny = a0\ny += a1 * np.cos(2 * 3.1415 * np.arange(0, size, 1, dtype=np.float32) / size)\ny += a2 * np.cos(4 * 3.1415 * np.arange(0, size, 1, dtype=np.float32) / size)\nexpect(node, inputs=[size], outputs=[y], name=\"test_blackmanwindow\")\n\n# Test symmetric window\nnode = onnx.helper.make_node(\n    \"BlackmanWindow\", inputs=[\"x\"], outputs=[\"y\"], periodic=0\n)\nsize = np.int32(10)\na0 = 0.42\na1 = -0.5\na2 = 0.08\ny = a0\ny += a1 * np.cos(\n    2 * 3.1415 * np.arange(0, size, 1, dtype=np.float32) / (size - 1)\n)\ny += a2 * np.cos(\n    4 * 3.1415 * np.arange(0, size, 1, dtype=np.float32) / (size - 1)\n)\nexpect(node, inputs=[size], outputs=[y], name=\"test_blackmanwindow_symmetric\")"
+        "code": "# Test periodic window\nnode = onnx.helper.make_node(\n    \"BlackmanWindow\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nsize = np.int32(10)\na0 = 0.42\na1 = -0.5\na2 = 0.08\ny = a0\ny += a1 * np.cos(2 * np.pi * np.arange(0, size, 1, dtype=np.float32) / size)\ny += a2 * np.cos(4 * np.pi * np.arange(0, size, 1, dtype=np.float32) / size)\nexpect(node, inputs=[size], outputs=[y], name=\"test_blackmanwindow\")\n\n# Test symmetric window\nnode = onnx.helper.make_node(\n    \"BlackmanWindow\", inputs=[\"x\"], outputs=[\"y\"], periodic=0\n)\nsize = np.int32(10)\na0 = 0.42\na1 = -0.5\na2 = 0.08\ny = a0\ny += a1 * np.cos(\n    2 * np.pi * np.arange(0, size, 1, dtype=np.float32) / (size - 1)\n)\ny += a2 * np.cos(\n    4 * np.pi * np.arange(0, size, 1, dtype=np.float32) / (size - 1)\n)\nexpect(node, inputs=[size], outputs=[y], name=\"test_blackmanwindow_symmetric\")"
       }
     ]
   },
@@ -13436,7 +13436,7 @@
     "examples": [
       {
         "summary": "hammingwindow",
-        "code": "# Test periodic window\nnode = onnx.helper.make_node(\n    \"HammingWindow\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nsize = np.int32(10)\na0 = 25 / 46\na1 = 1 - a0\ny = a0 - a1 * np.cos(\n    2 * 3.1415 * np.arange(0, size, 1, dtype=np.float32) / size\n)\nexpect(node, inputs=[size], outputs=[y], name=\"test_hammingwindow\")\n\n# Test symmetric window\nnode = onnx.helper.make_node(\n    \"HammingWindow\", inputs=[\"x\"], outputs=[\"y\"], periodic=0\n)\nsize = np.int32(10)\na0 = 25 / 46\na1 = 1 - a0\ny = a0 - a1 * np.cos(\n    2 * 3.1415 * np.arange(0, size, 1, dtype=np.float32) / (size - 1)\n)\nexpect(node, inputs=[size], outputs=[y], name=\"test_hammingwindow_symmetric\")"
+        "code": "# Test periodic window\nnode = onnx.helper.make_node(\n    \"HammingWindow\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nsize = np.int32(10)\na0 = 25 / 46\na1 = 1 - a0\ny = a0 - a1 * np.cos(2 * np.pi * np.arange(0, size, 1, dtype=np.float32) / size)\nexpect(node, inputs=[size], outputs=[y], name=\"test_hammingwindow\")\n\n# Test symmetric window\nnode = onnx.helper.make_node(\n    \"HammingWindow\", inputs=[\"x\"], outputs=[\"y\"], periodic=0\n)\nsize = np.int32(10)\na0 = 25 / 46\na1 = 1 - a0\ny = a0 - a1 * np.cos(\n    2 * np.pi * np.arange(0, size, 1, dtype=np.float32) / (size - 1)\n)\nexpect(node, inputs=[size], outputs=[y], name=\"test_hammingwindow_symmetric\")"
       }
     ]
   },
@@ -13511,7 +13511,7 @@
     "examples": [
       {
         "summary": "hannwindow",
-        "code": "# Test periodic window\nnode = onnx.helper.make_node(\n    \"HannWindow\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nsize = np.int32(10)\na0 = 0.5\na1 = 0.5\ny = a0 - a1 * np.cos(\n    2 * 3.1415 * np.arange(0, size, 1, dtype=np.float32) / size\n)\nexpect(node, inputs=[size], outputs=[y], name=\"test_hannwindow\")\n\n# Test symmetric window\nnode = onnx.helper.make_node(\n    \"HannWindow\", inputs=[\"x\"], outputs=[\"y\"], periodic=0\n)\nsize = np.int32(10)\na0 = 0.5\na1 = 0.5\ny = a0 - a1 * np.cos(\n    2 * 3.1415 * np.arange(0, size, 1, dtype=np.float32) / (size - 1)\n)\nexpect(node, inputs=[size], outputs=[y], name=\"test_hannwindow_symmetric\")"
+        "code": "# Test periodic window\nnode = onnx.helper.make_node(\n    \"HannWindow\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\nsize = np.int32(10)\na0 = 0.5\na1 = 0.5\ny = a0 - a1 * np.cos(2 * np.pi * np.arange(0, size, 1, dtype=np.float32) / size)\nexpect(node, inputs=[size], outputs=[y], name=\"test_hannwindow\")\n\n# Test symmetric window\nnode = onnx.helper.make_node(\n    \"HannWindow\", inputs=[\"x\"], outputs=[\"y\"], periodic=0\n)\nsize = np.int32(10)\na0 = 0.5\na1 = 0.5\ny = a0 - a1 * np.cos(\n    2 * np.pi * np.arange(0, size, 1, dtype=np.float32) / (size - 1)\n)\nexpect(node, inputs=[size], outputs=[y], name=\"test_hannwindow_symmetric\")"
       }
     ]
   },
@@ -23265,7 +23265,7 @@
       },
       {
         "summary": "reflection_edge_and_wrap_pad",
-        "code": "for mode in [\"edge\", \"reflect\", \"wrap\"]:\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
+        "code": "for mode in (\"edge\", \"reflect\", \"wrap\"):\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
     ],
     "category": "Tensor"
@@ -23341,7 +23341,7 @@
       },
       {
         "summary": "reflection_edge_and_wrap_pad",
-        "code": "for mode in [\"edge\", \"reflect\", \"wrap\"]:\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
+        "code": "for mode in (\"edge\", \"reflect\", \"wrap\"):\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
     ],
     "category": "Tensor"
@@ -23425,7 +23425,7 @@
       },
       {
         "summary": "reflection_edge_and_wrap_pad",
-        "code": "for mode in [\"edge\", \"reflect\", \"wrap\"]:\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
+        "code": "for mode in (\"edge\", \"reflect\", \"wrap\"):\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
     ],
     "category": "Tensor"
@@ -23514,7 +23514,7 @@
       },
       {
         "summary": "reflection_edge_and_wrap_pad",
-        "code": "for mode in [\"edge\", \"reflect\", \"wrap\"]:\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
+        "code": "for mode in (\"edge\", \"reflect\", \"wrap\"):\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
     ],
     "category": "Tensor"
@@ -23617,7 +23617,7 @@
       },
       {
         "summary": "reflection_edge_and_wrap_pad",
-        "code": "for mode in [\"edge\", \"reflect\", \"wrap\"]:\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
+        "code": "for mode in (\"edge\", \"reflect\", \"wrap\"):\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
     ],
     "category": "Tensor"
@@ -23720,7 +23720,7 @@
       },
       {
         "summary": "reflection_edge_and_wrap_pad",
-        "code": "for mode in [\"edge\", \"reflect\", \"wrap\"]:\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
+        "code": "for mode in (\"edge\", \"reflect\", \"wrap\"):\n    node = onnx.helper.make_node(\n        \"Pad\", inputs=[\"x\", \"pads\"], outputs=[\"y\"], mode=mode\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.int32)\n    pads = np.array([0, 0, 1, 1, 0, 0, 1, 1]).astype(\n        np.int64\n    )  # pad order [x1_begin, x2_begin, ..., x1_end, x2_end, ...]\n    y = pad_impl(x, pads, mode)\n\n    expect(node, inputs=[x, pads], outputs=[y], name=f\"test_{mode}_pad\")"
       }
     ],
     "category": "Tensor"
@@ -30861,7 +30861,7 @@
     "examples": [
       {
         "summary": "stft",
-        "code": "signal = np.arange(0, 128, dtype=np.float32).reshape(1, 128, 1)\nlength = np.array(16).astype(np.int64)\nonesided_length = (length >> 1) + 1\nstep = np.array(8).astype(np.int64)\n\nno_window = \"\"  # optional input, not supplied\nnode = onnx.helper.make_node(\n    \"STFT\",\n    inputs=[\"signal\", \"frame_step\", no_window, \"frame_length\"],\n    outputs=[\"output\"],\n)\n\nnstfts = ((signal.shape[1] - length) // step) + 1\n# [batch_size][frames][frame_length][2]\noutput = np.empty([1, nstfts, onesided_length, 2], dtype=np.float32)\nfor i in range(nstfts):\n    start = i * step\n    stop = i * step + length\n    complex_out = np.fft.fft(signal[0, start:stop, 0])[0:onesided_length]\n    output[0, i] = np.stack((complex_out.real, complex_out.imag), axis=1)\n\nexpect(node, inputs=[signal, step, length], outputs=[output], name=\"test_stft\")\n\nnode = onnx.helper.make_node(\n    \"STFT\",\n    inputs=[\"signal\", \"frame_step\", \"window\"],\n    outputs=[\"output\"],\n)\n\n# Test with window\na0 = 0.5\na1 = 0.5\nwindow = a0 + a1 * np.cos(\n    2 * 3.1415 * np.arange(0, length, 1, dtype=np.float32) / length\n)\nnstfts = 1 + (signal.shape[1] - window.shape[0]) // step\n\n# [batch_size][frames][frame_length][2]\noutput = np.empty([1, nstfts, onesided_length, 2], dtype=np.float32)\nfor i in range(nstfts):\n    start = i * step\n    stop = i * step + length\n    complex_out = np.fft.fft(signal[0, start:stop, 0] * window)[\n        0:onesided_length\n    ]\n    output[0, i] = np.stack((complex_out.real, complex_out.imag), axis=1)\nexpect(\n    node,\n    inputs=[signal, step, window],\n    outputs=[output],\n    name=\"test_stft_with_window\",\n)"
+        "code": "signal = np.arange(0, 128, dtype=np.float32).reshape(1, 128, 1)\nlength = np.array(16).astype(np.int64)\nonesided_length = (length >> 1) + 1\nstep = np.array(8).astype(np.int64)\n\nno_window = \"\"  # optional input, not supplied\nnode = onnx.helper.make_node(\n    \"STFT\",\n    inputs=[\"signal\", \"frame_step\", no_window, \"frame_length\"],\n    outputs=[\"output\"],\n)\n\nnstfts = ((signal.shape[1] - length) // step) + 1\n# [batch_size][frames][frame_length][2]\noutput = np.empty([1, nstfts, onesided_length, 2], dtype=np.float32)\nfor i in range(nstfts):\n    start = i * step\n    stop = i * step + length\n    complex_out = np.fft.fft(signal[0, start:stop, 0])[0:onesided_length]\n    output[0, i] = np.stack((complex_out.real, complex_out.imag), axis=1)\n\nexpect(node, inputs=[signal, step, length], outputs=[output], name=\"test_stft\")\n\nnode = onnx.helper.make_node(\n    \"STFT\",\n    inputs=[\"signal\", \"frame_step\", \"window\"],\n    outputs=[\"output\"],\n)\n\n# Test with window\na0 = 0.5\na1 = 0.5\nwindow = a0 + a1 * np.cos(\n    2 * np.pi * np.arange(0, length, 1, dtype=np.float32) / length\n)\nnstfts = 1 + (signal.shape[1] - window.shape[0]) // step\n\n# [batch_size][frames][frame_length][2]\noutput = np.empty([1, nstfts, onesided_length, 2], dtype=np.float32)\nfor i in range(nstfts):\n    start = i * step\n    stop = i * step + length\n    complex_out = np.fft.fft(signal[0, start:stop, 0] * window)[\n        0:onesided_length\n    ]\n    output[0, i] = np.stack((complex_out.real, complex_out.imag), axis=1)\nexpect(\n    node,\n    inputs=[signal, step, window],\n    outputs=[output],\n    name=\"test_stft_with_window\",\n)"
       }
     ]
   },
