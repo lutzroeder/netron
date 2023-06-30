@@ -3818,6 +3818,26 @@
         "default": ""
       },
       {
+        "name": "low_priority_max_batch_size",
+        "type": "int64",
+        "default": 0
+      },
+      {
+        "name": "low_priority_batch_timeout_micros",
+        "type": "int64",
+        "default": 0
+      },
+      {
+        "name": "low_priority_allowed_batch_sizes",
+        "type": "int64[]",
+        "default": []
+      },
+      {
+        "name": "low_priority_max_enqueued_batches",
+        "type": "int64",
+        "default": 0
+      },
+      {
         "name": "Tin",
         "type": "type[]",
         "description": "the types of tensors to be batched.",
