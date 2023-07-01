@@ -274,7 +274,7 @@ const publish = async (target) => {
     switch (target || read()) {
         case 'web': {
             writeLine('publish web');
-            build('web');
+            await build('web');
             await rm('dist', 'gh-pages');
             const url = 'https://x-access-token:' + GITHUB_TOKEN + '@github.com/' + GITHUB_USER + '/netron.git';
             await exec('git clone --depth=1 ' + url + ' --branch gh-pages ./dist/gh-pages 2>&1 > /dev/null');
@@ -300,7 +300,7 @@ const publish = async (target) => {
         }
         case 'python': {
             writeLine('publish python');
-            build('python');
+            await build('python');
             await exec('python -m pip install --user twine');
             await exec('python -m twine upload --non-interactive --skip-existing --verbose dist/pypi/*.whl');
             break;
