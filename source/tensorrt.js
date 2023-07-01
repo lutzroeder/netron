@@ -54,9 +54,17 @@ tensorrt.Graph = class {
 tensorrt.Engine = class {
 
     static open(stream) {
-        const signature = [ 0x70, 0x74, 0x72, 0x74 ]; // ptrt
-        if (stream && stream.length >= 24 && stream.peek(4).every((value, index) => value === signature[index])) {
-            return new tensorrt.Engine(stream);
+        if (stream && stream.length >= 24) {
+            const signatures = [
+                [ 0x70, 0x74, 0x72, 0x74 ], // ptrt
+                [ 0x66, 0x74, 0x72, 0x74 ]  // ftrt
+            ];
+            const buffer = stream.peek(4);
+            for (const signature of signatures) {
+                if (buffer.every((value, index) => value === signature[index])) {
+                    return new tensorrt.Engine(stream);
+                }
+            }
         }
         return null;
     }

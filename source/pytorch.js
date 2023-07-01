@@ -3425,11 +3425,16 @@ pytorch.Utility = class {
                     if (obj instanceof Map && obj.has('engine')) {
                         // https://github.com/NVIDIA-AI-IOT/torch2trt/blob/master/torch2trt/torch2trt.py
                         const data = obj.get('engine');
-                        const signature = [ 0x70, 0x74, 0x72, 0x74 ]; // ptrt
-                        if (data instanceof Uint8Array && data.length > signature.length && signature.every((value, index) => value === data[index])) {
-                            const buffer = data.slice(0, 24);
-                            const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-                            throw new pytorch.Error("Invalid file content. File contains undocumented PyTorch TensorRT engine data (" + content.substring(8) + ").");
+                        const signatures = [
+                            [ 0x70, 0x74, 0x72, 0x74 ], // ptrt
+                            [ 0x66, 0x74, 0x72, 0x74 ]  // ftrt
+                        ];
+                        for (const signature of signatures) {
+                            if (data instanceof Uint8Array && data.length > signature.length && signature.every((value, index) => value === data[index])) {
+                                const buffer = data.slice(0, 24);
+                                const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+                                throw new pytorch.Error("Invalid file content. File contains undocumented PyTorch TensorRT engine data (" + content.substring(8) + ").");
+                            }
                         }
                     }
                     if (obj._modules) {
