@@ -1,15 +1,15 @@
 
 const child_process = require('child_process');
 const crypto = require('crypto');
-const fs = require('fs');
+const fs = require('fs').promises;
 const os = require('os');
 const path = require('path');
 
 let configuration = null;
 
-const load = () => {
+const load = async () => {
     const file = path.join(__dirname, 'package.json');
-    const content = fs.readFileSync(file, 'utf-8');
+    const content = await fs.readFile(file, 'utf-8');
     configuration = JSON.parse(content);
 };
 
@@ -29,21 +29,67 @@ const writeLine = (message) => {
     write(message + os.EOL);
 };
 
-const rm = (...args) => {
+const rm = async (...args) => {
     writeLine('rm ' + path.join(...args));
     const dir = path.join(__dirname, ...args);
-    fs.rmSync(dir, { recursive: true, force: true });
+    const options = { recursive: true, force: true };
+    await fs.rm(dir, options);
 };
 
-const mkdir = (...args) => {
+const mkdir = async (...args) => {
     writeLine('mkdir ' + path.join(...args));
     const dir = path.join(__dirname, ...args);
-    fs.mkdirSync(dir, { recursive: true });
+    const options = { recursive: true };
+    await fs.mkdir(dir, options);
     return dir;
 };
 
-const exec = (command) => {
+const copy = async (source, target, filter) => {
+    let files = await fs.readdir(source);
+    files = filter ? files.filter((file) => filter(file)) : files;
+    const promises = files.map((file) => fs.copyFile(path.join(source, file), path.join(target, file)));
+    await Promise.all(promises);
+};
+
+const unlink = async (dir, filter) => {
+    let files = await fs.readdir(dir);
+    files = filter ? files.filter((file) => filter(file)) : files;
+    const promises = files.map((file) => fs.unlink(path.join(dir, file)));
+    await Promise.all(promises);
+};
+
+const exists = async (path) => {
+    try {
+        await fs.access(path);
+        return true;
+    } catch (error) {
+        return false;
+    }
+};
+
+const exec = async (command, encoding) => {
+    if (encoding) {
+        return child_process.execSync(command, { cwd: __dirname, encoding: encoding });
+    }
     child_process.execSync(command, { cwd: __dirname, stdio: [ 0,1,2 ] });
+    return '';
+    /*
+    return new Promise((resolve, reject) => {
+        const child = child_process.exec(command, { cwd:  __dirname }, (error, stdout, stderr) => {
+            if (error) {
+                stderr = '\n' + stderr ;
+                if (error.message && error.message.endsWith(stderr)) {
+                    error.message = error.message.slice(0, -stderr.length);
+                }
+                reject(error);
+            } else {
+                resolve(stdout);
+            }
+        });
+        child.stdout.pipe(process.stdout);
+        child.stderr.pipe(process.stderr);
+    });
+    */
 };
 
 const sleep = (delay) => {
@@ -108,7 +154,7 @@ const fork = async (organization, repository) => {
         Authorization: 'Bearer ' + process.env.GITHUB_TOKEN
     };
     writeLine('github delete ' + repository);
-    await request('https://api.github.com/repos/' + process.env.GITHUB_USER + '/homebrew-cask', {
+    await request('https://api.github.com/repos/' + process.env.GITHUB_USER + '/' + repository, {
         method: 'DELETE',
         headers: headers
     }, false);
@@ -120,14 +166,14 @@ const fork = async (organization, repository) => {
         body: ''
     });
     await sleep(4000);
-    rm('dist', repository);
+    await rm('dist', repository);
     writeLine('github clone ' + repository);
-    exec('git clone --depth=2 https://x-access-token:' + process.env.GITHUB_TOKEN + '@github.com/' + process.env.GITHUB_USER + '/' + repository + '.git ' + 'dist/' + repository);
+    await exec('git clone --depth=2 https://x-access-token:' + process.env.GITHUB_TOKEN + '@github.com/' + process.env.GITHUB_USER + '/' + repository + '.git ' + 'dist/' + repository);
 };
 
 const pullrequest = async (organization, repository, body) => {
     writeLine('github push ' + repository);
-    exec('git -C dist/' + repository + ' push');
+    await exec('git -C dist/' + repository + ' push');
     writeLine('github pullrequest homebrew-cask');
     const headers = {
         Authorization: 'Bearer ' + process.env.GITHUB_TOKEN
@@ -139,85 +185,81 @@ const pullrequest = async (organization, repository, body) => {
     });
 };
 
-const install = () => {
+const install = async () => {
     const node_modules = path.join(__dirname, 'node_modules');
-    if (!fs.existsSync(node_modules)) {
-        const options = { cwd: __dirname, stdio: [ 0,1,2 ] };
-        child_process.execSync('npm install', options);
+    if (!await exists(node_modules)) {
+        await exec('npm install');
     }
 };
 
-const start = () => {
-    install();
-    exec('npx electron .');
+const start = async () => {
+    await install();
+    await exec('npx electron .');
 };
 
-const clean = () => {
-    rm('dist');
-    rm('node_modules');
-    rm('package-lock.json');
+const clean = async () => {
+    await rm('dist');
+    await rm('node_modules');
+    await rm('package-lock.json');
 };
 
-const purge = () => {
+const purge = async () => {
     clean();
-    rm('third_party', 'env');
-    rm('third_party', 'source');
+    await rm('third_party', 'env');
+    await rm('third_party', 'source');
 };
 
 const build = async (target) => {
     switch (target || read()) {
         case 'web': {
             writeLine('build web');
-            rm('dist', 'web');
-            mkdir('dist', 'web');
+            await rm('dist', 'web');
+            await mkdir('dist', 'web');
             writeLine('cp source/dir dist/dir');
             const source_dir = path.join(__dirname, 'source');
             const dist_dir = path.join(__dirname, 'dist', 'web');
             const extensions = new Set([ 'html', 'css', 'js', 'json', 'ico', 'png' ]);
-            for (const file of fs.readdirSync(source_dir)) {
-                if (extensions.has(file.split('.').pop())) {
-                    fs.copyFileSync(path.join(source_dir, file), path.join(dist_dir, file));
-                }
-            }
-            rm('dist', 'web', 'app.js');
-            rm('dist', 'web', 'electron.js');
+            await copy(source_dir, dist_dir, (file) => extensions.has(file.split('.').pop()));
+            await rm('dist', 'web', 'app.js');
+            await rm('dist', 'web', 'electron.js');
             const manifestFile = path.join(__dirname, 'package.json');
             const contentFile = path.join(__dirname, 'dist', 'web', 'index.html');
-            const manifest = JSON.parse(fs.readFileSync(manifestFile, 'utf-8'));
-            let content = fs.readFileSync(contentFile, 'utf-8');
+            const manifestContent = await fs.readFile(manifestFile, 'utf-8');
+            const manifest = JSON.parse(manifestContent);
+            let content = await fs.readFile(contentFile, 'utf-8');
             content = content.replace(/(<meta\s*name="version"\s*content=")(.*)(">)/m, (match, p1, p2, p3) => {
                 return p1 + manifest.version + p3;
             });
             content = content.replace(/(<meta\s*name="date"\s*content=")(.*)(">)/m, (match, p1, p2, p3) => {
                 return p1 + manifest.date + p3;
             });
-            fs.writeFileSync(contentFile, content, 'utf-8');
+            await fs.writeFile(contentFile, content, 'utf-8');
             break;
         }
         case 'electron': {
             writeLine('build electron');
-            install();
-            exec('npx electron-builder install-app-deps');
-            exec('npx electron-builder --mac --universal --publish never -c.mac.identity=null');
-            exec('npx electron-builder --win --x64 --arm64 --publish never');
-            exec('npx electron-builder --linux appimage --x64 --publish never');
-            exec('npx electron-builder --linux snap --x64 --publish never');
+            await install();
+            await exec('npx electron-builder install-app-deps');
+            await exec('npx electron-builder --mac --universal --publish never -c.mac.identity=null');
+            await exec('npx electron-builder --win --x64 --arm64 --publish never');
+            await exec('npx electron-builder --linux appimage --x64 --publish never');
+            await exec('npx electron-builder --linux snap --x64 --publish never');
             break;
         }
         case 'python': {
             writeLine('build python');
-            exec('python package.py build version');
-            exec('python -m pip install --user build wheel --quiet');
-            exec('python -m build --no-isolation --wheel --outdir dist/pypi dist/pypi');
+            await exec('python package.py build version');
+            await exec('python -m pip install --user build wheel --quiet');
+            await exec('python -m build --no-isolation --wheel --outdir dist/pypi dist/pypi');
             if (read('install')) {
-                exec('python -m pip install --force-reinstall dist/pypi/*.whl');
+                await exec('python -m pip install --force-reinstall dist/pypi/*.whl');
             }
             break;
         }
         default: {
             writeLine('build');
-            rm('dist');
-            install();
+            await rm('dist');
+            await install();
             await build('web');
             await build('electron');
             await build('python');
@@ -233,38 +275,34 @@ const publish = async (target) => {
         case 'web': {
             writeLine('publish web');
             build('web');
-            rm('dist', 'gh-pages');
+            await rm('dist', 'gh-pages');
             const url = 'https://x-access-token:' + GITHUB_TOKEN + '@github.com/' + GITHUB_USER + '/netron.git';
-            exec('git clone --depth=1 ' + url + ' --branch gh-pages ./dist/gh-pages 2>&1 > /dev/null');
+            await exec('git clone --depth=1 ' + url + ' --branch gh-pages ./dist/gh-pages 2>&1 > /dev/null');
             writeLine('cp dist/web dist/gh-pages');
             const source_dir = path.join(__dirname, 'dist', 'web');
             const target_dir = path.join(__dirname, 'dist', 'gh-pages');
-            for (const file of fs.readdirSync(target_dir).filter((file) => file !== '.git')) {
-                fs.unlinkSync(path.join(target_dir, file));
-            }
-            for (const file of fs.readdirSync(source_dir)) {
-                fs.copyFileSync(path.join(source_dir, file), path.join(target_dir, file));
-            }
-            exec('git -C dist/gh-pages add --all');
-            exec('git -C dist/gh-pages commit --amend --no-edit');
-            exec('git -C dist/gh-pages push --force origin gh-pages');
+            await unlink(target_dir, (file) => file !== '.git');
+            await copy(source_dir, target_dir);
+            await exec('git -C dist/gh-pages add --all');
+            await exec('git -C dist/gh-pages commit --amend --no-edit');
+            await exec('git -C dist/gh-pages push --force origin gh-pages');
             break;
         }
         case 'electron': {
             writeLine('publish electron');
-            install();
-            exec('npx electron-builder install-app-deps');
-            exec('npx electron-builder --mac --universal --publish always');
-            exec('npx electron-builder --win --x64 --arm64 --publish always');
-            exec('npx electron-builder --linux appimage --x64 --publish always');
-            exec('npx electron-builder --linux snap --x64 --publish always');
+            await install();
+            await exec('npx electron-builder install-app-deps');
+            await exec('npx electron-builder --mac --universal --publish always');
+            await exec('npx electron-builder --win --x64 --arm64 --publish always');
+            await exec('npx electron-builder --linux appimage --x64 --publish always');
+            await exec('npx electron-builder --linux snap --x64 --publish always');
             break;
         }
         case 'python': {
             writeLine('publish python');
             build('python');
-            exec('python -m pip install --user twine');
-            exec('python -m twine upload --non-interactive --skip-existing --verbose dist/pypi/*.whl');
+            await exec('python -m pip install --user twine');
+            await exec('python -m twine upload --non-interactive --skip-existing --verbose dist/pypi/*.whl');
             break;
         }
         case 'cask': {
@@ -274,8 +312,9 @@ const publish = async (target) => {
             const url = repository + '/releases/download/v#{version}/' + configuration.productName + '-#{version}-mac.zip';
             const sha256 = await hash(url.replace(/#{version}/g, configuration.version), 'sha256');
             writeLine('update manifest');
-            const file = path.join(mkdir('dist', 'homebrew-cask', 'Casks'), 'netron.rb');
-            fs.writeFileSync(file, [
+            const dir = await mkdir('dist', 'homebrew-cask', 'Casks');
+            const file = path.join(dir, 'netron.rb');
+            await fs.writeFile(file, [
                 'cask "' + configuration.name + '" do',
                 '  version "' + configuration.version + '"',
                 '  sha256 "' + sha256.toLowerCase() + '"',
@@ -298,15 +337,15 @@ const publish = async (target) => {
                 ''
             ].join('\n'));
             writeLine('git push homebrew-cask');
-            exec('git -C dist/homebrew-cask add --all');
-            exec('git -C dist/homebrew-cask commit -m "Update ' + configuration.name + ' to ' + configuration.version + '"');
+            await exec('git -C dist/homebrew-cask add --all');
+            await exec('git -C dist/homebrew-cask commit -m "Update ' + configuration.name + ' to ' + configuration.version + '"');
             await pullrequest('Homebrew', 'homebrew-cask', {
                 title: 'Update ' + configuration.name + ' to ' + configuration.version,
                 body: 'Update version and sha256',
                 head: process.env.GITHUB_USER + ':master',
                 base: 'master'
             });
-            rm('dist', 'homebrew-cask');
+            await rm('dist', 'homebrew-cask');
             break;
         }
         case 'winget': {
@@ -323,15 +362,11 @@ const publish = async (target) => {
             const extensions = configuration.build.fileAssociations.map((entry) => '- ' + entry.ext).sort().join('\n');
             writeLine('download ' + url);
             const sha256 = await hash(url, 'sha256');
-            const paths = [ 'dist', 'winget-pkgs', 'manifests', publisher[0].toLowerCase(), publisher.replace(' ', ''), product ];
-            // rm(...paths);
-            // exec('git -C dist/winget-pkgs add --all');
-            // exec('git -C dist/winget-pkgs commit -m "Remove ' + configuration.name + '"');
-            paths.push(version);
-            mkdir(...paths);
+            const paths = [ 'dist', 'winget-pkgs', 'manifests', publisher[0].toLowerCase(), publisher.replace(' ', ''), product, version ];
+            await mkdir(...paths);
             writeLine('update manifest');
             const manifestFile = path.join(__dirname, ...paths, identifier);
-            fs.writeFileSync(manifestFile + '.yaml', [
+            await fs.writeFile(manifestFile + '.yaml', [
                 '# yaml-language-server: $schema=https://aka.ms/winget-manifest.version.1.2.0.schema.json',
                 'PackageIdentifier: ' + identifier,
                 'PackageVersion: ' + version,
@@ -340,7 +375,7 @@ const publish = async (target) => {
                 'ManifestVersion: 1.2.0',
                 ''
             ].join('\n'));
-            fs.writeFileSync(manifestFile + '.installer.yaml', [
+            await fs.writeFile(manifestFile + '.installer.yaml', [
                 '# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.2.0.schema.json',
                 'PackageIdentifier: ' + identifier,
                 'PackageVersion: ' + version,
@@ -374,7 +409,7 @@ const publish = async (target) => {
                 'ManifestVersion: 1.2.0',
                 ''
             ].join('\n'));
-            fs.writeFileSync(manifestFile + '.locale.en-US.yaml', [
+            await fs.writeFile(manifestFile + '.locale.en-US.yaml', [
                 '# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.2.0.schema.json',
                 'PackageIdentifier: ' + identifier,
                 'PackageVersion: ' + version,
@@ -400,21 +435,21 @@ const publish = async (target) => {
                 ''
             ].join('\n'));
             writeLine('git push winget-pkgs');
-            exec('git -C dist/winget-pkgs add --all');
-            exec('git -C dist/winget-pkgs commit -m "Update ' + configuration.name + ' to ' + configuration.version + '"');
+            await exec('git -C dist/winget-pkgs add --all');
+            await exec('git -C dist/winget-pkgs commit -m "Update ' + configuration.name + ' to ' + configuration.version + '"');
             await pullrequest('microsoft', 'winget-pkgs', {
                 title: 'Update ' + configuration.productName + ' to ' + configuration.version,
                 body: '',
                 head: process.env.GITHUB_USER + ':master',
                 base: 'master'
             });
-            rm('dist', 'winget-pkgs');
+            await rm('dist', 'winget-pkgs');
             break;
         }
         default: {
             writeLine('publish');
-            rm('dist');
-            install();
+            await rm('dist');
+            await install();
             await publish('web');
             await publish('electron');
             await publish('python');
@@ -425,16 +460,16 @@ const publish = async (target) => {
     }
 };
 
-const lint = () => {
-    install();
+const lint = async () => {
+    await install();
     writeLine('eslint');
-    exec('npx eslint *.js source/*.js test/*.js publish/*.js tools/*.js');
+    await exec('npx eslint *.js source/*.js test/*.js publish/*.js tools/*.js');
     writeLine('pylint');
-    exec('python -m pip install --upgrade --quiet pylint');
-    exec('python -m pylint -sn --recursive=y source test publish tools *.py');
+    await exec('python -m pip install --upgrade --quiet pylint');
+    await exec('python -m pylint -sn --recursive=y source test publish tools *.py');
 };
 
-const update = () => {
+const update = async () => {
     const targets = process.argv.length > 3 ? process.argv.slice(3) : [
         'armnn',
         'bigdl',
@@ -459,41 +494,53 @@ const update = () => {
         'xmodel'
     ];
     for (const target of targets) {
-        exec('tools/' + target + ' sync install schema metadata');
+        /* eslint-disable no-await-in-loop */
+        await exec('tools/' + target + ' sync install schema metadata');
+        /* eslint-enable no-await-in-loop */
     }
 };
 
-const pull = () => {
-    exec('git fetch --prune origin "refs/tags/*:refs/tags/*"');
-    exec('git pull --prune --rebase');
-};
-
-const coverage = () => {
-    rm('.nyc_output');
-    rm('coverage');
-    rm('dist', 'nyc');
-    mkdir('dist', 'nyc');
-    exec('cp package.json dist/nyc');
-    exec('cp -R source dist/nyc');
-    exec('nyc instrument --compact false source dist/nyc/source');
-    exec('nyc --reporter=lcov --instrument npx electron ./dist/nyc');
-};
-
-const analyze = () => {
-    if (!fs.existsSync('third_party/tools/codeql')) {
-        exec('git clone --depth=1 https://github.com/github/codeql.git third_party/tools/codeql');
+const pull = async () => {
+    await exec('git fetch --prune origin "refs/tags/*:refs/tags/*"');
+    const before = await exec('git rev-parse HEAD', 'utf-8');
+    await exec('git pull --prune --rebase');
+    const after = await exec('git rev-parse HEAD', 'utf-8');
+    if (before.trim() !== after.trim()) {
+        const output = exec('git diff --name-only ' + before.trim() + ' ' + after.trim());
+        const files = new Set(output.split('\n'));
+        if (files.has('package.json')) {
+            clean();
+            await install();
+        }
     }
-    rm('dist', 'codeql');
-    mkdir('dist', 'codeql', 'netron');
-    exec('cp -r publish source test tools dist/codeql/netron/');
-    exec('codeql database create dist/codeql/database --source-root dist/codeql/netron --language=javascript --threads=3');
-    exec('codeql database analyze dist/codeql/database ./third_party/tools/codeql/javascript/ql/src/codeql-suites/javascript-security-and-quality.qls --format=csv --output=dist/codeql/results.csv --threads=3');
-    exec('cat dist/codeql/results.csv');
 };
 
-const version = () => {
+const coverage = async () => {
+    await rm('.nyc_output');
+    await rm('coverage');
+    await rm('dist', 'nyc');
+    await mkdir('dist', 'nyc');
+    await exec('cp package.json dist/nyc');
+    await exec('cp -R source dist/nyc');
+    await exec('nyc instrument --compact false source dist/nyc/source');
+    await exec('nyc --reporter=lcov --instrument npx electron ./dist/nyc');
+};
+
+const analyze = async () => {
+    if (!await exists('third_party/tools/codeql')) {
+        await exec('git clone --depth=1 https://github.com/github/codeql.git third_party/tools/codeql');
+    }
+    await rm('dist', 'codeql');
+    await mkdir('dist', 'codeql', 'netron');
+    await exec('cp -r publish source test tools dist/codeql/netron/');
+    await exec('codeql database create dist/codeql/database --source-root dist/codeql/netron --language=javascript --threads=3');
+    await exec('codeql database analyze dist/codeql/database ./third_party/tools/codeql/javascript/ql/src/codeql-suites/javascript-security-and-quality.qls --format=csv --output=dist/codeql/results.csv --threads=3');
+    await exec('cat dist/codeql/results.csv');
+};
+
+const version = async () => {
     const file = path.join(__dirname, 'package.json');
-    let content = fs.readFileSync(file, 'utf-8');
+    let content = await fs.readFile(file, 'utf-8');
     content = content.replace(/(\s*"version":\s")(\d\.\d\.\d)(",)/m, (match, p1, p2, p3) => {
         const version = Array.from((parseInt(p2.split('.').join(''), 10) + 1).toString()).join('.');
         return p1 + version + p3;
@@ -502,13 +549,13 @@ const version = () => {
         const date = new Date().toISOString().split('.').shift().split('T').join(' ');
         return p1 + date + p3;
     });
-    fs.writeFileSync(file, content, 'utf-8');
-    load();
-    exec('git add package.json');
-    exec('git commit -m "Update to ' + configuration.version + '"');
-    exec('git tag v' + configuration.version);
-    exec('git push');
-    exec('git push --tags');
+    await fs.writeFile(file, content, 'utf-8');
+    await load();
+    await exec('git add package.json');
+    await exec('git commit -m "Update to ' + configuration.version + '"');
+    await exec('git tag v' + configuration.version);
+    await exec('git push');
+    await exec('git push --tags');
 };
 
 const args = process.argv.slice(2);
@@ -524,17 +571,17 @@ const next = async () => {
     try {
         const task = read();
         switch (task) {
-            case 'start': start(); break;
-            case 'clean': clean(); break;
-            case 'purge': purge(); break;
+            case 'start': await start(); break;
+            case 'clean': await clean(); break;
+            case 'purge': await purge(); break;
             case 'build': await build(); break;
             case 'publish': await publish(); break;
-            case 'version': version(); break;
-            case 'lint': lint(); break;
-            case 'update': update(); break;
-            case 'pull': pull(); break;
-            case 'analyze': analyze(); break;
-            case 'coverage': coverage(); break;
+            case 'version': await version(); break;
+            case 'lint': await lint(); break;
+            case 'update': await update(); break;
+            case 'pull': await pull(); break;
+            case 'analyze': await analyze(); break;
+            case 'coverage': await coverage(); break;
             default: throw new Error("Unsupported task '" + task + "'.");
         }
     } catch (err) {
