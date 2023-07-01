@@ -7928,7 +7928,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "indices", "type": "Tensor" },
-      { "name": "output_size", "type": "int64[2]" }
+      { "name": "output_size", "type": "SymInt[2]" }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -7939,7 +7939,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "indices", "type": "Tensor" },
-      { "name": "output_size", "type": "int64[2]" }
+      { "name": "output_size", "type": "SymInt[2]" }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -7951,7 +7951,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "indices", "type": "Tensor" },
-      { "name": "output_size", "type": "int64[3]" },
+      { "name": "output_size", "type": "SymInt[3]" },
       { "name": "stride", "type": "int64[3]" },
       { "name": "padding", "type": "int64[3]" }
     ],
@@ -7964,7 +7964,7 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "indices", "type": "Tensor" },
-      { "name": "output_size", "type": "int64[3]" },
+      { "name": "output_size", "type": "SymInt[3]" },
       { "name": "stride", "type": "int64[3]" },
       { "name": "padding", "type": "int64[3]" }
     ],
