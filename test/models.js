@@ -325,6 +325,39 @@ const request = async (url, init) => {
     return response;
 };
 
+class Table {
+
+    constructor(schema) {
+        this.schema = schema;
+        const line = Array.from(this.schema).join(',') + '\n';
+        this.content = [ line ];
+    }
+
+    async add(row) {
+        row = new Map(row);
+        const line = Array.from(this.schema).map((key) => {
+            const value = row.has(key) ? row.get(key) : '';
+            row.delete(key);
+            return value;
+        }).join(',') + '\n';
+        if (row.size > 0) {
+            throw new Error();
+        }
+        this.content.push(line);
+        if (this.file) {
+            await fs.appendFile(this.file, line);
+        }
+    }
+
+    async log(file) {
+        if (file) {
+            await fs.mkdir(path.dirname(file), { recursive: true });
+            await fs.writeFile(file, this.content.join(''));
+            this.file = file;
+        }
+    }
+}
+
 class Target {
 
     constructor(host, item) {
@@ -334,6 +367,8 @@ class Target {
         this.target = item.type ? target : target.map((target) => path.resolve(process.cwd(), target));
         this.action = new Set((this.action || '').split(';'));
         this.folder = item.type ? path.normalize(path.join(__dirname, '..', 'third_party' , 'test', item.type)) : '';
+        this.name = this.type ? this.type + '/' + this.target[0] : this.target[0];
+        this.measures = new Map([ [ 'name', this.name ] ]);
         // TODO #1109 duplicate value name
         this.skip1109 = [ 'coreml', 'kmodel', 'mediapipe', 'om', 'openvino', 'tf', 'tfjs' ].includes(this.type);
     }
@@ -357,14 +392,28 @@ class Target {
     }
 
     async execute() {
-        write((this.type ? this.type + '/' + this.target[0] : this.target[0]) + '\n');
+        const time = async (method) => {
+            const start = process.hrtime.bigint();
+            let err = null;
+            try {
+                await method.bind(this)();
+            } catch (error) {
+                err = error;
+            }
+            const duration = Number(process.hrtime.bigint() - start) / 1e9;
+            this.measures.set(method.name, duration);
+            if (err) {
+                throw err;
+            }
+        };
+        write(this.name + '\n');
         clearLine();
-        await this.download(Array.from(this.target), this.source);
+        await time(this.download);
         try {
-            await this.load();
-            this.validate();
+            await time(this.load);
+            await time(this.validate);
             if (!this.action.has('skip-render')) {
-                await this.render();
+                await time(this.render);
             }
             if (this.error) {
                 throw new Error('Expected error.');
@@ -377,6 +426,8 @@ class Target {
     }
 
     async download(targets, sources) {
+        targets = targets || Array.from(this.target);
+        sources = sources || this.source;
         const files = targets.map((file) => path.join(this.folder, file));
         if (await exists(files)) {
             return;
@@ -442,7 +493,7 @@ class Target {
             await fs.writeFile(this.folder + '/' + target, data, null);
         }
         clearLine();
-        if (sources.length > 0) {
+        if (targets.length > 0 && sources.length > 0) {
             await this.download(targets, sources);
         }
     }
@@ -654,12 +705,15 @@ const main = async () => {
             patterns = [];
         }
         const __host__ = new host.TestHost();
+        const measures = new Table([ 'name', 'download', 'load', 'validate', 'render' ]);
+        // await measures.log(path.join(__dirname, '..', 'dist', 'test', 'measures.csv'));
         while (targets.length > 0) {
             const item = targets.pop();
             const target = new Target(__host__, item);
             if (target.match(patterns)) {
                 /* eslint-disable no-await-in-loop */
                 await target.execute();
+                await measures.add(target.measures);
                 /* eslint-enable no-await-in-loop */
             }
         }
