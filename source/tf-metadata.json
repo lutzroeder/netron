@@ -9588,6 +9588,77 @@
     "description": "Only useful as a placeholder for control edges."
   },
   {
+    "name": "Conv",
+    "summary": "Computes a N-D convolution given (N+2)-D `input` and `filter` tensors.",
+    "description": "General function for computing a N-D convolution. It is required that\n`1 <= N <= 3`.",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type",
+        "description": "Must be one of the following: `float16`, `bfloat16`, `float32`, `float64`, `int32`."
+      },
+      {
+        "name": "strides",
+        "type": "int64[]",
+        "description": "1-D tensor of length `N+2`. The stride of the sliding window for each\ndimension of `input`. Must have `strides[0] = strides[N+1] = 1`."
+      },
+      {
+        "name": "padding",
+        "type": "string",
+        "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`, `EXPLICIT`."
+      },
+      {
+        "name": "explicit_paddings",
+        "type": "int64[]",
+        "description": "If `padding` is `\"EXPLICIT\"`, the list of explicit padding amounts. For the ith\ndimension, the amount of padding inserted before and after the dimension is\n`explicit_paddings[2 * i]` and `explicit_paddings[2 * i + 1]`, respectively. If\n`padding` is not `\"EXPLICIT\"`, `explicit_paddings` must be empty.",
+        "default": []
+      },
+      {
+        "name": "data_format",
+        "type": "string",
+        "description": "Used to set the data format. By default `CHANNELS_FIRST`, uses \n`NHWC (2D) / NDHWC (3D)` or if `CHANNELS_LAST`, uses `NCHW (2D) / NCDHW (3D)`. Must be one of the following: `CHANNELS_FIRST`, `CHANNELS_LAST`.",
+        "default": "CHANNELS_LAST"
+      },
+      {
+        "name": "dilations",
+        "type": "int64[]",
+        "description": "1-D tensor of length `N+2`. The dilation factor for each dimension of\n`input`. If set to `k > 1`, there will be `k-1` skipped cells between each\nfilter element on that dimension. The dimension order is determined by the\nvalue of `channels_last_format`, see above for details. Dilations in the batch\nand depth dimensions must be 1.",
+        "default": []
+      },
+      {
+        "name": "batch_dims",
+        "type": "int64",
+        "description": "A positive integer specifying the number of batch dimensions for the input\ntensor. Should be less than the rank of the input tensor.",
+        "default": 1
+      },
+      {
+        "name": "groups",
+        "type": "int64",
+        "description": "A positive integer specifying the number of groups in which the input is split\nalong the channel axis. Each group is convolved separately with\n`filters / groups` filters. The output is the concatenation of all the groups\nresults along the channel axis. Input channels and filters must both be\ndivisible by groups.",
+        "default": 1
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Tensor of type T and shape `batch_shape + spatial_shape + [in_channels]` in the\ncase that `channels_last_format = true` or shape\n`batch_shape + [in_channels] + spatial_shape` if `channels_last_format = false`.\nspatial_shape is N-dimensional with `N=2` or `N=3`.\nAlso note that `batch_shape` is dictated by the parameter `batch_dims`\nand defaults to 1.",
+        "typeAttr": "T"
+      },
+      {
+        "name": "filter",
+        "description": "An `(N+2)-D` Tensor with the same type as `input` and shape\n`spatial_filter_shape + [in_channels, out_channels]`, where spatial_filter_shape\nis N-dimensional with `N=2` or `N=3`.\n",
+        "typeAttr": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "A 4-D tensor. The dimension order is determined by the value of\n`channels_last_format`, see below for details.",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
     "name": "Conv2D",
     "category": "Layer",
     "summary": "Computes a 2-D convolution given 4-D `input` and `filter` tensors.",
