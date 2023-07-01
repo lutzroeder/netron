@@ -4658,10 +4658,13 @@ view.ModelContext = class {
                     switch (type) {
                         case 'json': {
                             try {
-                                const reader = json.TextReader.open(this.stream);
-                                if (reader) {
-                                    const obj = reader.read();
-                                    this._content.set(type, obj);
+                                const buffer = this.stream.peek(Math.min(this.stream.length, 0x1000));
+                                if (buffer.some((v) => v === 0x22 || v === 0x5b || v === 0x5d || v === 0x7b || v === 0x7d)) {
+                                    const reader = json.TextReader.open(this.stream);
+                                    if (reader) {
+                                        const obj = reader.read();
+                                        this._content.set(type, obj);
+                                    }
                                 }
                             } catch (err) {
                                 // continue regardless of error
