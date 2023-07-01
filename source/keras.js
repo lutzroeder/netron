@@ -303,7 +303,7 @@ keras.Graph = class {
         group = group || '';
         const args = new Map();
         const arg = (name, type, tensor) => {
-            if (name.length === 0 && tensor) {
+            if (tensor) {
                 return new keras.Value(name, type || null, tensor);
             }
             if (!args.has(name)) {
