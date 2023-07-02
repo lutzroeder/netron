@@ -2897,15 +2897,16 @@
   {
     "type":     "mxnet",
     "target":   "bvlc_alexnet-symbol.json,bvlc_alexnet-0000.params",
-    "source":   "http://s3.amazonaws.com/store.carml.org/models/mxnet/bvlc_alexnet/bvlc_alexnet-symbol.json,http://s3.amazonaws.com/store.carml.org/models/mxnet/bvlc_alexnet/bvlc_alexnet-0000.params",
+    "source":   "https://github.com/lutzroeder/netron/files/11931595/bvlc_alexnet-symbol.zip[bvlc_alexnet-symbol.json,bvlc_alexnet-0000.params]",
     "format":   "MXNet v0.10.0",
-    "link":     "https://github.com/rai-project/mxnet/blob/master/builtin_models/BVLC-AlexNet.yml"
+    "link":     "https://github.com/lutzroeder/netron/issues/723"
   },
   {
     "type":     "mxnet",
     "target":   "crepe.mar",
-    "source":   "https://s3.amazonaws.com/model-server/model_archive_1.0/crepe.mar",
-    "link":     "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
+    "source":   "https://github.com/lutzroeder/netron/files/11931753/crepe.mar.zip[crepe.mar]",
+    "format":   "MXNet Model Archive v1.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/723"
   },
   {
     "type":     "mxnet",
@@ -2977,9 +2978,9 @@
   {
     "type":     "mxnet",
     "target":   "lstm_ptb.model",
-    "source":   "https://s3.amazonaws.com/model-server/models/lstm_ptb/lstm_ptb.model",
+    "source":   "https://github.com/lutzroeder/netron/files/11931628/lstm_ptb.model.zip[lstm_ptb.model]",
     "format":   "MXNet Model Server v0.1",
-    "link":     "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
+    "link":     "https://github.com/lutzroeder/netron/issues/723"
   },
   {
     "type":     "mxnet",
@@ -3013,9 +3014,9 @@
   {
     "type":     "mxnet",
     "target":   "resnet-50-0000.params",
-    "source":   "http://data.mxnet.io/models/imagenet/resnet/50-layers/resnet-50-0000.params",
+    "source":   "https://github.com/lutzroeder/netron/files/11931742/resnet-50-0000.params.zip[resnet-50-0000.params]",
     "format":   "MXNet",
-    "link":     "https://github.com/awslabs/deeplearning-benchmark/blob/master/image_classification/common/modelzoo.py"
+    "link":     "https://github.com/lutzroeder/netron/issues/723"
   },
   {
     "type":     "mxnet",

@@ -458,6 +458,7 @@ mxnet.Graph = class {
                         blocks.set(nodeName, { name: nodeName, op: 'Weights', params: [] });
                     }
                     blocks.get(nodeName).params.push({ name: argumentName, id: key });
+                    value(key, null, tensors.get(key));
                 }
             } else {
                 throw new mxnet.Error("Unsupported key format in params.");
@@ -749,7 +750,11 @@ mxnet.Tensor = class {
         return this._type;
     }
 
-    get data() {
+    get layout() {
+        return '<';
+    }
+
+    get values() {
         return this._data;
     }
 };
