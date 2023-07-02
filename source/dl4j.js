@@ -15,7 +15,7 @@ dl4j.ModelFactory = class {
             }
         }
         if (identifier === 'coefficients.bin') {
-            const signature = [ 0x00, 0x07, 0x4A, 0x41, 0x56, 0x41, 0x43, 0x50, 0x50 ];
+            const signature = [ 0x00, 0x07, 0x4A, 0x41, 0x56, 0x41, 0x43, 0x50, 0x50 ]; // JAVACPP
             const stream = context.stream;
             if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
                 return 'dl4j.coefficients';
@@ -71,7 +71,8 @@ dl4j.Graph = class {
         this._inputs = [];
         this._outputs =[];
         this._nodes = [];
-        const dataType = coefficients ? new dl4j.NDArrayReader(coefficients).dataType : '?';
+        coefficients = coefficients ? new dl4j.NDArray(coefficients) : null;
+        const dataType = coefficients ? coefficients.dataType : '?';
         const values = new Map();
         const value = (name, type, tensor) => {
             if (name.length === 0 && tensor) {
@@ -425,49 +426,57 @@ dl4j.TensorShape = class {
     }
 };
 
-dl4j.NDArrayReader = class {
+dl4j.NDArray = class {
 
     constructor(buffer) {
         const reader = new dl4j.BinaryReader(buffer);
+        const readHeader = (reader) => {
+            const alloc = reader.string();
+            let length = 0;
+            switch (alloc) {
+                case 'DIRECT':
+                case 'HEAP':
+                case 'JAVACPP':
+                    length = reader.int32();
+                    break;
+                case 'LONG_SHAPE':
+                case 'MIXED_DATA_TYPES':
+                    length = reader.int64();
+                    break;
+                default:
+                    throw new dl4j.Error("Unsupported header alloc '" + alloc + "'.");
+            }
+            const type = reader.string();
+            return [ alloc, length, type ];
+        };
+        const headerShape = readHeader(reader);
+        if (headerShape[2] !== 'INT') {
+            throw new dl4j.Error("Unsupported header shape type '" + headerShape[2] + "'.");
+        }
+        const shapeInfo = new Array(headerShape[1]);
+        for (let i = 0; i < shapeInfo.length; i++) {
+            shapeInfo[i] = reader.int32();
+        }
+        const rank = shapeInfo[0];
+        const shapeInfoLength = rank * 2 + 4;
+        this.shape = shapeInfo.slice(1, 1 + rank);
+        this.strides = shapeInfo.slice(1 + rank, 1 + (rank * 2));
+        this.order = shapeInfo[shapeInfoLength - 1];
+        const headerData = readHeader(reader);
         const dataTypes = new Map([
             [ 'INT', [ 'int32', 4 ] ],
             [ 'FLOAT', [ 'float32', 4 ] ],
             [ 'DOUBLE', [ 'float64', 8 ] ]
         ]);
-        const read = (reader) => {
-            const header = {};
-            header.alloc = reader.string();
-            header.length = 0;
-            switch (header.alloc) {
-                case 'DIRECT':
-                case 'HEAP':
-                case 'JAVACPP':
-                    header.length = reader.int32();
-                    break;
-                case 'LONG_SHAPE':
-                case 'MIXED_DATA_TYPES':
-                    header.length = reader.int64();
-                    break;
-                default:
-                    throw new dl4j.Error("Unsupported header alloc '" + header.alloc + "'.");
-            }
-            const type = reader.string();
-            if (!dataTypes.has(type)) {
-                throw new dl4j.Error("Unsupported header type '" + type + "'.");
-            }
-            const entry = dataTypes.get(type);
-            header.type = entry[0];
-            header.itemsize = entry[1];
-            header.data = reader.read(header.itemsize * header.length);
-            return header;
-        };
-        /* let shape = */ read(reader);
-        const data = read(reader);
-        this._dataType = data.type;
-    }
-
-    get dataType() {
-        return this._dataType;
+        if (!dataTypes.has(headerData[2])) {
+            throw new dl4j.Error("Unsupported header data type '" + headerShape[2] + "'.");
+        }
+        const dataType = dataTypes.get(headerData[2]);
+        this.dataType = dataType[0];
+        const size = headerData[1] * dataType[1];
+        if ((reader.position + size) <= reader.length) {
+            this.data = reader.read(size);
+        }
     }
 };
 
@@ -475,8 +484,17 @@ dl4j.BinaryReader = class {
 
     constructor(buffer) {
         this._buffer = buffer;
+        this._length = buffer.length;
         this._position = 0;
         this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+    }
+
+    get length() {
+        return this._length;
+    }
+
+    get position() {
+        return this._position;
     }
 
     read(size) {
@@ -502,6 +520,12 @@ dl4j.BinaryReader = class {
         const position = this._position;
         this._position += 4;
         return this._view.getInt64(position, false).toNumber();
+    }
+
+    float32() {
+        const position = this._position;
+        this._position += 4;
+        return this._view.getFloat32(position, false);
     }
 };
 

@@ -1870,9 +1870,9 @@
   {
     "type":     "dl4j",
     "target":   "nasnetmobile_dl4j_inference.v1.zip",
-    "source":   "https://dl4jdata.blob.core.windows.net/models/nasnetmobile_dl4j_inference.v1.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/11928662/nasnetmobile_dl4j_inference.v1.zip",
     "format":   "Deeplearning4j",
-    "link":     "https://github.com/eclipse/deeplearning4j"
+    "link":     "https://github.com/lutzroeder/netron/issues/303"
   },
   {
     "type":     "dl4j",
@@ -1884,23 +1884,23 @@
   {
     "type":     "dl4j",
     "target":   "tiny-yolo-voc_dl4j_inference.v2.zip",
-    "source":   "https://dl4jdata.blob.core.windows.net/models/tiny-yolo-voc_dl4j_inference.v2.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/11928661/tiny-yolo-voc_dl4j_inference.v2.zip",
     "format":   "Deeplearning4j",
-    "link":     "https://github.com/eclipse/deeplearning4j"
+    "link":     "https://github.com/lutzroeder/netron/issues/303"
   },
   {
     "type":     "dl4j",
     "target":   "unet_dl4j_segment_inference.v1.zip",
-    "source":   "https://dl4jdata.blob.core.windows.net/models/unet_dl4j_segment_inference.v1.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/11928659/unet_dl4j_segment_inference.v1.zip",
     "format":   "Deeplearning4j",
-    "link":     "https://github.com/eclipse/deeplearning4j"
+    "link":     "https://github.com/lutzroeder/netron/issues/303"
   },
   {
     "type":     "dl4j",
     "target":   "xception_dl4j_inference.v2.zip",
-    "source":   "https://dl4jdata.blob.core.windows.net/models/xception_dl4j_inference.v2.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/11928660/xception_dl4j_inference.v2.zip",
     "format":   "Deeplearning4j",
-    "link":     "https://github.com/eclipse/deeplearning4j"
+    "link":     "https://github.com/lutzroeder/netron/issues/303"
   },
   {
     "type":     "dlc",
