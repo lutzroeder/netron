@@ -6278,14 +6278,9 @@
   {
     "type":     "tflite",
     "target":   "inception_v3.tflite",
-    "source":   "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/inception_v3_2018_04_27.tgz[./inception_v3.tflite]"
-  },
-  {
-    "type":     "tflite",
-    "target":   "inception_v3_quant.tflite",
-    "source":   "http://download.tensorflow.org/models/tflite_11_05_08/inception_v3_quant.tgz[inception_v3_quant.tflite]",
+    "source":   "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/inception_v3_2018_04_27.tgz[./inception_v3.tflite]",
     "format":   "TensorFlow Lite v3",
-    "link":     "https://www.tensorflow.org/lite/models"
+    "link":     "https://github.com/lutzroeder/netron/issues/34"
   },
   {
     "type":     "tflite",
@@ -6319,12 +6314,6 @@
     "type":     "tflite",
     "target":   "mobilenet_v2_0.4_224.tflite",
     "source":   "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.0_224.tgz[./mobilenet_v2_1.0_224.tflite]",
-    "format":   "TensorFlow Lite v3"
-  },
-  {
-    "type":     "tflite",
-    "target":   "mobilenet_v2_1.4_224.tflite",
-    "source":   "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.4_224.tgz[./mobilenet_v2_1.4_224.tflite]",
     "format":   "TensorFlow Lite v3"
   },
   {
