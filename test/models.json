@@ -5662,23 +5662,6 @@
   },
   {
     "type":     "tf",
-    "target":   "bert_uncased_L-12_H-768_A-12.meta",
-    "source":   "https://storage.googleapis.com/bert_models/2018_10_18/uncased_L-12_H-768_A-12.zip[uncased_L-12_H-768_A-12/bert_model.ckpt.meta]",
-    "format":   "TensorFlow MetaGraph",
-    "producer": "TensorFlow v1.11.0-rc1",
-    "action":   "skip-render",
-    "link":     "https://github.com/google-research/bert#pre-trained-models"
-  },
-  {
-    "type":     "tf",
-    "target":   "bert_cased_L-24_H-1024_A-16.meta",
-    "source":   "https://storage.googleapis.com/bert_models/2018_10_18/cased_L-24_H-1024_A-16.zip[cased_L-24_H-1024_A-16/bert_model.ckpt.meta]",
-    "format":   "TensorFlow MetaGraph",
-    "action":   "skip-render",
-    "link":     "https://github.com/google-research/bert#pre-trained-models"
-  },
-  {
-    "type":     "tf",
     "target":   "bfloat16.pbtxt",
     "source":   "https://github.com/lutzroeder/netron/files/9540969/bfloat16.pbtxt.zip[bfloat16.pbtxt]",
     "format":   "TensorFlow Graph",
@@ -5797,21 +5780,6 @@
   },
   {
     "type":     "tf",
-    "target":   "faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.ckpt.meta",
-    "source":   "http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.tar.gz[faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28/model.ckpt.meta]",
-    "format":   "TensorFlow MetaGraph",
-    "action":   "skip-render",
-    "link":     "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
-  },
-  {
-    "type":     "tf",
-    "target":   "faster_rcnn_resnet50_lowproposals_coco_2017_11_08.ckpt.meta",
-    "source":   "http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet50_lowproposals_coco_2017_11_08.tar.gz[faster_rcnn_resnet50_lowproposals_coco_2017_11_08/model.ckpt.meta]",
-    "action":   "skip-render",
-    "format":   "TensorFlow MetaGraph"
-  },
-  {
-    "type":     "tf",
     "target":   "float16.txt",
     "source":   "https://github.com/lutzroeder/netron/files/8547644/float16.txt.zip[float16.txt]",
     "format":   "TensorFlow Graph",
@@ -5876,13 +5844,6 @@
     "target":   "invalid_graph.pbtxt",
     "source":   "https://github.com/lutzroeder/netron/files/6859459/invalid_graph.pbtxt.zip[invalid_graph.pbtxt]",
     "error":    "File text format is not tensorflow.GraphDef (Unexpected end of input at 8:1)."
-  },
-  {
-    "type":     "tf",
-    "target":   "mask_rcnn_resnet50_atrous_coco_2018_01_28.ckpt.meta",
-    "source":   "http://download.tensorflow.org/models/object_detection/mask_rcnn_resnet50_atrous_coco_2018_01_28.tar.gz[mask_rcnn_resnet50_atrous_coco_2018_01_28/model.ckpt.meta]",
-    "format":   "TensorFlow MetaGraph",
-    "action":   "skip-render"
   },
   {
     "type":     "tf",
