@@ -272,10 +272,10 @@
   },
   {
     "type":     "caffe",
-    "target":   "bvlc_alexnet.caffemodel",
-    "source":   "https://github.com/facebookarchive/models/raw/master/bvlc_alexnet/original.caffemodel",
+    "target":   "bvlc_alexnet.caffemodel.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/11932662/bvlc_alexnet.caffemodel.zip",
     "format":   "Caffe v1",
-    "link":     "https://github.com/BVLC/caffe/tree/master/models/bvlc_alexnet"
+    "link":     "https://github.com/lutzroeder/netron/issues/276"
   },
   {
     "type":     "caffe",
