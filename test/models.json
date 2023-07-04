@@ -783,23 +783,23 @@
   {
     "type":     "caffe2",
     "target":   "bvlc_alexnet/predict_net.pb,bvlc_alexnet/init_net.pb",
-    "source":   "https://github.com/facebookarchive/models/raw/master/bvlc_alexnet/predict_net.pb,https://github.com/facebookarchive/models/raw/master/bvlc_alexnet/init_net.pb",
+    "source":   "https://github.com/lutzroeder/netron/files/11943990/bvlc_alexnet.zip[predict_net.pb,init_net.pb]",
     "format":   "Caffe2",
-    "link":     "https://github.com/caffe2/models"
+    "link":     "https://github.com/lutzroeder/netron/issues/1116"
   },
   {
     "type":     "caffe2",
     "target":   "bvlc_alexnet/init_net.pb",
-    "source":   "https://github.com/facebookarchive/models/raw/master/bvlc_alexnet/init_net.pb",
+    "source":   "https://github.com/lutzroeder/netron/files/11943990/bvlc_alexnet.zip[init_net.pb]",
     "format":   "Caffe2",
-    "link":     "https://github.com/caffe2/models"
+    "link":     "https://github.com/lutzroeder/netron/issues/1116"
   },
   {
     "type":     "caffe2",
     "target":   "bvlc_alexnet/predict_net.pbtxt,bvlc_alexnet/init_net.pb",
-    "source":   "https://github.com/facebookarchive/models/raw/master/bvlc_alexnet/predict_net.pbtxt,https://github.com/facebookarchive/models/raw/master/bvlc_alexnet/init_net.pb",
+    "source":   "https://github.com/lutzroeder/netron/files/11943990/bvlc_alexnet.zip[predict_net.pbtxt,init_net.pb]",
     "format":   "Caffe2",
-    "link":     "https://github.com/caffe2/models"
+    "link":     "https://github.com/lutzroeder/netron/issues/1116"
   },
   {
     "type":     "caffe2",
