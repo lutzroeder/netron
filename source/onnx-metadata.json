@@ -6261,6 +6261,85 @@
     ]
   },
   {
+    "name": "ConstantOfShape",
+    "module": "ai.onnx",
+    "version": 20,
+    "support_level": "common",
+    "description": "Generate a tensor with given value and shape.\n",
+    "attributes": [
+      {
+        "name": "value",
+        "type": "tensor",
+        "required": false,
+        "description": "(Optional) The value of the output elements.Should be a one-element tensor. If not specified, it defaults to a tensor of value 0 and datatype float32"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "type": "T1",
+        "description": "1D tensor. The shape of the expected output tensor. If empty tensor is given, the output would be a scalar. All values must be >= 0."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T2",
+        "description": "Output tensor of shape specified by 'input'.If attribute 'value' is specified, the value and datatype of the output tensor is taken from 'value'.If attribute 'value' is not specified, the value in the output defaults to 0, and the datatype defaults to float32."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input types.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(int64)"
+        ]
+      },
+      {
+        "description": "Constrain output types to be numerics.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(bool)",
+          "tensor(bfloat16)",
+          "tensor(float8e4m3fn)",
+          "tensor(float8e4m3fnuz)",
+          "tensor(float8e5m2)",
+          "tensor(float8e5m2fnuz)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "float_ones",
+        "code": "x = np.array([4, 3, 2]).astype(np.int64)\ntensor_value = onnx.helper.make_tensor(\n    \"value\", onnx.TensorProto.FLOAT, [1], [1]\n)\nnode = onnx.helper.make_node(\n    \"ConstantOfShape\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    value=tensor_value,\n)\n\ny = np.ones(x, dtype=np.float32)\nexpect(node, inputs=[x], outputs=[y], name=\"test_constantofshape_float_ones\")"
+      },
+      {
+        "summary": "int32_shape_zero",
+        "code": "x = np.array(\n    [\n        0,\n    ]\n).astype(np.int64)\ntensor_value = onnx.helper.make_tensor(\n    \"value\", onnx.TensorProto.INT32, [1], [0]\n)\nnode = onnx.helper.make_node(\n    \"ConstantOfShape\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    value=tensor_value,\n)\ny = np.zeros(x, dtype=np.int32)\nexpect(\n    node, inputs=[x], outputs=[y], name=\"test_constantofshape_int_shape_zero\"\n)"
+      },
+      {
+        "summary": "int32_zeros",
+        "code": "x = np.array([10, 6]).astype(np.int64)\ntensor_value = onnx.helper.make_tensor(\n    \"value\", onnx.TensorProto.INT32, [1], [0]\n)\nnode = onnx.helper.make_node(\n    \"ConstantOfShape\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n    value=tensor_value,\n)\ny = np.zeros(x, dtype=np.int32)\nexpect(node, inputs=[x], outputs=[y], name=\"test_constantofshape_int_zeros\")"
+      }
+    ]
+  },
+  {
     "name": "Conv",
     "module": "ai.onnx",
     "version": 1,
