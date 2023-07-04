@@ -5418,7 +5418,7 @@
   {
     "type":     "safetensors",
     "target":   "simple.safetensors",
-    "source":   "https://github.com/lutzroeder/netron/files/11858547/simple.safetensors.zip[simple.safetensors]",
+    "source":   "https://github.com/lutzroeder/netron/files/11943528/simple.safetensors.zip[simple.safetensors]",
     "format":   "Safetensors",
     "link":     "https://github.com/lutzroeder/netron/issues/1113"
   },
