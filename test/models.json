@@ -3358,10 +3358,10 @@
   },
   {
     "type":     "onnx",
-    "target":   "arcface-resnet100.onnx",
-    "source":   "https://s3.amazonaws.com/onnx-model-zoo/arcface/resnet100/resnet100.onnx",
+    "target":   "arcface-resnet100.onnx.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/11943519/arcface-resnet100.onnx.zip",
     "format":   "ONNX v3",
-    "link":     "https://github.com/onnx/models/tree/main/models/face_recognition/ArcFace"
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
     "type":     "onnx",
