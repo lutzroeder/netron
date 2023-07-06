@@ -356,10 +356,10 @@
   },
   {
     "type":     "caffe",
-    "target":   "deepyeast.caffemodel",
-    "source":   "https://kodu.ut.ee/~leopoldp/2016_DeepYeast/code/caffe_model/HOwt_png_vgg_A_bn_iter_130000.caffemodel",
+    "target":   "deepyeast.caffemodel.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/11953829/deepyeast.caffemodel.zip",
     "format":   "Caffe v2",
-    "link":     "https://github.com/BVLC/caffe/wiki/Model-Zoo#deepyeast"
+    "link":     "https://github.com/lutzroeder/netron/issues/276"
   },
   {
     "type":     "caffe",
