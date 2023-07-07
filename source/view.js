@@ -4652,14 +4652,15 @@ view.ModelContext = class {
                 ];
                 const skip =
                     signatures.some((signature) => signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) ||
-                    Array.from(this._tags).some((pair) => pair[0] !== 'flatbuffers' && pair[1].size > 0) ||
+                    Array.from(this._tags).some((entry) => entry[0] !== 'flatbuffers' && entry[1].size > 0) ||
                     Array.from(this._content.values()).some((obj) => obj !== undefined);
                 if (!skip) {
                     switch (type) {
                         case 'json': {
                             try {
                                 const buffer = this.stream.peek(Math.min(this.stream.length, 0x1000));
-                                if (buffer.some((v) => v === 0x22 || v === 0x5b || v === 0x5d || v === 0x7b || v === 0x7d)) {
+                                if ((buffer.length < 8 || String.fromCharCode.apply(null, buffer.slice(0, 8)) !== '\x89HDF\r\n\x1A\n') &&
+                                    (buffer.some((v) => v === 0x22 || v === 0x5b || v === 0x5d || v === 0x7b || v === 0x7d))) {
                                     const reader = json.TextReader.open(this.stream);
                                     if (reader) {
                                         const obj = reader.read();
