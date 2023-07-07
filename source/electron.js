@@ -675,7 +675,7 @@ host.ElectronHost.FileStream = class {
 
     peek(length) {
         length = length !== undefined ? length : this._length - this._position;
-        if (length < 0x10000000) {
+        if (length < 0x1000000) {
             const position = this._fill(length);
             this._position -= length;
             return this._buffer.subarray(position, position + length);
@@ -692,7 +692,7 @@ host.ElectronHost.FileStream = class {
         length = length !== undefined ? length : this._length - this._position;
         if (length < 0x10000000) {
             const position = this._fill(length);
-            return this._buffer.subarray(position, position + length);
+            return this._buffer.slice(position, position + length);
         }
         const position = this._position;
         this.skip(length);
@@ -712,7 +712,10 @@ host.ElectronHost.FileStream = class {
         }
         if (!this._buffer || this._position < this._offset || this._position + length > this._offset + this._buffer.length) {
             this._offset = this._position;
-            this._buffer = new Uint8Array(Math.min(0x10000000, this._length - this._offset));
+            const length = Math.min(0x1000000, this._length - this._offset);
+            if (!this._buffer || length !== this._buffer.length) {
+                this._buffer = new Uint8Array(length);
+            }
             this._read(this._buffer, this._offset);
         }
         const position = this._position;
