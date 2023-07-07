@@ -80,24 +80,24 @@ tensorrt.Engine = class {
 
     _read() {
         if (this._stream) {
-            let buffer = this._stream.peek(24);
+            const buffer = this._stream.peek(24);
             const reader = new base.BinaryReader(buffer);
             reader.skip(4);
             const version = reader.uint32();
             reader.uint32();
-            let size = 0;
+            // let size = 0;
             switch (version) {
                 case 0x0000:
                 case 0x002B: {
                     reader.uint32();
-                    size = reader.uint64();
+                    /* size = */ reader.uint64();
                     break;
                 }
                 case 0x0057:
                 case 0x0059:
                 case 0x0060:
                 case 0x0061: {
-                    size = reader.uint64();
+                    /* size = */ reader.uint64();
                     reader.uint32();
                     break;
                 }
@@ -107,8 +107,8 @@ tensorrt.Engine = class {
                 }
             }
             const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-            buffer = this._stream.read(24 + size);
-            /* reader = */ new tensorrt.BinaryReader(buffer);
+            // buffer = this._stream.read(24 + size);
+            // reader = new tensorrt.BinaryReader(buffer);
             throw new tensorrt.Error("Invalid file content. File contains undocumented TensorRT engine data (" + content.substring(8) + ").");
         }
     }
