@@ -417,13 +417,15 @@ view.View = class {
             const pointerMoveHandler = (e) => {
                 e.preventDefault();
                 e.stopImmediatePropagation();
-                const dx = e.clientX - this._mousePosition.x;
-                const dy = e.clientY - this._mousePosition.y;
-                this._mousePosition.moved = dx * dx + dy * dy > 0;
-                if (this._mousePosition.moved) {
-                    const container = this._element('graph');
-                    container.scrollTop = this._mousePosition.top - dy;
-                    container.scrollLeft = this._mousePosition.left - dx;
+                if (this._mousePosition) {
+                    const dx = e.clientX - this._mousePosition.x;
+                    const dy = e.clientY - this._mousePosition.y;
+                    this._mousePosition.moved = dx * dx + dy * dy > 0;
+                    if (this._mousePosition.moved) {
+                        const container = this._element('graph');
+                        container.scrollTop = this._mousePosition.top - dy;
+                        container.scrollLeft = this._mousePosition.left - dx;
+                    }
                 }
             };
             const pointerUpHandler = (e) => {
