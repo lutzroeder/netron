@@ -204,7 +204,8 @@ const clean = async () => {
 };
 
 const purge = async () => {
-    clean();
+    await clean();
+    await rm('third_party', 'bin');
     await rm('third_party', 'env');
     await rm('third_party', 'source');
 };
@@ -506,10 +507,10 @@ const pull = async () => {
     await exec('git pull --prune --rebase');
     const after = await exec('git rev-parse HEAD', 'utf-8');
     if (before.trim() !== after.trim()) {
-        const output = exec('git diff --name-only ' + before.trim() + ' ' + after.trim());
+        const output = await exec('git diff --name-only ' + before.trim() + ' ' + after.trim(), 'utf-8');
         const files = new Set(output.split('\n'));
         if (files.has('package.json')) {
-            clean();
+            await clean();
             await install();
         }
     }
