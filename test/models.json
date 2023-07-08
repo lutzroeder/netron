@@ -3580,6 +3580,13 @@
   },
   {
     "type":     "onnx",
+    "target":   "inception_v1_opset_9.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/11991504/inception_v1_opset_9.onnx.zip[inception_v1_opset_9.onnx]",
+    "format":   "ONNX v3",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
     "target":   "inception_v2_opset_6.onnx.zip",
     "source":   "https://github.com/lutzroeder/netron/files/6572388/inception_v2_opset_6.onnx.zip",
     "format":   "ONNX v3",
