@@ -3139,6 +3139,7 @@ view.Tensor = class {
             [ 'boolean', 1 ],
             [ 'qint8', 1 ], [ 'qint16', 2 ], [ 'qint32', 4 ],
             [ 'quint8', 1 ], [ 'quint16', 2 ], [ 'quint32', 4 ],
+            [ 'xint8', 1 ],
             [ 'int8', 1 ], [ 'int16', 2 ], [ 'int32', 4 ], [ 'int64', 8 ],
             [ 'uint8', 1 ], [ 'uint16', 2 ], [ 'uint32', 4, ], [ 'uint64', 8 ],
             [ 'float16', 2 ], [ 'float32', 4 ], [ 'float64', 8 ], [ 'bfloat16', 2 ],
@@ -3339,6 +3340,7 @@ view.Tensor = class {
                     }
                     break;
                 case 'qint8':
+                case 'xint8':
                 case 'int8':
                     for (; i < max; i++) {
                         results.push(view.getInt8(i));
@@ -5438,7 +5440,8 @@ view.Metadata = class {
             return view.Metadata._metadata.get(name);
         }
         try {
-            const data = await context.request(name, 'utf-8', null);
+            const json = await context.request(name, 'utf-8', null);
+            const data = JSON.parse(json);
             const library = new view.Metadata(data);
             view.Metadata._metadata.set(name, library);
             return library;
@@ -5453,13 +5456,10 @@ view.Metadata = class {
         this._types = new Map();
         this._attributes = new Map();
         this._inputs = new Map();
-        if (data) {
-            const metadata = JSON.parse(data);
-            for (const entry of metadata) {
-                this._types.set(entry.name, entry);
-                if (entry.identifier !== undefined) {
-                    this._types.set(entry.identifier, entry);
-                }
+        for (const entry of data || []) {
+            this._types.set(entry.name, entry);
+            if (entry.identifier !== undefined) {
+                this._types.set(entry.identifier, entry);
             }
         }
     }
