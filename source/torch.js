@@ -7,9 +7,9 @@ torch.ModelFactory = class {
         return torch.T7Reader.open(context);
     }
 
-    async open(context, match) {
+    async open(context, target) {
         const metadata = await context.metadata('torch-metadata.json');
-        const reader = match;
+        const reader = target;
         reader.callback = (name) => {
             if (name && name != 'nn.JointTrainModule' && !name.startsWith('nn.MSDNet_') && !name.startsWith('onmt.')) {
                 context.exception(new torch.Error("Unsupported type '" + name + "'."));

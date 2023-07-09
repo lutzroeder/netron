@@ -13,9 +13,9 @@ lasagne.ModelFactory = class {
         return null;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         const metadata = await context.metadata('lasagne-metadata.json');
-        return new lasagne.Model(metadata, match);
+        return new lasagne.Model(metadata, target);
     }
 };
 

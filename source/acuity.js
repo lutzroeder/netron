@@ -14,9 +14,9 @@ acuity.ModelFactory = class {
         return null;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         const metadata = await context.metadata('acuity-metadata.json');
-        return new acuity.Model(metadata, match);
+        return new acuity.Model(metadata, target);
     }
 };
 

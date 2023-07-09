@@ -23,9 +23,9 @@ cntk.ModelFactory = class {
         return undefined;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         const metadata = await context.metadata('cntk-metadata.json');
-        switch (match) {
+        switch (target) {
             case 'cntk.v1': {
                 let obj = null;
                 try {
@@ -55,7 +55,7 @@ cntk.ModelFactory = class {
                 return new cntk.Model(metadata, 2, obj);
             }
             default: {
-                throw new cntk.Error("Unsupported CNTK format '" + match + "'.");
+                throw new cntk.Error("Unsupported CNTK format '" + target + "'.");
             }
         }
     }

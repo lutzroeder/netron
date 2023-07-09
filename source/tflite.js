@@ -31,12 +31,12 @@ tflite.ModelFactory = class {
         return undefined;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         await context.require('./tflite-schema');
         tflite.schema = flatbuffers.get('tflite').tflite;
         let model = null;
         const attachments = new Map();
-        switch (match) {
+        switch (target) {
             case 'tflite.flatbuffers.json': {
                 try {
                     const obj = context.open('json');
@@ -70,7 +70,7 @@ tflite.ModelFactory = class {
                 break;
             }
             default: {
-                throw new tflite.Error("Unsupported TensorFlow Lite format '" + match + "'.");
+                throw new tflite.Error("Unsupported TensorFlow Lite format '" + target + "'.");
             }
         }
         const metadata = await context.metadata('tflite-metadata.json');

@@ -36,9 +36,9 @@ tnn.ModelFactory = class {
         return '';
     }
 
-    async open(context, match) {
+    async open(context, target) {
         const metadata = await context.metadata('tnn-metadata.json');
-        switch (match) {
+        switch (target) {
             case 'tnn.model': {
                 const tnnmodel = context.identifier.substring(0, context.identifier.length - 9) + '.tnnmodel';
                 try {
@@ -56,7 +56,7 @@ tnn.ModelFactory = class {
                 return new tnn.Model(metadata, buffer, context.stream.peek());
             }
             default: {
-                throw new tnn.Error("Unsupported TNN format '" + match + "'.");
+                throw new tnn.Error("Unsupported TNN format '" + target + "'.");
             }
         }
     }

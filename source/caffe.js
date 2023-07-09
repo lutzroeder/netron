@@ -25,7 +25,7 @@ caffe.ModelFactory = class {
         return undefined;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         await context.require('./caffe-proto');
         caffe.proto = protobuf.get('caffe').caffe;
         const openModel = async (context, netParameter) => {
@@ -86,7 +86,7 @@ caffe.ModelFactory = class {
             }
             return openModel(context, netParameter);
         };
-        switch (match) {
+        switch (target) {
             case 'caffe.pbtxt.solver': {
                 const stream = context.stream;
                 const reader = protobuf.TextReader.open(stream);
@@ -128,7 +128,7 @@ caffe.ModelFactory = class {
                 return openModel(context, netParameter);
             }
             default: {
-                throw new caffe.Error("Unsupported Caffe format '" + match + "'.");
+                throw new caffe.Error("Unsupported Caffe format '" + target + "'.");
             }
         }
     }

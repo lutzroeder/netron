@@ -45,14 +45,14 @@ caffe2.ModelFactory = class {
         return undefined;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         await context.require('./caffe2-proto');
         const metadata = await context.metadata('caffe2-metadata.json');
         const identifier = context.identifier;
         const parts = identifier.split('.');
         const extension = parts.pop().toLowerCase();
         const base = parts.join('.');
-        switch (match) {
+        switch (target) {
             case 'caffe2.pbtxt': {
                 const openText = (predictBuffer, initBuffer, initTextFormat) => {
                     let predict_net = null;
@@ -179,7 +179,7 @@ caffe2.ModelFactory = class {
                 }
             }
             default: {
-                throw new caffe2.Error("Unsupported Caffe2 format '" + match + "'.");
+                throw new caffe2.Error("Unsupported Caffe2 format '" + target + "'.");
             }
         }
     }

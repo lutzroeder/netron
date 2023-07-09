@@ -10,9 +10,9 @@ hailo.ModelFactory = class {
         return hailo.Container.open(context);
     }
 
-    async open(context, match) {
+    async open(context, target) {
         const metadata = await context.metadata('hailo-metadata.json');
-        return new hailo.Model(metadata, match);
+        return new hailo.Model(metadata, target);
     }
 };
 

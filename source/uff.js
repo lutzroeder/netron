@@ -27,11 +27,11 @@ uff.ModelFactory = class {
         return undefined;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         await context.require('./uff-proto');
         uff.proto = protobuf.get('uff').uff;
         let meta_graph = null;
-        switch (match) {
+        switch (target) {
             case 'uff.pb': {
                 try {
                     const stream = context.stream;
@@ -54,7 +54,7 @@ uff.ModelFactory = class {
                 break;
             }
             default: {
-                throw new uff.Error("Unsupported UFF format '" + match + "'.");
+                throw new uff.Error("Unsupported UFF format '" + target + "'.");
             }
         }
         const metadata = await context.metadata('uff-metadata.json');

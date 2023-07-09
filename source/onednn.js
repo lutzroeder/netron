@@ -13,9 +13,9 @@ onednn.ModelFactory = class {
         return null;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         const metadata = await context.metadata('onednn-metadata.json');
-        return new onednn.Model(metadata, match);
+        return new onednn.Model(metadata, target);
     }
 };
 

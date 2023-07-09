@@ -55,7 +55,7 @@ ncnn.ModelFactory = class {
         return undefined;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         const openBinary = (param, bin) => {
             const reader = new ncnn.BinaryParamReader(param);
             return new ncnn.Model(metadata, reader, bin);
@@ -67,7 +67,7 @@ ncnn.ModelFactory = class {
         const metadata = await context.metadata('ncnn-metadata.json');
         const identifier = context.identifier.toLowerCase();
         let bin = null;
-        switch (match) {
+        switch (target) {
             case 'ncnn.model': {
                 if (identifier.endsWith('.param')) {
                     bin = context.identifier.substring(0, context.identifier.length - 6) + '.bin';
@@ -110,7 +110,7 @@ ncnn.ModelFactory = class {
                 }
             }
             default: {
-                throw new ncnn.Error("Unsupported ncnn format '" + match + "'.");
+                throw new ncnn.Error("Unsupported ncnn format '" + target + "'.");
             }
         }
     }

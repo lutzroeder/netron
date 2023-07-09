@@ -18,10 +18,10 @@ safetensors.ModelFactory = class {
         return '';
     }
 
-    async open(context, match) {
+    async open(context, target) {
         const stream = context.stream;
         stream.seek(8);
-        const buffer = stream.read(match.size);
+        const buffer = stream.read(target.size);
         const reader = json.TextReader.open(buffer);
         const obj = reader.read();
         const model = new safetensors.Model(obj, stream.position, stream);

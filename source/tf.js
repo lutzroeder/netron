@@ -222,7 +222,7 @@ tf.ModelFactory = class {
         return undefined;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         await context.require('./tf-proto');
         tf.proto = protobuf.get('tf');
         const openModel = async (saved_model, format, producer, bundle) => {
@@ -650,7 +650,7 @@ tf.ModelFactory = class {
             saved_model.meta_graphs.push(meta_graph);
             return openSavedModel(saved_model, format, null);
         };
-        switch (match) {
+        switch (target) {
             case 'tf.bundle':
                 return openBundle(context);
             case 'tf.data':
@@ -680,7 +680,7 @@ tf.ModelFactory = class {
             case 'tf.pb.mmap':
                 return openMemmapped(context);
             default:
-                throw new tf.Error("Unsupported TensorFlow format '" + match + "'.");
+                throw new tf.Error("Unsupported TensorFlow format '" + target + "'.");
         }
     }
 };

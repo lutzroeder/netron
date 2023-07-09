@@ -38,9 +38,9 @@ paddle.ModelFactory = class {
         return undefined;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         const metadata = await context.metadata('paddle-metadata.json');
-        switch (match) {
+        switch (target) {
             case 'paddle.naive': {
                 await context.require('./paddle-schema');
                 paddle.schema = flatbuffers.get('paddlelite').paddle.lite.fbs.proto;
@@ -54,9 +54,9 @@ paddle.ModelFactory = class {
                 const parts = identifier.split('.');
                 const extension = parts.pop().toLowerCase();
                 const base = parts.join('.');
-                const openProgram = (stream, match) => {
+                const openProgram = (stream, target) => {
                     const program = {};
-                    switch (match) {
+                    switch (target) {
                         case 'paddle.pbtxt': {
                             try {
                                 const reader = protobuf.TextReader.open(stream);
@@ -78,7 +78,7 @@ paddle.ModelFactory = class {
                             break;
                         }
                         default: {
-                            throw new paddle.Error("Unsupported Paddle format '" + match + "'.");
+                            throw new paddle.Error("Unsupported Paddle format '" + target + "'.");
                         }
                     }
                     const formatVersion = (version) => {
@@ -140,7 +140,7 @@ paddle.ModelFactory = class {
                     }
                     return weights;
                 };
-                switch (match) {
+                switch (target) {
                     case 'paddle.pickle': {
                         const container = paddle.Pickle.open(context);
                         return createModel(metadata, container.format, null, container.weights);
@@ -178,7 +178,7 @@ paddle.ModelFactory = class {
                             const container = new paddle.Pickle(obj);
                             return container.weights || new Map();
                         };
-                        const program = openProgram(context.stream, match);
+                        const program = openProgram(context.stream, target);
                         if (extension === 'pdmodel') {
                             try {
                                 const stream = await context.request(base + '.pdiparams', null);
@@ -224,7 +224,7 @@ paddle.ModelFactory = class {
                         return loadEntries(context, program);
                     }
                     default: {
-                        throw new paddle.Error("Unsupported PaddlePaddle format '" + match + "'.");
+                        throw new paddle.Error("Unsupported PaddlePaddle format '" + target + "'.");
                     }
                 }
             }

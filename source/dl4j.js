@@ -24,9 +24,9 @@ dl4j.ModelFactory = class {
         return undefined;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         const metadata = await context.metadata('dl4j-metadata.json');
-        switch (match) {
+        switch (target) {
             case 'dl4j.configuration': {
                 const obj = context.open('json');
                 try {
@@ -43,7 +43,7 @@ dl4j.ModelFactory = class {
                 return new dl4j.Model(metadata, obj, context.stream.peek());
             }
             default: {
-                throw new dl4j.Error("Unsupported Deeplearning4j format '" + match + "'.");
+                throw new dl4j.Error("Unsupported Deeplearning4j format '" + target + "'.");
             }
         }
     }

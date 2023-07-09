@@ -38,21 +38,21 @@ sklearn.ModelFactory = class {
         return null;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         const metadata = await context.metadata('sklearn-metadata.json');
         const obj = context.open('pkl');
-        return new sklearn.Model(metadata, match, obj);
+        return new sklearn.Model(metadata, target, obj);
     }
 };
 
 sklearn.Model = class {
 
-    constructor(metadata, match, obj) {
+    constructor(metadata, target, obj) {
         const formats = new Map([ [ 'sklearn', 'scikit-learn' ], [ 'scipy', 'SciPy' ], [ 'hmmlearn', 'hmmlearn' ] ]);
-        this._format = formats.get(match.split('.').shift());
+        this._format = formats.get(target.split('.').shift());
         this._graphs = [];
         const version = [];
-        switch (match) {
+        switch (target) {
             case 'sklearn':
             case 'scipy':
             case 'hmmlearn': {
@@ -86,7 +86,7 @@ sklearn.Model = class {
                 break;
             }
             default: {
-                throw new sklearn.Error("Unsupported scikit-learn format '" + match + "'.");
+                throw new sklearn.Error("Unsupported scikit-learn format '" + target + "'.");
             }
         }
         if (version.length > 0 && version.every((value) => value === version[0])) {

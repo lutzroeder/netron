@@ -161,12 +161,12 @@ onnx.ModelFactory = class {
         return undefined;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         const open = async (model, format) => {
             const metadata = await onnx.Metadata.open(context);
             return new onnx.Model(metadata, model, format);
         };
-        switch (match) {
+        switch (target) {
             case 'onnx.pbtxt.ModelProto':
                 await context.require('./onnx-proto');
                 try {
@@ -268,7 +268,7 @@ onnx.ModelFactory = class {
                 throw new onnx.Error('Unsupported Pickle content.');
             }
             default: {
-                throw new onnx.Error("Unsupported ONNX format '" + match + "'.");
+                throw new onnx.Error("Unsupported ONNX format '" + target + "'.");
             }
         }
     }

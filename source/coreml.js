@@ -64,7 +64,7 @@ coreml.ModelFactory = class {
         return undefined;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         await context.require('./coreml-proto');
         const metadata = await context.metadata('coreml-metadata.json');
         const openModel = async (stream, context, path, format) => {
@@ -147,7 +147,7 @@ coreml.ModelFactory = class {
             const obj = reader.read();
             return openManifest(obj, context, path);
         };
-        switch (match) {
+        switch (target) {
             case 'coreml.pb': {
                 return openModel(context.stream, context, context.identifier);
             }
@@ -163,7 +163,7 @@ coreml.ModelFactory = class {
                 return openManifestStream(context, '../../../');
             }
             default: {
-                throw new coreml.Error("Unsupported Core ML format '" + match + "'.");
+                throw new coreml.Error("Unsupported Core ML format '" + target + "'.");
             }
         }
     }

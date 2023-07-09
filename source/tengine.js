@@ -10,9 +10,9 @@ tengine.ModelFactory = class {
         return tengine.Reader.open(context.stream);
     }
 
-    async open(context, match) {
+    async open(context, target) {
         const metadata = await tengine.Metadata.open(context);
-        return new tengine.Model(metadata, match);
+        return new tengine.Model(metadata, target);
     }
 };
 

@@ -33,12 +33,12 @@ keras.ModelFactory = class {
         return null;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         const openModel = async (format, producer, backend, config, weights) => {
             const metadata = await context.metadata('keras-metadata.json');
             return new keras.Model(metadata, format, producer, backend, config, weights);
         };
-        switch (match) {
+        switch (target) {
             case 'keras.h5': {
                 const find_root_group = (root_group) => {
                     const kerasmodel = root_group.group('model/kerasmodel');
@@ -252,7 +252,7 @@ keras.ModelFactory = class {
                 return openModel(format, '', backend, model_config, weights);
             }
             default: {
-                throw new keras.Error("Unsupported Keras format '" + match + "'.");
+                throw new keras.Error("Unsupported Keras format '" + target + "'.");
             }
         }
     }

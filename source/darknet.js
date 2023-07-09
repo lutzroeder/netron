@@ -38,7 +38,7 @@ darknet.ModelFactory = class {
         return undefined;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         const metadata = await context.metadata('darknet-metadata.json');
         const openModel = (metadata, cfg, weights) => {
             return new darknet.Model(metadata, cfg, darknet.Weights.open(weights));
@@ -47,7 +47,7 @@ darknet.ModelFactory = class {
         const parts = identifier.split('.');
         parts.pop();
         const basename = parts.join('.');
-        switch (match) {
+        switch (target) {
             case 'darknet.weights': {
                 const stream = await context.request(basename + '.cfg', null);
                 const buffer = stream.read();
@@ -62,7 +62,7 @@ darknet.ModelFactory = class {
                 }
             }
             default: {
-                throw new darknet.Error("Unsupported Darknet format '" + match + "'.");
+                throw new darknet.Error("Unsupported Darknet format '" + target + "'.");
             }
         }
     }

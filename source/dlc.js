@@ -8,10 +8,10 @@ dlc.ModelFactory = class {
         return dlc.Container.open(context);
     }
 
-    async open(context, match) {
+    async open(context, target) {
         await context.require('./dlc-schema');
         dlc.schema = flatbuffers.get('dlc').dlc;
-        const container = match;
+        const container = target;
         let model = null;
         let params = null;
         const metadata_props = container.metadata;

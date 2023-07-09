@@ -18,12 +18,12 @@ circle.ModelFactory = class {
         return undefined;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         await context.require('./circle-schema');
         circle.schema = flatbuffers.get('circle').circle;
         let model = null;
         const attachments = new Map();
-        switch (match) {
+        switch (target) {
             case 'circle.flatbuffers.json': {
                 try {
                     const obj = context.open('json');
@@ -57,7 +57,7 @@ circle.ModelFactory = class {
                 break;
             }
             default: {
-                throw new circle.Error("Unsupported Circle format '" + match + "'.");
+                throw new circle.Error("Unsupported Circle format '" + target + "'.");
             }
         }
         const metadata = await context.metadata('circle-metadata.json');

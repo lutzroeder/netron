@@ -21,8 +21,8 @@ message.ModelFactory = class {
         return null;
     }
 
-    async open(context, match) {
-        return new message.Model(match);
+    async open(context, target) {
+        return new message.Model(target);
     }
 };
 

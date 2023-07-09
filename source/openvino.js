@@ -42,7 +42,7 @@ openvino.ModelFactory = class {
         return undefined;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         const open = async (stream, bin) => {
             const metadata = await context.metadata('openvino-metadata.json');
             let document = null;
@@ -60,7 +60,7 @@ openvino.ModelFactory = class {
             return new openvino.Model(metadata, net, bin);
         };
         const identifier = context.identifier;
-        switch (match) {
+        switch (target) {
             case 'openvino.xml':
                 try {
                     const stream = await context.request(identifier.substring(0, identifier.length - 4) + '.bin', null);
@@ -74,7 +74,7 @@ openvino.ModelFactory = class {
                 return open(stream, context.stream.peek());
             }
             default:
-                throw new openvino.Error("Unsupported OpenVINO format '" + match + "'.");
+                throw new openvino.Error("Unsupported OpenVINO format '" + target + "'.");
         }
     }
 };

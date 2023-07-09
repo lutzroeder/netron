@@ -10,11 +10,11 @@ rknn.ModelFactory = class {
         return rknn.Container.open(context);
     }
 
-    async open(context, match) {
+    async open(context, target) {
         await context.require('./rknn-schema');
         rknn.schema = flatbuffers.get('rknn').rknn;
         const metadata = await context.metadata('rknn-metadata.json');
-        const container = match;
+        const container = target;
         const type = container.type;
         switch (type) {
             case 'json': {

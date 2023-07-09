@@ -35,12 +35,12 @@ megengine.ModelFactory = class {
         return '';
     }
 
-    async open(context, match) {
+    async open(context, target) {
         const metadata = await context.metadata('megengine-metadata.json');
-        switch (match) {
+        switch (target) {
             case 'megengine.tm': {
                 const obj = context.open('pkl');
-                return new megengine.Model(metadata, obj, match);
+                return new megengine.Model(metadata, obj, target);
             }
             case 'megengine.mge': {
                 await context.require('./megengine-schema');
@@ -58,10 +58,10 @@ megengine.ModelFactory = class {
                     const message = error && error.message ? error.message : error.toString();
                     throw new megengine.Error('File format is not megengine.Model (' + message.replace(/\.$/, '') + ').');
                 }
-                return new megengine.Model(metadata, model, match);
+                return new megengine.Model(metadata, model, target);
             }
             default: {
-                throw new megengine.Error("Unsupported MegEngine format '" + match.replace(/^megengine\./, '') + "'.");
+                throw new megengine.Error("Unsupported MegEngine format '" + target.replace(/^megengine\./, '') + "'.");
             }
         }
     }

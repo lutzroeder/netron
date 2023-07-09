@@ -5165,10 +5165,10 @@ view.ModelFactoryService = class {
                         throw new view.Error("Failed to load module '" + id + "'.");
                     }
                     const modelFactory = new module.ModelFactory();
-                    const match = modelFactory.match(context);
-                    if (match) {
+                    const target = modelFactory.match(context);
+                    if (target) {
                         success = true;
-                        const model = await modelFactory.open(context, match);
+                        const model = await modelFactory.open(context, target);
                         if (!model.identifier) {
                             model.identifier = context.identifier;
                         }

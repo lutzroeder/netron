@@ -32,10 +32,10 @@ numpy.ModelFactory = class {
         return undefined;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         let format = '';
         const graphs = [];
-        switch (match.name) {
+        switch (target.name) {
             case 'npy': {
                 format = 'NumPy Array';
                 const execution = new python.Execution();
@@ -51,7 +51,7 @@ numpy.ModelFactory = class {
                 format = 'NumPy Zip';
                 const layers = new Map();
                 const execution = new python.Execution();
-                for (const entry of match.value) {
+                for (const entry of target.value) {
                     if (!entry[0].endsWith('.npy')) {
                         throw new numpy.Error("Invalid file name '" + entry.name + "'.");
                     }
@@ -84,7 +84,7 @@ numpy.ModelFactory = class {
                     }
                     return layers.get(name);
                 };
-                const weights = match.value;
+                const weights = target.value;
                 let separator = undefined;
                 if (Array.from(weights.keys()).every((key) => key.indexOf('.') !== -1)) {
                     separator = '.';
@@ -117,14 +117,14 @@ numpy.ModelFactory = class {
                 format = 'NumPy NDArray';
                 const layer = {
                     type: 'numpy.ndarray',
-                    parameters: [ { name: 'value', tensor: { name: '', array: match.value } } ]
+                    parameters: [ { name: 'value', tensor: { name: '', array: target.value } } ]
                 };
                 graphs.push({ layers: [ layer ] });
                 break;
             }
             case 'dnnlib.tflib.network': {
                 format = 'dnnlib';
-                for (const obj of match.value) {
+                for (const obj of target.value) {
                     const layers = new Map();
                     for (const entry of obj.variables) {
                         const name = entry[0];
@@ -148,7 +148,7 @@ numpy.ModelFactory = class {
                 break;
             }
             default: {
-                throw new numpy.Error("Unsupported NumPy format '" + match.name + "'.");
+                throw new numpy.Error("Unsupported NumPy format '" + target.name + "'.");
             }
         }
         return new numpy.Model(format, graphs);

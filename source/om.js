@@ -11,8 +11,8 @@ om.ModelFactory = class {
         return om.Container.open(context);
     }
 
-    async open(context, match) {
-        const container = match;
+    async open(context, target) {
+        const container = target;
         await container.open();
         const metadata = await context.metadata('om-metadata.json');
         return new om.Model(metadata, container);

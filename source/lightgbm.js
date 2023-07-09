@@ -17,10 +17,10 @@ lightgbm.ModelFactory = class {
         return null;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         let obj;
         let format;
-        switch (match) {
+        switch (target) {
             case 'lightgbm.pickle': {
                 obj = context.open('pkl');
                 format = 'LightGBM Pickle';
@@ -38,7 +38,7 @@ lightgbm.ModelFactory = class {
                 break;
             }
             default: {
-                throw new lightgbm.Error("Unsupported LightGBM format '" + match + "'.");
+                throw new lightgbm.Error("Unsupported LightGBM format '" + target + "'.");
             }
         }
         return new lightgbm.Model(obj, format);

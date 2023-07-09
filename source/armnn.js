@@ -20,11 +20,11 @@ armnn.ModelFactory = class {
         return undefined;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         await context.require('./armnn-schema');
         armnn.schema = flatbuffers.get('armnn').armnnSerializer;
         let model = null;
-        switch (match) {
+        switch (target) {
             case 'armnn.flatbuffers': {
                 try {
                     const stream = context.stream;
@@ -48,7 +48,7 @@ armnn.ModelFactory = class {
                 break;
             }
             default: {
-                throw new armnn.Error("Unsupported Arm NN '" + match + "'.");
+                throw new armnn.Error("Unsupported Arm NN '" + target + "'.");
             }
         }
         const metadata = await context.metadata('armnn-metadata.json');

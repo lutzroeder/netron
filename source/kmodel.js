@@ -8,8 +8,8 @@ kmodel.ModelFactory = class {
         return kmodel.Reader.open(context.stream);
     }
 
-    async open(context, match) {
-        return new kmodel.Model(match);
+    async open(context, target) {
+        return new kmodel.Model(target);
     }
 };
 

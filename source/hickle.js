@@ -11,8 +11,8 @@ hickle.ModelFactory = class {
         return null;
     }
 
-    async open(context, match) {
-        return new hickle.Model(match);
+    async open(context, target) {
+        return new hickle.Model(target);
     }
 };
 

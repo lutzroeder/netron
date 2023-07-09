@@ -22,9 +22,9 @@ pickle.ModelFactory = class {
         return null;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         let format = 'Pickle';
-        const obj = match;
+        const obj = target;
         if (obj === null || obj === undefined) {
             context.exception(new pickle.Error("Unsupported Pickle null object in '" + context.identifier + "'."));
         } else if (Array.isArray(obj)) {

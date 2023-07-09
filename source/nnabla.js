@@ -16,10 +16,10 @@ nnabla.ModelFactory = class {
         return undefined;
     }
 
-    async open(context, match) {
+    async open(context, target) {
         await context.require('./nnabla-proto');
         nnabla.proto = protobuf.get('nnabla').nnabla;
-        switch (match) {
+        switch (target) {
             case 'nnabla.pbtxt': {
                 const stream = context.stream;
                 const reader = protobuf.TextReader.open(stream);
@@ -44,7 +44,7 @@ nnabla.ModelFactory = class {
                 }
             }
             default: {
-                throw new nnabla.Error("Unsupported nnabla format '" + match + "'.");
+                throw new nnabla.Error("Unsupported nnabla format '" + target + "'.");
             }
         }
     }
