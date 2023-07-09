@@ -590,7 +590,7 @@ host.BrowserHost = class {
                 button.onclick = () => {
                     button.onclick = null;
                     this._document.body.classList.remove('message');
-                    resolve();
+                    resolve(0);
                 };
                 button.focus();
             } else {

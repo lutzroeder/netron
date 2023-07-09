@@ -90,6 +90,13 @@ window.terminate = function(message, action, callback) {
         button.style.display = 'none';
         button.onclick = null;
     }
+    if (window.__view__) {
+        try {
+            window.__view__.show('welcome message');
+        } catch (error) {
+            // continue regardless of error
+        }
+    }
     document.body.setAttribute('class', 'welcome message');
 };
 

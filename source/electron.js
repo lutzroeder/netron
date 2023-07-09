@@ -242,8 +242,7 @@ host.ElectronHost = class {
             buttons: [ 'Report', 'Cancel' ]
         };
         return electron.ipcRenderer.sendSync('show-message-box', options);
-        // await this._message(message + ': ' + detail, 'Report');
-        // return 0;
+        // return await this._message(message + ': ' + detail, 'Report');
     }
 
     confirm(message, detail) {
@@ -549,11 +548,18 @@ host.ElectronHost = class {
         if (action && callback) {
             button.style.removeProperty('display');
             button.innerText = action;
-            button.onclick = () => callback();
+            button.onclick = () => callback(0);
             button.focus();
         } else {
             button.style.display = 'none';
             button.onclick = null;
+        }
+        if (this._view) {
+            try {
+                this._view.show('welcome message');
+            } catch (error) {
+                // continue regardless of error
+            }
         }
         this._document.body.setAttribute('class', 'welcome message');
     }
@@ -568,7 +574,7 @@ host.ElectronHost = class {
                 button.onclick = () => {
                     button.onclick = null;
                     this._document.body.classList.remove('message');
-                    resolve();
+                    resolve(0);
                 };
                 button.focus();
             } else {

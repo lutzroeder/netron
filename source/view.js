@@ -13,9 +13,8 @@ var grapher = require('./grapher');
 
 view.View = class {
 
-    constructor(host, id) {
+    constructor(host) {
         this._host = host;
-        this._id = id ? ('-' + id) : '';
         this._options = {
             weights: true,
             attributes: false,
@@ -27,7 +26,7 @@ view.View = class {
             this._model = null;
             this._graphs = [];
             this._selection = [];
-            this._sidebar = new view.Sidebar(this._host, id);
+            this._sidebar = new view.Sidebar(this._host);
             this._searchText = '';
             this._modelFactoryService = new view.ModelFactoryService(this._host);
             this._element('sidebar-button').addEventListener('click', () => {
@@ -331,7 +330,7 @@ view.View = class {
     }
 
     _element(id) {
-        return this._host.document.getElementById(id + this._id);
+        return this._host.document.getElementById(id);
     }
 
     zoomIn() {
@@ -2026,17 +2025,15 @@ view.Edge = class extends grapher.Edge {
 
 view.Sidebar = class {
 
-    constructor(host, id) {
+    constructor(host) {
         this._host = host;
-        this._id = id ? ('-' + id) : '';
         this._stack = [];
-        this._closeSidebarHandler = () => {
-            this._pop();
-        };
+        const pop = () => this._update(this._stack.slice(0, -1));
+        this._closeSidebarHandler = () => pop();
         this._closeSidebarKeyDownHandler = (e) => {
             if (e.keyCode == 27) {
                 e.preventDefault();
-                this._pop();
+                pop();
             }
         };
         const sidebar = this._element('sidebar');
@@ -2049,66 +2046,35 @@ view.Sidebar = class {
     }
 
     _element(id) {
-        return this._host.document.getElementById(id + this._id);
+        return this._host.document.getElementById(id);
     }
 
     open(content, title) {
-        this.close();
-        this.push(content, title);
+        this._update([ { title: title, content: content } ]);
     }
 
     close() {
-        this._deactivate();
-        this._stack = [];
-        this._hide();
+        this._update([]);
     }
 
     push(content, title) {
-        const item = { title: title, content: content };
-        this._stack.push(item);
-        this._activate(item);
+        this._update(this._stack.concat({ title: title, content: content }));
     }
 
-    _pop() {
-        this._deactivate();
-        if (this._stack.length > 0) {
+    _update(stack) {
+        const sidebar = this._element('sidebar');
+        const container = this._element('graph');
+        const closeButton = this._element('sidebar-closebutton');
+        closeButton.removeEventListener('click', this._closeSidebarHandler);
+        this._host.document.removeEventListener('keydown', this._closeSidebarKeyDownHandler);
+        if (stack) {
+            this._stack = stack;
+        } else if (this._stack.length > 0) {
             this._stack.pop();
         }
         if (this._stack.length > 0) {
-            this._activate(this._stack[this._stack.length - 1]);
-        } else {
-            this._hide();
-        }
-    }
-
-    _hide() {
-        const sidebar = this._element('sidebar');
-        if (sidebar) {
-            sidebar.style.right = 'calc(0px - min(calc(100% * 0.6), 42em))';
-            sidebar.style.opacity = 0;
-        }
-        const container = this._element('graph');
-        if (container) {
-            container.style.width = '100%';
-            container.focus();
-        }
-    }
-
-    _deactivate() {
-        const sidebar = this._element('sidebar');
-        if (sidebar) {
-            const closeButton = this._element('sidebar-closebutton');
-            closeButton.removeEventListener('click', this._closeSidebarHandler);
-            this._host.document.removeEventListener('keydown', this._closeSidebarKeyDownHandler);
-        }
-    }
-
-    _activate(item) {
-        const sidebar = this._element('sidebar');
-        if (sidebar) {
-            const title = this._element('sidebar-title');
-            title.innerHTML = item.title ? item.title.toUpperCase() : '';
-            const closeButton = this._element('sidebar-closebutton');
+            const item = this._stack[this._stack.length - 1];
+            this._element('sidebar-title').innerHTML = item.title || '';
             closeButton.addEventListener('click', this._closeSidebarHandler);
             const content = this._element('sidebar-content');
             if (typeof item.content == 'string') {
@@ -2126,10 +2092,12 @@ view.Sidebar = class {
             sidebar.style.right = 0;
             sidebar.style.opacity = 1;
             this._host.document.addEventListener('keydown', this._closeSidebarKeyDownHandler);
-        }
-        const container = this._element('graph');
-        if (container) {
             container.style.width = 'max(40vw, calc(100vw - 42em))';
+        } else {
+            sidebar.style.right = 'calc(0px - min(calc(100% * 0.6), 42em))';
+            sidebar.style.opacity = 0;
+            container.style.width = '100%';
+            container.focus();
         }
     }
 };
@@ -4671,7 +4639,7 @@ view.ModelContext = class {
                                         this._content.set(type, obj);
                                     }
                                 }
-                            } catch (err) {
+                            } catch (error) {
                                 // continue regardless of error
                             }
                             break;
@@ -4687,7 +4655,7 @@ view.ModelContext = class {
                                         this._content.set(type, obj);
                                     }
                                 }
-                            } catch (err) {
+                            } catch (error) {
                                 // continue regardless of error
                             }
                             break;
@@ -4720,7 +4688,7 @@ view.ModelContext = class {
                                     const pickle = execution.__import__('pickle');
                                     unpickler = new pickle.Unpickler(data);
                                 }
-                            } catch (err) {
+                            } catch (error) {
                                 // continue regardless of error
                             }
                             if (unpickler) {
