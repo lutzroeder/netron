@@ -370,7 +370,7 @@ class Target {
         this.name = this.type ? this.type + '/' + this.target[0] : this.target[0];
         this.measures = new Map([ [ 'name', this.name ] ]);
         // TODO #1109 duplicate value name
-        this.skip1109 = [ 'coreml', 'kmodel', 'mediapipe', 'om', 'openvino', 'tf', 'tfjs' ].includes(this.type);
+        this.skip1109 = [ 'coreml', 'kmodel', 'mediapipe', 'om', 'openvino' ].includes(this.type);
     }
 
     match(patterns) {
