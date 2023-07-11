@@ -2722,12 +2722,13 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                     tensor.resize_([ NaN, NaN, NaN, NaN ]);
                 }
             }
+            // x = _(torch.size(foo ,2))
             if (statement.type === '=' &&
                 statement.expression.type === 'call' && statement.expression.args.length > 0 &&
                 pytorch.Utility.isCall(statement.expression.args[0], 'torch.size', 2)) {
                 const tensor = this.expression(statement.expression.args[0].args[0], context);
                 const dim = this.expression(statement.expression.args[0].args[1], context);
-                if (pytorch.Utility.isTensor(tensor) && Number.isInteger(dim)) {
+                if (pytorch.Utility.isTensor(tensor) && Number.isInteger(dim) && dim >= 0) {
                     if (tensor.shape === undefined) {
                         tensor.resize_(Array(dim + 1).fill(NaN));
                     } else if (Array.isArray(tensor.shape) && tensor.shape.length <= dim) {

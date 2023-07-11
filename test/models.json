@@ -5134,6 +5134,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "traced_gpt2.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/12010345/traced_gpt2.pt.zip[traced_gpt2.pt]",
+    "format":   "TorchScript v1.7",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
+  },
+  {
+    "type":     "pytorch",
     "target":   "traced_online_lane_enc.pt",
     "source":   "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/traced_online_lane_enc.pt",
     "format":   "TorchScript v1.0",
