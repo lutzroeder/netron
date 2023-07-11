@@ -6838,7 +6838,7 @@
         "name": "output_shape",
         "type": "int64[]",
         "required": false,
-        "description": "The shape of the output can be explicitly set which will cause pads values to be auto generated. If output_shape is specified pads values are ignored. See doc for details for equations to generate pads"
+        "description": "The shape of the output can be explicitly set which will cause pads values to be auto generated. If output_shape is specified pads values are ignored. See doc for details for equations to generate pads. Note that the output_shape attribute value should not include dimensions for batch size and channels, which are automatically inferred."
       },
       {
         "name": "pads",
@@ -11729,6 +11729,62 @@
       {
         "summary": "int32_batchdim_1",
         "code": "node = onnx.helper.make_node(\n    \"GatherND\",\n    inputs=[\"data\", \"indices\"],\n    outputs=[\"output\"],\n    batch_dims=1,\n)\n\ndata = np.array([[[0, 1], [2, 3]], [[4, 5], [6, 7]]], dtype=np.int32)\nindices = np.array([[1], [0]], dtype=np.int64)\noutput = gather_nd_impl(data, indices, 1)\nexpected_output = np.array([[2, 3], [4, 5]], dtype=np.int32)\nassert np.array_equal(output, expected_output)\nexpect(\n    node,\n    inputs=[data, indices],\n    outputs=[output],\n    name=\"test_gathernd_example_int32_batch_dim1\",\n)"
+      }
+    ]
+  },
+  {
+    "name": "Gelu",
+    "module": "ai.onnx",
+    "version": 20,
+    "support_level": "common",
+    "description": "Gelu takes one input data (Tensor<T>) and produces one\noutput data (Tensor<T>) where the gaussian error linear units function,\n$y = 0.5 * x * (1 + erf(x/sqrt(2)))$ is applied to the tensor elementwise.\nIf the attribute \"approximate\" is set to \"tanh\", the function estimation,\n$y = 0.5 * x * (1 + Tanh(sqrt(2/\\pi) * (x + 0.044715 * x^3)))$ is used and applied\nto the tensor elementwise.\n\n",
+    "attributes": [
+      {
+        "name": "approximate",
+        "type": "string",
+        "required": false,
+        "default": "none",
+        "description": "Gelu approximation algorithm: `\"tanh\"`, `\"none\"`(default).`\"none\"`: do not use approximation.`\"tanh\"`: use tanh approximation."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T",
+        "description": "Input tensor"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T",
+        "description": "Output tensor"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(bfloat16)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "gelu_default",
+        "code": "node = onnx.helper.make_node(\"Gelu\", inputs=[\"x\"], outputs=[\"y\"])\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n# expected output [-0.15865526, 0., 0.84134474]\ny = (0.5 * x * (1 + np.vectorize(math.erf)(x / np.sqrt(2)))).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y], name=\"test_gelu_default_1\")\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n# expected output [2.99595031, 3.99987331, 4.99999857]\ny = (0.5 * x * (1 + np.vectorize(math.erf)(x / np.sqrt(2)))).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y], name=\"test_gelu_default_2\")"
+      },
+      {
+        "summary": "gelu_tanh",
+        "code": "node = onnx.helper.make_node(\n    \"Gelu\", inputs=[\"x\"], outputs=[\"y\"], approximate=\"tanh\"\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n# expected output [-0.158808, 0., 0.841192]\ny = (\n    0.5\n    * x\n    * (1 + np.tanh(np.sqrt(2 / np.pi) * (x + 0.044715 * np.power(x, 3))))\n).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y], name=\"test_gelu_tanh_1\")\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n# expected output [2.9963627, 3.99993, 4.9999995]\ny = (\n    0.5\n    * x\n    * (1 + np.tanh(np.sqrt(2 / np.pi) * (x + 0.044715 * np.power(x, 3))))\n).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y], name=\"test_gelu_tanh_2\")"
       }
     ]
   },
@@ -23123,7 +23179,7 @@
       {
         "name": "slope",
         "type": "T",
-        "description": "Slope tensor. The shape of slope can be smaller then first input X; if so, its shape must be unidirectional broadcastable to X"
+        "description": "Slope tensor. The shape of slope can be smaller than first input X; if so, its shape must be unidirectional broadcastable to X"
       }
     ],
     "min_input": 2,
@@ -23175,7 +23231,7 @@
       {
         "name": "slope",
         "type": "T",
-        "description": "Slope tensor. The shape of slope can be smaller then first input X; if so, its shape must be unidirectional broadcastable to X"
+        "description": "Slope tensor. The shape of slope can be smaller than first input X; if so, its shape must be unidirectional broadcastable to X"
       }
     ],
     "min_input": 2,
@@ -23231,7 +23287,7 @@
       {
         "name": "slope",
         "type": "T",
-        "description": "Slope tensor. The shape of slope can be smaller then first input X; if so, its shape must be unidirectional broadcastable to X"
+        "description": "Slope tensor. The shape of slope can be smaller than first input X; if so, its shape must be unidirectional broadcastable to X"
       }
     ],
     "min_input": 2,
