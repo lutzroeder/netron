@@ -3427,9 +3427,9 @@ pytorch.Utility = class {
                         ];
                         for (const signature of signatures) {
                             if (data instanceof Uint8Array && data.length > signature.length && signature.every((value, index) => value === data[index])) {
-                                const buffer = data.slice(0, 24);
-                                const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-                                throw new pytorch.Error("Invalid file content. File contains undocumented PyTorch TensorRT engine data (" + content.substring(8) + ").");
+                                // const buffer = data.slice(0, 24);
+                                // const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+                                throw new pytorch.Error('Invalid file content. File contains undocumented PyTorch TensorRT engine data.');
                             }
                         }
                     }

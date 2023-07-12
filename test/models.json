@@ -5676,6 +5676,14 @@
     "link":     "https://github.com/lutzroeder/netron/issues/440"
   },
   {
+    "type":     "tensorrt",
+    "target":   "retinaface_1.trt",
+    "source":   "https://github.com/lutzroeder/netron/files/12022977/retinaface_1.trt.zip[retinaface_1.trt]",
+    "format":   "TensorRT Engine",
+    "error":    "Invalid file content. File contains undocumented TensorRT engine data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/725"
+  },
+  {
     "type":     "tf",
     "target":   "bfloat16.pbtxt",
     "source":   "https://github.com/lutzroeder/netron/files/9540969/bfloat16.pbtxt.zip[bfloat16.pbtxt]",

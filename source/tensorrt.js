@@ -106,10 +106,10 @@ tensorrt.Engine = class {
                     throw new tensorrt.Error("Unsupported TensorRT engine signature (" + content.substring(8) + ").");
                 }
             }
-            const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+            // const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
             // buffer = this._stream.read(24 + size);
             // reader = new tensorrt.BinaryReader(buffer);
-            throw new tensorrt.Error("Invalid file content. File contains undocumented TensorRT engine data (" + content.substring(8) + ").");
+            throw new tensorrt.Error('Invalid file content. File contains undocumented TensorRT engine data.');
         }
     }
 };
