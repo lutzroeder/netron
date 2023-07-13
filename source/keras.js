@@ -136,6 +136,39 @@ keras.ModelFactory = class {
                     }
                     return openModel(format, '', backend, null, weights);
                 }
+                if (context.identifier === 'model.weights.h5' &&
+                    group.attributes.size === 0 &&
+                    group.groups.has('_layer_checkpoint_dependencies')) {
+                    const checkpoint = group.groups.get('_layer_checkpoint_dependencies');
+                    for (const layer of checkpoint.groups) {
+                        for (const vars of layer[1].groups) {
+                            for (const entry of vars[1].groups) {
+                                const variable = entry[1].value;
+                                const layout = variable.littleEndian ? '<' : '>';
+                                const tensor = new keras.Tensor(entry[0], variable.shape, variable.type, null, layout, variable.data);
+                                weights.add(layer[0], tensor);
+                            }
+                        }
+                    }
+                    let model_config = null;
+                    try {
+                        const stream = await context.request('config.json', 'utf-8');
+                        const reader = json.TextReader.open(stream);
+                        model_config = reader.read();
+                    } catch (error) {
+                        // continue regardless of error
+                    }
+                    let metadata = null;
+                    try {
+                        const stream = await context.request('metadata.json', 'utf-8');
+                        const reader = json.TextReader.open(stream);
+                        metadata = reader.read();
+                    } catch (error) {
+                        // continue regardless of error
+                    }
+                    const format = 'Keras' + (metadata && metadata.keras_version ? ' v' + metadata.keras_version : '');
+                    return openModel(format, '', '', model_config, weights);
+                }
                 const rootKeys = new Set(root_group.attributes.keys());
                 rootKeys.delete('nb_layers');
                 if (rootKeys.size > 0 || root_group.value !== null) {

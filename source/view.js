@@ -5285,6 +5285,12 @@ view.ModelFactoryService = class {
                         matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'keras_metadata.pb')) {
                         matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() !== 'keras_metadata.pb');
                     }
+                    // Keras
+                    if (matches.length === 2 &&
+                        matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'config.json') &&
+                        matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'model.weights.h5')) {
+                        matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == 'model.weights.h5');
+                    }
                     if (matches.length > 1) {
                         throw new view.ArchiveError('Archive contains multiple model files.');
                     }

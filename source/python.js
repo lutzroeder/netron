@@ -1628,7 +1628,7 @@ python.Execution = class {
         this.register('gensim');
         this.register('io');
         this.register('joblib');
-        this.register('keras');
+        const keras = this.register('keras');
         this.register('lightgbm');
         this.register('nolearn');
         const math = this.register('math');
@@ -3377,6 +3377,10 @@ python.Execution = class {
         this.registerFunction('dill._dill._load_type', function(name) {
             return self.resolve('types.' + name);
         });
+        this.registerFunction('keras.saving.pickle_utils.deserialize_model_from_bytecode', function(/* serialized_model */) {
+            throw new python.Error("'keras.saving.pickle_utils.deserialize_model_from_bytecode' not implemented.");
+        });
+        this.registerFunction('keras.src.saving.pickle_utils.deserialize_model_from_bytecode', keras.saving.pickle_utils.deserialize_model_from_bytecode);
         this.registerFunction('lasagne.nonlinearities.rectify', function() {
             throw new python.Error('Function not implemented.');
         });
