@@ -2277,6 +2277,20 @@
   },
   {
     "type":     "keras",
+    "target":   "pickle_utils.keras",
+    "source":   "https://github.com/lutzroeder/netron/files/12034968/pickle_utils.zip[pickle_utils.keras]",
+    "format":   "Keras v2.13.1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1120"
+  },
+  {
+    "type":     "keras",
+    "target":   "pickle_utils.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/12034968/pickle_utils.zip[pickle_utils.pkl]",
+    "format":   "Keras v2.13.1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1120"
+  },
+  {
+    "type":     "keras",
     "target":   "residual_cnn.h5",
     "source":   "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[residual_cnn.h5]",
     "format":   "Keras v2.1.2",
