@@ -13,12 +13,14 @@ var app = {};
 app.Application = class {
 
     constructor() {
-
         this._views = new app.ViewCollection(this);
         this._configuration = new app.ConfigurationService();
         this._menu = new app.MenuService(this._views);
         this._openQueue = [];
+        this._package = {};
+    }
 
+    start() {
         const packageFile = path.join(path.dirname(__dirname), 'package.json');
         const packageContent = fs.readFileSync(packageFile, 'utf-8');
         this._package = JSON.parse(packageContent);
@@ -300,8 +302,8 @@ app.Application = class {
         let updated = false;
         let recents = this._configuration.has('recents') ? this._configuration.get('recents') : [];
         if (path && (recents.length === 0 || recents[0] !== path)) {
-            recents = recents.filter((recent) => path !== recent.path);
-            recents.unshift({ path: path });
+            recents = recents.filter((recent) => path !== recent);
+            recents.unshift(path);
             updated = true;
         }
         const value = [];
@@ -310,12 +312,11 @@ app.Application = class {
                 updated = true;
                 break;
             }
-            const path = recent.path;
-            if (!fs.existsSync(path)) {
+            if (!fs.existsSync(recent)) {
                 updated = true;
                 continue;
             }
-            const stat = fs.statSync(path);
+            const stat = fs.statSync(recent);
             if (!stat.isFile() && !stat.isDirectory()) {
                 updated = true;
                 continue;
@@ -333,7 +334,7 @@ app.Application = class {
         let recents = [];
         if (this._configuration.has('recents')) {
             const value = this._configuration.get('recents');
-            recents = value.map((recent) => app.Application.location(recent.path));
+            recents = value.map((recent) => app.Application.location(recent));
         }
 
         if (this.environment.titlebar && recents.length > 0) {
@@ -947,6 +948,9 @@ app.ConfigurationService = class {
             if (data) {
                 try {
                     this._data = JSON.parse(data);
+                    if (Array.isArray(this._data.recents)) {
+                        this._data.recents = this._data.recents.map((recent) => typeof recent === 'string' ? recent : (recent && recent.path ? recent.path : recent));
+                    }
                 } catch (error) {
                     // continue regardless of error
                 }
@@ -1054,3 +1058,4 @@ app.MenuService = class {
 };
 
 global.application = new app.Application();
+global.application.start();
