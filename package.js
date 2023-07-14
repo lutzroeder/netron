@@ -201,6 +201,7 @@ const clean = async () => {
     await rm('dist');
     await rm('node_modules');
     await rm('package-lock.json');
+    await rm('yarn.lock');
 };
 
 const purge = async () => {
