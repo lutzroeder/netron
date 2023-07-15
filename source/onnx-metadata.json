@@ -36478,6 +36478,51 @@
     "category": "Transform"
   },
   {
+    "name": "StringConcat",
+    "module": "ai.onnx",
+    "version": 20,
+    "support_level": "common",
+    "description": "StringConcat concatenates string tensors elementwise (with NumPy-style broadcasting support)",
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T",
+        "description": "Tensor to prepend in concatenation"
+      },
+      {
+        "name": "Y",
+        "type": "T",
+        "description": "Tensor to append in concatenation"
+      }
+    ],
+    "min_input": 2,
+    "max_input": 2,
+    "outputs": [
+      {
+        "name": "Z",
+        "type": "T",
+        "description": "Concatenated string tensor"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Inputs and outputs must be UTF-8 strings",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(string)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "stringconcat",
+        "code": "node = onnx.helper.make_node(\n    \"StringConcat\",\n    inputs=[\"x\", \"y\"],\n    outputs=[\"result\"],\n)\nx = np.array([\"abc\", \"def\"]).astype(\"object\")\ny = np.array([\".com\", \".net\"]).astype(\"object\")\nresult = np.array([\"abc.com\", \"def.net\"]).astype(\"object\")\n\nexpect(node, inputs=[x, y], outputs=[result], name=\"test_string_concat\")\n\nx = np.array([\"cat\", \"dog\", \"snake\"]).astype(\"object\")\ny = np.array([\"s\"]).astype(\"object\")\nresult = np.array([\"cats\", \"dogs\", \"snakes\"]).astype(\"object\")\n\nexpect(\n    node,\n    inputs=[x, y],\n    outputs=[result],\n    name=\"test_string_concat_broadcasting\",\n)\n\nx = np.array(\"cat\").astype(\"object\")\ny = np.array(\"s\").astype(\"object\")\nresult = np.array(\"cats\").astype(\"object\")\n\nexpect(\n    node,\n    inputs=[x, y],\n    outputs=[result],\n    name=\"test_string_concat_zero_dimensional\",\n)\n\nx = np.array([\"abc\", \"\"]).astype(\"object\")\ny = np.array([\"\", \"abc\"]).astype(\"object\")\nresult = np.array([\"abc\", \"abc\"]).astype(\"object\")\n\nexpect(\n    node,\n    inputs=[x, y],\n    outputs=[result],\n    name=\"test_string_concat_empty_string\",\n)\n\nx = np.array([\"\u7684\", \"\u4e2d\"]).astype(\"object\")\ny = np.array([\"\u7684\", \"\u4e2d\"]).astype(\"object\")\nresult = np.array([\"\u7684\u7684\", \"\u4e2d\u4e2d\"]).astype(\"object\")\n\nexpect(\n    node,\n    inputs=[x, y],\n    outputs=[result],\n    name=\"test_string_concat_utf8\",\n)"
+      }
+    ]
+  },
+  {
     "name": "StringNormalizer",
     "module": "ai.onnx",
     "version": 10,
