@@ -13,7 +13,7 @@ npm start
 
 To debug the Electron app, open the folder in [Visual Studio Code](https://code.visualstudio.com) and press <kbd>F5</kbd>. To attach the debugger to the render process select the `Debug` tab and pick `Electron View` before launching.
 
-To build and launch the Python server, pick `Python Server` in the `Debug` tab or run this command:
+To build and launch the Python server, pick `Browser` in the `Debug` tab or run this command:
 
 ```bash
 python package.py build start --browse
