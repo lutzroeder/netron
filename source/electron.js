@@ -117,7 +117,7 @@ host.ElectronHost = class {
         await telemetry();
     }
 
-    start() {
+    async start() {
         if (this._files) {
             const files = this._files;
             delete this._files;
@@ -126,7 +126,6 @@ host.ElectronHost = class {
                 this._open(data);
             }
         }
-
         this._window.addEventListener('focus', () => {
             this._document.body.classList.add('active');
         });
@@ -176,7 +175,6 @@ host.ElectronHost = class {
         electron.ipcRenderer.on('about', () => {
             this._view.about();
         });
-
         this._element('titlebar-close').addEventListener('click', () => {
             electron.ipcRenderer.sendSync('window-close', {});
         });
@@ -205,14 +203,12 @@ host.ElectronHost = class {
             this._element('titlebar-toggle').setAttribute('title', data.maximized ? 'Restore' : 'Maximize');
         });
         electron.ipcRenderer.sendSync('update-window-state', {});
-
         const openFileButton = this._element('open-file-button');
         if (openFileButton) {
             openFileButton.addEventListener('click', () => {
                 this.execute('open');
             });
         }
-
         this.document.addEventListener('dragover', (e) => {
             e.preventDefault();
         });
@@ -784,4 +780,5 @@ window.addEventListener('load', () => {
     const value = new host.ElectronHost();
     const view = require('./view');
     window.__view__ = new view.View(value);
+    window.__view__.start();
 });

@@ -116,6 +116,7 @@ window.addEventListener('load', function() {
             var host = new window.host.BrowserHost();
             var view = require('./view');
             window.__view__ = new view.View(host);
+            window.__view__.start();
         }
     });
 });

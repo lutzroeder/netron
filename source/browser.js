@@ -176,11 +176,9 @@ host.BrowserHost = class {
     }
 
     async start() {
-
         const hash = this.window.location.hash ? this.window.location.hash.replace(/^#/, '') : '';
         const search = this.window.location.search;
         const params = new URLSearchParams(search + (hash ? '&' + hash : ''));
-
         if (this._meta.file && this._meta.identifier) {
             const url = this._meta.file[0];
             if (this._view.accept(url)) {
@@ -189,7 +187,6 @@ host.BrowserHost = class {
                 return;
             }
         }
-
         const url = params.get('url');
         if (url) {
             const identifier = params.get('identifier') || null;
@@ -205,13 +202,11 @@ host.BrowserHost = class {
                 }
             }
         }
-
         const gist = params.get('gist');
         if (gist) {
             this._openGist(gist);
             return;
         }
-
         const openFileButton = this._element('open-file-button');
         const openFileDialog = this._element('open-file-dialog');
         if (openFileButton && openFileDialog) {
@@ -250,7 +245,6 @@ host.BrowserHost = class {
                 }
             }
         });
-
         this._view.show('welcome');
     }
 

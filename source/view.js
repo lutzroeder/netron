@@ -22,13 +22,17 @@ view.View = class {
             direction: 'vertical',
             mousewheel: 'scroll'
         };
-        this._host.view(this).then(() => {
-            this._model = null;
-            this._graphs = [];
-            this._selection = [];
-            this._sidebar = new view.Sidebar(this._host);
-            this._searchText = '';
-            this._modelFactoryService = new view.ModelFactoryService(this._host);
+        this._model = null;
+        this._graphs = [];
+        this._selection = [];
+        this._sidebar = new view.Sidebar(this._host);
+        this._searchText = '';
+        this._modelFactoryService = new view.ModelFactoryService(this._host);
+    }
+
+    async start() {
+        try {
+            await this._host.view(this);
             this._element('sidebar-button').addEventListener('click', () => {
                 this.showModelProperties();
             });
@@ -191,10 +195,10 @@ view.View = class {
                     execute: () => this._host.execute('about')
                 });
             }
-            this._host.start();
-        }).catch((err) => {
+            await this._host.start();
+        } catch (err) {
             this.error(err, null, null);
-        });
+        }
     }
 
     show(page) {

@@ -29,7 +29,7 @@ host.TestHost = class {
     async view(/* view */) {
     }
 
-    start() {
+    async start() {
     }
 
     environment(name) {
