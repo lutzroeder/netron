@@ -570,6 +570,38 @@ host.BrowserHost = class {
         return '';
     }
 
+    get(context, name) {
+        if (context === 'configuration' && typeof localStorage !== 'undefined') {
+            try {
+                const content = localStorage.getItem(name);
+                return JSON.parse(content);
+            } catch (error) {
+                // continue regardless of error
+            }
+        }
+        return undefined;
+    }
+
+    set(context, name, value) {
+        if (context === 'configuration' && typeof localStorage !== 'undefined') {
+            try {
+                localStorage.setItem(name, JSON.stringify(value));
+            } catch (error) {
+                // continue regardless of error
+            }
+        }
+    }
+
+    delete(context, name) {
+        if (context === 'configuration' && typeof localStorage !== 'undefined') {
+            try {
+                localStorage.removeItem(name);
+            } catch (error) {
+                // continue regardless of error
+            }
+        }
+    }
+
     _element(id) {
         return this.document.getElementById(id);
     }

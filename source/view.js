@@ -15,13 +15,14 @@ view.View = class {
 
     constructor(host) {
         this._host = host;
-        this._options = {
+        this._defaultOptions = {
             weights: true,
             attributes: false,
             names: false,
             direction: 'vertical',
             mousewheel: 'scroll'
         };
+        this._options = Object.assign({}, this._defaultOptions);
         this._model = null;
         this._graphs = [];
         this._selection = [];
@@ -33,6 +34,11 @@ view.View = class {
     async start() {
         try {
             await this._host.view(this);
+            const options = this._host.get('configuration', 'options') || {};
+            for (const entry of Object.entries(options)) {
+                const name = entry[0];
+                this._options[name] = entry[1];
+            }
             this._element('sidebar-button').addEventListener('click', () => {
                 this.showModelProperties();
             });
@@ -299,6 +305,18 @@ view.View = class {
                 break;
             default:
                 throw new view.Error("Unsupported toogle '" + name + "'.");
+        }
+        const options = {};
+        for (const entry of Object.entries(this._options)) {
+            const name = entry[0];
+            if (this._defaultOptions[name] !== entry[1]) {
+                options[name] = entry[1];
+            }
+        }
+        if (Object.entries(options).length == 0) {
+            this._host.delete('configuration', 'options');
+        } else {
+            this._host.set('configuration', 'options', options);
         }
     }
 

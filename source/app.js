@@ -56,6 +56,11 @@ app.Application = class {
             this._configuration.save();
             event.returnValue = null;
         });
+        electron.ipcMain.on('delete-configuration', (event, obj) => {
+            this._configuration.delete(obj.name);
+            this._configuration.save();
+            event.returnValue = null;
+        });
         electron.ipcMain.on('drop-paths', (event, data) => {
             const paths = data.paths.filter((path) => {
                 if (fs.existsSync(path)) {
@@ -975,6 +980,10 @@ app.ConfigurationService = class {
 
     get(name) {
         return this._data[name];
+    }
+
+    delete(name) {
+        delete this._data[name];
     }
 };
 
