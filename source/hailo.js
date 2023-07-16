@@ -240,7 +240,9 @@ hailo.Attribute = class {
         this._name = name;
         this._value = value;
         this._type = metadata && metadata.type ? metadata.type : '';
-        this._visible = metadata && metadata.visible !== false ? true : false;
+        if (metadata && metadata.visible === false) {
+            this._visible = false;
+        }
         if (name === 'original_names') {
             this._visible = false;
         }

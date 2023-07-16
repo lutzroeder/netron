@@ -612,7 +612,7 @@ ncnn.Attribute = class {
                     break;
                 }
             }
-            if (Object.prototype.hasOwnProperty.call(metadata, 'visible') && !metadata.visible) {
+            if (metadata && metadata.visible === false) {
                 this._visible = false;
             } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
                 if (this._value == metadata.default || (this._value && this._value.toString() == metadata.default.toString())) {

@@ -453,12 +453,12 @@ torch.Attribute = class {
         if (name == 'train') {
             this._visible = false;
         }
-        const schema = metadata.attribute(type, name);
-        if (schema) {
-            if (Object.prototype.hasOwnProperty.call(schema, 'visible')) {
-                this._visible = schema.visible;
-            } else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                if (JSON.stringify(schema.default) == JSON.stringify(this._value)) {
+        metadata = metadata.attribute(type, name);
+        if (metadata) {
+            if (metadata.visible === false) {
+                this._visible = false;
+            } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
+                if (JSON.stringify(metadata.default) == JSON.stringify(this._value)) {
                     this._visible = false;
                 }
             }

@@ -904,8 +904,8 @@ keras.Attribute = class {
                     if (metadata.type) {
                         this._type = metadata.type;
                     }
-                    if (Object.prototype.hasOwnProperty.call(metadata, 'visible')) {
-                        this._visible = metadata.visible;
+                    if (metadata.visible === false) {
+                        this._visible = false;
                     } else if (metadata.default !== undefined) {
                         if (Array.isArray(value)) {
                             if (Array.isArray(metadata.default)) {

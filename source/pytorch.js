@@ -614,7 +614,6 @@ pytorch.Attribute = class {
     constructor(metadata, name, value) {
         this._name = name;
         this._value = value;
-
         if (this._name === 'training') {
             this._visible = false;
             this._type = 'boolean';
@@ -3991,6 +3990,10 @@ pytorch.nnapi.Graph = class {
         const args = new Map();
         const arg = (operand) => {
             if (!args.has(operand.index)) {
+
+
+
+
                 const value = new pytorch.nnapi.Argument(operand);
                 args.set(operand.index, value);
             }

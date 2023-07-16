@@ -543,7 +543,7 @@ caffe.Attribute = class {
             this._value = new caffe.TensorShape(value.dim.map((dim) => dim.toNumber()));
             this._type = 'shape';
         }
-        if (metadata && Object.prototype.hasOwnProperty.call(metadata, 'visible') && !metadata.visible) {
+        if (metadata && metadata.visible === false) {
             this._visible = false;
         }
         if (metadata && Object.prototype.hasOwnProperty.call(metadata, 'default')) {

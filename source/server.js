@@ -121,10 +121,6 @@ message.Argument = class {
     get value() {
         return this._value;
     }
-
-    get visible() {
-        return true;
-    }
 };
 
 message.Value = class {
@@ -200,10 +196,6 @@ message.Attribute = class {
 
     get type() {
         return this._type;
-    }
-
-    get visible() {
-        return true;
     }
 };
 

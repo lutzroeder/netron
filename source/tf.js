@@ -1151,7 +1151,7 @@ tf.Attribute = class {
             }
         }
         if (schema) {
-            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
+            if (schema.visible === false) {
                 this._visible = false;
             } else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 const equals = (value, defaultValue) => {

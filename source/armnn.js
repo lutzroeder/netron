@@ -67,10 +67,6 @@ armnn.Model = class {
         return 'Arm NN';
     }
 
-    get description() {
-        return '';
-    }
-
     get graphs() {
         return this._graphs;
     }
@@ -83,7 +79,6 @@ armnn.Graph = class {
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
-
         const counts = new Map();
         for (const layer of graph.layers) {
             const base = armnn.Node.getBase(layer);

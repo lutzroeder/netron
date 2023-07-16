@@ -504,7 +504,7 @@ caffe2.Attribute = class {
         }
 
         if (metadata) {
-            if (Object.prototype.hasOwnProperty.call(metadata, 'visible') && !metadata.visible) {
+            if (metadata.visible === false) {
                 this._visible = false;
             } else if (metadata.default !== undefined) {
                 if (this._value == metadata.default || (this._value && this._value.toString() == metadata.default.toString())) {

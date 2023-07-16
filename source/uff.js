@@ -298,10 +298,6 @@ uff.Attribute = class {
     get value() {
         return this._value;
     }
-
-    get visible() {
-        return true;
-    }
 };
 
 uff.Tensor = class {

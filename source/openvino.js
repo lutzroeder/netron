@@ -741,7 +741,7 @@ openvino.Attribute = class {
                         throw new openvino.Error("Unsupported attribute type '" + schema.type + "'.");
                 }
             }
-            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && schema.visible == false) {
+            if (schema && schema.visible == false) {
                 this._visible = false;
             } else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 let defaultValue = schema.default;

@@ -346,14 +346,11 @@ dl4j.Node = class {
 
 dl4j.Attribute = class {
 
-    constructor(schema, name, value) {
+    constructor(metadata, name, value) {
         this._name = name;
         this._value = value;
-        this._visible = false;
-        if (schema) {
-            if (schema.visible) {
-                this._visible = true;
-            }
+        if (metadata && metadata.visible === false) {
+            this._visible = false;
         }
     }
 

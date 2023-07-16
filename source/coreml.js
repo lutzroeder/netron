@@ -1176,7 +1176,7 @@ coreml.Attribute = class {
             if (this._type && coreml.proto) {
                 this._value = coreml.Utility.enum(this._type, this._value);
             }
-            if (Object.prototype.hasOwnProperty.call(metadata, 'visible') && !metadata.visible) {
+            if (metadata.visible === false) {
                 this._visible = false;
             } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
                 if (Array.isArray(value)) {

@@ -291,7 +291,7 @@ circle.Node = class {
                     if (input.option == 'variadic') {
                         count = inputs.length - inputIndex;
                     }
-                    if (Object.prototype.hasOwnProperty.call(input, 'visible') && !input.visible) {
+                    if (input && input.visible === false) {
                         inputVisible = false;
                     }
                 }
@@ -415,7 +415,7 @@ circle.Attribute = class {
             this._value = circle.Utility.enum(this._type, this._value);
         }
         if (metadata) {
-            if (Object.prototype.hasOwnProperty.call(metadata, 'visible') && !metadata.visible) {
+            if (metadata.visible === false) {
                 this._visible = false;
             } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
                 value = this._value;

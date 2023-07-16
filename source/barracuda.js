@@ -240,10 +240,6 @@ barracuda.Attribute = class {
     get value() {
         return this._value;
     }
-
-    get visible() {
-        return true;
-    }
 };
 
 barracuda.Tensor = class {

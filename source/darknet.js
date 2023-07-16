@@ -932,11 +932,11 @@ darknet.Node = class {
 
 darknet.Attribute = class {
 
-    constructor(schema, name, value) {
+    constructor(metadata, name, value) {
         this._name = name;
         this._value = value;
-        if (schema) {
-            this._type = schema.type || '';
+        if (metadata) {
+            this._type = metadata.type || '';
             switch (this._type) {
                 case '':
                 case 'string': {
@@ -967,10 +967,10 @@ darknet.Attribute = class {
                     throw new darknet.Error("Unsupported attribute type '" + this._type + "'.");
                 }
             }
-            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
+            if (metadata && metadata.visible === false) {
                 this._visible = false;
-            } else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                if (this._value == schema.default) {
+            } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
+                if (this._value == metadata.default) {
                     this._visible = false;
                 }
             }

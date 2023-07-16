@@ -378,14 +378,14 @@ tnn.Node = class {
 
 tnn.Attribute = class {
 
-    constructor(schema, key, value) {
+    constructor(metadata, key, value) {
         this._type = '';
         this._name = key.toString();
         this._value = value;
-        if (schema) {
-            this._name = schema.name;
-            if (schema.type) {
-                this._type = schema.type;
+        if (metadata) {
+            this._name = metadata.name;
+            if (metadata.type) {
+                this._type = metadata.type;
             }
             switch (this._type) {
                 case '':
@@ -405,10 +405,10 @@ tnn.Attribute = class {
                 default:
                     throw new tnn.Error("Unsupported attribute type '" + this._type + "'.");
             }
-            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
+            if (metadata && metadata.visible === false) {
                 this._visible = false;
-            } else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                if (this._value == schema.default || (this._value && this._value.toString() == schema.default.toString())) {
+            } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
+                if (this._value == metadata.default || (this._value && this._value.toString() == metadata.default.toString())) {
                     this._visible = false;
                 }
             }

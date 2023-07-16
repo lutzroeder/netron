@@ -317,10 +317,6 @@ om.Attribute = class {
     get value() {
         return this._value;
     }
-
-    get visible() {
-        return true;
-    }
 };
 
 om.Argument = class {

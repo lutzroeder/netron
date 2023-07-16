@@ -1805,7 +1805,7 @@ view.Node = class extends grapher.Node {
         let sortedAttributes = [];
         const attributes = node.attributes || [];
         if (this.context.view.options.attributes) {
-            sortedAttributes = attributes.filter((attribute) => attribute.visible).slice();
+            sortedAttributes = attributes.filter((attribute) => attribute.visible !== false).slice();
         }
         sortedAttributes.sort((a, b) => {
             const au = a.name.toUpperCase();
@@ -1855,7 +1855,7 @@ view.Node = class extends grapher.Node {
             }
 
             for (const attribute of sortedAttributes) {
-                if (attribute.visible) {
+                if (attribute.visible !== false) {
                     let value = new view.Formatter(attribute.value, attribute.type).toString();
                     if (value && value.length > 25) {
                         value = value.substring(0, 25) + '\u2026';

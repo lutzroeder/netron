@@ -295,29 +295,30 @@ tflite.Node = class {
             let inputIndex = 0;
             while (inputIndex < inputs.length) {
                 let count = 1;
-                let inputName = null;
-                let inputVisible = true;
-                const inputArguments = [];
+                let name = null;
+                let visible = true;
+                const values = [];
                 if (this._type && this._type.inputs && inputIndex < this._type.inputs.length) {
                     const input = this._type.inputs[inputIndex];
-                    inputName = input.name;
+                    name = input.name;
                     if (input.list) {
                         count = inputs.length - inputIndex;
                     }
-                    if (Object.prototype.hasOwnProperty.call(input, 'visible') && !input.visible) {
-                        inputVisible = false;
+                    if (input.visible === false) {
+                        visible = false;
                     }
                 }
                 const inputArray = inputs.slice(inputIndex, inputIndex + count);
                 for (const index of inputArray) {
                     const value = args(index);
                     if (value) {
-                        inputArguments.push(value);
+                        values.push(value);
                     }
                 }
                 inputIndex += count;
-                inputName = inputName ? inputName : inputIndex.toString();
-                this._inputs.push(new tflite.Argument(inputName, inputVisible, inputArguments));
+                name = name ? name : inputIndex.toString();
+                const argument = new tflite.Argument(name, visible, values);
+                this._inputs.push(argument);
             }
             for (let k = 0; k < outputs.length; k++) {
                 const index = outputs[k];
@@ -428,7 +429,7 @@ tflite.Attribute = class {
             this._value = tflite.Utility.enum(this._type, this._value);
         }
         if (metadata) {
-            if (Object.prototype.hasOwnProperty.call(metadata, 'visible') && !metadata.visible) {
+            if (metadata && metadata.visible == false) {
                 this._visible = false;
             } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
                 value = this._value;

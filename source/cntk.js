@@ -444,7 +444,7 @@ cntk.Node = class {
 
 cntk.Attribute = class {
 
-    constructor(schema, name, value) {
+    constructor(metadata, name, value) {
         this._name = name;
         this._value = value;
         this._type = null;
@@ -463,18 +463,18 @@ cntk.Attribute = class {
             }
             this._value = axis;
         }
-        if (schema) {
-            if (schema.type) {
-                this._type = schema.type;
+        if (metadata) {
+            if (metadata.type) {
+                this._type = metadata.type;
                 const type = cntk_v1[this._type] || cntk_v2[this._type];
                 if (type && type[this._value]) {
                     this._value = type[this._value];
                 }
             }
-            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
+            if (metadata.visible === false) {
                 this._visible = false;
-            } else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                let defaultValue = schema.default;
+            } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
+                let defaultValue = metadata.default;
                 value = this._value;
                 if (typeof value == 'function') {
                     value = value();

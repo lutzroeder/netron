@@ -269,10 +269,6 @@ mlnet.Attribute = class {
     get value() {
         return this._value;
     }
-
-    get visible() {
-        return true;
-    }
 };
 
 mlnet.TensorType = class {
