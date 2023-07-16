@@ -12,247 +12,181 @@ om.ModelFactory = class {
     }
 
     async open(context, target) {
-        const container = target;
-        await container.open();
+        await target.open();
         const metadata = await context.metadata('om-metadata.json');
-        return new om.Model(metadata, container);
+        return new om.Model(metadata, target);
     }
 };
 
 om.Model = class {
 
-    constructor(metadata, container) {
-        this._graphs = [];
-        this._format = container.format;
-        const context = { metadata: metadata, weights: container.weights };
-        for (const graph of container.model.graph) {
-            this._graphs.push(new om.Graph(context, graph));
+    constructor(metadata, target) {
+        this.graphs = [];
+        this.format = target.format;
+        const context = { metadata: metadata, weights: target.weights };
+        for (const graph of target.model.graph) {
+            this.graphs.push(new om.Graph(context, graph));
         }
-    }
-
-    get format() {
-        return this._format;
-    }
-
-    get graphs() {
-        return this._graphs;
     }
 };
 
 om.Graph = class {
 
     constructor(context, graph) {
-        this._name = graph.name;
-        this._nodes = [];
-        this._inputs = [];
-        this._outputs = [];
+        this.name = graph.name;
+        this.nodes = [];
+        this.inputs = [];
+        this.outputs = [];
+        const values = new Map();
+        const value = (name, type, tensor) => {
+            if (!values.has(name)) {
+                values.set(name, new om.Value(name, type || null, tensor || null));
+            } else if ((type && !type.equals(values.get(name).type)) || tensor) {
+                throw new om.Error("Duplicate value '" + name + "'.");
+            }
+            return values.get(name);
+        };
+        const tensors = new Map();
+        const ops = [];
         for (const op of graph.op) {
-            if (op.type === 'Const') {
+            if (op.type === 'Const' && op.attr && op.attr.value) {
+                const desc = op.attr.value.t.desc;
+                let data = null;
+                if (op.attr.value.t.data.length !== 0) {
+                    data = op.attr.value.t.data;
+                } else if (context.weights == null) {
+                    data = null;
+                } else if (desc.attr.merged_offset) {
+                    const offset = desc.attr.merged_offset.i;
+                    data = context.weights.slice(offset, offset + desc.weight_size);
+                } else {
+                    const offset = desc.data_offset;
+                    data = context.weights.slice(offset, offset + desc.weight_size);
+                }
+                const type = om.Utility.tensorType(desc);
+                const tensor = new om.Tensor('Constant', type, data);
+                tensors.set(op.name, tensor);
                 continue;
             }
-            const node = new om.Node(context, op, graph);
-            this._nodes.push(node);
+            ops.push(op);
+        }
+        for (const op of ops) {
+            const node = new om.Node(context, op, graph, value, tensors);
+            this.nodes.push(node);
         }
     }
-
-    get name() {
-        return this._name;
-    }
-
-    get nodes() {
-        return this._nodes;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
 };
 
 om.Node = class {
 
-    constructor(context, op, graph) {
-        this._name = op.name;
-        this._type = context.metadata.type(op.type) || { name: op.type };
-        this._inputs = [];
-        this._outputs = [];
-        this._attributes = [];
-        this._chain = [];
-        this._controlDependencies = [];
-        this._device = null;
+    constructor(context, op, graph, value, tensors) {
+        this.name = op.name || '';
+        this.type = context.metadata.type(op.type) || { name: op.type };
+        this.inputs = [];
+        this.outputs = [];
+        this.attributes = [];
+        this.chain = [];
+        this.controlDependencies = [];
+        this.device = null;
         if (op.input) {
             for (let i = 0; i < op.input.length; i++) {
-                if (op.input[i] === '') {
+                const input = op.input[i];
+                if (input === '') {
                     continue;
                 }
-                const pos = op.input[i].lastIndexOf(':');
-                const name = pos === 0 ? 'internal_unnamed' : op.input[i].slice(0, pos);
-                const src_index = op.input[i].slice(pos + 1);
+                const index = input.lastIndexOf(':');
+                const identifier = input.substring(0, index);
+                const src_index = input.substring(index + 1);
                 if (src_index === '-1') {
-                    this._controlDependencies.push(new om.Value(name));
+                    this.controlDependencies.push(value(name));
                     continue;
                 }
-                const parameterName = this._type.inputs && i < this._type.inputs.length ? this._type.inputs[i].name : 'input' + (i === 0 ? '' : i.toString());
-                const inputNode = graph.op.find(node => node.name === name);
-                const desc = op.input_desc[i];
-                const layout = desc.layout;
-                if (inputNode && inputNode.type === 'Const' && inputNode.attr && inputNode.attr.value && inputNode.attr) {
-                    let shape = null;
-                    const value = inputNode.attr.value.t;
-                    if (value.desc.shape != null) {
-                        shape = value.desc.shape.dim;
-                    } else if (value.desc.attr.origin_shape) {
-                        shape = value.desc.attr.origin_shape.list.i;
-                    }
-                    let data = null;
-                    if (value.data.length === 0) {
-                        if (context.weights == null) {
-                            data = null;
-                        } else if (value.desc.attr.merged_offset) {
-                            const offset = value.desc.attr.merged_offset.i;
-                            data = context.weights.slice(offset, offset + value.desc.weight_size);
-                        } else {
-                            const offset = value.desc.data_offset;
-                            data = context.weights.slice(offset, offset + value.desc.weight_size);
-                        }
-                    } else {
-                        data = value.data;
-                    }
-                    const dataType = desc && desc.dtype ? om.Utility.dtype(value.desc.dtype) : '?';
-                    const tensorType = new om.TensorType(dataType, shape, layout, value.desc.layout);
-                    const tensor = new om.Tensor('Constant', tensorType, data);
-                    this._inputs.push(new om.Argument(parameterName, [ new om.Value(name, null, tensor) ]));
-                } else {
-                    const dataType = desc && desc.dtype ? om.Utility.dtype(desc.dtype) : '?';
-                    const shape = desc.shape ? desc.shape.dim : undefined;
-                    const tensorType = new om.TensorType(dataType, shape, layout, null);
-                    const identifier = src_index === '0' ? name : name + ':' + src_index;
-                    this._inputs.push(new om.Argument(parameterName, [ new om.Value(identifier, tensorType, null) ]));
-                }
+                const name = this.type.inputs && i < this.type.inputs.length ? this.type.inputs[i].name : 'input' + (i === 0 ? '' : i.toString());
+                const type = om.Utility.tensorType(op.input_desc[i]);
+                const tensor = tensors.get(identifier);
+                const argument = new om.Argument(name, [ value(input, type, tensor) ]);
+                this.inputs.push(argument);
             }
         }
         if (op.output_desc) {
             for (let i = 0; i < op.output_desc.length; i++) {
-                const desc = op.output_desc[i];
-                let shape = desc.shape ? desc.shape.dim : undefined;
-                if (op.type === 'Data' || op.type === 'ImageData' || op.type === 'DynamicImageData') {
-                    shape = desc.shape ? desc.shape.dim : op.input_desc[0].shape.dim;
-                }
-                const dataType = desc && desc.dtype ? om.Utility.dtype(desc.dtype) : '?';
-                const format = desc.layout;
-                const type = new om.TensorType(dataType, shape, format);
-                const identifier = i === 0 ? this._name : this._name + ':' + i;
-                const value = new om.Value(identifier, type, null);
-                const outputName = this._type.outputs && i < this._type.outputs.length ? this._type.outputs[i].name : 'output' + (i === 0 ? '' : i.toString());
-                this._outputs.push(new om.Argument(outputName, [ value ]));
+                const identifier = this.name + ':' + i.toString();
+                const type = om.Utility.tensorType(op.output_desc[i]);
+                const name = this.type.outputs && i < this.type.outputs.length ? this.type.outputs[i].name : 'output' + (i === 0 ? '' : i.toString());
+                const argument = new om.Argument(name, [ value(identifier, type) ]);
+                this.outputs.push(argument);
             }
         }
-        if (op.attr) {
-            for (const attr of Object.entries(op.attr)) {
-                const name = attr[0];
-                const value = attr[1];
-                if (name === 'device') {
-                    this._device = value;
-                    continue;
-                }
-                if (name === 'original_op_names') {
-                    continue;
-                }
-                if (name === 'relu_flag' && value.b) {
-                    this._chain.push(new om.Node(context, { type: 'ReLU' }, graph));
-                    continue;
-                }
-                const attribute = new om.Attribute(context, name, value);
-                this._attributes.push(attribute);
+        for (const attr of Object.entries(op.attr || {})) {
+            const name = attr[0];
+            const value = attr[1];
+            if (name === 'device') {
+                this.device = value;
+                continue;
             }
+            if (name === 'original_op_names') {
+                continue;
+            }
+            if (name === 'relu_flag' && value.b) {
+                this.chain.push(new om.Node(context, { type: 'ReLU' }, graph, value));
+                continue;
+            }
+            const attribute = new om.Attribute(context, name, value);
+            this.attributes.push(attribute);
         }
-    }
-
-    get device() {
-        return this._device;
-    }
-
-    get name() {
-        return this._name || '';
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get attributes() {
-        return this._attributes;
-    }
-
-    get chain() {
-        return this._chain;
-    }
-
-    get controlDependencies() {
-        return this._controlDependencies;
     }
 };
 
 om.Attribute = class {
 
     constructor(context, name, value) {
-        this._name = name;
-        this._value = value;
+        this.name = name;
+        this.value = value;
         switch (value.value) {
             case 'i': {
-                this._value = value.i;
-                this._type = 'int64';
+                this.value = value.i;
+                this.type = 'int64';
                 break;
             }
             case 'f': {
-                this._value = value.f;
-                this._type = 'float32';
+                this.value = value.f;
+                this.type = 'float32';
                 break;
             }
             case 'b': {
-                this._value = value.b;
-                this._type = 'boolean';
+                this.value = value.b;
+                this.type = 'boolean';
                 break;
             }
             case 'bt': {
-                this._value = null;
+                this.value = null;
                 if (value.bt.length !== 0) {
-                    this._type = 'tensor';
-                    this._value = new om.Tensor('Constant', new om.TensorType('float32', [ value.bt.length / 4 ], null), value.bt);
+                    this.type = 'tensor';
+                    const shape = new om.TensorShape([ value.bt.length / 4 ]);
+                    const type = new om.TensorType('float32', shape);
+                    this.value = new om.Tensor('Constant', type, value.bt);
                 }
                 break;
             }
             case 'dt': {
-                this._type = 'DataType';
-                this._value = om.Utility.dtype(value.dt.toNumber());
+                this.type = 'DataType';
+                this.value = om.Utility.dtype(value.dt.toNumber());
                 break;
             }
             case 's': {
                 if (typeof value.s === 'string') {
-                    this._value = value.s;
+                    this.value = value.s;
                 } else if (value.s.filter(c => c <= 32 && c >= 128).length === 0) {
-                    this._value = om.Utility.decodeText(value.s);
+                    this.value = om.Utility.decodeText(value.s);
                 } else {
-                    this._value = value.s;
+                    this.value = value.s;
                 }
-                this._type = 'string';
+                this.type = 'string';
                 break;
             }
             case 'g': {
-                this._type = 'graph';
-                this._value = new om.Graph(context, value.g);
+                this.type = 'graph';
+                this.value = new om.Graph(context, value.g);
                 break;
             }
             case 'func': {
@@ -260,44 +194,40 @@ om.Attribute = class {
             }
             case 'list': {
                 const list = value.list;
-                this._value = [];
+                this.value = [];
                 if (list.s && list.s.length > 0) {
-                    this._value = list.s.map(v => String.fromCharCode.apply(null, new Uint16Array(v))).join(', ');
-                    this._type = 'string[]';
+                    this.value = list.s.map(v => String.fromCharCode.apply(null, new Uint16Array(v))).join(', ');
+                    this.type = 'string[]';
                 } else if (list.b && list.b.length > 0) {
-                    this._value = list.b;
-                    this._type = 'boolean[]';
+                    this.value = list.b;
+                    this.type = 'boolean[]';
                 } else if (list.i && list.i.length > 0) {
-                    this._value = list.i;
-                    this._type = 'int64[]';
+                    this.value = list.i;
+                    this.type = 'int64[]';
                 } else if (list.f && list.f.length > 0) {
-                    this._value = list.f;
-                    this._type = 'float32[]';
+                    this.value = list.f;
+                    this.type = 'float32[]';
                 } else if (list.type && list.type.length > 0) {
-                    this._type = 'type[]';
-                    this._value = list.type.map((type) => om.Node.enum2Dtype(type) || '?');
+                    this.type = 'type[]';
+                    this.value = list.type.map((type) => om.Node.enum2Dtype(type) || '?');
                 } else if (list.shape && list.shape.length > 0) {
-                    this._type = 'shape[]';
-                    this._value = list.shape.map((shape) => new om.TensorShape(shape));
+                    this.type = 'shape[]';
+                    this.value = list.shape.map((shape) => new om.TensorShape(shape));
                 }
                 break;
             }
             case 'list_list_int': {
-                this._value = value.list_list_int.list_list_i.map((list) => list.list_i);
+                this.value = value.list_list_int.list_list_i.map((list) => list.list_i);
                 break;
             }
             case 't': {
-                const desc = value.t.desc;
-                const dataType = desc && desc.dtype ? om.Utility.dtype(desc.dtype) : '?';
-                const shape = desc.shape ? desc.shape.dim : undefined;
-                const layout = desc.layout;
-                const type = new om.TensorType(dataType, shape, layout, null);
-                this._value = new om.Tensor('Constant', type, value.t.bytes);
-                this._type = 'tensor';
+                const type = om.Utility.tensorType(value.t.desc);
+                this.value = new om.Tensor('Constant', type, value.t.bytes);
+                this.type = 'tensor';
                 break;
             }
             case undefined: {
-                this._value = null;
+                this.value = null;
                 break;
             }
             default: {
@@ -305,33 +235,13 @@ om.Attribute = class {
             }
         }
     }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get value() {
-        return this._value;
-    }
 };
 
 om.Argument = class {
 
     constructor(name, value) {
-        this._name = name;
-        this._value = value;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
+        this.name = name;
+        this.value = value;
     }
 };
 
@@ -341,93 +251,60 @@ om.Value = class {
         if (typeof name !== 'string') {
             throw new om.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
-        this._name = name;
+        this.name = name;
         this._type = type || null;
-        this._initializer = initializer || null;
-    }
-
-    get name() {
-        return this._name;
+        this.initializer = initializer || null;
     }
 
     get type() {
-        if (this._initializer) {
-            return this._initializer.type;
+        if (this.initializer) {
+            return this.initializer.type;
         }
         return this._type;
-    }
-
-    get initializer() {
-        return this._initializer;
     }
 };
 
 om.Tensor = class {
 
     constructor(category, type, value) {
-        this._category = category;
-        this._type = type;
-        this._data = value;
-    }
-
-    get category() {
-        return this._category;
-    }
-
-    get type() {
-        return this._type;
+        this.category = category;
+        this.type = type;
+        this.data = value;
     }
 };
 
 om.TensorType = class {
 
-    constructor(dataType, shape, format, denotation) {
-        this._dataType = dataType;
-        this._shape = new om.TensorShape(shape);
-        const list = [];
-        if (format) {
-            list.push(format);
-        }
-        if (denotation && denotation !== format) {
-            list.push(denotation);
-        }
-        this._denotation = list.join(' ');
+    constructor(dataType, shape, denotation) {
+        this.dataType = dataType;
+        this.shape = shape;
+        this.denotation = denotation;
     }
 
-    get dataType() {
-        return this._dataType;
-    }
-
-    set shape(dims) {
-        this._shape = dims;
-    }
-
-    get shape() {
-        return this._shape;
-    }
-
-    get denotation() {
-        return this._denotation;
+    equals(obj) {
+        return obj && this.dataType === obj.dataType && this.shape && this.shape.equals(obj.shape);
     }
 
     toString() {
-        return this._dataType + this._shape.toString();
+        return this.dataType + this.shape.toString();
     }
 };
 
 om.TensorShape = class {
 
-    constructor(shape) {
-        this._shape = shape;
+    constructor(dimensions) {
+        this.dimensions = dimensions.map((dim) => Number.isInteger(dim) ? dim : dim.toNumber());
     }
 
-    get dimensions() {
-        return this._shape;
+    equals(obj) {
+        return obj && Array.isArray(obj.dimensions) &&
+            Array.isArray(this.dimensions) && this.dimensions.length === obj.dimensions.length
+            && obj.dimensions.every((value, index) => this.dimensions[index] === value);
     }
 
     toString() {
-        if (this._shape && Array.isArray(this._shape) && this._shape.length > 0) {
-            return '[' + this._shape.map((dim) => dim ? dim.toString() : '?').join(',') + ']';
+        if (this.dimensions && Array.isArray(this.dimensions) && this.dimensions.length > 0) {
+            return '[' + this.dimensions.map((dim) => dim ? dim.toString() : '?').join(',') + ']';
         }
         return '';
     }
@@ -574,6 +451,15 @@ om.Utility = class {
             throw new om.Error("Unsupported dtype '" + value + "'.");
         }
         return om.Utility._types[value];
+    }
+
+    static tensorType(desc) {
+        if (desc.shape && Array.isArray(desc.shape.dim)) {
+            const dataType = desc && desc.dtype ? om.Utility.dtype(desc.dtype) : '?';
+            const shape = new om.TensorShape(desc.shape.dim);
+            return new om.TensorType(dataType, shape, desc.layout);
+        }
+        return null;
     }
 
     static decodeText(value) {
