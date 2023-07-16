@@ -70,31 +70,23 @@ megengine.ModelFactory = class {
 megengine.Model = class {
 
     constructor(metadata, obj, type) {
-        this._format = 'MegEngine';
+        this.format = 'MegEngine';
         if (type === 'megengine.tm') {
-            this._format += (obj.dump_info && obj.dump_info.version ? ' v' + obj.dump_info.version : '');
+            this.format += (obj.dump_info && obj.dump_info.version ? ' v' + obj.dump_info.version : '');
         } else if (type === 'megengine.mge') {
-            this._format += ' Mge' + (obj.model_version ? ' v' + obj.model_version : '');
+            this.format += ' Mge' + (obj.model_version ? ' v' + obj.model_version : '');
         }
-        this._graphs = [ new megengine.Graph(metadata, obj) ];
-    }
-
-    get format() {
-        return this._format;
-    }
-
-    get graphs() {
-        return this._graphs;
+        this.graphs = [ new megengine.Graph(metadata, obj) ];
     }
 };
 
 megengine.Graph = class {
 
     constructor(metadata, obj) {
-        this._name = '';
-        this._nodes = [];
-        this._inputs = [];
-        this._outputs = [];
+        this.name = '';
+        this.nodes = [];
+        this.inputs = [];
+        this.outputs = [];
         const values = new Map();
         const value = (name, type, tensor) => {
             if (tensor && name.length === 0) {
@@ -114,7 +106,7 @@ megengine.Graph = class {
                 return new megengine.TensorType(dtype, new megengine.TensorShape(shape));
             };
             const getOpNode = (metadata, item, expr, state) => {
-                const op = new megengine.Node(metadata, item);
+                const node = new megengine.Node(metadata, item);
                 let inpIdx = 0;
                 for (const i of expr.inputs) {
                     if (i.__class__.__name__ !== 'ModuleNode') {
@@ -122,7 +114,7 @@ megengine.Graph = class {
                         const name = 'inp' + inpIdx;
                         const type = getTensorType(i._dtype, i._shape);
                         const argument = new megengine.Argument(name, [ value(i._fullname, type, initializer) ]);
-                        op._inputs.push(argument);
+                        node.inputs.push(argument);
                         inpIdx += 1;
                     }
                 }
@@ -134,7 +126,7 @@ megengine.Graph = class {
                     }
                     const type = getTensorType(o._dtype, o._shape);
                     const argument = new megengine.Argument('out' + outIdx, [ value(o._fullname, type, null) ]);
-                    op._outputs.push(argument);
+                    node.outputs.push(argument);
                 }
                 if (qparams !== null) {
                     state = state === null ? {} : state;
@@ -153,32 +145,32 @@ megengine.Graph = class {
                         if (!key.startsWith('_') && !isModule(state[key])) {
                             if (!isTensor(state[key])) {
                                 const attribute = new megengine.Attribute(null, key, state[key] !== null ? state[key] : 'None');
-                                op._attributes.push(attribute);
+                                node.attributes.push(attribute);
                             } else {
                                 const tensor = state[key];
                                 const type = getTensorType(tensor.dtype, tensor.data.shape);
                                 const data = tensor.data.data;
                                 const initializer = new megengine.Tensor(key, type, data);
                                 const argument = new megengine.Argument(key, [ value('', type, initializer) ]);
-                                op._inputs.push(argument);
+                                node.inputs.push(argument);
                             }
                         }
                     }
                 }
-                return op;
+                return node;
             };
             if (isRoot) {
                 for (const node of igraph._inputs) {
                     if (node.__class__.__name__ !== 'ModuleNode') {
                         const type = getTensorType(node._dtype, node._shape);
                         const argument = new megengine.Argument(node._name, [ value(node._name, type, null) ]);
-                        this._inputs.push(argument);
+                        this.inputs.push(argument);
                     }
                 }
                 for (const node of igraph._outputs) {
                     const type = getTensorType(node._dtype, node._shape);
                     const argument = new megengine.Argument(node._name, [ value(node._name, type, null) ]);
-                    this._outputs.push(argument);
+                    this.outputs.push(argument);
                 }
             }
             const parseGetAttr = (module, expression) => {
@@ -341,7 +333,7 @@ megengine.Graph = class {
                                 state = module;
                             }
                             const node = getOpNode(metadata, item, expression, state);
-                            this._nodes.push(node);
+                            this.nodes.push(node);
                         } else {
                             const item = { 'name': '', 'type': expression.method };
                             const args = expression.arg_def.children_defs[0];
@@ -349,7 +341,7 @@ megengine.Graph = class {
                             const schema = metadata.type(expression.method);
                             const state = parseArgs(args, kwargs, schema);
                             const node = getOpNode(metadata, item, expression, state);
-                            this._nodes.push(node);
+                            this.nodes.push(node);
                         }
                         break;
                     }
@@ -367,14 +359,14 @@ megengine.Graph = class {
                         const schema = metadata.type(func);
                         const state = parseArgs(args, kwargs, schema);
                         const node = getOpNode(metadata, item, expression, state);
-                        this._nodes.push(node);
+                        this.nodes.push(node);
                         break;
                     }
                     case 'Apply': {
                         const opdef = expression.opdef_state ? expression.opdef_state.opdef_type : expression.opdef.type;
                         const item = { 'name': '', 'type': opdef.__module__ + '.' + opdef.__name__ };
                         const node = getOpNode(metadata, item, expression, expression.opdef_state);
-                        this._nodes.push(node);
+                        this.nodes.push(node);
                         break;
                     }
                     default: {
@@ -452,49 +444,25 @@ megengine.Graph = class {
             const op = entry[1];
             if (op.type === 'Host2DeviceCopy') {
                 const argument = new megengine.Argument('input', op.extraInfo.args);
-                this._inputs.push(argument);
+                this.inputs.push(argument);
             } else if (op.type !== 'ImmutableTensor') {
-                this._nodes.push(new megengine.Node(metadata, op, allOprAndTensor));
+                this.nodes.push(new megengine.Node(metadata, op, allOprAndTensor));
             }
         }
         for (let i = 0; i < obj.output_vars_idx.length; i++) {
             const id = obj.output_vars_idx[i].compact_id;
             const out_type = 'output' + (i === 0 ? '' : i);
             const argument = new megengine.Argument(out_type, allOprAndTensor.get(id).extraInfo.args);
-            this._outputs.push(argument);
+            this.outputs.push(argument);
         }
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get nodes() {
-        return this._nodes;
     }
 };
 
 megengine.Argument = class {
 
     constructor(name, value) {
-        this._name = name;
-        this._value = value;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
+        this.name = name;
+        this.value = value;
     }
 };
 
@@ -504,8 +472,8 @@ megengine.Value = class {
         if (typeof name !== 'string') {
             throw new megengine.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
-        this._name = name;
-        this._initializer = initializer;
+        this.name = name;
+        this.initializer = initializer;
         this._type = type;
         if (quantization && this._type.dataType.startsWith('q')) {
             this._scale = quantization.scale;
@@ -513,19 +481,11 @@ megengine.Value = class {
         }
     }
 
-    get name() {
-        return this._name;
-    }
-
     get type() {
-        if (this._initializer) {
-            return this._initializer.type;
+        if (this.initializer) {
+            return this.initializer.type;
         }
         return this._type;
-    }
-
-    get initializer() {
-        return this._initializer;
     }
 
     get quantization() {
@@ -539,31 +499,31 @@ megengine.Value = class {
 megengine.Node = class {
 
     constructor(metadata, item, allOprAndTensor) {
-        this._name = '';
-        this._type = Object.assign({}, metadata.type(item.type));
-        this._type.name = this._type.name.replace(/V(\d+)$/, '');
-        if (this._type.name.length > 4 && this._type.name.startsWith('__') && this._type.name.endsWith('__')) {
-            this._type.name = this._type.name.substring(2, this._type.name.length - 2);
+        this.name = '';
+        this.type = Object.assign({}, metadata.type(item.type));
+        this.type.name = this.type.name.replace(/V(\d+)$/, '');
+        if (this.type.name.length > 4 && this.type.name.startsWith('__') && this.type.name.endsWith('__')) {
+            this.type.name = this.type.name.substring(2, this.type.name.length - 2);
         }
-        this._type.category = this._type.category? this._type.category: metadata.type(item.type.replace(/V(\d+)$/, '')).category;
-        this._inputs = [];
-        this._outputs = [];
-        this._chain = [];
-        this._attributes = [];
+        this.type.category = this.type.category? this.type.category: metadata.type(item.type.replace(/V(\d+)$/, '')).category;
+        this.inputs = [];
+        this.outputs = [];
+        this.chain = [];
+        this.attributes = [];
         if (item.inputs && item.outputs) {
-            const inputSchemas = this._type && this._type.inputs ? [ ...this._type.inputs ] : [];
+            const inputSchemas = this.type && this.type.inputs ? [ ...this.type.inputs ] : [];
             for (let i = 0; i < item.inputs.length; i++) {
                 const inputOpr = allOprAndTensor.get(item.inputs[i]);
                 const inputSchema = inputSchemas.length > 0 ? inputSchemas.shift() : { name: ('input' + i) };
                 const argument = new megengine.Argument(inputSchema.name, inputOpr.extraInfo.args);
-                this._inputs.push(argument);
+                this.inputs.push(argument);
             }
-            const outputSchemas = this._type && this._type.outputs ? [ ...this._type.outputs ] : [];
+            const outputSchemas = this.type && this.type.outputs ? [ ...this.type.outputs ] : [];
             for (let i = 0; i < item.outputs.length; i++) {
                 const outputOpr = allOprAndTensor.get(item.outputs[i]);
                 const outputSchema = outputSchemas.length > 0 ? outputSchemas.shift() : { name: ('output' + i) };
                 const argument = new megengine.Argument(outputSchema.name, outputOpr.extraInfo.args);
-                this._outputs.push(argument);
+                this.outputs.push(argument);
             }
             if (item.param) {
                 for (const pair of Object.entries(item.param)) {
@@ -571,105 +531,49 @@ megengine.Node = class {
                     const value = pair[1];
                     if (value !== null) {
                         const attribute = new megengine.Attribute(metadata.attribute(item.param.constructor.name, name), name, value);
-                        this._attributes.push(attribute);
+                        this.attributes.push(attribute);
                     }
                 }
             }
         }
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get attributes() {
-        return this._attributes;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get nodes() {
-        return this._nodes;
     }
 };
 
 megengine.Attribute = class {
 
     constructor(metadata, name, value) {
-        this._type = metadata ? metadata.type : null;
-        this._name = name;
-        this._value = ArrayBuffer.isView(value) ? Array.from(value) : value;
-        if (this._name === 'training') {
-            this._visible = false;
-            this._type = 'boolean';
+        this.type = metadata ? metadata.type : null;
+        this.name = name;
+        this.value = ArrayBuffer.isView(value) ? Array.from(value) : value;
+        if (this.name === 'training') {
+            this.visible = false;
+            this.type = 'boolean';
         }
         if (megengine.schema) {
-            if (megengine.schema.param[this._type]) {
-                this._value = megengine.Utility.enum(megengine.schema.param, this._type, this._value);
-            } else if (megengine.schema[this._type]) {
-                this._value = megengine.Utility.enum(megengine.schema, this._type, this._value);
-            } else if (megengine.schema.v2[this._type]) {
-                this._value = megengine.Utility.enum(megengine.schema.v2, this._type, this._value);
+            if (megengine.schema.param[this.type]) {
+                this.value = megengine.Utility.enum(megengine.schema.param, this.type, this.value);
+            } else if (megengine.schema[this.type]) {
+                this.value = megengine.Utility.enum(megengine.schema, this.type, this.value);
+            } else if (megengine.schema.v2[this.type]) {
+                this.value = megengine.Utility.enum(megengine.schema.v2, this.type, this.value);
             }
         }
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
-    }
-
-    get visible() {
-        return this._visible == false ? false : true;
     }
 };
 
 megengine.Tensor = class {
 
     constructor(name, type, data) {
-        this._name = name || '';
-        this._type = type;
-        this._data = data;
-    }
-
-    get category() {
-        return 'Tensor';
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get values() {
-        return this._data;
+        this.category = 'Tensor';
+        this.name = name || '';
+        this.type = type;
+        this.values = data;
     }
 };
 
 megengine.TensorType = class {
 
     constructor(dataType, shape) {
-        this._shape = shape;
         dataType = megengine.Utility.enum(megengine.schema, 'DTypeEnum', dataType).toLowerCase();
         megengine.TensorType._dataTypes = megengine.TensorType._dataTypes || new Map([
             [ 'bool', 'boolean' ],
@@ -678,45 +582,34 @@ megengine.TensorType = class {
             [ 'quantizeds16', 'int16' ],
             [ 'quantizeds32', 'int32' ]
         ]);
-        this._dataType = megengine.TensorType._dataTypes.get(dataType) || dataType;
-    }
-
-    get dataType() {
-        return this._dataType;
-    }
-
-    get shape() {
-        return this._shape;
+        this.dataType = megengine.TensorType._dataTypes.get(dataType) || dataType;
+        this.shape = shape;
     }
 
     equals(obj) {
-        return obj && this._dataType === obj.dataType && this._shape && this._shape.equals(obj.shape);
+        return obj && this.dataType === obj.dataType && this.shape && this.shape.equals(obj.shape);
     }
 
     toString() {
-        return this._dataType + this._shape.toString();
+        return this.dataType + this.shape.toString();
     }
 };
 
 megengine.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = Array.from(dimensions || []);
-    }
-
-    get dimensions() {
-        return this._dimensions;
+        this.dimensions = Array.from(dimensions || []);
     }
 
     equals(obj) {
         return obj && Array.isArray(obj.dimensions) &&
-            Array.isArray(this._dimensions) && this._dimensions.length === obj.dimensions.length
-            && obj.dimensions.every((value, index) => this._dimensions[index] === value);
+            Array.isArray(this.dimensions) && this.dimensions.length === obj.dimensions.length
+            && obj.dimensions.every((value, index) => this.dimensions[index] === value);
     }
 
     toString() {
-        if (this._dimensions && this._dimensions.length > 0) {
-            return '[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']';
+        if (this.dimensions && this.dimensions.length > 0) {
+            return '[' + this.dimensions.map((dimension) => dimension.toString()).join(',') + ']';
         }
         return '';
     }
