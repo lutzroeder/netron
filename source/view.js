@@ -19,6 +19,7 @@ view.View = class {
             weights: true,
             attributes: false,
             names: false,
+            sizes: true,
             direction: 'vertical',
             mousewheel: 'scroll'
         };
@@ -134,6 +135,12 @@ view.View = class {
                     label: () => this.options.names ? 'Hide &Names' : 'Show &Names',
                     accelerator: 'CmdOrCtrl+U',
                     execute: () => this.toggle('names'),
+                    enabled: () => this.activeGraph
+                });
+                view.add({
+                    label: () => this.options.sizes ? 'Hide &Sizes' : 'Show &Sizes',
+                    accelerator: 'CmdOrCtrl+S',
+                    execute: () => this.toggle('sizes'),
                     enabled: () => this.activeGraph
                 });
                 view.add({
@@ -291,6 +298,7 @@ view.View = class {
     toggle(name) {
         switch (name) {
             case 'names':
+            case 'sizes':
             case 'attributes':
             case 'weights':
                 this._options[name] = !this._options[name];
@@ -1971,21 +1979,28 @@ view.Value = class {
     build() {
         this._edges = this._edges || [];
         if (this._from && this._to) {
+            const options = this.context.view.options;
             for (let i = 0; i < this._to.length; i++) {
                 const to = this._to[i];
-                let content = '';
-                const type = this.value.type;
-                if (type &&
-                    type.shape &&
-                    type.shape.dimensions &&
-                    type.shape.dimensions.length > 0 &&
-                    type.shape.dimensions.every((dim) => !dim || Number.isInteger(dim) || dim instanceof base.Int64 || (typeof dim === 'string'))) {
-                    content = type.shape.dimensions.map((dim) => (dim !== null && dim !== undefined) ? dim : '?').join('\u00D7');
-                    content = content.length > 16 ? '' : content;
+                let content = [];
+                if (options.names) {
+                    const nameContent = this.value.name.split('\n').shift(); // custom argument id
+                    content.push(nameContent);
                 }
-                if (this.context.view.options.names) {
-                    content = this.value.name.split('\n').shift(); // custom argument id
+                if (options.sizes) {
+                    let sizeContent = '';
+                    const type = this.value.type;
+                    if (type &&
+                        type.shape &&
+                        type.shape.dimensions &&
+                        type.shape.dimensions.length > 0 &&
+                        type.shape.dimensions.every((dim) => !dim || Number.isInteger(dim) || dim instanceof base.Int64 || (typeof dim === 'string'))) {
+                        sizeContent = type.shape.dimensions.map((dim) => (dim !== null && dim !== undefined) ? dim : '?').join('\u00D7');
+                        sizeContent = sizeContent.length > 16 ? '' : sizeContent;
+                    }
+                    content.push(sizeContent);
                 }
+                content = content.join("\n");
                 const edge = new view.Edge(this, this._from, to);
                 edge.v = this._from.name;
                 edge.w = to.name;

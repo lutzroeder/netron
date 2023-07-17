@@ -559,15 +559,19 @@ grapher.Edge = class {
         this.hitTest.addEventListener('pointerleave', () => this.emit('pointerleave'));
         edgePathGroupElement.appendChild(this.hitTest);
         if (this.label) {
-            const tspan = createElement('tspan');
-            tspan.setAttribute('xml:space', 'preserve');
-            tspan.setAttribute('dy', '1em');
-            tspan.setAttribute('x', '1');
-            tspan.appendChild(document.createTextNode(this.label));
             this.labelElement = createElement('text');
-            this.labelElement.appendChild(tspan);
             this.labelElement.style.opacity = 0;
             this.labelElement.setAttribute('class', 'edge-label');
+            const lines = this.label.split('\n');
+            const dy = lines.length > 1 ? '1.5em' : '1em';
+            for (const line of lines) {
+                const tspan = createElement('tspan');
+                tspan.setAttribute('xml:space', 'preserve');
+                tspan.setAttribute('dy', dy);
+                tspan.setAttribute('x', '1');
+                tspan.appendChild(document.createTextNode(line));
+                this.labelElement.appendChild(tspan);
+            }
             if (this.id) {
                 this.labelElement.setAttribute('id', 'edge-label-' + this.id);
             }

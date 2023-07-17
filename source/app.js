@@ -473,6 +473,11 @@ app.Application = class {
                         click: () => this.execute('toggle', 'names'),
                     },
                     {
+                        id: 'view.toggle-sizes',
+                        accelerator: 'CmdOrCtrl+S',
+                        click: () => this.execute('toggle', 'sizes'),
+                    },
+                    {
                         id: 'view.toggle-direction',
                         accelerator: 'CmdOrCtrl+K',
                         click: () => this.execute('toggle', 'direction')
@@ -585,6 +590,10 @@ app.Application = class {
             commandTable.set('view.toggle-names', {
                 enabled: (view) => view && view.path ? true : false,
                 label: (view) => !view || view.get('names') ? 'Hide &Names' : 'Show &Names'
+            });
+            commandTable.set('view.toggle-sizes', {
+                enabled: (view) => view && view.path ? true : false,
+                label: (view) => !view || view.get('sizes') ? 'Hide &Sizes' : 'Show &Sizes'
             });
             commandTable.set('view.toggle-direction', {
                 enabled: (view) => view && view.path ? true : false,
