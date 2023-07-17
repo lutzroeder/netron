@@ -262,21 +262,21 @@ view.View = class {
     find() {
         if (this._graph) {
             this._graph.select(null);
-            const content = new view.FindSidebar(this._host, this.activeGraph);
-            content.on('search-text-changed', (sender, text) => {
+            const sb = new view.FindSidebar(this._host, this.activeGraph);
+            sb.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
             });
-            content.on('select', (sender, selection) => {
+            sb.on('select', (sender, selection) => {
                 this.scrollTo(this._graph.select([ selection ]));
             });
-            content.on('focus', (sender, selection) => {
+            sb.on('focus', (sender, selection) => {
                 this._graph.focus([ selection ]);
             });
-            content.on('blur', (sender, selection) => {
+            sb.on('blur', (sender, selection) => {
                 this._graph.blur([ selection ]);
             });
-            this._sidebar.open(content.render(), 'Find');
-            content.focus(this._searchText);
+            this._sidebar.open(sb, 'Find');
+            sb.focus(this._searchText);
         }
     }
 
@@ -937,8 +937,7 @@ view.View = class {
                 modelSidebar.on('update-active-graph', (sender, graph) => {
                     this._updateActiveGraph(graph);
                 });
-                const content = modelSidebar.render();
-                this._sidebar.open(content, 'Model Properties');
+                this._sidebar.open(modelSidebar, 'Model Properties');
             } catch (error) {
                 if (error) {
                     error.context = this._model.identifier;
@@ -994,10 +993,29 @@ view.View = class {
                 nodeSidebar.on('deactivate', () => {
                     this._graph.select(null);
                 });
+                nodeSidebar.on('show-connection', (sender, connection) => {
+                    const sb = new view.NodeConnectionSidebar(this._host, this._graph, connection);
+                    sb.on('select', (sender, selection) => {
+                        this.scrollTo(this._graph.select([ selection ]));
+                    });
+                    sb.on('focus', (sender, selection) => {
+                        this._graph.focus(selection);
+                    });
+                    sb.on('blur', (sender, selection) => {
+                        this._graph.blur(selection);
+                    });
+                    sb.on('close', () => {
+                        this._graph.select(null);
+                    });
+                    sb.on('lookinto', (sender, node) => {
+                        this.showNodeProperties(node, null);
+                    });
+                    this._sidebar.push(sb, 'Connected nodes to ' + connection.name);
+                });
                 if (input) {
                     nodeSidebar.toggleInput(input.name);
                 }
-                this._sidebar.open(nodeSidebar.render(), 'Node Properties');
+                this._sidebar.open(nodeSidebar, 'Node Properties');
             } catch (error) {
                 if (error) {
                     error.context = this._model.identifier;
@@ -1017,7 +1035,7 @@ view.View = class {
                 this._host.openURL(e.link);
             });
             const title = type.type === 'function' ? 'Function' : 'Documentation';
-            this._sidebar.push(documentationSidebar.render(), title);
+            this._sidebar.push(documentationSidebar, title);
         }
     }
 
@@ -2071,16 +2089,16 @@ view.Sidebar = class {
         return this._host.document.getElementById(id);
     }
 
-    open(content, title) {
-        this._update([ { title: title, content: content } ]);
+    open(sb, title) {
+        this._update([ { title: title, sb: sb, content: sb.render() } ]);
     }
 
     close() {
         this._update([]);
     }
 
-    push(content, title) {
-        this._update(this._stack.concat({ title: title, content: content }));
+    push(sb, title) {
+        this._update(this._stack.concat({ title: title, sb: sb, content: sb.render() }));
     }
 
     _update(stack) {
@@ -2092,7 +2110,8 @@ view.Sidebar = class {
         if (stack) {
             this._stack = stack;
         } else if (this._stack.length > 0) {
-            this._stack.pop();
+            const agoner = this._stack.pop();
+            agoner.sb.on('close');
         }
         if (this._stack.length > 0) {
             const item = this._stack[this._stack.length - 1];
@@ -2253,6 +2272,9 @@ view.NodeSidebar = class extends view.Control {
             value.on('activate', (sender, value) => this.emit('activate', value));
             value.on('deactivate', (sender, value) => this.emit('deactivate', value));
             const item = new view.NameValueView(this._host, name, value);
+            if (!input.value[0].initializer) {
+                item.on('value-right-click', () => this.emit('show-connection', input.value[0]));
+            }
             this._inputs.push(item);
             this._elements[0].appendChild(item.render());
         }
@@ -2264,6 +2286,9 @@ view.NodeSidebar = class extends view.Control {
             value.on('activate', (sender, value) => this.emit('activate', value));
             value.on('deactivate', (sender, value) => this.emit('deactivate', value));
             const item = new view.NameValueView(this._host, name, value);
+            if (!output.value[0].initializer) {
+                item.on('value-right-click', () => this.emit('show-connection', output.value[0]));
+            }
             this._outputs.push(item);
             this._elements[0].appendChild(item.render());
         }
@@ -2278,9 +2303,82 @@ view.NodeSidebar = class extends view.Control {
     }
 };
 
-view.NameValueView = class {
+view.NodeConnectionSidebar = class extends view.Control {
+
+    constructor(host, graph, connection) {
+        super();
+        this._host = host;
+        this._graph = graph;
+        this._elements = [];
+        this._table = new Map();
+        this._connection = connection;
+
+        this._contentElement = this._host.document.createElement('ol');
+        this._contentElement.setAttribute('class', 'sidebar-node-connection-content');
+        this._contentElement.addEventListener('click', (e) => {
+            const identifier = e.target.getAttribute('data');
+            if (this._table.has(identifier)) {
+                this.emit('select', this._table.get(identifier));
+            }
+        });
+
+        let index = 0;
+        const add = (node) => {
+            const content = '\u25A2 ' + node.value.name;
+            const key = index.toString();
+            index++;
+            this._table.set(key, node.value);
+            const element = this._host.document.createElement('li');
+            element.innerText = content;
+            element.setAttribute('data', key);
+            element.addEventListener('pointerover', (e) => {
+                const identifier = e.target.getAttribute('data');
+                this.emit('focus', [this._table.get(identifier), this._connection]);
+            });
+            element.addEventListener('pointerleave', (e) => {
+                const identifier = e.target.getAttribute('data');
+                this.emit('blur', [this._table.get(identifier)]);
+            });
+            element.addEventListener('dblclick', (e) => {
+                const identifier = e.target.getAttribute('data');
+                this.emit('lookinto', this._table.get(identifier));
+            });
+            this._contentElement.appendChild(element);
+        };
+
+        this._graph.nodes.forEach(value => {
+            const node = value.label;
+            for (const input of node.inputs) {
+                if (input.value[0] && input.value[0].name == connection.name) {
+                    add(node);
+                }
+            }
+            for (const output of node.outputs) {
+                if (output.value[0] && output.value[0].name == connection.name) {
+                    add(node);
+                }
+            }
+        });
+
+        this._contentElement.style.display = 'block';
+    }
+
+    on(event, callback) {
+        this._events = this._events || {};
+        this._events[event] = this._events[event] || [];
+        this._events[event].push(callback);
+    }
+
+    render() {
+        return [ this._contentElement ];
+    }
+
+};
+
+view.NameValueView = class extends view.Control {
 
     constructor(host, name, value) {
+        super();
         this._host = host;
         this._name = name;
         this._value = value;
@@ -2297,6 +2395,11 @@ view.NameValueView = class {
 
         const valueElement = this._host.document.createElement('div');
         valueElement.className = 'sidebar-item-value-list';
+        valueElement.addEventListener('mousedown', event => {
+            if (event.button == 2) {
+                this.emit('value-right-click', this._value);
+            }
+        });
 
         for (const element of value.render()) {
             valueElement.appendChild(element);

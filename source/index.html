@@ -227,6 +227,9 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .sidebar-documentation dd { padding: 0 16px; margin-left: 0; margin-bottom: 16px; }
 .sidebar-documentation ul { margin-top: 6px; margin-bottom: 6px; padding-left: 20px; }
 .sidebar-documentation blockquote { margin-left: 15px; margin-right: 15px; }
+.sidebar-node-connection-content { flex-grow: 1; padding: 0px 20px 20px 20px; padding-right: 20px; overflow-y: auto; list-style-type: none; overflow-y: auto; margin: 0; }
+.sidebar-node-connection-content li { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 12px; margin: 0; padding: 5px 8px 5px 18px; outline: 0; white-space: nowrap; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.sidebar-node-connection-content li:hover { background: #e5e5e5; }
 @media (prefers-color-scheme: dark) {
     .sidebar html { color: #dfdfdf; }
     .sidebar { background-color: #2d2d2d; color: #dfdfdf; border-left: 1px solid rgba(0, 0, 0, 0); }
@@ -246,6 +249,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     .sidebar-documentation pre { background-color: #1e1e1e; }
     .sidebar-find-search { background: #383838; color: #dfdfdf; border-color: #424242; }
     .sidebar-find-content li:hover { background: #383838; }
+    .sidebar-node-connection-content li:hover { background: #383838; }
 }
 @media screen and (prefers-reduced-motion: reduce) {
 .menu { transition: none; }
