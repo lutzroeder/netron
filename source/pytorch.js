@@ -3261,7 +3261,7 @@ pytorch.Utility = class {
     }
 
     static getType(value) {
-        if (value === null) {
+        if (value === null || value === undefined) {
             return undefined;
         } else if (value === true || value === false) {
             return 'boolean';
