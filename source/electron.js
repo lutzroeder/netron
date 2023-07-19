@@ -107,8 +107,8 @@ host.ElectronHost = class {
                     app_name: this.type,
                     app_version: this.version
                 });
-                this._setConfiguration('user', this._telemetry.get('client_id'));
-                this._setConfiguration('session', this._telemetry.session);
+                this.set('configuration', 'user', this._telemetry.get('client_id'));
+                this.set('configuration', 'session', this._telemetry.session);
                 this._telemetry_ua = new host.Telemetry('UA-54146-13', this._telemetry.get('client_id'), navigator.userAgent, this.type, this.version);
             }
         };
