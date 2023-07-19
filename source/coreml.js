@@ -379,7 +379,8 @@ coreml.Graph = class {
             const value = (name, type, description, tensor) => {
                 if (!values.has(name)) {
                     values.set(name, new coreml.Value(name, type, description, tensor));
-                } else if ((type && !type.equals(values.get(name).type)) || description || tensor) {
+                } else if ((type && !type.equals(values.get(name).type)) ||
+                           (tensor && tensor !== values.get(name).initializer) || description) {
                     throw new coreml.Error("Duplicate value '" + name + "'.");
                 }
                 return values.get(name);
@@ -1267,7 +1268,7 @@ coreml.TensorType = class {
     }
 
     equals(obj) {
-        return obj && this._dataType === obj.dataType && this._shape && this._shape.equals(obj.shape);
+        return obj && this.dataType === obj.dataType && this.shape && this.shape.equals(obj.shape);
     }
 
     toString() {
@@ -1278,7 +1279,7 @@ coreml.TensorType = class {
 coreml.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = dimensions;
+        this._dimensions = dimensions.map((dim) => typeof dim === 'string' || Number.isInteger(dim) ? dim : dim.toNumber());
     }
 
     get dimensions() {
@@ -1286,9 +1287,9 @@ coreml.TensorShape = class {
     }
 
     equals(obj) {
-        return obj && Array.isArray(obj.dimensions) &&
-            Array.isArray(this._dimensions) && this._dimensions.length === obj.dimensions.length
-            && obj.dimensions.every((value, index) => this._dimensions[index] === value);
+        return obj && Array.isArray(obj.dimensions) && Array.isArray(this._dimensions) &&
+            this._dimensions.length === obj.dimensions.length &&
+            obj.dimensions.every((value, index) => this._dimensions[index] === value);
     }
 
     toString() {
@@ -1425,7 +1426,7 @@ coreml.Utility = class {
                 case 'multiArrayType': {
                     let shape = new coreml.TensorShape([]);
                     if (type.multiArrayType.shape && type.multiArrayType.shape.length > 0) {
-                        shape = new coreml.TensorShape(type.multiArrayType.shape);
+                        shape = new coreml.TensorShape(type.multiArrayType.shape.map((dim) => dim.toNumber()));
                     }
                     let dataType;
                     const ArrayDataType = coreml.proto.ArrayFeatureType.ArrayDataType;
