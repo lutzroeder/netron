@@ -116,7 +116,7 @@ app.Application = class {
             name: this._package.productName,
             version: this._package.version,
             date: this._package.date,
-            repository: 'https://github.com' + this._package.repository,
+            repository: 'https://github.com/' + this._package.repository,
             platform: process.platform,
             separator: path.sep,
             titlebar: true // process.platform === 'darwin'
