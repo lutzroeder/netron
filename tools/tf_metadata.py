@@ -1,11 +1,15 @@
 ''' TensorFlow Metadata Script '''
 
 import json
+import logging
 import os
 import google.protobuf # pylint: disable=import-error
-from tensorflow.core.framework import api_def_pb2 # pylint: disable=import-error,no-name-in-module
-from tensorflow.core.framework import op_def_pb2 # pylint: disable=import-error,no-name-in-module
-from tensorflow.core.framework import types_pb2 # pylint: disable=import-error,no-name-in-module
+
+logging.getLogger('tensorflow').setLevel(logging.ERROR)
+
+from tensorflow.core.framework import api_def_pb2 # pylint: disable=import-error,no-name-in-module,wrong-import-position
+from tensorflow.core.framework import op_def_pb2 # pylint: disable=import-error,no-name-in-module,wrong-import-position
+from tensorflow.core.framework import types_pb2 # pylint: disable=import-error,no-name-in-module,wrong-import-position
 
 def _read(path):
     with open(path, 'r', encoding='utf-8') as file:
