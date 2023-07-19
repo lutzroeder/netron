@@ -1677,6 +1677,7 @@ $root.MNN.Extra = class Extra {
         $.engine = reader.string_(position, 6, null);
         $.info = reader.typedArray(position, 8, Int8Array);
         $.attr = reader.tableArray(position, 10, $root.MNN.Attribute.decode);
+        $.vector = reader.bool_(position, 12, false);
         return $;
     }
 };
