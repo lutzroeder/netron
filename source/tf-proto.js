@@ -2549,7 +2549,10 @@ $root.tensorflow.GraphDebugInfo = class GraphDebugInfo {
 
     constructor() {
         this.files = [];
+        this.frames_by_id = {};
+        this.traces_by_id = {};
         this.traces = {};
+        this.name_to_trace_id = {};
     }
 
     static decode(reader, length) {
@@ -2561,8 +2564,17 @@ $root.tensorflow.GraphDebugInfo = class GraphDebugInfo {
                 case 1:
                     message.files.push(reader.string());
                     break;
+                case 4:
+                    reader.entry(message.frames_by_id, () => reader.fixed64(), () => $root.tensorflow.GraphDebugInfo.FileLineCol.decode(reader, reader.uint32()));
+                    break;
+                case 6:
+                    reader.entry(message.traces_by_id, () => reader.fixed64(), () => $root.tensorflow.GraphDebugInfo.StackTrace.decode(reader, reader.uint32()));
+                    break;
                 case 2:
                     reader.entry(message.traces, () => reader.string(), () => $root.tensorflow.GraphDebugInfo.StackTrace.decode(reader, reader.uint32()));
+                    break;
+                case 5:
+                    reader.entry(message.name_to_trace_id, () => reader.string(), () => reader.fixed64());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -2581,8 +2593,17 @@ $root.tensorflow.GraphDebugInfo = class GraphDebugInfo {
                 case "files":
                     reader.array(message.files, () => reader.string());
                     break;
+                case "frames_by_id":
+                    reader.entry(message.frames_by_id, () => reader.fixed64(), () => $root.tensorflow.GraphDebugInfo.FileLineCol.decodeText(reader));
+                    break;
+                case "traces_by_id":
+                    reader.entry(message.traces_by_id, () => reader.fixed64(), () => $root.tensorflow.GraphDebugInfo.StackTrace.decodeText(reader));
+                    break;
                 case "traces":
                     reader.entry(message.traces, () => reader.string(), () => $root.tensorflow.GraphDebugInfo.StackTrace.decodeText(reader));
+                    break;
+                case "name_to_trace_id":
+                    reader.entry(message.name_to_trace_id, () => reader.string(), () => reader.fixed64());
                     break;
                 default:
                     reader.field(tag, message);
@@ -2667,6 +2688,7 @@ $root.tensorflow.GraphDebugInfo.StackTrace = class StackTrace {
 
     constructor() {
         this.file_line_cols = [];
+        this.frame_id = [];
     }
 
     static decode(reader, length) {
@@ -2677,6 +2699,9 @@ $root.tensorflow.GraphDebugInfo.StackTrace = class StackTrace {
             switch (tag >>> 3) {
                 case 1:
                     message.file_line_cols.push($root.tensorflow.GraphDebugInfo.FileLineCol.decode(reader, reader.uint32()));
+                    break;
+                case 2:
+                    message.frame_id = reader.array(message.frame_id, () => reader.fixed64(), tag);
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -2694,6 +2719,9 @@ $root.tensorflow.GraphDebugInfo.StackTrace = class StackTrace {
             switch (tag) {
                 case "file_line_cols":
                     message.file_line_cols.push($root.tensorflow.GraphDebugInfo.FileLineCol.decodeText(reader));
+                    break;
+                case "frame_id":
+                    reader.array(message.frame_id, () => reader.fixed64());
                     break;
                 default:
                     reader.field(tag, message);
