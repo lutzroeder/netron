@@ -41,7 +41,8 @@ om.Graph = class {
         const value = (name, type, tensor) => {
             if (!values.has(name)) {
                 values.set(name, new om.Value(name, type || null, tensor || null));
-            } else if ((type && !type.equals(values.get(name).type)) || tensor) {
+            } else if ((type && !type.equals(values.get(name).type)) ||
+                       (tensor && tensor !== values.get(name).initializer)) {
                 throw new om.Error("Duplicate value '" + name + "'.");
             }
             return values.get(name);
@@ -297,9 +298,17 @@ om.TensorShape = class {
     }
 
     equals(obj) {
-        return obj && Array.isArray(obj.dimensions) &&
-            Array.isArray(this.dimensions) && this.dimensions.length === obj.dimensions.length
-            && obj.dimensions.every((value, index) => this.dimensions[index] === value);
+        if (obj && Array.isArray(obj.dimensions) && Array.isArray(this.dimensions)) {
+            if (this.dimensions.length === obj.dimensions.length) {
+                return obj.dimensions.every((value, index) => this.dimensions[index] === value);
+            }
+            if (obj.dimensions.every((dim) => Number.isInteger(dim)) && this.dimensions.every((dim) => Number.isInteger(dim))) {
+                const a = obj.dimensions.reduce((a, b) => a * b, 1);
+                const b = this.dimensions.reduce((a, b) => a * b, 1);
+                return a === b;
+            }
+        }
+        return false;
     }
 
     toString() {

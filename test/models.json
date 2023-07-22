@@ -3971,6 +3971,13 @@
     "link":     "https://github.com/lutzroeder/netron/issues/799"
   },
   {
+    "type":     "om",
+    "target":   "yolov5s.om",
+    "source":   "https://github.com/lutzroeder/netron/files/12136842/yolov5s.om.zip[yolov5s.om]",
+    "format":   "DaVinci OM",
+    "link":     "https://github.com/lutzroeder/netron/issues/799"
+  },
+  {
     "type":     "openvino",
     "target":   "2018_R3_age-gender-recognition-retail-0013.xml,2018_R3_age-gender-recognition-retail-0013.bin",
     "source":   "https://github.com/lutzroeder/netron/files/8983748/2018_R3_age-gender-recognition-retail-0013.zip[2018_R3_age-gender-recognition-retail-0013.xml,2018_R3_age-gender-recognition-retail-0013.bin]",
