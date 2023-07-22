@@ -295,19 +295,15 @@ hailo.TensorType = class {
 hailo.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = dimensions;
-    }
-
-    get dimensions() {
-        return this._dimensions;
+        this.dimensions = dimensions;
     }
 
     equals(obj) {
-        if (obj && Array.isArray(obj.dimensions) && Array.isArray(this._dimensions)) {
-            if (this._dimensions.length === obj.dimensions.length) {
-                return obj.dimensions.every((value, index) => this._dimensions[index] === value);
+        if (obj && Array.isArray(obj.dimensions) && Array.isArray(this.dimensions)) {
+            if (this.dimensions.length === obj.dimensions.length) {
+                return obj.dimensions.every((value, index) => this.dimensions[index] === value);
             }
-            const a = this._dimensions.filter((value, index) => index === 0 || index === this._dimensions.length - 1 || value !== 1);
+            const a = this.dimensions.filter((value, index) => index === 0 || index === this.dimensions.length - 1 || value !== 1);
             const b = obj.dimensions.filter((value, index) => index === 0 || index === obj.dimensions.length - 1 || value !== 1);
             if (a.length === b.length) {
                 return a.every((value, index) => b[index] === value);
@@ -317,10 +313,7 @@ hailo.TensorShape = class {
     }
 
     toString() {
-        if (this._dimensions) {
-            if (this._dimensions.length === 0) {
-                return '';
-            }
+        if (this.dimensions && this.dimensions.length > 0) {
             return '[' + this.dimensions.map((dimension) => dimension.toString()).join(',') + ']';
         }
         return '';
