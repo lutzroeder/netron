@@ -133,6 +133,20 @@
   },
   {
     "type":     "_",
+    "target":   "python-import.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/12139921/python-import.pt.zip[python-import.pt]",
+    "error":    "Invalid file content. File contains Python source code.",
+    "link":     "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
+    "type":     "_",
+    "target":   "python-from-import.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/12139922/python-from-import.pt.zip[python-from-import.pt]",
+    "error":    "Invalid file content. File contains Python source code.",
+    "link":     "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
+    "type":     "_",
     "target":   "random.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/7449479/random.onnx.zip[random.onnx]",
     "error":    "Unsupported file content (746d6c20786d6c6e733d22687474703a) for extension '.onnx'.",
