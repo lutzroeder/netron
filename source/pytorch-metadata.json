@@ -6885,6 +6885,32 @@
     ]
   },
   {
+    "name": "aten::linalg_vector_norm",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "ord", "type": "Scalar", "default": 2 },
+      { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "keepdim", "type": "boolean", "default": false },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::linalg_vector_norm.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "ord", "type": "Scalar", "default": 2 },
+      { "name": "dim", "type": "int64[1]", "optional": true, "default": null },
+      { "name": "keepdim", "type": "boolean", "default": false },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::linear",
     "category": "Layer",
     "inputs": [
