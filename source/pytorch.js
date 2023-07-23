@@ -2106,6 +2106,7 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                                     output.resize_([ NaN, NaN, NaN, NaN, NaN ]);
                                     break;
                                 }
+                                case 'aten::roll':
                                 case 'aten::detach':
                                 case 'aten::mean':
                                 case 'aten::mul':

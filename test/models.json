@@ -4507,6 +4507,14 @@
   },
   {
     "type":     "pytorch",
+    "target":   "lite_real_sr.ptl",
+    "source":   "https://github.com/lutzroeder/netron/files/12137599/lite_real_sr.ptl.zip[lite_real_sr.ptl]",
+    "format":   "TorchScript v1.12",
+    "action":   "skip-render",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
+  },
+  {
+    "type":     "pytorch",
     "target":   "LMModel1.pt",
     "source":   "https://github.com/lutzroeder/netron/files/7726055/LMModel1.zip[LMModel1.pt]",
     "format":   "TorchScript v1.6",
