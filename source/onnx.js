@@ -960,7 +960,7 @@ onnx.Tensor = class {
                     break;
                 }
                 default: {
-                    throw new Error();
+                    break;
                 }
             }
         }
@@ -1395,14 +1395,18 @@ onnx.ModelContext = class {
         if (this._locations.has(name)) {
             const stream = this._locations.get(name);
             if (offset < stream.length && (offset + length) < stream.length) {
-                const position = stream.position;
-                stream.seek(offset);
-                const value = stream.stream(length);
-                stream.seek(position);
-                return value;
+                try {
+                    const position = stream.position;
+                    stream.seek(offset);
+                    const value = stream.stream(length);
+                    stream.seek(position);
+                    return value;
+                } catch (error) {
+                    // continue regardless of error
+                }
             }
         }
-        return this._locations;
+        return null;
     }
 
     graph(value) {
