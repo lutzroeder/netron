@@ -2505,9 +2505,10 @@ python.Execution = class {
             }
         });
         this.registerType('sklearn.ensemble._bagging.BaggingClassifier', class {});
-        this.registerType('sklearn.ensemble._forest.RandomForestRegressor', class {});
         this.registerType('sklearn.ensemble._forest.RandomForestClassifier', class {});
+        this.registerType('sklearn.ensemble._forest.RandomForestRegressor', class {});
         this.registerType('sklearn.ensemble._forest.ExtraTreesClassifier', class {});
+        this.registerType('sklearn.ensemble._forest.ExtraTreesRegressor', class {});
         this.registerType('sklearn.ensemble._gb_losses.BinomialDeviance', class {});
         this.registerType('sklearn.ensemble._gb_losses.LeastSquaresError', class {});
         this.registerType('sklearn.ensemble._gb_losses.MultinomialDeviance', class {});
@@ -2520,6 +2521,7 @@ python.Execution = class {
         this.registerType('sklearn.ensemble._iforest.IsolationForest', class {});
         this.registerType('sklearn.ensemble._stacking.StackingClassifier', class {});
         this.registerType('sklearn.ensemble._voting.VotingClassifier', class {});
+        this.registerType('sklearn.ensemble._voting.VotingRegressor', class {});
         this.registerType('sklearn.ensemble._weight_boosting.AdaBoostClassifier', class {});
         this.registerType('sklearn.ensemble.forest.RandomForestClassifier', class {});
         this.registerType('sklearn.ensemble.forest.RandomForestRegressor', class {});
