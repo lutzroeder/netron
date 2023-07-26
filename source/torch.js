@@ -1,5 +1,5 @@
 
-var torch = torch || {};
+var torch = {};
 
 torch.ModelFactory = class {
 

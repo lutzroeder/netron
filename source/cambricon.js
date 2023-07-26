@@ -1,5 +1,5 @@
 
-var cambricon = cambricon || {};
+var cambricon = {};
 
 cambricon.ModelFactory = class {
 

@@ -1,5 +1,5 @@
 
-var text = text || {};
+var text = {};
 
 text.Decoder = class {
 

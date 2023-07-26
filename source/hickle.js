@@ -1,5 +1,5 @@
 
-var hickle = hickle || {};
+var hickle = {};
 
 hickle.ModelFactory = class {
 

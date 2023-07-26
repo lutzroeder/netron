@@ -1,5 +1,5 @@
 
-var host = host || {};
+var host = {};
 
 const electron = require('electron');
 const fs = require('fs');

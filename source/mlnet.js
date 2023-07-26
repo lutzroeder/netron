@@ -87,6 +87,7 @@ mlnet.Graph = class {
             }
             this._nodes.push(new mlnet.Node(metadata, group, transformer, arg));
         };
+        /* eslint-disable no-use-before-define */
         const loadChain = (scope, name, chain) => {
             this._groups = true;
             const group = name.split('/').splice(1).join('/');
@@ -105,6 +106,7 @@ mlnet.Graph = class {
                     break;
             }
         };
+        /* eslint-enable no-use-before-define */
         const scope = new Map();
         if (reader.dataLoaderModel) {
             loadTransformer(scope, '', reader.dataLoaderModel);

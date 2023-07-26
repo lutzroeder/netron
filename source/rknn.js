@@ -1,5 +1,6 @@
 
 var rknn = {};
+var openvx = {};
 var base = require('./base');
 var flatbuffers = require('./flatbuffers');
 var json = require('./json');
@@ -617,8 +618,6 @@ rknn.Container = class {
         }
     }
 };
-
-var openvx = openvx || {};
 
 openvx.Model = class {
 

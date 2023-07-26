@@ -133,7 +133,9 @@ darknet.Graph = class {
                 }
             }
         }
-
+        const params = {};
+        const globals = new Map();
+        const net = sections.shift();
         const option_find_int = (options, key, defaultValue) => {
             let value = options[key];
             if (typeof value === 'string' && value.startsWith('$')) {
@@ -149,19 +151,16 @@ darknet.Graph = class {
             }
             return defaultValue;
         };
-
         const option_find_str = (options, key, defaultValue) => {
             const value = options[key];
             return value !== undefined ? value : defaultValue;
         };
-
         const make_shape = (dimensions, source) => {
             if (dimensions.some((dimension) => dimension === 0 || dimension === undefined || isNaN(dimension))) {
                 throw new darknet.Error("Invalid tensor shape '" + JSON.stringify(dimensions) + "' in '" + source + "'.");
             }
             return new darknet.TensorShape(dimensions);
         };
-
         const load_weights = (name, shape, visible) => {
             const data = weights ? weights.read(4 * shape.reduce((a, b) => a * b, 1)) : null;
             const type = new darknet.TensorType('float32', make_shape(shape, 'load_weights'));
@@ -169,13 +168,11 @@ darknet.Graph = class {
             const value = new darknet.Value('', null, initializer);
             return new darknet.Argument(name, visible === false ? false : true, [ value ]);
         };
-
         const load_batch_normalize_weights = (layer, prefix, size) => {
             layer.weights.push(load_weights(prefix + 'scale', [ size ], prefix === ''));
             layer.weights.push(load_weights(prefix + 'mean', [ size ], prefix === ''));
             layer.weights.push(load_weights(prefix + 'variance', [ size ], prefix === ''));
         };
-
         const make_convolutional_layer = (layer, prefix, w, h, c, n, groups, size, stride_x, stride_y, padding, batch_normalize) => {
             layer.out_w = Math.floor((w + 2 * padding - size) / stride_x) + 1;
             layer.out_h = Math.floor((h + 2 * padding - size) / stride_y) + 1;
@@ -194,7 +191,6 @@ darknet.Graph = class {
             layer.weights.push(load_weights(prefix + 'weights', [ Math.floor(c / groups), n, size, size ], prefix === ''));
             layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'make_convolutional_layer'));
         };
-
         const make_connected_layer = (layer, prefix, inputs, outputs, batch_normalize) => {
             layer.out_h = 1;
             layer.out_w = 1;
@@ -213,14 +209,9 @@ darknet.Graph = class {
             layer.weights.push(load_weights(prefix + 'weights', [ inputs, outputs ], prefix === ''));
             layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ outputs ], 'make_connected_layer'));
         };
-
         if (sections.length === 0) {
             throw new darknet.Error('Config file has no sections.');
         }
-
-        const params = {};
-        const globals = new Map();
-        const net = sections.shift();
         switch (net.type) {
             case 'net':
             case 'network': {
@@ -237,14 +228,12 @@ darknet.Graph = class {
                 throw new darknet.Error("Unexpected '[" + net.type + "]' section. First section must be [net] or [network].");
             }
         }
-
         const inputType = params.w && params.h && params.c ?
             new darknet.TensorType('float32', make_shape([ params.w, params.h, params.c ], 'params-if')) :
             new darknet.TensorType('float32', make_shape([ params.inputs ], 'params-else'));
         const inputName = 'input';
         params.value = [ new darknet.Value(inputName, inputType, null) ];
         this._inputs.push(new darknet.Argument(inputName, true, params.value));
-
         for (let i = 0; i < sections.length; i++) {
             const section = sections[i];
             section.name = i.toString();
@@ -255,7 +244,6 @@ darknet.Graph = class {
                 chain: []
             };
         }
-
         let infer = true;
         for (let i = 0; i < sections.length; i++) {
             const section = sections[i];

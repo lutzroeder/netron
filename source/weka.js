@@ -1,7 +1,7 @@
 
 // Experimental
 
-var weka = weka || {};
+var weka = {};
 var java = {};
 
 weka.ModelFactory = class {

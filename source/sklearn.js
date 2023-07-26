@@ -1,7 +1,7 @@
 
 // Experimental
 
-var sklearn = sklearn || {};
+var sklearn = {};
 
 sklearn.ModelFactory = class {
 
@@ -48,7 +48,11 @@ sklearn.ModelFactory = class {
 sklearn.Model = class {
 
     constructor(metadata, target, obj) {
-        const formats = new Map([ [ 'sklearn', 'scikit-learn' ], [ 'scipy', 'SciPy' ], [ 'hmmlearn', 'hmmlearn' ] ]);
+        const formats = new Map([
+            [ 'sklearn', 'scikit-learn' ],
+            [ 'scipy', 'SciPy' ],
+            [ 'hmmlearn', 'hmmlearn' ]
+        ]);
         this._format = formats.get(target.split('.').shift());
         this._graphs = [];
         const version = [];

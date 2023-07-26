@@ -222,7 +222,7 @@ protoc.Root = class extends protoc.Namespace {
                 return name;
             }
         }
-        const exists = async (path) => {
+        const access = async (path) => {
             try {
                 await fs.access(path);
                 return true;
@@ -230,13 +230,15 @@ protoc.Root = class extends protoc.Namespace {
                 return false;
             }
         };
-        if (await exists(file)) {
+        const exists = await access(file);
+        if (exists) {
             return file;
         }
         for (const dir of paths) {
             const file = path.resolve(dir, target);
             /* eslint-disable no-await-in-loop */
-            if (await exists(file)) {
+            const exists = await access(file);
+            if (exists) {
                 return file;
             }
             /* eslint-enable no-await-in-loop */

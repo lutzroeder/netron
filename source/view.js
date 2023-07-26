@@ -1,5 +1,6 @@
 
 var view =  {};
+var markdown = {};
 var base = require('./base');
 var zip = require('./zip');
 var tar = require('./tar');
@@ -449,6 +450,10 @@ view.View = class {
                     }
                 }
             };
+            const clickHandler = (e) => {
+                e.stopPropagation();
+                document.removeEventListener('click', clickHandler, true);
+            };
             const pointerUpHandler = (e) => {
                 e.target.releasePointerCapture(e.pointerId);
                 container.style.removeProperty('cursor');
@@ -461,10 +466,6 @@ view.View = class {
                     delete this._mousePosition;
                     document.addEventListener('click', clickHandler, true);
                 }
-            };
-            const clickHandler = (e) => {
-                e.stopPropagation();
-                document.removeEventListener('click', clickHandler, true);
             };
             container.addEventListener('pointermove', pointerMoveHandler);
             container.addEventListener('pointerup', pointerUpHandler);
@@ -497,6 +498,7 @@ view.View = class {
                 }
             }
         };
+        const container = this._element('graph');
         const touchEndHandler = () => {
             container.removeEventListener('touchmove', touchMoveHandler, { passive: true });
             container.removeEventListener('touchcancel', touchEndHandler, { passive: true });
@@ -504,7 +506,6 @@ view.View = class {
             delete this._touchPoints;
             delete this._touchZoom;
         };
-        const container = this._element('graph');
         container.addEventListener('touchmove', touchMoveHandler, { passive: true });
         container.addEventListener('touchcancel', touchEndHandler, { passive: true });
         container.addEventListener('touchend', touchEndHandler, { passive: true });
@@ -3852,8 +3853,6 @@ view.Formatter = class {
     }
 };
 
-const markdown = {};
-
 markdown.Generator = class {
 
     constructor() {
@@ -5225,6 +5224,22 @@ view.ModelFactoryService = class {
                 const folder = rotate(map).filter(equals).map(at(0)).join('/');
                 return folder.length === 0 ? folder : folder + '/';
             };
+            const list = Array.from(entries).map((entry) => {
+                return { name: entry[0], stream: entry[1] };
+            });
+            const files = list.filter((entry) => {
+                if (entry.name.endsWith('/')) {
+                    return false;
+                }
+                if (entry.name.split('/').pop().startsWith('.')) {
+                    return false;
+                }
+                if (!entry.name.startsWith('./') && entry.name.startsWith('.')) {
+                    return false;
+                }
+                return true;
+            });
+            const folder = rootFolder(files.map((entry) => entry.name));
             const filter = async (queue) => {
                 let matches = [];
                 const nextEntry = async () => {
@@ -5321,22 +5336,6 @@ view.ModelFactoryService = class {
                 };
                 return await nextEntry();
             };
-            const list = Array.from(entries).map((entry) => {
-                return { name: entry[0], stream: entry[1] };
-            });
-            const files = list.filter((entry) => {
-                if (entry.name.endsWith('/')) {
-                    return false;
-                }
-                if (entry.name.split('/').pop().startsWith('.')) {
-                    return false;
-                }
-                if (!entry.name.startsWith('./') && entry.name.startsWith('.')) {
-                    return false;
-                }
-                return true;
-            });
-            const folder = rootFolder(files.map((entry) => entry.name));
             const queue = files.slice(0).filter((entry) => entry.name.substring(folder.length).indexOf('/') < 0);
             const context = await filter(queue);
             if (!context) {

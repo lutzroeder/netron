@@ -657,7 +657,7 @@ coreml.Graph = class {
                 this._nodes.push(node);
             }
         };
-        const updatePreprocessing = (args, group, preprocessing) => {
+        const updatePreprocessing = (values, group, preprocessing) => {
             if (preprocessing && preprocessing.length > 0) {
                 const preprocessingInput = this._description.input[0].name;
                 const inputNodes = [];

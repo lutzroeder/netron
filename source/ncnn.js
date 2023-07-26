@@ -1,5 +1,5 @@
 
-var ncnn = ncnn || {};
+var ncnn = {};
 var text = require('./text');
 var base = require('./base');
 
@@ -56,6 +56,7 @@ ncnn.ModelFactory = class {
     }
 
     async open(context, target) {
+        const metadata = await context.metadata('ncnn-metadata.json');
         const openBinary = (param, bin) => {
             const reader = new ncnn.BinaryParamReader(param);
             return new ncnn.Model(metadata, reader, bin);
@@ -64,7 +65,6 @@ ncnn.ModelFactory = class {
             const reader = new ncnn.TextParamReader(param);
             return new ncnn.Model(metadata, reader, bin);
         };
-        const metadata = await context.metadata('ncnn-metadata.json');
         const identifier = context.identifier.toLowerCase();
         let bin = null;
         switch (target) {

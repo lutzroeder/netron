@@ -1,5 +1,5 @@
 
-var acuity = acuity || {};
+var acuity = {};
 
 acuity.ModelFactory = class {
 

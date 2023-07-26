@@ -1,7 +1,7 @@
 
 // Experimental
 
-var pickle = pickle || {};
+var pickle = {};
 
 pickle.ModelFactory = class {
 

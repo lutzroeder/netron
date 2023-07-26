@@ -1,7 +1,7 @@
 
 // Experimental Python Execution
 
-var python = python || {};
+var python = {};
 
 python.Parser = class {
 

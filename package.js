@@ -5,6 +5,15 @@ const fs = require('fs').promises;
 const os = require('os');
 const path = require('path');
 
+const args = process.argv.slice(2);
+
+const read = (match) => {
+    if (args.length > 0 || (!match || args[0] === match)) {
+        return args.shift();
+    }
+    return null;
+};
+
 let configuration = null;
 
 const load = async () => {
@@ -27,6 +36,15 @@ const write = (message) => {
 
 const writeLine = (message) => {
     write(message + os.EOL);
+};
+
+const access = async (path) => {
+    try {
+        await fs.access(path);
+        return true;
+    } catch (error) {
+        return false;
+    }
 };
 
 const rm = async (...args) => {
@@ -56,15 +74,6 @@ const unlink = async (dir, filter) => {
     files = filter ? files.filter((file) => filter(file)) : files;
     const promises = files.map((file) => fs.unlink(path.join(dir, file)));
     await Promise.all(promises);
-};
-
-const exists = async (path) => {
-    try {
-        await fs.access(path);
-        return true;
-    } catch (error) {
-        return false;
-    }
 };
 
 const exec = async (command, encoding) => {
@@ -187,7 +196,8 @@ const pullrequest = async (organization, repository, body) => {
 
 const install = async () => {
     const node_modules = path.join(__dirname, 'node_modules');
-    if (!await exists(node_modules)) {
+    const exists = await access(node_modules);
+    if (!exists) {
         await exec('npm install');
     }
 };
@@ -529,7 +539,8 @@ const coverage = async () => {
 };
 
 const analyze = async () => {
-    if (!await exists('third_party/tools/codeql')) {
+    const exists = await access('third_party/tools/codeql');
+    if (!exists) {
         await exec('git clone --depth=1 https://github.com/github/codeql.git third_party/tools/codeql');
     }
     await rm('dist', 'codeql');
@@ -558,15 +569,6 @@ const version = async () => {
     await exec('git tag v' + configuration.version);
     await exec('git push');
     await exec('git push --tags');
-};
-
-const args = process.argv.slice(2);
-
-const read = (match) => {
-    if (args.length > 0 || (!match || args[0] === match)) {
-        return args.shift();
-    }
-    return null;
 };
 
 const next = async () => {

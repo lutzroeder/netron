@@ -1,7 +1,7 @@
 
 // Experimental
 
-var message = message || {};
+var message = {};
 
 message.ModelFactory = class {
 

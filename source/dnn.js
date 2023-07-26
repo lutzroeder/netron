@@ -1,7 +1,7 @@
 
 // Experimental
 
-var dnn = dnn || {};
+var dnn = {};
 
 dnn.ModelFactory = class {
 

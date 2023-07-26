@@ -1,5 +1,5 @@
 
-var imgdnn = imgdnn || {};
+var imgdnn = {};
 
 imgdnn.ModelFactory = class {
 

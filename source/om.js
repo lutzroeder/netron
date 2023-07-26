@@ -2,6 +2,7 @@
 // Experimental
 
 var om = {};
+var svp = {};
 var protobuf = require('./protobuf');
 var base = require('./base');
 
@@ -95,6 +96,7 @@ om.Node = class {
                 if (input === '') {
                     continue;
                 }
+                const name = this.type.inputs && i < this.type.inputs.length ? this.type.inputs[i].name : 'input' + (i === 0 ? '' : i.toString());
                 const index = input.lastIndexOf(':');
                 const identifier = input.substring(0, index);
                 const src_index = input.substring(index + 1);
@@ -102,7 +104,6 @@ om.Node = class {
                     this.controlDependencies.push(value(name));
                     continue;
                 }
-                const name = this.type.inputs && i < this.type.inputs.length ? this.type.inputs[i].name : 'input' + (i === 0 ? '' : i.toString());
                 const type = om.Utility.tensorType(op.input_desc[i]);
                 const tensor = tensors.get(identifier);
                 const argument = new om.Argument(name, [ value(input, type, tensor) ]);
@@ -484,8 +485,6 @@ om.Error = class extends Error {
         this.name = 'Error loading DaVinci model.';
     }
 };
-
-var svp = svp || {};
 
 svp.ModelDef = class ModelDef {
 

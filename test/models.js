@@ -8,6 +8,43 @@ const view = require('../source/view');
 const zip = require('../source/zip');
 const tar = require('../source/tar');
 
+const access = async (path) => {
+    try {
+        await fs.access(path);
+        return true;
+    } catch (error) {
+        return false;
+    }
+};
+
+const clearLine = () => {
+    if (process.stdout.clearLine) {
+        process.stdout.clearLine();
+    }
+};
+
+const write = (message) => {
+    if (process.stdout.write) {
+        process.stdout.write(message);
+    }
+};
+
+const decompress = (buffer) => {
+    let archive = zip.Archive.open(buffer, 'gzip');
+    if (archive && archive.entries.size == 1) {
+        const stream = archive.entries.values().next().value;
+        buffer = stream.peek();
+    }
+    const formats = [ zip, tar ];
+    for (const module of formats) {
+        archive = module.Archive.open(buffer);
+        if (archive) {
+            break;
+        }
+    }
+    return archive;
+};
+
 const host = {};
 
 host.TestHost = class {
@@ -49,7 +86,8 @@ host.TestHost = class {
 
     async request(file, encoding, basename) {
         const pathname = path.join(basename || this._sourceDir, file);
-        if (!await exists([ pathname ])) {
+        const exists = await access(pathname);
+        if (!exists) {
             throw new Error("The file '" + file + "' does not exist.");
         }
         if (encoding) {
@@ -244,43 +282,6 @@ global.Window = class {
     }
 };
 
-const clearLine = () => {
-    if (process.stdout.clearLine) {
-        process.stdout.clearLine();
-    }
-};
-
-const write = (message) => {
-    if (process.stdout.write) {
-        process.stdout.write(message);
-    }
-};
-
-const decompress = (buffer) => {
-    let archive = zip.Archive.open(buffer, 'gzip');
-    if (archive && archive.entries.size == 1) {
-        const stream = archive.entries.values().next().value;
-        buffer = stream.peek();
-    }
-    const formats = [ zip, tar ];
-    for (const module of formats) {
-        archive = module.Archive.open(buffer);
-        if (archive) {
-            break;
-        }
-    }
-    return archive;
-};
-
-const exists = async (files) => {
-    try {
-        await Promise.all(files.map((file) => fs.access(file)));
-        return true;
-    } catch (error) {
-        return false;
-    }
-};
-
 const request = async (url, init) => {
     const response = await fetch(url, init);
     if (!response.ok) {
@@ -429,7 +430,8 @@ class Target {
         targets = targets || Array.from(this.target);
         sources = sources || this.source;
         const files = targets.map((file) => path.join(this.folder, file));
-        if (await exists(files)) {
+        const exists = await Promise.all(files.map((file) => access(file)));
+        if (exists.every((value) => value)) {
             return;
         }
         if (!sources) {
@@ -698,11 +700,14 @@ const main = async () => {
         let patterns = process.argv.length > 2 ? process.argv.slice(2) : [];
         const configuration = await fs.readFile(__dirname + '/models.json', 'utf-8');
         let targets = JSON.parse(configuration).reverse();
-        if (patterns.length > 0 && await exists(patterns)) {
-            targets = patterns.map((path) => {
-                return { target: path };
-            });
-            patterns = [];
+        if (patterns.length > 0) {
+            const exists = await Promise.all(patterns.map((pattern) => access(pattern)));
+            if (exists.every((value) => value)) {
+                targets = patterns.map((path) => {
+                    return { target: path };
+                });
+                patterns = [];
+            }
         }
         const __host__ = new host.TestHost();
         const measures = new Table([ 'name', 'download', 'load', 'validate', 'render' ]);

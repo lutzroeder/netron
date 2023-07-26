@@ -1,5 +1,5 @@
 
-var dagre = dagre || {};
+var dagre = {};
 
 // Dagre graph layout
 // https://github.com/dagrejs/dagre

@@ -1,6 +1,6 @@
 
-var keras = keras || {};
-var tfjs = tfjs || {};
+var keras = {};
+var tfjs = {};
 var json = require('./json');
 var python = require('./python');
 

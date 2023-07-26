@@ -1,5 +1,5 @@
 
-var tar = tar || {};
+var tar = {};
 
 tar.Archive = class {
 

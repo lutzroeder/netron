@@ -128,6 +128,116 @@ openvino.Graph = class {
             return values.get(name);
         };
         const nodes = new Map();
+        const constant = (layers, edges, back_edges, omitConstLayers) => {
+            back_edges = back_edges || {};
+            for (const layer of layers) {
+                if (layer.type === 'Const' && layer.inputs.length === 0 && layer.outputs.length === 1 && layer.blobs.length === 0 && layer.data && layer.data.size > 3) {
+                    const element_type = layer.data.get('element_type');
+                    const offset = layer.data.get('offset');
+                    const size = layer.data.get('size');
+                    if (element_type && offset !== null && size !== null) {
+                        let precision = null;
+                        switch (element_type) {
+                            case 'f16': precision = 'FP16'; break;
+                            case 'f32': precision = 'FP32'; break;
+                            case 'f64': precision = 'FP64'; break;
+                            default: precision = element_type.toUpperCase();
+                        }
+                        const shape = layer.data.get('shape');
+                        const dims = shape ? shape.split(',').map((dim) => parseInt(dim.trim(), 10)) : null;
+                        layer.data.clear();
+                        layer.blobs.push({ name: 'custom', precision: precision, offset: parseInt(offset, 10), size: parseInt(size, 10), shape: dims });
+                    }
+                }
+                if (layer.type === 'Const' && layer.blobs.length === 1 && !layer.blobs[0].shape &&
+                    layer.inputs.length === 0 && layer.outputs.length === 1 && layer.outputs[0].dims) {
+                    layer.blobs[0].shape = layer.outputs[0].dims;
+                }
+            }
+            const constants = new Map();
+            for (const layer of layers) {
+                if (layer.type === 'Const' && layer.inputs.length === 0 && layer.outputs.length === 1) {
+                    const from = layer.id + ':' + layer.outputs[0].id;
+                    constants.set(from, { layer: layer, counter: 0 });
+                }
+            }
+            for (const entry of Object.entries(edges)) {
+                const from = entry[1];
+                if (constants.has(from)) {
+                    constants.get(from).counter++;
+                }
+            }
+            if (back_edges) {
+                for (const to of Object.keys(back_edges)) {
+                    const from = back_edges[to];
+                    if (constants.has(from)) {
+                        constants.get(from).counter++;
+                    }
+                }
+            }
+            for (const entry of constants) {
+                if (entry[1].counter !== 1) {
+                    constants.delete(entry[0]);
+                }
+            }
+            for (const layer of layers) {
+                if (layer.blobs.length === 0) {
+                    for (let i = layer.inputs.length - 1; i > 0; i--) {
+                        const input = layer.inputs[i];
+                        const to = layer.id + ':' + input.id;
+                        const from = edges[to] || back_edges[to];
+                        if (!constants.has(from)) {
+                            break;
+                        }
+                        const constLayer = constants.get(from).layer;
+                        if (constLayer && Array.isArray(constLayer.blobs)) {
+                            const blob = constLayer.blobs[0];
+                            if (blob) {
+                                blob.id = constLayer.name || constLayer.id;
+                                blob.kind = 'Const';
+                                layer.blobs.push(blob);
+                                layer.inputs.splice(i, 1);
+                                constants.get(from).layer = null;
+                                constants.get(from).delete = true;
+                            }
+                        }
+                    }
+                }
+            }
+            if (omitConstLayers) {
+                for (const layer of layers) {
+                    if (layer.blobs.length === 0) {
+                        for (let i = layer.inputs.length - 1; i > 0; i--) {
+                            const input = layer.inputs[i];
+                            const to = layer.id + ':' + input.id;
+                            const from = edges[to] || back_edges[to];
+                            if (!constants.has(from)) {
+                                break;
+                            }
+                            const constLayer = constants.get(from).layer;
+                            const blob = constLayer.blobs[0];
+                            if (blob) {
+                                blob.id = constLayer.name || constLayer.id;
+                                blob.kind = 'Const';
+                                layer.blobs.push(blob);
+                                layer.inputs.splice(i, 1);
+                                constants.get(from).layer = null;
+                                constants.get(from).delete = true;
+                            }
+                        }
+                    }
+                }
+            }
+            return layers.filter((layer) => {
+                if (layer.type === 'Const' && layer.inputs.length === 0 && layer.outputs.length === 1) {
+                    const from = layer.id + ':' + layer.outputs[0].id;
+                    if (constants.has(from) && constants.get(from).delete) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+        };
         const replaceTensorIteratorWithSubgraph = (metadata, bin, layers, edges) => {
             const tensorIteratorLayers = layers.filter((node) => node.type === 'TensorIterator');
             for (const tensorIteratorLayer of tensorIteratorLayers) {
@@ -249,116 +359,6 @@ openvino.Graph = class {
                 }
                 nodes.delete(id);
             }
-        };
-        const constant = (layers, edges, back_edges, omitConstLayers) => {
-            back_edges = back_edges || {};
-            for (const layer of layers) {
-                if (layer.type === 'Const' && layer.inputs.length === 0 && layer.outputs.length === 1 && layer.blobs.length === 0 && layer.data && layer.data.size > 3) {
-                    const element_type = layer.data.get('element_type');
-                    const offset = layer.data.get('offset');
-                    const size = layer.data.get('size');
-                    if (element_type && offset !== null && size !== null) {
-                        let precision = null;
-                        switch (element_type) {
-                            case 'f16': precision = 'FP16'; break;
-                            case 'f32': precision = 'FP32'; break;
-                            case 'f64': precision = 'FP64'; break;
-                            default: precision = element_type.toUpperCase();
-                        }
-                        const shape = layer.data.get('shape');
-                        const dims = shape ? shape.split(',').map((dim) => parseInt(dim.trim(), 10)) : null;
-                        layer.data.clear();
-                        layer.blobs.push({ name: 'custom', precision: precision, offset: parseInt(offset, 10), size: parseInt(size, 10), shape: dims });
-                    }
-                }
-                if (layer.type === 'Const' && layer.blobs.length === 1 && !layer.blobs[0].shape &&
-                    layer.inputs.length === 0 && layer.outputs.length === 1 && layer.outputs[0].dims) {
-                    layer.blobs[0].shape = layer.outputs[0].dims;
-                }
-            }
-            const constants = new Map();
-            for (const layer of layers) {
-                if (layer.type === 'Const' && layer.inputs.length === 0 && layer.outputs.length === 1) {
-                    const from = layer.id + ':' + layer.outputs[0].id;
-                    constants.set(from, { layer: layer, counter: 0 });
-                }
-            }
-            for (const entry of Object.entries(edges)) {
-                const from = entry[1];
-                if (constants.has(from)) {
-                    constants.get(from).counter++;
-                }
-            }
-            if (back_edges) {
-                for (const to of Object.keys(back_edges)) {
-                    const from = back_edges[to];
-                    if (constants.has(from)) {
-                        constants.get(from).counter++;
-                    }
-                }
-            }
-            for (const entry of constants) {
-                if (entry[1].counter !== 1) {
-                    constants.delete(entry[0]);
-                }
-            }
-            for (const layer of layers) {
-                if (layer.blobs.length === 0) {
-                    for (let i = layer.inputs.length - 1; i > 0; i--) {
-                        const input = layer.inputs[i];
-                        const to = layer.id + ':' + input.id;
-                        const from = edges[to] || back_edges[to];
-                        if (!constants.has(from)) {
-                            break;
-                        }
-                        const constLayer = constants.get(from).layer;
-                        if (constLayer && Array.isArray(constLayer.blobs)) {
-                            const blob = constLayer.blobs[0];
-                            if (blob) {
-                                blob.id = constLayer.name || constLayer.id;
-                                blob.kind = 'Const';
-                                layer.blobs.push(blob);
-                                layer.inputs.splice(i, 1);
-                                constants.get(from).layer = null;
-                                constants.get(from).delete = true;
-                            }
-                        }
-                    }
-                }
-            }
-            if (omitConstLayers) {
-                for (const layer of layers) {
-                    if (layer.blobs.length === 0) {
-                        for (let i = layer.inputs.length - 1; i > 0; i--) {
-                            const input = layer.inputs[i];
-                            const to = layer.id + ':' + input.id;
-                            const from = edges[to] || back_edges[to];
-                            if (!constants.has(from)) {
-                                break;
-                            }
-                            const constLayer = constants.get(from).layer;
-                            const blob = constLayer.blobs[0];
-                            if (blob) {
-                                blob.id = constLayer.name || constLayer.id;
-                                blob.kind = 'Const';
-                                layer.blobs.push(blob);
-                                layer.inputs.splice(i, 1);
-                                constants.get(from).layer = null;
-                                constants.get(from).delete = true;
-                            }
-                        }
-                    }
-                }
-            }
-            return layers.filter((layer) => {
-                if (layer.type === 'Const' && layer.inputs.length === 0 && layer.outputs.length === 1) {
-                    const from = layer.id + ':' + layer.outputs[0].id;
-                    if (constants.has(from) && constants.get(from).delete) {
-                        return false;
-                    }
-                }
-                return true;
-            });
         };
         const layers = new Map(net.layers.map((entry) => [ entry.id, entry ]));
         const layer_list = constant(net.layers, net.edges);
@@ -912,6 +912,20 @@ openvino.XmlReader = class {
             }
             return [];
         };
+        const edges = (parent, name) => {
+            const map = {};
+            const elements = child(parent, name || 'edges');
+            if (elements) {
+                for (const element of children(elements, 'edge')) {
+                    const fromLayer = element.getAttribute('from-layer');
+                    const fromPort = element.getAttribute('from-port');
+                    const toLayer = element.getAttribute('to-layer');
+                    const toPort = element.getAttribute('to-port');
+                    map[toLayer + ':' + toPort] = fromLayer + ':' + fromPort;
+                }
+            }
+            return map;
+        };
         const layers = (parent) => {
             const elements = child(parent, 'layers');
             if (elements) {
@@ -966,20 +980,6 @@ openvino.XmlReader = class {
                 });
             }
             return [];
-        };
-        const edges = (parent, name) => {
-            const map = {};
-            const elements = child(parent, name || 'edges');
-            if (elements) {
-                for (const element of children(elements, 'edge')) {
-                    const fromLayer = element.getAttribute('from-layer');
-                    const fromPort = element.getAttribute('from-port');
-                    const toLayer = element.getAttribute('to-layer');
-                    const toPort = element.getAttribute('to-port');
-                    map[toLayer + ':' + toPort] = fromLayer + ':' + fromPort;
-                }
-            }
-            return map;
         };
         return {
             name: element.getAttribute('name'),

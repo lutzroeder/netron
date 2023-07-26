@@ -1,7 +1,5 @@
 
-var onednn = onednn || {};
-var json = json || require('./json');
-var base = base || require('./base');
+var onednn = {};
 
 onednn.ModelFactory = class {
 

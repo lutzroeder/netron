@@ -17,6 +17,7 @@ window.require = function(id, callback) {
         var script = document.createElement('script');
         script.setAttribute('id', id);
         script.setAttribute('type', 'text/javascript');
+        /* eslint-disable no-use-before-define */
         var loadHandler = function() {
             script.removeEventListener('load', loadHandler);
             script.removeEventListener('error', errorHandler);
@@ -35,6 +36,7 @@ window.require = function(id, callback) {
             delete window.module;
             callback(null, new Error('The script \'' + e.target.src + '\' failed to load.'));
         };
+        /* eslint-enable no-use-before-define */
         script.addEventListener('load', loadHandler, false);
         script.addEventListener('error', errorHandler, false);
         script.setAttribute('src', url);

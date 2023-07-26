@@ -1,8 +1,7 @@
 
 // Experimental
 
-var hailo = hailo || {};
-var json = json || require('./json');
+var hailo = {};
 
 hailo.ModelFactory = class {
 

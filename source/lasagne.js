@@ -1,7 +1,7 @@
 
 // Experimental
 
-var lasagne = lasagne || {};
+var lasagne = {};
 
 lasagne.ModelFactory = class {
 

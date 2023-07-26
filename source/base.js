@@ -1,5 +1,5 @@
 
-var base = base || {};
+var base = {};
 
 base.Int64 = class Int64 {
 
