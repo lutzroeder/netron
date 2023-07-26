@@ -222,14 +222,13 @@ onnx.ModelFactory = class {
                 graphs.add(graph);
             }
             const weights = new Map();
-            try {
-                const keys = Array.from(locations);
-                const streams = await Promise.all(keys.map((location) => context.request(location, null)));
-                for (let i = 0; i < keys.length; i++) {
+            const keys = Array.from(locations);
+            const promises = keys.map((location) => context.request(location, null));
+            const streams = await Promise.all(promises.map((promise) => promise.then((value) => value).catch(() => null)));
+            for (let i = 0; i < keys.length; i++) {
+                if (streams[i] !== null) {
                     weights.set(keys[i], streams[i]);
                 }
-            } catch (error) {
-                // continue regardless of error
             }
             return new onnx.Model(metadata, format, model, Array.from(graphs), weights);
         };
@@ -371,7 +370,6 @@ onnx.Model = class {
         let imageFormat = '';
         const metadata_props = model.metadata_props;
         if (metadata_props) {
-            const imageMetadata = {};
             const metadata = new Map(metadata_props.map((entry) => [ entry.key, entry.value ]));
             const converted_from = metadata.get('converted_from');
             if (converted_from) {
@@ -398,15 +396,18 @@ onnx.Model = class {
             metadata.delete('converted_from');
             metadata.delete('license');
             metadata.delete('license_url');
+            const imageMetadata = {};
             for (const entry of metadata) {
-                switch (entry[0]) {
+                const name = entry[0];
+                const value = entry[1];
+                switch (name) {
                     case 'Image.BitmapPixelFormat':
                     case 'Image.ColorSpaceGamma':
                     case 'Image.NominalPixelRange':
-                        imageMetadata[entry[0]] = entry[1];
+                        imageMetadata[name] = value;
                         break;
                     default:
-                        this._metadata.push({ name: entry[0], value: entry[1] });
+                        this._metadata.push({ name: name, value: value });
                         break;
                 }
             }
