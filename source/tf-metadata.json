@@ -10402,7 +10402,7 @@
     "name": "CopyToMesh",
     "attributes": [
       {
-        "name": "layout",
+        "name": "mesh",
         "type": "string"
       },
       {
@@ -10426,11 +10426,6 @@
   {
     "name": "CopyToMeshGrad",
     "attributes": [
-      {
-        "name": "reference_layout",
-        "type": "string",
-        "default": ""
-      },
       {
         "name": "T",
         "type": "type"
