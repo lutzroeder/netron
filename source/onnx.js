@@ -1395,7 +1395,7 @@ onnx.ModelContext = class {
     location(name, offset, length) {
         if (this._locations.has(name)) {
             const stream = this._locations.get(name);
-            if (offset < stream.length && (offset + length) < stream.length) {
+            if (offset >= 0 && (offset + length) <= stream.length) {
                 try {
                     const position = stream.position;
                     stream.seek(offset);

@@ -430,27 +430,33 @@ zip.BitReader = class {
     }
 
     bits(count) {
-        const offset = (this.position / 8) >> 0;
+        const offset = Math.floor(this.position / 8);
         const shift = (this.position & 7);
         this.position += count;
         return ((this.buffer[offset] | (this.buffer[offset + 1] << 8)) >>> shift) & ((1 << count) - 1);
     }
 
     bits16() {
-        const offset = (this.position / 8) >> 0;
+        const offset = Math.floor(this.position / 8);
         return ((this.buffer[offset] | (this.buffer[offset + 1] << 8) | (this.buffer[offset + 2] << 16)) >>> (this.position & 7));
     }
 
     read(length) {
-        this.position = (this.position + 7) & ~7; // align
-        const offset = (this.position / 8) >> 0;
+        const remainder = this.position & 7;
+        if (remainder !== 0) {
+            this.position += (8 - remainder);
+        }
+        const offset = Math.floor(this.position / 8);
         this.position += length * 8;
         return this.buffer.subarray(offset, offset + length);
     }
 
     uint16() {
-        this.position = (this.position + 7) & ~7; // align
-        const offset = (this.position / 8) >> 0;
+        const remainder = this.position & 7;
+        if (remainder !== 0) {
+            this.position += (8 - remainder);
+        }
+        const offset = Math.floor(this.position / 8);
         this.position += 16;
         return this.buffer[offset] | (this.buffer[offset + 1] << 8);
     }

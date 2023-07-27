@@ -743,7 +743,7 @@ host.BrowserHost.FileStream = class {
     }
 
     stream(length) {
-        const file = new host.BrowserHost.FileStream(this._chunks, this._size, this._position, length);
+        const file = new host.BrowserHost.FileStream(this._chunks, this._size, this._start + this._position, length);
         this.skip(length);
         return file;
     }
@@ -766,7 +766,7 @@ host.BrowserHost.FileStream = class {
             this._position -= length;
             return this._buffer.subarray(position, position + length);
         }
-        const position = this._position;
+        const position = this._start + this._position;
         this.skip(length);
         this.seek(position);
         const buffer = new Uint8Array(length);
@@ -780,7 +780,7 @@ host.BrowserHost.FileStream = class {
             const position = this._fill(length);
             return this._buffer.subarray(position, position + length);
         }
-        const position = this._position;
+        const position = this._start + this._position;
         this.skip(length);
         const buffer = new Uint8Array(length);
         this._read(buffer, position);
