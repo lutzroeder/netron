@@ -9589,7 +9589,7 @@
   },
   {
     "name": "Conv",
-    "summary": "Computes a N-D convolution given (N+2)-D `input` and `filter` tensors.",
+    "summary": "Computes a N-D convolution given (N+1+batch_dims)-D `input` and (N+2)-D `filter` tensors.",
     "description": "General function for computing a N-D convolution. It is required that\n`1 <= N <= 3`.",
     "attributes": [
       {
@@ -9653,7 +9653,7 @@
     "outputs": [
       {
         "name": "output",
-        "description": "A 4-D tensor. The dimension order is determined by the value of\n`channels_last_format`, see below for details.",
+        "description": "A (N+1+batch_dims)-D tensor. The dimension order is determined by the value of\n`channels_last_format`, see below for details.",
         "typeAttr": "T"
       }
     ]
