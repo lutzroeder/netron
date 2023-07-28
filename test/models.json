@@ -6602,13 +6602,6 @@
   },
   {
     "type":     "torch",
-    "target":   "facades_photo2label.t7",
-    "source":   "https://people.eecs.berkeley.edu/~taesung_park/CycleGAN/models/facades_photo2label.t7",
-    "format":   "Torch v7",
-    "link":     "https://github.com/junyanz/CycleGAN"
-  },
-  {
-    "type":     "torch",
     "target":   "Helen_8x.t7",
     "source":   "https://raw.githubusercontent.com/tyshiwo/FSRNet/master/models/Helen_8x.t7",
     "format":   "Torch v7",
