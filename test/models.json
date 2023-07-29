@@ -6672,13 +6672,6 @@
   },
   {
     "type":     "uff",
-    "target":   "tmp_v2_coco.pbtxt",
-    "source":   "https://github.com/lutzroeder/netron/files/4741218/tmp_v2_coco.zip[tmp_v2_coco.pbtxt]",
-    "format":   "UFF v1",
-    "link":     "https://github.com/lutzroeder/netron/issues/511"
-  },
-  {
-    "type":     "uff",
     "target":   "resnet50_tensorflow_1.6.uff",
     "source":   "https://github.com/lutzroeder/netron/files/7402208/resnet50_tensorflow_1.6.uff.zip[resnet50_tensorflow_1.6.uff]",
     "format":   "UFF v1",
@@ -6688,6 +6681,13 @@
     "type":     "uff",
     "target":   "sample_unpruned_mobilenet_v2.tar.gz",
     "source":   "https://nvidia.box.com/shared/static/8oqvmd79llr6lq1fr43s4fu1ph37v8nt.gz",
+    "format":   "UFF v1",
+    "link":     "https://github.com/lutzroeder/netron/issues/511"
+  },
+  {
+    "type":     "uff",
+    "target":   "tmp_v2_coco.pbtxt",
+    "source":   "https://github.com/lutzroeder/netron/files/4741218/tmp_v2_coco.zip[tmp_v2_coco.pbtxt]",
     "format":   "UFF v1",
     "link":     "https://github.com/lutzroeder/netron/issues/511"
   },
