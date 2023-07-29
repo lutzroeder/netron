@@ -101,17 +101,20 @@ uff.Graph = class {
         this._outputs = [];
         this._nodes = [];
 
-        const args = new Map();
+        const values = new Map();
         const counts = new Map();
         for (const node of graph.nodes) {
             for (const input of node.inputs) {
                 counts.set(input, counts.has(input) ? counts.get(input) + 1 : 1);
-                args.set(input, new uff.Value(input));
+                values.set(input, new uff.Value(input));
             }
-            if (!args.has(node.id)) {
-                args.set(node.id, new uff.Value(node.id));
+            if (!values.has(node.id)) {
+                values.set(node.id, new uff.Value(node.id));
             }
         }
+        const value = (name) => {
+            return values.get(name);
+        };
         for (let i = graph.nodes.length - 1; i >= 0; i--) {
             const node = graph.nodes[i];
             if (node.operation === 'Const' && node.inputs.length === 0 && counts.get(node.id) === 1) {
@@ -121,7 +124,7 @@ uff.Graph = class {
                 }
                 if (fields.dtype && fields.shape && fields.values) {
                     const tensor = new uff.Tensor(fields.dtype.dtype, fields.shape, fields.values);
-                    args.set(node.id, new uff.Value(node.id, tensor.type, tensor));
+                    values.set(node.id, new uff.Value(node.id, tensor.type, tensor));
                     graph.nodes.splice(i, 1);
                 }
             }
@@ -131,20 +134,19 @@ uff.Graph = class {
                     fields[field.key] = field.value;
                 }
                 const type = fields.dtype && fields.shape ? new uff.TensorType(fields.dtype.dtype, fields.shape) : null;
-                args.set(node.id, new uff.Value(node.id, type, null));
+                values.set(node.id, new uff.Value(node.id, type, null));
             }
         }
-
         for (const node of graph.nodes) {
             if (node.operation === 'Input') {
-                this._inputs.push(new uff.Argument(node.id, [ args.get(node.id) ]));
+                this._inputs.push(new uff.Argument(node.id, [ values.get(node.id) ]));
                 continue;
             }
             if (node.operation === 'MarkOutput' && node.inputs.length === 1) {
-                this._outputs.push(new uff.Argument(node.id, [ args.get(node.inputs[0]) ]));
+                this._outputs.push(new uff.Argument(node.id, [ values.get(node.inputs[0]) ]));
                 continue;
             }
-            this._nodes.push(new uff.Node(metadata, node, args));
+            this._nodes.push(new uff.Node(metadata, node, value));
         }
     }
 
@@ -207,39 +209,33 @@ uff.Value = class {
 
 uff.Node = class {
 
-    constructor(metadata, node, args) {
+    constructor(metadata, node, value) {
         this._name = node.id;
         this._type = metadata.type(node.operation) || { name: node.operation };
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
-
         if (node.inputs && node.inputs.length > 0) {
-            let inputIndex = 0;
+            let index = 0;
             if (this._type && this._type.inputs) {
-                for (const inputSchema of this._type.inputs) {
-                    if (inputIndex < node.inputs.length || inputSchema.optional !== true) {
-                        const inputCount = inputSchema.list ? (node.inputs.length - inputIndex) : 1;
-                        const inputArguments = node.inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
-                            return args.get(id);
-                        });
-                        inputIndex += inputCount;
-                        this._inputs.push(new uff.Argument(inputSchema.name, inputArguments));
+                for (const metadata of this._type.inputs) {
+                    if (index < node.inputs.length || metadata.optional !== true) {
+                        const count = metadata.list ? (node.inputs.length - index) : 1;
+                        const values = node.inputs.slice(index, index + count).map((name) => value(name));
+                        index += count;
+                        this._inputs.push(new uff.Argument(metadata.name, values));
                     }
                 }
             }
-            this._inputs.push(...node.inputs.slice(inputIndex).map((id, index) => {
-                const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
-                return new uff.Argument(inputName, [ args.get(id) ]);
+            this._inputs.push(...node.inputs.slice(index).map((identifier, i) => {
+                const name = ((index + i) === 0) ? 'input' : (index + i).toString();
+                return new uff.Argument(name, [ value(identifier) ]);
             }));
         }
-
-        this._outputs.push(new uff.Argument('output', [
-            args.get(node.id)
-        ]));
-
+        this._outputs.push(new uff.Argument('output', [ value(node.id) ]));
         for (const field of node.fields) {
-            this._attributes.push(new uff.Attribute(metadata.attribute(node.operation, field.key), field.key, field.value));
+            const attribute = new uff.Attribute(metadata.attribute(node.operation, field.key), field.key, field.value);
+            this._attributes.push(attribute);
         }
     }
 
@@ -367,10 +363,10 @@ uff.TensorShape = class {
     }
 
     toString() {
-        if (!this._dimensions || this._dimensions.length == 0) {
-            return '';
+        if (this._dimensions && this._dimensions.length > 0) {
+            return '[' + this._dimensions.join(',') + ']';
         }
-        return '[' + this._dimensions.join(',') + ']';
+        return '';
     }
 };
 
