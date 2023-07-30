@@ -152,9 +152,9 @@ tensorrt.Container = class {
     }
 
     _read() {
-        const buffer = this._stream.peek(Math.min(24, this._stream.length));
-        const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-        throw new tensorrt.Error('Invalid file content. File contains undocumented TensorRT data (' + content.substring(16) + ').');
+        // const buffer = this._stream.peek(Math.min(24, this._stream.length));
+        // const content = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+        throw new tensorrt.Error('Invalid file content. File contains undocumented TensorRT data.');
     }
 };
 
