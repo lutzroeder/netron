@@ -1,15 +1,11 @@
-namespace dlc;
+namespace dlc.v3;
 
-table NetDef {
+table Model {
     unk1: int;
     nodes: [Node];
     unk2: [int];
     unk3: [int];
     attributes: [Attribute];
-}
-
-table NetParam {
-    weights: [Weights];
 }
 
 table Node {
@@ -21,11 +17,6 @@ table Node {
     attributes: [Attribute];
 }
 
-table Weights {
-    name: string;
-    tensors: [Tensor];
-}
-
 table Tensor {
     name: string;
     shape: [int];
@@ -34,7 +25,7 @@ table Tensor {
 }
 
 table TensorData {
-    data_type: ubyte;
+    dtype: ubyte;
     bytes: [ubyte];
     floats: [float];
 }
@@ -58,4 +49,108 @@ table Attribute {
 enum Activation : uint {
     ReLU = 1,
     Sigmoid = 3
+}
+
+table ModelParameters {
+    nodes: [NodeParameters];
+}
+
+table NodeParameters {
+    name: string;
+    weights: [Tensor];
+}
+
+namespace dlc.v4;
+
+table Model {
+    graphs: [Graph];
+}
+
+table Graph {
+    name: string;
+    nodes: [Node];
+    tensors: [Tensor];
+}
+
+table Node {
+    name: string; // 04 00  94 03 00 00 (152624)
+    type: string; // 08 00  84 03 00 00 
+    inputs: [string]; // 0C 00  34 03 00 00 
+    outputs: [string]; // 10 00  08 03 00 00 
+    attributes: [Attribute]; // 14 00  04 00 00 00   [Foo]
+}
+
+table Attribute {
+    name: string;
+    kind: int; // 0 = value, 1 = tensor
+    flag: ubyte;
+    value: Value;
+    tensor: Tensor;
+}
+
+table Value {
+    kind: int;
+    int32_value: int;
+    float32_value: float;
+    string_value: string;
+}
+
+table Tensor {
+    unk1: uint;
+    name: string;
+    location: int;
+    shape: [int];
+    unk2: int;
+    info: TensorInfo;
+    dtype: int;
+    output_dtype: int;
+    unk6: ubyte;
+}
+
+table TensorInfo {
+    i1: int;
+    b1: ubyte;
+    a: TensorInfo1;
+    b: TensorInfo2;
+}
+
+table TensorInfo1 {
+    i1: int;
+    f1: float;
+    f2: float;
+    f3: float;
+    i2: int;
+}
+
+table TensorInfo2 {
+    i1: int;
+    l: [TensorInfo3];
+}
+
+table TensorInfo3 {
+    i1: int;
+    f1: float;
+    f2: float;
+    f3: float;
+    i2: int;
+    b1: ubyte;
+}
+
+table ModelParameters {
+    graphs: [GraphParameters];
+}
+
+table GraphParameters {
+    name: string;
+    tensors: [TensorData];
+    nodes: [NodeParameters];
+}
+
+table NodeParameters {
+    tensors: [TensorData];
+}
+
+table TensorData {
+    name: string;
+    bytes: [ubyte];
 }

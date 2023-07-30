@@ -1942,7 +1942,7 @@
     "target":   "model_front_mibokeh_video.dlc",
     "source":   "https://github.com/lutzroeder/netron/files/8767521/model_front_mibokeh_video.dlc.zip[model_front_mibokeh_video.dlc]",
     "format":   "DLC",
-    "error":    "File format is not dlc.NetParam (Offset is outside the bounds of the DataView).",
+    "error":    "File format is not dlc.v1.NETP (Offset is outside the bounds of the DataView).",
     "link":     "https://github.com/lutzroeder/netron/issues/640"
   },
   {
@@ -1954,10 +1954,24 @@
   },
   {
     "type":     "dlc",
+    "target":   "mobilenet_edgetpu_224_1.0_htp.dlc",
+    "source":   "https://github.com/lutzroeder/netron/files/12207884/mobilenet_edgetpu_224_1.0_htp.dlc.zip[mobilenet_edgetpu_224_1.0_htp.dlc]",
+    "format":   "DLC",
+    "link":     "https://github.com/lutzroeder/netron/issues/640"
+  },
+  {
+    "type":     "dlc",
     "target":   "mobilenet-SSD.dlc",
     "source":   "https://github.com/lutzroeder/netron/files/10528507/mobilenet-SSD.dlc.zip[mobilenet-SSD.dlc]",
     "format":   "DLC",
     "error":    "File contains undocumented DLC v2 data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/640"
+  },
+  {
+    "type":     "dlc",
+    "target":   "sample.dlc",
+    "source":   "https://github.com/lutzroeder/netron/files/12207883/sample.dlc.zip[sample.dlc]",
+    "format":   "DLC",
     "link":     "https://github.com/lutzroeder/netron/issues/640"
   },
   {
@@ -1972,7 +1986,6 @@
     "target":   "yolov8n_op11_v2.dlc",
     "source":   "https://github.com/lutzroeder/netron/files/10527012/yolov8n_op11_v2.dlc.zip[yolov8n_op11_v2.dlc]",
     "format":   "DLC",
-    "error":    "File contains undocumented DLC v4 data.",
     "link":     "https://github.com/lutzroeder/netron/issues/1037"
   },
   {
