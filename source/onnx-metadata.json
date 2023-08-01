@@ -770,6 +770,73 @@
     ]
   },
   {
+    "name": "AffineGrid",
+    "module": "ai.onnx",
+    "version": 20,
+    "support_level": "common",
+    "description": "Generates a 2D or 3D flow field (sampling grid), given a batch of affine matrices theta\n(https://pytorch.org/docs/stable/generated/torch.nn.functional.affine_grid.html).\nAn affine matrix `theta` is applied to a position tensor represented in its homogeneous expression. Here is an example in 3D:\n```\n[r00, r01, r02, t0]   [x]   [x']\n[r10, r11, r12, t1] * [y] = [y']\n[r20, r21, r22, t2]   [z]   [z']\n[0,   0,   0,   1 ]   [1]   [1 ]\n```\nwhere `(x, y, z)` is the position in the original space, `(x', y', z')` is the position in the output space.\nThe last row is always `[0, 0, 0, 1]` and is not stored in the affine matrix. Therefore we have `theta` of shape `(N, 2, 3)` for 2D or `(N, 3, 4)` for 3D.\n\nInput `size` is used to define grid of positions evenly spaced in the original 2D or 3D space, with dimensions ranging from `-1` to `1`.\nThe output `grid` contains positions in the output space.\n\nWhen `align_corners=1`, consider `-1` and `1` to refer to the centers of the corner pixels (mark `v` in illustration).\n```\nv            v            v            v\n|-------------------|------------------|\n-1                  0                  1\n```\nWhen `align_corners=0`, consider `-1` and `1` to refer to the outer edge of the corner pixels.\n```\n    v        v         v         v\n|------------------|-------------------|\n-1                 0                   1\n```\n",
+    "attributes": [
+      {
+        "name": "align_corners",
+        "type": "int64",
+        "required": false,
+        "description": "if align_corners=1, consider -1 and 1 to refer to the centers of the corner pixels. if align_corners=0, consider -1 and 1 to refer to the outer edge the corner pixels."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "theta",
+        "type": "T1",
+        "description": "input batch of affine matrices with shape (N, 2, 3) for 2D or (N, 3, 4) for 3D"
+      },
+      {
+        "name": "size",
+        "type": "T2",
+        "description": "the target output image size (N, C, H, W) for 2D or (N, C, D, H, W) for 3D"
+      }
+    ],
+    "min_input": 2,
+    "max_input": 2,
+    "outputs": [
+      {
+        "name": "grid",
+        "type": "T1",
+        "description": "output tensor of shape (N, C, H, W, 2) of 2D sample coordinates or (N, C, D, H, W, 3) of 3D sample coordinates."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain grid types to float tensors.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(bfloat16)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)"
+        ]
+      },
+      {
+        "description": "Constrain size's type to int64 tensors.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(int64)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "2d_no_reference_evaluator",
+        "code": "theta_2d = create_theta_2d()\nN, C, W, H = len(theta_2d), 3, 5, 6\ndata_size = (W, H)\nfor align_corners in (0, 1):\n    node = onnx.helper.make_node(\n        \"AffineGrid\",\n        inputs=[\"theta\", \"size\"],\n        outputs=[\"grid\"],\n        align_corners=align_corners,\n    )\n\n    original_grid = construct_original_grid(data_size, align_corners)\n    grid = apply_affine_transform(theta_2d, original_grid)\n\n    test_name = \"test_affine_grid_2d\"\n    if align_corners == 1:\n        test_name += \"_align_corners\"\n    expect(\n        node,\n        inputs=[theta_2d, np.array([N, C, W, H], dtype=np.int64)],\n        outputs=[grid],\n        name=test_name,\n    )"
+      },
+      {
+        "summary": "3d_no_reference_evaluator",
+        "code": "theta_3d = create_theta_3d()\nN, C, D, W, H = len(theta_3d), 3, 4, 5, 6\ndata_size = (D, W, H)\nfor align_corners in (0, 1):\n    node = onnx.helper.make_node(\n        \"AffineGrid\",\n        inputs=[\"theta\", \"size\"],\n        outputs=[\"grid\"],\n        align_corners=align_corners,\n    )\n\n    original_grid = construct_original_grid(data_size, align_corners)\n    grid = apply_affine_transform(theta_3d, original_grid)\n\n    test_name = \"test_affine_grid_3d\"\n    if align_corners == 1:\n        test_name += \"_align_corners\"\n    expect(\n        node,\n        inputs=[theta_3d, np.array([N, C, D, W, H], dtype=np.int64)],\n        outputs=[grid],\n        name=test_name,\n    )"
+      }
+    ]
+  },
+  {
     "name": "And",
     "module": "ai.onnx",
     "version": 1,
@@ -7667,11 +7734,19 @@
       },
       {
         "summary": "e4m3fn",
-        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\"],\n    outputs=[\"y\"],\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, 104])\nx_scale = np.float32(2)\ny = np.array([0.0, 1.0, 2.0, 896.0, 208.0], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale],\n    outputs=[y],\n    name=\"test_dequantizelinear_e4m3fn\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, -104])\nx_scale = np.float32(2)\ny = np.array([0.0, 1.0, 2.0, 896.0, -208.0], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale],\n    outputs=[y],\n    name=\"test_dequantizelinear_e4m3fn\",\n)"
+      },
+      {
+        "summary": "e4m3fn_float16",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, -104])\nx_scale = np.float16(2)\ny = np.array([0.0, 1.0, 2.0, 896.0, -208.0], dtype=np.float16)\n\nexpect(\n    node,\n    inputs=[x, x_scale],\n    outputs=[y],\n    name=\"test_dequantizelinear_e4m3fn_float16\",\n)"
+      },
+      {
+        "summary": "e4m3fn_zero_point",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, -104])\nzero_point = make_tensor(\"zero_point\", TensorProto.FLOAT8E4M3FN, [1], [0])\nx_scale = np.float32(2)\ny = np.array([0.0, 1.0, 2.0, 896.0, -208.0], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_e4m3fn_zero_point\",\n)"
       },
       {
         "summary": "e5m2",
-        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\"],\n    outputs=[\"y\"],\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E5M2, [5], [0, 0.5, 1, 49152, 96])\nx_scale = np.float32(2)\ny = np.array([0.0, 1.0, 2.0, 98304.0, 192.0], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale],\n    outputs=[y],\n    name=\"test_dequantizelinear_e5m2\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E5M2, [5], [0, 0.5, 1, 49152, -96])\nx_scale = np.float32(2)\ny = np.array([0.0, 1.0, 2.0, 98304.0, -192.0], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale],\n    outputs=[y],\n    name=\"test_dequantizelinear_e5m2\",\n)"
       }
     ]
   },
@@ -7742,11 +7817,19 @@
       },
       {
         "summary": "e4m3fn",
-        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\"],\n    outputs=[\"y\"],\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, 104])\nx_scale = np.float32(2)\ny = np.array([0.0, 1.0, 2.0, 896.0, 208.0], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale],\n    outputs=[y],\n    name=\"test_dequantizelinear_e4m3fn\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, -104])\nx_scale = np.float32(2)\ny = np.array([0.0, 1.0, 2.0, 896.0, -208.0], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale],\n    outputs=[y],\n    name=\"test_dequantizelinear_e4m3fn\",\n)"
+      },
+      {
+        "summary": "e4m3fn_float16",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, -104])\nx_scale = np.float16(2)\ny = np.array([0.0, 1.0, 2.0, 896.0, -208.0], dtype=np.float16)\n\nexpect(\n    node,\n    inputs=[x, x_scale],\n    outputs=[y],\n    name=\"test_dequantizelinear_e4m3fn_float16\",\n)"
+      },
+      {
+        "summary": "e4m3fn_zero_point",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, -104])\nzero_point = make_tensor(\"zero_point\", TensorProto.FLOAT8E4M3FN, [1], [0])\nx_scale = np.float32(2)\ny = np.array([0.0, 1.0, 2.0, 896.0, -208.0], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_e4m3fn_zero_point\",\n)"
       },
       {
         "summary": "e5m2",
-        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\"],\n    outputs=[\"y\"],\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E5M2, [5], [0, 0.5, 1, 49152, 96])\nx_scale = np.float32(2)\ny = np.array([0.0, 1.0, 2.0, 98304.0, 192.0], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale],\n    outputs=[y],\n    name=\"test_dequantizelinear_e5m2\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E5M2, [5], [0, 0.5, 1, 49152, -96])\nx_scale = np.float32(2)\ny = np.array([0.0, 1.0, 2.0, 98304.0, -192.0], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale],\n    outputs=[y],\n    name=\"test_dequantizelinear_e5m2\",\n)"
       }
     ]
   },
@@ -7830,11 +7913,19 @@
       },
       {
         "summary": "e4m3fn",
-        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\"],\n    outputs=[\"y\"],\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, 104])\nx_scale = np.float32(2)\ny = np.array([0.0, 1.0, 2.0, 896.0, 208.0], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale],\n    outputs=[y],\n    name=\"test_dequantizelinear_e4m3fn\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, -104])\nx_scale = np.float32(2)\ny = np.array([0.0, 1.0, 2.0, 896.0, -208.0], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale],\n    outputs=[y],\n    name=\"test_dequantizelinear_e4m3fn\",\n)"
+      },
+      {
+        "summary": "e4m3fn_float16",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, -104])\nx_scale = np.float16(2)\ny = np.array([0.0, 1.0, 2.0, 896.0, -208.0], dtype=np.float16)\n\nexpect(\n    node,\n    inputs=[x, x_scale],\n    outputs=[y],\n    name=\"test_dequantizelinear_e4m3fn_float16\",\n)"
+      },
+      {
+        "summary": "e4m3fn_zero_point",
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\", \"zero_point\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E4M3FN, [5], [0, 0.5, 1, 448, -104])\nzero_point = make_tensor(\"zero_point\", TensorProto.FLOAT8E4M3FN, [1], [0])\nx_scale = np.float32(2)\ny = np.array([0.0, 1.0, 2.0, 896.0, -208.0], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale, zero_point],\n    outputs=[y],\n    name=\"test_dequantizelinear_e4m3fn_zero_point\",\n)"
       },
       {
         "summary": "e5m2",
-        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\"],\n    outputs=[\"y\"],\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E5M2, [5], [0, 0.5, 1, 49152, 96])\nx_scale = np.float32(2)\ny = np.array([0.0, 1.0, 2.0, 98304.0, 192.0], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale],\n    outputs=[y],\n    name=\"test_dequantizelinear_e5m2\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"DequantizeLinear\",\n    inputs=[\"x\", \"x_scale\"],\n    outputs=[\"y\"],\n    axis=0,\n)\n\n# scalar zero point and scale\nx = make_tensor(\"x\", TensorProto.FLOAT8E5M2, [5], [0, 0.5, 1, 49152, -96])\nx_scale = np.float32(2)\ny = np.array([0.0, 1.0, 2.0, 98304.0, -192.0], dtype=np.float32)\n\nexpect(\n    node,\n    inputs=[x, x_scale],\n    outputs=[y],\n    name=\"test_dequantizelinear_e5m2\",\n)"
       }
     ]
   },
