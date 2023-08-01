@@ -949,7 +949,7 @@ view.View = class {
         }
     }
 
-    showNodeProperties(node, input) {
+    showNodeProperties(node) {
         if (node) {
             try {
                 if (this._menu) {
@@ -995,9 +995,6 @@ view.View = class {
                 nodeSidebar.on('deactivate', () => {
                     this._graph.select(null);
                 });
-                if (input) {
-                    nodeSidebar.toggleInput(input.name);
-                }
                 this._sidebar.open(nodeSidebar.render(), 'Node Properties');
             } catch (error) {
                 if (error) {
@@ -1005,6 +1002,27 @@ view.View = class {
                 }
                 this.error(error, 'Error showing node properties.', null);
             }
+        }
+    }
+
+    showConnectionProperties(argument) {
+        try {
+            if (this._menu) {
+                this._menu.close();
+            }
+            const connectionSidebar = new view.ConnectionSidebar(this._host, argument);
+            connectionSidebar.on('error', (sender, error) => {
+                if (this._model) {
+                    error.context = this._model.identifier;
+                }
+                this.error(error, null, null);
+            });
+            this._sidebar.open(connectionSidebar.render(), 'Connection Properties');
+        } catch (error) {
+            if (error) {
+                error.context = this._model.identifier;
+            }
+            this.error(error, 'Error showing connection properties.', null);
         }
     }
 
@@ -1781,7 +1799,7 @@ view.Node = class extends grapher.Node {
         const content = this.context.view.options.names && (node.name || node.location) ? (node.name || node.location) : type.name.split('.').pop();
         const tooltip = this.context.view.options.names && (node.name || node.location) ? type.name : (node.name || node.location);
         const title = header.add(null, styles, content, tooltip);
-        title.on('click', () => this.context.view.showNodeProperties(node, null));
+        title.on('click', () => this.context.view.showNodeProperties(node));
         if (node.type.nodes && node.type.nodes.length > 0) {
             const definition = header.add(null, styles, '\u0192', 'Show Function Definition');
             definition.on('click', () => this.context.view.pushGraph(node.type));
@@ -2020,13 +2038,13 @@ view.Value = class {
 
 view.Edge = class extends grapher.Edge {
 
-    constructor(argument, from, to) {
+    constructor(value, from, to) {
         super(from, to);
-        this.argument = argument;
+        this.value = value;
     }
 
     get minlen() {
-        if (this.from.inputs.every((parameter) => parameter.value.every((argument) => argument.initializer))) {
+        if (this.from.inputs.every((argument) => argument.value.every((value) => value.initializer))) {
             return 2;
         }
         return 1;
@@ -2035,10 +2053,13 @@ view.Edge = class extends grapher.Edge {
     emit(event) {
         switch (event) {
             case 'pointerover':
-                this.argument.context.focus([ this.argument.value ]);
+                this.value.context.focus([ this.value.value ]);
                 break;
             case 'pointerleave':
-                this.argument.context.blur([ this.argument.value ]);
+                this.value.context.blur([ this.value.value ]);
+                break;
+            case 'click':
+                // this.value.context.view.showConnectionProperties(this.value.value);
                 break;
             default:
                 break;
@@ -2269,13 +2290,19 @@ view.NodeSidebar = class extends view.Control {
             this._elements[0].appendChild(item.render());
         }
     }
+};
 
-    toggleInput(name) {
-        for (const input of this._inputs) {
-            if (name == input.name) {
-                input.toggle();
-            }
-        }
+view.ConnectionSidebar = class extends view.Control {
+
+    constructor(host, argument) {
+        super();
+        this._host = host;
+        this._argument = argument;
+        this._elements = [];
+    }
+
+    render() {
+        return this._elements;
     }
 };
 

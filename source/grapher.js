@@ -557,6 +557,7 @@ grapher.Edge = class {
         this.hitTest.setAttribute('class', 'edge-path-hit-test');
         this.hitTest.addEventListener('pointerover', () => this.emit('pointerover'));
         this.hitTest.addEventListener('pointerleave', () => this.emit('pointerleave'));
+        this.hitTest.addEventListener('click', () => this.emit('click'));
         edgePathGroupElement.appendChild(this.hitTest);
         if (this.label) {
             const tspan = createElement('tspan');
