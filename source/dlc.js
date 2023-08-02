@@ -49,6 +49,7 @@ dlc.Model = class {
 dlc.Graph = class {
 
     constructor(metadata, version, graph) {
+        this.name = graph.name;
         this.inputs = [];
         this.outputs = [];
         const values = new Map();

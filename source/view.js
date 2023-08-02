@@ -2765,12 +2765,12 @@ view.ModelSidebar = class extends view.Control {
             }
         }
         const graphs = Array.isArray(model.graphs) ? model.graphs : [];
-        if (graphs.length > 1) {
-            const graphSelector = new view.SelectView(this._host, model.graphs, graph);
-            graphSelector.on('change', (sender, data) => {
+        if (graphs.length > 1 || (graphs.length === 1 && graphs[0].name)) {
+            const selector = new view.SelectView(this._host, model.graphs, graph);
+            selector.on('change', (sender, data) => {
                 this.emit('update-active-graph', data);
             });
-            this._addProperty('subgraph', graphSelector);
+            this._addProperty('graph', selector);
         }
 
         if (graph) {
