@@ -3279,7 +3279,7 @@ $root.nnabla.Function = class Function {
     }
 
     get parameter() {
-        $root.nnabla.Function.parameterSet = $root.nnabla.Function.parameterSet || new Set([ "affine_param", "rnn_param", "lstm_param", "gru_param", "convolution_param", "fused_convolution_param", "depthwise_convolution_param", "deconvolution_param", "depthwise_deconvolution_param", "deformable_convolution_param", "max_pooling_param", "average_pooling_param", "sum_pooling_param", "unpooling_param", "roi_align_param", "relu_param", "leaky_relu_param", "softmax_param", "log_softmax_param", "elu_param", "selu_param", "crelu_param", "celu_param", "prelu_param", "softplus_param", "fused_batch_normalization_param", "batch_normalization_param", "group_normalization_param", "instance_normalization_param", "layer_normalization_param", "norm_normalization_param", "sync_batch_normalization_param", "tensor_normalization_param", "weight_normalization_param", "weight_standardization_param", "spectral_norm_param", "mean_subtraction_param", "clip_grad_by_norm_param", "sum_param", "cumsum_param", "mean_param", "max_param", "min_param", "norm_param", "prod_param", "cumprod_param", "add2_param", "bc_add2_param", "sub2_param", "mul2_param", "div2_param", "pow2_param", "add_scalar_param", "mul_scalar_param", "pow_scalar_param", "r_sub_scalar_param", "r_div_scalar_param", "r_pow_scalar_param", "sign_param", "minimum_scalar_param", "maximum_scalar_param", "searchsorted_param", "logical_and_scalar_param", "logical_or_scalar_param", "logical_xor_scalar_param", "equal_scalar_param", "not_equal_scalar_param", "greater_equal_scalar_param", "greater_scalar_param", "less_equal_scalar_param", "less_scalar_param", "reset_nan_param", "reset_inf_param", "constant_param", "arange_param", "linspace_param", "batch_matmul_param", "round_param", "ceil_param", "floor_param", "concatenate_param", "split_param", "stack_param", "slice_param", "pad_param", "transpose_param", "broadcast_param", "broadcast_to_param", "tile_param", "one_hot_param", "flip_param", "shift_param", "sort_param", "reshape_param", "shape_param", "meshgrid_param", "batch_cholesky_param", "gather_param", "scatter_nd_param", "scatter_add_param", "bool_fill_param", "pack_padded_sequence_param", "pad_packed_sequence_param", "interpolate_param", "onnx_resize_param", "fft_param", "ifft_param", "stft_param", "istft_param", "dropout_param", "top_k_data_param", "top_k_grad_param", "rand_param", "randint_param", "randn_param", "rand_binomial_param", "rand_beta_param", "rand_gamma_param", "random_choice_param", "random_crop_param", "random_flip_param", "random_shift_param", "random_erase_param", "image_augmentation_param", "softmax_cross_entropy_param", "categorical_cross_entropy_param", "huber_loss_param", "epsilon_insensitive_loss_param", "kl_multinomial_param", "affine_grid_param", "warp_by_grid_param", "binary_connect_affine_param", "binary_connect_convolution_param", "binary_weight_affine_param", "binary_weight_convolution_param", "inq_affine_param", "inq_convolution_param", "fixed_point_quantize_param", "min_max_quantize_param", "pow2_quantize_param", "prune_param", "quantize_linear_param", "top_n_error_param", "confusion_matrix_param", "vat_noise_param", "sink_param", "nms_detection2d_param", "onnx_non_max_suppression_param", "max_pooling_backward_param", "patch_correlation_param"]);
+        $root.nnabla.Function.parameterSet = $root.nnabla.Function.parameterSet || new Set([ "affine_param", "rnn_param", "lstm_param", "gru_param", "convolution_param", "fused_convolution_param", "depthwise_convolution_param", "deconvolution_param", "depthwise_deconvolution_param", "deformable_convolution_param", "max_pooling_param", "average_pooling_param", "sum_pooling_param", "unpooling_param", "roi_align_param", "relu_param", "leaky_relu_param", "softmax_param", "log_softmax_param", "elu_param", "selu_param", "crelu_param", "celu_param", "prelu_param", "softplus_param", "fused_batch_normalization_param", "batch_normalization_param", "group_normalization_param", "instance_normalization_param", "layer_normalization_param", "norm_normalization_param", "sync_batch_normalization_param", "tensor_normalization_param", "weight_normalization_param", "weight_standardization_param", "spectral_norm_param", "mean_subtraction_param", "clip_grad_by_norm_param", "sum_param", "cumsum_param", "mean_param", "max_param", "min_param", "norm_param", "prod_param", "cumprod_param", "add2_param", "bc_add2_param", "sub2_param", "mul2_param", "div2_param", "pow2_param", "add_scalar_param", "mul_scalar_param", "pow_scalar_param", "r_sub_scalar_param", "r_div_scalar_param", "r_pow_scalar_param", "sign_param", "minimum_scalar_param", "maximum_scalar_param", "searchsorted_param", "logical_and_scalar_param", "logical_or_scalar_param", "logical_xor_scalar_param", "equal_scalar_param", "not_equal_scalar_param", "greater_equal_scalar_param", "greater_scalar_param", "less_equal_scalar_param", "less_scalar_param", "reset_nan_param", "reset_inf_param", "constant_param", "arange_param", "linspace_param", "batch_matmul_param", "round_param", "ceil_param", "floor_param", "concatenate_param", "split_param", "stack_param", "slice_param", "pad_param", "transpose_param", "broadcast_param", "broadcast_to_param", "tile_param", "one_hot_param", "flip_param", "shift_param", "sort_param", "reshape_param", "shape_param", "meshgrid_param", "batch_cholesky_param", "gather_param", "scatter_nd_param", "scatter_add_param", "bool_fill_param", "pack_padded_sequence_param", "pad_packed_sequence_param", "interpolate_param", "onnx_resize_param", "fft_param", "ifft_param", "stft_param", "istft_param", "dropout_param", "top_k_data_param", "top_k_grad_param", "rand_param", "randint_param", "randn_param", "rand_binomial_param", "rand_beta_param", "rand_gamma_param", "random_choice_param", "random_crop_param", "random_flip_param", "random_shift_param", "random_erase_param", "image_augmentation_param", "softmax_cross_entropy_param", "categorical_cross_entropy_param", "huber_loss_param", "epsilon_insensitive_loss_param", "kl_multinomial_param", "affine_grid_param", "warp_by_grid_param", "binary_connect_affine_param", "binary_connect_convolution_param", "binary_weight_affine_param", "binary_weight_convolution_param", "inq_affine_param", "inq_convolution_param", "fixed_point_quantize_param", "min_max_quantize_param", "pow2_quantize_param", "prune_param", "quantize_linear_param", "top_n_error_param", "confusion_matrix_param", "vat_noise_param", "sink_param", "nms_detection2d_param", "onnx_non_max_suppression_param", "max_pooling_backward_param", "patch_correlation_param", "unique_param", "eye_like_param", "mod2_param", "bit_shift_param"]);
         return Object.keys(this).find((key) => $root.nnabla.Function.parameterSet.has(key) && this[key] != null);
     }
 
@@ -3756,6 +3756,18 @@ $root.nnabla.Function = class Function {
                     break;
                 case 1222:
                     message.patch_correlation_param = $root.nnabla.PatchCorrelationParameter.decode(reader, reader.uint32());
+                    break;
+                case 1223:
+                    message.unique_param = $root.nnabla.UniqueParameter.decode(reader, reader.uint32());
+                    break;
+                case 1224:
+                    message.eye_like_param = $root.nnabla.EyeLikeParameter.decode(reader, reader.uint32());
+                    break;
+                case 1225:
+                    message.mod2_param = $root.nnabla.Mod2Parameter.decode(reader, reader.uint32());
+                    break;
+                case 1226:
+                    message.bit_shift_param = $root.nnabla.BitShiftParameter.decode(reader, reader.uint32());
                     break;
                 case 100:
                     message.repeat_param = $root.nnabla.RepeatParameter.decode(reader, reader.uint32());
@@ -4244,6 +4256,18 @@ $root.nnabla.Function = class Function {
                     break;
                 case "patch_correlation_param":
                     message.patch_correlation_param = $root.nnabla.PatchCorrelationParameter.decodeText(reader);
+                    break;
+                case "unique_param":
+                    message.unique_param = $root.nnabla.UniqueParameter.decodeText(reader);
+                    break;
+                case "eye_like_param":
+                    message.eye_like_param = $root.nnabla.EyeLikeParameter.decodeText(reader);
+                    break;
+                case "mod2_param":
+                    message.mod2_param = $root.nnabla.Mod2Parameter.decodeText(reader);
+                    break;
+                case "bit_shift_param":
+                    message.bit_shift_param = $root.nnabla.BitShiftParameter.decodeText(reader);
                     break;
                 case "repeat_param":
                     message.repeat_param = $root.nnabla.RepeatParameter.decodeText(reader);
@@ -12553,3 +12577,206 @@ $root.nnabla.PatchCorrelationParameter.prototype.shift = null;
 $root.nnabla.PatchCorrelationParameter.prototype.patch_step = null;
 $root.nnabla.PatchCorrelationParameter.prototype.shift_step = null;
 $root.nnabla.PatchCorrelationParameter.prototype.padding = null;
+
+$root.nnabla.UniqueParameter = class UniqueParameter {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.nnabla.UniqueParameter();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.flatten = reader.bool();
+                    break;
+                case 2:
+                    message.axis = reader.int64();
+                    break;
+                case 3:
+                    message.sorted = reader.bool();
+                    break;
+                case 4:
+                    message.with_index = reader.bool();
+                    break;
+                case 5:
+                    message.with_inverse = reader.bool();
+                    break;
+                case 6:
+                    message.with_counts = reader.bool();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.nnabla.UniqueParameter();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "flatten":
+                    message.flatten = reader.bool();
+                    break;
+                case "axis":
+                    message.axis = reader.int64();
+                    break;
+                case "sorted":
+                    message.sorted = reader.bool();
+                    break;
+                case "with_index":
+                    message.with_index = reader.bool();
+                    break;
+                case "with_inverse":
+                    message.with_inverse = reader.bool();
+                    break;
+                case "with_counts":
+                    message.with_counts = reader.bool();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.nnabla.UniqueParameter.prototype.flatten = false;
+$root.nnabla.UniqueParameter.prototype.axis = protobuf.Int64.create(0);
+$root.nnabla.UniqueParameter.prototype.sorted = false;
+$root.nnabla.UniqueParameter.prototype.with_index = false;
+$root.nnabla.UniqueParameter.prototype.with_inverse = false;
+$root.nnabla.UniqueParameter.prototype.with_counts = false;
+
+$root.nnabla.EyeLikeParameter = class EyeLikeParameter {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.nnabla.EyeLikeParameter();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.k = reader.int64();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.nnabla.EyeLikeParameter();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "k":
+                    message.k = reader.int64();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.nnabla.EyeLikeParameter.prototype.k = protobuf.Int64.create(0);
+
+$root.nnabla.Mod2Parameter = class Mod2Parameter {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.nnabla.Mod2Parameter();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.fmod = reader.bool();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.nnabla.Mod2Parameter();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "fmod":
+                    message.fmod = reader.bool();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.nnabla.Mod2Parameter.prototype.fmod = false;
+
+$root.nnabla.BitShiftParameter = class BitShiftParameter {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.nnabla.BitShiftParameter();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.direction = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.nnabla.BitShiftParameter();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "direction":
+                    message.direction = reader.string();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.nnabla.BitShiftParameter.prototype.direction = "";

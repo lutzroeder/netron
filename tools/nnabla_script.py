@@ -121,7 +121,10 @@ def _attribute(name, value): # pylint: disable=too-many-branches
         attribute['type'] = 'int64'
         if default:
             _ = value['default']
-            attribute['default'] = int(_) if isinstance(_, str) and not _.startswith('len') else _
+            if isinstance(_, str) and not _.startswith('len') and _ != 'None':
+                attribute['default'] = int(_)
+            else:
+                attribute['default'] = _
     elif value['type'] == 'repeated int64':
         attribute['type'] = 'int64[]'
     elif value['type'] == 'repeated float':

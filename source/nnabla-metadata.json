@@ -7791,5 +7791,164 @@
         "description": "N-D array with shape :math:`(N, C_y, C_x, H_o, W_o)`.\n\nA spatial size of the output is calculated as\n\n.. math::\n\n  H_o = \\frac{H + (top\\_pad + bottom\\_pad) - patch_v }{patch\\_step_v} + 1.\n\nA channel size of the output is calculated as\n\n.. math::\n\n  C_y = \\frac{2 \\times shift_v}{shift\\_step_v} + 1.\n\n:math:`W_o` and :math:`C_x` are the same calculation with differenct components."
       }
     ]
+  },
+  {
+    "name": "Unique",
+    "description": "Find the unique elements of input array.",
+    "inputs": [
+      {
+        "name": "x",
+        "type": "nnabla.Variable",
+        "description": "A N-D array."
+      }
+    ],
+    "attributes": [
+      {
+        "name": "flatten",
+        "type": "boolean",
+        "default": true,
+        "description": "If True, unique values of the flatten input array are returned."
+      },
+      {
+        "name": "axis",
+        "type": "int64",
+        "default": "None",
+        "description": "If flatten is True and axis is specified, unique slices along axis are returned."
+      },
+      {
+        "name": "sorted",
+        "type": "boolean",
+        "default": true,
+        "description": "If True, unique values/slices sorted in ascending order are returned."
+      },
+      {
+        "name": "with_index",
+        "type": "boolean",
+        "default": false,
+        "description": "If True, `indices` is returned."
+      },
+      {
+        "name": "with_inverse",
+        "type": "boolean",
+        "default": false,
+        "description": "If True, `inverse_indices` is returned."
+      },
+      {
+        "name": "with_counts",
+        "type": "boolean",
+        "default": false,
+        "description": "If True, `counts` is returned."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "y",
+        "type": "nnabla.Variable",
+        "description": "A N-D array."
+      },
+      {
+        "name": "indices",
+        "type": "nnabla.Variable",
+        "description": "A 1-D array. It's indices of `y` elements first occurance in `x`. If `flatten` is True, it contains indices to flattend input array `x`. If `flatten` is False and `axis` is specified, it contains indices to input array `x` on `axis`."
+      },
+      {
+        "name": "inverse_indices",
+        "type": "nnabla.Variable",
+        "description": "A 1-D array. It's indices of `x` elements corresponding to `y`. If `flatten` is True, it contains indices to output array `y`. If `flatten` is False and `axis` is specified, it contains indices to output array `y` on `axis`."
+      },
+      {
+        "name": "counts",
+        "type": "nnabla.Variable",
+        "description": "A 1-D array. It's the count of each element of 'y' in input array `x`."
+      }
+    ]
+  },
+  {
+    "name": "EyeLike",
+    "description": "Generate a 2-D array with ones on the diagonal, specified by `k`, and zeros elsewhere.\nThe shape of the output array is the same as the input array.",
+    "inputs": [
+      {
+        "name": "x",
+        "type": "nnabla.Variable",
+        "description": "A 2-D array."
+      }
+    ],
+    "attributes": [
+      {
+        "name": "k",
+        "type": "int64",
+        "default": 0,
+        "description": "Index of the diagonal. The default value 0 means the main diagonal, a positive value means an upper diagonal, and a negative value means a lower diagonal."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "y",
+        "type": "nnabla.Variable",
+        "description": "A 2-D array."
+      }
+    ]
+  },
+  {
+    "name": "Mod2",
+    "description": "Element-wise remainder function.\nThe behavior of this opeator is determined by x0's dtype and the `fmod` argument:\n\n.. math::\n    y_i = \\left\\{\n    \\begin{array}{ll}\n      \\text{numpy.fmod}(x_{0,i}, x_{1,i})\n        & (x_{0} \\text{has a floating-point type or fmod is True})\\\\\n      \\text{numpy.mod}(x_{0,i}, x_{1,i})\n        & (\\text{otherwise})\n    \\end{array} \\right..",
+    "inputs": [
+      {
+        "name": "x0",
+        "type": "nnabla.Variable",
+        "description": "A N-D array."
+      },
+      {
+        "name": "x1",
+        "type": "nnabla.Variable",
+        "description": "A N-D array."
+      }
+    ],
+    "attributes": [
+      {
+        "name": "fmod",
+        "type": "boolean",
+        "default": false,
+        "description": "If True, this operator behaves like numpy.fmod, otherwise it behaves like numpy.mod."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "y",
+        "type": "nnabla.Variable",
+        "description": "A N-D array."
+      }
+    ]
+  },
+  {
+    "name": "BitShift",
+    "description": "Element-wise bit shift function.",
+    "inputs": [
+      {
+        "name": "x",
+        "type": "nnabla.Variable",
+        "description": "A N-D array. Its dtype must be one of the unsigned integer types."
+      },
+      {
+        "name": "shift",
+        "type": "nnabla.Variable",
+        "description": "A N-D array. Its dtype is casted to x's dtype at run-time."
+      }
+    ],
+    "attributes": [
+      {
+        "name": "direction",
+        "type": "string",
+        "default": "LEFT",
+        "description": "Direction of bit shift."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "y",
+        "type": "nnabla.Variable",
+        "description": "A N-D array."
+      }
+    ]
   }
 ]
