@@ -989,11 +989,14 @@ view.View = class {
                     }
                     this.error(error, null, null);
                 });
-                nodeSidebar.on('activate', (sender, argument) => {
-                    this._graph.select([ argument ]);
+                nodeSidebar.on('activate', (sender, value) => {
+                    this._graph.select([ value ]);
                 });
                 nodeSidebar.on('deactivate', () => {
                     this._graph.select(null);
+                });
+                nodeSidebar.on('select', (sender, value) => {
+                    this.scrollTo(this._graph.activate(value));
                 });
                 this._sidebar.open(nodeSidebar.render(), 'Node Properties');
             } catch (error) {
@@ -1005,12 +1008,21 @@ view.View = class {
         }
     }
 
-    showConnectionProperties(argument) {
+    showConnectionProperties(value, from, to) {
         try {
             if (this._menu) {
                 this._menu.close();
             }
-            const connectionSidebar = new view.ConnectionSidebar(this._host, argument);
+            const connectionSidebar = new view.ConnectionSidebar(this._host, value, from, to);
+            connectionSidebar.on('activate', (sender, value) => {
+                this._graph.select([ value ]);
+            });
+            connectionSidebar.on('deactivate', () => {
+                this._graph.select(null);
+            });
+            connectionSidebar.on('select', (sender, value) => {
+                this.scrollTo(this._graph.activate(value));
+            });
             connectionSidebar.on('error', (sender, error) => {
                 if (this._model) {
                     error.context = this._model.identifier;
@@ -1636,7 +1648,7 @@ view.Graph = class extends grapher.Graph {
         for (const input of graph.inputs) {
             const viewInput = this.createInput(input);
             for (const value of input.value) {
-                this.createValue(value).from(viewInput);
+                this.createValue(value).from = viewInput;
             }
         }
         for (const node of graph.nodes) {
@@ -1645,7 +1657,7 @@ view.Graph = class extends grapher.Graph {
             for (const input of inputs) {
                 for (const value of input.value) {
                     if (value.name != '' && !value.initializer) {
-                        this.createValue(value).to(viewNode);
+                        this.createValue(value).to.push(viewNode);
                     }
                 }
             }
@@ -1664,14 +1676,14 @@ view.Graph = class extends grapher.Graph {
                         throw error;
                     }
                     if (value.name != '') {
-                        this.createValue(value).from(viewNode);
+                        this.createValue(value).from = viewNode;
                     }
                 }
             }
 
             if (node.controlDependencies && node.controlDependencies.length > 0) {
                 for (const value of node.controlDependencies) {
-                    this.createValue(value).to(viewNode, true);
+                    this.createValue(value).controlDependency(viewNode);
                 }
             }
             const createCluster = (name) => {
@@ -1709,7 +1721,7 @@ view.Graph = class extends grapher.Graph {
         for (const output of graph.outputs) {
             const viewOutput = this.createOutput(output);
             for (const value of output.value) {
-                this.createValue(value).to(viewOutput);
+                this.createValue(value).to.push(viewOutput);
             }
         }
     }
@@ -1722,12 +1734,14 @@ view.Graph = class extends grapher.Graph {
     }
 
     select(selection) {
-        for (const element of this._selection) {
-            element.deselect();
+        if (this._selection.size > 0) {
+            for (const element of this._selection) {
+                element.deselect();
+            }
+            this._selection.clear();
         }
-        this._selection.clear();
-        let array = [];
         if (selection) {
+            let array = [];
             for (const value of selection) {
                 if (this._table.has(value)) {
                     const element = this._table.get(value);
@@ -1735,8 +1749,19 @@ view.Graph = class extends grapher.Graph {
                     this._selection.add(element);
                 }
             }
+            return array;
         }
-        return array;
+        return null;
+    }
+
+    activate(value) {
+        if (this._table.has(value)) {
+            this.select(null);
+            const element = this._table.get(value);
+            element.activate();
+            return this.select([ value ]);
+        }
+        return [];
     }
 
     focus(selection) {
@@ -1909,6 +1934,10 @@ view.Node = class extends grapher.Node {
         this.layout();
         this.context.update();
     }
+
+    activate() {
+        this.context.view.showNodeProperties(this.value);
+    }
 };
 
 view.Input = class extends grapher.Node {
@@ -1940,6 +1969,10 @@ view.Input = class extends grapher.Node {
     get outputs() {
         return [ this.value ];
     }
+
+    activate() {
+        this.context.view.showModelProperties();
+    }
 };
 
 view.Output = class extends grapher.Node {
@@ -1965,6 +1998,10 @@ view.Output = class extends grapher.Node {
     get outputs() {
         return [];
     }
+
+    activate() {
+        this.context.view.showModelProperties();
+    }
 };
 
 view.Value = class {
@@ -1972,26 +2009,21 @@ view.Value = class {
     constructor(context, argument) {
         this.context = context;
         this.value = argument;
+        this.from = null;
+        this.to = [];
     }
 
-    from(node) {
-        this._from = node;
-    }
-
-    to(node, controlDependency) {
-        this._to = this._to || [];
-        if (controlDependency) {
-            this._controlDependencies = this._controlDependencies || new Set();
-            this._controlDependencies.add(this._to.length);
-        }
-        this._to.push(node);
+    controlDependency(node) {
+        this._controlDependencies = this._controlDependencies || new Set();
+        this._controlDependencies.add(this.to.length);
+        this.to.push(node);
     }
 
     build() {
         this._edges = this._edges || [];
-        if (this._from && this._to) {
-            for (let i = 0; i < this._to.length; i++) {
-                const to = this._to[i];
+        if (this.from && Array.isArray(this.to)) {
+            for (let i = 0; i < this.to.length; i++) {
+                const to = this.to[i];
                 let content = '';
                 const type = this.value.type;
                 if (type &&
@@ -2005,8 +2037,8 @@ view.Value = class {
                 if (this.context.view.options.names) {
                     content = this.value.name.split('\n').shift(); // custom argument id
                 }
-                const edge = new view.Edge(this, this._from, to);
-                edge.v = this._from.name;
+                const edge = new view.Edge(this, this.from, to);
+                edge.v = this.from.name;
                 edge.w = to.name;
                 if (content) {
                     edge.label = content;
@@ -2034,6 +2066,13 @@ view.Value = class {
             edge.deselect();
         }
     }
+
+    activate() {
+        const value = this.value;
+        const from = this.from.value;
+        const to = this.to.map((node) => node.value);
+        this.context.view.showConnectionProperties(value, from, to);
+    }
 };
 
 view.Edge = class extends grapher.Edge {
@@ -2052,15 +2091,18 @@ view.Edge = class extends grapher.Edge {
 
     emit(event) {
         switch (event) {
-            case 'pointerover':
+            case 'pointerover': {
                 this.value.context.focus([ this.value.value ]);
                 break;
-            case 'pointerleave':
+            }
+            case 'pointerleave': {
                 this.value.context.blur([ this.value.value ]);
                 break;
-            case 'click':
-                // this.value.context.view.showConnectionProperties(this.value.value);
+            }
+            case 'click': {
+                this.value.context.activate(this.value.value);
                 break;
+            }
             default:
                 break;
         }
@@ -2148,6 +2190,18 @@ view.Sidebar = class {
 
 view.Control = class {
 
+    constructor(host) {
+        this._host = host;
+    }
+
+    createElement(tagName, className) {
+        const element = this._host.document.createElement(tagName);
+        if (className) {
+            element.setAttribute('class', className);
+        }
+        return element;
+    }
+
     on(event, callback) {
         this._events = this._events || {};
         this._events[event] = this._events[event] || [];
@@ -2163,51 +2217,67 @@ view.Control = class {
     }
 };
 
-view.NodeSidebar = class extends view.Control {
+view.ObjectSidebar = class extends view.Control {
+
+    constructor(host) {
+        super(host);
+        this._container = this.createElement('div', 'sidebar-object');
+    }
+
+    addProperty(name, value) {
+        const item = new view.ValueTextView(this._host, value);
+        const entry = new view.NameValueView(this._host, name, item);
+        const element = entry.render();
+        this._container.appendChild(element);
+        return item;
+    }
+
+    addHeader(title) {
+        const element = this._host.document.createElement('div');
+        element.className = 'sidebar-header';
+        element.innerText = title;
+        this._container.appendChild(element);
+    }
+
+    render() {
+        return [ this._container ];
+    }
+};
+
+view.NodeSidebar = class extends view.ObjectSidebar {
 
     constructor(host, node) {
-        super();
-        this._host = host;
+        super(host);
         this._node = node;
-        this._elements = [];
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
-
-        const container = this._host.document.createElement('div');
-        container.className = 'sidebar-node';
-        this._elements.push(container);
-
         if (node.type) {
-            let showDocumentation = null;
             const type = node.type;
+            const item = this.addProperty('type', node.type.identifier || node.type.name);
             if (type && (type.description || type.inputs || type.outputs || type.attributes)) {
-                showDocumentation = {};
-                showDocumentation.text = type.nodes ? '\u0192': '?';
-                showDocumentation.callback = () => {
+                item.action(type.nodes ? '\u0192': '?', () => {
                     this.emit('show-documentation', null);
-                };
+                });
             }
-            this._addProperty('type', new view.ValueTextView(this._host, node.type.identifier || node.type.name, showDocumentation));
             if (node.type.module) {
-                this._addProperty('module', new view.ValueTextView(this._host, node.type.module));
+                this.addProperty('module', node.type.module);
             }
         }
-
         if (node.name) {
-            this._addProperty('name', new view.ValueTextView(this._host, node.name));
+            this.addProperty('name', node.name);
         }
 
         if (node.location) {
-            this._addProperty('location', new view.ValueTextView(this._host, node.location));
+            this.addProperty('location', node.location);
         }
 
         if (node.description) {
-            this._addProperty('description', new view.ValueTextView(this._host, node.description));
+            this.addProperty('description', node.description);
         }
 
         if (node.device) {
-            this._addProperty('device', new view.ValueTextView(this._host, node.device));
+            this.addProperty('device', node.device);
         }
 
         const attributes = node.attributes;
@@ -2218,7 +2288,7 @@ view.NodeSidebar = class extends view.Control {
                 const bu = b.name.toUpperCase();
                 return (au < bu) ? -1 : (au > bu) ? 1 : 0;
             });
-            this._addHeader('Attributes');
+            this.addHeader('Attributes');
             for (const attribute of sortedAttributes) {
                 this._addAttribute(attribute.name, attribute);
             }
@@ -2226,7 +2296,7 @@ view.NodeSidebar = class extends view.Control {
 
         const inputs = node.inputs;
         if (inputs && inputs.length > 0) {
-            this._addHeader('Inputs');
+            this.addHeader('Inputs');
             for (const input of inputs) {
                 this._addInput(input.name, input);
             }
@@ -2234,27 +2304,11 @@ view.NodeSidebar = class extends view.Control {
 
         const outputs = node.outputs;
         if (outputs && outputs.length > 0) {
-            this._addHeader('Outputs');
+            this.addHeader('Outputs');
             for (const output of outputs) {
                 this._addOutput(output.name, output);
             }
         }
-    }
-
-    render() {
-        return this._elements;
-    }
-
-    _addHeader(title) {
-        const element = this._host.document.createElement('div');
-        element.className = 'sidebar-header';
-        element.innerText = title;
-        this._elements[0].appendChild(element);
-    }
-
-    _addProperty(name, value) {
-        const item = new view.NameValueView(this._host, name, value);
-        this._elements[0].appendChild(item.render());
     }
 
     _addAttribute(name, attribute) {
@@ -2264,45 +2318,33 @@ view.NodeSidebar = class extends view.Control {
         });
         const item = new view.NameValueView(this._host, name, value);
         this._attributes.push(item);
-        this._elements[0].appendChild(item.render());
+        this._container.appendChild(item.render());
     }
 
     _addInput(name, input) {
         if (input.value.length > 0) {
-            const value = new view.ParameterView(this._host, input);
+            const value = new view.ArgumentView(this._host, input);
             value.on('export-tensor', (sender, value) => this.emit('export-tensor', value));
             value.on('error', (sender, value) => this.emit('error', value));
             value.on('activate', (sender, value) => this.emit('activate', value));
             value.on('deactivate', (sender, value) => this.emit('deactivate', value));
+            value.on('select', (sender, value) => this.emit('select', value));
             const item = new view.NameValueView(this._host, name, value);
             this._inputs.push(item);
-            this._elements[0].appendChild(item.render());
+            this._container.appendChild(item.render());
         }
     }
 
     _addOutput(name, output) {
         if (output.value.length > 0) {
-            const value = new view.ParameterView(this._host, output);
+            const value = new view.ArgumentView(this._host, output);
             value.on('activate', (sender, value) => this.emit('activate', value));
             value.on('deactivate', (sender, value) => this.emit('deactivate', value));
+            value.on('select', (sender, value) => this.emit('select', value));
             const item = new view.NameValueView(this._host, name, value);
             this._outputs.push(item);
-            this._elements[0].appendChild(item.render());
+            this._container.appendChild(item.render());
         }
-    }
-};
-
-view.ConnectionSidebar = class extends view.Control {
-
-    constructor(host, argument) {
-        super();
-        this._host = host;
-        this._argument = argument;
-        this._elements = [];
-    }
-
-    render() {
-        return this._elements;
     }
 };
 
@@ -2381,52 +2423,55 @@ view.SelectView = class extends view.Control {
 
 view.ValueTextView = class {
 
-    constructor(host, value, action) {
+    constructor(host, value) {
         this._host = host;
-        this._elements = [];
-        const element = this._host.document.createElement('div');
-        element.className = 'sidebar-item-value';
-        this._elements.push(element);
-
-        if (action) {
-            this._action = this._host.document.createElement('div');
-            this._action.className = 'sidebar-item-value-expander';
-            this._action.innerHTML = action.text;
-            this._action.addEventListener('click', () => {
-                action.callback();
-            });
-            element.appendChild(this._action);
-        }
-
-        const list = Array.isArray(value) ? value : [ value ];
-        let className = 'sidebar-item-value-line';
-        for (const item of list) {
-            const line = this._host.document.createElement('div');
-            line.className = className;
-            line.innerText = item;
-            element.appendChild(line);
-            className = 'sidebar-item-value-line-border';
+        this._element = this._host.document.createElement('div');
+        this._element.className = 'sidebar-item-value';
+        if (value) {
+            const list = Array.isArray(value) ? value : [ value ];
+            let className = 'sidebar-item-value-line';
+            for (const item of list) {
+                const line = this._host.document.createElement('div');
+                line.className = className;
+                line.innerText = item;
+                this._element.appendChild(line);
+                className = 'sidebar-item-value-line-border';
+            }
         }
     }
 
+    action(text, callback) {
+        this._action = this._host.document.createElement('div');
+        this._action.className = 'sidebar-item-value-expander';
+        this._action.innerHTML = text;
+        this._action.addEventListener('click', () => {
+            callback();
+        });
+        this._element.insertBefore(this._action, this._element.childNodes[0]);
+    }
+
     render() {
-        return this._elements;
+        return [ this._element ];
     }
 
     toggle() {
     }
 };
 
-view.ValueView = class extends view.Control {
+view.ItemView = class extends view.Control {
+
+    constructor(host) {
+        super(host);
+    }
 
     _bold(name, value) {
-        const line = this._host.document.createElement('div');
+        const line = this.createElement('div');
         line.innerHTML = name + ': ' + '<b>' + value + '</b>';
         this._add(line);
     }
 
     _code(name, value) {
-        const line = this._host.document.createElement('div');
+        const line = this.createElement('div');
         line.innerHTML = name + ': ' + '<code><b>' + value + '</b></code>';
         this._add(line);
     }
@@ -2437,7 +2482,7 @@ view.ValueView = class extends view.Control {
     }
 
     _tensor(value) {
-        const contentLine = this._host.document.createElement('pre');
+        const contentLine = this.createElement('pre');
         try {
             const tensor = new view.Tensor(value);
             const layout = tensor.layout;
@@ -2467,12 +2512,10 @@ view.ValueView = class extends view.Control {
                 contentLine.innerHTML = 'Tensor shape is not defined.';
             } else {
                 contentLine.innerHTML = tensor.toString();
-
                 if (this._host.save &&
                     value.type.shape && value.type.shape.dimensions &&
                     value.type.shape.dimensions.length > 0) {
-                    this._saveButton = this._host.document.createElement('div');
-                    this._saveButton.className = 'sidebar-item-value-expander';
+                    this._saveButton = this.createElement('div', 'sidebar-item-value-expander');
                     this._saveButton.innerHTML = '&#x1F4BE;';
                     this._saveButton.addEventListener('click', () => {
                         this.emit('export-tensor', tensor);
@@ -2484,26 +2527,21 @@ view.ValueView = class extends view.Control {
             contentLine.innerHTML = err.toString();
             this.emit('error', err);
         }
-        const valueLine = this._host.document.createElement('div');
-        valueLine.className = 'sidebar-item-value-line-border';
+        const valueLine = this.createElement('div', 'sidebar-item-value-line-border');
         valueLine.appendChild(contentLine);
         this._element.appendChild(valueLine);
     }
 };
 
-view.AttributeView = class extends view.ValueView {
+view.AttributeView = class extends view.ItemView {
 
     constructor(host, attribute) {
-        super();
-        this._host = host;
+        super(host);
         this._attribute = attribute;
-        this._element = this._host.document.createElement('div');
-        this._element.className = 'sidebar-item-value';
-
+        this._element = this.createElement('div', 'sidebar-item-value');
         const type = this._attribute.type;
         if (type) {
-            this._expander = this._host.document.createElement('div');
-            this._expander.className = 'sidebar-item-value-expander';
+            this._expander = this.createElement('div', 'sidebar-item-value-expander');
             this._expander.innerText = '+';
             this._expander.addEventListener('click', () => {
                 this.toggle();
@@ -2513,8 +2551,7 @@ view.AttributeView = class extends view.ValueView {
         const value = this._attribute.value;
         switch (type) {
             case 'graph': {
-                const line = this._host.document.createElement('div');
-                line.className = 'sidebar-item-value-line-link';
+                const line = this.createElement('div', 'sidebar-item-value-line-link');
                 line.innerHTML = value.name;
                 line.addEventListener('click', () => {
                     this.emit('show-graph', value);
@@ -2523,8 +2560,7 @@ view.AttributeView = class extends view.ValueView {
                 break;
             }
             case 'function': {
-                const line = this._host.document.createElement('div');
-                line.className = 'sidebar-item-value-line-link';
+                const line = this.createElement('div', 'sidebar-item-value-line-link');
                 line.innerHTML = value.type.name;
                 line.addEventListener('click', () => {
                     this.emit('show-graph', value.type);
@@ -2540,8 +2576,7 @@ view.AttributeView = class extends view.ValueView {
                 if (content && typeof content === 'string') {
                     content = content.split('<').join('&lt;').split('>').join('&gt;');
                 }
-                const line = this._host.document.createElement('div');
-                line.className = 'sidebar-item-value-line';
+                const line = this.createElement('div', 'sidebar-item-value-line');
                 line.innerHTML = content ? content : '&nbsp;';
                 this._element.appendChild(line);
             }
@@ -2559,15 +2594,13 @@ view.AttributeView = class extends view.ValueView {
             const type = this._attribute.type;
             const value = this._attribute.value;
             const content = type == 'tensor' && value && value.type ? value.type.toString() : this._attribute.type;
-            const typeLine = this._host.document.createElement('div');
-            typeLine.className = 'sidebar-item-value-line-border';
+            const typeLine = this.createElement('div', 'sidebar-item-value-line-border');
             typeLine.innerHTML = 'type: ' + '<code><b>' + content + '</b></code>';
             this._element.appendChild(typeLine);
 
             const description = this._attribute.description;
             if (description) {
-                const descriptionLine = this._host.document.createElement('div');
-                descriptionLine.className = 'sidebar-item-value-line-border';
+                const descriptionLine = this.createElement('div', 'sidebar-item-value-line-border');
                 descriptionLine.innerHTML = description;
                 this._element.appendChild(descriptionLine);
             }
@@ -2584,19 +2617,20 @@ view.AttributeView = class extends view.ValueView {
     }
 };
 
-view.ParameterView = class extends view.Control {
+view.ArgumentView = class extends view.Control {
 
-    constructor(host, list) {
+    constructor(host, argument) {
         super();
-        this._list = list;
+        this._argument = argument;
         this._elements = [];
         this._items = [];
-        for (const value of list.value) {
-            const item = new view.ArgumentView(host, value);
+        for (const value of argument.value) {
+            const item = new view.ValueView(host, value);
             item.on('export-tensor', (sender, value) => this.emit('export-tensor', value));
             item.on('error', (sender, value) => this.emit('error', value));
             item.on('activate', (sender, value) => this.emit('activate', value));
             item.on('deactivate', (sender, value) => this.emit('deactivate', value));
+            item.on('select', (sender, value) => this.emit('select', value));
             this._items.push(item);
             this._elements.push(item.render());
         }
@@ -2613,28 +2647,22 @@ view.ParameterView = class extends view.Control {
     }
 };
 
-view.ArgumentView = class extends view.ValueView {
+view.ValueView = class extends view.ItemView {
 
-    constructor(host, argument) {
-        super();
-        this._host = host;
-        this._argument = argument;
-
-        this._element = this._host.document.createElement('div');
-        this._element.className = 'sidebar-item-value';
-
-        const type = this._argument.type;
-        const initializer = this._argument.initializer;
-        const quantization = this._argument.quantization;
-        const location = this._argument.location !== undefined;
-
+    constructor(host, value) {
+        super(host);
+        this._value = value;
+        this._element = this.createElement('div', 'sidebar-item-value');
+        const type = this._value.type;
+        const initializer = this._value.initializer;
+        const quantization = this._value.quantization;
+        const location = this._value.location !== undefined;
         if (initializer) {
             this._element.classList.add('sidebar-item-value-dark');
         }
 
         if (type || initializer || quantization || location) {
-            this._expander = this._host.document.createElement('div');
-            this._expander.className = 'sidebar-item-value-expander';
+            this._expander = this.createElement('div', 'sidebar-item-value-expander');
             this._expander.innerText = '+';
             this._expander.addEventListener('click', () => {
                 this.toggle();
@@ -2642,19 +2670,22 @@ view.ArgumentView = class extends view.ValueView {
             this._element.appendChild(this._expander);
         }
 
-        const name = this._argument.name ? this._argument.name.split('\n').shift() : ''; // custom argument id
+        const name = this._value.name ? this._value.name.split('\n').shift() : ''; // custom argument id
         this._hasId = name ? true : false;
         this._hasCategory = initializer && initializer.category ? true : false;
         if (this._hasId || (!this._hasCategory && !type)) {
             this._hasId = true;
-            const nameLine = this._host.document.createElement('div');
-            nameLine.className = 'sidebar-item-value-line';
+            const nameLine = this.createElement('div', 'sidebar-item-value-line');
             if (typeof name !== 'string') {
                 throw new Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
             }
             nameLine.innerHTML = '<span class=\'sidebar-item-value-line-content\'>name: <b>' + (name || ' ') + '</b></span>';
-            nameLine.addEventListener('pointerenter', () => this.emit('activate', this._argument));
-            nameLine.addEventListener('pointerleave', () => this.emit('deactivate', this._argument));
+            nameLine.addEventListener('pointerenter', () => this.emit('activate', this._value));
+            nameLine.addEventListener('pointerleave', () => this.emit('deactivate', this._value));
+            if (!initializer) {
+                nameLine.style.cursor = 'pointer';
+                nameLine.addEventListener('click', () => this.emit('select', this._value));
+            }
             this._element.appendChild(nameLine);
         } else if (this._hasCategory) {
             this._bold('category', initializer.category);
@@ -2671,17 +2702,15 @@ view.ArgumentView = class extends view.ValueView {
         if (this._expander) {
             if (this._expander.innerText == '+') {
                 this._expander.innerText = '-';
-
-                const initializer = this._argument.initializer;
+                const initializer = this._value.initializer;
                 if (this._hasId && this._hasCategory) {
                     this._bold('category', initializer.category);
                 }
-
                 let type = null;
                 let denotation = null;
-                if (this._argument.type) {
-                    type = this._argument.type.toString();
-                    denotation = this._argument.type.denotation || null;
+                if (this._value.type) {
+                    type = this._value.type.toString();
+                    denotation = this._value.type.denotation || null;
                 }
                 if (type && (this._hasId || this._hasCategory)) {
                     this._code('type', type.split('<').join('&lt;').split('>').join('&gt;'));
@@ -2689,29 +2718,23 @@ view.ArgumentView = class extends view.ValueView {
                 if (denotation) {
                     this._code('denotation', denotation);
                 }
-
-                const description = this._argument.description;
+                const description = this._value.description;
                 if (description) {
-                    const descriptionLine = this._host.document.createElement('div');
-                    descriptionLine.className = 'sidebar-item-value-line-border';
+                    const descriptionLine = this.createElement('div', 'sidebar-item-value-line-border');
                     descriptionLine.innerHTML = description;
                     this._element.appendChild(descriptionLine);
                 }
-
-                const quantization = this._argument.quantization;
+                const quantization = this._value.quantization;
                 if (quantization) {
-                    const quantizationLine = this._host.document.createElement('div');
-                    quantizationLine.className = 'sidebar-item-value-line-border';
+                    const quantizationLine = this.createElement('div', 'sidebar-item-value-line-border');
                     const content = !Array.isArray(quantization) ? quantization : '<br><br>' + quantization.map((value) => '  ' + value).join('<br>');
                     quantizationLine.innerHTML = '<span class=\'sidebar-item-value-line-content\'>quantization: ' + '<b>' + content + '</b></span>';
                     this._element.appendChild(quantizationLine);
                 }
-
-                const location = this._argument.location;
+                const location = this._value.location;
                 if (location !== undefined) {
                     this._bold('location', location);
                 }
-
                 if (initializer) {
                     this._tensor(initializer);
                 }
@@ -2725,43 +2748,134 @@ view.ArgumentView = class extends view.ValueView {
     }
 };
 
-view.ModelSidebar = class extends view.Control {
+view.NodeView = class extends view.ItemView {
 
-    constructor(host, model, graph) {
+    constructor(host, node) {
+        super(host);
+        this._node = node;
+        this._element = this.createElement('div', 'sidebar-item-value');
+        if (node.type) {
+            const type = node.type.name;
+            const typeLine = this.createElement('div', 'sidebar-item-value-line');
+            typeLine.innerHTML = '<span class=\'sidebar-item-value-line-content\'>type: <b>' + (type || ' ') + '</b></span>';
+            typeLine.addEventListener('pointerenter', () => this.emit('activate', this._node));
+            typeLine.addEventListener('pointerleave', () => this.emit('deactivate', this._node));
+            typeLine.addEventListener('click', () => this.emit('select', this._node));
+            typeLine.style.cursor = 'pointer';
+            this._element.appendChild(typeLine);
+        } else {
+            const name = node.name || '';
+            const nameLine = this.createElement('div');
+            nameLine.className = 'sidebar-item-value-line';
+            nameLine.innerHTML = '<span class=\'sidebar-item-value-line-content\'>name: <b>' + (name.split('\n')[0] || ' ') + '</b></span>';
+            nameLine.addEventListener('pointerenter', () => this.emit('activate', this._node));
+            nameLine.addEventListener('pointerleave', () => this.emit('deactivate', this._node));
+            nameLine.addEventListener('click', () => this.emit('select', this._node));
+            nameLine.style.cursor = 'pointer';
+            this._element.appendChild(nameLine);
+        }
+    }
+
+    render() {
+        return this._element;
+    }
+};
+
+view.NodeListView = class extends view.Control {
+
+    constructor(host, list) {
         super();
         this._host = host;
+        this._elements = [];
+        for (const node of list) {
+            const item = new view.NodeView(host, node);
+            item.on('activate', (sender, value) => this.emit('activate', value));
+            item.on('deactivate', (sender, value) => this.emit('deactivate', value));
+            item.on('select', (sender, value) => this.emit('select', value));
+            this._elements.push(item.render());
+        }
+    }
+
+    render() {
+        return this._elements;
+    }
+};
+
+view.ConnectionSidebar = class extends view.ObjectSidebar {
+
+    constructor(host, value, from, to) {
+        super(host);
+        this._host = host;
+        this._value = value;
+        this._from = from;
+        this._to = to;
+        this.addProperty('name', value.name.split('\n')[0]);
+        if (value.type) {
+            this.addProperty('type', value.type.toString());
+        }
+        if (value.location !== undefined) {
+            this.addProperty('location', value.location.toString());
+        }
+        if (from) {
+            this.addHeader('Inputs');
+            const list = new view.NodeListView(host, [ from ]);
+            list.on('activate', (sender, value) => this.emit('activate', value));
+            list.on('deactivate', (sender, value) => this.emit('deactivate', value));
+            list.on('select', (sender, value) => this.emit('select', value));
+            const item = new view.NameValueView(this._host, 'from', list);
+            this._container.appendChild(item.render());
+        }
+        if (Array.isArray(to) && to.length > 0) {
+            this.addHeader('Outputs');
+            const list = new view.NodeListView(this._host, to);
+            list.on('activate', (sender, value) => this.emit('activate', value));
+            list.on('deactivate', (sender, value) => this.emit('deactivate', value));
+            list.on('select', (sender, value) => this.emit('select', value));
+            const item = new view.NameValueView(this._host, 'to', list);
+            this._container.appendChild(item.render());
+        }
+    }
+
+    _code(name, value) {
+        const line = this.createElement('div');
+        line.innerHTML = name + ': ' + '<code><b>' + value + '</b></code>';
+        this._add(line);
+    }
+};
+
+view.ModelSidebar = class extends view.ObjectSidebar {
+
+    constructor(host, model, graph) {
+        super(host);
         this._model = model;
 
-        this._container = this._host.document.createElement('div');
-        this._container.className = 'sidebar-node';
-
         if (model.format) {
-            this._addProperty('format', new view.ValueTextView(this._host, model.format));
+            this.addProperty('format', model.format);
         }
         if (model.producer) {
-            this._addProperty('producer', new view.ValueTextView(this._host, model.producer));
+            this.addProperty('producer', model.producer);
         }
         if (model.name) {
-            this._addProperty('name', new view.ValueTextView(this._host, model.name));
+            this.addProperty('name', model.name);
         }
         if (model.version) {
-            this._addProperty('version', new view.ValueTextView(this._host, model.version));
+            this.addProperty('version', model.version);
         }
         if (model.description) {
-            this._addProperty('description', new view.ValueTextView(this._host, model.description));
+            this.addProperty('description', model.description);
         }
         if (model.domain) {
-            this._addProperty('domain', new view.ValueTextView(this._host, model.domain));
+            this.addProperty('domain', model.domain);
         }
         if (model.imports) {
-            this._addProperty('imports', new view.ValueTextView(this._host, model.imports));
+            this.addProperty('imports', model.imports);
         }
         if (model.runtime) {
-            this._addProperty('runtime', new view.ValueTextView(this._host, model.runtime));
+            this.addProperty('runtime', model.runtime);
         }
         if (model.metadata) {
             for (const entry of model.metadata) {
-                this._addProperty(entry.name, new view.ValueTextView(this._host, entry.value));
+                this.addProperty(entry.name, entry.value);
             }
         }
         const graphs = Array.isArray(model.graphs) ? model.graphs : [];
@@ -2770,30 +2884,30 @@ view.ModelSidebar = class extends view.Control {
             selector.on('change', (sender, data) => {
                 this.emit('update-active-graph', data);
             });
-            this._addProperty('graph', selector);
+            this.addProperty('graph', selector);
         }
 
         if (graph) {
             if (graph.version) {
-                this._addProperty('version', new view.ValueTextView(this._host, graph.version));
+                this.addProperty('version', graph.version);
             }
             if (graph.type) {
-                this._addProperty('type', new view.ValueTextView(this._host, graph.type));
+                this.addProperty('type', graph.type);
             }
             if (graph.tags) {
-                this._addProperty('tags', new view.ValueTextView(this._host, graph.tags));
+                this.addProperty('tags', graph.tags);
             }
             if (graph.description) {
-                this._addProperty('description', new view.ValueTextView(this._host, graph.description));
+                this.addProperty('description', graph.description);
             }
             if (Array.isArray(graph.inputs) && graph.inputs.length > 0) {
-                this._addHeader('Inputs');
+                this.addHeader('Inputs');
                 for (const input of graph.inputs) {
                     this.addArgument(input.name, input);
                 }
             }
             if (Array.isArray(graph.outputs) && graph.outputs.length > 0) {
-                this._addHeader('Outputs');
+                this.addHeader('Outputs');
                 for (const output of graph.outputs) {
                     this.addArgument(output.name, output);
                 }
@@ -2805,20 +2919,8 @@ view.ModelSidebar = class extends view.Control {
         return [ this._container ];
     }
 
-    _addHeader(title) {
-        const element = this._host.document.createElement('div');
-        element.className = 'sidebar-header';
-        element.innerText = title;
-        this._container.appendChild(element);
-    }
-
-    _addProperty(name, value) {
-        const item = new view.NameValueView(this._host, name, value);
-        this._container.appendChild(item.render());
-    }
-
     addArgument(name, argument) {
-        const value = new view.ParameterView(this._host, argument);
+        const value = new view.ArgumentView(this._host, argument);
         value.toggle();
         const item = new view.NameValueView(this._host, name, value);
         this._container.appendChild(item.render());
@@ -2836,22 +2938,15 @@ view.DocumentationSidebar = class extends view.Control {
     render() {
         if (!this._elements) {
             this._elements = [];
-
             const type = view.Documentation.format(this._type);
-
-            const element = this._host.document.createElement('div');
-            element.setAttribute('class', 'sidebar-documentation');
-
+            const element = this.createElement('div', 'sidebar-documentation');
             this._append(element, 'h1', type.name);
-
             if (type.summary) {
                 this._append(element, 'p', type.summary);
             }
-
             if (type.description) {
                 this._append(element, 'p', type.description);
             }
-
             if (Array.isArray(type.attributes) && type.attributes.length > 0) {
                 this._append(element, 'h2', 'Attributes');
                 const attributes = this._append(element, 'dl');
@@ -2861,7 +2956,6 @@ view.DocumentationSidebar = class extends view.Control {
                 }
                 element.appendChild(attributes);
             }
-
             if (Array.isArray(type.inputs) && type.inputs.length > 0) {
                 this._append(element, 'h2', 'Inputs' + (type.inputs_range ? ' (' + type.inputs_range + ')' : ''));
                 const inputs = this._append(element, 'dl');
@@ -2870,7 +2964,6 @@ view.DocumentationSidebar = class extends view.Control {
                     this._append(inputs, 'dd', input.description);
                 }
             }
-
             if (Array.isArray(type.outputs) && type.outputs.length > 0) {
                 this._append(element, 'h2', 'Outputs' + (type.outputs_range ? ' (' + type.outputs_range + ')' : ''));
                 const outputs = this._append(element, 'dl');
@@ -2879,7 +2972,6 @@ view.DocumentationSidebar = class extends view.Control {
                     this._append(outputs, 'dd', output.description);
                 }
             }
-
             if (Array.isArray(type.type_constraints) && type.type_constraints.length > 0) {
                 this._append(element, 'h2', 'Type Constraints');
                 const type_constraints = this._append(element, 'dl');
@@ -2888,7 +2980,6 @@ view.DocumentationSidebar = class extends view.Control {
                     this._append(type_constraints, 'dd', type_constraint.description);
                 }
             }
-
             if (Array.isArray(type.examples) && type.examples.length > 0) {
                 this._append(element, 'h2', 'Examples');
                 for (const example of type.examples) {
@@ -2896,7 +2987,6 @@ view.DocumentationSidebar = class extends view.Control {
                     this._append(element, 'pre', example.code);
                 }
             }
-
             if (Array.isArray(type.references) && type.references.length > 0) {
                 this._append(element, 'h2', 'References');
                 const references = this._append(element, 'ul');
@@ -2904,12 +2994,10 @@ view.DocumentationSidebar = class extends view.Control {
                     this._append(references, 'li', reference.description);
                 }
             }
-
             if (type.domain && type.version && type.support_level) {
                 this._append(element, 'h2', 'Support');
                 this._append(element, 'dl', 'In domain <tt>' + type.domain + '</tt> since version <tt>' + type.version + '</tt> at support level <tt>' + type.support_level + '</tt>.');
             }
-
             if (this._host.type === 'Electron') {
                 element.addEventListener('click', (e) => {
                     if (e.target && e.target.href) {
@@ -2921,14 +3009,13 @@ view.DocumentationSidebar = class extends view.Control {
                     }
                 });
             }
-
             this._elements = [ element ];
         }
         return this._elements;
     }
 
     _append(parent, type, content) {
-        const element = this._host.document.createElement(type);
+        const element = this.createElement(type);
         if (content) {
             element.innerHTML = content;
         }
@@ -2940,12 +3027,10 @@ view.DocumentationSidebar = class extends view.Control {
 view.FindSidebar = class extends view.Control {
 
     constructor(host, graph) {
-        super();
-        this._host = host;
+        super(host);
         this._graph = graph;
         this._table = new Map();
-        this._searchElement = this._host.document.createElement('input');
-        this._searchElement.setAttribute('class', 'sidebar-find-search');
+        this._searchElement = this.createElement('input', 'sidebar-find-search');
         this._searchElement.setAttribute('id', 'search');
         this._searchElement.setAttribute('type', 'text');
         this._searchElement.setAttribute('spellcheck', 'false');
@@ -2954,8 +3039,7 @@ view.FindSidebar = class extends view.Control {
             this.update(e.target.value);
             this.emit('search-text-changed', e.target.value);
         });
-        this._contentElement = this._host.document.createElement('ol');
-        this._contentElement.setAttribute('class', 'sidebar-find-content');
+        this._contentElement = this.createElement('ol', 'sidebar-find-content');
         this._contentElement.addEventListener('click', (e) => {
             const identifier = e.target.getAttribute('data');
             if (this._table.has(identifier)) {
@@ -2995,7 +3079,7 @@ view.FindSidebar = class extends view.Control {
             const key = index.toString();
             index++;
             this._table.set(key, value);
-            const element = this._host.document.createElement('li');
+            const element = this.createElement('li');
             element.innerText = content;
             element.setAttribute('data', key);
             element.addEventListener('pointerover', (e) => {
