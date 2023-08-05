@@ -295,7 +295,7 @@ om.TensorType = class {
 om.TensorShape = class {
 
     constructor(dimensions) {
-        this.dimensions = dimensions.map((dim) => Number.isInteger(dim) ? dim : dim.toNumber());
+        this.dimensions = dimensions.map((dim) => !Number.isInteger(dim) && dim && dim.toNumber ? dim.toNumber() : dim);
     }
 
     equals(obj) {
