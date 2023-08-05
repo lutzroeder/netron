@@ -2804,16 +2804,22 @@ view.NodeView = class extends view.Control {
     }
 
     toggle() {
-        if (this._expander.innerText == '+') {
-            this._expander.innerText = '-';
-            const name = this._node.name;
-            const element = this.createElement('div', 'sidebar-item-value-line-border');
-            element.innerHTML = '<span class=\'sidebar-item-value-line-content\'>name: <b>' + name + '</b></span>';
-            this._element.appendChild(element);
-        } else {
-            this._expander.innerText = '+';
-            while (this._element.childElementCount > 2) {
-                this._element.removeChild(this._element.lastChild);
+        if (this._expander) {
+            if (this._expander.innerText == '+') {
+                this._expander.innerText = '-';
+                const name = this._node.name;
+                const element = this.createElement('div', 'sidebar-item-value-line-border');
+                element.innerHTML = '<span class=\'sidebar-item-value-line-content\'>name: <b>' + name + '</b></span>';
+                element.addEventListener('pointerenter', () => this.emit('activate', this._node));
+                element.addEventListener('pointerleave', () => this.emit('deactivate', this._node));
+                element.addEventListener('click', () => this.emit('select', this._node));
+                element.style.cursor = 'pointer';
+                this._element.appendChild(element);
+            } else {
+                this._expander.innerText = '+';
+                while (this._element.childElementCount > 2) {
+                    this._element.removeChild(this._element.lastChild);
+                }
             }
         }
     }
@@ -2830,6 +2836,7 @@ view.NodeListView = class extends view.Control {
             item.on('activate', (sender, value) => this.emit('activate', value));
             item.on('deactivate', (sender, value) => this.emit('deactivate', value));
             item.on('select', (sender, value) => this.emit('select', value));
+            item.toggle();
             for (const element of item.render()) {
                 this._elements.push(element);
             }
