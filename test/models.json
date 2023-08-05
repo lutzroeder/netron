@@ -6137,8 +6137,8 @@
   },
   {
     "type":     "tf",
-    "target":   "netron_issue_895.pbtxt",
-    "source":   "https://github.com/lutzroeder/netron/files/8459475/netron_issue_895.pbtxt.zip[netron_issue_895.pbtxt]",
+    "target":   "myModel.txt",
+    "source":   "https://github.com/lutzroeder/netron/files/12267629/myModel.txt.zip[myModel.txt]",
     "format":   "TensorFlow Graph",
     "link":     "https://github.com/lutzroeder/netron/issues/895"
   },
