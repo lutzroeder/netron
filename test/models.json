@@ -5445,9 +5445,16 @@
   },
   {
     "type":     "rknn",
-    "target":   "mobilenet_v1_rknnv4.rknn",
-    "source":   "https://github.com/lutzroeder/netron/files/11508437/mobilenet_v1_rknnv4.rknn.zip[mobilenet_v1_rknnv4.rknn]",
+    "target":   "mobilenet_v1.0004.rknn",
+    "source":   "https://github.com/lutzroeder/netron/files/12265884/mobilenet_v1.0004.rknn.zip[mobilenet_v1.0004.rknn]",
     "format":   "RKNN v1.4.6",
+    "link":     "https://github.com/lutzroeder/netron/pull/1099"
+  },
+  {
+    "type":     "rknn",
+    "target":   "mobilenet_v1.1002.rknn",
+    "source":   "https://github.com/lutzroeder/netron/files/12265887/mobilenet_v1.1002.rknn.zip[mobilenet_v1.1002.rknn]",
+    "format":   "RKNN v1.2.2",
     "link":     "https://github.com/lutzroeder/netron/pull/1099"
   },
   {
@@ -5455,6 +5462,13 @@
     "target":   "mobilenetv2.rknn",
     "source":   "https://github.com/lutzroeder/netron/files/8886972/mobilenetv2.rknn.zip[mobilenetv2.rknn]",
     "format":   "RKNN v1.2.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/639"
+  },
+  {
+    "type":     "rknn",
+    "target":   "pfld.json",
+    "source":   "https://github.com/lutzroeder/netron/files/12265992/pfld.json.zip[pfld.json]",
+    "format":   "RKNN v1.4.1b5",
     "link":     "https://github.com/lutzroeder/netron/issues/639"
   },
   {
@@ -5480,9 +5494,51 @@
   },
   {
     "type":     "rknn",
-    "target":   "yolov5s-640-640.rknn",
-    "source":   "https://github.com/lutzroeder/netron/files/8886404/yolov5s-640-640.rknn.zip[yolov5s-640-640.rknn]",
+    "target":   "yolov3.json",
+    "source":   "https://github.com/lutzroeder/netron/files/12265994/yolov3.json.zip[yolov3.json]",
+    "format":   "RKNN v1.3.2",
+    "link":     "https://github.com/lutzroeder/netron/issues/639"
+  },
+  {
+    "type":     "rknn",
+    "target":   "yolov5s-640-640.0001.rknn",
+    "source":   "https://github.com/lutzroeder/netron/files/12266093/yolov5s-640-640.0001.rknn.zip[yolov5s-640-640.0001.rknn]",
+    "format":   "RKNN v1.1.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/639"
+  },
+  {
+    "type":     "rknn",
+    "target":   "yolov5s-640-640.0002.rknn",
+    "source":   "https://github.com/lutzroeder/netron/files/12266039/yolov5s-640-640.0002.rknn.zip[yolov5s-640-640.0002.rknn]",
+    "format":   "RKNN v1.2.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/639"
+  },
+  {
+    "type":     "rknn",
+    "target":   "yolov5s-640-640.0004.rknn",
+    "source":   "https://github.com/lutzroeder/netron/files/12266038/yolov5s-640-640.0004.rknn.zip[yolov5s-640-640.0004.rknn]",
+    "format":   "RKNN v1.5.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/639"
+  },
+  {
+    "type":     "rknn",
+    "target":   "yolov5s-640-640.1001.rknn",
+    "source":   "https://github.com/lutzroeder/netron/files/12265889/yolov5s-640-640.1001.rknn.zip[yolov5s-640-640.1001.rknn]",
     "format":   "RKNN v1.2.5",
+    "link":     "https://github.com/lutzroeder/netron/issues/639"
+  },
+  {
+    "type":     "rknn",
+    "target":   "yolov5s-640-640.1002.rknn",
+    "source":   "https://github.com/lutzroeder/netron/files/12265888/yolov5s-640-640.1002.rknn.zip[yolov5s-640-640.1002.rknn]",
+    "format":   "RKNN v1.3.1",
+    "link":     "https://github.com/lutzroeder/netron/issues/639"
+  },
+  {
+    "type":     "rknn",
+    "target":   "yolov5s-640-640.1003.rknn",
+    "source":   "https://github.com/lutzroeder/netron/files/12266037/yolov5s-640-640.1003.rknn.zip[yolov5s-640-640.1003.rknn]",
+    "format":   "RKNN v1.4.0",
     "link":     "https://github.com/lutzroeder/netron/issues/639"
   },
   {

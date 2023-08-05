@@ -165,6 +165,42 @@
     ]
   },
   {
+    "name": "ConvReluAdd",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "ConvLeakyRelu",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "ConvLeakyReluAdd",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "ConvExSwish",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ]
+  },
+  {
     "name": "ConvTranspose",
     "category": "Layer",
     "inputs": [
