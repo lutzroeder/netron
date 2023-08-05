@@ -28892,6 +28892,69 @@
     ]
   },
   {
+    "name": "RegexFullMatch",
+    "module": "ai.onnx",
+    "version": 20,
+    "support_level": "common",
+    "description": "RegexFullMatch performs a full regex match on each element of the input tensor. If an element fully matches the regex pattern specified as an attribute, the corresponding element in the output is True and it is False otherwise. [RE2](https://github.com/google/re2/wiki/Syntax) regex syntax is used.",
+    "attributes": [
+      {
+        "name": "pattern",
+        "type": "string",
+        "required": false,
+        "description": "Regex pattern to match on. This must be valid RE2 syntax."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T1",
+        "description": "Tensor with strings to match on."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T2",
+        "description": "Tensor of bools indicating if each input string fully matches the regex pattern specified."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Inputs must be UTF-8 strings",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(string)"
+        ]
+      },
+      {
+        "description": "Outputs are bools and are True where there is a full regex match and False otherwise.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(bool)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "basic",
+        "code": "node = onnx.helper.make_node(\n    \"RegexFullMatch\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    pattern=r\"www\\.[\\w.-]+\\.\\bcom\\b\",\n)\n\nx = np.array([\"www.google.com\", \"www.facebook.com\", \"www.bbc.co.uk\"]).astype(\n    object\n)\nresult = np.array([True, True, False])\nexpect(node, inputs=[x], outputs=[result], name=\"test_regex_full_match_basic\")"
+      },
+      {
+        "summary": "match_email_domain",
+        "code": "node = onnx.helper.make_node(\n    \"RegexFullMatch\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    pattern=r\"(\\W|^)[\\w.\\-]{0,25}@(yahoo|gmail)\\.com(\\W|$)\",\n)\n\nx = np.array(\n    [\n        [\"account@gmail.com\", \"account@hotmail.com\"],\n        [\"not email\", \"account2@yahoo.com\"],\n    ]\n).astype(object)\nresult = np.array([[True, False], [False, True]])\nexpect(\n    node,\n    inputs=[x],\n    outputs=[result],\n    name=\"test_regex_full_match_email_domain\",\n)"
+      },
+      {
+        "summary": "match_empty",
+        "code": "node = onnx.helper.make_node(\n    \"RegexFullMatch\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    pattern=r\"(\\W|^)[\\w.\\-]{0,25}@(yahoo|gmail)\\.com(\\W|$)\",\n)\n\nx = np.array([[], []]).astype(object)\nresult = np.array([[], []]).astype(bool)\nexpect(\n    node,\n    inputs=[x],\n    outputs=[result],\n    name=\"test_regex_full_match_empty\",\n)"
+      }
+    ]
+  },
+  {
     "name": "Relu",
     "module": "ai.onnx",
     "version": 1,
