@@ -1708,7 +1708,7 @@ python.Execution = class {
         this.registerFunction('builtins.long', this.builtins.int);
         this.registerFunction('builtins.print', function() {});
         this.registerFunction('builtins.unicode', function(/* value */) {
-            throw new python.Error('Not implemented.');
+            throw new python.Error("'builtins.unicode' not implemented.");
         });
         this.registerType('builtins.Warning', class {});
         this.registerType('builtins.FutureWarning', class extends this._builtins.Warning {});
@@ -2025,6 +2025,9 @@ python.Execution = class {
         this.registerType('gensim.models.word2vec.Word2Vec', class {});
         this.registerType('gensim.models.word2vec.Word2VecTrainables', class {});
         this.registerType('gensim.models.word2vec.Word2VecVocab', class {});
+        this.registerFunction('gensim.utils.call_on_class_only', function() {
+            throw new python.Error('This method should be called on a class object.');
+        });
         this.registerType('google3.learning.deepmind.research.nbr.pbl_jax.clean_jaxline.utils.optimizers.ScaleByLarsState', class {
             constructor(obj) {
                 Object.assign(this, obj);
@@ -3309,6 +3312,9 @@ python.Execution = class {
         });
         this.registerFunction('builtins.slice', function(start, stop, step) {
             return [ start, stop, step ];
+        });
+        this.registerFunction('builtins.hash', function(/* obj */) {
+            throw new python.Error("'builtins.hash' not implemented.");
         });
         this.registerFunction('cloudpickle.cloudpickle._builtin_type', function(name) {
             return name;
@@ -6147,7 +6153,7 @@ python.BinaryReader = class {
     seek(position) {
         this._position = position >= 0 ? position : this._length + position;
         if (this._position > this._buffer.length) {
-            throw new Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+            throw new python.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
         }
     }
 
