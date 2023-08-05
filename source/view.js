@@ -5087,6 +5087,7 @@ view.ModelFactoryService = class {
         this.register('./cambricon', [ '.cambricon' ]);
         this.register('./onednn', [ '.json']);
         this.register('./mlir', [ '.mlir']);
+        this.register('./sentencepiece', [ '.model' ]);
         this.register('./hailo', [ '.hn', '.har' ]);
         this.register('./safetensors', [ '.safetensors' ]);
     }

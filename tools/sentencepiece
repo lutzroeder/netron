@@ -1,0 +1,39 @@
+#!/bin/bash
+
+set -e
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
+
+case "${OSTYPE}" in
+    msys*) python="winpty python";;
+    *) python="python";;
+esac
+
+clean() {
+    echo "sentencepiece clean"
+    rm -rf "./third_party/source/sentencepiece"
+}
+
+sync() {
+    echo "sentencepiece sync"
+    mkdir -p "./third_party/source/sentencepiece/src"
+    curl --silent --location --output "./third_party/source/sentencepiece/src/sentencepiece_model.proto" "https://github.com/google/sentencepiece/raw/master/src/sentencepiece_model.proto"
+    curl --silent --location --output "./third_party/source/sentencepiece/src/sentencepiece.proto" "https://github.com/google/sentencepiece/raw/master/src/sentencepiece.proto"
+}
+
+schema() {
+    echo "sentencepiece schema"
+    [[ $(grep -U $'\x0D' ./source/sentencepiece-proto.js) ]] && crlf=1
+    node ./tools/protoc.js --text --root sentencepiece --out ./source/sentencepiece-proto.js --path ./third_party/source/sentencepiece src/sentencepiece_model.proto
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/sentencepiece-proto.js ./source/sentencepiece-proto.js
+    fi
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+        "schema") schema;;
+    esac
+done
