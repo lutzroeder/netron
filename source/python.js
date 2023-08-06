@@ -4870,6 +4870,12 @@ python.Execution = class {
             }
             throw new python.Error("Unsupported 'torch.neg' expression type.");
         });
+        this.registerFunction('torch.pow', function(left, right) {
+            if (typeof left === 'number' && typeof right === 'number') {
+                return Math.pow(left, right);
+            }
+            throw new python.Error("Unsupported 'torch.pow' expression type.");
+        });
         this.registerFunction('torch.q_scale', function(/* tensor */) {
             return -1; // TODO
         });
