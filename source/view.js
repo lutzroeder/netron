@@ -2281,13 +2281,13 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         }
         const attributes = node.attributes;
         if (attributes && attributes.length > 0) {
+            this.addHeader('Attributes');
             const sortedAttributes = node.attributes.slice();
             sortedAttributes.sort((a, b) => {
                 const au = a.name.toUpperCase();
                 const bu = b.name.toUpperCase();
                 return (au < bu) ? -1 : (au > bu) ? 1 : 0;
             });
-            this.addHeader('Attributes');
             for (const attribute of sortedAttributes) {
                 this._addAttribute(attribute.name, attribute);
             }
@@ -2313,6 +2313,13 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         switch (attribute.type) {
             case 'tensor': {
                 value = new view.ValueView(this._host, { type: attribute.value.type, initializer: attribute.value }, '');
+                break;
+            }
+            case 'tensor[]': {
+                const values = attribute.value.map((value) => {
+                    return { type: value.type, initializer: value };
+                });
+                value = new view.ArgumentView(this._host, { value: values }, '');
                 break;
             }
             default: {
@@ -2542,18 +2549,12 @@ view.AttributeView = class extends view.Control {
             const typeLine = this.createElement('div', 'sidebar-item-value-line-border');
             typeLine.innerHTML = 'type: ' + '<code><b>' + content + '</b></code>';
             this._element.appendChild(typeLine);
-
             const description = this._attribute.description;
             if (description) {
                 const descriptionLine = this.createElement('div', 'sidebar-item-value-line-border');
                 descriptionLine.innerHTML = description;
                 this._element.appendChild(descriptionLine);
             }
-            /*
-            if (this._attribute.type == 'tensor' && value) {
-                this._tensor(value);
-            }
-            */
         } else {
             this._expander.innerText = '+';
             while (this._element.childElementCount > 2) {
