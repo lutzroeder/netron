@@ -2313,6 +2313,8 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         switch (attribute.type) {
             case 'tensor': {
                 value = new view.ValueView(this._host, { type: attribute.value.type, initializer: attribute.value }, '');
+                value.on('export-tensor', (sender, value) => this.emit('export-tensor', value));
+                value.on('error', (sender, value) => this.emit('error', value));
                 break;
             }
             case 'tensor[]': {
@@ -2511,15 +2513,7 @@ view.AttributeView = class extends view.Control {
                 break;
             }
             case 'tensor': {
-                const value = {
-                    name: '',
-                    initializer: attribute.value
-                };
-                const item = new view.ValueView(host, value);
-                for (const element of item.render()) {
-                    this._element.appendChild(element);
-                }
-                break;
+                throw new view.Error('Attribute view tensor not implemented.');
             }
             default: {
                 let content = new view.Formatter(value, type).toString();

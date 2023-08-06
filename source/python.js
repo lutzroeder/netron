@@ -3619,7 +3619,7 @@ python.Execution = class {
             let header = file.read(header_length);
             const decoder = new TextDecoder(major >= 3 ? 'utf-8' : 'ascii');
             header = decoder.decode(header);
-            header = JSON.parse(header.replace(/\(/,'[').replace(/\)/,']').replace('[,','[1,]').replace(',]',',1]').replace(/'/g, '"').replace(/:\s*False\s*,/,':false,').replace(/:\s*True\s*,/,':true,').replace(/,\s*\}/, ' }'));
+            header = JSON.parse(header.replace(/\(/,'[').replace(/\)/,']').replace('[,','[1,]').replace(',]',']').replace(/'/g, '"').replace(/:\s*False\s*,/,':false,').replace(/:\s*True\s*,/,':true,').replace(/,\s*\}/, ' }'));
             if (!header.descr || header.descr.length < 2) {
                 throw new python.Error("Missing property 'descr'.");
             }
@@ -3769,7 +3769,6 @@ python.Execution = class {
             context.view = new DataView(context.data.buffer, context.data.byteOffset, size);
             encode(context, a, 0);
             return self.invoke('numpy.ndarray', [ shape, dtype, context.data ]);
-
         });
         this.registerFunction('numpy.ma.core._mareconstruct', function(subtype, baseclass, baseshape, basetype) {
             const data = self.invoke(baseclass, [ baseshape, basetype ]);

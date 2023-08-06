@@ -158,56 +158,26 @@ numpy.ModelFactory = class {
 numpy.Model = class {
 
     constructor(format, graphs) {
-        this._format = format;
-        this._graphs = graphs.map((graph) => new numpy.Graph(graph));
-    }
-
-    get format() {
-        return this._format;
-    }
-
-    get graphs() {
-        return this._graphs;
+        this.format = format;
+        this.graphs = graphs.map((graph) => new numpy.Graph(graph));
     }
 };
 
 numpy.Graph = class {
 
     constructor(graph) {
-        this._name = graph.name || '';
-        this._nodes = graph.layers.map((layer) => new numpy.Node(layer));
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get inputs() {
-        return [];
-    }
-
-    get outputs() {
-        return [];
-    }
-
-    get nodes() {
-        return this._nodes;
+        this.name = graph.name || '';
+        this.nodes = graph.layers.map((layer) => new numpy.Node(layer));
+        this.inputs = [];
+        this.outputs = [];
     }
 };
 
 numpy.Argument = class {
 
     constructor(name, value) {
-        this._name = name;
-        this._value = value;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
+        this.name = name;
+        this.value = value;
     }
 };
 
@@ -217,20 +187,9 @@ numpy.Value = class {
         if (typeof name !== 'string') {
             throw new numpy.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
-        this._name = name;
-        this._initializer = initializer || null;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._initializer.type;
-    }
-
-    get initializer() {
-        return this._initializer;
+        this.name = name;
+        this.type = initializer.type;
+        this.initializer = initializer || null;
     }
 };
 
@@ -272,63 +231,32 @@ numpy.Node = class {
 numpy.Tensor = class  {
 
     constructor(array) {
-        this._type = new numpy.TensorType(array.dtype.__name__, new numpy.TensorShape(array.shape));
-        this._byteorder = array.dtype.byteorder;
-        this._data = this._type.dataType == 'string' || this._type.dataType == 'object' ? array.flatten().tolist() : array.tobytes();
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get category() {
-        return 'NumPy Array';
-    }
-
-    get layout() {
-        return this._type.dataType == 'string' || this._type.dataType == 'object' ? '|' : this._byteorder;
-    }
-
-    get values() {
-        return this._data;
+        this.type = new numpy.TensorType(array.dtype.__name__, new numpy.TensorShape(array.shape));
+        this.values = this.type.dataType == 'string' || this.type.dataType == 'object' ? array.flatten().tolist() : array.tobytes();
+        this.layout = this.type.dataType == 'string' || this.type.dataType == 'object' ? '|' : array.dtype.byteorder;
     }
 };
 
 numpy.TensorType = class {
 
     constructor(dataType, shape) {
-        this._dataType = dataType;
-        this._shape = shape;
-    }
-
-    get dataType() {
-        return this._dataType || '?';
-    }
-
-    get shape() {
-        return this._shape;
+        this.dataType = dataType || '?';
+        this.shape = shape;
     }
 
     toString() {
-        return this.dataType + this._shape.toString();
+        return this.dataType + this.shape.toString();
     }
 };
 
 numpy.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = dimensions;
-    }
-
-    get dimensions() {
-        return this._dimensions;
+        this.dimensions = dimensions;
     }
 
     toString() {
-        if (!this._dimensions || this._dimensions.length == 0) {
-            return '';
-        }
-        return '[' + this._dimensions.join(',') + ']';
+        return this.dimensions && this.dimensions.length > 0 ? '[' + this.dimensions.join(',') + ']' : '';
     }
 };
 
