@@ -23,50 +23,33 @@ acuity.ModelFactory = class {
 acuity.Model = class {
 
     constructor(metadata, model, data, quantization) {
-        this._name = model.MetaData.Name;
-        this._format = 'Acuity ' + 'v' + model.MetaData.AcuityVersion;
-        this._runtime = model.MetaData.Platform;
-        this._graphs = [ new acuity.Graph(metadata, model, data, quantization) ];
-    }
-
-    get format() {
-        return this._format;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get runtime() {
-        return this._runtime;
-    }
-
-    get graphs() {
-        return this._graphs;
+        this.name = model.MetaData.Name;
+        this.format = 'Acuity ' + 'v' + model.MetaData.AcuityVersion;
+        this.runtime = model.MetaData.Platform;
+        this.graphs = [ new acuity.Graph(metadata, model, data, quantization) ];
     }
 };
 
 acuity.Graph = class {
 
     constructor(metadata, model) {
-        this._nodes = [];
-        this._inputs = [];
-        this._outputs = [];
-        const args = new Map();
-        const arg = (name) => {
-            if (!args.has(name)) {
-                args.set(name, { name: name, shape: null });
+        this.nodes = [];
+        this.inputs = [];
+        this.outputs = [];
+        const values = new Map();
+        const value = (name) => {
+            if (!values.has(name)) {
+                values.set(name, { name: name, shape: null });
             }
-            return args.get(name);
+            return values.get(name);
         };
-
         for (const layerName of Object.keys(model.Layers)) {
             const layer = model.Layers[layerName];
             layer.inputs = layer.inputs.map((input) => {
-                return arg(input);
+                return value(input);
             });
             layer.outputs = layer.outputs.map((port) => {
-                const value = arg("@" + layerName + ":" + port);
+                const output = value("@" + layerName + ":" + port);
                 let shape = null;
                 if (layer.op.toLowerCase() == 'input' ||
                     layer.op.toLowerCase() == 'variable') {
@@ -80,163 +63,103 @@ acuity.Graph = class {
                         shape[0] = 1;
                     }
                 }
-                value.shape = shape;
-                return value;
+                output.shape = shape;
+                return output;
             });
         }
-
         acuity.Inference.infer(model.Layers);
-
-        for (const pair of args) {
-            const type = new acuity.TensorType(null, new acuity.TensorShape(pair[1].shape));
-            const arg = new acuity.Value(pair[0], type, null, null);
-            args.set(pair[0], arg);
+        for (const entry of values) {
+            const type = new acuity.TensorType(null, new acuity.TensorShape(entry[1].shape));
+            const value = new acuity.Value(entry[0], type, null, null);
+            values.set(entry[0], value);
         }
-
         for (const layerName of Object.keys(model.Layers)) {
             const layer = model.Layers[layerName];
             switch (layer.op.toLowerCase()) {
                 case 'input': {
-                    this._inputs.push(new acuity.Argument(layerName, [
-                        args.get(layer.outputs[0].name)
+                    this.inputs.push(new acuity.Argument(layerName, [
+                        values.get(layer.outputs[0].name)
                     ]));
                     break;
                 }
                 case 'output': {
-                    this._outputs.push(new acuity.Argument(layerName, [
-                        args.get(layer.inputs[0].name)
+                    this.outputs.push(new acuity.Argument(layerName, [
+                        values.get(layer.inputs[0].name)
                     ]));
                     break;
                 }
                 default: {
-                    this._nodes.push(new acuity.Node(metadata, layerName, layer, args));
+                    this.nodes.push(new acuity.Node(metadata, layerName, layer, values));
                     break;
                 }
             }
         }
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get nodes() {
-        return this._nodes;
     }
 };
 
 acuity.Node = class {
 
-    constructor(metadata, name, layer, args) {
-        this._name = name;
-        this._type = metadata.type(layer.op) || { name: layer.op };
-        this._inputs = [];
-        this._outputs = [];
-        this._attributes = [];
-        this._layer = layer;
-        if (this._type) {
+    constructor(metadata, name, layer, values) {
+        this.name = name;
+        this.type = metadata.type(layer.op) || { name: layer.op };
+        this.inputs = [];
+        this.outputs = [];
+        this.attributes = [];
+        if (this.type) {
             if (layer.parameters) {
                 for (const key of Object.keys(layer.parameters)) {
-                    const attribute = new acuity.Attribute(metadata.attribute(this._type.name, key), key, layer.parameters[key]);
-                    this._attributes.push(attribute);
+                    const attribute = new acuity.Attribute(metadata.attribute(this.type.name, key), key, layer.parameters[key]);
+                    this.attributes.push(attribute);
                 }
             }
         }
         for (let i = 0; i < layer.inputs.length; i++) {
             const input = layer.inputs[i];
-            const arg = args.get(input.name);
-            const name = this._type && this._type.inputs && i < this._type.inputs.length ? this._type.inputs[i].name : 'input' + i.toString();
-            this._inputs.push(new acuity.Argument(name, [ arg ]));
+            const value = values.get(input.name);
+            const name = this.type && this.type.inputs && i < this.type.inputs.length ? this.type.inputs[i].name : 'input' + i.toString();
+            this.inputs.push(new acuity.Argument(name, [ value ]));
         }
 
-        if (this._type && this._type.constants) {
-            for (const constant of this._type.constants) {
-                // const name = "@" + this._name + ":" + constant.name;
+        if (this.type && this.type.constants) {
+            for (const constant of this.type.constants) {
+                // const name = "@" + this.name + ":" + constant.name;
                 const type = new acuity.TensorType(null, new acuity.TensorShape(null));
                 const value = new acuity.Value('', type, null, new acuity.Tensor(type));
-                this._inputs.push(new acuity.Argument(constant.name, [ value ]));
+                this.inputs.push(new acuity.Argument(constant.name, [ value ]));
             }
         }
 
         for (let i = 0; i < layer.outputs.length; i++) {
             const output = layer.outputs[i];
-            const arg = args.get(output.name);
-            const name = this._type && this._type.outputs && i < this._type.outputs.length ? this._type.outputs[i].name : 'output' + i.toString();
-            this._outputs.push(new acuity.Argument(name, [arg]));
+            const value = values.get(output.name);
+            const name = this.type && this.type.outputs && i < this.type.outputs.length ? this.type.outputs[i].name : 'output' + i.toString();
+            this.outputs.push(new acuity.Argument(name, [ value ]));
         }
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get attributes() {
-        return this._attributes;
     }
 };
 
 acuity.Attribute = class {
 
     constructor(metadata, name, value) {
-        this._type = null;
-        this._name = name;
-        this._value = value;
+        this.type = null;
+        this.name = name;
+        this.value = value;
         if (metadata) {
-            this._type = metadata.type || null;
+            this.type = metadata.type || null;
             if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
                 if (metadata.default === value) {
-                    this._visible = false;
+                    this.visible = false;
                 }
             }
         }
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get value() {
-        return this._value;
-    }
-
-    get visible() {
-        return this._visible == false ? false : true;
     }
 };
 
 acuity.Argument = class {
 
     constructor(name, value) {
-        this._name = name;
-        this._value = value;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
+        this.name = name;
+        this.value = value;
     }
 };
 
@@ -246,86 +169,44 @@ acuity.Value = class {
         if (typeof name !== 'string') {
             throw new acuity.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
-        this._name = name;
-        this._type = type || null;
-        this._quantization = quantization || null;
-        this._initializer = initializer || null;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get quantization() {
-        return this._quantization;
-    }
-
-    get initializer() {
-        return this._initializer;
+        this.name = name;
+        this.type = type || null;
+        this.quantization = quantization || null;
+        this.initializer = initializer || null;
     }
 };
 
 acuity.TensorType = class {
 
     constructor(dataType, shape) {
-        this._dataType = dataType || '?';
-        this._shape = shape;
-    }
-
-    get dataType() {
-        return this._dataType;
-    }
-
-    set dataType(dataType) {
-        this._dataType = dataType;
-    }
-
-    get shape() {
-        return this._shape;
+        this.dataType = dataType || '?';
+        this.shape = shape;
     }
 
     toString() {
-        return (this.dataType || '?') + this._shape.toString();
+        return (this.dataType || '?') + this.shape.toString();
     }
 };
 
 acuity.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = dimensions || null;
-    }
-
-    get dimensions() {
-        if (Array.isArray(this._dimensions) && this._dimensions.length == 1 && this._dimensions[0] == 0) {
-            return [];
-        }
-        return this._dimensions;
+        this.dimensions = Array.isArray(dimensions) && dimensions.length == 1 && dimensions[0] == 0 ? [] : dimensions;
     }
 
     toString() {
-        if (!Array.isArray(this._dimensions) || this._dimensions.length == 0 || (this._dimensions.length == 1 && this._dimensions[0] == 0)) {
+        if (!Array.isArray(this.dimensions) || this.dimensions.length == 0 || (this.dimensions.length == 1 && this.dimensions[0] == 0)) {
             return '';
         }
-        return '[' + this._dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',') + ']';
+        return '[' + this.dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',') + ']';
     }
 };
 
 acuity.Tensor = class {
 
     constructor(type) {
-        this._type = type;
-    }
-
-    get category() {
-        return 'Constant';
-    }
-
-    get type() {
-        return this._type;
+        this.type = type;
+        this.Category = 'Constant';
     }
 };
 
