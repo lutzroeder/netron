@@ -2408,15 +2408,14 @@ view.SelectView = class extends view.Control {
         this._elements = [];
         this._values = values;
 
-        const selectElement = this._host.document.createElement('select');
-        selectElement.setAttribute('class', 'sidebar-item-select');
+        const selectElement = this.createElement('select', 'sidebar-item-select');
         selectElement.addEventListener('change', (e) => {
             this.emit('change', this._values[e.target.selectedIndex]);
         });
         this._elements.push(selectElement);
 
         for (const value of values) {
-            const optionElement = this._host.document.createElement('option');
+            const optionElement = this.createElement('option');
             optionElement.innerText = value.name || '';
             if (value == selected) {
                 optionElement.setAttribute('selected', 'selected');
@@ -2430,18 +2429,16 @@ view.SelectView = class extends view.Control {
     }
 };
 
-view.ValueTextView = class {
+view.ValueTextView = class extends view.Control {
 
     constructor(host, value, style) {
-        this._host = host;
-        this._element = this._host.document.createElement('div');
-        this._element.className = 'sidebar-item-value';
+        super(host);
+        this._element = this.createElement('div', 'sidebar-item-value');
         if (value) {
             const list = Array.isArray(value) ? value : [ value ];
             let className = 'sidebar-item-value-line';
             for (const item of list) {
-                const line = this._host.document.createElement('div');
-                line.className = className;
+                const line = this.createElement('div', className);
                 switch (style) {
                     case 'code':
                         line.innerHTML = '<code>' + item + '<code>';
@@ -2460,8 +2457,7 @@ view.ValueTextView = class {
     }
 
     action(text, callback) {
-        this._action = this._host.document.createElement('div');
-        this._action.className = 'sidebar-item-value-expander';
+        this._action = this.createElement('div', 'sidebar-item-value-expander');
         this._action.innerHTML = text;
         this._action.addEventListener('click', () => {
             callback();
@@ -2915,12 +2911,18 @@ view.ModelSidebar = class extends view.ObjectSidebar {
             }
         }
         const graphs = Array.isArray(model.graphs) ? model.graphs : [];
-        if (graphs.length > 1 || (graphs.length === 1 && graphs[0].name)) {
-            const selector = new view.SelectView(this._host, model.graphs, graph);
-            selector.on('change', (sender, data) => {
-                this.emit('update-active-graph', data);
-            });
-            this.addProperty('graph', selector);
+        if (graphs.length > 0 || (graphs.length === 1 && graphs[0].name)) {
+            let selector = null;
+            if (graphs.length === 1) {
+                const name = graphs[0].name;
+                selector = new view.ValueTextView(this._host, name);
+            } else {
+                selector = new view.SelectView(this._host, model.graphs, graph);
+                selector.on('change', (sender, data) => {
+                    this.emit('update-active-graph', data);
+                });
+            }
+            this.add('graph', selector);
         }
 
         if (graph) {
