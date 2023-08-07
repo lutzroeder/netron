@@ -124,6 +124,7 @@
             { "ext": "nn",          "name": "Barracuda Model"          },
             { "ext": "nnp",         "name": "Neural Network Libraries" },
             { "ext": "npy",         "name": "NumPy Array"              },
+            { "ext": "npz",         "name": "NumPy Archive"            },
             { "ext": "om",          "name": "DaVinci OM Model"         },
             { "ext": "onnx",        "name": "ONNX Model"               },
             { "ext": "ort",         "name": "ONNX Runtime Model"       },
