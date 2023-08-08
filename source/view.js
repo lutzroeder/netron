@@ -2911,20 +2911,13 @@ view.ModelSidebar = class extends view.ObjectSidebar {
             }
         }
         const graphs = Array.isArray(model.graphs) ? model.graphs : [];
-        if (graphs.length > 0 || (graphs.length === 1 && graphs[0].name)) {
-            let selector = null;
-            if (graphs.length === 1) {
-                const name = graphs[0].name;
-                selector = new view.ValueTextView(this._host, name);
-            } else {
-                selector = new view.SelectView(this._host, model.graphs, graph);
-                selector.on('change', (sender, data) => {
-                    this.emit('update-active-graph', data);
-                });
-            }
+        if (graphs.length === 1 && graphs[0].name) {
+            this.addProperty('graph', graphs[0].name);
+        } else if (graphs.length > 1) {
+            const selector = new view.SelectView(this._host, model.graphs, graph);
+            selector.on('change', (sender, data) => this.emit('update-active-graph', data));
             this.add('graph', selector);
         }
-
         if (graph) {
             if (graph.version) {
                 this.addProperty('version', graph.version);
