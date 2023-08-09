@@ -405,7 +405,8 @@ $root.tflite.BuiltinOperator = {
     SIGN: 158,
     BITCAST: 159,
     BITWISE_XOR: 160,
-    RIGHT_SHIFT: 161
+    RIGHT_SHIFT: 161,
+    STABLEHLO_LOGISTIC: 162
 };
 
 $root.tflite.BuiltinOptions = class {
