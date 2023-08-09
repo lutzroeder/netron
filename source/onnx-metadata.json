@@ -16289,7 +16289,7 @@
         "type": "int64",
         "required": false,
         "default": -1,
-        "description": "The first normalization dimension. If rank(X) is r, axis' allowed range is [-r, r]. Negative value means counting dimensions from the back."
+        "description": "The first normalization dimension. If rank(X) is r, axis' allowed range is [-r, r). Negative value means counting dimensions from the back."
       },
       {
         "name": "epsilon",
