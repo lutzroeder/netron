@@ -15095,6 +15095,94 @@
     ]
   },
   {
+    "name": "ImageDecoder",
+    "module": "ai.onnx",
+    "version": 20,
+    "support_level": "common",
+    "description": "Loads and decodes and image from a file. If it can't decode for any reason (e.g. corrupted encoded\nstream, invalid format, it will return an empty matrix).\nThe following image formats are supported:\n* BMP\n* JPEG (note: Lossless JPEG support is optional)\n* JPEG2000\n* TIFF\n* PNG\n* WebP\n* Portable image format (PBM, PGM, PPM, PXM, PNM)\nDecoded images follow a channel-last layout: (Height, Width, Channels).\n**JPEG chroma upsampling method:**\nWhen upsampling the chroma components by a factor of 2, the pixels are linearly interpolated so that the\ncenters of the output pixels are 1/4 and 3/4 of the way between input pixel centers.\nWhen rounding, 0.5 is rounded down and up at alternative pixels locations to prevent bias towards\nlarger values (ordered dither pattern).\nConsidering adjacent input pixels A, B, and C, B is upsampled to pixels B0 and B1 so that\n```\nB0 = round_half_down((1/4) * A + (3/4) * B)\nB1 = round_half_up((3/4) * B + (1/4) * C)\n```\nThis method,  is the default chroma upsampling method in the well-established libjpeg-turbo library,\nalso referred as \"smooth\" or \"fancy\" upsampling.\n",
+    "attributes": [
+      {
+        "name": "pixel_format",
+        "type": "string",
+        "required": false,
+        "default": "RGB",
+        "description": "Pixel format. Can be one of \"RGB\", \"BGR\", or \"Grayscale\"."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "encoded_stream",
+        "type": "T1",
+        "description": "Encoded stream"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "image",
+        "type": "T2",
+        "description": "Decoded image"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input types to 8-bit unsigned integer tensor.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(uint8)"
+        ]
+      },
+      {
+        "description": "Constrain output types to 8-bit unsigned integer tensor.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(uint8)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "image_decoder_decode_bmp_rgb",
+        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = generate_test_data(\".bmp\", \"RGB\")\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_bmp_rgb\",\n)"
+      },
+      {
+        "summary": "image_decoder_decode_jpeg2k_rgb",
+        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = generate_test_data(\".jp2\", \"RGB\")\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_jpeg2k_rgb\",\n)"
+      },
+      {
+        "summary": "image_decoder_decode_jpeg_bgr",
+        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"BGR\",\n)\n\ndata, output = generate_test_data(\".jpg\", \"BGR\")\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_jpeg_bgr\",\n)"
+      },
+      {
+        "summary": "image_decoder_decode_jpeg_grayscale",
+        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"Grayscale\",\n)\n\ndata, output = generate_test_data(\".jpg\", \"Grayscale\")\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_jpeg_grayscale\",\n)"
+      },
+      {
+        "summary": "image_decoder_decode_jpeg_rgb",
+        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = generate_test_data(\".jpg\", \"RGB\")\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_jpeg_rgb\",\n)"
+      },
+      {
+        "summary": "image_decoder_decode_png_rgb",
+        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = generate_test_data(\".png\", \"RGB\")\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_png_rgb\",\n)"
+      },
+      {
+        "summary": "image_decoder_decode_pnm_rgb",
+        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = generate_test_data(\".pnm\", \"RGB\")\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_pnm_rgb\",\n)"
+      },
+      {
+        "summary": "image_decoder_decode_tiff_rgb",
+        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = generate_test_data(\".tiff\", \"RGB\")\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_tiff_rgb\",\n)"
+      },
+      {
+        "summary": "image_decoder_decode_webp_rgb",
+        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = generate_test_data(\".webp\", \"RGB\")\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_webp_rgb\",\n)"
+      }
+    ]
+  },
+  {
     "name": "Imputer",
     "module": "ai.onnx.ml",
     "version": 1,
