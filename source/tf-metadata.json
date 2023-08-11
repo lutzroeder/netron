@@ -14945,6 +14945,87 @@
     ]
   },
   {
+    "name": "DynamicEnqueueTPUEmbeddingRaggedTensorBatch",
+    "attributes": [
+      {
+        "name": "T1",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `int64`.",
+        "default": {
+          "type": "type",
+          "value": 3
+        }
+      },
+      {
+        "name": "T2",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `int64`.",
+        "default": {
+          "type": "type",
+          "value": 3
+        }
+      },
+      {
+        "name": "T3",
+        "type": "type",
+        "description": "Must be one of the following: `float32`, `float64`.",
+        "default": {
+          "type": "type",
+          "value": 1
+        }
+      },
+      {
+        "name": "N",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "combiners",
+        "type": "string[]",
+        "default": []
+      },
+      {
+        "name": "table_ids",
+        "type": "int64[]"
+      },
+      {
+        "name": "max_sequence_lengths",
+        "type": "int64[]",
+        "default": []
+      },
+      {
+        "name": "num_features",
+        "type": "int64[]",
+        "default": []
+      }
+    ],
+    "inputs": [
+      {
+        "name": "sample_splits",
+        "numberAttr": "N",
+        "typeAttr": "T1"
+      },
+      {
+        "name": "embedding_indices",
+        "numberAttr": "N",
+        "typeAttr": "T2"
+      },
+      {
+        "name": "aggregation_weights",
+        "numberAttr": "N",
+        "typeAttr": "T3"
+      },
+      {
+        "name": "mode_override",
+        "type": 7
+      },
+      {
+        "name": "device_ordinal",
+        "type": 3
+      }
+    ]
+  },
+  {
     "name": "DynamicPartition",
     "summary": "Partitions `data` into `num_partitions` tensors using indices from `partitions`.",
     "description": "For each index tuple `js` of size `partitions.ndim`, the slice `data[js, ...]`\nbecomes part of `outputs[partitions[js]]`.  The slices with `partitions[js] = i`\nare placed in `outputs[i]` in lexicographic order of `js`, and the first\ndimension of `outputs[i]` is the number of entries in `partitions` equal to `i`.\nIn detail,\n\n```python\n    outputs[i].shape = [sum(partitions == i)] + data.shape[partitions.ndim:]\n\n    outputs[i] = pack([data[js, ...] for js if partitions[js] == i])\n```\n\n`data.shape` must start with `partitions.shape`.\n\nFor example:\n\n```python\n    # Scalar partitions.\n    partitions = 1\n    num_partitions = 2\n    data = [10, 20]\n    outputs[0] = []  # Empty with shape [0, 2]\n    outputs[1] = [[10, 20]]\n\n    # Vector partitions.\n    partitions = [0, 0, 1, 1, 0]\n    num_partitions = 2\n    data = [10, 20, 30, 40, 50]\n    outputs[0] = [10, 20, 50]\n    outputs[1] = [30, 40]\n```\n\nSee `dynamic_stitch` for an example on how to merge partitions back.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/DynamicPartition.png\" alt>\n</div>\n\n\nRaises:\n  * `InvalidArgumentError` in following cases:\n    - If partitions is not in range `[0, num_partiions)`\n    - If `partitions.shape` does not match prefix of `data.shape` argument.\n",
