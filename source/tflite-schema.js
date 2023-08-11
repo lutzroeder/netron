@@ -406,7 +406,11 @@ $root.tflite.BuiltinOperator = {
     BITCAST: 159,
     BITWISE_XOR: 160,
     RIGHT_SHIFT: 161,
-    STABLEHLO_LOGISTIC: 162
+    STABLEHLO_LOGISTIC: 162,
+    STABLEHLO_ADD: 163,
+    STABLEHLO_DIVIDE: 164,
+    STABLEHLO_MULTIPLY: 165,
+    STABLEHLO_MAXIMUM: 166
 };
 
 $root.tflite.BuiltinOptions = class {
