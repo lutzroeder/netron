@@ -12475,7 +12475,7 @@
     "name": "aten::tile",
     "inputs": [
       { "name": "self", "type": "Tensor" },
-      { "name": "dims", "type": "int64[]" }
+      { "name": "dims", "type": "SymInt[]" }
     ],
     "outputs": [
       { "type": "Tensor" }
