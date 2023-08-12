@@ -2068,10 +2068,12 @@ view.Value = class {
     }
 
     activate() {
-        const value = this.value;
-        const from = this.from.value;
-        const to = this.to.map((node) => node.value);
-        this.context.view.showConnectionProperties(value, from, to);
+        if (this.value && this.from && Array.isArray(this.to)) {
+            const value = this.value;
+            const from = this.from.value;
+            const to = this.to.map((node) => node.value);
+            this.context.view.showConnectionProperties(value, from, to);
+        }
     }
 };
 
