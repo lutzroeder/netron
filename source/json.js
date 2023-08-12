@@ -26,10 +26,10 @@ json.TextReader = class {
                 case 'start':
                     if (c === '#') {
                         state = 'comment';
-                    } else if (c === '[') {
-                        state = 'list';
                     } else if (c === '{') {
                         state = 'object';
+                    } else if (c === '[') {
+                        state = 'list';
                     } else if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z') {
                         state = '';
                     } else {
