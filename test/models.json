@@ -3586,6 +3586,14 @@
   },
   {
     "type":     "onnx",
+    "target":   "gather.json",
+    "source":   "https://github.com/lutzroeder/netron/files/12306625/gather.json.zip[gather.json]",
+    "format":   "ONNX JSON v6",
+    "error":    "Unsupported JSON content.",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
     "target":   "gpt2.onnx.zip",
     "source":   "https://github.com/lutzroeder/netron/files/11583198/gpt2.onnx.zip",
     "format":   "ONNX v7",
@@ -3698,6 +3706,14 @@
     "source":   "https://github.com/lutzroeder/netron/files/6845111/model_local_func_test.onnx.zip[model_local_func_test.onnx]",
     "format":   "ONNX v8",
     "link":     "https://github.com/lutzroeder/netron/issues/773"
+  },
+  {
+    "type":     "onnx",
+    "target":   "nms_base_component.json",
+    "source":   "https://github.com/lutzroeder/netron/files/12306626/nms_base_component.json.zip[nms_base_component.json]",
+    "format":   "ONNX JSON v8",
+    "error":    "Unsupported JSON content.",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
     "type":     "onnx",
