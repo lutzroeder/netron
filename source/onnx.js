@@ -609,8 +609,7 @@ onnx.Tensor = class {
 
     constructor(context, tensor, category) {
         this._category = category || null;
-        if ((onnx.proto && tensor instanceof onnx.proto.SparseTensorProto) ||
-            (onnx.schema && tensor instanceof onnx.schema.SparseTensor)) {
+        if (tensor.indices && tensor.values) {
             this._name = tensor.values.name || '';
             this._type = context.createTensorType(tensor.values.data_type, tensor.dims.map((dim) => dim), null);
             this._location = context.createLocation(tensor.values.data_location);
@@ -1212,25 +1211,25 @@ onnx.GraphContext = class {
                     if (attribute.type) {
                         continue;
                     }
-                    if (attribute.ints && attribute.ints.length > 0) {
+                    if (Array.isArray(attribute.ints) && attribute.ints.length > 0) {
                         attribute.type = onnx.AttributeType.INTS;
-                    } else if (attribute.floats && attribute.floats.length > 0) {
+                    } else if (Array.isArray(attribute.floats) && attribute.floats.length > 0) {
                         attribute.type = onnx.AttributeType.FLOATS;
-                    } else if (attribute.strings && attribute.strings.length > 0) {
+                    } else if (Array.isArray(attribute.strings) && attribute.strings.length > 0) {
                         attribute.type = onnx.AttributeType.STRINGS;
-                    } else if (attribute.graphs && attribute.graphs.length > 0) {
+                    } else if (Array.isArray(attribute.graphs) && attribute.graphs.length > 0) {
                         attribute.type = onnx.AttributeType.GRAPHS;
-                    } else if (attribute.s && attribute.s.length > 0) {
+                    } else if (Array.isArray(attribute.s) && attribute.s.length > 0) {
                         attribute.type = onnx.AttributeType.STRING;
-                    } else if (Object.prototype.hasOwnProperty.call(attribute, 'f')) {
+                    } else if (attribute.f !== undefined) {
                         attribute.type = onnx.AttributeType.FLOAT;
-                    } else if (Object.prototype.hasOwnProperty.call(attribute, 'i')) {
+                    } else if (attribute.i !== undefined) {
                         attribute.type = onnx.AttributeType.INT;
-                    } else if (Object.prototype.hasOwnProperty.call(attribute, 't')) {
+                    } else if (attribute.t !== undefined) {
                         attribute.type = onnx.AttributeType.TENSOR;
-                    } else if (Object.prototype.hasOwnProperty.call(attribute, 'g')) {
+                    } else if (attribute.g !== undefined) {
                         attribute.type = onnx.AttributeType.GRAPH;
-                    } else if (Object.prototype.hasOwnProperty.call(attribute, 'sparse_tensor')) {
+                    } else if (attribute.sparse_tensor !== undefined) {
                         attribute.type =onnx.AttributeType.SPARSE_TENSOR;
                     } else {
                         attribute.type = onnx.AttributeType.UNDEFINED;
@@ -1708,124 +1707,128 @@ onnx.OrtReader = class {
             const reader = flatbuffers.BinaryReader.open(stream);
             const session = onnx.schema.InferenceSession.create(reader);
             this.model = session.model;
-            const graph = this.model.graph;
-            graph.doc_string = this.model.graph_doc_string;
-            delete this.model.graph_doc_string;
-            this._graph(graph);
-            this.format = 'ONNX Runtime' + (this.model.ir_version ? ' v' + this.model.ir_version.toString() : '');
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
             throw new onnx.Error('File format is not ort.Model (' + message.replace(/\.$/, '') + ').');
         }
-    }
-
-    _graph(graph) {
-        if (this._graphs.has(graph)) {
-            return;
-        }
-        this._graphs.add(graph);
-        graph.name = this._graphs.size.toString();
-        graph.node = graph.nodes.map((node) => {
-            this._node(node);
-            return node;
-        });
-        delete graph.nodes;
-        graph.value_info = graph.node_args.map((valueInfo) => {
-            return {
-                name: valueInfo.name,
-                doc_string: valueInfo.doc_string,
-                type: this._type(valueInfo.type)
-            };
-        });
-        delete graph.node_args;
-        const value_info = new Map(graph.value_info.map((entry) => [ entry.name, entry ]));
-        graph.input = graph.inputs.map((input) => {
-            return value_info.has(input) ? value_info.get(input) : { name: input };
-        });
-        delete graph.inputs;
-        graph.output = graph.outputs.map((output) => {
-            return value_info.has(output) ? value_info.get(output) : { name: output };
-        });
-        delete graph.outputs;
-        graph.initializer = graph.initializers.map((tensor) => {
-            tensor.data_location = onnx.DataLocation.DEFAULT;
-            return tensor;
-        });
-        delete graph.initializers;
-        graph.sparse_initializer = graph.sparse_initializers.map((tensor) => {
-            tensor.values.data_location = onnx.DataLocation.DEFAULT;
-            tensor.indices.data_location = onnx.DataLocation.DEFAULT;
-            return tensor;
-        });
-        delete graph.sparse_initializers;
-    }
-
-    _node(node) {
-        node.input = node.inputs;
-        node.output = node.outputs;
-        node.attribute = node.attributes.map((attribute) => {
-            const type = attribute.type;
-            if (type === onnx.AttributeType.GRAPH) {
-                this._graph(attribute.g);
-            } else if (type === onnx.AttributeType.GRAPHS) {
-                for (const graph of attribute.graphs) {
-                    this._graph(graph);
+        const tensor_shape = (value) => {
+            if (value && value.dim && Array.isArray(value.dim)) {
+                for (const dimension of value.dim) {
+                    switch (dimension.value.dim_type) {
+                        case 0:
+                            return {};
+                        case 1:
+                            dimension.dim_value = dimension.value.dim_value;
+                            delete dimension.value;
+                            break;
+                        case 2:
+                            dimension.dim_param = dimension.value.dim_param;
+                            delete dimension.value.dim_param;
+                            break;
+                        default:
+                            throw new onnx.Error("Unknown shape dimension '" + JSON.stringify(dimension.value) + "'.");
+                    }
                 }
-            } else if (type === onnx.AttributeType.TYPE_PROTO) {
-                attribute.tp = this._type(attribute.tp);
-            } else if (type === onnx.AttributeType.TYPE_PROTOS) {
-                attribute.type_protos = attribute.type_protos.map((type) => this._type(type));
             }
-            return attribute;
-        });
-        delete node.inputs;
-        delete node.outputs;
-        delete node.attributes;
-    }
-
-    _type(type) {
-        if (type) {
-            const value = type.value;
-            if (value && value instanceof onnx.schema.TensorTypeAndShape) {
-                return {
-                    tensor_type: { elem_type: value.elem_type, shape: this._shape(value.shape) },
-                    denotation: value.denotation
-                };
-            }
-            if (value && value instanceof onnx.schema.SequenceType) {
-                return {
-                    sequence_type: { elem_type: this._type(value.elem_type) },
-                    denotation: value.denotation
-                };
-            }
-            if (value && value instanceof onnx.schema.MapType) {
-                return {
-                    map_type: { key_type: value.key_type, value_type: this._type(value.value_type) },
-                    denotation: value.denotation
-                };
-            }
-            throw new onnx.Error("Unsupported type value '" + JSON.stringify(type.value));
-        }
-        return null;
-    }
-
-    _shape(shape) {
-        if (shape && shape.dim && Array.isArray(shape.dim)) {
-            const dimensions = shape.dim.map((dim) => {
-                switch (dim.value.dim_type) {
-                    case 0:
-                        return {};
-                    case 1:
-                        return { dim_value: dim.value.dim_value, denotation: dim.denotation };
-                    case 2:
-                        return { dim_param: dim.value.dim_param, denotation: dim.denotation };
-                    default:
-                        throw new onnx.Error("Unknown shape dimension '" + JSON.stringify(dim.value) + "'.");
+            return value;
+        };
+        /* eslint-disable no-use-before-define */
+        const node = (value) => {
+            value.input = value.inputs;
+            value.output = value.outputs;
+            value.attribute = value.attributes.map((attribute) => {
+                const type = attribute.type;
+                if (type === onnx.AttributeType.GRAPH) {
+                    graph(attribute.g);
+                } else if (type === onnx.AttributeType.GRAPHS) {
+                    for (const graph of attribute.graphs) {
+                        graph(graph);
+                    }
+                } else if (type === onnx.AttributeType.TYPE_PROTO) {
+                    attribute.tp = type(attribute.tp);
+                } else if (type === onnx.AttributeType.TYPE_PROTOS) {
+                    attribute.type_protos = attribute.type_protos.map((type) => type(type));
                 }
+                return attribute;
             });
-            return { dim: dimensions };
-        }
-        return shape;
+            delete value.inputs;
+            delete value.outputs;
+            delete value.attributes;
+            return value;
+        };
+        const tensor_type = (value) => {
+            value.shape = tensor_shape(value.shape);
+            return value;
+        };
+        const sequence_type = (value) => {
+            value.shape = type(value.elem_type);
+            return value;
+        };
+        const map_type = (value) => {
+            value.value_type = type(value.value_type);
+            return value;
+        };
+        /* eslint-enable no-use-before-define */
+        const type = (value) => {
+            if (value) {
+                const type = value.value;
+                if (type && type instanceof onnx.schema.TensorTypeAndShape) {
+                    value.tensor_type = tensor_type(type);
+                    return value;
+                }
+                if (type && type instanceof onnx.schema.SequenceType) {
+                    value.sequence_type = sequence_type(type);
+                    return value;
+                }
+                if (type && type instanceof onnx.schema.MapType) {
+                    value.map_type = map_type(type);
+                    return value;
+                }
+                throw new onnx.Error("Unsupported type value '" + JSON.stringify(value.value));
+            }
+            return null;
+        };
+        const graph = (value) => {
+            if (this._graphs.has(value)) {
+                return;
+            }
+            this._graphs.add(value);
+            value.name = this._graphs.size.toString();
+            value.node = value.nodes.map((value) => node(value));
+            delete value.nodes;
+            value.value_info = value.node_args.map((valueInfo) => {
+                return {
+                    name: valueInfo.name,
+                    doc_string: valueInfo.doc_string,
+                    type: type(valueInfo.type)
+                };
+            });
+            delete value.node_args;
+            const value_info = new Map(value.value_info.map((entry) => [ entry.name, entry ]));
+            value.input = value.inputs.map((input) => {
+                return value_info.has(input) ? value_info.get(input) : { name: input };
+            });
+            delete value.inputs;
+            value.output = value.outputs.map((output) => {
+                return value_info.has(output) ? value_info.get(output) : { name: output };
+            });
+            delete value.outputs;
+            value.initializer = value.initializers.map((tensor) => {
+                tensor.data_location = onnx.DataLocation.DEFAULT;
+                return tensor;
+            });
+            delete value.initializers;
+            value.sparse_initializer = value.sparse_initializers.map((tensor) => {
+                tensor.values.data_location = onnx.DataLocation.DEFAULT;
+                tensor.indices.data_location = onnx.DataLocation.DEFAULT;
+                return tensor;
+            });
+            delete value.sparse_initializers;
+        };
+        graph(this.model.graph);
+        this.model.graph.doc_string = this.model.graph_doc_string;
+        delete this.model.graph_doc_string;
+        this.format = 'ONNX Runtime' + (this.model.ir_version ? ' v' + this.model.ir_version.toString() : '');
     }
 };
 
@@ -1841,55 +1844,223 @@ onnx.JsonReader = class {
 
     constructor(obj) {
         this.model = obj;
+        this._attributeTypes = new Map(Object.entries(onnx.AttributeType));
     }
 
     async read() {
+        const tensor_shape = (value) => {
+            if (Array.isArray(value.dim)) {
+                for (const dimension of value.dim) {
+                    if (dimension.dimValue !== undefined) {
+                        dimension.dim_value = parseInt(dimension.dimValue, 10);
+                        delete dimension.dimValue;
+                    } else if (dimension.dimParam !== undefined) {
+                        dimension.dim_param = dimension.dimParam;
+                        delete dimension.dimParam;
+                    }
+                }
+            }
+            return value;
+        };
+        const tensor_type = (value) => {
+            value.elem_type = value.elemType;
+            delete value.elemType;
+            if (value.shape) {
+                value.shape = tensor_shape(value.shape);
+            }
+            return value;
+        };
+        /* eslint-disable no-use-before-define */
+        const optional_type = (value) => {
+            value.elem_type = type(value.elemType);
+            delete value.elemType;
+            return value;
+        };
+        const sequence_type = (value) => {
+            value.elem_type = type(value.elemType);
+            delete value.elemType;
+            return value;
+        };
+        const map_type = (value) => {
+            value.key_type = value.keyType;
+            delete value.keyType;
+            value.value_type = type(value.valueType);
+            delete value.valueType;
+            return value;
+        };
+        const sparse_tensor_type = (value) => {
+            value.elem_type = value.elemType;
+            delete value.elemType;
+            if (value.shape) {
+                value.shape = tensor_shape(value.shape);
+            }
+            return value;
+        };
         const type = (value) => {
+            if (value.tensorType) {
+                value.tensor_type = tensor_type(value.tensorType);
+                delete value.tensorType;
+            } else if (value.sequenceType) {
+                value.sequence_type = sequence_type(value.sequenceType);
+                delete value.sequenceType;
+            } else if (value.optionalType) {
+                value.optional_type = optional_type(value.optionalType);
+                delete value.optionalType;
+            } else if (value.mapType) {
+                value.map_type = map_type(value.mapType);
+                delete value.mapType;
+            } else if (value.sparseTensorType) {
+                value.sparse_tensor_type = sparse_tensor_type(value.sparseTensorType);
+                delete value.sparseTensorType;
+            } else {
+                throw new onnx.Error("Unsupported ONNX JSON type '" + JSON.stringify(Object.keys(value)) + "'.");
+            }
             return value;
         };
         const tensor = (value) => {
             value.data_type = value.dataType;
-            value.raw_data = atob(value.rawData);
+            value.dims = Array.isArray(value.dims) ? value.dims.map((dim) => parseInt(dim, 10)) : [];
+            delete value.dataType;
+            if (value.rawData !== undefined) {
+                value.data_location = onnx.DataLocation.DEFAULT;
+                const data = atob(value.rawData);
+                const length = data.length;
+                const array = new Uint8Array(length);
+                for (let i = 0; i < length; i++) {
+                    array[i] = data[i].charCodeAt(0);
+                }
+                value.raw_data = array;
+                delete value.rawData;
+            } else if (Array.isArray(value.floatData)) {
+                value.data_location = onnx.DataLocation.DEFAULT;
+                value.float_data = value.floatData;
+                delete value.floatData;
+            } else if (Array.isArray(value.int32Data)) {
+                value.data_location = onnx.DataLocation.DEFAULT;
+                value.int32_data = value.int32Data;
+                delete value.int32Data;
+            } else if (Array.isArray(value.int64Data)) {
+                value.data_location = onnx.DataLocation.DEFAULT;
+                value.int64_data = value.int64Data.map((value) => parseInt(value, 10));
+                delete value.int64Data;
+            } else {
+                throw new onnx.Error("Unsupported ONNX JSON tensor data '" + JSON.stringify(value.data_type) + ".");
+            }
             return value;
         };
         const sparse_tensor = (value) => {
+            value.indices = tensor(value.indices);
+            value.values = tensor(value.values);
+            return value;
+        };
+        const attribute = (value) => {
+            if (value.type && this._attributeTypes.has(value.type)) {
+                value.type = this._attributeTypes.get(value.type);
+            }
+            if (value.type === onnx.AttributeType.FLOATS || Array.isArray(value.floats)) {
+                value.floats = value.floats.map((value) => parseFloat(value));
+            } else if (value.type === onnx.AttributeType.INTS || Array.isArray(value.ints)) {
+                value.ints = value.ints.map((value) => parseInt(value, 10));
+            } else if (value.type === onnx.AttributeType.STRINGS || Array.isArray(value.strings)) {
+                value.strings = value.strings.map((value) => atob(value));
+            } else if (value.type === onnx.AttributeType.TENSORS || Array.isArray(value.tensors)) {
+                value.tensors = value.tensors.map((value) => tensor(value));
+            } else if (value.type === onnx.AttributeType.GRAPHS || Array.isArray(value.graphs)) {
+                value.graphs = value.graphs.map((value) => graph(value));
+            } else if (value.type === onnx.AttributeType.SPARSE_TENSORS || Array.isArray(value.sparseTensors)) {
+                value.sparse_tensors = value.sparseTensors.map((value) => sparse_tensor(value));
+                delete value.sparseTensors;
+            } else if (value.type === onnx.AttributeType.FLOAT || value.f !== undefined) {
+                value.f = parseFloat(value.f);
+            } else if (value.type === onnx.AttributeType.INT || value.i !== undefined) {
+                value.i = parseInt(value.i, 10);
+            } else if (value.type === onnx.AttributeType.STRING || value.s !== undefined) {
+                value.s = atob(value.s);
+            } else if (value.type === onnx.AttributeType.TENSOR || value.t !== undefined) {
+                value.t = tensor(value.t);
+            } else if (value.type === onnx.AttributeType.GRAPH || value.g !== undefined) {
+                value.g = graph(value.g);
+            } else if (value.type === onnx.AttributeType.SPARSE_TENSOR || value.sparseTensor !== undefined) {
+                value.sparse_tensor = sparse_tensor(value.sparseTensor);
+                delete value.sparseTensor;
+            } else {
+                throw new onnx.Error("Unsupported ONNX JSON attribute type '" + JSON.stringify(value.type) + "'.");
+            }
             return value;
         };
         const node = (value) => {
             value.op_type = value.opType;
+            delete value.opType;
+            value.input = Array.isArray(value.input) ? value.input : [];
+            value.output = Array.isArray(value.output) ? value.output : [];
+            value.attribute = Array.isArray(value.attribute) ? value.attribute.map((value) => attribute(value)) : [];
             return value;
         };
         const value_info = (value) => {
             value.type = type(value.type);
             return value;
         };
+        const operator_set = (value) => {
+            value.version = parseInt(value.version, 10);
+            return value;
+        };
         const graph = (value) => {
             value.node = value.node.map((value) => node(value));
-            if (Array.isArray(value.initializer)) {
-                value.initializer = value.initializer.map((value) => tensor(value));
-            }
-            if (Array.isArray(value.sparseInitializer)) {
-                value.sparse_initializer = value.sparseInitializer.map((value) => sparse_tensor(value));
-            }
-            if (Array.isArray(value.valueInfo)) {
-                value.value_info = value.valueInfo.map((value) => value_info(value));
-            }
-            if (Array.isArray(value.input)) {
-                value.input = value.input.map((value) => value_info(value));
-            }
-            if (Array.isArray(value.output)) {
-                value.output = value.output.map((value) => value_info(value));
+            value.initializer = Array.isArray(value.initializer) ? value.initializer.map((value) => tensor(value)) : [];
+            value.sparse_initializer = Array.isArray(value.sparseInitializer) ? value.sparseInitializer.map((value) => sparse_tensor(value)) : [];
+            value.value_info = Array.isArray(value.valueInfo) ? value.valueInfo.map((value) => value_info(value)) : [];
+            value.input = Array.isArray(value.input) ? value.input.map((value) => value_info(value)) : [];
+            value.output = Array.isArray(value.output) ? value.output.map((value) => value_info(value)) : [];
+            return value;
+        };
+        const func = (value) => {
+            value.node = value.node.map((value) => node(value));
+            value.input = Array.isArray(value.input) ? value.input : [];
+            value.output = Array.isArray(value.output) ? value.output : [];
+            value.attribute = Array.isArray(value.attribute) ? value.attribute : [];
+            value.attribute_proto = Array.isArray(value.attributeProto) ? value.attributeProto.map((value) => attribute(value)) : [];
+            delete value.attributeProto;
+            if (value.docString) {
+                value.doc_string = value.docString;
+                delete value.docString;
             }
             return value;
         };
-        const model = (value) => {
-            value.ir_version = parseInt(value.irVersion, 10);
-            value.graph = graph(value.graph);
-        };
-        model(this.model);
+        /* eslint-enable no-use-before-define */
+        this.model.ir_version = parseInt(this.model.irVersion, 10);
+        delete this.model.irVersion;
+        if (this.model.version !== undefined) {
+            this.model.version = parseInt(this.model.version, 10);
+        }
+        if (this.model.producerName) {
+            this.model.producer_name = this.model.producerName;
+            delete this.model.producerName;
+        }
+        if (this.model.producerVersion) {
+            this.model.producer_version = this.model.producerVersion;
+            delete this.model.producerVersion;
+        }
+        if (this.model.modelVersion) {
+            this.model.model_version = parseInt(this.model.modelVersion, 10);
+            delete this.model.modelVersion;
+        }
+        if (this.model.docString) {
+            this.model.doc_string = this.model.docString;
+            delete this.model.docString;
+        }
+        this.model.graph = graph(this.model.graph);
+        if (Array.isArray(this.model.opsetImport)) {
+            this.model.opset_import = this.model.opsetImport.map((value) => operator_set(value));
+            delete this.model.opsetImport;
+        }
+        if (Array.isArray(this.model.metadataProps)) {
+            this.model.metadata_props = this.model.metadataProps;
+            delete this.model.metadataProps;
+        }
+        if (Array.isArray(this.model.functions)) {
+            this.model.functions = this.model.functions.map((value) => func(value));
+        }
         this.format = 'ONNX JSON' + (this.model.ir_version ? ' v' + this.model.ir_version.toString() : '');
-        delete this.obj;
-        throw new onnx.Error('Unsupported JSON content.');
     }
 };
 

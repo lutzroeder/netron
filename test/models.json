@@ -3437,6 +3437,13 @@
   },
   {
     "type":     "onnx",
+    "target":   "candy.json",
+    "source":   "https://github.com/lutzroeder/netron/files/12329067/candy.json.zip[candy.json]",
+    "format":   "ONNX JSON v3",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
     "target":   "candy.onnx",
     "source":   "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/FNSCandyStyleTransfer/UWP/cs/Assets/candy.onnx",
     "format":   "ONNX v3",
@@ -3589,7 +3596,6 @@
     "target":   "gather.json",
     "source":   "https://github.com/lutzroeder/netron/files/12306625/gather.json.zip[gather.json]",
     "format":   "ONNX JSON v6",
-    "error":    "Unsupported JSON content.",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
@@ -3712,7 +3718,6 @@
     "target":   "nms_base_component.json",
     "source":   "https://github.com/lutzroeder/netron/files/12306626/nms_base_component.json.zip[nms_base_component.json]",
     "format":   "ONNX JSON v8",
-    "error":    "Unsupported JSON content.",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
@@ -3764,6 +3769,13 @@
     "source":   "https://raw.githubusercontent.com/microsoft/onnxruntime/master/onnxruntime/test/testdata/optional_1.onnx",
     "format":   "ONNX v3",
     "link":     "https://github.com/microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
+  },
+  {
+    "type":     "onnx",
+    "target":   "optional_type.json",
+    "source":   "https://github.com/lutzroeder/netron/files/12329086/optional_type.json.zip[optional_type.json]",
+    "format":   "ONNX JSON v8",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
     "type":     "onnx",
@@ -3826,6 +3838,13 @@
     "target":   "sparse_const.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/5198627/sparse_const.zip[sparse_const.onnx]",
     "format":   "ONNX v7",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
+    "target":   "sparse_initializer_as_output.json",
+    "source":   "https://github.com/lutzroeder/netron/files/12329156/sparse_initializer_as_output.json.zip[sparse_initializer_as_output.json]",
+    "format":   "ONNX JSON v7",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
@@ -3962,6 +3981,13 @@
     "target":   "vgg19.onnx.zip",
     "source":   "https://github.com/lutzroeder/netron/files/6558105/vgg19.onnx.zip",
     "format":   "ONNX v3",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
+    "target":   "zipmap_int64float.json",
+    "source":   "https://github.com/lutzroeder/netron/files/12329104/zipmap_int64float.json.zip[zipmap_int64float.json]",
+    "format":   "ONNX JSON v3",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {
