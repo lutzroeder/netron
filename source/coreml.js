@@ -1507,6 +1507,8 @@ coreml.Utility = class {
                 return coreml.Utility.tensorType(type.tensorType);
             case 'listType':
                 return new coreml.ListType(coreml.Utility.valueType(type.listType.type));
+            case 'dictionaryType':
+                return new coreml.MapType(coreml.Utility.valueType(type.dictionaryType.keyType), coreml.Utility.valueType(type.dictionaryType.valueType));
             default:
                 throw new coreml.Error("Unsupported value type '" + type.type + "'.");
         }
