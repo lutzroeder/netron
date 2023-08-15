@@ -3642,10 +3642,67 @@
   },
   {
     "type":     "onnx",
+    "target":   "issue_119.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/10349170/issue_119.onnx.zip[issue_119.onnx]",
+    "format":   "ONNX v4",
+    "link":     "https://github.com/lutzroeder/netron/issues/119"
+  },
+  {
+    "type":     "onnx",
+    "target":   "issue_168_if.pbtxt",
+    "source":   "https://github.com/lutzroeder/netron/files/10349183/issue_168.zip[issue_168_if.pbtxt]",
+    "format":   "ONNX v3",
+    "link":     "https://github.com/lutzroeder/netron/issues/168"
+  },
+  {
+    "type":     "onnx",
+    "target":   "issue_168_loop.pbtxt",
+    "source":   "https://github.com/lutzroeder/netron/files/10349183/issue_168.zip[issue_168_loop.pbtxt]",
+    "format":   "ONNX v3",
+    "link":     "https://github.com/lutzroeder/netron/issues/168"
+  },
+  {
+    "type":     "onnx",
+    "target":   "issue_168_scan.pbtxt",
+    "source":   "https://github.com/lutzroeder/netron/files/10349183/issue_168.zip[issue_168_scan.pbtxt]",
+    "format":   "ONNX v3",
+    "link":     "https://github.com/lutzroeder/netron/issues/168"
+  },
+  {
+    "type":     "onnx",
+    "target":   "issue_589.onnx.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/10349190/issue_589.onnx.zip",
+    "format":   "ONNX v6",
+    "action":   "skip-render",
+    "link":     "https://github.com/lutzroeder/netron/issues/589"
+  },
+  {
+    "type":     "onnx",
+    "target":   "issue_845.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/10349194/issue_845.onnx.zip[issue_845.onnx]",
+    "format":   "ONNX v4",
+    "link":     "https://github.com/lutzroeder/netron/issues/6"
+  },
+  {
+    "type":     "onnx",
     "target":   "issue_1029.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/10344328/issue_1029.onnx.zip[issue_1029.onnx]",
     "format":   "ONNX v8",
     "link":     "https://github.com/lutzroeder/netron/issues/1029"
+  },
+  {
+    "type":     "onnx",
+    "target":   "issue_1138.json",
+    "source":   "https://github.com/lutzroeder/netron/files/12343742/issue_1138.json.zip[issue_1138.json]",
+    "format":   "ONNX JSON v9",
+    "link":     "https://github.com/lutzroeder/netron/issues/1138"
+  },
+  {
+    "type":     "onnx",
+    "target":   "issue_1138.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/12343684/issue_1138.onnx.zip[issue_1138.onnx]",
+    "format":   "ONNX v9",
+    "link":     "https://github.com/lutzroeder/netron/issues/1138"
   },
   {
     "type":     "onnx",
@@ -3718,49 +3775,6 @@
     "target":   "nms_base_component.json",
     "source":   "https://github.com/lutzroeder/netron/files/12306626/nms_base_component.json.zip[nms_base_component.json]",
     "format":   "ONNX JSON v8",
-    "link":     "https://github.com/lutzroeder/netron/issues/6"
-  },
-  {
-    "type":     "onnx",
-    "target":   "issue_119.onnx",
-    "source":   "https://github.com/lutzroeder/netron/files/10349170/issue_119.onnx.zip[issue_119.onnx]",
-    "format":   "ONNX v4",
-    "link":     "https://github.com/lutzroeder/netron/issues/119"
-  },
-  {
-    "type":     "onnx",
-    "target":   "issue_168_if.pbtxt",
-    "source":   "https://github.com/lutzroeder/netron/files/10349183/issue_168.zip[issue_168_if.pbtxt]",
-    "format":   "ONNX v3",
-    "link":     "https://github.com/lutzroeder/netron/issues/168"
-  },
-  {
-    "type":     "onnx",
-    "target":   "issue_168_loop.pbtxt",
-    "source":   "https://github.com/lutzroeder/netron/files/10349183/issue_168.zip[issue_168_loop.pbtxt]",
-    "format":   "ONNX v3",
-    "link":     "https://github.com/lutzroeder/netron/issues/168"
-  },
-  {
-    "type":     "onnx",
-    "target":   "issue_168_scan.pbtxt",
-    "source":   "https://github.com/lutzroeder/netron/files/10349183/issue_168.zip[issue_168_scan.pbtxt]",
-    "format":   "ONNX v3",
-    "link":     "https://github.com/lutzroeder/netron/issues/168"
-  },
-  {
-    "type":     "onnx",
-    "target":   "issue_589.onnx.zip",
-    "source":   "https://github.com/lutzroeder/netron/files/10349190/issue_589.onnx.zip",
-    "format":   "ONNX v6",
-    "action":   "skip-render",
-    "link":     "https://github.com/lutzroeder/netron/issues/589"
-  },
-  {
-    "type":     "onnx",
-    "target":   "issue_845.onnx",
-    "source":   "https://github.com/lutzroeder/netron/files/10349194/issue_845.onnx.zip[issue_845.onnx]",
-    "format":   "ONNX v4",
     "link":     "https://github.com/lutzroeder/netron/issues/6"
   },
   {

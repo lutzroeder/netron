@@ -432,6 +432,11 @@ onnx.Attribute = class {
         this._description = attribute.doc_string || '';
         this._type = null;
         this._value = null;
+        if (attribute.ref_attr_name) {
+            this._value = attribute.ref_attr_name;
+            this._type = 'reference';
+            return;
+        }
         switch (attribute.type) {
             case onnx.AttributeType.UNDEFINED:
                 break;
@@ -1959,7 +1964,10 @@ onnx.JsonReader = class {
             if (value.type && this._attributeTypes.has(value.type)) {
                 value.type = this._attributeTypes.get(value.type);
             }
-            if (value.type === onnx.AttributeType.FLOATS || Array.isArray(value.floats)) {
+            if (value.refAttrName) {
+                value.ref_attr_name = value.refAttrName;
+                delete value.refAttrName;
+            } else if (value.type === onnx.AttributeType.FLOATS || Array.isArray(value.floats)) {
                 value.floats = value.floats.map((value) => parseFloat(value));
             } else if (value.type === onnx.AttributeType.INTS || Array.isArray(value.ints)) {
                 value.ints = value.ints.map((value) => parseInt(value, 10));
