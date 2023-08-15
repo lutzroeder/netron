@@ -127,7 +127,7 @@ onnx.Model = class {
                     imports.set(domain, version);
                 }
             }
-            this._imports = Array.from(imports).map((pair) => pair[0] + ' v' + pair[1].toString());
+            this._imports = Array.from(imports).map((entry) => entry[0] + ' v' + entry[1].toString());
         }
         if (imports.size == 0) {
             imports.set('ai.onnx', 1);
@@ -250,8 +250,8 @@ onnx.Graph = class {
             for (const tensor_annotation of graph.quantization_annotation) {
                 const tensor = context.tensor(tensor_annotation.tensor_name);
                 const annotation = {};
-                for (const pair of tensor_annotation.quant_parameter_tensor_names) {
-                    annotation[pair.key] = pair.value;
+                for (const entry of tensor_annotation.quant_parameter_tensor_names) {
+                    annotation[entry.key] = entry.value;
                 }
                 tensor.annotation = annotation;
             }
@@ -1447,14 +1447,15 @@ onnx.GraphContext = class {
 onnx.ProtoReader = class {
 
     static open(context) {
-        if (context.tags('pb').size > 0) {
-            const tags = context.tags('pb');
+        const binaryTags = context.tags('pb');
+        if (binaryTags.size > 0) {
+            const tags = binaryTags;
             if (tags.size === 1 && tags.get(1) === 2) {
                 const tags = context.tags('pb+');
                 const match = (tags, schema) => {
-                    for (const pair of schema) {
-                        const key = pair[0];
-                        const inner = pair[1];
+                    for (const entry of schema) {
+                        const key = entry[0];
+                        const inner = entry[1];
                         const value = tags[key];
                         if (value === undefined) {
                             continue;
@@ -1489,14 +1490,14 @@ onnx.ProtoReader = class {
                 // TensorProto
                 if (tags.get(1) === 0 && tags.get(2) === 0) {
                     const schema = [[1,0],[2,0],[4,2],[5,2],[7,2],[8,2],[9,2]];
-                    if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
+                    if (schema.every((entry) => !tags.has(entry[0]) || tags.get(entry[0]) === entry[1])) {
                         return new onnx.ProtoReader(context, 'binary', 'tensor');
                     }
                 }
                 // GraphProto
                 if (tags.get(1) === 2) {
                     const schema = [[1,2],[2,2],[3,2],[4,2],[5,2],[6,0],[7,0],[8,2],[9,2],[10,2],[11,2],[12,2],[13,2],[14,2]];
-                    if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
+                    if (schema.every((entry) => !tags.has(entry[0]) || tags.get(entry[0]) === entry[1])) {
                         const decode = (buffer, value) => {
                             const reader = protobuf.BinaryReader.open(buffer);
                             const length = reader.length;
@@ -1525,7 +1526,7 @@ onnx.ProtoReader = class {
                 // ModelProto
                 if (tags.get(7) === 2) {
                     const schema = [[1,0],[2,2],[3,2],[4,2],[5,0],[6,2],[7,2],[8,2],[14,2],[20,2]];
-                    if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
+                    if (schema.every((entry) => !tags.has(entry[0]) || tags.get(entry[0]) === entry[1])) {
                         return new onnx.ProtoReader(context, 'binary', 'model');
                     }
                 }
@@ -1570,8 +1571,9 @@ onnx.ProtoReader = class {
                 }
             }
         }
-        if (context.tags('pbtxt').size > 0) {
-            const tags = context.tags('pbtxt');
+        const textTags = context.tags('pbtxt');
+        if (textTags.size > 0) {
+            const tags = textTags;
             if (tags.has('ir_version')) {
                 return new onnx.ProtoReader(context, 'text', 'model');
             }
