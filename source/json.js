@@ -7,11 +7,14 @@ json.TextReader = class {
 
     static open(data) {
         const decoder = text.Decoder.open(data);
-        let state = 'start';
+        let state = '';
         for (let i = 0; i < 0x1000; i++) {
             const c = decoder.decode();
+            if (state === 'match') {
+                break;
+            }
             if (c === undefined || c === '\0') {
-                if (i === 0) {
+                if (state === '') {
                     return null;
                 }
                 break;
@@ -23,31 +26,27 @@ json.TextReader = class {
                 continue;
             }
             switch (state) {
-                case 'start':
-                    if (c === '#') {
-                        state = 'comment';
-                    } else if (c === '{') {
-                        state = 'object';
+                case '':
+                    if (c === '{') {
+                        state = '{}';
                     } else if (c === '[') {
-                        state = 'list';
-                    } else if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z') {
-                        state = '';
+                        state = '[]';
                     } else {
                         return null;
                     }
                     break;
-                case 'list':
-                    if (c === '"' || c === '-' || c === '+' || c === '{' || c === '[' || (c >= '0' && c <= '9')) {
-                        state = '';
-                        break;
-                    }
-                    return null;
-                case 'object':
-                    if (c != '"') {
+                case '[]':
+                    if (c !== '"' && c !== '-' && c !== '+' && c !== '{' && c !== '[' && (c < '0' || c > '9')) {
                         return null;
                     }
-                    state = '';
-                    continue;
+                    state = 'match';
+                    break;
+                case '{}':
+                    if (c !== '"') {
+                        return null;
+                    }
+                    state = 'match';
+                    break;
                 default:
                     break;
             }
@@ -57,6 +56,7 @@ json.TextReader = class {
 
     constructor(decoder) {
         this._decoder = decoder;
+        this._decoder.position = 0;
         this._escape = { '"': '"', '\\': '\\', '/': '/', b: '\b', f: '\f', n: '\n', r: '\r', t: '\t' };
     }
 

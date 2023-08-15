@@ -4898,7 +4898,8 @@ view.ModelContext = class {
                 const skip =
                     signatures.some((signature) => signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) ||
                     (Array.from(this._tags).some((pair) => pair[0] !== 'flatbuffers' && pair[1].size > 0) && type !== 'pb+') ||
-                    Array.from(this._content.values()).some((obj) => obj !== undefined);
+                    Array.from(this._content.values()).some((obj) => obj !== undefined) ||
+                    json.TextReader.open(stream);
                 if (!skip) {
                     try {
                         switch (type) {
