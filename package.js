@@ -330,7 +330,7 @@ const publish = async (target) => {
             const url = repository + '/releases/download/v#{version}/' + configuration.productName + '-#{version}-mac.zip';
             const sha256 = await hash(url.replace(/#{version}/g, configuration.version), 'sha256');
             writeLine('update manifest');
-            const dir = await mkdir('dist', 'homebrew-cask', 'Casks');
+            const dir = await mkdir('dist', 'homebrew-cask', 'Casks', 'n');
             const file = path.join(dir, 'netron.rb');
             await fs.writeFile(file, [
                 'cask "' + configuration.name + '" do',
