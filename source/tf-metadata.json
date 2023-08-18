@@ -62820,6 +62820,12 @@
         "default": ""
       },
       {
+        "name": "debug_name",
+        "type": "string",
+        "description": "the user-given name, which still applies in anonymous mode.",
+        "default": ""
+      },
+      {
         "name": "dtype",
         "type": "type",
         "description": "the type of this variable. Must agree with the dtypes\nof all ops using this variable."
