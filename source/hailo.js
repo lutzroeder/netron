@@ -19,38 +19,22 @@ hailo.Model = class {
 
     constructor(metadata, container) {
         const configuration = container.configuration;
-        this._graphs = [ new hailo.Graph(metadata, configuration) ];
-        this._name = configuration && configuration.name || "";
-        this._format = container.format + (container.metadata && container.metadata.sdk_version ? ' v' + container.metadata.sdk_version : '');
-        this._metadata = [];
+        this.graphs = [ new hailo.Graph(metadata, configuration) ];
+        this.name = configuration && configuration.name || "";
+        this.format = container.format + (container.metadata && container.metadata.sdk_version ? ' v' + container.metadata.sdk_version : '');
+        this.metadata = [];
         if (container.metadata && container.metadata.state) {
-            this._metadata.push({ name: 'state', value: container.metadata.state });
+            this.metadata.push({ name: 'state', value: container.metadata.state });
         }
-    }
-
-    get graphs() {
-        return this._graphs;
-    }
-
-    get format() {
-        return this._format;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get metadata() {
-        return this._metadata;
     }
 };
 
 hailo.Graph = class {
 
     constructor(metadata, configuration) {
-        this._inputs = [];
-        this._outputs = [];
-        this._nodes = [];
+        this.inputs = [];
+        this.outputs = [];
+        this.nodes = [];
         const args = new Map();
         const arg = (name, type, tensor) => {
             if (name.length === 0 && tensor) {
@@ -76,7 +60,7 @@ hailo.Graph = class {
                         const shape = layer.output_shapes ? layer.output_shapes[i] : null;
                         const type = shape ? new hailo.TensorType('?', new hailo.TensorShape(shape)) : null;
                         const argument = new hailo.Argument('input', [ arg(layer.name, type) ]);
-                        this._inputs.push(argument);
+                        this.inputs.push(argument);
                     }
                     break;
                 }
@@ -85,45 +69,25 @@ hailo.Graph = class {
                         const shape = layer.input_shapes ? layer.input_shapes[i] : null;
                         const type = shape ? new hailo.TensorType('?', new hailo.TensorShape(shape)) : null;
                         const argument = new hailo.Argument('output', [ arg(layer.input[i], type) ]);
-                        this._outputs.push(argument);
+                        this.outputs.push(argument);
                     }
                     break;
                 }
                 default: {
                     const node = new hailo.Node(metadata, layer, arg);
-                    this._nodes.push(node);
+                    this.nodes.push(node);
                     break;
                 }
             }
         }
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get nodes() {
-        return this._nodes;
     }
 };
 
 hailo.Argument = class {
 
     constructor(name, value) {
-        this._name = name;
-        this._value = value;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
+        this.name = name;
+        this.value = value;
     }
 };
 
@@ -133,36 +97,21 @@ hailo.Value = class {
         if (typeof name !== 'string') {
             throw new hailo.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
-        this._name = name;
-        this._type = type;
-        this._initializer = initializer;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        if (this._initializer) {
-            return this._initializer.type;
-        }
-        return this._type;
-    }
-
-    get initializer() {
-        return this._initializer;
+        this.name = name;
+        this.type = initializer ? initializer.type : type;
+        this.initializer = initializer;
     }
 };
 
 hailo.Node = class {
 
     constructor(metadata, layer, arg) {
-        this._name = layer.name || '';
-        this._type = metadata.type(layer.type);
+        this.name = layer.name || '';
+        this.type = metadata.type(layer.type);
         if (layer.type === 'activation') {
-            this._type = Object.assign({}, this._type, { name: layer.params.activation || layer.name || '' });
+            this.type = Object.assign({}, this.type, { name: layer.params.activation || layer.name || '' });
         }
-        this._inputs = layer.input.map((name, index) => {
+        this.inputs = layer.input.map((name, index) => {
             const shape = layer.input_shapes ? layer.input_shapes[index] : null;
             const type = shape ? new hailo.TensorType('?', new hailo.TensorShape(shape)) : null;
             return new hailo.Argument("input", [ arg(name, type) ]);
@@ -183,15 +132,15 @@ hailo.Node = class {
             }, []);
         };
         const params_list = getParams(layer.params ? Object.entries(layer.params) : []);
-        this._inputs = this._inputs.concat(params_list);
-        this._outputs = (layer.output || []).map((_, index) => {
+        this.inputs = this.inputs.concat(params_list);
+        this.outputs = (layer.output || []).map((_, index) => {
             const shape = layer.output_shapes ? layer.output_shapes[index] : null;
             const type = shape ? new hailo.TensorType('?', new hailo.TensorShape(shape)) : null;
             return new hailo.Argument("output", [ arg(layer.name, type) ]);
         });
         const attrs = Object.assign(layer.params || {}, { original_names: layer.original_names || [] });
-        this._attributes = Object.entries(attrs).map((entry) => new hailo.Attribute(metadata.attribute(layer.type, entry[0]), entry[0], entry[1]));
-        this._chain = [];
+        this.attributes = Object.entries(attrs).map((entry) => new hailo.Attribute(metadata.attribute(layer.type, entry[0]), entry[0], entry[1]));
+        this.chain = [];
         if (layer && layer.params && layer.params.activation && layer.params.activation !== 'linear' && layer.type !== 'activation') {
             const activation = {
                 type: layer.params.activation,
@@ -200,78 +149,30 @@ hailo.Node = class {
                 output: []
             };
             const node = new hailo.Node(metadata, activation, arg);
-            this._chain.push(node);
+            this.chain.push(node);
         }
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get attributes() {
-        return this._attributes;
-    }
-
-    get description() {
-        return this._descripton;
-    }
-
-    get chain() {
-        return this._chain;
     }
 };
 
 hailo.Attribute = class {
 
     constructor(metadata, name, value) {
-        this._name = name;
-        this._value = value;
-        this._type = metadata && metadata.type ? metadata.type : '';
+        this.name = name;
+        this.value = value;
+        this.type = metadata && metadata.type ? metadata.type : '';
         if (metadata && metadata.visible === false) {
-            this._visible = false;
+            this.visible = false;
         }
         if (name === 'original_names') {
-            this._visible = false;
+            this.visible = false;
         }
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get value() {
-        return this._value;
-    }
-
-    get visible() {
-        return this._visible !== false;
     }
 };
 
 hailo.Tensor = class {
 
     constructor(type) {
-        this._type = type;
-    }
-
-    get type() {
-        return this._type;
+        this.type = type;
     }
 };
 
