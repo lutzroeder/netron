@@ -828,6 +828,48 @@
     ]
   },
   {
+    "name": "StablehloBroadcastInDim",
+    "attributes": [
+      { "name": "broadcast_dimensions", "type": "int64[]", "default": 0 }
+    ]
+  },
+  {
+    "name": "StablehloConcatenate",
+    "attributes": [
+      { "name": "dimension", "type": "int64", "default": 0 }
+    ]
+  },
+  {
+    "name": "StablehloConvolution",
+    "attributes": [
+      { "name": "window_strides", "type": "int64[]", "default": 0 },
+      { "name": "padding", "type": "int64[]", "default": 0 },
+      { "name": "lhs_dilation", "type": "int64[]", "default": 0 },
+      { "name": "rhs_dilation", "type": "int64[]", "default": 0 },
+      { "name": "window_reversal", "type": "boolean", "default": false },
+      { "name": "input_batch_dimension", "type": "int64", "default": 0 },
+      { "name": "input_feature_dimension", "type": "int64", "default": 0 },
+      { "name": "input_spatial_dimensions", "type": "int64[]", "default": 0 },
+      { "name": "kernel_input_feature_dimension", "type": "int64", "default": 0 },
+      { "name": "kernel_output_feature_dimension", "type": "int64", "default": 0 },
+      { "name": "kernel_spatial_dimensions", "type": "int64[]", "default": 0 },
+      { "name": "output_batch_dimension", "type": "int64", "default": 0 },
+      { "name": "output_feature_dimension", "type": "int64", "default": 0 },
+      { "name": "output_spatial_dimensions", "type": "int64[]", "default": 0 },
+      { "name": "feature_group_count", "type": "int64", "default": 0 },
+      { "name": "batch_group_count", "type": "int64", "default": 0 },
+      { "name": "precision_config", "type": "StablehloPrecisionConfig[]", "default": "DEFAULT" }
+    ]
+  },
+  {
+    "name": "StablehloSlice",
+    "attributes": [
+      { "name": "start_indices", "type": "int64[]", "default": 0 },
+      { "name": "limit_indices", "type": "int64[]", "default": 0 },
+      { "name": "strides", "type": "int64[]", "default": 0 }
+    ]
+  },
+  {
     "name": "StridedSlice",
     "category": "Tensor",
     "inputs": [
