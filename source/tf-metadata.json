@@ -18162,6 +18162,46 @@
     ]
   },
   {
+    "name": "FFTND",
+    "summary": "ND fast Fourier transform.",
+    "description": "Computes the n-dimensional discrete Fourier transform over\ndesignated dimensions of `input`. The designated dimensions of\n`input` are assumed to be the result of `FFTND`.\n\nIf fft_length[i]<shape(input)[i], the input is cropped. If\nfft_length[i]>shape(input)[i], the input is padded with zeros. If fft_length\nis not given, the default shape(input) is used.\n\nAxes mean the dimensions to perform the transform on. Default is to perform on\nall axes.",
+    "attributes": [
+      {
+        "name": "Tcomplex",
+        "type": "type",
+        "description": "Must be one of the following: `complex64`, `complex128`.",
+        "default": {
+          "type": "type",
+          "value": 8
+        }
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "description": "A complex tensor.",
+        "typeAttr": "Tcomplex"
+      },
+      {
+        "name": "fft_length",
+        "description": "An int32 tensor. The FFT length for each dimension.",
+        "type": 3
+      },
+      {
+        "name": "axes",
+        "description": "An int32 tensor with a same shape as fft_length. Axes to perform the transform.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "A complex tensor of the same shape as `input`. The designated\ndimensions of `input` are replaced with their Fourier transforms.\n\n@compatibility(numpy)\nEquivalent to np.fft.fftn.\n@end_compatibility",
+        "typeAttr": "Tcomplex"
+      }
+    ]
+  },
+  {
     "name": "FIFOQueue",
     "summary": "A queue that produces elements in first-in first-out order.",
     "attributes": [
@@ -21313,6 +21353,46 @@
     ]
   },
   {
+    "name": "IFFTND",
+    "summary": "ND inverse fast Fourier transform.",
+    "description": "Computes the n-dimensional inverse discrete Fourier transform over designated\ndimensions of `input`. The designated dimensions of `input` are assumed to be\nthe result of `IFFTND`.\n\nIf fft_length[i]<shape(input)[i], the input is cropped. If\nfft_length[i]>shape(input)[i], the input is padded with zeros. If fft_length\nis not given, the default shape(input) is used.\n\nAxes mean the dimensions to perform the transform on. Default is to perform on\nall axes.",
+    "attributes": [
+      {
+        "name": "Tcomplex",
+        "type": "type",
+        "description": "Must be one of the following: `complex64`, `complex128`.",
+        "default": {
+          "type": "type",
+          "value": 8
+        }
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "description": "A complex tensor.",
+        "typeAttr": "Tcomplex"
+      },
+      {
+        "name": "fft_length",
+        "description": "An int32 tensor. The FFT length for each dimension.",
+        "type": 3
+      },
+      {
+        "name": "axes",
+        "description": "An int32 tensor with a same shape as fft_length. Axes to perform the transform.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "A complex tensor of the same shape as `input`. The designated dimensions of\n`input` are replaced with their inverse Fourier\ntransforms.\n\n@compatibility(numpy)\nEquivalent to np.fft.fftn.\n@end_compatibility",
+        "typeAttr": "Tcomplex"
+      }
+    ]
+  },
+  {
     "name": "IRFFT",
     "summary": "Inverse real-valued fast Fourier transform.",
     "description": "Computes the inverse 1-dimensional discrete Fourier transform of a real-valued\nsignal over the inner-most dimension of `input`.\n\nThe inner-most dimension of `input` is assumed to be the result of `RFFT`: the\n`fft_length / 2 + 1` unique components of the DFT of a real-valued signal. If\n`fft_length` is not provided, it is computed from the size of the inner-most\ndimension of `input` (`fft_length = 2 * (inner - 1)`). If the FFT length used to\ncompute `input` is odd, it should be provided since it cannot be inferred\nproperly.\n\nAlong the axis `IRFFT` is computed on, if `fft_length / 2 + 1` is smaller\nthan the corresponding dimension of `input`, the dimension is cropped. If it is\nlarger, the dimension is padded with zeros.",
@@ -21440,6 +21520,55 @@
       {
         "name": "output",
         "description": "A float32 tensor of the same rank as `input`. The inner-most 3\n  dimensions of `input` are replaced with the `fft_length` samples of their\n  inverse 3D real Fourier transform.\n\n@compatibility(numpy)\nEquivalent to np.irfftn with 3 dimensions.\n@end_compatibility",
+        "typeAttr": "Treal"
+      }
+    ]
+  },
+  {
+    "name": "IRFFTND",
+    "summary": "ND inverse real fast Fourier transform.",
+    "description": "Computes the n-dimensional inverse real discrete Fourier transform over\ndesignated dimensions of `input`. The designated dimensions of `input` are\nassumed to be the result of `IRFFTND`. The inner-most dimension contains the\n`fft_length / 2 + 1` unique components of the DFT of a real-valued signal. \n\nIf fft_length[i]<shape(input)[i], the input is cropped. If\nfft_length[i]>shape(input)[i], the input is padded with zeros. If fft_length\nis not given, the default shape(input) is used.\n\nAxes mean the dimensions to perform the transform on. Default is to perform on\nall axes.",
+    "attributes": [
+      {
+        "name": "Treal",
+        "type": "type",
+        "description": "Must be one of the following: `float32`, `float64`.",
+        "default": {
+          "type": "type",
+          "value": 1
+        }
+      },
+      {
+        "name": "Tcomplex",
+        "type": "type",
+        "description": "Must be one of the following: `complex64`, `complex128`.",
+        "default": {
+          "type": "type",
+          "value": 8
+        }
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "description": "A complex tensor.",
+        "typeAttr": "Tcomplex"
+      },
+      {
+        "name": "fft_length",
+        "description": "An int32 tensor. The FFT length for each dimension.",
+        "type": 3
+      },
+      {
+        "name": "axes",
+        "description": "An int32 tensor with a same shape as fft_length. Axes to perform the transform.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "A complex tensor of the same shape as `input`. The designated dimensions of\n`input` are replaced with their inverse real Fourier transforms.\n\n@compatibility(numpy)\nEquivalent to np.fft.irfftn.\n@end_compatibility",
         "typeAttr": "Treal"
       }
     ]
@@ -37007,6 +37136,55 @@
       {
         "name": "output",
         "description": "A complex64 tensor of the same rank as `input`. The inner-most 3\n  dimensions of `input` are replaced with the their 3D Fourier transform. The\n  inner-most dimension contains `fft_length / 2 + 1` unique frequency\n  components.\n\n@compatibility(numpy)\nEquivalent to np.fft.rfftn with 3 dimensions.\n@end_compatibility",
+        "typeAttr": "Tcomplex"
+      }
+    ]
+  },
+  {
+    "name": "RFFTND",
+    "summary": "ND fast real Fourier transform.",
+    "description": "Computes the n-dimensional real discrete Fourier transform over designated\ndimensions of `input`. The designated dimensions of `input` are assumed to be\nthe result of `RFFTND`. The length of the last axis transformed will be\nfft_length[-1]//2+1.\n\nIf fft_length[i]<shape(input)[i], the input is cropped. If\nfft_length[i]>shape(input)[i], the input is padded with zeros. If fft_length\nis not given, the default shape(input) is used.\n\nAxes mean the dimensions to perform the transform on. Default is to perform on\nall axes.",
+    "attributes": [
+      {
+        "name": "Treal",
+        "type": "type",
+        "description": "Must be one of the following: `float32`, `float64`.",
+        "default": {
+          "type": "type",
+          "value": 1
+        }
+      },
+      {
+        "name": "Tcomplex",
+        "type": "type",
+        "description": "Must be one of the following: `complex64`, `complex128`.",
+        "default": {
+          "type": "type",
+          "value": 8
+        }
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "description": "A complex tensor.",
+        "typeAttr": "Treal"
+      },
+      {
+        "name": "fft_length",
+        "description": "An int32 tensor. The FFT length for each dimension.",
+        "type": 3
+      },
+      {
+        "name": "axes",
+        "description": "An int32 tensor with a same shape as fft_length. Axes to perform the transform.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "A complex tensor of the same shape as `input`. The designated\ndimensions of `input` are replaced with their real Fourier transforms.\n\n@compatibility(numpy)\nEquivalent to np.fft.rfftn.\n@end_compatibility",
         "typeAttr": "Tcomplex"
       }
     ]
