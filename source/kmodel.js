@@ -32,44 +32,82 @@ kmodel.Graph = class {
         this.nodes = [];
         const scopes = new Map();
         let index = 0;
+        const values = new Map();
+        const value = (arg) => {
+            const name = arg.name;
+            const type = arg.shape ? new kmodel.TensorType(arg.datatype || '?', arg.shape) : null;
+            if (arg.data) {
+                const tensor = arg.data ? new kmodel.Tensor(type, arg.data) : null;
+                return new kmodel.Value(name, type || null, tensor);
+            }
+            if (!values.has(name)) {
+                values.set(name, new kmodel.Value(name, type || null, null));
+            } if ((type && !type.equals(values.get(name).type))) {
+                return new kmodel.Value(name, type);
+            }
+            return values.get(name);
+        };
         for (const layer of module.layers) {
             for (const input of layer.inputs || []) {
-                for (const value of input.value) {
-                    value.name = scopes.has(value.name) ? scopes.get(value.name) : value.name;
+                for (const arg of input.value) {
+                    arg.name = scopes.has(arg.name) ? scopes.get(arg.name) : arg.name;
                 }
             }
             for (const output of layer.outputs || []) {
-                for (const argument of output.value) {
-                    const value = scopes.has(argument.name) ? argument.name + '#' + index.toString() : argument.name;
-                    scopes.set(argument.name, value); // custom argument id
-                    argument.name = value;
+                for (const arg of output.value) {
+                    const name = scopes.has(arg.name) ? arg.name + '#' + index.toString() : arg.name;
+                    scopes.set(arg.name, name); // custom argument id
+                    arg.name = name;
+                    if (arg.name && arg.shape && !arg.data) {
+                        value(arg);
+                    }
                 }
             }
             index++;
+        }
+        for (const layer of module.layers) {
+            for (const output of layer.outputs || []) {
+                for (const arg of output.value) {
+                    if (arg.name && arg.shape && !arg.data) {
+                        value(arg);
+                    }
+                }
+            }
+        }
+        for (const layer of module.layers) {
+            for (const input of layer.inputs || []) {
+                for (const arg of input.value) {
+                    if (arg.name && arg.shape && !arg.data) {
+                        value(arg);
+                    }
+                }
+            }
         }
         for (const layer of module.layers) {
             switch (layer.type.name) {
                 case 'INPUT':
                 case 'input': {
                     for (const input of layer.outputs) {
-                        this.inputs.push(new kmodel.Argument('input', input.value.map((argument) => {
-                            return new kmodel.Value(argument.name);
-                        })));
+                        const values = input.value.map((arg) => value(arg));
+                        const argument = new kmodel.Argument('input', values);
+                        this.inputs.push(argument);
                     }
                     break;
                 }
                 case 'OUTPUT':
                 case 'output': {
                     for (const output of layer.inputs) {
-                        this.outputs.push(new kmodel.Argument(output.name, output.value.map((argument) => {
-                            return new kmodel.Value(argument.name);
-                        })));
+                        const values = output.value.map((arg) => value(arg));
+                        const argument = new kmodel.Argument(output.name, values);
+                        this.outputs.push(argument);
                     }
                     break;
                 }
-                default:
-                    this.nodes.push(new kmodel.Node(layer));
+                default: {
+                    const node = new kmodel.Node(layer, value);
+                    this.nodes.push(node);
                     break;
+                }
             }
         }
     }
@@ -90,15 +128,8 @@ kmodel.Value = class {
             throw new kmodel.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this.name = name;
-        this._type = type;
+        this.type = type ? type : initializer ? initializer.type : null;
         this.initializer = initializer;
-    }
-
-    get type() {
-        if (this.initializer) {
-            return this.initializer.type;
-        }
-        return this._type;
     }
 };
 
@@ -107,6 +138,10 @@ kmodel.TensorType = class {
     constructor(dataType, shape) {
         this.dataType = dataType;
         this.shape = new kmodel.TensorShape(shape);
+    }
+
+    equals(obj) {
+        return obj && this.dataType === obj.dataType && this.shape && this.shape.equals(obj.shape);
     }
 
     toString() {
@@ -118,6 +153,20 @@ kmodel.TensorShape = class {
 
     constructor(dimensions) {
         this.dimensions = dimensions;
+    }
+
+    equals(obj) {
+        if (obj && Array.isArray(obj.dimensions) && Array.isArray(this.dimensions)) {
+            if (this.dimensions.length === obj.dimensions.length) {
+                return obj.dimensions.every((value, index) => this.dimensions[index] === value);
+            }
+            if (obj.dimensions.every((dim) => Number.isInteger(dim)) && this.dimensions.every((dim) => Number.isInteger(dim))) {
+                const a = obj.dimensions.reduce((a, b) => a * b, 1);
+                const b = this.dimensions.reduce((a, b) => a * b, 1);
+                return a === b;
+            }
+        }
+        return false;
     }
 
     toString() {
@@ -138,7 +187,7 @@ kmodel.Tensor = class {
 
 kmodel.Node = class {
 
-    constructor(layer) {
+    constructor(layer, value) {
         this.location = layer.location !== undefined ? layer.location.toString() : layer.location;
         this.name = '';
         this.type = layer.type;
@@ -149,28 +198,26 @@ kmodel.Node = class {
         this.chain = [];
         for (const entry of Object.entries(layer)) {
             const name = entry[0];
+            const value = entry[1];
             if (name === 'type' || name === 'location' || name === 'inputs' || name === 'outputs' || name === 'chain') {
                 continue;
             }
-            const value = entry[1];
             const attribute = new kmodel.Attribute(name, value);
             this.attributes.push(attribute);
         }
         for (const input of layer.inputs || []) {
-            this.inputs.push(new kmodel.Argument(input.name, input.value.map((argument) => {
-                const type = argument.shape ? new kmodel.TensorType(argument.datatype || '?', argument.shape) : null;
-                const tensor = argument.data ? new kmodel.Tensor(type, argument.data) : null;
-                return new kmodel.Value(argument.name, type, tensor);
-            })));
+            const values = input.value.map((arg) => value(arg));
+            const argument = new kmodel.Argument(input.name, values);
+            this.inputs.push(argument);
         }
         for (const output of layer.outputs || []) {
-            this.outputs.push(new kmodel.Argument(output.name, output.value.map((argument) => {
-                const type = argument.shape ? new kmodel.TensorType(argument.datatype || '?', argument.shape) : null;
-                return new kmodel.Value(argument.name, type);
-            })));
+            const values = output.value.map((arg) => value(arg));
+            const argument = new kmodel.Argument(output.name, values);
+            this.outputs.push(argument);
         }
         for (const chain of layer.chain || []) {
-            this.chain.push(new kmodel.Node(chain));
+            const node = new kmodel.Node(chain, value);
+            this.chain.push(node);
         }
     }
 };
@@ -401,6 +448,7 @@ kmodel.Reader = class {
                         layer.chain = [];
                         const ic = layer.image_channel_num.i_ch_num + 1;
                         const oc = layer.image_channel_num.o_ch_num + 1;
+                        layer.outputs[0].value[0].shape = [ layer.image_size.o_row_wid + 1, layer.image_size.o_col_high + 1, oc ];
                         const filter = [ 1, 3 ][layer.kernel_pool_type_cfg.kernel_type];
                         const weights_shape = layer.interrupt_enabe.depth_wise_layer ? [ oc, filter, filter ] : [ ic, oc, filter, filter ];
                         const weights_size = weights_shape.reduce((a, b) => a * b);
@@ -431,7 +479,7 @@ kmodel.Reader = class {
                         layer.inputs.push({
                             name: 'weights',
                             value: [ {
-                                name: 'const',
+                                name: '',
                                 datatype: 'uint8',
                                 shape: weights_shape,
                                 data: reader.read(weights_size)
@@ -578,7 +626,7 @@ kmodel.Reader = class {
                         layer.inputs.push({
                             name: 'weights',
                             value: [ {
-                                name: 'const',
+                                name: '',
                                 datatype: 'float32',
                                 shape: weights_shape,
                                 data: reader.read(weights_size)
@@ -589,7 +637,7 @@ kmodel.Reader = class {
                         layer.inputs.push({
                             name: 'bias',
                             value: [ {
-                                name: 'const',
+                                name: '',
                                 datatype: 'float32',
                                 shape: bias_shape,
                                 data: reader.read(bias_size)
@@ -617,7 +665,7 @@ kmodel.Reader = class {
                         if (!bias.every((value) => value === 0)) {
                             layer.inputs.push({
                                 name: 'bias',
-                                value: [ { name: 'const', datatype: 'float32', shape: [ layer.b_cols ], data: bias } ]
+                                value: [ { name: '', datatype: 'float32', shape: [ layer.b_cols ], data: bias } ]
                             });
                         }
                     });
@@ -798,6 +846,7 @@ kmodel.Reader = class {
                         layer.chain = [];
                         const ic = layer.image_channel_num.i_ch_num + 1;
                         const oc = layer.image_channel_num.o_ch_num + 1;
+                        layer.outputs[0].value[0].shape = [ layer.image_size.o_row_wid + 1, layer.image_size.o_col_high + 1, oc ];
                         const filter = [ 1, 3 ][layer.kernel_pool_type_cfg.kernel_type];
                         const weights_shape = layer.interrupt_enabe.depth_wise_layer ? [ oc, filter, filter ] : [ ic, oc, filter, filter ];
                         reader.skip(layer.kernel_pool_type_cfg.bwsx_base_addr);
@@ -1147,7 +1196,7 @@ kmodel.BinaryReader.v4 = class extends kmodel.BinaryReader {
         const buffer = this.read(itemsize[datatype] * size);
         if (!buffer.every((value) => value === 0)) {
             const array = {};
-            array.name = 'const';
+            array.name = '';
             array.datatype = datatype;
             array.shape = shape;
             array.data = buffer;
