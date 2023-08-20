@@ -144,9 +144,11 @@ keras.ModelFactory = class {
                         for (const vars of layer[1].groups) {
                             for (const entry of vars[1].groups) {
                                 const variable = entry[1].value;
-                                const layout = variable.littleEndian ? '<' : '>';
-                                const tensor = new keras.Tensor(entry[0], variable.shape, variable.type, null, layout, variable.data);
-                                weights.add(layer[0], tensor);
+                                if (variable) {
+                                    const layout = variable.littleEndian ? '<' : '>';
+                                    const tensor = new keras.Tensor(entry[0], variable.shape, variable.type, null, layout, variable.data);
+                                    weights.add(layer[0], tensor);
+                                }
                             }
                         }
                     }
