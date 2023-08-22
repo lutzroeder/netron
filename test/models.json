@@ -2137,6 +2137,27 @@
   },
   {
     "type":     "keras",
+    "target":   "issue1142.1.keras",
+    "source":   "https://github.com/lutzroeder/netron/files/12407995/issue1142.1.keras.zip[issue1142.1.keras]",
+    "format":   "Keras v2.13.1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1141"
+  },
+  {
+    "type":     "keras",
+    "target":   "issue1142.2.keras",
+    "source":   "https://github.com/lutzroeder/netron/files/12407996/issue1142.2.keras.zip[issue1142.2.keras]",
+    "format":   "Keras v2.13.1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1141"
+  },
+  {
+    "type":     "keras",
+    "target":   "InceptionV3.h5.zip",
+    "source":   "https://github.com/lutzroeder/netron/files/6098151/InceptionV3.h5.zip",
+    "format":   "Keras v2.4.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "type":     "keras",
     "target":   "lstm_seq2seq.h5",
     "source":   "https://github.com/lutzroeder/netron/files/2592328/lstm_seq2seq.zip[lstm_seq2seq.h5]",
     "format":   "Keras v2.1.2",
