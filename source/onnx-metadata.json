@@ -16260,6 +16260,16 @@
           "tensor(int64)"
         ]
       }
+    ],
+    "examples": [
+      {
+        "summary": "string_int_label_encoder",
+        "code": "node = onnx.helper.make_node(\n    \"LabelEncoder\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    domain=\"ai.onnx.ml\",\n    keys_strings=[\"a\", \"b\", \"c\"],\n    values_int64s=[0, 1, 2],\n    default_int64=42,\n)\nx = np.array([\"a\", \"b\", \"d\", \"c\", \"g\"]).astype(object)\ny = np.array([0, 1, 42, 2, 42]).astype(np.int64)\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_ai_onnx_ml_label_encoder_string_int\",\n)\n\nnode = onnx.helper.make_node(\n    \"LabelEncoder\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    domain=\"ai.onnx.ml\",\n    keys_strings=[\"a\", \"b\", \"c\"],\n    values_int64s=[0, 1, 2],\n)\nx = np.array([\"a\", \"b\", \"d\", \"c\", \"g\"]).astype(object)\ny = np.array([0, 1, -1, 2, -1]).astype(np.int64)\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_ai_onnx_ml_label_encoder_string_int_no_default\",\n)"
+      },
+      {
+        "summary": "tensor_based_label_encoder",
+        "code": "tensor_keys = make_tensor(\n    \"keys_tensor\", onnx.TensorProto.STRING, (3,), [\"a\", \"b\", \"c\"]\n)\nrepeated_string_keys = [\"a\", \"b\", \"c\"]\nx = np.array([\"a\", \"b\", \"d\", \"c\", \"g\"]).astype(object)\ny = np.array([0, 1, 42, 2, 42]).astype(np.int16)\n\nnode = onnx.helper.make_node(\n    \"LabelEncoder\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    domain=\"ai.onnx.ml\",\n    keys_tensor=tensor_keys,\n    values_tensor=make_tensor(\n        \"values_tensor\", onnx.TensorProto.INT16, (3,), [0, 1, 2]\n    ),\n    default_tensor=make_tensor(\n        \"default_tensor\", onnx.TensorProto.INT16, (1,), [42]\n    ),\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_ai_onnx_ml_label_encoder_tensor_mapping\",\n)\n\nnode = onnx.helper.make_node(\n    \"LabelEncoder\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    domain=\"ai.onnx.ml\",\n    keys_strings=repeated_string_keys,\n    values_tensor=make_tensor(\n        \"values_tensor\", onnx.TensorProto.INT16, (3,), [0, 1, 2]\n    ),\n    default_tensor=make_tensor(\n        \"default_tensor\", onnx.TensorProto.INT16, (1,), [42]\n    ),\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_ai_onnx_ml_label_encoder_tensor_value_only_mapping\",\n)"
+      }
     ]
   },
   {
@@ -16362,6 +16372,151 @@
           "tensor(int64)",
           "tensor(float)"
         ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "string_int_label_encoder",
+        "code": "node = onnx.helper.make_node(\n    \"LabelEncoder\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    domain=\"ai.onnx.ml\",\n    keys_strings=[\"a\", \"b\", \"c\"],\n    values_int64s=[0, 1, 2],\n    default_int64=42,\n)\nx = np.array([\"a\", \"b\", \"d\", \"c\", \"g\"]).astype(object)\ny = np.array([0, 1, 42, 2, 42]).astype(np.int64)\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_ai_onnx_ml_label_encoder_string_int\",\n)\n\nnode = onnx.helper.make_node(\n    \"LabelEncoder\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    domain=\"ai.onnx.ml\",\n    keys_strings=[\"a\", \"b\", \"c\"],\n    values_int64s=[0, 1, 2],\n)\nx = np.array([\"a\", \"b\", \"d\", \"c\", \"g\"]).astype(object)\ny = np.array([0, 1, -1, 2, -1]).astype(np.int64)\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_ai_onnx_ml_label_encoder_string_int_no_default\",\n)"
+      },
+      {
+        "summary": "tensor_based_label_encoder",
+        "code": "tensor_keys = make_tensor(\n    \"keys_tensor\", onnx.TensorProto.STRING, (3,), [\"a\", \"b\", \"c\"]\n)\nrepeated_string_keys = [\"a\", \"b\", \"c\"]\nx = np.array([\"a\", \"b\", \"d\", \"c\", \"g\"]).astype(object)\ny = np.array([0, 1, 42, 2, 42]).astype(np.int16)\n\nnode = onnx.helper.make_node(\n    \"LabelEncoder\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    domain=\"ai.onnx.ml\",\n    keys_tensor=tensor_keys,\n    values_tensor=make_tensor(\n        \"values_tensor\", onnx.TensorProto.INT16, (3,), [0, 1, 2]\n    ),\n    default_tensor=make_tensor(\n        \"default_tensor\", onnx.TensorProto.INT16, (1,), [42]\n    ),\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_ai_onnx_ml_label_encoder_tensor_mapping\",\n)\n\nnode = onnx.helper.make_node(\n    \"LabelEncoder\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    domain=\"ai.onnx.ml\",\n    keys_strings=repeated_string_keys,\n    values_tensor=make_tensor(\n        \"values_tensor\", onnx.TensorProto.INT16, (3,), [0, 1, 2]\n    ),\n    default_tensor=make_tensor(\n        \"default_tensor\", onnx.TensorProto.INT16, (1,), [42]\n    ),\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_ai_onnx_ml_label_encoder_tensor_value_only_mapping\",\n)"
+      }
+    ]
+  },
+  {
+    "name": "LabelEncoder",
+    "module": "ai.onnx.ml",
+    "version": 4,
+    "support_level": "common",
+    "description": "Maps each element in the input tensor to another value.<br>\n    The mapping is determined by the two parallel attributes, 'keys_*' and\n    'values_*' attribute. The i-th value in the specified 'keys_*' attribute\n    would be mapped to the i-th value in the specified 'values_*' attribute. It\n    implies that input's element type and the element type of the specified\n    'keys_*' should be identical while the output type is identical to the\n    specified 'values_*' attribute. Note that the 'keys_*' and 'values_*' attributes\n    must have the same length. If an input element can not be found in the\n    specified 'keys_*' attribute, the 'default_*' that matches the specified\n    'values_*' attribute may be used as its output value. The type of the 'default_*'\n    attribute must match the 'values_*' attribute chosen. <br>\n    Let's consider an example which maps a string tensor to an integer tensor.\n    Assume and 'keys_strings' is [\"Amy\", \"Sally\"], 'values_int64s' is [5, 6],\n    and 'default_int64' is '-1'.  The input [\"Dori\", \"Amy\", \"Amy\", \"Sally\",\n    \"Sally\"] would be mapped to [-1, 5, 5, 6, 6].<br>\n    Since this operator is an one-to-one mapping, its input and output shapes\n    are the same. Notice that only one of 'keys_*'/'values_*' can be set.<br>\n    Float keys with value 'NaN' match any input 'NaN' value regardless of bit\n    value. If a key is repeated, the last key takes precedence.\n",
+    "attributes": [
+      {
+        "name": "default_float",
+        "type": "float32",
+        "required": false,
+        "description": "A float."
+      },
+      {
+        "name": "default_int64",
+        "type": "int64",
+        "required": false,
+        "default": -1,
+        "description": "An integer."
+      },
+      {
+        "name": "default_string",
+        "type": "string",
+        "required": false,
+        "default": "_Unused",
+        "description": "A string."
+      },
+      {
+        "name": "default_tensor",
+        "type": "tensor",
+        "required": false,
+        "description": "A default tensor."
+      },
+      {
+        "name": "keys_floats",
+        "type": "float32[]",
+        "required": false,
+        "description": "A list of floats."
+      },
+      {
+        "name": "keys_int64s",
+        "type": "int64[]",
+        "required": false,
+        "description": "A list of ints."
+      },
+      {
+        "name": "keys_strings",
+        "type": "string[]",
+        "required": false,
+        "description": "A list of strings."
+      },
+      {
+        "name": "keys_tensor",
+        "type": "tensor",
+        "required": false,
+        "description": "Keys encoded as a 1D tensor. One and only one of 'keys_*'s should be set."
+      },
+      {
+        "name": "values_floats",
+        "type": "float32[]",
+        "required": false,
+        "description": "A list of floats."
+      },
+      {
+        "name": "values_int64s",
+        "type": "int64[]",
+        "required": false,
+        "description": "A list of ints."
+      },
+      {
+        "name": "values_strings",
+        "type": "string[]",
+        "required": false,
+        "description": "A list of strings."
+      },
+      {
+        "name": "values_tensor",
+        "type": "tensor",
+        "required": false,
+        "description": "Values encoded as a 1D tensor. One and only one of 'values_*'s should be set."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T1",
+        "description": "Input data. It must have the same element type as the keys_* attribute set."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T2",
+        "description": "Output data. This tensor's element type is based on the values_* attribute set."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "The input type is a tensor of any shape.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(string)",
+          "tensor(int64)",
+          "tensor(float)",
+          "tensor(int32)",
+          "tensor(int16)"
+        ]
+      },
+      {
+        "description": "Output type is determined by the specified 'values_*' attribute.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(string)",
+          "tensor(int64)",
+          "tensor(float)",
+          "tensor(int32)",
+          "tensor(int16)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "string_int_label_encoder",
+        "code": "node = onnx.helper.make_node(\n    \"LabelEncoder\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    domain=\"ai.onnx.ml\",\n    keys_strings=[\"a\", \"b\", \"c\"],\n    values_int64s=[0, 1, 2],\n    default_int64=42,\n)\nx = np.array([\"a\", \"b\", \"d\", \"c\", \"g\"]).astype(object)\ny = np.array([0, 1, 42, 2, 42]).astype(np.int64)\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_ai_onnx_ml_label_encoder_string_int\",\n)\n\nnode = onnx.helper.make_node(\n    \"LabelEncoder\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    domain=\"ai.onnx.ml\",\n    keys_strings=[\"a\", \"b\", \"c\"],\n    values_int64s=[0, 1, 2],\n)\nx = np.array([\"a\", \"b\", \"d\", \"c\", \"g\"]).astype(object)\ny = np.array([0, 1, -1, 2, -1]).astype(np.int64)\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_ai_onnx_ml_label_encoder_string_int_no_default\",\n)"
+      },
+      {
+        "summary": "tensor_based_label_encoder",
+        "code": "tensor_keys = make_tensor(\n    \"keys_tensor\", onnx.TensorProto.STRING, (3,), [\"a\", \"b\", \"c\"]\n)\nrepeated_string_keys = [\"a\", \"b\", \"c\"]\nx = np.array([\"a\", \"b\", \"d\", \"c\", \"g\"]).astype(object)\ny = np.array([0, 1, 42, 2, 42]).astype(np.int16)\n\nnode = onnx.helper.make_node(\n    \"LabelEncoder\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    domain=\"ai.onnx.ml\",\n    keys_tensor=tensor_keys,\n    values_tensor=make_tensor(\n        \"values_tensor\", onnx.TensorProto.INT16, (3,), [0, 1, 2]\n    ),\n    default_tensor=make_tensor(\n        \"default_tensor\", onnx.TensorProto.INT16, (1,), [42]\n    ),\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_ai_onnx_ml_label_encoder_tensor_mapping\",\n)\n\nnode = onnx.helper.make_node(\n    \"LabelEncoder\",\n    inputs=[\"X\"],\n    outputs=[\"Y\"],\n    domain=\"ai.onnx.ml\",\n    keys_strings=repeated_string_keys,\n    values_tensor=make_tensor(\n        \"values_tensor\", onnx.TensorProto.INT16, (3,), [0, 1, 2]\n    ),\n    default_tensor=make_tensor(\n        \"default_tensor\", onnx.TensorProto.INT16, (1,), [42]\n    ),\n)\n\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_ai_onnx_ml_label_encoder_tensor_value_only_mapping\",\n)"
       }
     ]
   },
