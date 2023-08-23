@@ -862,6 +862,24 @@
     ]
   },
   {
+    "name": "StablehloCustomCall",
+    "attributes": [
+      { "name": "call_target_name", "type": "string", "default": null },
+      { "name": "has_side_effect", "type": "boolean", "default": false },
+      { "name": "backend_config", "type": "string", "default": null },
+      { "name": "api_version", "type": "int32", "default": 0 },
+      { "name": "called_computations", "type": "int32[]", "default": 0 },
+      { "name": "custom_attributes", "type": "uint8[]", "default": 0 }
+    ]
+  },
+  {
+    "name": "StablehloReduce",
+    "attributes": [
+      { "name": "dimensions", "type": "int64[]", "default": 0 },
+      { "name": "body_subgraph_index", "type": "int32", "default": 0 }
+    ]
+  },
+  {
     "name": "StablehloSlice",
     "attributes": [
       { "name": "start_indices", "type": "int64[]", "default": 0 },
