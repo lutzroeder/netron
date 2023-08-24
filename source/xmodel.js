@@ -101,18 +101,12 @@ xmodel.Value = class {
             if (tensor && tensor.tensor_attr && tensor.data_type) {
                 if (initializer) {
                     this.initializer = new xmodel.Tensor(node);
+                    this.type = this.initializer.type;
                 } else {
-                    this._type = new xmodel.TensorType(tensor);
+                    this.type = new xmodel.TensorType(tensor);
                 }
             }
         }
-    }
-
-    get type() {
-        if (this.initializer) {
-            return this.initializer.type;
-        }
-        return this._type;
     }
 };
 
@@ -151,7 +145,8 @@ xmodel.Node = class {
                     this.chain.push(new xmodel.Node(metadata, { op_type: activation }, arg));
                     continue;
                 }
-                this.attributes.push(new xmodel.Attribute(metadata.attribute(this._type, name), name, value));
+                const attribute = new xmodel.Attribute(metadata.attribute(this.type, name), name, value);
+                this.attributes.push(attribute);
             }
         }
         if (op_node.args) {
@@ -174,19 +169,15 @@ xmodel.Attribute = class {
         this.value = attribute.value;
         if (metadata) {
             if (metadata.default !== undefined) {
-                if (metadata.default === this._value) {
-                    this._visible = false;
+                if (metadata.default === this.value) {
+                    this.visible = false;
                 }
-                if (Array.isArray(metadata.default) && Array.isArray(this._value) &&
-                    metadata.default.length === this._value.length && metadata.default.every((value, index) => value === this._value[index])) {
-                    this._visible = false;
+                if (Array.isArray(metadata.default) && Array.isArray(this.value) &&
+                    metadata.default.length === this.value.length && metadata.default.every((value, index) => value === this.value[index])) {
+                    this.visible = false;
                 }
             }
         }
-    }
-
-    get visible() {
-        return this._visible == false ? false : true;
     }
 };
 
@@ -270,6 +261,7 @@ xmodel.Utility = class {
             case 'bool': return { type: 'boolean', value: value };
             case 'int32': return { type: 'int32', value: value };
             case 'int32_vec': return { type: 'int32[]', value: value.value };
+            case 'uint32_vec': return { type: 'uint32[]', value: value.value };
             case 'int64': return { type: 'int64', value: value };
             case 'uint64': return { type: 'uint64', value: value };
             case 'float': return { type: 'float32', value: value };
