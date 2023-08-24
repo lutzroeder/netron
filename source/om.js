@@ -407,7 +407,7 @@ om.Container = class {
                             break;
                         }
                         default: {
-                            throw new om.Error("Unsupported partition type '" + partition.type + "'.");
+                            throw new om.Error('Unsupported DaVinci OM partition type.');
                         }
                     }
                 }
