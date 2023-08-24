@@ -8086,6 +8086,7 @@
   {
     "name": "CollectiveAllToAllV2",
     "summary": "Mutually exchanges multiple tensors of identical type and shape.",
+    "description": "`is_stateless` means each op does not need control dependencies to other\ncollective ops. In this case, keys that are unique at runtime\n(e.g. `instance_key`) should be used to distinguish collective groups.",
     "attributes": [
       {
         "name": "T",
@@ -8101,6 +8102,11 @@
         "name": "timeout_seconds",
         "type": "float32",
         "default": 0.0
+      },
+      {
+        "name": "is_stateless",
+        "type": "boolean",
+        "default": false
       },
       {
         "name": "Nordering_token",
@@ -8446,6 +8452,7 @@
   {
     "name": "CollectiveGatherV2",
     "summary": "Mutually accumulates multiple tensors of identical type and shape.",
+    "description": "`is_stateless` means each op does not need control dependencies to other\ncollective ops. In this case, keys that are unique at runtime\n(e.g. `instance_key`) should be used to distinguish collective groups.",
     "attributes": [
       {
         "name": "T",
@@ -8461,6 +8468,11 @@
         "name": "timeout_seconds",
         "type": "float32",
         "default": 0.0
+      },
+      {
+        "name": "is_stateless",
+        "type": "boolean",
+        "default": false
       },
       {
         "name": "Nordering_token",
@@ -8633,6 +8645,7 @@
   {
     "name": "CollectiveReduceScatterV2",
     "summary": "Mutually reduces multiple tensors of identical type and shape and scatters the result.",
+    "description": "`is_stateless` means each op does not need control dependencies to other\ncollective ops. In this case, keys that are unique at runtime\n(e.g. `instance_key`) should be used to distinguish collective groups.",
     "attributes": [
       {
         "name": "T",
@@ -8658,6 +8671,11 @@
         "name": "timeout_seconds",
         "type": "float32",
         "default": 0.0
+      },
+      {
+        "name": "is_stateless",
+        "type": "boolean",
+        "default": false
       },
       {
         "name": "Nordering_token",
@@ -8704,6 +8722,7 @@
   {
     "name": "CollectiveReduceV2",
     "summary": "Mutually reduces multiple tensors of identical type and shape.",
+    "description": "`is_stateless` means each op does not need control dependencies to other\ncollective ops. In this case, keys that are unique at runtime\n(e.g. `instance_key`) should be used to distinguish collective groups.",
     "attributes": [
       {
         "name": "T",
@@ -8729,6 +8748,11 @@
         "name": "timeout_seconds",
         "type": "float32",
         "default": 0.0
+      },
+      {
+        "name": "is_stateless",
+        "type": "boolean",
+        "default": false
       },
       {
         "name": "Nordering_token",
