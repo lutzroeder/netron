@@ -16494,7 +16494,8 @@
           "tensor(int64)",
           "tensor(float)",
           "tensor(int32)",
-          "tensor(int16)"
+          "tensor(int16)",
+          "tensor(double)"
         ]
       },
       {
@@ -16505,7 +16506,8 @@
           "tensor(int64)",
           "tensor(float)",
           "tensor(int32)",
-          "tensor(int16)"
+          "tensor(int16)",
+          "tensor(double)"
         ]
       }
     ],
