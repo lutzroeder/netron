@@ -5114,6 +5114,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "silero_vad.jit",
+    "source":   "https://github.com/lutzroeder/netron/files/12439374/silero_vad.zip[silero_vad.jit]",
+    "error":    "Too many dimensions for input audio chunk ?",
+    "link":     "https://github.com/lutzroeder/netron/issues/1142"
+  },
+  {
+    "type":     "pytorch",
     "target":   "shufflenet_v2_x1_0.zip.pth",
     "source":   "https://github.com/lutzroeder/netron/files/6096673/shufflenet_v2_x1_0.zip.pth.zip[shufflenet_v2_x1_0.zip.pth]",
     "format":   "PyTorch v1.6",
