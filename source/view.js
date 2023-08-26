@@ -2675,6 +2675,24 @@ view.ValueView = class extends view.Control {
                 if (location !== undefined) {
                     this._bold('location', location);
                 }
+                let layout = this._value.type ? this._value.type.layout : null;
+                if (initializer) {
+                    if (layout && layout !== initializer.layout) {
+                        throw new view.Error('Tensor type layout mismatch.');
+                    }
+                    layout = layout || initializer.layout;
+                }
+                if (layout) {
+                    const layouts = new Map([
+                        [ 'sparse', 'sparse' ],
+                        [ 'sparse.coo', 'sparse coo' ],
+                        [ 'sparse.csr', 'sparse csr' ],
+                        [ 'sparse.csc', 'sparse csc' ],
+                        [ 'sparse.bsr', 'sparse bsr' ],
+                        [ 'sparse.bsc', 'sparse bsc' ]
+                    ]);
+                    this._bold('layout', layouts.get(layout));
+                }
                 if (initializer) {
                     this._tensor(initializer);
                 }
@@ -2708,20 +2726,6 @@ view.ValueView = class extends view.Control {
         const contentLine = this.createElement('pre');
         try {
             const tensor = new view.Tensor(value);
-            const layout = tensor.layout;
-            if (layout) {
-                const layouts = new Map([
-                    [ 'sparse', 'Sparse' ],
-                    [ 'sparse.coo', 'Sparse COO' ],
-                    [ 'sparse.csr', 'Sparse CSR' ],
-                    [ 'sparse.csc', 'Sparse CSC' ],
-                    [ 'sparse.bsr', 'Sparse BSR' ],
-                    [ 'sparse.bsc', 'Sparse BSC' ]
-                ]);
-                if (layouts.has(layout)) {
-                    this._bold('layout', layouts.get(layout));
-                }
-            }
             if (Array.isArray(tensor.stride) && tensor.stride.length > 0) {
                 this._code('stride', tensor.stride.join(','));
             }

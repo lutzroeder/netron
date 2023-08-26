@@ -3878,15 +3878,24 @@
   {
     "type":     "onnx",
     "target":   "sparse_initializer_as_output.json",
-    "source":   "https://github.com/lutzroeder/netron/files/12329156/sparse_initializer_as_output.json.zip[sparse_initializer_as_output.json]",
+    "source":   "https://github.com/lutzroeder/netron/files/12444489/sparse_initializer_as_output.json.zip[sparse_initializer_as_output.json]",
     "format":   "ONNX JSON v7",
-    "link":     "https://github.com/lutzroeder/netron/issues/6"
+    "assert":   [ "model.graphs[0].outputs[0].value[0].type.layout=sparse" ],
+    "link":     "https://github.com/lutzroeder/netron/issues/741"
   },
   {
     "type":     "onnx",
     "target":   "sparse_initializer_as_output.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/6512243/sparse_initializer_as_output.onnx.zip[sparse_initializer_as_output.onnx]",
     "format":   "ONNX v7",
+    "link":     "https://github.com/lutzroeder/netron/issues/741"
+  },
+  {
+    "type":     "onnx",
+    "target":   "sparse_to_dense_matmul.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/12444490/sparse_to_dense_matmul.onnx.zip[sparse_to_dense_matmul.onnx]",
+    "format":   "ONNX v7",
+    "assert":   [ "model.graphs[0].nodes[0].inputs[0].value[0].type.layout=sparse" ],
     "link":     "https://github.com/lutzroeder/netron/issues/741"
   },
   {
