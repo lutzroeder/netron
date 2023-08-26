@@ -321,7 +321,7 @@ mslite.Tensor = class {
         return this._type;
     }
 
-    get layout() {
+    get encoding() {
         switch (this._type.dataType) {
             case 'string': return '|';
             default: return '<';

@@ -243,10 +243,10 @@ dlc.Tensor = class {
     constructor(type, data) {
         this.type = type;
         if (data instanceof Uint8Array) {
-            this.layout = '<';
+            this.encoding = '<';
             this.values = data;
         } else {
-            this.layout = '|';
+            this.encoding = '|';
             switch (type.dataType) {
                 case 'uint8': this.values = data.bytes; break;
                 case 'float32': this.values = data.floats; break;

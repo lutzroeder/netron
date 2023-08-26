@@ -1225,7 +1225,7 @@ tf.Tensor = class {
             this._tensor = tensor;
             if (Object.prototype.hasOwnProperty.call(tensor, 'tensor_content')) {
                 this._values = tensor.tensor_content;
-                this._layout = '<';
+                this._encoding = '<';
             } else {
                 const DataType = tf.proto.tensorflow.DataType;
                 switch (tensor.dtype) {
@@ -1239,7 +1239,7 @@ tf.Tensor = class {
                         for (let i = 0; i < values.length; i++) {
                             view.setUint32(i << 2, values[i] << 16, true);
                         }
-                        this._layout = '<';
+                        this._encoding = '<';
                         break;
                     }
                     case DataType.DT_HALF: {
@@ -1249,17 +1249,17 @@ tf.Tensor = class {
                         for (let i = 0; i < values.length; i++) {
                             view.setUint16(i << 1, values[i], true);
                         }
-                        this._layout = '<';
+                        this._encoding = '<';
                         break;
                     }
                     case DataType.DT_FLOAT: {
                         this._values = tensor.float_val || null;
-                        this._layout = '|';
+                        this._encoding = '|';
                         break;
                     }
                     case DataType.DT_DOUBLE: {
                         this._values = tensor.double_val || null;
-                        this._layout = '|';
+                        this._encoding = '|';
                         break;
                     }
                     case DataType.DT_UINT8:
@@ -1268,36 +1268,36 @@ tf.Tensor = class {
                     case DataType.DT_INT16:
                     case DataType.DT_INT32: {
                         this._values = tensor.int_val || null;
-                        this._layout = '|';
+                        this._encoding = '|';
                         break;
                     }
                     case DataType.DT_UINT32: {
                         this._values = tensor.uint32_val || null;
-                        this._layout = '|';
+                        this._encoding = '|';
                         break;
                     }
                     case DataType.DT_INT64: {
                         this._values = tensor.int64_val || null;
-                        this._layout = '|';
+                        this._encoding = '|';
                         break;
                     }
                     case DataType.DT_UINT64: {
                         this._values = tensor.uint64_val || null;
-                        this._layout = '|';
+                        this._encoding = '|';
                         break;
                     }
                     case DataType.DT_BOOL: {
                         this._values = tensor.bool_val || null;
-                        this._layout = '|';
+                        this._encoding = '|';
                         break;
                     }
                     case DataType.DT_STRING: {
                         this._values = tensor.string_val || null;
-                        this._layout = '|';
+                        this._encoding = '|';
                         break;
                     }
                     case DataType.DT_COMPLEX64: {
-                        this._layout = '|';
+                        this._encoding = '|';
                         const values = tensor.scomplex_val || null;
                         this._values = new Array(values.length >> 1);
                         for (let i = 0; i < values.length; i += 2) {
@@ -1306,7 +1306,7 @@ tf.Tensor = class {
                         break;
                     }
                     case DataType.DT_COMPLEX128: {
-                        this._layout = '|';
+                        this._encoding = '|';
                         const values = tensor.dcomplex_val || null;
                         this._values = new Array(values.length >> 1);
                         for (let i = 0; i < values.length; i += 2) {
@@ -1337,13 +1337,13 @@ tf.Tensor = class {
         return this._category;
     }
 
-    get layout() {
-        return this._layout;
+    get encoding() {
+        return this._encoding;
     }
 
     get values() {
         let values = this._values;
-        if (this._layout === '|' && Array.isArray(values)) {
+        if (this._encoding === '|' && Array.isArray(values)) {
             if (this._type.dataType === 'string') {
                 values = values.map((value) => tf.Utility.decodeText(value));
             }

@@ -364,7 +364,7 @@ mnn.Tensor = class {
         return this._type;
     }
 
-    get layout() {
+    get encoding() {
         switch (this._type.dataType) {
             case 'int32':
             case 'float32':

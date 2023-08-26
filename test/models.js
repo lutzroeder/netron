@@ -550,9 +550,9 @@ class Target {
         }
         if (this.assert) {
             for (const assert of this.assert) {
-                const parts = assert.split('=').map((item) => item.trim());
+                const parts = assert.split('==').map((item) => item.trim());
                 const properties = parts[0].split('.');
-                const value = parts[1];
+                const value = JSON.parse(parts[1].replace(/\s*'|'\s*/g, '"'));
                 let context = { model: this.model };
                 while (properties.length) {
                     const property = properties.shift();
@@ -571,7 +571,7 @@ class Target {
                     }
                     throw new Error("Invalid property path: '" + parts[0]);
                 }
-                if (context !== value.toString()) {
+                if (context !== value) {
                     throw new Error("Invalid '" + context.toString() + "' != '" + assert + "'.");
                 }
             }
@@ -592,7 +592,10 @@ class Target {
                 if (value.initializer) {
                     value.initializer.type.toString();
                     const tensor = new view.Tensor(value.initializer);
-                    if (tensor.layout !== '<' && tensor.layout !== '>' && tensor.layout !== '|' && tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo') {
+                    if (tensor.encoding !== '<' && tensor.encoding !== '>' && tensor.encoding !== '|') {
+                        throw new Error("Tensor encoding '" + tensor.encoding + "' is not implemented.");
+                    }
+                    if (tensor.layout && (tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo')) {
                         throw new Error("Tensor layout '" + tensor.layout + "' is not implemented.");
                     }
                     if (!tensor.empty) {

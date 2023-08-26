@@ -3112,7 +3112,7 @@
     "target":   "centerface.param,centerface.bin",
     "source":   "https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.param,https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.bin",
     "format":   "ncnn",
-    "assert":   [ "model.graphs[0].nodes[0].type.name=Convolution" ],
+    "assert":   [ "model.graphs[0].nodes[0].type.name == 'Convolution'" ],
     "link":     "https://github.com/MirrorYuChen/ncnn_example"
   },
   {
@@ -3176,7 +3176,7 @@
     "target":   "MobileNetSSD_deploy.param.bin,MobileNetSSD_deploy.bin",
     "source":   "https://raw.githubusercontent.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd/master/MobileNetSSD_demo/app/src/main/assets/MobileNetSSD_deploy.param.bin,https://raw.githubusercontent.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd/master/MobileNetSSD_demo/app/src/main/assets/MobileNetSSD_deploy.bin",
     "format":   "ncnn",
-    "assert":   [ "model.graphs[0].nodes[1].type.name=Convolution" ],
+    "assert":   [ "model.graphs[0].nodes[1].type.name == 'Convolution'" ],
     "link":     "https://github.com/chehongshu/ncnnforandroid_objectiondetection_Mobilenetssd"
   },
   {
@@ -3518,7 +3518,7 @@
     "target":   "denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx]",
     "format":   "ONNX v3",
-    "assert":   [ "model.graphs[0].nodes[0].outputs[0].value[0].type.denotation = Image(Bgr8,SRGB,NominalRange_0_255)" ],
+    "assert":   [ "model.graphs[0].nodes[0].outputs[0].value[0].type.denotation == 'Image(Bgr8,SRGB,NominalRange_0_255)'" ],
     "link":     "https://github.com/lutzroeder/netron/issues/183"
   },
   {
@@ -3880,7 +3880,7 @@
     "target":   "sparse_initializer_as_output.json",
     "source":   "https://github.com/lutzroeder/netron/files/12444489/sparse_initializer_as_output.json.zip[sparse_initializer_as_output.json]",
     "format":   "ONNX JSON v7",
-    "assert":   [ "model.graphs[0].outputs[0].value[0].type.layout=sparse" ],
+    "assert":   [ "model.graphs[0].outputs[0].value[0].type.layout == 'sparse'" ],
     "link":     "https://github.com/lutzroeder/netron/issues/741"
   },
   {
@@ -3895,7 +3895,7 @@
     "target":   "sparse_to_dense_matmul.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/12444490/sparse_to_dense_matmul.onnx.zip[sparse_to_dense_matmul.onnx]",
     "format":   "ONNX v7",
-    "assert":   [ "model.graphs[0].nodes[0].inputs[0].value[0].type.layout=sparse" ],
+    "assert":   [ "model.graphs[0].nodes[0].inputs[0].value[0].type.layout == 'sparse'" ],
     "link":     "https://github.com/lutzroeder/netron/issues/741"
   },
   {
@@ -5194,6 +5194,7 @@
     "target":   "sparse_coo.pth",
     "source":   "https://github.com/lutzroeder/netron/files/9541426/sparse_coo.pth.zip[sparse_coo.pth]",
     "format":   "PyTorch v1.6",
+    "assert":   [ "model.graphs[0].nodes[0].inputs[0].value[0].type.layout == 'sparse.coo'" ],
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
@@ -5972,7 +5973,7 @@
     "source":   "https://github.com/lutzroeder/netron/files/5613448/events.out.tfevents.1606692323.b5c8f88cc7ee.58.2.zip[events.out.tfevents.1606692323.b5c8f88cc7ee.58.2]",
     "format":   "TensorFlow Event File v2",
     "producer": "PyTorch",
-    "assert":   [ "model.graphs[0].nodes[0].type.name=aten::_convolution" ],
+    "assert":   [ "model.graphs[0].nodes[0].type.name == 'aten::_convolution'" ],
     "link":     "https://github.com/lutzroeder/netron/issues/638"
   },
   {
@@ -6452,7 +6453,7 @@
     "target":   "densenet.tflite",
     "source":   "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/densenet_2018_04_27.tgz[densenet/densenet.tflite]",
     "format":   "TensorFlow Lite v3",
-    "assert":   [ "model.graphs[0].nodes[0].type.name=Conv2D" ],
+    "assert":   [ "model.graphs[0].nodes[0].type.name == 'Conv2D'" ],
     "link":     "https://www.tensorflow.org/lite/guide/hosted_models"
   },
   {

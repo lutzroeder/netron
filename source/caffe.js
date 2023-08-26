@@ -627,7 +627,7 @@ caffe.Tensor = class {
         return this._type;
     }
 
-    get layout() {
+    get encoding() {
         return '|';
     }
 

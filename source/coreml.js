@@ -1240,7 +1240,7 @@ coreml.Tensor = class {
         return null;
     }
 
-    get layout() {
+    get encoding() {
         switch (this._type.dataType) {
             case 'float32': return '|';
             default: return '<';

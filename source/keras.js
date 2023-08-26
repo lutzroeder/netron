@@ -126,8 +126,8 @@ keras.ModelFactory = class {
                                         const components = weight_name.split('/');
                                         components.pop();
                                         const name = (components.length == 0 || components[0] !== layer_name) ? [ layer_name ].concat(components).join('/') : components.join('/');
-                                        const layout = variable.littleEndian ? '<' : '>';
-                                        const tensor = new keras.Tensor(weight_name, variable.shape, variable.type, null, layout, variable.data);
+                                        const encoding = variable.littleEndian ? '<' : '>';
+                                        const tensor = new keras.Tensor(weight_name, variable.shape, variable.type, null, encoding, variable.data);
                                         weights.add(name, tensor);
                                     }
                                 }
@@ -962,11 +962,11 @@ keras.Attribute = class {
 
 keras.Tensor = class {
 
-    constructor(name, shape, type, quantization, layout, data) {
+    constructor(name, shape, type, quantization, encoding, data) {
         this._name = name;
         this._type = new keras.TensorType(type, new keras.TensorShape(shape));
         this._quantization = quantization;
-        this._layout = layout;
+        this._encoding = encoding;
         this._data = data;
     }
 
@@ -978,8 +978,8 @@ keras.Tensor = class {
         return this._type;
     }
 
-    get layout() {
-        return this._layout;
+    get encoding() {
+        return this._encoding;
     }
 
     get quantization() {
@@ -992,7 +992,7 @@ keras.Tensor = class {
     }
 
     get values() {
-        if (this._layout === '|') {
+        if (this._encoding === '|') {
             return this._data;
         }
         if (this._data === null) {

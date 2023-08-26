@@ -138,7 +138,7 @@ safetensors.Tensor = class {
     constructor(obj, position, stream) {
         const shape = new safetensors.TensorShape(obj.shape);
         this.type = new safetensors.TensorType(obj.dtype, shape);
-        this.layout = '<';
+        this.encoding = '<';
         const size = obj.data_offsets[1] - obj.data_offsets[0];
         position += obj.data_offsets[0];
         stream.seek(position);

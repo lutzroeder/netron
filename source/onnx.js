@@ -618,7 +618,6 @@ onnx.Tensor = class {
             this._name = tensor.values.name || '';
             this._type = context.createTensorType(tensor.values.data_type, tensor.dims.map((dim) => dim), 'sparse');
             this._location = context.createLocation(tensor.values.data_location);
-            this._layout = 'sparse';
             this._values = new onnx.Tensor(context, tensor.values);
             this._indices = new onnx.Tensor(context, tensor.indices);
         } else {
@@ -633,11 +632,11 @@ onnx.Tensor = class {
                         }
                         case onnx.DataType.FLOAT:
                             this._data = new Float32Array(tensor.float_data);
-                            this._layout = '|';
+                            this._encoding = '|';
                             break;
                         case onnx.DataType.DOUBLE:
                             this._data = new Float64Array(tensor.double_data);
-                            this._layout = '|';
+                            this._encoding = '|';
                             break;
                         case onnx.DataType.BOOL:
                             if (tensor.int32_data && tensor.int32_data.length > 0) {
@@ -646,41 +645,41 @@ onnx.Tensor = class {
                                 for (let i = 0; i < this._data.length; i++) {
                                     this._data[i] = array[i] === 0 ? false : true;
                                 }
-                                this._layout = '|';
+                                this._encoding = '|';
                             }
                             break;
                         case onnx.DataType.INT8:
                             this._data = new Int8Array(tensor.int32_data);
-                            this._layout = '|';
+                            this._encoding = '|';
                             break;
                         case onnx.DataType.UINT8:
                             this._data = new Uint8Array(tensor.int32_data);
-                            this._layout = '|';
+                            this._encoding = '|';
                             break;
                         case onnx.DataType.INT16:
                             this._data = new Int32Array(tensor.int32_data);
-                            this._layout = '|';
+                            this._encoding = '|';
                             break;
                         case onnx.DataType.UINT16:
                             this._data = new Int32Array(tensor.int32_data);
-                            this._layout = '|';
+                            this._encoding = '|';
                             break;
                         case onnx.DataType.INT32:
                             this._data = new Int32Array(tensor.int32_data);
-                            this._layout = '|';
+                            this._encoding = '|';
                             break;
                         case onnx.DataType.UINT32:
                         case onnx.DataType.UINT64:
                             this._data = tensor.uint64_data;
-                            this._layout = '|';
+                            this._encoding = '|';
                             break;
                         case onnx.DataType.INT64:
                             this._data = tensor.int64_data;
-                            this._layout = '|';
+                            this._encoding = '|';
                             break;
                         case onnx.DataType.STRING:
                             this._data = tensor.string_data;
-                            this._layout = '|';
+                            this._encoding = '|';
                             break;
                         case onnx.DataType.COMPLEX64:
                         case onnx.DataType.COMPLEX128:
@@ -695,7 +694,7 @@ onnx.Tensor = class {
                                     view.setUint16(i << 1, array[i], true);
                                 }
                                 this._data = buffer;
-                                this._layout = '<';
+                                this._encoding = '<';
                             }
                             break;
                         case onnx.DataType.FLOAT8E4M3FN:
@@ -704,7 +703,7 @@ onnx.Tensor = class {
                         case onnx.DataType.FLOAT8E5M2FNUZ:
                             if (tensor.int32_data && tensor.int32_data.length > 0) {
                                 this._data = new Uint8Array(Array.from(tensor.int32_data));
-                                this._layout = '<';
+                                this._encoding = '<';
                             }
                             break;
                         default:
@@ -715,7 +714,7 @@ onnx.Tensor = class {
                     }
                     if (!this._data && tensor.raw_data && tensor.raw_data.length > 0) {
                         this._data = tensor.raw_data;
-                        this._layout = '<';
+                        this._encoding = '<';
                     }
                     break;
                 }
@@ -730,7 +729,7 @@ onnx.Tensor = class {
                             const length = parseInt(external_data.length, 10);
                             if (Number.isInteger(offset) && Number.isInteger(length)) {
                                 this._data = context.location(external_data.location, offset, length);
-                                this._layout = '<';
+                                this._encoding = '<';
                             }
                         }
                     }
@@ -751,8 +750,8 @@ onnx.Tensor = class {
         return this._category;
     }
 
-    get layout() {
-        return this._layout;
+    get encoding() {
+        return this._encoding;
     }
 
     get type() {
@@ -764,7 +763,7 @@ onnx.Tensor = class {
     }
 
     get values() {
-        switch (this._layout) {
+        switch (this.type.layout) {
             case 'sparse': {
                 return this._values;
             }

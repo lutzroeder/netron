@@ -327,11 +327,11 @@ bigdl.Tensor = class {
                 case 'float32':
                     if (storage.bytes_data && storage.bytes_data.length > 0) {
                         this._values = storage.bytes_data[0];
-                        this._layout = '<';
+                        this._encoding = '<';
                     }
                     else if (storage.float_data && storage.float_data.length > 0) {
                         this._values = storage.float_data;
-                        this._layout = '|';
+                        this._encoding = '|';
                     }
                     break;
                 default:
@@ -349,8 +349,8 @@ bigdl.Tensor = class {
         return this._type;
     }
 
-    get layout() {
-        return this._layout;
+    get encoding() {
+        return this._encoding;
     }
 
     get values() {

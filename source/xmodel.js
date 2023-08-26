@@ -244,7 +244,7 @@ xmodel.Tensor = class {
         if (node.op_attr && node.op_attr.data) {
             const data = node.op_attr.data;
             if (data.bytes_value && data.bytes_value.value) {
-                this.layout = '<';
+                this.encoding = '<';
                 this.values = data.bytes_value.value;
             }
         }

@@ -2675,13 +2675,7 @@ view.ValueView = class extends view.Control {
                 if (location !== undefined) {
                     this._bold('location', location);
                 }
-                let layout = this._value.type ? this._value.type.layout : null;
-                if (initializer) {
-                    if (layout && layout !== initializer.layout) {
-                        throw new view.Error('Tensor type layout mismatch.');
-                    }
-                    layout = layout || initializer.layout;
-                }
+                const layout = this._value.type ? this._value.type.layout : null;
                 if (layout) {
                     const layouts = new Map([
                         [ 'sparse', 'sparse' ],
@@ -2729,7 +2723,9 @@ view.ValueView = class extends view.Control {
             if (Array.isArray(tensor.stride) && tensor.stride.length > 0) {
                 this._code('stride', tensor.stride.join(','));
             }
-            if (tensor.layout !== '<' && tensor.layout !== '>' && tensor.layout !== '|' && tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo') {
+            if (tensor.encoding !== '<' && tensor.encoding !== '>' && tensor.encoding !== '|') {
+                contentLine.innerHTML = "Tensor encoding '" + tensor.layout + "' is not implemented.";
+            } else if (tensor.layout && (tensor.layout !== 'sparse' && tensor.layout !== 'sparse.coo')) {
                 contentLine.innerHTML = "Tensor layout '" + tensor.layout + "' is not implemented.";
             } else if (tensor.empty) {
                 contentLine.innerHTML = 'Tensor data is empty.';
@@ -3237,40 +3233,40 @@ view.Tensor = class {
         this._tensor = tensor;
         this._type = tensor.type;
         this._stride = tensor.stride;
-        switch (tensor.layout) {
+        this._encoding = tensor.encoding;
+        this._layout = tensor.type.layout;
+        switch (this._encoding) {
             case undefined:
             case '':
             case '<': {
                 this._data = this._tensor.values;
-                this._layout = '<';
+                this._encoding = '<';
                 this._littleEndian = true;
                 break;
             }
             case '>': {
                 this._data = this._tensor.values;
-                this._layout = '>';
+                this._encoding = '>';
                 this._littleEndian = false;
                 break;
             }
             case '|': {
                 this._values = this._tensor.values;
-                this._layout = '|';
-                break;
-            }
-            case 'sparse': {
-                this._indices = this._tensor.indices;
-                this._values = this._tensor.values;
-                this._layout = 'sparse';
-                break;
-            }
-            case 'sparse.coo': {
-                this._indices = this._tensor.indices;
-                this._values = this._tensor.values;
-                this._layout = 'sparse.coo';
+                this._encoding = '|';
                 break;
             }
             default: {
-                this._layout = tensor.layout;
+                throw new view.Error("Unsupported tensor encoding '" + this._encoding + "'.");
+            }
+        }
+        switch (this._layout) {
+            case 'sparse':
+            case 'sparse.coo': {
+                this._indices = this._tensor.indices;
+                this._values = this._tensor.values;
+                break;
+            }
+            default: {
                 break;
             }
         }
@@ -3291,6 +3287,10 @@ view.Tensor = class {
         return this._type;
     }
 
+    get encoding() {
+        return this._encoding;
+    }
+
     get layout() {
         return this._layout;
     }
@@ -3301,19 +3301,20 @@ view.Tensor = class {
 
     get empty() {
         switch (this._layout) {
-            case '<':
-            case '>': {
-                return !(Array.isArray(this._data) || this._data instanceof Uint8Array || this._data instanceof Int8Array) || this._data.length === 0;
-            }
-            case '|': {
-                return !(Array.isArray(this._values) || ArrayBuffer.isView(this._values)) || this._values.length === 0;
-            }
             case 'sparse':
             case 'sparse.coo': {
                 return !this._values || this.indices || this._values.values.length === 0;
             }
             default: {
-                throw new Error("Unsupported tensor format '" + this._format + "'.");
+                switch (this._encoding) {
+                    case '<':
+                    case '>':
+                        return !(Array.isArray(this._data) || this._data instanceof Uint8Array || this._data instanceof Int8Array) || this._data.length === 0;
+                    case '|':
+                        return !(Array.isArray(this._values) || ArrayBuffer.isView(this._values)) || this._values.length === 0;
+                    default:
+                        throw new Error("Unsupported tensor encoding '" + this._encoding + "'.");
+                }
             }
         }
     }
@@ -3321,7 +3322,7 @@ view.Tensor = class {
     get value() {
         const context = this._context();
         context.limit = Number.MAX_SAFE_INTEGER;
-        switch (context.layout) {
+        switch (context.encoding) {
             case '<':
             case '>': {
                 return this._decodeData(context, 0);
@@ -3330,7 +3331,7 @@ view.Tensor = class {
                 return this._decodeValues(context, 0);
             }
             default: {
-                throw new Error("Unsupported tensor format '" + this._format + "'.");
+                throw new Error("Unsupported tensor encoding '" + context.encoding + "'.");
             }
         }
     }
@@ -3338,7 +3339,7 @@ view.Tensor = class {
     toString() {
         const context = this._context();
         context.limit = 10000;
-        switch (context.layout) {
+        switch (context.encoding) {
             case '<':
             case '>': {
                 const value = this._decodeData(context, 0);
@@ -3349,59 +3350,30 @@ view.Tensor = class {
                 return view.Tensor._stringify(value, '', '    ');
             }
             default: {
-                throw new Error("Unsupported tensor format '" + this._format + "'.");
+                throw new Error("Unsupported tensor encoding '" + context.encoding + "'.");
             }
         }
     }
 
     _context() {
-        if (this._layout !== '<' && this._layout !== '>' && this._layout !== '|' && this._layout !== 'sparse' && this._layout !== 'sparse.coo') {
+        if (this._encoding !== '<' && this._encoding !== '>' && this._encoding !== '|') {
+            throw new Error("Tensor encoding '" + this._encoding + "' is not supported.");
+        }
+        if (this._layout && (this._layout !== 'sparse' && this._layout !== 'sparse.coo')) {
             throw new Error("Tensor layout '" + this._layout + "' is not supported.");
         }
         const dataType = this._type.dataType;
         const context = {};
-        context.layout = this._layout;
+        context.encoding = this._encoding;
         context.dimensions = this._type.shape.dimensions.map((value) => !Number.isInteger(value) && value.toNumber ? value.toNumber() : value);
         context.dataType = dataType;
         const size = context.dimensions.reduce((a, b) => a * b, 1);
         switch (this._layout) {
-            case '<':
-            case '>': {
-                context.data = (this._data instanceof Uint8Array || this._data instanceof Int8Array) ? this._data : this._data.peek();
-                context.view = new DataView(context.data.buffer, context.data.byteOffset, context.data.byteLength);
-                if (view.Tensor.dataTypes.has(dataType)) {
-                    context.itemsize = view.Tensor.dataTypes.get(dataType);
-                    if (context.data.length < (context.itemsize * size)) {
-                        throw new Error('Invalid tensor data size.');
-                    }
-                } else if (dataType.startsWith('uint') && !isNaN(parseInt(dataType.substring(4), 10))) {
-                    context.dataType = 'uint';
-                    context.bits = parseInt(dataType.substring(4), 10);
-                    context.itemsize = 1;
-                } else if (dataType.startsWith('int') && !isNaN(parseInt(dataType.substring(3), 10))) {
-                    context.dataType = 'int';
-                    context.bits = parseInt(dataType.substring(3), 10);
-                    context.itemsize = 1;
-                } else {
-                    throw new Error("Tensor data type '" + dataType + "' is not implemented.");
-                }
-                break;
-            }
-            case '|': {
-                context.data = this._values;
-                if (!view.Tensor.dataTypes.has(dataType) && dataType !== 'string' && dataType !== 'object') {
-                    throw new Error("Tensor data type '" + dataType + "' is not implemented.");
-                }
-                if (size !== this._values.length) {
-                    throw new Error('Invalid tensor data length.');
-                }
-                break;
-            }
             case 'sparse': {
                 const indices = new view.Tensor(this._indices).value;
                 const values = new view.Tensor(this._values).value;
                 context.data = this._decodeSparse(dataType, context.dimensions, indices, values);
-                context.layout = '|';
+                context.encoding = '|';
                 break;
             }
             case 'sparse.coo': {
@@ -3423,11 +3395,47 @@ view.Tensor = class {
                     }
                 }
                 context.data = this._decodeSparse(dataType, context.dimensions, indices, values);
-                context.layout = '|';
+                context.encoding = '|';
                 break;
             }
             default: {
-                throw new view.Tensor("Unsupported tensor layout '" + this._layout + "'.");
+                switch (this._encoding) {
+                    case '<':
+                    case '>': {
+                        context.data = (this._data instanceof Uint8Array || this._data instanceof Int8Array) ? this._data : this._data.peek();
+                        context.view = new DataView(context.data.buffer, context.data.byteOffset, context.data.byteLength);
+                        if (view.Tensor.dataTypes.has(dataType)) {
+                            context.itemsize = view.Tensor.dataTypes.get(dataType);
+                            if (context.data.length < (context.itemsize * size)) {
+                                throw new Error('Invalid tensor data size.');
+                            }
+                        } else if (dataType.startsWith('uint') && !isNaN(parseInt(dataType.substring(4), 10))) {
+                            context.dataType = 'uint';
+                            context.bits = parseInt(dataType.substring(4), 10);
+                            context.itemsize = 1;
+                        } else if (dataType.startsWith('int') && !isNaN(parseInt(dataType.substring(3), 10))) {
+                            context.dataType = 'int';
+                            context.bits = parseInt(dataType.substring(3), 10);
+                            context.itemsize = 1;
+                        } else {
+                            throw new Error("Tensor data type '" + dataType + "' is not implemented.");
+                        }
+                        break;
+                    }
+                    case '|': {
+                        context.data = this._values;
+                        if (!view.Tensor.dataTypes.has(dataType) && dataType !== 'string' && dataType !== 'object') {
+                            throw new Error("Tensor data type '" + dataType + "' is not implemented.");
+                        }
+                        if (size !== this._values.length) {
+                            throw new Error('Invalid tensor data length.');
+                        }
+                        break;
+                    }
+                    default: {
+                        throw new view.Tensor("Unsupported tensor encoding '" + this._encoding + "'.");
+                    }
+                }
             }
         }
         context.index = 0;

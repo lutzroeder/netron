@@ -663,16 +663,16 @@ pytorch.Tensor = class {
         this._name = name || '';
         const storage = tensor.storage();
         const size = tensor.size();
-        this._type = new pytorch.TensorType(storage.dtype.__reduce__(), new pytorch.TensorShape(size));
         const layout = tensor.layout ? tensor.layout.__str__() : null;
         this._stride = tensor.stride();
         if (layout && layout.startsWith('torch.sparse_')) {
-            this._layout = layout.split('.').pop().replace('_', '.');
+            this._type = new pytorch.TensorType(storage.dtype.__reduce__(), new pytorch.TensorShape(size), layout.split('.').pop().replace('_', '.'));
             this._indices = new pytorch.Tensor('', tensor.indices);
             this._values = new pytorch.Tensor('', tensor.values);
         } else if (!layout || layout === 'torch.strided') {
+            this._type = new pytorch.TensorType(storage.dtype.__reduce__(), new pytorch.TensorShape(size));
             this._data = storage.data;
-            this._layout = '<';
+            this._encoding = '<';
             this._indices = null;
         } else {
             throw new pytorch.Error("Unsupported tensor layout '" + layout + "'.");
@@ -687,8 +687,8 @@ pytorch.Tensor = class {
         return this._type;
     }
 
-    get layout() {
-        return this._layout;
+    get encoding() {
+        return this._encoding;
     }
 
     get stride() {
@@ -700,15 +700,16 @@ pytorch.Tensor = class {
     }
 
     get values() {
-        if (this._layout && this._layout.startsWith('sparse.')) {
+        const type = this._type.layout;
+        if (type && type.startsWith('sparse.')) {
             return this._values;
         }
         return this._data instanceof Uint8Array ? this._data : this._data.peek();
     }
 
     decode() {
-        if (this._layout !== '<') {
-            throw new pytorch.Error("Tensor layout '" + this._layout + "' not implemented.");
+        if (this._encoding !== '<') {
+            throw new pytorch.Error("Tensor encoding '" + this._encoding + "' not implemented.");
         }
         const type = this._type;
         const data = this.values;
@@ -740,9 +741,10 @@ pytorch.Tensor = class {
 
 pytorch.TensorType = class {
 
-    constructor(dataType, shape) {
+    constructor(dataType, shape, layout) {
         this._dataType = dataType;
         this._shape = shape;
+        this._layout = layout;
     }
 
     get dataType() {
@@ -751,6 +753,10 @@ pytorch.TensorType = class {
 
     get shape() {
         return this._shape;
+    }
+
+    get layout() {
+        return this._layout;
     }
 
     toString() {
@@ -4210,7 +4216,7 @@ pytorch.nnapi.Tensor = class {
         return this._type;
     }
 
-    get layout() {
+    get encoding() {
         return '<';
     }
 
