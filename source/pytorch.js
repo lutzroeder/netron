@@ -2682,6 +2682,20 @@ pytorch.jit.Execution = class extends pytorch.Execution {
                     tensor.resize_(Array.isArray(tensor.shape) && tensor.shape.length > size ? tensor.shape.slice(-size) : Array(size).fill(NaN));
                 }
             }
+            // if torch.gt(torch.dim(x), 1):
+            //   xxxx
+            //   ops.prim.RaiseException(...)
+            if (statement.type === 'if' &&
+                pytorch.Utility.isCall(statement.condition, 'torch.gt', 2) &&
+                pytorch.Utility.isCall(statement.condition.args[0], 'torch.dim', 1) &&
+                statement.then.statements.length > 0 &&
+                pytorch.Utility.isCall(statement.then.statements.slice(-1).pop(), 'ops.prim.RaiseException')) {
+                const tensor = this.expression(statement.condition.args[0].args[0], context);
+                const size = this.expression(statement.condition.args[1], context);
+                if (pytorch.Utility.isTensor(tensor) && Number.isInteger(size) && size < 10) {
+                    tensor.resize_(Array.isArray(tensor.shape) && tensor.shape.length > size ? tensor.shape.slice(-size) : Array(size).fill(NaN));
+                }
+            }
             // if bool(...):
             //   ops.prim.RaiseException(torch.format(_1, dtype))
             // else:
@@ -3365,7 +3379,7 @@ pytorch.Utility = class {
 
     static isCall(expression, name, size) {
         if (expression.type === 'call' &&
-            expression.args.length === size &&
+            (size === undefined || size === expression.args.length) &&
             pytorch.Utility.target(expression.target) === name) {
             return true;
         }
