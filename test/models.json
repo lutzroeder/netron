@@ -3321,6 +3321,13 @@
     "link":     "https://github.com/lutzroeder/netron/issues/992"
   },
   {
+    "type":     "nnc",
+    "target":   "sm_uint8_fence.nnc",
+    "source":   "https://github.com/lutzroeder/netron/files/12446059/sm_uint8_fence.nnc.zip[sm_uint8_fence.nnc]",
+    "error":    "File contains undocumented NNC data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1144"
+  },
+  {
     "type":     "numpy",
     "target":   "cifar10-1w-1a.npz",
     "source":   "https://raw.githubusercontent.com/Xilinx/BNN-PYNQ/master/bnn/src/training/cifar10-1w-1a.npz",

@@ -5094,6 +5094,7 @@ view.ModelFactoryService = class {
         this.register('./mlir', [ '.mlir']);
         this.register('./sentencepiece', [ '.model' ]);
         this.register('./hailo', [ '.hn', '.har' ]);
+        this.register('./nnc', [ '.nnc' ]);
         this.register('./safetensors', [ '.safetensors' ]);
     }
 
@@ -5286,8 +5287,7 @@ view.ModelFactoryService = class {
                 const file_identifier = tags.get('file_identifier');
                 const formats = [
                     { name: 'onnxruntime.experimental.fbs.InferenceSession data', identifier: 'ORTM' },
-                    { name: 'tflite.Model data', identifier: 'TFL3' },
-                    { name: 'FlatBuffers ENNC data', identifier: 'ENNC' },
+                    { name: 'tflite.Model data', identifier: 'TFL3' }
                 ];
                 for (const format of formats) {
                     if (file_identifier === format.identifier) {
