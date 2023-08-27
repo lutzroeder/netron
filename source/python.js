@@ -2178,9 +2178,12 @@ python.Execution = class {
         });
         this.registerFunction('megengine.functional.nn.conv2d', function() {});
         this.registerFunction('megengine.functional.nn.relu', function() {});
+        this.registerFunction('megengine.functional.nn.sigmoid', function() {});
         this.registerFunction('megengine.module.qat.module.QATModule._apply_fakequant_with_observer', function() {});
         this.registerFunction('megengine.functional.tensor.concat', function() {});
         this.registerFunction('megengine.functional.tensor.flatten', function() {});
+        this.registerFunction('megengine.functional.tensor.split', function() {});
+        this.registerFunction('megengine.functional.tensor.reshape', function() {});
         this.registerType('megengine.core._imperative_rt.common.CompNode', class {});
         this.registerType('megengine.core._imperative_rt.ops.FakeQuant', class {});
         this.registerType('megengine.core._imperative_rt.ops.GetVarShape', class {});
