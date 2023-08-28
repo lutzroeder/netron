@@ -2137,6 +2137,41 @@
   },
   {
     "type":     "keras",
+    "target":   "issue326.json",
+    "source":   "https://github.com/lutzroeder/netron/files/12449721/issue326.json.zip[issue326.json]",
+    "format":   "Keras v2.2.4-tf",
+    "link":     "https://github.com/lutzroeder/netron/issues/326"
+  },
+  {
+    "type":     "keras",
+    "target":   "issue428.h5",
+    "source":   "https://github.com/lutzroeder/netron/files/12449731/issue428.h5.zip[issue428.h5]",
+    "format":   "Keras v2.2.4-tf",
+    "link":     "https://github.com/lutzroeder/netron/issues/428"
+  },
+  {
+    "type":     "keras",
+    "target":   "issue435.h5",
+    "source":   "https://github.com/lutzroeder/netron/files/12449734/issue435.h5.zip[issue435.h5]",
+    "format":   "Keras v2.2.4",
+    "link":     "https://github.com/lutzroeder/netron/issues/435"
+  },
+  {
+    "type":     "keras",
+    "target":   "issue553.h5",
+    "source":   "https://github.com/lutzroeder/netron/files/12449758/issue553.h5.zip[issue553.h5]",
+    "format":   "Keras v2.2.4-tf",
+    "link":     "https://github.com/lutzroeder/netron/issues/553"
+  },
+  {
+    "type":     "keras",
+    "target":   "issue855.h5",
+    "source":   "https://github.com/lutzroeder/netron/files/12449745/issue855.h5.zip[issue855.h5]",
+    "format":   "Keras v2.7.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/855"
+  },
+  {
+    "type":     "keras",
     "target":   "issue1142.1.keras",
     "source":   "https://github.com/lutzroeder/netron/files/12407995/issue1142.1.keras.zip[issue1142.1.keras]",
     "format":   "Keras v2.13.1",
@@ -2266,41 +2301,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/4304644/nested_bidrectional.zip[nested_bidrectional_weights.h5]",
     "format":   "Keras Weights v2.3.1",
     "link":     "https://github.com/lutzroeder/netron/issues/428"
-  },
-  {
-    "type":     "keras",
-    "target":   "netron_issue_326.json",
-    "source":   "https://github.com/lutzroeder/netron/files/3563087/netron_issue_326.zip[netron_issue_326.json]",
-    "format":   "Keras v2.2.4-tf",
-    "link":     "https://github.com/lutzroeder/netron/issues/326"
-  },
-  {
-    "type":     "keras",
-    "target":   "netron_issue_428.h5",
-    "source":   "https://github.com/lutzroeder/netron/files/4221535/netron_issue_428.zip[netron_issue_428.h5]",
-    "format":   "Keras v2.2.4-tf",
-    "link":     "https://github.com/lutzroeder/netron/issues/428"
-  },
-  {
-    "type":     "keras",
-    "target":   "netron_issue_435.h5",
-    "source":   "https://github.com/lutzroeder/netron/files/4269953/netron_issue_435.zip[netron_issue_435.h5]",
-    "format":   "Keras v2.2.4",
-    "link":     "https://github.com/lutzroeder/netron/issues/435"
-  },
-  {
-    "type":     "keras",
-    "target":   "netron_issue_553.h5",
-    "source":   "https://github.com/lutzroeder/netron/files/4979486/netron_issue_553.zip[netron_issue_553.h5]",
-    "format":   "Keras v2.2.4-tf",
-    "link":     "https://github.com/lutzroeder/netron/issues/553"
-  },
-  {
-    "type":     "keras",
-    "target":   "netron_issue_855.h5",
-    "source":   "https://github.com/lutzroeder/netron/files/7729736/netron_issue_855.h5.zip[netron_issue_855.h5]",
-    "format":   "Keras v2.7.0",
-    "link":     "https://github.com/lutzroeder/netron/issues/855"
   },
   {
     "type":     "keras",
