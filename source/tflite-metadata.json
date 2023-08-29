@@ -880,6 +880,18 @@
     ]
   },
   {
+    "name": "StablehloScatter",
+    "attributes": [
+      { "name": "indices_are_sorted", "type": "boolean", "default": false },
+      { "name": "update_window_dims", "type": "int64[]", "default": 0 },
+      { "name": "inserted_window_dims", "type": "int64[]", "default": 0 },
+      { "name": "scatter_dims_to_operand_dims", "type": "int64[]", "default": 0 },
+      { "name": "index_vector_dim", "type": "int64", "default": 0 },
+      { "name": "unique_indices", "type": "boolean", "default": false },
+      { "name": "update_computation_subgraph_index", "type": "int32", "default": 0 }
+    ]
+  },
+  {
     "name": "StablehloSlice",
     "attributes": [
       { "name": "start_indices", "type": "int64[]", "default": 0 },
