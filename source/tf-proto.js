@@ -6372,6 +6372,9 @@ $root.tensorflow.GPUOptions.Experimental = class Experimental {
                 case 1:
                     message.virtual_devices.push($root.tensorflow.GPUOptions.Experimental.VirtualDevices.decode(reader, reader.uint32()));
                     break;
+                case 15:
+                    message.num_virtual_devices_per_gpu = reader.int32();
+                    break;
                 case 2:
                     message.use_unified_memory = reader.bool();
                     break;
@@ -6425,6 +6428,9 @@ $root.tensorflow.GPUOptions.Experimental = class Experimental {
                 case "virtual_devices":
                     message.virtual_devices.push($root.tensorflow.GPUOptions.Experimental.VirtualDevices.decodeText(reader));
                     break;
+                case "num_virtual_devices_per_gpu":
+                    message.num_virtual_devices_per_gpu = reader.int32();
+                    break;
                 case "use_unified_memory":
                     message.use_unified_memory = reader.bool();
                     break;
@@ -6470,6 +6476,7 @@ $root.tensorflow.GPUOptions.Experimental = class Experimental {
     }
 };
 
+$root.tensorflow.GPUOptions.Experimental.prototype.num_virtual_devices_per_gpu = 0;
 $root.tensorflow.GPUOptions.Experimental.prototype.use_unified_memory = false;
 $root.tensorflow.GPUOptions.Experimental.prototype.num_dev_to_dev_copy_streams = 0;
 $root.tensorflow.GPUOptions.Experimental.prototype.collective_ring_order = "";
@@ -9636,6 +9643,9 @@ $root.tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
                 case 11:
                     message.allow_new_incarnation_to_reconnect = reader.bool();
                     break;
+                case 12:
+                    message.force_disable = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -9680,6 +9690,9 @@ $root.tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
                 case "allow_new_incarnation_to_reconnect":
                     message.allow_new_incarnation_to_reconnect = reader.bool();
                     break;
+                case "force_disable":
+                    message.force_disable = reader.bool();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -9697,6 +9710,7 @@ $root.tensorflow.CoordinationServiceConfig.prototype.heartbeat_timeout_in_ms = p
 $root.tensorflow.CoordinationServiceConfig.prototype.shutdown_barrier_timeout_in_ms = protobuf.Int64.create(0);
 $root.tensorflow.CoordinationServiceConfig.prototype.agent_destruction_without_shutdown = false;
 $root.tensorflow.CoordinationServiceConfig.prototype.allow_new_incarnation_to_reconnect = false;
+$root.tensorflow.CoordinationServiceConfig.prototype.force_disable = false;
 
 $root.tensorflow.MemmappedFileSystemDirectoryElement = class MemmappedFileSystemDirectoryElement {
 
