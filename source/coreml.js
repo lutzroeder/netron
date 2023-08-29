@@ -687,7 +687,7 @@ coreml.Graph = class {
                 }
             }
         };
-        const loadModel = (model, values, group, weights) => {
+        const loadModel = (model, values, group) => {
             this._groups = this._groups | (group.length > 0 ? true : false);
             const description = model && model.description && model.description.metadata && model.description.metadata.shortDescription ? model.description.metadata.shortDescription : '';
             switch (model.Type) {
@@ -1000,7 +1000,7 @@ coreml.Graph = class {
                 return new coreml.Argument(input.name, true, [ value ]);
             });
         }
-        this._type = loadModel(model, values, '', weights);
+        this._type = loadModel(model, values, '');
         if (this._description) {
             this._outputs = this._description.output.map((output) => {
                 const value = values.input(output.name);

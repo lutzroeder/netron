@@ -1623,6 +1623,13 @@
     "link":     "https://developer.apple.com/machine-learning/models"
   },
   {
+    "type":     "coreml",
+    "target":   "yolov8n.mlpackage,yolov8n.mlpackage/Manifest.json,yolov8n.mlpackage/Data/com.apple.CoreML/model.mlmodel,yolov8n.mlpackage/Data/com.apple.CoreML/weights/weight.bin",
+    "source":   "https://github.com/lutzroeder/netron/files/12459452/yolov8n.mlpackage.zip[.,yolov8n.mlpackage/Manifest.json,yolov8n.mlpackage/Data/com.apple.CoreML/model.mlmodel,yolov8n.mlpackage/Data/com.apple.CoreML/weights/weight.bin]",
+    "format":   "Core ML Package v5",
+    "link":     "https://github.com/lutzroeder/netron/issues/1145"
+  },
+  {
     "type":     "darknet",
     "target":   "alexnet.cfg",
     "source":   "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/alexnet.cfg",
