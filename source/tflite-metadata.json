@@ -834,6 +834,13 @@
     ]
   },
   {
+    "name": "StablehloCompare",
+    "attributes": [
+      { "name": "comparison_direction", "type": "StablehloComparisonDirection", "default": "STABLEHLO_COMPARISON_DIRECTION_EQ" },
+      { "name": "compare_type", "type": "StablehloComparisonType", "default": "STABLEHLO_COMPARISON_TYPE_NOTYPE" }
+    ]
+  },
+  {
     "name": "StablehloConcatenate",
     "attributes": [
       { "name": "dimension", "type": "int64", "default": 0 }
@@ -873,9 +880,50 @@
     ]
   },
   {
+    "name": "StablehloDotGeneral",
+    "attributes": [
+      { "name": "lhs_batching_dimensions", "type": "int64[]", "default": 0 },
+      { "name": "rhs_batching_dimensions", "type": "int64[]", "default": 0 },
+      { "name": "lhs_contracting_dimensions", "type": "int64[]", "default": 0 },
+      { "name": "rhs_contracting_dimensions", "type": "int64[]", "default": 0 },
+      { "name": "precision_config", "type": "StablehloPrecisionConfig[]", "default": "DEFAULT" }
+    ]
+  },
+  {
+    "name": "StablehloDynamicSlice",
+    "attributes": [
+      { "name": "slice_sizes", "type": "int64[]", "default": 0 }
+    ]
+  },
+  {
+    "name": "StablehloIota",
+    "attributes": [
+      { "name": "iota_dimension", "type": "int64", "default": 0 }
+    ]
+  },
+  {
+    "name": "StablehloPad",
+    "attributes": [
+      { "name": "edge_padding_low", "type": "int64[]", "default": 0 },
+      { "name": "edge_padding_high", "type": "int64[]", "default": 0 },
+      { "name": "interior_padding", "type": "int64[]", "default": 0 }
+    ]
+  },
+  {
     "name": "StablehloReduce",
     "attributes": [
       { "name": "dimensions", "type": "int64[]", "default": 0 },
+      { "name": "body_subgraph_index", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "StablehloReduceWindow",
+    "attributes": [
+      { "name": "window_dimensions", "type": "int64[]", "default": 0 },
+      { "name": "window_strides", "type": "int64[]", "default": 0 },
+      { "name": "base_dilations", "type": "int64[]", "default": 0 },
+      { "name": "window_dilations", "type": "int64[]", "default": 0 },
+      { "name": "padding", "type": "int64[]", "default": 0 },
       { "name": "body_subgraph_index", "type": "int32", "default": 0 }
     ]
   },
@@ -897,6 +945,21 @@
       { "name": "start_indices", "type": "int64[]", "default": 0 },
       { "name": "limit_indices", "type": "int64[]", "default": 0 },
       { "name": "strides", "type": "int64[]", "default": 0 }
+    ]
+  },
+  {
+    "name": "StablehloSort",
+    "attributes": [
+      { "name": "dimension", "type": "int64", "default": 0 },
+      { "name": "is_stable", "type": "boolean", "default": false },
+      { "name": "comparator_subgraph_index", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "StablehloWhile",
+    "attributes": [
+      { "name": "cond_subgraph_index", "type": "int32", "default": 0 },
+      { "name": "body_subgraph_index", "type": "int32", "default": 0 }
     ]
   },
   {

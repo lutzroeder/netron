@@ -434,7 +434,17 @@ $root.tflite.BuiltinOperator = {
     STABLEHLO_SELECT: 187,
     STABLEHLO_SUBTRACT: 188,
     STABLEHLO_TANH: 189,
-    STABLEHLO_SCATTER: 190
+    STABLEHLO_SCATTER: 190,
+    STABLEHLO_COMPARE: 191,
+    STABLEHLO_CONVERT: 192,
+    STABLEHLO_DYNAMIC_SLICE: 193,
+    STABLEHLO_DYNAMIC_UPDATE_SLICE: 194,
+    STABLEHLO_PAD: 195,
+    STABLEHLO_IOTA: 196,
+    STABLEHLO_DOT_GENERAL: 197,
+    STABLEHLO_REDUCE_WINDOW: 198,
+    STABLEHLO_SORT: 199,
+    STABLEHLO_WHILE: 200
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -715,6 +725,14 @@ $root.tflite.BuiltinOptions2 = class {
             case 5: return $root.tflite.StablehloCustomCallOptions.decode(reader, position);
             case 6: return $root.tflite.StablehloReduceOptions.decode(reader, position);
             case 7: return $root.tflite.StablehloScatterOptions.decode(reader, position);
+            case 8: return $root.tflite.StablehloCompareOptions.decode(reader, position);
+            case 9: return $root.tflite.StablehloDynamicSliceOptions.decode(reader, position);
+            case 10: return $root.tflite.StablehloPadOptions.decode(reader, position);
+            case 11: return $root.tflite.StablehloIotaOptions.decode(reader, position);
+            case 12: return $root.tflite.StablehloDotGeneralOptions.decode(reader, position);
+            case 13: return $root.tflite.StablehloReduceWindowOptions.decode(reader, position);
+            case 14: return $root.tflite.StablehloSortOptions.decode(reader, position);
+            case 15: return $root.tflite.StablehloWhileOptions.decode(reader, position);
             default: return undefined;
         }
     }
@@ -728,6 +746,14 @@ $root.tflite.BuiltinOptions2 = class {
             case 'StablehloCustomCallOptions': return $root.tflite.StablehloCustomCallOptions.decodeText(reader, json);
             case 'StablehloReduceOptions': return $root.tflite.StablehloReduceOptions.decodeText(reader, json);
             case 'StablehloScatterOptions': return $root.tflite.StablehloScatterOptions.decodeText(reader, json);
+            case 'StablehloCompareOptions': return $root.tflite.StablehloCompareOptions.decodeText(reader, json);
+            case 'StablehloDynamicSliceOptions': return $root.tflite.StablehloDynamicSliceOptions.decodeText(reader, json);
+            case 'StablehloPadOptions': return $root.tflite.StablehloPadOptions.decodeText(reader, json);
+            case 'StablehloIotaOptions': return $root.tflite.StablehloIotaOptions.decodeText(reader, json);
+            case 'StablehloDotGeneralOptions': return $root.tflite.StablehloDotGeneralOptions.decodeText(reader, json);
+            case 'StablehloReduceWindowOptions': return $root.tflite.StablehloReduceWindowOptions.decodeText(reader, json);
+            case 'StablehloSortOptions': return $root.tflite.StablehloSortOptions.decodeText(reader, json);
+            case 'StablehloWhileOptions': return $root.tflite.StablehloWhileOptions.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -737,6 +763,90 @@ $root.tflite.StablehloPrecisionConfig = {
     DEFAULT: 0,
     HIGH: 1,
     HIGHEST: 2
+};
+
+$root.tflite.StablehloDotGeneralOptions = class StablehloDotGeneralOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.StablehloDotGeneralOptions();
+        $.lhs_batching_dimensions = reader.int64s_(position, 4);
+        $.rhs_batching_dimensions = reader.int64s_(position, 6);
+        $.lhs_contracting_dimensions = reader.int64s_(position, 8);
+        $.rhs_contracting_dimensions = reader.int64s_(position, 10);
+        $.precision_config = reader.typedArray(position, 12, Uint32Array);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.StablehloDotGeneralOptions();
+        $.lhs_batching_dimensions = reader.array(json.lhs_batching_dimensions);
+        $.rhs_batching_dimensions = reader.array(json.rhs_batching_dimensions);
+        $.lhs_contracting_dimensions = reader.array(json.lhs_contracting_dimensions);
+        $.rhs_contracting_dimensions = reader.array(json.rhs_contracting_dimensions);
+        $.precision_config = reader.objectArray(json.precision_config, $root.tflite.StablehloPrecisionConfig.decodeText);
+        return $;
+    }
+};
+
+$root.tflite.StablehloReduceWindowOptions = class StablehloReduceWindowOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.StablehloReduceWindowOptions();
+        $.window_dimensions = reader.int64s_(position, 4);
+        $.window_strides = reader.int64s_(position, 6);
+        $.base_dilations = reader.int64s_(position, 8);
+        $.window_dilations = reader.int64s_(position, 10);
+        $.padding = reader.int64s_(position, 12);
+        $.body_subgraph_index = reader.int32_(position, 14, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.StablehloReduceWindowOptions();
+        $.window_dimensions = reader.array(json.window_dimensions);
+        $.window_strides = reader.array(json.window_strides);
+        $.base_dilations = reader.array(json.base_dilations);
+        $.window_dilations = reader.array(json.window_dilations);
+        $.padding = reader.array(json.padding);
+        $.body_subgraph_index = reader.value(json.body_subgraph_index, 0);
+        return $;
+    }
+};
+
+$root.tflite.StablehloWhileOptions = class StablehloWhileOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.StablehloWhileOptions();
+        $.cond_subgraph_index = reader.int32_(position, 4, 0);
+        $.body_subgraph_index = reader.int32_(position, 6, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.StablehloWhileOptions();
+        $.cond_subgraph_index = reader.value(json.cond_subgraph_index, 0);
+        $.body_subgraph_index = reader.value(json.body_subgraph_index, 0);
+        return $;
+    }
+};
+
+$root.tflite.StablehloSortOptions = class StablehloSortOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.StablehloSortOptions();
+        $.dimension = reader.int64_(position, 4, 0);
+        $.is_stable = reader.bool_(position, 6, false);
+        $.comparator_subgraph_index = reader.int32_(position, 8, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.StablehloSortOptions();
+        $.dimension = reader.value(json.dimension, 0);
+        $.is_stable = reader.value(json.is_stable, false);
+        $.comparator_subgraph_index = reader.value(json.comparator_subgraph_index, 0);
+        return $;
+    }
 };
 
 $root.tflite.StablehloConcatenateOptions = class StablehloConcatenateOptions {
@@ -765,6 +875,89 @@ $root.tflite.StablehloBroadcastInDimOptions = class StablehloBroadcastInDimOptio
     static decodeText(reader, json) {
         const $ = new $root.tflite.StablehloBroadcastInDimOptions();
         $.broadcast_dimensions = reader.array(json.broadcast_dimensions);
+        return $;
+    }
+};
+
+$root.tflite.StablehloComparisonDirection = {
+    STABLEHLO_COMPARISON_DIRECTION_EQ: 0,
+    STABLEHLO_COMPARISON_DIRECTION_NE: 1,
+    STABLEHLO_COMPARISON_DIRECTION_GE: 2,
+    STABLEHLO_COMPARISON_DIRECTION_GT: 3,
+    STABLEHLO_COMPARISON_DIRECTION_LE: 4,
+    STABLEHLO_COMPARISON_DIRECTION_LT: 5
+};
+
+$root.tflite.StablehloComparisonType = {
+    STABLEHLO_COMPARISON_TYPE_NOTYPE: 0,
+    STABLEHLO_COMPARISON_TYPE_FLOAT: 1,
+    STABLEHLO_COMPARISON_TYPE_FLOAT_TOTAL_ORDER: 2,
+    STABLEHLO_COMPARISON_TYPE_SIGNED: 3,
+    STABLEHLO_COMPARISON_TYPE_UNSIGNED: 4
+};
+
+$root.tflite.StablehloCompareOptions = class StablehloCompareOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.StablehloCompareOptions();
+        $.comparison_direction = reader.uint32_(position, 4, 0);
+        $.compare_type = reader.uint32_(position, 6, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.StablehloCompareOptions();
+        $.comparison_direction = $root.tflite.StablehloComparisonDirection[json.comparison_direction];
+        $.compare_type = $root.tflite.StablehloComparisonType[json.compare_type];
+        return $;
+    }
+};
+
+$root.tflite.StablehloDynamicSliceOptions = class StablehloDynamicSliceOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.StablehloDynamicSliceOptions();
+        $.slice_sizes = reader.int64s_(position, 4);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.StablehloDynamicSliceOptions();
+        $.slice_sizes = reader.array(json.slice_sizes);
+        return $;
+    }
+};
+
+$root.tflite.StablehloPadOptions = class StablehloPadOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.StablehloPadOptions();
+        $.edge_padding_low = reader.int64s_(position, 4);
+        $.edge_padding_high = reader.int64s_(position, 6);
+        $.interior_padding = reader.int64s_(position, 8);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.StablehloPadOptions();
+        $.edge_padding_low = reader.array(json.edge_padding_low);
+        $.edge_padding_high = reader.array(json.edge_padding_high);
+        $.interior_padding = reader.array(json.interior_padding);
+        return $;
+    }
+};
+
+$root.tflite.StablehloIotaOptions = class StablehloIotaOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.StablehloIotaOptions();
+        $.iota_dimension = reader.int64_(position, 4, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.StablehloIotaOptions();
+        $.iota_dimension = reader.value(json.iota_dimension, 0);
         return $;
     }
 };
