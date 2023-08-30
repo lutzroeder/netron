@@ -1594,7 +1594,6 @@ view.Graph = class extends grapher.Graph {
     createNode(node) {
         const value = new view.Node(this, node);
         value.name = (this._nodeKey++).toString();
-        this.setNode(value);
         this._table.set(node, value);
         return value;
     }
@@ -1602,7 +1601,6 @@ view.Graph = class extends grapher.Graph {
     createInput(input) {
         const value = new view.Input(this, input);
         value.name = (this._nodeKey++).toString();
-        this.setNode(value);
         this._table.set(input, value);
         return value;
     }
@@ -1610,7 +1608,6 @@ view.Graph = class extends grapher.Graph {
     createOutput(output) {
         const value = new view.Output(this, output);
         value.name = (this._nodeKey++).toString();
-        this.setNode(value);
         this._table.set(output, value);
         return value;
     }
@@ -1647,12 +1644,14 @@ view.Graph = class extends grapher.Graph {
         }
         for (const input of graph.inputs) {
             const viewInput = this.createInput(input);
+            this.setNode(viewInput);
             for (const value of input.value) {
                 this.createValue(value).from = viewInput;
             }
         }
         for (const node of graph.nodes) {
             const viewNode = this.createNode(node);
+            this.setNode(viewNode);
             const inputs = node.inputs;
             for (const input of inputs) {
                 for (const value of input.value) {
@@ -1720,6 +1719,7 @@ view.Graph = class extends grapher.Graph {
         }
         for (const output of graph.outputs) {
             const viewOutput = this.createOutput(output);
+            this.setNode(viewOutput);
             for (const value of output.value) {
                 this.createValue(value).to.push(viewOutput);
             }
@@ -1910,10 +1910,12 @@ view.Node = class extends grapher.Node {
         }
         if (Array.isArray(node.chain) && node.chain.length > 0) {
             for (const innerNode of node.chain) {
+                this.context.createNode(innerNode);
                 this._add(innerNode);
             }
         }
         if (node.inner) {
+            this.context.createNode(node.inner);
             this._add(node.inner);
         }
         if (node.nodes) {

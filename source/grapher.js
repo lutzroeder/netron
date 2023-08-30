@@ -253,12 +253,17 @@ grapher.Node = class {
     }
 
     select() {
-        this.element.classList.add('select');
-        return [ this.element ];
+        if (this.element) {
+            this.element.classList.add('select');
+            return [ this.element ];
+        }
+        return [];
     }
 
     deselect() {
-        this.element.classList.remove('select');
+        if (this.element) {
+            this.element.classList.remove('select');
+        }
     }
 
     static roundedRect(x, y, width, height, r1, r2, r3, r4) {
