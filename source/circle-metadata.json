@@ -394,7 +394,8 @@
     "attributes": [
       { "name": "padding", "type": "Padding", "default": "SAME" },
       { "name": "stride_w", "type": "int32", "default": 0 },
-      { "name": "stride_h", "type": "int32", "default": 0 }
+      { "name": "stride_h", "type": "int32", "default": 0 },
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
     ]
   },
   {
@@ -404,7 +405,8 @@
       { "name": "cell_clip", "type": "float32", "default": 0 },
       { "name": "proj_clip", "type": "float32", "default": 0 },
       { "name": "time_major", "type": "boolean", "default": false },
-      { "name": "asymmetric_quantize_inputs", "type": "boolean", "default": false }
+      { "name": "asymmetric_quantize_inputs", "type": "boolean", "default": false },
+      { "name": "diagonal_recurrent_tensors", "type": "boolean", "default": false }
     ]
   },
   {
