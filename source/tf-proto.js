@@ -7065,6 +7065,9 @@ $root.tensorflow.ConfigProto.Experimental = class Experimental {
                 case 24:
                     message.disable_optimize_for_static_graph = reader.bool();
                     break;
+                case 26:
+                    message.disable_eager_executor_streaming_enqueue = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -7142,6 +7145,9 @@ $root.tensorflow.ConfigProto.Experimental = class Experimental {
                 case "disable_optimize_for_static_graph":
                     message.disable_optimize_for_static_graph = reader.bool();
                     break;
+                case "disable_eager_executor_streaming_enqueue":
+                    message.disable_eager_executor_streaming_enqueue = reader.bool();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -7172,6 +7178,7 @@ $root.tensorflow.ConfigProto.Experimental.prototype.disable_functional_ops_lower
 $root.tensorflow.ConfigProto.Experimental.prototype.xla_prefer_single_graph_cluster = false;
 $root.tensorflow.ConfigProto.Experimental.prototype.coordination_config = null;
 $root.tensorflow.ConfigProto.Experimental.prototype.disable_optimize_for_static_graph = false;
+$root.tensorflow.ConfigProto.Experimental.prototype.disable_eager_executor_streaming_enqueue = false;
 
 $root.tensorflow.ConfigProto.Experimental.MlirBridgeRollout = {
     "MLIR_BRIDGE_ROLLOUT_UNSPECIFIED": 0,
