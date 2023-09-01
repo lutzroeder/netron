@@ -896,6 +896,17 @@
     ]
   },
   {
+    "name": "StablehloGather",
+    "attributes": [
+      { "name": "offset_dims", "type": "int64[]", "default": 0 },
+      { "name": "collapsed_slice_dims", "type": "int64[]", "default": 0 },
+      { "name": "start_index_map", "type": "int64[]", "default": 0 },
+      { "name": "index_vector_dim", "type": "int64", "default": 0 },
+      { "name": "slice_sizes", "type": "int64[]", "default": 0 },
+      { "name": "indices_are_sorted", "type": "boolean", "default": false }
+    ]
+  },
+  {
     "name": "StablehloIota",
     "attributes": [
       { "name": "iota_dimension", "type": "int64", "default": 0 }
@@ -953,6 +964,12 @@
       { "name": "dimension", "type": "int64", "default": 0 },
       { "name": "is_stable", "type": "boolean", "default": false },
       { "name": "comparator_subgraph_index", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "StablehloTranspose",
+    "attributes": [
+      { "name": "permutation", "type": "int64[]", "default": 0 }
     ]
   },
   {

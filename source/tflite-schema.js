@@ -444,7 +444,9 @@ $root.tflite.BuiltinOperator = {
     STABLEHLO_DOT_GENERAL: 197,
     STABLEHLO_REDUCE_WINDOW: 198,
     STABLEHLO_SORT: 199,
-    STABLEHLO_WHILE: 200
+    STABLEHLO_WHILE: 200,
+    STABLEHLO_GATHER: 201,
+    STABLEHLO_TRANSPOSE: 202
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -733,6 +735,8 @@ $root.tflite.BuiltinOptions2 = class {
             case 13: return $root.tflite.StablehloReduceWindowOptions.decode(reader, position);
             case 14: return $root.tflite.StablehloSortOptions.decode(reader, position);
             case 15: return $root.tflite.StablehloWhileOptions.decode(reader, position);
+            case 16: return $root.tflite.StablehloGatherOptions.decode(reader, position);
+            case 17: return $root.tflite.StablehloTransposeOptions.decode(reader, position);
             default: return undefined;
         }
     }
@@ -754,8 +758,50 @@ $root.tflite.BuiltinOptions2 = class {
             case 'StablehloReduceWindowOptions': return $root.tflite.StablehloReduceWindowOptions.decodeText(reader, json);
             case 'StablehloSortOptions': return $root.tflite.StablehloSortOptions.decodeText(reader, json);
             case 'StablehloWhileOptions': return $root.tflite.StablehloWhileOptions.decodeText(reader, json);
+            case 'StablehloGatherOptions': return $root.tflite.StablehloGatherOptions.decodeText(reader, json);
+            case 'StablehloTransposeOptions': return $root.tflite.StablehloTransposeOptions.decodeText(reader, json);
             default: return undefined;
         }
+    }
+};
+
+$root.tflite.StablehloGatherOptions = class StablehloGatherOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.StablehloGatherOptions();
+        $.offset_dims = reader.int64s_(position, 4);
+        $.collapsed_slice_dims = reader.int64s_(position, 6);
+        $.start_index_map = reader.int64s_(position, 8);
+        $.index_vector_dim = reader.int64_(position, 10, 0);
+        $.slice_sizes = reader.int64s_(position, 12);
+        $.indices_are_sorted = reader.bool_(position, 14, false);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.StablehloGatherOptions();
+        $.offset_dims = reader.array(json.offset_dims);
+        $.collapsed_slice_dims = reader.array(json.collapsed_slice_dims);
+        $.start_index_map = reader.array(json.start_index_map);
+        $.index_vector_dim = reader.value(json.index_vector_dim, 0);
+        $.slice_sizes = reader.array(json.slice_sizes);
+        $.indices_are_sorted = reader.value(json.indices_are_sorted, false);
+        return $;
+    }
+};
+
+$root.tflite.StablehloTransposeOptions = class StablehloTransposeOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.StablehloTransposeOptions();
+        $.permutation = reader.int64s_(position, 4);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.StablehloTransposeOptions();
+        $.permutation = reader.array(json.permutation);
+        return $;
     }
 };
 
