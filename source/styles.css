@@ -157,10 +157,10 @@ button {
   stroke: #000000;
 }
 .welcome body {
-  background-color: #ececec;
+  background-color: #f4f7fe;
 }
 .welcome {
-  background-color: #ececec;
+  background-color: #f4f7fe;
   color: #242424;
 }
 .logo-text {
@@ -207,18 +207,19 @@ button {
   vertical-align: middle;
   min-width: 5em;
   height: 2.7em;
-  border-radius: 1.3em;
+  border-radius: 8px;
+
   transition: 0.1s;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
-  color: #444444;
-  background-color: #ececec;
-  border: 1px solid #444444;
+  color: #fff;
+  background-color: #5724e8;
+  border: none;
 }
 .logo-button:hover {
   color: #ececec;
-  background-color: #444444;
+  background-color: #42307d;
   cursor: pointer;
   transition: 0.2s;
 }
@@ -249,10 +250,25 @@ button {
 }
 .message-dialog {
   display: none;
-  color: #444444;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  backdrop-filter: blur(10px);
+}
+.message-dialog-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  background-color: #fff;
+  border-radius: 20px;
+  padding: 32px 24px;
 }
 .message-button {
-  top: 224px;
+  /* top: 224px; */
   left: 0px;
   width: 125px;
 }
@@ -261,13 +277,11 @@ button {
   align-items: center;
   justify-content: center;
   text-align: center;
-  top: 132px;
-  height: 0px;
   font-size: 13px;
   line-height: 20px;
 }
 .message .message-dialog {
-  display: block;
+  display: flex;
 }
 .message .logo-name {
   display: none;
@@ -569,8 +583,8 @@ button {
     background-color: #404040;
   }
   .welcome {
-    background-color: #1e1e1e;
-    color: #888888;
+    background-color: #0b1437;
+    color: #d71515;
   }
   .logo-stroke {
     stroke: #888888;
@@ -587,17 +601,12 @@ button {
   .logo-spinner-stroke {
     stroke: #ffffff;
   }
-  .logo-button {
-    color: #888888;
-    background-color: #1e1e1e;
-    border-color: #888888;
-  }
-  .logo-button:hover {
-    color: #1e1e1e;
-    background-color: #888888;
-  }
+
   .message-dialog {
     color: #888888;
+  }
+  .message-dialog-card {
+    background-color: #111c44;
   }
   .welcome .progress-bar {
     background-color: #888888;
@@ -645,7 +654,7 @@ button {
     color: #949494;
   }
   .welcome body {
-    background-color: #1e1e1e;
+    background-color: #0b1437;
   }
   .default body {
     background-color: #404040;
@@ -717,10 +726,14 @@ button {
     top: 204px;
     left: 0;
   }
+  .message-text{
+    color: #fff'
+  }
   .message-dialog .message-button {
     top: 304px;
   }
   .message-dialog .message-text {
+
     top: 190px;
     width: 240px;
   }
