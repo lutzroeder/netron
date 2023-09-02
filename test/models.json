@@ -5490,6 +5490,13 @@
   },
   {
     "type":     "rknn",
+    "target":   "100_epoch.rknn",
+    "source":   "https://github.com/lutzroeder/netron/files/12502077/100_epoch.rknn.zip[100_epoch.rknn]",
+    "format":   "RKNN v1.5.2+b642f30c",
+    "link":     "https://github.com/lutzroeder/netron/issues/639"
+  },
+  {
+    "type":     "rknn",
     "target":   "autopilot.rknn",
     "source":   "https://github.com/lutzroeder/netron/files/5621074/autopilot.rknn.zip[autopilot.rknn]",
     "format":   "RKNN v1.3.0",

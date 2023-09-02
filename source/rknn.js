@@ -548,14 +548,14 @@ rknn.Container = class extends Map {
                         case 0x0002:
                         case 0x1002:
                         case 0x1003:
+                        case 0x0003:
                         case 0x0004:
+                        case 0x0005:
+                        case 0x0006:
                             if (data_size > 0) {
                                 stream.skip(40);
                             }
                             break;
-                        case 0x0003:
-                        case 0x0005:
-                        case 0x0006:
                         default:
                             throw new rknn.Error("Unsupported RKNN container version '" + version + "'.");
                     }
