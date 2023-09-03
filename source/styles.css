@@ -1,3 +1,10 @@
+:root {
+  --primary-color: #2C64E3;
+  --secondary-color: #374e84;
+  --primary-background-color: #F4F7FE;
+  --font-size: 16px;
+}
+
 html {
   touch-action: none;
   overflow: hidden;
@@ -53,6 +60,7 @@ button {
   overflow: auto;
   outline: none;
   touch-action: pan-x pan-y;
+  background-color: var(--primary-background-color);
 }
 .canvas {
   margin: auto;
@@ -66,7 +74,7 @@ button {
   display: none;
 }
 .default {
-  background-color: #ffffff;
+  background-color: var(--primary-background-color);
 }
 .default .logo {
   display: none;
@@ -157,10 +165,10 @@ button {
   stroke: #000000;
 }
 .welcome body {
-  background-color: #f4f7fe;
+  background-color: var(--primary-background-color);
 }
 .welcome {
-  background-color: #f4f7fe;
+  background-color: var(--primary-background-color);
   color: #242424;
 }
 .logo-text {
@@ -208,18 +216,17 @@ button {
   min-width: 5em;
   height: 2.7em;
   border-radius: 8px;
-
   transition: 0.1s;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   color: #fff;
-  background-color: #5724e8;
+  background-color: var(--primary-color);
   border: none;
 }
 .logo-button:hover {
   color: #ececec;
-  background-color: #42307d;
+  background-color: var(--secondary-color);
   cursor: pointer;
   transition: 0.2s;
 }
@@ -754,6 +761,13 @@ button {
   .about .logo-github {
     top: 370px;
   }
+  .sidebar {
+    z-index: 3;
+    width: 100vw !important;
+  }
+  .sidebar-section {
+    margin: 0px !important;
+  }
 }
 @media only screen and (max-device-width: 1024px) {
   .toolbar-button {
@@ -769,6 +783,7 @@ button {
     margin-bottom: 6px;
   }
 }
+
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -780,57 +795,83 @@ button {
   position: fixed;
   transition: 0.1s;
   top: 0;
-  background-color: #ececec;
   color: #242424;
   overflow: hidden;
   border-left: 1px solid rgba(255, 255, 255, 0.5);
   opacity: 0;
 }
+.sidebar-section {
+  margin: 10px 10px 10px 0px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 20px;
+  background-color: #fff;
+
+
+}
+.sidebar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid var(--primary-background-color);
+  
+}
 .sidebar-title {
+  flex-grow: 1;
+  text-align: center;
   font-weight: bold;
-  font-size: 12px;
+  font-size: 20px;
   letter-spacing: 0.5px;
-  text-transform: uppercase;
   height: 20px;
   margin: 0;
-  padding: 20px;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
 }
 .sidebar-closebutton {
-  padding: 8px 8px 8px 32px;
+  cursor: pointer;
   text-decoration: none;
+  text-align: center;
   font-size: 25px;
-  color: #777777;
+  color: var(--primary-color);
   opacity: 1;
   display: block;
   transition: 0.2s;
-  position: absolute;
-  top: 0;
-  right: 15px;
-  margin-left: 50px;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
+  background-color: var(--primary-background-color);
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .sidebar-closebutton:hover {
-  color: #242424;
+  color: var(--secondary-color);
+}
+.sidebar-closebutton-text{
+  line-height: 0;
 }
 .sidebar-content {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   height: 0;
+  padding: 20px;
 }
 .sidebar-header {
   font-weight: bold;
-  font-size: 11px;
+  font-size: 14px;
   text-transform: uppercase;
   line-height: 1.25;
   margin-top: 16px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid #ececec;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--primary-background-color);
   display: block;
   user-select: none;
   -webkit-user-select: none;
@@ -839,7 +880,6 @@ button {
 }
 .sidebar-object {
   flex-grow: 1;
-  padding: 0px 20px 20px 20px;
   overflow-y: auto;
 }
 .sidebar-item {
@@ -848,7 +888,7 @@ button {
 }
 .sidebar-item-name {
   float: left;
-  font-size: 11px;
+  font-size: 12px;
   min-width: 95px;
   max-width: 95px;
   padding-right: 5px;
@@ -877,7 +917,7 @@ button {
   padding: 0;
 }
 .sidebar-item-value {
-  font-size: 11px;
+  font-size: 12px;
   background-color: #fcfcfc;
   border-radius: 2px;
   border: 1px solid #fcfcfc;
@@ -932,7 +972,7 @@ button {
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier,
     monospace;
   float: right;
-  color: #aaa;
+  color: var(--primary-color);
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
@@ -940,7 +980,7 @@ button {
   padding: 4px 6px 4px 6px;
 }
 .sidebar-item-value-expander:hover {
-  color: #000;
+  color: var(--secondary-color);
 }
 .sidebar-item-select {
   font-family: inherit;
@@ -1110,17 +1150,12 @@ button {
     border-left: 1px solid rgba(0, 0, 0, 0);
   }
   .sidebar-closebutton {
-    padding: 8px 8px 8px 32px;
     text-decoration: none;
     font-size: 25px;
     color: #777777;
     opacity: 1;
     display: block;
     transition: 0.2s;
-    position: absolute;
-    top: 0;
-    right: 15px;
-    margin-left: 50px;
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;

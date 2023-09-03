@@ -21,9 +21,15 @@
     <svg id="canvas" class="canvas" preserveaspectratio="xMidYMid meet" width="100%" height="100%"></svg>
 </div>
 <div id="sidebar" class="sidebar">
-    <h1 id="sidebar-title" class="sidebar-title"></h1>
-    <a id="sidebar-closebutton" class="sidebar-closebutton" href="javascript:void(0)" draggable="false">&times;</a>
-    <div id="sidebar-content" class="sidebar-content"></div>
+    <div class="sidebar-section">
+        <div class="sidebar-top">
+            <h1 id="sidebar-title" class="sidebar-title"></h1>
+            <div id="sidebar-closebutton" class="sidebar-closebutton" draggable="false">
+                <div class="sidebar-closebutton-text">&times;</div>
+            </div>
+        </div>
+        <div id="sidebar-content" class="sidebar-content"></div>
+    </div>
 </div>
 <div id="toolbar" class="toolbar">
     <button id="sidebar-button" class="toolbar-button" title="Model Properties">
