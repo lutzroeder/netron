@@ -1155,13 +1155,6 @@ button {
   .sidebar-section {
     background-color: var(--secondary-background-color);
   }
-  /* .sidebar-closebutton {
-    background-color: var(--primary-background-color);
-    color: var(--primary-color);
-  }
-  .sidebar-closebutton:hover {
-    color: var(--secondary-color);
-  } */
   .sidebar-item-value {
     background-color: #383838;
     border-color: #383838;
