@@ -717,7 +717,7 @@ view.View = class {
     }
 
     pushGraph(graph) {
-        if (graph !== this.activeGraph) {
+        if (graph && graph !== this.activeGraph && Array.isArray(graph.nodes)) {
             this._sidebar.close();
             this._updateGraph(this._model, [ graph ].concat(this._graphs));
         }
