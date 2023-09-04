@@ -1444,7 +1444,10 @@ view.Menu = class {
   toggle() {
     if (this._element.style.opacity >= 1) {
       this.close();
+      this._document.getElementById("menu-button").innerHTML = "&#8801;";
     } else {
+      this._document.getElementById("menu-button").innerHTML = "&times;";
+
       this._root = [this];
       this._stack = [this];
       this.open();

@@ -2,6 +2,7 @@
   --primary-color: #2C64E3;
   --secondary-color: #374e84;
   --primary-background-color: #F4F7FE;
+  --primary-white: #fcfcfc;
   --font-size: 16px;
 }
 
@@ -340,7 +341,7 @@ button {
   flex-direction: column;
   height: 100%;
   border-radius: 20px;
-  background-color: #fff;
+  background-color: var(--primary-white);
 
 
 }
@@ -825,7 +826,7 @@ button {
   top: 0;
   height: 100%;
   z-index: 2;
-  background-color: #ececec;
+  background-color: var(--primary-white);
   border-right: 1px solid rgba(255, 255, 255, 0.5);
   padding-top: 40px;
   padding-bottom: 2px;
@@ -1117,7 +1118,8 @@ button {
     background-color: #b43029;
   }
   .menu-button {
-    color: #aaaaaa;
+    /* color: #aaaaaa; */
+    
   }
   .menu-button:hover {
     color: #ffffff;
