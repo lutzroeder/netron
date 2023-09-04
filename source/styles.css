@@ -796,6 +796,7 @@ button {
 .menu-button {
   display: flex;
   justify-content: center;
+  cursor: pointer;
   align-items: center;
   color: #aaaaaa;
   font-size: 32px;
