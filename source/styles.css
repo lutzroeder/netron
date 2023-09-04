@@ -3,6 +3,7 @@
   --secondary-color: #374e84;
   --primary-background-color: #F4F7FE;
   --primary-white: #fcfcfc;
+  --primary-color-light: #3366FF33;
   --font-size: 16px;
 }
 
@@ -819,10 +820,11 @@ button {
   color: #000000;
 }
 .menu {
-  display: block;
+  display: flex;
+  flex-direction: column;
   position: absolute;
-  left: -17em;
-  width: 17em;
+  left: -150vw;
+  width: 15vw;
   top: 0;
   height: 100%;
   z-index: 2;
@@ -861,12 +863,24 @@ button {
   width: 100%;
   text-align: left;
   padding: 4px 12px 5px 12px;
+  height: 3em;
   font-size: 12px;
 }
 .menu .menu-group .menu-command:focus {
-  color: #ffffff;
-  background-color: #2e6bd2;
+  font-weight: bold;
+  color: var(--primary-color);
+  background-color: var(--primary-color-light);
   outline: none;
+  position: relative;
+}
+.menu .menu-group .menu-command:focus::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0px;
+  width: 4px;
+  height: 100%;
+  background-color: var(--primary-color); /* Change to your desired line color */
 }
 .menu .menu-group .menu-command:disabled {
   color: var(--primary-white);
@@ -881,7 +895,7 @@ button {
   display: block;
   float: right;
   margin-left: 25px;
-  color: var(--primary-white);
+
 }
 .menu .menu-group .menu-separator {
   border-top: 1px;
@@ -945,6 +959,9 @@ button {
   }
   .logo-name {
     opacity: 0;
+  }
+  .menu {
+    width: 100vw;
   }
   .logo-icon {
     left: 0;
