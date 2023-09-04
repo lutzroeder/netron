@@ -28,7 +28,7 @@
         "pull": "node package.js pull"
     },
     "dependencies": {
-        "electron-updater": "6.1.1"
+        "electron-updater": "6.1.4"
     },
     "devDependencies": {
         "electron": "26.1.0",
