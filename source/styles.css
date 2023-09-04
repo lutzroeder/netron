@@ -682,11 +682,6 @@ button {
 .about .toolbar {
   display: none;
 }
-.about .logo {
-  display: block;
-  background-color: #ececec;
-  color: #666666;
-}
 .about .logo-message {
   display: block;
   top: 132px;
