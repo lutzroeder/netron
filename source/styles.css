@@ -454,7 +454,7 @@ button {
 }
 .sidebar-item-value {
   font-size: 12px;
-  background-color: #fcfcfc;
+  background-color: var(--primary-background-color);
   border-radius: 2px;
   border: 1px solid #fcfcfc;
   margin-top: 3px;
