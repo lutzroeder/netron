@@ -798,7 +798,7 @@ button {
   justify-content: center;
   align-items: center;
   color: #aaaaaa;
-  font-size: 20px;
+  font-size: 32px;
   height: 32px;
   width: 32px;
   position: fixed;
@@ -1072,6 +1072,9 @@ button {
   }
   .welcome .menu {
     background-color: #2d2d2d;
+  }
+  .menu .menu-group .menu-command:focus::before {
+    background-color: var(--secondary-background-color); /* Change to your desired line color */
   }
   .about .logo {
     background-color: #1e1e1e;
