@@ -422,21 +422,21 @@ tflite.Attribute = class {
         this._name = name;
         this._value = ArrayBuffer.isView(value) ? Array.from(value) : value;
         this._type = metadata && metadata.type ? metadata.type : null;
-        if (this._name == 'fused_activation_function') {
+        if (this._name === 'fused_activation_function') {
             this._visible = false;
         }
         if (this._type) {
             this._value = tflite.Utility.enum(this._type, this._value);
         }
         if (metadata) {
-            if (metadata && metadata.visible == false) {
+            if (metadata.visible === false) {
                 this._visible = false;
-            } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
+            } else if (metadata.default !== undefined) {
                 value = this._value;
                 if (typeof value == 'function') {
                     value = value();
                 }
-                if (value == metadata.default) {
+                if (value === metadata.default) {
                     this._visible = false;
                 }
             }
