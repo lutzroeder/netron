@@ -1873,7 +1873,8 @@ view.Node = class extends grapher.Node {
                         try {
                             const initializer = value.initializer;
                             const tensor = new view.Tensor(initializer);
-                            if ((tensor.layout === '<' || tensor.layout === '>' || tensor.layout === '|') && !tensor.empty && tensor.type.dataType !== '?') {
+                            const encoding = tensor.encoding;
+                            if ((encoding === '<' || encoding === '>' || encoding === '|') && !tensor.empty && tensor.type.dataType !== '?') {
                                 shape = tensor.toString();
                                 if (shape && shape.length > 10) {
                                     shape = shape.substring(0, 10) + '\u2026';
