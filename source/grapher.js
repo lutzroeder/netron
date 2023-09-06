@@ -430,8 +430,8 @@ grapher.Node.List = class {
         this._events = {};
     }
 
-    add(id, name, value, tooltip, separator) {
-        const item = new grapher.Node.List.Item(id, name, value, tooltip, separator);
+    add(name, value, tooltip, separator) {
+        const item = new grapher.Node.List.Item(name, value, tooltip, separator);
         this._items.push(item);
         return item;
     }
@@ -469,9 +469,6 @@ grapher.Node.List = class {
             const yPadding = 1;
             const xPadding = 6;
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            if (item.id) {
-                text.setAttribute('id', item.id);
-            }
             text.setAttribute('xml:space', 'preserve');
             this.element.appendChild(text);
             if (item.tooltip) {
@@ -494,6 +491,9 @@ grapher.Node.List = class {
             text.setAttribute('x', x + xPadding);
             text.setAttribute('y', this.height + yPadding - size.y);
             this.height += yPadding + size.height + yPadding;
+            if (item.height !== undefined) {
+                this.height += item.height;
+            }
         }
         this.height += 3;
         this.width = Math.max(75, this.width);
@@ -518,8 +518,7 @@ grapher.Node.List = class {
 
 grapher.Node.List.Item = class {
 
-    constructor(id, name, value, tooltip, separator) {
-        this.id = id;
+    constructor(name, value, tooltip, separator) {
         this.name = name;
         this.value = value;
         this.tooltip = tooltip;
@@ -531,7 +530,7 @@ grapher.Node.Canvas = class {
 
     constructor() {
         this.width = 0;
-        this.height = 0;
+        this.height = 80;
     }
 
     build(/* document, parent */) {

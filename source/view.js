@@ -1807,6 +1807,7 @@ view.Node = class extends grapher.Node {
     }
 
     _add(node) {
+        const options = this.context.view.options;
         const header =  this.header();
         const styles = [ 'node-item-type' ];
         const type = node.type;
@@ -1821,8 +1822,8 @@ view.Node = class extends grapher.Node {
             }
             throw error;
         }
-        const content = this.context.view.options.names && (node.name || node.location) ? (node.name || node.location) : type.name.split('.').pop();
-        const tooltip = this.context.view.options.names && (node.name || node.location) ? type.name : (node.name || node.location);
+        const content = options.names && (node.name || node.location) ? (node.name || node.location) : type.name.split('.').pop();
+        const tooltip = options.names && (node.name || node.location) ? type.name : (node.name || node.location);
         const title = header.add(null, styles, content, tooltip);
         title.on('click', () => this.context.activate(node));
         if (node.type.nodes && node.type.nodes.length > 0) {
@@ -1835,7 +1836,7 @@ view.Node = class extends grapher.Node {
         }
         const initializers = [];
         let hiddenInitializers = false;
-        if (this.context.view.options.weights) {
+        if (options.weights) {
             for (const input of node.inputs) {
                 if (input.visible !== false && input.value.length === 1 && input.value[0].initializer != null) {
                     initializers.push(input);
@@ -1846,21 +1847,23 @@ view.Node = class extends grapher.Node {
                 }
             }
         }
-        let sortedAttributes = [];
-        const attributes = node.attributes || [];
-        if (this.context.view.options.attributes) {
-            sortedAttributes = attributes.filter((attribute) => attribute.visible !== false).slice();
+        const functions = [];
+        const attributes = [];
+        if (Array.isArray(node.attributes) && node.attributes.length > 0) {
+            for (const attribute of node.attributes) {
+                if (attribute.type === 'function') {
+                    // functions.push(attribute);
+                } else if (options.attributes && attribute.visible !== false) {
+                    attributes.push(attribute);
+                }
+            }
+            attributes.sort((a, b) => a.name.toUpperCase().localeCompare(b.name.toUpperCase()));
         }
-        sortedAttributes.sort((a, b) => {
-            const au = a.name.toUpperCase();
-            const bu = b.name.toUpperCase();
-            return (au < bu) ? -1 : (au > bu) ? 1 : 0;
-        });
-        if (initializers.length > 0 || hiddenInitializers || sortedAttributes.length > 0) {
+        if (initializers.length > 0 || hiddenInitializers || attributes.length > 0 || functions.length > 0) {
             const list = this.list();
             list.on('click', () => this.context.activate(node));
-            for (const initializer of initializers) {
-                const value = initializer.value[0];
+            for (const argument of initializers) {
+                const value = argument.value[0];
                 const type = value.type;
                 let shape = '';
                 let separator = '';
@@ -1892,21 +1895,29 @@ view.Node = class extends grapher.Node {
                         }
                     }
                 }
-                list.add(value.name ? 'initializer-' + value.name : '', initializer.name, shape, type ? type.toString() : '', separator);
+                list.add(argument.name, shape, type ? type.toString() : '', separator);
             }
             if (hiddenInitializers) {
-                list.add(null, '\u3008' + '\u2026' + '\u3009', '', null, '');
+                list.add('\u3008\u2026\u3009', '', null, '');
             }
-
-            for (const attribute of sortedAttributes) {
+            for (const attribute of attributes) {
                 if (attribute.visible !== false) {
                     let value = new view.Formatter(attribute.value, attribute.type).toString();
                     if (value && value.length > 25) {
                         value = value.substring(0, 25) + '\u2026';
                     }
-                    list.add(null, attribute.name, value, attribute.type, ' = ');
+                    list.add(attribute.name, value, attribute.type, ' = ');
                 }
             }
+            for (const attribute of functions) {
+                if (attribute.type === 'function') {
+                    // const item = list.add(null, attribute.name, ':', '', '');
+                    // item.height = 20;
+                }
+            }
+        }
+        if (Array.isArray(node.nodes) && node.nodes.length > 0) {
+            // this.canvas = this.canvas();
         }
         if (Array.isArray(node.chain) && node.chain.length > 0) {
             for (const innerNode of node.chain) {
@@ -1917,9 +1928,6 @@ view.Node = class extends grapher.Node {
         if (node.inner) {
             this.context.createNode(node.inner);
             this._add(node.inner);
-        }
-        if (node.nodes) {
-            // this.canvas = this.canvas();
         }
     }
 
@@ -2283,16 +2291,15 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         if (node.device) {
             this.addProperty('device', node.device);
         }
-        const attributes = node.attributes;
-        if (attributes && attributes.length > 0) {
+        if (Array.isArray(node.attributes)) {
+            const attributes = node.attributes.filter((attribute) => attribute);
             this.addHeader('Attributes');
-            const sortedAttributes = node.attributes.slice();
-            sortedAttributes.sort((a, b) => {
+            attributes.sort((a, b) => {
                 const au = a.name.toUpperCase();
                 const bu = b.name.toUpperCase();
                 return (au < bu) ? -1 : (au > bu) ? 1 : 0;
             });
-            for (const attribute of sortedAttributes) {
+            for (const attribute of attributes) {
                 this._addAttribute(attribute.name, attribute);
             }
         }
