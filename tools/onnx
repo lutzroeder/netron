@@ -89,7 +89,7 @@ install() {
             ;;
     esac
     venv
-    ${python} -m pip install --quiet --upgrade ${protobuf} numpy opencv-python
+    ${python} -m pip install --quiet --upgrade ${protobuf} numpy
     ${python} -m pip install --quiet "./third_party/source/onnx"
     deactivate
 }
