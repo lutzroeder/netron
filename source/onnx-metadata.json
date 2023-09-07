@@ -15146,39 +15146,39 @@
     "examples": [
       {
         "summary": "image_decoder_decode_bmp_rgb",
-        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = generate_test_data(\".bmp\", \"RGB\")\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_bmp_rgb\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = _generate_test_data(\n    \"bmp\", _image_decoder_data.image_decoder_decode_bmp_rgb, \"RGB\"\n)\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_bmp_rgb\",\n)"
       },
       {
         "summary": "image_decoder_decode_jpeg2k_rgb",
-        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = generate_test_data(\".jp2\", \"RGB\")\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_jpeg2k_rgb\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = _generate_test_data(\n    \"jpeg2000\", _image_decoder_data.image_decoder_decode_jpeg2k_rgb, \"RGB\"\n)\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_jpeg2k_rgb\",\n)"
       },
       {
         "summary": "image_decoder_decode_jpeg_bgr",
-        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"BGR\",\n)\n\ndata, output = generate_test_data(\".jpg\", \"BGR\")\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_jpeg_bgr\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"BGR\",\n)\n\ndata, output = _generate_test_data(\n    \"jpeg\", _image_decoder_data.image_decoder_decode_jpeg_bgr, \"BGR\"\n)\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_jpeg_bgr\",\n)"
       },
       {
         "summary": "image_decoder_decode_jpeg_grayscale",
-        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"Grayscale\",\n)\n\ndata, output = generate_test_data(\".jpg\", \"Grayscale\")\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_jpeg_grayscale\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"Grayscale\",\n)\n\ndata, output = _generate_test_data(\n    \"jpeg\", _image_decoder_data.image_decoder_decode_jpeg_grayscale, \"Grayscale\"\n)\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_jpeg_grayscale\",\n)"
       },
       {
         "summary": "image_decoder_decode_jpeg_rgb",
-        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = generate_test_data(\".jpg\", \"RGB\")\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_jpeg_rgb\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = _generate_test_data(\n    \"jpeg\", _image_decoder_data.image_decoder_decode_jpeg_rgb, \"RGB\"\n)\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_jpeg_rgb\",\n)"
       },
       {
         "summary": "image_decoder_decode_png_rgb",
-        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = generate_test_data(\".png\", \"RGB\")\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_png_rgb\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = _generate_test_data(\n    \"png\", _image_decoder_data.image_decoder_decode_png_rgb, \"RGB\"\n)\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_png_rgb\",\n)"
       },
       {
         "summary": "image_decoder_decode_pnm_rgb",
-        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = generate_test_data(\".pnm\", \"RGB\")\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_pnm_rgb\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = _generate_test_data(\n    \"ppm\", _image_decoder_data.image_decoder_decode_pnm_rgb, \"RGB\"\n)\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_pnm_rgb\",\n)"
       },
       {
         "summary": "image_decoder_decode_tiff_rgb",
-        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = generate_test_data(\".tiff\", \"RGB\")\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_tiff_rgb\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = _generate_test_data(\n    \"tiff\", _image_decoder_data.image_decoder_decode_tiff_rgb, \"RGB\"\n)\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_tiff_rgb\",\n)"
       },
       {
         "summary": "image_decoder_decode_webp_rgb",
-        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = generate_test_data(\".webp\", \"RGB\")\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_webp_rgb\",\n)"
+        "code": "node = onnx.helper.make_node(\n    \"ImageDecoder\",\n    inputs=[\"data\"],\n    outputs=[\"output\"],\n    pixel_format=\"RGB\",\n)\n\ndata, output = _generate_test_data(\n    \"webp\", _image_decoder_data.image_decoder_decode_webp_rgb, \"RGB\"\n)\nexpect(\n    node,\n    inputs=[data],\n    outputs=[output],\n    name=\"test_image_decoder_decode_webp_rgb\",\n)"
       }
     ]
   },
