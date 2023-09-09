@@ -109,7 +109,6 @@ host.ElectronHost = class {
                 });
                 this.set('configuration', 'user', this._telemetry.get('client_id'));
                 this.set('configuration', 'session', this._telemetry.session);
-                this._telemetry_ua = new host.Telemetry('UA-54146-13', this._telemetry.get('client_id'), navigator.userAgent, this.type, this.version);
             }
         };
         await age();
@@ -332,11 +331,10 @@ host.ElectronHost = class {
     }
 
     exception(error, fatal) {
-        if ((this._telemetry_ua || this._telemetry) && error) {
+        if (this._telemetry && error) {
             try {
                 const name = error.name ? error.name + ': ' : '';
                 const message = error.message ? error.message : JSON.stringify(error);
-                const description = name + message;
                 let context = '';
                 let stack = '';
                 if (error.stack) {
@@ -361,9 +359,6 @@ host.ElectronHost = class {
                 if (error.context) {
                     context = typeof error.context === 'string' ? error.context : JSON.stringify(error.context);
                 }
-                if (this._telemetry_ua) {
-                    this._telemetry_ua.exception(stack ? description + ' @ ' + stack : description, fatal);
-                }
                 this._telemetry.send('exception', {
                     app_name: this.type,
                     app_version: this.version,
@@ -373,16 +368,6 @@ host.ElectronHost = class {
                     error_stack: stack,
                     error_fatal: fatal ? true : false
                 });
-            } catch (e) {
-                // continue regardless of error
-            }
-        }
-    }
-
-    event_ua(category, action, label, value) {
-        if (this._telemetry_ua && category && action && label) {
-            try {
-                this._telemetry_ua.event(category, action, label, value);
             } catch (e) {
                 // continue regardless of error
             }
@@ -596,64 +581,6 @@ host.ElectronHost = class {
             }
             this._document.body.classList.add('message');
         });
-    }
-};
-
-host.Telemetry = class {
-
-    constructor(trackingId, clientId, userAgent, applicationName, applicationVersion) {
-        this._params = {
-            aip: '1', // anonymizeIp
-            tid: trackingId,
-            cid: clientId,
-            ua: userAgent,
-            an: applicationName,
-            av: applicationVersion
-        };
-    }
-
-    event(category, action, label, value) {
-        const params = Object.assign({}, this._params);
-        params.ec = category;
-        params.ea = action;
-        params.el = label;
-        params.ev = value;
-        this._send('event', params);
-    }
-
-    exception(description, fatal) {
-        const params = Object.assign({}, this._params);
-        params.exd = description;
-        if (fatal) {
-            params.exf = '1';
-        }
-        this._send('exception', params);
-    }
-
-    _send(type, params) {
-        params.t = type;
-        params.v = '1';
-        for (const param in params) {
-            if (params[param] === null || params[param] === undefined) {
-                delete params[param];
-            }
-        }
-        const body = Object.entries(params).map((entry) => encodeURIComponent(entry[0]) + '=' + encodeURIComponent(entry[1])).join('&');
-        const options = {
-            method: 'POST',
-            host: 'www.google-analytics.com',
-            path: '/collect',
-            headers: { 'Content-Length': Buffer.byteLength(body) }
-        };
-        const request = https.request(options, (response) => {
-            response.on('error', (/* error */) => {});
-        });
-        request.setTimeout(5000, () => {
-            request.destroy();
-        });
-        request.on('error', (/* error */) => {});
-        request.write(body);
-        request.end();
     }
 };
 

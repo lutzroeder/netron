@@ -1046,7 +1046,10 @@ base.Telemetry = class {
             try {
                 params = Object.assign({ event_name: name }, this._metadata, /* { debug_mode: true },*/ params);
                 this._metadata = {};
-                this._update() && (params.engagement_time_msec = this._engagement_time_msec) && (this._engagement_time_msec = 0);
+                if (this._update()) {
+                    params.engagement_time_msec = this._engagement_time_msec;
+                    this._engagement_time_msec = 0;
+                }
                 const build = (entires) => entires.map((entry) => entry[0] + '=' + encodeURIComponent(entry[1])).join('&');
                 this._cache = this._cache || build(Array.from(this._config));
                 const key = (name, value) => this._schema.get(name) || ('number' === typeof value && !isNaN(value) ? 'epn.' : 'ep.') + name;

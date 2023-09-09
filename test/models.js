@@ -98,9 +98,6 @@ host.TestHost = class {
         return new base.BinaryStream(buffer);
     }
 
-    event_ua(/* category, action, label, value */) {
-    }
-
     event(/* name, params */) {
     }
 
