@@ -446,7 +446,8 @@ $root.tflite.BuiltinOperator = {
     STABLEHLO_SORT: 199,
     STABLEHLO_WHILE: 200,
     STABLEHLO_GATHER: 201,
-    STABLEHLO_TRANSPOSE: 202
+    STABLEHLO_TRANSPOSE: 202,
+    DILATE: 203
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -737,6 +738,7 @@ $root.tflite.BuiltinOptions2 = class {
             case 15: return $root.tflite.StablehloWhileOptions.decode(reader, position);
             case 16: return $root.tflite.StablehloGatherOptions.decode(reader, position);
             case 17: return $root.tflite.StablehloTransposeOptions.decode(reader, position);
+            case 18: return $root.tflite.DilateOptions.decode(reader, position);
             default: return undefined;
         }
     }
@@ -760,6 +762,7 @@ $root.tflite.BuiltinOptions2 = class {
             case 'StablehloWhileOptions': return $root.tflite.StablehloWhileOptions.decodeText(reader, json);
             case 'StablehloGatherOptions': return $root.tflite.StablehloGatherOptions.decodeText(reader, json);
             case 'StablehloTransposeOptions': return $root.tflite.StablehloTransposeOptions.decodeText(reader, json);
+            case 'DilateOptions': return $root.tflite.DilateOptions.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -3112,6 +3115,19 @@ $root.tflite.RightShiftOptions = class RightShiftOptions {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.tflite.RightShiftOptions();
+        return $;
+    }
+};
+
+$root.tflite.DilateOptions = class DilateOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.tflite.DilateOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.tflite.DilateOptions();
         return $;
     }
 };
