@@ -1843,6 +1843,8 @@ $root.tensorflow.DataType = {
     "DT_UINT64": 23,
     "DT_FLOAT8_E5M2": 24,
     "DT_FLOAT8_E4M3FN": 25,
+    "DT_INT4": 29,
+    "DT_UINT4": 30,
     "DT_FLOAT_REF": 101,
     "DT_DOUBLE_REF": 102,
     "DT_INT32_REF": 103,
@@ -1867,7 +1869,9 @@ $root.tensorflow.DataType = {
     "DT_UINT32_REF": 122,
     "DT_UINT64_REF": 123,
     "DT_FLOAT8_E5M2_REF": 124,
-    "DT_FLOAT8_E4M3FN_REF": 125
+    "DT_FLOAT8_E4M3FN_REF": 125,
+    "DT_INT4_REF": 129,
+    "DT_UINT4_REF": 130
 };
 
 $root.tensorflow.SerializedDType = class SerializedDType {
