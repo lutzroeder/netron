@@ -115,22 +115,21 @@ coreml.ModelFactory = class {
                 }
             };
             walkModel(model);
+            const weights = new Map();
             if (weightPaths.size > 0) {
                 const folder = path.replace(/\/[^/]*$/, '');
                 const keys = Array.from(weightPaths);
                 const paths = keys.map((path) => path.replace(/^@model_path\//, folder + '/'));
                 try {
                     const streams = await Promise.all(paths.map((path) => context.request(path, null)));
-                    const weights = new Map();
                     for (let i = 0; i < keys.length; i++) {
                         weights.set(keys[i], streams[i]);
                     }
-                    return new coreml.Model(metadata, format, model, weights);
                 } catch (error) {
-                    return new coreml.Model(metadata, format, model, new Map());
+                    // continue regardless of error
                 }
             }
-            return new coreml.Model(metadata, format, model, new Map());
+            return new coreml.Model(metadata, format, model, weights);
         };
         const openManifest = async (obj, context, path) => {
             const entries = Object.values(obj.itemInfoEntries).filter((entry) => entry.path.toLowerCase().endsWith('.mlmodel'));
@@ -229,11 +228,14 @@ coreml.Graph = class {
             // TODO: need to handle functions other than main?
             const main = program.functions.main;
             // TODO: need to handle more than one block specialization?
-            const block = main.block_specializations.CoreML5 || main.block_specializations.CoreML6;
+            const block_specializations = main.block_specializations;
+            const key = Object.keys(block_specializations).filter((key) => key.startsWith('CoreML')).shift();
+            const block = block_specializations[key];
             const convertValue = (value) => {
                 switch (value.value) {
                     case 'immediateValue': {
                         const tensor = value.immediateValue.tensor;
+                        const type = coreml.Utility.valueType(value.type);
                         let values = null;
                         switch (tensor.value) {
                             case 'ints':
@@ -253,6 +255,9 @@ coreml.Graph = class {
                                 break;
                             default:
                                 throw new coreml.Error("Unsupported tensor value '" + tensor.value + "'.");
+                        }
+                        if (type.shape.dimensions.length === 0) {
+                            values = values[0];
                         }
                         return values;
                     }
@@ -280,6 +285,7 @@ coreml.Graph = class {
                                         break;
                                     }
                                     case 'float16':
+                                    case 'int8':
                                     case 'uint8': {
                                         data = stream.read(size);
                                         break;
