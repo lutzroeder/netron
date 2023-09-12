@@ -7016,6 +7016,84 @@
     ]
   },
   {
+    "name": "aten::linspace.Scalar_Tensor",
+    "inputs": [
+      { "name": "start", "type": "Scalar" },
+      { "name": "end", "type": "Tensor" },
+      { "name": "steps", "type": "int64" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "layout", "type": "Layout", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
+      { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::linspace.Scalar_Tensor_out",
+    "inputs": [
+      { "name": "start", "type": "Scalar" },
+      { "name": "end", "type": "Tensor" },
+      { "name": "steps", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::linspace.Tensor_Scalar",
+    "inputs": [
+      { "name": "start", "type": "Tensor" },
+      { "name": "end", "type": "Scalar" },
+      { "name": "steps", "type": "int64" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "layout", "type": "Layout", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
+      { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::linspace.Tensor_Scalar_out",
+    "inputs": [
+      { "name": "start", "type": "Tensor" },
+      { "name": "end", "type": "Scalar" },
+      { "name": "steps", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::linspace.Tensor_Tensor",
+    "inputs": [
+      { "name": "start", "type": "Tensor" },
+      { "name": "end", "type": "Tensor" },
+      { "name": "steps", "type": "int64" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "layout", "type": "Layout", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
+      { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::linspace.Tensor_Tensor_out",
+    "inputs": [
+      { "name": "start", "type": "Tensor" },
+      { "name": "end", "type": "Tensor" },
+      { "name": "steps", "type": "int64" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::linspace.out",
     "inputs": [
       { "name": "start", "type": "Scalar" },
@@ -7510,6 +7588,90 @@
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
       { "name": "device", "type": "Device", "optional": true, "default": null },
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::logspace.Scalar_Tensor",
+    "inputs": [
+      { "name": "start", "type": "Scalar" },
+      { "name": "end", "type": "Tensor" },
+      { "name": "steps", "type": "int64" },
+      { "name": "base", "type": "float32", "default": 10.0 },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "layout", "type": "Layout", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
+      { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::logspace.Scalar_Tensor_out",
+    "inputs": [
+      { "name": "start", "type": "Scalar" },
+      { "name": "end", "type": "Tensor" },
+      { "name": "steps", "type": "int64" },
+      { "name": "base", "type": "float32", "default": 10.0 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::logspace.Tensor_Scalar",
+    "inputs": [
+      { "name": "start", "type": "Tensor" },
+      { "name": "end", "type": "Scalar" },
+      { "name": "steps", "type": "int64" },
+      { "name": "base", "type": "float32", "default": 10.0 },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "layout", "type": "Layout", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
+      { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::logspace.Tensor_Scalar_out",
+    "inputs": [
+      { "name": "start", "type": "Tensor" },
+      { "name": "end", "type": "Scalar" },
+      { "name": "steps", "type": "int64" },
+      { "name": "base", "type": "float32", "default": 10.0 }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::logspace.Tensor_Tensor",
+    "inputs": [
+      { "name": "start", "type": "Tensor" },
+      { "name": "end", "type": "Tensor" },
+      { "name": "steps", "type": "int64" },
+      { "name": "base", "type": "float32", "default": 10.0 },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "layout", "type": "Layout", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
+      { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::logspace.Tensor_Tensor_out",
+    "inputs": [
+      { "name": "start", "type": "Tensor" },
+      { "name": "end", "type": "Tensor" },
+      { "name": "steps", "type": "int64" },
+      { "name": "base", "type": "float32", "default": 10.0 }
     ],
     "outputs": [
       { "type": "Tensor" }
