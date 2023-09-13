@@ -6415,6 +6415,9 @@ $root.tensorflow.GPUOptions.Experimental = class Experimental {
                 case 14:
                     message.gpu_host_mem_disallow_growth = reader.bool();
                     break;
+                case 16:
+                    message.gpu_system_memory_size_in_mb = reader.int32();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -6471,6 +6474,9 @@ $root.tensorflow.GPUOptions.Experimental = class Experimental {
                 case "gpu_host_mem_disallow_growth":
                     message.gpu_host_mem_disallow_growth = reader.bool();
                     break;
+                case "gpu_system_memory_size_in_mb":
+                    message.gpu_system_memory_size_in_mb = reader.int32();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -6493,6 +6499,7 @@ $root.tensorflow.GPUOptions.Experimental.prototype.use_cuda_malloc_async = false
 $root.tensorflow.GPUOptions.Experimental.prototype.disallow_retry_on_allocation_failure = false;
 $root.tensorflow.GPUOptions.Experimental.prototype.gpu_host_mem_limit_in_mb = 0;
 $root.tensorflow.GPUOptions.Experimental.prototype.gpu_host_mem_disallow_growth = false;
+$root.tensorflow.GPUOptions.Experimental.prototype.gpu_system_memory_size_in_mb = 0;
 
 $root.tensorflow.GPUOptions.Experimental.VirtualDevices = class VirtualDevices {
 
