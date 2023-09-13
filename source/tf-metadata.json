@@ -52187,6 +52187,11 @@
           "type": "type",
           "value": 3
         }
+      },
+      {
+        "name": "sparse_gradient",
+        "type": "boolean",
+        "default": false
       }
     ],
     "inputs": [
@@ -52369,6 +52374,11 @@
           "type": "type",
           "value": 3
         }
+      },
+      {
+        "name": "sparse_gradient",
+        "type": "boolean",
+        "default": false
       }
     ],
     "inputs": [
@@ -52427,6 +52437,11 @@
           "type": "type",
           "value": 3
         }
+      },
+      {
+        "name": "sparse_gradient",
+        "type": "boolean",
+        "default": false
       }
     ],
     "inputs": [
@@ -52609,6 +52624,11 @@
           "type": "type",
           "value": 3
         }
+      },
+      {
+        "name": "sparse_gradient",
+        "type": "boolean",
+        "default": false
       }
     ],
     "inputs": [
@@ -52667,6 +52687,11 @@
           "type": "type",
           "value": 3
         }
+      },
+      {
+        "name": "sparse_gradient",
+        "type": "boolean",
+        "default": false
       }
     ],
     "inputs": [
@@ -52849,6 +52874,11 @@
           "type": "type",
           "value": 3
         }
+      },
+      {
+        "name": "sparse_gradient",
+        "type": "boolean",
+        "default": false
       }
     ],
     "inputs": [
