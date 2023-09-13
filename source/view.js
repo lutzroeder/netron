@@ -4816,10 +4816,11 @@ view.ModelContext = class {
                     switch (type) {
                         case 'json': {
                             try {
-                                const buffer = this.stream.peek(Math.min(this.stream.length, 0x1000));
-                                if ((buffer.length < 8 || String.fromCharCode.apply(null, buffer.slice(0, 8)) !== '\x89HDF\r\n\x1A\n') &&
+                                const buffer = stream.peek(Math.min(this.stream.length, 0x1000));
+                                if (stream.length < 0x7ffff000 &&
+                                    (buffer.length < 8 || String.fromCharCode.apply(null, buffer.slice(0, 8)) !== '\x89HDF\r\n\x1A\n') &&
                                     (buffer.some((v) => v === 0x22 || v === 0x5b || v === 0x5d || v === 0x7b || v === 0x7d))) {
-                                    const reader = json.TextReader.open(this.stream);
+                                    const reader = json.TextReader.open(stream);
                                     if (reader) {
                                         const obj = reader.read();
                                         this._content.set(type, obj);
@@ -4832,7 +4833,7 @@ view.ModelContext = class {
                         }
                         case 'json.gz': {
                             try {
-                                const archive = zip.Archive.open(this.stream, 'gzip');
+                                const archive = zip.Archive.open(stream, 'gzip');
                                 if (archive && archive.entries.size === 1) {
                                     const stream = archive.entries.values().next().value;
                                     const reader = json.TextReader.open(stream);
@@ -4920,8 +4921,8 @@ view.ModelContext = class {
                     signatures.some((signature) => signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) ||
                     (Array.from(this._tags).some((pair) => pair[0] !== 'flatbuffers' && pair[1].size > 0) && type !== 'pb+') ||
                     Array.from(this._content.values()).some((obj) => obj !== undefined) ||
-                    json.TextReader.open(stream);
-                if (!skip) {
+                    (stream.length < 0x7ffff000 && json.TextReader.open(stream));
+                if (!skip && stream.length < 0x7ffff000) {
                     try {
                         switch (type) {
                             case 'pbtxt': {
