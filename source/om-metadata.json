@@ -1417,6 +1417,16 @@
     ]
   },
   {
+    "name": "MaxPoolV3",
+    "category": "Pool",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
     "name": "AvgPool",
     "category": "Pool",
     "inputs": [
