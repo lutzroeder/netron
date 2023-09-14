@@ -141,7 +141,8 @@
       { "name": "stride_w", "type": "int32", "default": 0, "description": "stride of the filter window" },
       { "name": "stride_h", "type": "int32", "default": 0, "description": "stride of the filter window" },
       { "name": "dilation_w_factor", "type": "int32", "default": 1 },
-      { "name": "dilation_h_factor", "type": "int32", "default": 1 }
+      { "name": "dilation_h_factor", "type": "int32", "default": 1 },
+      { "name": "quantized_bias_type", "type": "TensorType", "default": "FLOAT32" }
     ],
     "inputs": [
       { "name": "input", "description": "4D tensor" },
@@ -278,7 +279,8 @@
       { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
       { "name": "weights_format", "type": "FullyConnectedOptionsWeightsFormat", "default": "DEFAULT" },
       { "name": "keep_num_dims", "type": "boolean", "default": false },
-      { "name": "asymmetric_quantize_inputs", "type": "boolean", "default": false }
+      { "name": "asymmetric_quantize_inputs", "type": "boolean", "default": false },
+      { "name": "quantized_bias_type", "type": "TensorType", "default": "FLOAT32" }
     ],
     "inputs": [
       { "name": "input", "type": "T" },
@@ -1085,7 +1087,8 @@
       { "name": "padding", "type": "Padding", "default": "SAME" },
       { "name": "stride_w", "type": "int32", "default": 0 },
       { "name": "stride_h", "type": "int32", "default": 0 },
-      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
+      { "name": "quantized_bias_type", "type": "TensorType", "default": "FLOAT32" }
     ],
     "inputs": [
       { "name": "output_shape" },

@@ -1170,6 +1170,7 @@ $root.tflite.Conv2DOptions = class Conv2DOptions {
         $.fused_activation_function = reader.int8_(position, 10, 0);
         $.dilation_w_factor = reader.int32_(position, 12, 1);
         $.dilation_h_factor = reader.int32_(position, 14, 1);
+        $.quantized_bias_type = reader.int8_(position, 16, 0);
         return $;
     }
 
@@ -1181,6 +1182,7 @@ $root.tflite.Conv2DOptions = class Conv2DOptions {
         $.fused_activation_function = $root.tflite.ActivationFunctionType[json.fused_activation_function];
         $.dilation_w_factor = reader.value(json.dilation_w_factor, 1);
         $.dilation_h_factor = reader.value(json.dilation_h_factor, 1);
+        $.quantized_bias_type = $root.tflite.TensorType[json.quantized_bias_type];
         return $;
     }
 };
@@ -1395,6 +1397,7 @@ $root.tflite.FullyConnectedOptions = class FullyConnectedOptions {
         $.weights_format = reader.int8_(position, 6, 0);
         $.keep_num_dims = reader.bool_(position, 8, false);
         $.asymmetric_quantize_inputs = reader.bool_(position, 10, false);
+        $.quantized_bias_type = reader.int8_(position, 12, 0);
         return $;
     }
 
@@ -1404,6 +1407,7 @@ $root.tflite.FullyConnectedOptions = class FullyConnectedOptions {
         $.weights_format = $root.tflite.FullyConnectedOptionsWeightsFormat[json.weights_format];
         $.keep_num_dims = reader.value(json.keep_num_dims, false);
         $.asymmetric_quantize_inputs = reader.value(json.asymmetric_quantize_inputs, false);
+        $.quantized_bias_type = $root.tflite.TensorType[json.quantized_bias_type];
         return $;
     }
 };
@@ -2160,6 +2164,7 @@ $root.tflite.TransposeConvOptions = class TransposeConvOptions {
         $.stride_w = reader.int32_(position, 6, 0);
         $.stride_h = reader.int32_(position, 8, 0);
         $.fused_activation_function = reader.int8_(position, 10, 0);
+        $.quantized_bias_type = reader.int8_(position, 12, 0);
         return $;
     }
 
@@ -2169,6 +2174,7 @@ $root.tflite.TransposeConvOptions = class TransposeConvOptions {
         $.stride_w = reader.value(json.stride_w, 0);
         $.stride_h = reader.value(json.stride_h, 0);
         $.fused_activation_function = $root.tflite.ActivationFunctionType[json.fused_activation_function];
+        $.quantized_bias_type = $root.tflite.TensorType[json.quantized_bias_type];
         return $;
     }
 };
