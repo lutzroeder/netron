@@ -697,7 +697,7 @@ view.View = class {
         this._model = model;
         this._graphs = graphs;
         try {
-            await this.renderGraph(this._model, this.activeGraph);
+            await this.renderGraph(this._model, this.activeGraph, this._options);
             if (this._page !== 'default') {
                 this.show('default');
             }
@@ -706,7 +706,7 @@ view.View = class {
         } catch (error) {
             this._model = lastModel;
             this._graphs = lastGraphs;
-            await this.renderGraph(this._model, this.activeGraph);
+            await this.renderGraph(this._model, this.activeGraph, this._options);
             if (this._page !== 'default') {
                 this.show('default');
             }
@@ -730,7 +730,7 @@ view.View = class {
         return null;
     }
 
-    async renderGraph(model, graph) {
+    async renderGraph(model, graph, options) {
         this._graph = null;
 
         const canvas = this._element('canvas');
@@ -749,19 +749,19 @@ view.View = class {
             graph_skip: 0
         });
 
-        const options = {};
-        options.nodesep = 20;
-        options.ranksep = 20;
+        const layout = {};
+        layout.nodesep = 20;
+        layout.ranksep = 20;
         const rotate = graph.nodes.every((node) => node.inputs.filter((input) => input.value.every((argument) => !argument.initializer)).length === 0 && node.outputs.length === 0);
-        const horizontal = rotate ? this._options.direction === 'vertical' : this._options.direction !== 'vertical';
+        const horizontal = rotate ? options.direction === 'vertical' : options.direction !== 'vertical';
         if (horizontal) {
-            options.rankdir = "LR";
+            layout.rankdir = "LR";
         }
         if (nodes.length > 3000) {
-            options.ranker = 'longest-path';
+            layout.ranker = 'longest-path';
         }
 
-        const viewGraph = new view.Graph(this, model, groups, options);
+        const viewGraph = new view.Graph(this, model, options, groups, layout);
         viewGraph.add(graph);
 
         // Workaround for Safari background drag/zoom issue:
@@ -1580,10 +1580,11 @@ view.Menu.Separator = class {
 
 view.Graph = class extends grapher.Graph {
 
-    constructor(view, model, compound, options) {
-        super(compound, options);
+    constructor(view, model, options, compound, layout) {
+        super(compound, layout);
         this.view = view;
         this.model = model;
+        this.options = options;
         this._nodeKey = 0;
         this._values = new Map();
         this._table = new Map();
@@ -1806,7 +1807,7 @@ view.Node = class extends grapher.Node {
     }
 
     _add(node) {
-        const options = this.context.view.options;
+        const options = this.context.options;
         const header =  this.header();
         const styles = [ 'node-item-type' ];
         const type = node.type;
@@ -1933,7 +1934,7 @@ view.Node = class extends grapher.Node {
 
     toggle() {
         this._expand.content = '-';
-        this._graph = new view.Graph(this.context.view, this.context.model, false, {});
+        this._graph = new view.Graph(this.context.view, this.context.model, this.context.options, false, {});
         this._graph.add(this.value);
         // const document = this.element.ownerDocument;
         // const parent = this.element.parentElement;
@@ -2044,7 +2045,7 @@ view.Value = class {
                     content = type.shape.dimensions.map((dim) => (dim !== null && dim !== undefined) ? dim : '?').join('\u00D7');
                     content = content.length > 16 ? '' : content;
                 }
-                if (this.context.view.options.names) {
+                if (this.context.options.names) {
                     content = this.value.name.split('\n').shift(); // custom argument id
                 }
                 const edge = new view.Edge(this, this.from, to);

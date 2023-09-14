@@ -4,18 +4,14 @@ var dagre = require('./dagre');
 
 grapher.Graph = class {
 
-    constructor(compound, options) {
+    constructor(compound, layout) {
+        this.layout = layout;
         this._isCompound = compound;
-        this._options = options;
         this._nodes = new Map();
         this._edges = new Map();
         this._children = {};
         this._children['\x00'] = {};
         this._parent = {};
-    }
-
-    get options() {
-        return this._options;
     }
 
     setNode(node) {
