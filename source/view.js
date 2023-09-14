@@ -35,7 +35,7 @@ view.View = class {
     async start() {
         try {
             await this._host.view(this);
-            const options = this._host.get('configuration', 'options') || {};
+            const options = this._host.get('options') || {};
             for (const entry of Object.entries(options)) {
                 const name = entry[0];
                 this._options[name] = entry[1];
@@ -315,9 +315,9 @@ view.View = class {
             }
         }
         if (Object.entries(options).length == 0) {
-            this._host.delete('configuration', 'options');
+            this._host.delete('options');
         } else {
-            this._host.set('configuration', 'options', options);
+            this._host.set('options', options);
         }
     }
 

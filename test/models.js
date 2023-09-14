@@ -691,7 +691,7 @@ class Target {
         const current = new view.View(this.host);
         current.options.attributes = true;
         current.options.initializers = true;
-        await current.renderGraph(this.model, this.model.graphs[0]);
+        await current.renderGraph(this.model, this.model.graphs[0], current.options);
     }
 }
 
@@ -729,6 +729,7 @@ const main = async () => {
             console.error('  ' + error.cause.name + ': ' + error.cause.message);
         }
         /* eslint-enable no-console */
+        process.exit(1);
     }
 };
 

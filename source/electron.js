@@ -73,7 +73,7 @@ host.ElectronHost = class {
             return Promise.resolve();
         };
         const consent = async () => {
-            const time = this.get('configuration', 'consent');
+            const time = this.get('consent');
             if (!time || (Date.now() - time) > 30 * 24 * 60 * 60 * 1000) {
                 let consent = true;
                 try {
@@ -89,14 +89,14 @@ host.ElectronHost = class {
                 if (consent) {
                     await this._message('This app uses cookies to report errors and anonymous usage information.', 'Accept');
                 }
-                this.set('configuration', 'consent', Date.now());
+                this.set('consent', Date.now());
             }
         };
         const telemetry = async () => {
             if (this._environment.packaged) {
                 const measurement_id = '848W2NVWVH';
-                const user = this.get('configuration', 'user') || null;
-                const session = this.get('configuration', 'session') || null;
+                const user = this.get('user') || null;
+                const session = this.get('session') || null;
                 await this._telemetry.start('G-' + measurement_id, user && user.indexOf('.') !== -1 ? user : null, session);
                 this._telemetry.send('page_view', {
                     app_name: this.type,
@@ -107,8 +107,8 @@ host.ElectronHost = class {
                     app_name: this.type,
                     app_version: this.version
                 });
-                this.set('configuration', 'user', this._telemetry.get('client_id'));
-                this.set('configuration', 'session', this._telemetry.session);
+                this.set('user', this._telemetry.get('client_id'));
+                this.set('session', this._telemetry.session);
             }
         };
         await age();
@@ -492,26 +492,26 @@ host.ElectronHost = class {
         });
     }
 
-    get(context, name) {
+    get(name) {
         try {
-            return electron.ipcRenderer.sendSync('get-' + context, { name: name });
+            return electron.ipcRenderer.sendSync('get-configuration', { name: name });
         } catch (error) {
             // continue regardless of error
         }
         return undefined;
     }
 
-    set(context, name, value) {
+    set(name, value) {
         try {
-            electron.ipcRenderer.sendSync('set-' + context, { name: name, value: value });
+            electron.ipcRenderer.sendSync('set-configuration', { name: name, value: value });
         } catch (error) {
             // continue regardless of error
         }
     }
 
-    delete(context, name) {
+    delete(name) {
         try {
-            electron.ipcRenderer.sendSync('delete-' + context, { name: name });
+            electron.ipcRenderer.sendSync('delete-configuration', { name: name });
         } catch (error) {
             // continue regardless of error
         }

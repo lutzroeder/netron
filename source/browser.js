@@ -524,9 +524,9 @@ host.BrowserHost = class {
         return '';
     }
 
-    get(context, name) {
+    get(name) {
         try {
-            if (context === 'configuration' && typeof this.window.localStorage !== 'undefined') {
+            if (typeof this.window.localStorage !== 'undefined') {
                 const content = this.window.localStorage.getItem(name);
                 return JSON.parse(content);
             }
@@ -536,9 +536,9 @@ host.BrowserHost = class {
         return undefined;
     }
 
-    set(context, name, value) {
+    set(name, value) {
         try {
-            if (context === 'configuration' && typeof this.window.localStorage !== 'undefined') {
+            if (typeof this.window.localStorage !== 'undefined') {
                 this.window.localStorage.setItem(name, JSON.stringify(value));
             }
         } catch (error) {
@@ -546,9 +546,9 @@ host.BrowserHost = class {
         }
     }
 
-    delete(context, name) {
+    delete(name) {
         try {
-            if (context === 'configuration' && typeof this.window.localStorage !== 'undefined') {
+            if (typeof this.window.localStorage !== 'undefined') {
                 this.window.localStorage.removeItem(name);
             }
         } catch (error) {
