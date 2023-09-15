@@ -12,4 +12,4 @@ Steps to Reproduce:
 1.
 2.
 
-Please attach or link model files to reproduce the issue if necessary.
+Please attach or link model files to reproduce the issue.
