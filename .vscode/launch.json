@@ -51,7 +51,7 @@
             "type": "node",
             "request": "launch",
             "program": "${workspaceFolder}/test/models.js",
-            "args": [],
+            "args": [ "onnx/candy.onnx", "pytorch/alexnet.ptl", "tflite/squeezenet.tflite" ],
             "console": "integratedTerminal",
         },
         {
