@@ -447,7 +447,8 @@ $root.tflite.BuiltinOperator = {
     STABLEHLO_WHILE: 200,
     STABLEHLO_GATHER: 201,
     STABLEHLO_TRANSPOSE: 202,
-    DILATE: 203
+    DILATE: 203,
+    STABLEHLO_RNG_BIT_GENERATOR: 204
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -739,6 +740,7 @@ $root.tflite.BuiltinOptions2 = class {
             case 16: return $root.tflite.StablehloGatherOptions.decode(reader, position);
             case 17: return $root.tflite.StablehloTransposeOptions.decode(reader, position);
             case 18: return $root.tflite.DilateOptions.decode(reader, position);
+            case 19: return $root.tflite.StablehloRngBitGeneratorOptions.decode(reader, position);
             default: return undefined;
         }
     }
@@ -763,6 +765,7 @@ $root.tflite.BuiltinOptions2 = class {
             case 'StablehloGatherOptions': return $root.tflite.StablehloGatherOptions.decodeText(reader, json);
             case 'StablehloTransposeOptions': return $root.tflite.StablehloTransposeOptions.decodeText(reader, json);
             case 'DilateOptions': return $root.tflite.DilateOptions.decodeText(reader, json);
+            case 'StablehloRngBitGeneratorOptions': return $root.tflite.StablehloRngBitGeneratorOptions.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -1142,6 +1145,27 @@ $root.tflite.StablehloScatterOptions = class StablehloScatterOptions {
         $.index_vector_dim = reader.value(json.index_vector_dim, 0);
         $.unique_indices = reader.value(json.unique_indices, false);
         $.update_computation_subgraph_index = reader.value(json.update_computation_subgraph_index, 0);
+        return $;
+    }
+};
+
+$root.tflite.RngAlgorithm = {
+    DEFAULT: 0,
+    PHILOX: 1,
+    THREEFRY: 2
+};
+
+$root.tflite.StablehloRngBitGeneratorOptions = class StablehloRngBitGeneratorOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.StablehloRngBitGeneratorOptions();
+        $.algorithm = reader.int8_(position, 4, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.StablehloRngBitGeneratorOptions();
+        $.algorithm = $root.tflite.RngAlgorithm[json.algorithm];
         return $;
     }
 };

@@ -941,6 +941,12 @@
     ]
   },
   {
+    "name": "StablehloRngBitGenerator",
+    "attributes": [
+      { "name": "algorithm", "type": "RngAlgorithm", "default": "DEFAULT" }
+    ]
+  },
+  {
     "name": "StablehloScatter",
     "attributes": [
       { "name": "indices_are_sorted", "type": "boolean", "default": false },
