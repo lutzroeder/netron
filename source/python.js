@@ -3733,6 +3733,9 @@ python.Execution = class {
                             case 'c16':
                                 context.view.setComplex128(context.position, data[i], littleendian);
                                 break;
+                            case 'b1':
+                                context.view.setInt8(context.position, data[i] ? 1 : 0);
+                                break;
                             default:
                                 throw new python.Error("Unsupported tensor data type '" + context.dtype + "'.");
                         }
