@@ -1054,24 +1054,25 @@ pytorch.Container.Zip = class extends pytorch.Container {
         super();
         // https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/docs/serialization.md
         this._reader = reader;
-        this._torchscript = model || this._reader.hasRecord('constants.pkl');
-        if (model) {
-            this._producer = model && model.producerName ? model.producerName + (model.producerVersion ? ' v' + model.producerVersion : '') : '';
-            this._format = this._reader.hasRecord('attributes.pkl') ? 'TorchScript v1.1' : 'TorchScript v1.0';
-        } else {
-            const name = this._torchscript ? 'TorchScript' : 'PyTorch';
-            const version = pytorch.Utility.version(reader.version());
-            this._format = name + ' ' + version;
-        }
+        this._model = model;
     }
 
     async read(metadata) {
+        const torchscript = this._model ? true : this._reader.hasRecord('constants.pkl');
+        if (this._model) {
+            this._producer = this._model && this._model.producerName ? this._model.producerName + (this._model.producerVersion ? ' v' + this._model.producerVersion : '') : '';
+            this._format = this._reader.hasRecord('attributes.pkl') ? 'TorchScript v1.1' : 'TorchScript v1.0';
+        } else {
+            const name = torchscript ? 'TorchScript' : 'PyTorch';
+            const version = this._reader.version();
+            this._format = name + ' ' + pytorch.Utility.version(version);
+        }
         const execution = new pytorch.jit.Execution(null, metadata);
         for (const event in this._events) {
             execution.on(event[0], event[1]);
         }
         const torch = execution.__import__('torch');
-        if (this._torchscript) {
+        if (torchscript) {
             const module = torch.jit.load(this._reader);
             if (module.data && module.data.forward) {
                 this._modules = new Map([ [ '', module ] ]);
@@ -1083,6 +1084,7 @@ pytorch.Container.Zip = class extends pytorch.Container {
             const module = torch.load(entries);
             this._modules = pytorch.Utility.find(module);
         }
+        delete this._model;
         delete this._reader;
     }
 
@@ -3194,10 +3196,11 @@ pytorch.Container.Package = class extends pytorch.Container {
     constructor(reader) {
         super();
         this._reader = reader;
-        this._format = 'PyTorch Package ' + pytorch.Utility.version(reader.version());
     }
 
     async read() {
+        const version = this._reader.version();
+        this._format = 'PyTorch Package ' + pytorch.Utility.version(version);
         this._modules = new Map();
         const pickles = this._reader.getAllRecords().filter((name) => !name.startsWith('.data/') && !name.endsWith('py'));
         if (pickles.length > 0) {
@@ -3414,7 +3417,7 @@ pytorch.Utility = class {
         if (!versions.has(value)) {
             throw new pytorch.Error("Unsupported PyTorch Zip version '" + value + "'.");
         }
-        return versions.get(value) || 'v-' + value.toString();
+        return versions.get(value);
     }
 
     static find(data) {
