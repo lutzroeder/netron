@@ -1085,7 +1085,7 @@ base.Metadata = class {
     get extensions() {
         return [
             'onnx', 'tflite', 'pb', 'pt', 'pth', 'h5', 'pbtxt', 'prototxt', 'caffemodel', 'mlmodel', 'mlpackage',
-            'model', 'json', 'xml', 'cfg',
+            'model', 'json', 'xml', 'cfg', 'bin',
             'ort',
             'dnn', 'cmf',
             'hd5', 'hdf5', 'keras',
