@@ -1072,17 +1072,17 @@
   },
   {
     "type":     "coreml",
-    "target":   "DocumentClassification.mlmodel",
-    "source":   "https://raw.githubusercontent.com/toddkramer/DocumentClassifier/master/Sources/DocumentClassification.mlmodel",
-    "format":   "Core ML v1",
-    "link":     "https://github.com/toddkramer/DocumentClassifier"
-  },
-  {
-    "type":     "coreml",
     "target":   "DeepLabV3.pb",
     "source":   "https://docs-assets.developer.apple.com/coreml/models/Image/ImageSegmentation/DeepLabV3/DeepLabV3.mlmodel",
     "format":   "Core ML v3",
     "link":     "https://developer.apple.com/machine-learning/models"
+  },
+  {
+    "type":     "coreml",
+    "target":   "DocumentClassification.mlmodel",
+    "source":   "https://raw.githubusercontent.com/toddkramer/DocumentClassifier/master/Sources/DocumentClassification.mlmodel",
+    "format":   "Core ML v1",
+    "link":     "https://github.com/toddkramer/DocumentClassifier"
   },
   {
     "type":     "coreml",
