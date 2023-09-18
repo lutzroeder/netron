@@ -367,8 +367,6 @@ class Target {
         this.folder = item.type ? path.normalize(path.join(__dirname, '..', 'third_party' , 'test', item.type)) : '';
         this.name = this.type ? this.type + '/' + this.target[0] : this.target[0];
         this.measures = new Map([ [ 'name', this.name ] ]);
-        // TODO #1109 duplicate value name
-        this.skip1109 = [ 'openvino' ].includes(this.type);
     }
 
     match(patterns) {
@@ -625,7 +623,7 @@ class Target {
                 if (value.name.length > 0 && value.initializer === null) {
                     if (!values.has(value.name)) {
                         values.set(value.name, value);
-                    } else if (value !== values.get(value.name) && !this.skip1109) {
+                    } else if (value !== values.get(value.name)) {
                         throw new Error("Duplicate value '" + value.name + "'.");
                     }
                 }
