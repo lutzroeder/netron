@@ -32,26 +32,19 @@ torch.ModelFactory = class {
 torch.Model = class {
 
     constructor(metadata, graphs) {
-        this._graphs = graphs.map((graph, index) => new torch.Graph(metadata, index.toString(), graph));
-    }
-
-    get graphs() {
-        return this._graphs;
-    }
-
-    get format() {
-        return 'Torch v7';
+        this.format = 'Torch v7';
+        this.graphs = graphs.map((graph, index) => new torch.Graph(metadata, index.toString(), graph));
     }
 };
 
 torch.Graph = class {
 
     constructor(metadata, name, root) {
-        this._name = name;
-        this._inputs = [];
-        this._outputs = [];
-        this._nodes = [];
-        this._groups = 'false';
+        this.name = name;
+        this.inputs = [];
+        this.outputs = [];
+        this.nodes = [];
+        this.groups = 'false';
         const args = new Map();
         const arg = (name, type, tensor) => {
             if (name.length === 0 && tensor) {
@@ -69,7 +62,7 @@ torch.Graph = class {
         }
         const loadModule = (metadata, module, groups, key, inputs, outputs) => {
             if (groups.length > 0) {
-                this._groups = true;
+                this.groups = true;
             }
             const type = module.__class__ ? module.__class__.__module__ + '.' + module.__class__.__name__ : '';
             switch (type) {
@@ -134,7 +127,7 @@ torch.Graph = class {
                     }
                     delete module.modules;
                     delete module.dimension;
-                    this._nodes.push(new torch.Node(metadata, module, groups, key, inputs, outputs, arg));
+                    this.nodes.push(new torch.Node(metadata, module, groups, key, inputs, outputs, arg));
                     break;
                 }
                 case 'nn.Inception': {
@@ -142,7 +135,7 @@ torch.Graph = class {
                     delete module.module; // TODO
                     delete module.transfer; // TODO
                     delete module.pool; // TODO
-                    this._nodes.push(new torch.Node(metadata, module, groups, key, inputs, outputs, arg));
+                    this.nodes.push(new torch.Node(metadata, module, groups, key, inputs, outputs, arg));
                     break;
                 }
                 case 'nn.gModule': {
@@ -150,15 +143,15 @@ torch.Graph = class {
                     let index = 0;
                     for (const subModule of module.modules) {
                         subModule.modules = [];
-                        this._loadModule(metadata, subModule, groups, index.toString(), [], []);
+                        this.loadModule(metadata, subModule, groups, index.toString(), [], []);
                         index++;
                     }
                     */
-                    this._nodes.push(new torch.Node(metadata, module, groups, key, inputs, outputs, arg));
+                    this.nodes.push(new torch.Node(metadata, module, groups, key, inputs, outputs, arg));
                     break;
                 }
                 default: {
-                    this._nodes.push(new torch.Node(metadata, module, groups, key, inputs, outputs, arg));
+                    this.nodes.push(new torch.Node(metadata, module, groups, key, inputs, outputs, arg));
                     break;
                 }
             }
@@ -166,48 +159,20 @@ torch.Graph = class {
         const inputs = [];
         const outputs = [];
         loadModule(metadata, root, [], '', inputs, outputs);
-        this._inputs = this._inputs.concat(inputs.map((input, index) => {
+        this.inputs = this.inputs.concat(inputs.map((input, index) => {
             return new torch.Argument('input' + (index != 0 ? (index + 1).toString() : ''), [ input ]);
         }));
-        this._outputs = this._outputs.concat(outputs.map((output, index) => {
+        this.outputs = this.outputs.concat(outputs.map((output, index) => {
             return new torch.Argument('output' + (index != 0 ? (index + 1).toString() : ''), [ output ]);
         }));
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get nodes() {
-        return this._nodes;
-    }
-
-    get groups() {
-        return this._groups;
     }
 };
 
 torch.Argument = class {
 
     constructor(name, value) {
-        this._name = name;
-        this._value = value;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
+        this.name = name;
+        this.value = value;
     }
 };
 
@@ -217,39 +182,24 @@ torch.Value = class {
         if (typeof name !== 'string') {
             throw new torch.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
-        this._name = name;
-        this._type = type;
-        this._initializer = initializer;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        if (this._initializer) {
-            return this._initializer.type;
-        }
-        return this._type;
-    }
-
-    get initializer() {
-        return this._initializer;
+        this.name = name;
+        this.type = initializer ? initializer.type : type;
+        this.initializer = initializer;
     }
 };
 
 torch.Node = class {
 
     constructor(metadata, module, groups, name, inputs, outputs, arg) {
-        this._group = groups.join('/');
+        this.group = groups.join('/');
         if (module.name && typeof module.name === 'string') {
-            this._name = module.name;
+            this.name = module.name;
             delete module.name;
         } else {
-            this._name = this._group ? (this._group + ':' + name) : name;
+            this.name = this.group ? (this.group + ':' + name) : name;
         }
         const type = module.__class__ ? module.__class__.__module__ + '.' + module.__class__.__name__ : 'nn.Module';
-        this._type = metadata.type(type);
+        this.type = metadata.type(type);
         let initializers = [];
         for (const entry of Object.entries(module)) {
             const key = entry[0];
@@ -276,7 +226,7 @@ torch.Node = class {
         delete module.tmp_in;
         delete module.tmp_out;
         delete module.accUpdateGradParameters;
-        switch (this._type.name) {
+        switch (this.type.name) {
             case 'nn.Linear':
                 delete module.addBuffer;
                 break;
@@ -346,7 +296,7 @@ torch.Node = class {
             default:
                 break;
         }
-        this._attributes = [];
+        this.attributes = [];
         if (module.__class__) {
             for (const entry of Object.entries(module)) {
                 const key = entry[0];
@@ -368,58 +318,34 @@ torch.Node = class {
                     continue;
                 }
                 const attribute = new torch.Attribute(metadata, type, key, obj);
-                this._attributes.push(attribute);
+                this.attributes.push(attribute);
             }
         }
-        this._inputs = [];
-        if (inputs.length == 0 && this._name) {
-            inputs.push(arg(this._name + ':in'));
+        this.inputs = [];
+        if (inputs.length == 0 && this.name) {
+            inputs.push(arg(this.name + ':in'));
         }
-        this._inputs.push(new torch.Argument('input', inputs));
-        if (outputs.length == 0 && this._name) {
-            outputs.push(arg(this._name));
+        this.inputs.push(new torch.Argument('input', inputs));
+        if (outputs.length == 0 && this.name) {
+            outputs.push(arg(this.name));
         }
-        this._outputs = [];
-        this._outputs.push(new torch.Argument('output', outputs));
+        this.outputs = [];
+        this.outputs.push(new torch.Argument('output', outputs));
         initializers = initializers.filter((argument) => {
             if (argument.name == 'weight') {
-                this._inputs.push(argument);
+                this.inputs.push(argument);
                 return false;
             }
             return true;
         });
         initializers = initializers.filter((argument) => {
             if (argument.name == 'bias') {
-                this._inputs.push(argument);
+                this.inputs.push(argument);
                 return false;
             }
             return true;
         });
-        this._inputs = this._inputs.concat(initializers);
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get group() {
-        return this._group;
-    }
-
-    get attributes() {
-        return this._attributes;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
+        this.inputs = this.inputs.concat(initializers);
     }
 
     _updateSize(module, name) {
@@ -448,60 +374,41 @@ torch.Node = class {
 torch.Attribute = class {
 
     constructor(metadata, type, name, value) {
-        this._name = name;
-        this._value = value;
+        this.name = name;
+        this.value = value;
         if (name == 'train') {
-            this._visible = false;
+            this.visible = false;
         }
         metadata = metadata.attribute(type, name);
         if (metadata) {
             if (metadata.visible === false) {
-                this._visible = false;
+                this.visible = false;
             } else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
-                if (JSON.stringify(metadata.default) == JSON.stringify(this._value)) {
-                    this._visible = false;
+                if (JSON.stringify(metadata.default) == JSON.stringify(this.value)) {
+                    this.visible = false;
                 }
             }
         }
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
-    }
-
-    get visible() {
-        return this._visible == false ? false : true;
     }
 };
 
 torch.Tensor = class {
 
     constructor(tensor) {
-        this._type = new torch.TensorType(tensor);
+        this.type = new torch.TensorType(tensor);
+        this.encoding = '|';
         this._storage = tensor.storage;
         this._offset = tensor.storage_offset;
     }
 
-    get type() {
-        return this._type;
-    }
-
-    get encoding() {
-        return '|';
-    }
-
     get values() {
-        if (this._type.shape.dimensions.length === 0) {
+        if (this.type.shape.dimensions.length === 0) {
             return [];
         }
         if (this._storage) {
             const data = this._storage.data();
             if (data) {
-                const size = this._type.shape.dimensions.reduce((a, b) => a * b, 1);
+                const size = this.type.shape.dimensions.reduce((a, b) => a * b, 1);
                 return data.slice(this._offset, this._offset + size);
             }
         }
@@ -512,39 +419,27 @@ torch.Tensor = class {
 torch.TensorType = class {
 
     constructor(tensor) {
-        this._dataType = tensor.dataType;
-        this._shape = new torch.TensorShape(tensor.size);
-    }
-
-    get dataType() {
-        return this._dataType;
-    }
-
-    get shape() {
-        return this._shape;
+        this.dataType = tensor.dataType;
+        this.shape = new torch.TensorShape(tensor.size);
     }
 
     toString() {
-        return (this.dataType || '?') + this._shape.toString();
+        return (this.dataType || '?') + this.shape.toString();
     }
 };
 
 torch.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = dimensions;
-    }
-
-    get dimensions() {
-        return this._dimensions;
+        this.dimensions = dimensions;
     }
 
     toString() {
-        if (this._dimensions) {
-            if (this._dimensions.length == 0) {
+        if (this.dimensions) {
+            if (this.dimensions.length == 0) {
                 return '';
             }
-            return '[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']';
+            return '[' + this.dimensions.map((dimension) => dimension.toString()).join(',') + ']';
         }
         return '';
     }
