@@ -15438,6 +15438,92 @@
         "code": "node = onnx.helper.make_node(\n    \"IsInf\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, np.NINF, np.inf], dtype=np.float32)\ny = np.isinf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf\")"
       },
       {
+        "summary": "infinity_float16",
+        "code": "node = onnx.helper.make_node(\n    \"IsInf\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, np.NINF, np.inf], dtype=np.float16)\ny = np.isinf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf_float16\")"
+      },
+      {
+        "summary": "negative_infinity_only",
+        "code": "node = onnx.helper.make_node(\n    \"IsInf\", inputs=[\"x\"], outputs=[\"y\"], detect_positive=0\n)\n\nx = np.array([-1.7, np.nan, np.inf, -3.6, np.NINF, np.inf], dtype=np.float32)\ny = np.isneginf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf_negative\")"
+      },
+      {
+        "summary": "positive_infinity_only",
+        "code": "node = onnx.helper.make_node(\n    \"IsInf\", inputs=[\"x\"], outputs=[\"y\"], detect_negative=0\n)\n\nx = np.array([-1.7, np.nan, np.inf, 3.6, np.NINF, np.inf], dtype=np.float32)\ny = np.isposinf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf_positive\")"
+      }
+    ]
+  },
+  {
+    "name": "IsInf",
+    "module": "ai.onnx",
+    "version": 20,
+    "support_level": "common",
+    "description": "Map infinity to true and other values to false.",
+    "attributes": [
+      {
+        "name": "detect_negative",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "(Optional) Whether map negative infinity to true. Default to 1 so that negative infinity induces true. Set this attribute to 0 if negative infinity should be mapped to false."
+      },
+      {
+        "name": "detect_positive",
+        "type": "int64",
+        "required": false,
+        "default": 1,
+        "description": "(Optional) Whether map positive infinity to true. Default to 1 so that positive infinity induces true. Set this attribute to 0 if positive infinity should be mapped to false."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T1",
+        "description": "input"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T2",
+        "description": "output"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input types to float tensors.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(bfloat16)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(float8e4m3fn)",
+          "tensor(float8e4m3fnuz)",
+          "tensor(float8e5m2)",
+          "tensor(float8e5m2fnuz)"
+        ]
+      },
+      {
+        "description": "Constrain output types to boolean tensors.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(bool)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "infinity",
+        "code": "node = onnx.helper.make_node(\n    \"IsInf\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, np.NINF, np.inf], dtype=np.float32)\ny = np.isinf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf\")"
+      },
+      {
+        "summary": "infinity_float16",
+        "code": "node = onnx.helper.make_node(\n    \"IsInf\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, np.NINF, np.inf], dtype=np.float16)\ny = np.isinf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf_float16\")"
+      },
+      {
         "summary": "negative_infinity_only",
         "code": "node = onnx.helper.make_node(\n    \"IsInf\", inputs=[\"x\"], outputs=[\"y\"], detect_positive=0\n)\n\nx = np.array([-1.7, np.nan, np.inf, -3.6, np.NINF, np.inf], dtype=np.float32)\ny = np.isneginf(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isinf_negative\")"
       },
@@ -15491,8 +15577,12 @@
     ],
     "examples": [
       {
+        "summary": "float16",
+        "code": "node = onnx.helper.make_node(\n    \"IsNaN\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, np.NINF, np.inf], dtype=np.float16)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isnan_float16\")"
+      },
+      {
         "summary": "isnan",
-        "code": "node = onnx.helper.make_node(\n    \"IsNaN\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([3.0, np.nan, 4.0, np.nan], dtype=np.float32)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isnan\")"
+        "code": "node = onnx.helper.make_node(\n    \"IsNaN\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, np.NINF, np.inf], dtype=np.float32)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isnan\")"
       }
     ]
   },
@@ -15541,8 +15631,70 @@
     ],
     "examples": [
       {
+        "summary": "float16",
+        "code": "node = onnx.helper.make_node(\n    \"IsNaN\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, np.NINF, np.inf], dtype=np.float16)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isnan_float16\")"
+      },
+      {
         "summary": "isnan",
-        "code": "node = onnx.helper.make_node(\n    \"IsNaN\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([3.0, np.nan, 4.0, np.nan], dtype=np.float32)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isnan\")"
+        "code": "node = onnx.helper.make_node(\n    \"IsNaN\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, np.NINF, np.inf], dtype=np.float32)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isnan\")"
+      }
+    ]
+  },
+  {
+    "name": "IsNaN",
+    "module": "ai.onnx",
+    "version": 20,
+    "support_level": "common",
+    "description": "Returns which elements of the input are NaN.",
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T1",
+        "description": "input"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T2",
+        "description": "output"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input types to float tensors.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(bfloat16)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(float8e4m3fn)",
+          "tensor(float8e4m3fnuz)",
+          "tensor(float8e5m2)",
+          "tensor(float8e5m2fnuz)"
+        ]
+      },
+      {
+        "description": "Constrain output types to boolean tensors.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(bool)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "float16",
+        "code": "node = onnx.helper.make_node(\n    \"IsNaN\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, np.NINF, np.inf], dtype=np.float16)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isnan_float16\")"
+      },
+      {
+        "summary": "isnan",
+        "code": "node = onnx.helper.make_node(\n    \"IsNaN\",\n    inputs=[\"x\"],\n    outputs=[\"y\"],\n)\n\nx = np.array([-1.2, np.nan, np.inf, 2.8, np.NINF, np.inf], dtype=np.float32)\ny = np.isnan(x)\nexpect(node, inputs=[x], outputs=[y], name=\"test_isnan\")"
       }
     ]
   },
