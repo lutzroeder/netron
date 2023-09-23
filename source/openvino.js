@@ -588,47 +588,47 @@ openvino.Node = class {
             if (itemSize) {
                 switch (type + ':' + name) {
                     case 'FullyConnected:weights': {
-                        const outSize = parseInt(layer.data.get('out-size'), 10);
+                        const outSize = parseInt(layer.data['out-size'], 10);
                         dimensions = [ size / (outSize * itemSize), outSize ];
                         break;
                     }
                     case 'FullyConnected:biases': {
-                        dimensions = [ parseInt(layer.data.get('out-size'), 10) ];
+                        dimensions = [ parseInt(layer.data['out-size'], 10) ];
                         break;
                     }
                     case 'Convolution:weights':
                     case 'Deconvolution:weights': {
                         const c = this.inputs[0].value[0].type.shape.dimensions[1];
-                        const group = parseInt(layer.data.get('group') || '1', 10);
-                        const kernel = layer.data.has('kernel-x') && layer.data.has('kernel-y') ?
-                            [ parseInt(layer.data.get('kernel-x'), 10), parseInt(layer.data.get('kernel-y'), 10) ] :
-                            layer.data.get('kernel').split(',').map((v) => parseInt(v.trim(), 10));
-                        const n = parseInt(layer.data.get('output'), 10);
+                        const group = parseInt(layer.data.group || '1', 10);
+                        const kernel = layer.data['kernel-x'] !== undefined && layer.data['kernel-y'] !== undefined ?
+                            [ parseInt(layer.data['kernel-x'], 10), parseInt(layer.data['kernel-y'], 10) ] :
+                            layer.data.kernel.split(',').map((v) => parseInt(v.trim(), 10));
+                        const n = parseInt(layer.data.output, 10);
                         dimensions = [ Math.floor(c / group), n ].concat(kernel);
                         break;
                     }
                     case 'LSTMCell:weights': {
                         const input_size = inputs[0].type.shape.dimensions[1];
-                        const hidden_size = parseInt(layer.data.get('hidden_size'), 10);
+                        const hidden_size = parseInt(layer.data.hidden_size, 10);
                         data = weight(data, 'W', [ 4 * hidden_size, input_size ]);
                         data = weight(data, 'R', [ 4 * hidden_size, hidden_size ]);
                         break;
                     }
                     case 'LSTMCell:biases': {
-                        const hidden_size = parseInt(layer.data.get('hidden_size'), 10);
+                        const hidden_size = parseInt(layer.data.hidden_size, 10);
                         data = weight(data, 'B', [ 4 * hidden_size ]);
                         break;
                     }
                     case 'GRUCell:weights': {
                         const input_size = inputs[0].type.shape.dimensions[1];
-                        const hidden_size = parseInt(layer.data.get('hidden_size'), 10);
+                        const hidden_size = parseInt(layer.data.hidden_size, 10);
                         data = weight(data, 'W', [ 3 * hidden_size, input_size ]);
                         data = weight(data, 'R', [ 3 * hidden_size, hidden_size ]);
                         break;
                     }
                     case 'GRUCell:biases': {
-                        const linear_before_reset = parseInt(layer.data.get('linear_before_reset'), 10);
-                        const hidden_size = parseInt(layer.data.get('hidden_size'), 10);
+                        const linear_before_reset = parseInt(layer.data.linear_before_reset, 10);
+                        const hidden_size = parseInt(layer.data.hidden_size, 10);
                         dimensions = linear_before_reset ? [ 4 * hidden_size ] : [ 3 * hidden_size ];
                         data = weight(data, 'B', dimensions);
                         break;
