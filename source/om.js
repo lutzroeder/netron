@@ -483,7 +483,7 @@ om.Error = class extends Error {
 
     constructor(message) {
         super(message);
-        this.name = 'Error loading DaVinci model.';
+        this.name = 'Error loading DaVinci OM model.';
     }
 };
 
