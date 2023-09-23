@@ -117,12 +117,12 @@ openvino.ModelFactory = class {
                 layer.outputs = ports(element, 'output');
                 const data = child(element, 'data');
                 const blobs = child(element, 'blobs');
-                layer.data = !data ? new Map() : new Map(Array.from(data.attributes).map((attribute) => [ attribute.localName, attribute.value ]));
+                layer.data = !data ? {} : object(data);
                 layer.blobs = !blobs ? [] : blobs.getElementsByTagName('*').map((blob) => {
                     const obj = object(blob);
                     obj.name = blob.localName;
-                    obj.offset = parseInt(obj.offset, 10);
-                    obj.size = parseInt(obj.size, 10);
+                    obj.offset = parseInt(blob.offset, 10);
+                    obj.size = parseInt(blob.size, 10);
                     return obj;
                 });
                 if (layer.type === 'TensorIterator') {
@@ -201,23 +201,25 @@ openvino.Graph = class {
         const constant = (layers, edges, back_edges, omitConstLayers) => {
             back_edges = back_edges || {};
             for (const layer of layers) {
-                if (layer.type === 'Const' && layer.inputs.length === 0 && layer.outputs.length === 1 && layer.blobs.length === 0 && layer.data && layer.data.size > 3) {
-                    const element_type = layer.data.get('element_type');
-                    const offset = layer.data.get('offset');
-                    const size = layer.data.get('size');
-                    if (element_type && offset !== null && size !== null) {
-                        let precision = null;
-                        switch (element_type) {
-                            case 'f16': precision = 'FP16'; break;
-                            case 'f32': precision = 'FP32'; break;
-                            case 'f64': precision = 'FP64'; break;
-                            default: precision = element_type.toUpperCase();
-                        }
-                        const shape = layer.data.get('shape');
-                        const dims = shape ? shape.split(',').map((dim) => parseInt(dim.trim(), 10)) : null;
-                        layer.data.clear();
-                        layer.blobs.push({ name: 'custom', precision: precision, offset: parseInt(offset, 10), size: parseInt(size, 10), shape: dims });
+                if (layer.type === 'Const' &&
+                    layer.inputs.length === 0 && layer.outputs.length === 1 && layer.blobs.length === 0 &&
+                    layer.data && layer.data.element_type !== undefined && layer.data.offset !== undefined && layer.data.size !== undefined) {
+                    let precision = null;
+                    switch (layer.data.element_type) {
+                        case 'f16': precision = 'FP16'; break;
+                        case 'f32': precision = 'FP32'; break;
+                        case 'f64': precision = 'FP64'; break;
+                        default: precision = layer.data.element_type.toUpperCase();
                     }
+                    const shape = layer.data.shape;
+                    layer.blobs.push({
+                        name: 'custom',
+                        precision: precision,
+                        offset: parseInt(layer.data.offset, 10),
+                        size: parseInt(layer.data.size, 10),
+                        shape: shape ? shape.split(',').map((dim) => parseInt(dim.trim(), 10)) : null
+                    });
+                    layer.data = {};
                 }
                 if (layer.type === 'Const' && layer.blobs.length === 1 && !layer.blobs[0].shape &&
                     layer.inputs.length === 0 && layer.outputs.length === 1 && layer.outputs[0].dims) {
@@ -549,7 +551,7 @@ openvino.Node = class {
             this.outputs.push(argument);
             i += count;
         }
-        for (const entry of layer.data) {
+        for (const entry of Object.entries(layer.data)) {
             const attribute = new openvino.Attribute(metadata.attribute(type, entry[0]), entry[0], entry[1]);
             this.attributes.push(attribute);
         }
