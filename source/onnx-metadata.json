@@ -1060,7 +1060,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "Computes the indices of the max elements of the input tensor's element along the\nprovided axis. The resulting tensor has the same rank as the input if keepdims equals 1.\nIf keepdims equal 0, then the resulting tensor has the reduced dimension pruned.\nThe type of the output tensor is integer.",
+    "description": "Computes the indices of the max elements of the input tensor's element along the\nprovided axis. The resulting tensor has the same rank as the input if keepdims equals 1.\nIf keepdims equal 0, then the resulting tensor has the reduced dimension pruned.\nThe input tensor must not be empty.\nThe type of the output tensor is integer.",
     "attributes": [
       {
         "name": "axis",
@@ -1445,7 +1445,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "Computes the indices of the min elements of the input tensor's element along the\nprovided axis. The resulting tensor has the same rank as the input if keepdims equals 1.\nIf keepdims equal 0, then the resulting tensor has the reduced dimension pruned.\nThe type of the output tensor is integer.",
+    "description": "Computes the indices of the min elements of the input tensor's element along the\nprovided axis. The resulting tensor has the same rank as the input if keepdims equals 1.\nIf keepdims equal 0, then the resulting tensor has the reduced dimension pruned.\nThe input tensor must not be empty.\nThe type of the output tensor is integer.",
     "attributes": [
       {
         "name": "axis",
@@ -7323,7 +7323,7 @@
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "The axis on which to perform the DFT. By default this value is set to 1, which corresponds to the first dimension after the batch index."
+        "description": "The axis on which to perform the DFT. By default this value is set to 1, which corresponds to the first dimension after the batch index. Negative value means counting dimensions from the back. Accepted range is $[-r, -2] \\cup [0, r-2]$ where `r = rank(input)`. The last dimension is for representing complex numbers and thus is an invalid axis."
       },
       {
         "name": "inverse",
@@ -7335,7 +7335,7 @@
         "name": "onesided",
         "type": "int64",
         "required": false,
-        "description": "If onesided is 1, only values for w in [0, 1, 2, ..., floor(n_fft/2) + 1] are returned because the real-to-complex Fourier transform satisfies the conjugate symmetry, i.e., X[m, w] = X[m,w]=X[m,n_fft-w]*. Note if the input or window tensors are complex, then onesided output is not possible. Enabling onesided with real inputs performs a Real-valued fast Fourier transform (RFFT). When invoked with real or complex valued input, the default value is 0. Values can be 0 or 1."
+        "description": "If onesided is 1, only values for w in [0, 1, 2, ..., floor(n_fft/2) + 1] are returned because the real-to-complex Fourier transform satisfies the conjugate symmetry, i.e., X[m, w] = X[m, n_fft-w]*. Note if the input or window tensors are complex, then onesided output is not possible. Enabling onesided with real inputs performs a Real-valued fast Fourier transform (RFFT). When invoked with real or complex valued input, the default value is 0. Values can be 0 or 1."
       }
     ],
     "inputs": [
@@ -7348,7 +7348,7 @@
         "name": "dft_length",
         "type": "T2",
         "option": "optional",
-        "description": "The length of the signal.If greater than the axis dimension, the signal will be zero-padded up to dft_length. If less than the axis dimension, only the first dft_length values will be used as the signal. It's an optional value. "
+        "description": "The length of the signal as a scalar. If greater than the axis dimension, the signal will be zero-padded up to dft_length. If less than the axis dimension, only the first dft_length values will be used as the signal. It's an optional value. "
       }
     ],
     "min_input": 1,
@@ -7357,7 +7357,7 @@
       {
         "name": "output",
         "type": "T1",
-        "description": "The Fourier Transform of the input vector.If onesided is 0, the following shape is expected: [batch_idx][signal_dim1][signal_dim2]...[signal_dimN][2]. If axis=1 and onesided is 1, the following shape is expected: [batch_idx][floor(signal_dim1/2)+1][signal_dim2]...[signal_dimN][2]. If axis=2 and onesided is 1, the following shape is expected: [batch_idx][signal_dim1][floor(signal_dim2/2)+1]...[signal_dimN][2]. If axis=N and onesided is 1, the following shape is expected: [batch_idx][signal_dim1][signal_dim2]...[floor(signal_dimN/2)+1][2]. The signal_dim at the specified axis is equal to the dft_length."
+        "description": "The Fourier Transform of the input vector. If onesided is 0, the following shape is expected: [batch_idx][signal_dim1][signal_dim2]...[signal_dimN][2]. If axis=1 and onesided is 1, the following shape is expected: [batch_idx][floor(signal_dim1/2)+1][signal_dim2]...[signal_dimN][2]. If axis=2 and onesided is 1, the following shape is expected: [batch_idx][signal_dim1][floor(signal_dim2/2)+1]...[signal_dimN][2]. If axis=N and onesided is 1, the following shape is expected: [batch_idx][signal_dim1][signal_dim2]...[floor(signal_dimN/2)+1][2]. The signal_dim at the specified axis is equal to the dft_length."
       }
     ],
     "min_output": 1,
@@ -7386,7 +7386,93 @@
     "examples": [
       {
         "summary": "dft",
-        "code": "node = onnx.helper.make_node(\"DFT\", inputs=[\"x\"], outputs=[\"y\"], axis=1)\nx = np.arange(0, 100).reshape(10, 10).astype(np.float32)\ny = np.fft.fft(x, axis=0)\n\nx = x.reshape(1, 10, 10, 1)\ny = np.stack((y.real, y.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\nexpect(node, inputs=[x], outputs=[y], name=\"test_dft\")\n\nnode = onnx.helper.make_node(\"DFT\", inputs=[\"x\"], outputs=[\"y\"], axis=2)\nx = np.arange(0, 100).reshape(10, 10).astype(np.float32)\ny = np.fft.fft(x, axis=1)\n\nx = x.reshape(1, 10, 10, 1)\ny = np.stack((y.real, y.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\nexpect(node, inputs=[x], outputs=[y], name=\"test_dft_axis\")\n\nnode = onnx.helper.make_node(\n    \"DFT\", inputs=[\"x\"], outputs=[\"y\"], inverse=1, axis=1\n)\nx = np.arange(0, 100, dtype=np.complex64).reshape(\n    10,\n    10,\n)\ny = np.fft.ifft(x, axis=0)\n\nx = np.stack((x.real, x.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\ny = np.stack((y.real, y.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\nexpect(node, inputs=[x], outputs=[y], name=\"test_dft_inverse\")"
+        "code": "node = onnx.helper.make_node(\"DFT\", inputs=[\"x\", \"\", \"axis\"], outputs=[\"y\"])\nx = np.arange(0, 100).reshape(10, 10).astype(np.float32)\naxis = np.array(1, dtype=np.int64)\ny = np.fft.fft(x, axis=0)\n\nx = x.reshape(1, 10, 10, 1)\ny = np.stack((y.real, y.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\nexpect(node, inputs=[x, axis], outputs=[y], name=\"test_dft\")\n\nnode = onnx.helper.make_node(\"DFT\", inputs=[\"x\", \"\", \"axis\"], outputs=[\"y\"])\nx = np.arange(0, 100).reshape(10, 10).astype(np.float32)\naxis = np.array(2, dtype=np.int64)\ny = np.fft.fft(x, axis=1)\n\nx = x.reshape(1, 10, 10, 1)\ny = np.stack((y.real, y.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\nexpect(node, inputs=[x, axis], outputs=[y], name=\"test_dft_axis\")\n\nnode = onnx.helper.make_node(\n    \"DFT\", inputs=[\"x\", \"\", \"axis\"], outputs=[\"y\"], inverse=1\n)\nx = np.arange(0, 100, dtype=np.complex64).reshape(10, 10)\naxis = np.array(1, dtype=np.int64)\ny = np.fft.ifft(x, axis=0)\n\nx = np.stack((x.real, x.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\ny = np.stack((y.real, y.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\nexpect(node, inputs=[x, axis], outputs=[y], name=\"test_dft_inverse\")"
+      },
+      {
+        "summary": "opset19",
+        "code": "node = onnx.helper.make_node(\"DFT\", inputs=[\"x\"], outputs=[\"y\"], axis=1)\nx = np.arange(0, 100).reshape(10, 10).astype(np.float32)\ny = np.fft.fft(x, axis=0)\n\nx = x.reshape(1, 10, 10, 1)\ny = np.stack((y.real, y.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_dft_opset19\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 19)],\n)\n\nnode = onnx.helper.make_node(\"DFT\", inputs=[\"x\"], outputs=[\"y\"], axis=2)\nx = np.arange(0, 100).reshape(10, 10).astype(np.float32)\ny = np.fft.fft(x, axis=1)\n\nx = x.reshape(1, 10, 10, 1)\ny = np.stack((y.real, y.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_dft_axis_opset19\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 19)],\n)\n\nnode = onnx.helper.make_node(\n    \"DFT\", inputs=[\"x\"], outputs=[\"y\"], inverse=1, axis=1\n)\nx = np.arange(0, 100, dtype=np.complex64).reshape(\n    10,\n    10,\n)\ny = np.fft.ifft(x, axis=0)\n\nx = np.stack((x.real, x.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\ny = np.stack((y.real, y.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_dft_inverse_opset19\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 19)],\n)"
+      }
+    ]
+  },
+  {
+    "name": "DFT",
+    "module": "ai.onnx",
+    "version": 20,
+    "support_level": "common",
+    "description": "Computes the discrete Fourier Transform (DFT) of the input.\n\nAssuming the input has shape `[M, N]`, where `N` is the dimension over which the\nDFT is computed and `M` denotes the conceptual \"all other dimensions,\"\nthe DFT `y[m, k]` of shape `[M, N]` is defined as\n\n$$y[m, k] = \\sum_{n=0}^{N-1} e^{-2 \\pi j \\frac{k n}{N} } x[m, n] ,$$\n\nand the inverse transform is defined as\n\n$$x[m, n] = \\frac{1}{N} \\sum_{k=0}^{N-1} e^{2 \\pi j \\frac{k n}{N} } y[m, k] ,$$\n\nwhere $j$ is the imaginary unit.\n\nThe actual shape of the output is specified in the \"output\" section.\n\nReference: https://docs.scipy.org/doc/scipy/tutorial/fft.html\n",
+    "attributes": [
+      {
+        "name": "inverse",
+        "type": "int64",
+        "required": false,
+        "description": "Whether to perform the inverse discrete Fourier Transform. Default is 0, which corresponds to `false`."
+      },
+      {
+        "name": "onesided",
+        "type": "int64",
+        "required": false,
+        "description": "If `onesided` is `1` and input is real, only values for `k` in `[0, 1, 2, ..., floor(n_fft/2) + 1]` are returned because the real-to-complex Fourier transform satisfies the conjugate symmetry, i.e., `X[m, k] = X[m, n_fft-k]*`, where `m` denotes \"all other dimensions\" DFT was not applied on. If the input tensor is complex, onesided output is not possible. Value can be `0` or `1`. Default is `0`."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "type": "T1",
+        "description": "For real input, the following shape is expected: `[signal_dim0][signal_dim1][signal_dim2]...[signal_dimN][1]`. For complex input, the following shape is expected: `[signal_dim0][signal_dim1][signal_dim2]...[signal_dimN][2]`. The final dimension represents the real and imaginary parts of the value in that order."
+      },
+      {
+        "name": "dft_length",
+        "type": "T2",
+        "option": "optional",
+        "description": "The length of the signal as a scalar. If greater than the axis dimension, the signal will be zero-padded up to `dft_length`. If less than the axis dimension, only the first `dft_length` values will be used as the signal. "
+      },
+      {
+        "name": "axis",
+        "type": "tensor(int64)",
+        "option": "optional",
+        "description": "The axis as a scalar on which to perform the DFT. Default is `-2` (last signal axis). Negative value means counting dimensions from the back. Accepted range is $[-r, -2] \\cup [0, r-2]$ where `r = rank(input)`. The last dimension is for representing complex numbers and thus is an invalid axis."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 3,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T1",
+        "description": "The Fourier Transform of the input vector. If `onesided` is `0`, the following shape is expected: `[signal_dim0][signal_dim1][signal_dim2]...[signal_dimN][2]`. If `axis=0` and `onesided` is `1`, the following shape is expected: `[floor(signal_dim0/2)+1][signal_dim1][signal_dim2]...[signal_dimN][2]`. If `axis=1` and `onesided` is `1`, the following shape is expected: `[signal_dim0][floor(signal_dim1/2)+1][signal_dim2]...[signal_dimN][2]`. If `axis=N` and `onesided` is `1`, the following shape is expected: `[signal_dim0][signal_dim1][signal_dim2]...[floor(signal_dimN/2)+1][2]`. The `signal_dim` at the specified `axis` is equal to the `dft_length`."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "inputs_range": "1 - 3",
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(bfloat16)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)"
+        ]
+      },
+      {
+        "description": "Constrain scalar length types to integers.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(int32)",
+          "tensor(int64)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "dft",
+        "code": "node = onnx.helper.make_node(\"DFT\", inputs=[\"x\", \"\", \"axis\"], outputs=[\"y\"])\nx = np.arange(0, 100).reshape(10, 10).astype(np.float32)\naxis = np.array(1, dtype=np.int64)\ny = np.fft.fft(x, axis=0)\n\nx = x.reshape(1, 10, 10, 1)\ny = np.stack((y.real, y.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\nexpect(node, inputs=[x, axis], outputs=[y], name=\"test_dft\")\n\nnode = onnx.helper.make_node(\"DFT\", inputs=[\"x\", \"\", \"axis\"], outputs=[\"y\"])\nx = np.arange(0, 100).reshape(10, 10).astype(np.float32)\naxis = np.array(2, dtype=np.int64)\ny = np.fft.fft(x, axis=1)\n\nx = x.reshape(1, 10, 10, 1)\ny = np.stack((y.real, y.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\nexpect(node, inputs=[x, axis], outputs=[y], name=\"test_dft_axis\")\n\nnode = onnx.helper.make_node(\n    \"DFT\", inputs=[\"x\", \"\", \"axis\"], outputs=[\"y\"], inverse=1\n)\nx = np.arange(0, 100, dtype=np.complex64).reshape(10, 10)\naxis = np.array(1, dtype=np.int64)\ny = np.fft.ifft(x, axis=0)\n\nx = np.stack((x.real, x.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\ny = np.stack((y.real, y.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\nexpect(node, inputs=[x, axis], outputs=[y], name=\"test_dft_inverse\")"
+      },
+      {
+        "summary": "opset19",
+        "code": "node = onnx.helper.make_node(\"DFT\", inputs=[\"x\"], outputs=[\"y\"], axis=1)\nx = np.arange(0, 100).reshape(10, 10).astype(np.float32)\ny = np.fft.fft(x, axis=0)\n\nx = x.reshape(1, 10, 10, 1)\ny = np.stack((y.real, y.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_dft_opset19\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 19)],\n)\n\nnode = onnx.helper.make_node(\"DFT\", inputs=[\"x\"], outputs=[\"y\"], axis=2)\nx = np.arange(0, 100).reshape(10, 10).astype(np.float32)\ny = np.fft.fft(x, axis=1)\n\nx = x.reshape(1, 10, 10, 1)\ny = np.stack((y.real, y.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_dft_axis_opset19\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 19)],\n)\n\nnode = onnx.helper.make_node(\n    \"DFT\", inputs=[\"x\"], outputs=[\"y\"], inverse=1, axis=1\n)\nx = np.arange(0, 100, dtype=np.complex64).reshape(\n    10,\n    10,\n)\ny = np.fft.ifft(x, axis=0)\n\nx = np.stack((x.real, x.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\ny = np.stack((y.real, y.imag), axis=2).astype(np.float32).reshape(1, 10, 10, 2)\nexpect(\n    node,\n    inputs=[x],\n    outputs=[y],\n    name=\"test_dft_inverse_opset19\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 19)],\n)"
       }
     ]
   },
@@ -26203,7 +26289,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the L1 norm of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the L1 norm of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields 0.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -26260,6 +26346,10 @@
       {
         "summary": "do_not_keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([2], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceL1\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n# print(data)\n# [[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]]]\n\nreduced = np.sum(a=np.abs(data), axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[3., 7.], [11., 15.], [19., 23.]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l1_do_not_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(a=np.abs(data), axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l1_do_not_keepdims_random\",\n)"
+      },
+      {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceL1\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nreduced = np.array(np.zeros(reduced_shape, dtype=np.float32))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l1_empty_set\",\n)"
       },
       {
         "summary": "keepdims",
@@ -26335,6 +26425,10 @@
         "code": "shape = [3, 2, 2]\naxes = np.array([2], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceL1\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n# print(data)\n# [[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]]]\n\nreduced = np.sum(a=np.abs(data), axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[3., 7.], [11., 15.], [19., 23.]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l1_do_not_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(a=np.abs(data), axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l1_do_not_keepdims_random\",\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceL1\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nreduced = np.array(np.zeros(reduced_shape, dtype=np.float32))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l1_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([2], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceL1\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n# print(data)\n# [[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]]]\n\nreduced = np.sum(a=np.abs(data), axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[[3.], [7.]], [[11.], [15.]], [[19.], [23.]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l1_keep_dims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(a=np.abs(data), axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l1_keep_dims_random\",\n)"
       },
@@ -26349,7 +26443,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the L1 norm of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the L1 norm of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields 0.\n\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "axes",
@@ -26409,6 +26503,10 @@
         "code": "shape = [3, 2, 2]\naxes = np.array([2], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceL1\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n# print(data)\n# [[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]]]\n\nreduced = np.sum(a=np.abs(data), axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[3., 7.], [11., 15.], [19., 23.]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l1_do_not_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(a=np.abs(data), axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l1_do_not_keepdims_random\",\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceL1\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nreduced = np.array(np.zeros(reduced_shape, dtype=np.float32))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l1_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([2], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceL1\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n# print(data)\n# [[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]]]\n\nreduced = np.sum(a=np.abs(data), axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[[3.], [7.]], [[11.], [15.]], [[19.], [23.]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l1_keep_dims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(a=np.abs(data), axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l1_keep_dims_random\",\n)"
       },
@@ -26423,7 +26521,7 @@
     "module": "ai.onnx",
     "version": 18,
     "support_level": "common",
-    "description": "Computes the L1 norm of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the L1 norm of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields 0.\n\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "keepdims",
@@ -26490,6 +26588,10 @@
         "code": "shape = [3, 2, 2]\naxes = np.array([2], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceL1\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n# print(data)\n# [[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]]]\n\nreduced = np.sum(a=np.abs(data), axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[3., 7.], [11., 15.], [19., 23.]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l1_do_not_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(a=np.abs(data), axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l1_do_not_keepdims_random\",\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceL1\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nreduced = np.array(np.zeros(reduced_shape, dtype=np.float32))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l1_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([2], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceL1\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n# print(data)\n# [[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]]]\n\nreduced = np.sum(a=np.abs(data), axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[[3.], [7.]], [[11.], [15.]], [[19.], [23.]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l1_keep_dims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(a=np.abs(data), axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l1_keep_dims_random\",\n)"
       },
@@ -26504,7 +26606,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the L2 norm of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the L2 norm of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields 0.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -26561,6 +26663,10 @@
       {
         "summary": "do_not_keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([2], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceL2\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n# print(data)\n# [[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]]]\n\nreduced = np.sqrt(\n    np.sum(a=np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n)\n# print(reduced)\n# [[2.23606798, 5.],\n# [7.81024968, 10.63014581],\n# [13.45362405, 16.2788206]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l2_do_not_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sqrt(\n    np.sum(a=np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l2_do_not_keepdims_random\",\n)"
+      },
+      {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceL2\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nreduced = np.array(np.zeros(reduced_shape, dtype=np.float32))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l2_empty_set\",\n)"
       },
       {
         "summary": "keepdims",
@@ -26636,6 +26742,10 @@
         "code": "shape = [3, 2, 2]\naxes = np.array([2], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceL2\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n# print(data)\n# [[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]]]\n\nreduced = np.sqrt(\n    np.sum(a=np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n)\n# print(reduced)\n# [[2.23606798, 5.],\n# [7.81024968, 10.63014581],\n# [13.45362405, 16.2788206]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l2_do_not_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sqrt(\n    np.sum(a=np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l2_do_not_keepdims_random\",\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceL2\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nreduced = np.array(np.zeros(reduced_shape, dtype=np.float32))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l2_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([2], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceL2\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n# print(data)\n# [[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]]]\n\nreduced = np.sqrt(\n    np.sum(a=np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n)\n# print(reduced)\n# [[[2.23606798], [5.]]\n# [[7.81024968], [10.63014581]]\n# [[13.45362405], [16.2788206 ]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l2_keep_dims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sqrt(\n    np.sum(a=np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l2_keep_dims_random\",\n)"
       },
@@ -26650,7 +26760,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the L2 norm of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the L2 norm of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields 0.\n\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "axes",
@@ -26710,6 +26820,10 @@
         "code": "shape = [3, 2, 2]\naxes = np.array([2], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceL2\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n# print(data)\n# [[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]]]\n\nreduced = np.sqrt(\n    np.sum(a=np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n)\n# print(reduced)\n# [[2.23606798, 5.],\n# [7.81024968, 10.63014581],\n# [13.45362405, 16.2788206]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l2_do_not_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sqrt(\n    np.sum(a=np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l2_do_not_keepdims_random\",\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceL2\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nreduced = np.array(np.zeros(reduced_shape, dtype=np.float32))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l2_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([2], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceL2\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n# print(data)\n# [[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]]]\n\nreduced = np.sqrt(\n    np.sum(a=np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n)\n# print(reduced)\n# [[[2.23606798], [5.]]\n# [[7.81024968], [10.63014581]]\n# [[13.45362405], [16.2788206 ]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l2_keep_dims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sqrt(\n    np.sum(a=np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l2_keep_dims_random\",\n)"
       },
@@ -26724,7 +26838,7 @@
     "module": "ai.onnx",
     "version": 18,
     "support_level": "common",
-    "description": "Computes the L2 norm of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the L2 norm of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields 0.\n\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "keepdims",
@@ -26791,6 +26905,10 @@
         "code": "shape = [3, 2, 2]\naxes = np.array([2], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceL2\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n# print(data)\n# [[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]]]\n\nreduced = np.sqrt(\n    np.sum(a=np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n)\n# print(reduced)\n# [[2.23606798, 5.],\n# [7.81024968, 10.63014581],\n# [13.45362405, 16.2788206]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l2_do_not_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sqrt(\n    np.sum(a=np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l2_do_not_keepdims_random\",\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceL2\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nreduced = np.array(np.zeros(reduced_shape, dtype=np.float32))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l2_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([2], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceL2\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n# print(data)\n# [[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]]]\n\nreduced = np.sqrt(\n    np.sum(a=np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n)\n# print(reduced)\n# [[[2.23606798], [5.]]\n# [[7.81024968], [10.63014581]]\n# [[13.45362405], [16.2788206 ]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l2_keep_dims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sqrt(\n    np.sum(a=np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_l2_keep_dims_random\",\n)"
       },
@@ -26805,7 +26923,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the log sum of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the log sum of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields minus infinity (if supported by the datatype) or undefined otherwise.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -26855,6 +26973,10 @@
       }
     ],
     "examples": [
+      {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceLogSum\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nzero = np.array(np.zeros(reduced_shape, dtype=np.float32))\nreduced = np.log(zero)  # -inf\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_empty_set\",\n)"
+      },
       {
         "summary": "keepdims",
         "code": "node = onnx.helper.make_node(\n    \"ReduceLogSum\", inputs=[\"data\", \"axes\"], outputs=[\"reduced\"]\n)\ndata = np.random.ranf([3, 4, 5]).astype(np.float32)\nreduced = np.log(np.sum(data, keepdims=True))\naxes = np.array([], dtype=np.int64)\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_default\",\n)"
@@ -26925,6 +27047,10 @@
     ],
     "examples": [
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceLogSum\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nzero = np.array(np.zeros(reduced_shape, dtype=np.float32))\nreduced = np.log(zero)  # -inf\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "node = onnx.helper.make_node(\n    \"ReduceLogSum\", inputs=[\"data\", \"axes\"], outputs=[\"reduced\"]\n)\ndata = np.random.ranf([3, 4, 5]).astype(np.float32)\nreduced = np.log(np.sum(data, keepdims=True))\naxes = np.array([], dtype=np.int64)\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_default\",\n)"
       },
@@ -26943,7 +27069,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the log sum of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the log sum of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields minus infinity (if supported by the datatype) or undefined otherwise.\n\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "axes",
@@ -26995,6 +27121,10 @@
     ],
     "examples": [
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceLogSum\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nzero = np.array(np.zeros(reduced_shape, dtype=np.float32))\nreduced = np.log(zero)  # -inf\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "node = onnx.helper.make_node(\n    \"ReduceLogSum\", inputs=[\"data\", \"axes\"], outputs=[\"reduced\"]\n)\ndata = np.random.ranf([3, 4, 5]).astype(np.float32)\nreduced = np.log(np.sum(data, keepdims=True))\naxes = np.array([], dtype=np.int64)\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_default\",\n)"
       },
@@ -27013,7 +27143,7 @@
     "module": "ai.onnx",
     "version": 18,
     "support_level": "common",
-    "description": "Computes the log sum of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the log sum of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields minus infinity (if supported by the datatype) or undefined otherwise.\n\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "keepdims",
@@ -27072,6 +27202,10 @@
     ],
     "examples": [
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceLogSum\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nzero = np.array(np.zeros(reduced_shape, dtype=np.float32))\nreduced = np.log(zero)  # -inf\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "node = onnx.helper.make_node(\n    \"ReduceLogSum\", inputs=[\"data\", \"axes\"], outputs=[\"reduced\"]\n)\ndata = np.random.ranf([3, 4, 5]).astype(np.float32)\nreduced = np.log(np.sum(data, keepdims=True))\naxes = np.array([], dtype=np.int64)\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_default\",\n)"
       },
@@ -27090,7 +27224,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the log sum exponent of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the log sum exponent of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields minus infinity (if supported by the datatype) or undefined otherwise.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -27147,6 +27281,10 @@
       {
         "summary": "do_not_keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\nnode = onnx.helper.make_node(\n    \"ReduceLogSumExp\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.double\n)\nreduced = np.log(np.sum(np.exp(data), axis=tuple(axes), keepdims=keepdims == 1))\n# print(reduced)\n# [[20., 2.31326175]\n# [40.00004578, 2.31326175]\n# [60.00671387, 2.31326175]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_exp_do_not_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.double)\nreduced = np.log(np.sum(np.exp(data), axis=tuple(axes), keepdims=keepdims == 1))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_exp_do_not_keepdims_random\",\n)"
+      },
+      {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceLogSumExp\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nzero = np.array(np.zeros(reduced_shape, dtype=np.float32))\nreduced = np.log(zero)  # -inf\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_exp_empty_set\",\n)"
       },
       {
         "summary": "keepdims",
@@ -27222,6 +27360,10 @@
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\nnode = onnx.helper.make_node(\n    \"ReduceLogSumExp\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.double\n)\nreduced = np.log(np.sum(np.exp(data), axis=tuple(axes), keepdims=keepdims == 1))\n# print(reduced)\n# [[20., 2.31326175]\n# [40.00004578, 2.31326175]\n# [60.00671387, 2.31326175]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_exp_do_not_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.double)\nreduced = np.log(np.sum(np.exp(data), axis=tuple(axes), keepdims=keepdims == 1))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_exp_do_not_keepdims_random\",\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceLogSumExp\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nzero = np.array(np.zeros(reduced_shape, dtype=np.float32))\nreduced = np.log(zero)  # -inf\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_exp_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 1\nnode = onnx.helper.make_node(\n    \"ReduceLogSumExp\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.double\n)\nreduced = np.log(np.sum(np.exp(data), axis=tuple(axes), keepdims=keepdims == 1))\n# print(reduced)\n# [[[20., 2.31326175]]\n# [[40.00004578, 2.31326175]]\n# [[60.00671387, 2.31326175]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_exp_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.double)\nreduced = np.log(np.sum(np.exp(data), axis=tuple(axes), keepdims=keepdims == 1))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_exp_keepdims_random\",\n)"
       },
@@ -27236,7 +27378,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the log sum exponent of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the log sum exponent of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields minus infinity (if supported by the datatype) or undefined otherwise.\n\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "axes",
@@ -27296,6 +27438,10 @@
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\nnode = onnx.helper.make_node(\n    \"ReduceLogSumExp\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.double\n)\nreduced = np.log(np.sum(np.exp(data), axis=tuple(axes), keepdims=keepdims == 1))\n# print(reduced)\n# [[20., 2.31326175]\n# [40.00004578, 2.31326175]\n# [60.00671387, 2.31326175]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_exp_do_not_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.double)\nreduced = np.log(np.sum(np.exp(data), axis=tuple(axes), keepdims=keepdims == 1))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_exp_do_not_keepdims_random\",\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceLogSumExp\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nzero = np.array(np.zeros(reduced_shape, dtype=np.float32))\nreduced = np.log(zero)  # -inf\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_exp_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 1\nnode = onnx.helper.make_node(\n    \"ReduceLogSumExp\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.double\n)\nreduced = np.log(np.sum(np.exp(data), axis=tuple(axes), keepdims=keepdims == 1))\n# print(reduced)\n# [[[20., 2.31326175]]\n# [[40.00004578, 2.31326175]]\n# [[60.00671387, 2.31326175]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_exp_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.double)\nreduced = np.log(np.sum(np.exp(data), axis=tuple(axes), keepdims=keepdims == 1))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_exp_keepdims_random\",\n)"
       },
@@ -27310,7 +27456,7 @@
     "module": "ai.onnx",
     "version": 18,
     "support_level": "common",
-    "description": "Computes the log sum exponent of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the log sum exponent of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields minus infinity (if supported by the datatype) or undefined otherwise.\n\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "keepdims",
@@ -27375,6 +27521,10 @@
       {
         "summary": "do_not_keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\nnode = onnx.helper.make_node(\n    \"ReduceLogSumExp\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.double\n)\nreduced = np.log(np.sum(np.exp(data), axis=tuple(axes), keepdims=keepdims == 1))\n# print(reduced)\n# [[20., 2.31326175]\n# [40.00004578, 2.31326175]\n# [60.00671387, 2.31326175]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_exp_do_not_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.double)\nreduced = np.log(np.sum(np.exp(data), axis=tuple(axes), keepdims=keepdims == 1))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_exp_do_not_keepdims_random\",\n)"
+      },
+      {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceLogSumExp\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nzero = np.array(np.zeros(reduced_shape, dtype=np.float32))\nreduced = np.log(zero)  # -inf\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_log_sum_exp_empty_set\",\n)"
       },
       {
         "summary": "keepdims",
@@ -27391,7 +27541,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the max of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the max of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields minus infinity (if supported by the datatype) or the minimum value of the data type otherwise.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -27468,7 +27618,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "Computes the max of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the max of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields minus infinity (if supported by the datatype) or the minimum value of the data type otherwise.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -27624,7 +27774,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the max of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the max of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields minus infinity (if supported by the datatype) or the minimum value of the data type otherwise.\n\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "axes",
@@ -27704,7 +27854,7 @@
     "module": "ai.onnx",
     "version": 18,
     "support_level": "common",
-    "description": "Computes the max of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the max of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields minus infinity (if supported by the datatype) or the minimum value of the data type otherwise.\n\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "keepdims",
@@ -27791,7 +27941,7 @@
     "module": "ai.onnx",
     "version": 20,
     "support_level": "common",
-    "description": "Computes the max of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nIf the input data type is Boolean, the comparison should consider `False < True`.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the max of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields minus infinity (if supported by the datatype) or the minimum value of the data type otherwise.\n\n\nIf the input data type is Boolean, the comparison should consider `False < True`.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "keepdims",
@@ -27879,7 +28029,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the mean of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the mean of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields undefined.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -28025,7 +28175,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the mean of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the mean of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields undefined.\n\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "axes",
@@ -28099,7 +28249,7 @@
     "module": "ai.onnx",
     "version": 18,
     "support_level": "common",
-    "description": "Computes the mean of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the mean of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields undefined.\n\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "keepdims",
@@ -28180,7 +28330,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the min of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the min of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields plus infinity (if supported by the datatype) or the maximum value of the data type otherwise.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -28243,6 +28393,10 @@
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceMin\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32,\n)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[5., 1.]\n# [30., 1.]\n# [55., 1.]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_do_not_keepdims_example\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_do_not_keepdims_random\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceMin\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\none = np.array(np.ones(reduced_shape, dtype=np.float32))\nzero = np.array(np.zeros(reduced_shape, dtype=np.float32))\nreduced = one / zero  # inf\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceMin\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32,\n)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[[5., 1.]]\n# [[30., 1.]]\n# [[55., 1.]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_keepdims_example\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_keepdims_random\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)"
       },
@@ -28257,7 +28411,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "Computes the min of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the min of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields plus infinity (if supported by the datatype) or the maximum value of the data type otherwise.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -28318,6 +28472,10 @@
       {
         "summary": "do_not_keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceMin\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32,\n)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[5., 1.]\n# [30., 1.]\n# [55., 1.]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_do_not_keepdims_example\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_do_not_keepdims_random\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)"
+      },
+      {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceMin\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\none = np.array(np.ones(reduced_shape, dtype=np.float32))\nzero = np.array(np.zeros(reduced_shape, dtype=np.float32))\nreduced = one / zero  # inf\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_empty_set\",\n)"
       },
       {
         "summary": "keepdims",
@@ -28399,6 +28557,10 @@
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceMin\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32,\n)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[5., 1.]\n# [30., 1.]\n# [55., 1.]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_do_not_keepdims_example\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_do_not_keepdims_random\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceMin\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\none = np.array(np.ones(reduced_shape, dtype=np.float32))\nzero = np.array(np.zeros(reduced_shape, dtype=np.float32))\nreduced = one / zero  # inf\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceMin\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32,\n)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[[5., 1.]]\n# [[30., 1.]]\n# [[55., 1.]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_keepdims_example\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_keepdims_random\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)"
       },
@@ -28413,7 +28575,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the min of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the min of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields plus infinity (if supported by the datatype) or the maximum value of the data type otherwise.\n\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "axes",
@@ -28479,6 +28641,10 @@
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceMin\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32,\n)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[5., 1.]\n# [30., 1.]\n# [55., 1.]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_do_not_keepdims_example\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_do_not_keepdims_random\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceMin\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\none = np.array(np.ones(reduced_shape, dtype=np.float32))\nzero = np.array(np.zeros(reduced_shape, dtype=np.float32))\nreduced = one / zero  # inf\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceMin\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32,\n)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[[5., 1.]]\n# [[30., 1.]]\n# [[55., 1.]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_keepdims_example\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_keepdims_random\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)"
       },
@@ -28493,7 +28659,7 @@
     "module": "ai.onnx",
     "version": 18,
     "support_level": "common",
-    "description": "Computes the min of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the min of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields plus infinity (if supported by the datatype) or the maximum value of the data type otherwise.\n\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "keepdims",
@@ -28566,6 +28732,10 @@
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceMin\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32,\n)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[5., 1.]\n# [30., 1.]\n# [55., 1.]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_do_not_keepdims_example\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_do_not_keepdims_random\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceMin\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\none = np.array(np.ones(reduced_shape, dtype=np.float32))\nzero = np.array(np.zeros(reduced_shape, dtype=np.float32))\nreduced = one / zero  # inf\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceMin\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32,\n)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[[5., 1.]]\n# [[30., 1.]]\n# [[55., 1.]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_keepdims_example\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_keepdims_random\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)"
       },
@@ -28580,7 +28750,7 @@
     "module": "ai.onnx",
     "version": 20,
     "support_level": "common",
-    "description": "Computes the min of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nIf the input data type is Boolean, the comparison should consider `False < True`.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the min of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields plus infinity (if supported by the datatype) or the maximum value of the data type otherwise.\n\n\nIf the input data type is Boolean, the comparison should consider `False < True`.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "keepdims",
@@ -28654,6 +28824,10 @@
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceMin\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32,\n)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[5., 1.]\n# [30., 1.]\n# [55., 1.]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_do_not_keepdims_example\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_do_not_keepdims_random\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceMin\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\none = np.array(np.ones(reduced_shape, dtype=np.float32))\nzero = np.array(np.zeros(reduced_shape, dtype=np.float32))\nreduced = one / zero  # inf\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceMin\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32,\n)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[[5., 1.]]\n# [[30., 1.]]\n# [[55., 1.]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_keepdims_example\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_min_keepdims_random\",\n    opset_imports=[onnx.helper.make_opsetid(\"\", 18)],\n)"
       },
@@ -28668,7 +28842,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the product of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the product of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields 1.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -28725,6 +28899,10 @@
       {
         "summary": "do_not_keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceProd\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\nreduced = np.prod(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[3., 8.]\n# [35., 48.]\n# [99., 120.]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_prod_do_not_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.prod(data, axis=tuple(axes), keepdims=keepdims == 1)\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_prod_do_not_keepdims_random\",\n)"
+      },
+      {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceProd\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nreduced = np.array(np.ones(reduced_shape, dtype=np.float32))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_prod_empty_set\",\n)"
       },
       {
         "summary": "keepdims",
@@ -28800,6 +28978,10 @@
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceProd\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\nreduced = np.prod(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[3., 8.]\n# [35., 48.]\n# [99., 120.]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_prod_do_not_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.prod(data, axis=tuple(axes), keepdims=keepdims == 1)\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_prod_do_not_keepdims_random\",\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceProd\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nreduced = np.array(np.ones(reduced_shape, dtype=np.float32))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_prod_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceProd\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\nreduced = np.prod(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[[3., 8.]]\n# [[35., 48.]]\n# [[99., 120.]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_prod_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.prod(data, axis=tuple(axes), keepdims=keepdims == 1)\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_prod_keepdims_random\",\n)"
       },
@@ -28814,7 +28996,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the product of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the product of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields 1.\n\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "axes",
@@ -28874,6 +29056,10 @@
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceProd\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\nreduced = np.prod(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[3., 8.]\n# [35., 48.]\n# [99., 120.]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_prod_do_not_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.prod(data, axis=tuple(axes), keepdims=keepdims == 1)\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_prod_do_not_keepdims_random\",\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceProd\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nreduced = np.array(np.ones(reduced_shape, dtype=np.float32))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_prod_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceProd\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\nreduced = np.prod(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[[3., 8.]]\n# [[35., 48.]]\n# [[99., 120.]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_prod_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.prod(data, axis=tuple(axes), keepdims=keepdims == 1)\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_prod_keepdims_random\",\n)"
       },
@@ -28888,7 +29074,7 @@
     "module": "ai.onnx",
     "version": 18,
     "support_level": "common",
-    "description": "Computes the product of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the product of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields 1.\n\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "keepdims",
@@ -28955,6 +29141,10 @@
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceProd\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\nreduced = np.prod(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[3., 8.]\n# [35., 48.]\n# [99., 120.]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_prod_do_not_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.prod(data, axis=tuple(axes), keepdims=keepdims == 1)\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_prod_do_not_keepdims_random\",\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceProd\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nreduced = np.array(np.ones(reduced_shape, dtype=np.float32))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_prod_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceProd\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\nreduced = np.prod(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[[3., 8.]]\n# [[35., 48.]]\n# [[99., 120.]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_prod_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.prod(data, axis=tuple(axes), keepdims=keepdims == 1)\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_prod_keepdims_random\",\n)"
       },
@@ -28969,7 +29159,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the sum of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the sum of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields 0.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -29032,12 +29222,20 @@
         "code": "shape = [3, 2, 2]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n    noop_with_empty_axes=True,\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\naxes = np.array([], dtype=np.int64)\nreduced = np.array(data)\n# print(reduced)\n# [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_empty_axes_input_noop_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.array(data)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_negative_axes_keepdims_random\",\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "\"\"\"Test case with the reduced-axis of size zero.\"\"\"\nshape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nreduced = np.array(np.zeros(reduced_shape, dtype=np.float32))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\", inputs=[\"data\", \"axes\"], outputs=[\"reduced\"], keepdims=keepdims\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n# print(reduced)\n# [[[4., 6.]]\n# [[12., 14.]]\n# [[20., 22.]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_keepdims_random\",\n)"
       },
       {
         "summary": "negative_axes_keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([-2], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\", inputs=[\"data\", \"axes\"], outputs=[\"reduced\"], keepdims=keepdims\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n# print(reduced)\n# [[[4., 6.]]\n# [[12., 14.]]\n# [[20., 22.]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_negative_axes_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_negative_axes_keepdims_random\",\n)"
+      },
+      {
+        "summary": "non_reduced_axis_zero",
+        "code": "\"\"\"Test case with the non-reduced-axis of size zero.\"\"\"\nshape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 0, 1]\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([2], dtype=np.int64)\nreduced = np.array([], dtype=np.float32).reshape(reduced_shape)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_empty_set\",\n)"
       }
     ]
   },
@@ -29109,12 +29307,20 @@
         "code": "shape = [3, 2, 2]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n    noop_with_empty_axes=True,\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\naxes = np.array([], dtype=np.int64)\nreduced = np.array(data)\n# print(reduced)\n# [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_empty_axes_input_noop_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.array(data)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_negative_axes_keepdims_random\",\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "\"\"\"Test case with the reduced-axis of size zero.\"\"\"\nshape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nreduced = np.array(np.zeros(reduced_shape, dtype=np.float32))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\", inputs=[\"data\", \"axes\"], outputs=[\"reduced\"], keepdims=keepdims\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n# print(reduced)\n# [[[4., 6.]]\n# [[12., 14.]]\n# [[20., 22.]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_keepdims_random\",\n)"
       },
       {
         "summary": "negative_axes_keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([-2], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\", inputs=[\"data\", \"axes\"], outputs=[\"reduced\"], keepdims=keepdims\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n# print(reduced)\n# [[[4., 6.]]\n# [[12., 14.]]\n# [[20., 22.]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_negative_axes_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_negative_axes_keepdims_random\",\n)"
+      },
+      {
+        "summary": "non_reduced_axis_zero",
+        "code": "\"\"\"Test case with the non-reduced-axis of size zero.\"\"\"\nshape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 0, 1]\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([2], dtype=np.int64)\nreduced = np.array([], dtype=np.float32).reshape(reduced_shape)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_empty_set\",\n)"
       }
     ]
   },
@@ -29123,7 +29329,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the sum of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the sum of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields 0.\n\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "keepdims",
@@ -29194,12 +29400,20 @@
         "code": "shape = [3, 2, 2]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n    noop_with_empty_axes=True,\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\naxes = np.array([], dtype=np.int64)\nreduced = np.array(data)\n# print(reduced)\n# [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_empty_axes_input_noop_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.array(data)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_negative_axes_keepdims_random\",\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "\"\"\"Test case with the reduced-axis of size zero.\"\"\"\nshape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nreduced = np.array(np.zeros(reduced_shape, dtype=np.float32))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\", inputs=[\"data\", \"axes\"], outputs=[\"reduced\"], keepdims=keepdims\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n# print(reduced)\n# [[[4., 6.]]\n# [[12., 14.]]\n# [[20., 22.]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_keepdims_random\",\n)"
       },
       {
         "summary": "negative_axes_keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([-2], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\", inputs=[\"data\", \"axes\"], outputs=[\"reduced\"], keepdims=keepdims\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n# print(reduced)\n# [[[4., 6.]]\n# [[12., 14.]]\n# [[20., 22.]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_negative_axes_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_negative_axes_keepdims_random\",\n)"
+      },
+      {
+        "summary": "non_reduced_axis_zero",
+        "code": "\"\"\"Test case with the non-reduced-axis of size zero.\"\"\"\nshape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 0, 1]\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([2], dtype=np.int64)\nreduced = np.array([], dtype=np.float32).reshape(reduced_shape)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_empty_set\",\n)"
       }
     ]
   },
@@ -29208,7 +29422,7 @@
     "module": "ai.onnx",
     "version": 1,
     "support_level": "common",
-    "description": "Computes the sum square of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
+    "description": "Computes the sum square of the input tensor's element along the provided axes. The resulting\ntensor has the same rank as the input if keepdims equals 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields 0.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults keepdims to\nFalse instead of True.",
     "attributes": [
       {
         "name": "axes",
@@ -29265,6 +29479,10 @@
       {
         "summary": "do_not_keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceSumSquare\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\nreduced = np.sum(np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[10., 20.]\n# [74., 100.]\n# [202., 244.]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_square_do_not_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_square_do_not_keepdims_random\",\n)"
+      },
+      {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceSumSquare\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nreduced = np.array(np.zeros(reduced_shape, dtype=np.float32))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_square_empty_set\",\n)"
       },
       {
         "summary": "keepdims",
@@ -29340,6 +29558,10 @@
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceSumSquare\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\nreduced = np.sum(np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[10., 20.]\n# [74., 100.]\n# [202., 244.]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_square_do_not_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_square_do_not_keepdims_random\",\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceSumSquare\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nreduced = np.array(np.zeros(reduced_shape, dtype=np.float32))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_square_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceSumSquare\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\nreduced = np.sum(np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[[10., 20.]]\n# [[74., 100.]]\n# [[202., 244.]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_square_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_square_keepdims_random\",\n)"
       },
@@ -29354,7 +29576,7 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "Computes the sum square of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the sum square of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields 0.\n\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "axes",
@@ -29414,6 +29636,10 @@
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceSumSquare\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\nreduced = np.sum(np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[10., 20.]\n# [74., 100.]\n# [202., 244.]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_square_do_not_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_square_do_not_keepdims_random\",\n)"
       },
       {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceSumSquare\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nreduced = np.array(np.zeros(reduced_shape, dtype=np.float32))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_square_empty_set\",\n)"
+      },
+      {
         "summary": "keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    \"ReduceSumSquare\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\nreduced = np.sum(np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[[10., 20.]]\n# [[74., 100.]]\n# [[202., 244.]]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_square_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_square_keepdims_random\",\n)"
       },
@@ -29428,7 +29654,7 @@
     "module": "ai.onnx",
     "version": 18,
     "support_level": "common",
-    "description": "Computes the sum square of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid.\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
+    "description": "Computes the sum square of the input tensor's elements along the provided axes. The resulting\ntensor has the same rank as the input if `keepdims` equals 1. If `keepdims` equals 0, then\nthe resulting tensor has the reduced dimension pruned. Input tensors of rank zero are\nvalid. Reduction over an empty set of values yields 0.\n\n\nThe above behavior is similar to numpy, with the exception that numpy defaults `keepdims`\nto `False` instead of `True`.",
     "attributes": [
       {
         "name": "keepdims",
@@ -29493,6 +29719,10 @@
       {
         "summary": "do_not_keepdims",
         "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    \"ReduceSumSquare\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array(\n    [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32\n)\nreduced = np.sum(np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n# [[10., 20.]\n# [74., 100.]\n# [202., 244.]]\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_square_do_not_keepdims_example\",\n)\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_square_do_not_keepdims_random\",\n)"
+      },
+      {
+        "summary": "empty_set",
+        "code": "shape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 1, 4]\n\nnode = onnx.helper.make_node(\n    \"ReduceSumSquare\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([1], dtype=np.int64)\nreduced = np.array(np.zeros(reduced_shape, dtype=np.float32))\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_square_empty_set\",\n)"
       },
       {
         "summary": "keepdims",
