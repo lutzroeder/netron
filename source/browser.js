@@ -228,7 +228,7 @@ host.BrowserHost = class {
         return this._environment[name];
     }
 
-    async error(message, detail) {
+    async error(message, detail /*, cancel */) {
         alert((message == 'Error' ? '' : message + ' ') + detail);
         return 0;
     }

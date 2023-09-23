@@ -588,22 +588,23 @@ view.View = class {
             { name: 'Error loading model.', message: /^Unsupported Protocol Buffers text content/, url: 'https://github.com/lutzroeder/netron/issues/594' },
             { name: 'Error loading model.', message: /^Unsupported JSON content/, url: 'https://github.com/lutzroeder/netron/issues/595' },
             { name: 'Error loading Caffe model.', message: /^File format is not caffe\.NetParameter/, url: 'https://github.com/lutzroeder/netron/issues/563' },
-            { name: 'Error loading Darknet model.', message: /^Invalid tensor shape/, url: 'https://github.com/lutzroeder/netron/issues/541' },
-            { name: 'Error loading DaVinci model.', message: /^Unsupported attribute type/, url: 'https://github.com/lutzroeder/netron/issues/926' },
+            { name: 'Error loading DaVinci OM model.', message: /^Unsupported DaVinci OM partition type\./, url: 'https://github.com/lutzroeder/netron/issues/1154' },
             { name: 'Error loading MNN model.', message: /^File format is not mnn\.Net/, url: 'https://github.com/lutzroeder/netron/issues/746' },
             { name: 'Error loading NNEF model.', message: /^.*/, url: 'https://github.com/lutzroeder/netron/issues/992' },
             { name: 'Error loading PyTorch model.', message: /^File does not contain root module or state dictionary/, url: 'https://github.com/lutzroeder/netron/issues/543' },
             { name: 'Error loading PyTorch model.', message: /^Module does not contain modules/, url: 'https://github.com/lutzroeder/netron/issues/544' },
             { name: 'Error loading PyTorch model.', message: /^Unknown type name/, url: 'https://github.com/lutzroeder/netron/issues/969' },
+            { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto \(Unexpected end of file\)\./, url: 'https://github.com/lutzroeder/netron/issues/1155' },
+            { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto \(Cannot read properties of undefined \(reading 'ModelProto'\)\)\./, url: 'https://github.com/lutzroeder/netron/issues/1156' },
             { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto/, url: 'https://github.com/lutzroeder/netron/issues/549' },
             { name: 'Error loading TensorFlow Lite model.', message: /^Offset is outside the bounds of the DataView/, url: 'https://github.com/lutzroeder/netron/issues/563' },
-            { name: 'Error loading TensorRT model.', message: /^Invalid file content. File contains undocumented TensorRT engine data\./, url: 'https://github.com/lutzroeder/netron/issues/725' }
+            { name: 'Error loading TensorRT model.', message: /^Invalid file content. File contains undocumented TensorRT engine data\./, url: 'https://github.com/lutzroeder/netron/issues/725' },
         ];
         const known = knowns.find((known) => (known.name.length === 0 || known.name === err.name) && err.message.match(known.message));
+        const url = known && known.url ? known.url : null;
         const message = err.message;
         name = name || err.name;
-        const button = await this._host.error(name, message);
-        const url = known && known.url ? known.url : null;
+        const button = await this._host.error(name, message, url === null);
         if (button === 0 && (url || this._host.type == 'Electron')) {
             this._host.openURL(url || this._host.environment('repository') + '/issues');
         }
