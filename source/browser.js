@@ -1,6 +1,5 @@
 ﻿
 var host = {};
-
 host.BrowserHost = class {
 
     constructor() {

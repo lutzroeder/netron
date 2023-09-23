@@ -15,6 +15,7 @@ grapher.Graph = class {
     }
 
     setNode(node) {
+        // console.log(node)
         const key = node.name;
         const value = this._nodes.get(key);
         if (value) {

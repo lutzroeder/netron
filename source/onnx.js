@@ -1,4 +1,3 @@
-
 var onnx = {};
 var protobuf = require('./protobuf');
 var flatbuffers = require('./flatbuffers');
