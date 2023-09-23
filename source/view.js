@@ -4892,8 +4892,12 @@ view.ModelContext = class {
                         }
                         case 'hdf5': {
                             const file = hdf5.File.open(stream);
-                            if (file && file.rootGroup && file.rootGroup.attributes) {
-                                this._content.set(type, file.rootGroup);
+                            if (file) {
+                                try {
+                                    this._content.set(type, file.read());
+                                } catch (error) {
+                                    this._content.set(type, error);
+                                }
                             }
                             break;
                         }
@@ -5328,6 +5332,12 @@ view.ModelFactoryService = class {
                 throw new view.Error("Unsupported XML content '" + tags.keys().next().value + "'.");
             }
         };
+        const hdf5 = () => {
+            const obj = context.open('hdf5');
+            if (obj instanceof Error) {
+                throw obj;
+            }
+        };
         const unknown = () => {
             if (stream) {
                 stream.seek(0);
@@ -5343,6 +5353,7 @@ view.ModelFactoryService = class {
         pb();
         flatbuffers();
         xml();
+        hdf5();
         unknown();
     }
 

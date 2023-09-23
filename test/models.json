@@ -8,6 +8,13 @@
   },
   {
     "type":     "_",
+    "target":   "cnn_classifier.h5",
+    "source":   "https://github.com/lutzroeder/netron/files/12706986/cnn_classifier.h5.zip[cnn_classifier.h5]",
+    "error":    "Unexpected end of file. Expected 441 more bytes. The file might be corrupted.",
+    "link":     "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
+    "type":     "_",
     "target":   "config.json",
     "source":   "https://github.com/lutzroeder/netron/files/5398758/config.json.zip[config.json]",
     "error":    "Invalid file content. File contains keras-yolo2 configuration.",

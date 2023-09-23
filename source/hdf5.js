@@ -18,57 +18,62 @@ hdf5.File = class {
     }
 
     constructor(data) {
-        // https://support.hdfgroup.org/HDF5/doc/H5.format.html
-        const reader = data instanceof Uint8Array ?
-            new hdf5.BinaryReader(data) :
-            (data.length < 0x10000000 ? new hdf5.BinaryReader(data.peek()) : new hdf5.StreamReader(data));
-        reader.skip(8);
-        this._globalHeap = new hdf5.GlobalHeap(reader);
-        const version = reader.byte();
-        switch (version) {
-            case 0:
-            case 1: {
-                this._freeSpaceStorageVersion = reader.byte();
-                this._rootGroupEntryVersion = reader.byte();
-                reader.skip(1);
-                this._sharedHeaderMessageVersionFormat = reader.byte();
-                reader.initialize();
-                reader.skip(1);
-                this._groupLeafNodeK = reader.uint16(); // 0x04?
-                this._groupInternalNodeK = reader.uint16(); // 0x10?
-                reader.skip(4);
-                if (version > 0) {
-                    this._indexedStorageInternalNodeK = reader.uint16();
-                    this.skip(2); // Reserved
-                }
-                this._baseAddress = reader.offset();
-                reader.offset(); // Address of File Free space Info
-                this._endOfFileAddress = reader.offset();
-                reader.offset(); // Driver Information Block Address
-                if (this._baseAddress != 0) {
-                    throw new hdf5.Error('Base address is not zero.');
-                }
-                const rootGroupEntry = new hdf5.SymbolTableEntry(reader);
-                this._rootGroup = new hdf5.Group(reader, rootGroupEntry, null, this._globalHeap, '', '');
-                break;
-            }
-            case 2:
-            case 3: {
-                reader.initialize();
-                reader.byte();
-                this._baseAddress = reader.offset();
-                this._superBlockExtensionAddress = reader.offset();
-                this._endOfFileAddress = reader.offset();
-                const rootGroupObjectHeader = new hdf5.DataObjectHeader(reader.at(reader.offset()));
-                this._rootGroup = new hdf5.Group(reader, null, rootGroupObjectHeader, this._globalHeap, '', '');
-                break;
-            }
-            default:
-                throw new hdf5.Error('Unsupported Superblock version ' + version + '.');
-        }
+        this.data = data;
     }
 
-    get rootGroup() {
+    read() {
+        if (this.data) {
+            // https://support.hdfgroup.org/HDF5/doc/H5.format.html
+            const data = this.data;
+            delete this.data;
+            const reader = data instanceof Uint8Array ? new hdf5.BinaryReader(data) : (data.length < 0x10000000 ? new hdf5.BinaryReader(data.peek()) : new hdf5.StreamReader(data));
+            reader.skip(8);
+            this._globalHeap = new hdf5.GlobalHeap(reader);
+            const version = reader.byte();
+            switch (version) {
+                case 0:
+                case 1: {
+                    this._freeSpaceStorageVersion = reader.byte();
+                    this._rootGroupEntryVersion = reader.byte();
+                    reader.skip(1);
+                    this._sharedHeaderMessageVersionFormat = reader.byte();
+                    reader.initialize();
+                    reader.skip(1);
+                    this._groupLeafNodeK = reader.uint16(); // 0x04?
+                    this._groupInternalNodeK = reader.uint16(); // 0x10?
+                    reader.skip(4);
+                    if (version > 0) {
+                        this._indexedStorageInternalNodeK = reader.uint16();
+                        this.skip(2); // Reserved
+                    }
+                    this._baseAddress = reader.offset();
+                    reader.offset(); // Address of File Free space Info
+                    this._endOfFileAddress = reader.offset();
+                    reader.offset(); // Driver Information Block Address
+                    if (this._baseAddress != 0) {
+                        throw new hdf5.Error('Base address is not zero.');
+                    }
+                    const rootGroupEntry = new hdf5.SymbolTableEntry(reader);
+                    this._rootGroup = new hdf5.Group(reader, rootGroupEntry, null, this._globalHeap, '', '');
+                    break;
+                }
+                case 2:
+                case 3: {
+                    reader.initialize();
+                    reader.byte();
+                    this._baseAddress = reader.offset();
+                    this._superBlockExtensionAddress = reader.offset();
+                    this._endOfFileAddress = reader.offset();
+                    const rootGroupObjectHeader = new hdf5.DataObjectHeader(reader.at(reader.offset()));
+                    this._rootGroup = new hdf5.Group(reader, null, rootGroupObjectHeader, this._globalHeap, '', '');
+                    break;
+                }
+                default:
+                    throw new hdf5.Error('Unsupported Superblock version ' + version + '.');
+            }
+            delete this.data;
+            this._rootGroup.attributes;
+        }
         return this._rootGroup;
     }
 };
@@ -471,7 +476,7 @@ hdf5.BinaryReader = class extends hdf5.Reader {
     skip(offset) {
         this._position += offset;
         if (this._offset + this._position > this._buffer.length) {
-            throw new hdf5.Error('Expected ' + (this._offset + this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+            throw new hdf5.Error('Unexpected end of file. Expected ' + (this._offset + this._position - this._buffer.length) + ' more bytes. The file might be corrupted.');
         }
     }
 
