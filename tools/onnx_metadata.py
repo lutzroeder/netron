@@ -182,7 +182,7 @@ def _format_range(value):
 def _metadata():
     json_root = []
     numpy = __import__('numpy')
-    with numpy.errstate(over='ignore'):
+    with numpy.errstate(all='ignore'):
         snippets = onnx.backend.test.case.collect_snippets()
     all_schemas_with_history = onnx.defs.get_all_schemas_with_history()
     for schema in all_schemas_with_history:
