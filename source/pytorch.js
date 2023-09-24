@@ -998,7 +998,8 @@ pytorch.Container.Mobile = class extends pytorch.Container {
         const stream = this._context.stream;
         const torch = execution.__import__('torch');
         const module = torch.jit.jit_module_from_flatbuffer(stream);
-        this._version = pytorch.Utility.version(module._c._bytecode_version);
+        const version = module._c._bytecode_version.toString();
+        this._version = pytorch.Utility.version(version);
         if (module && module.forward) {
             this._modules = new Map([ ['', module] ]);
         } else {
@@ -3043,14 +3044,12 @@ pytorch.jit.FlatBuffersLoader = class {
             this.parseAndPopulate(i, module.ivalues[i]);
         }
         const m = this._all_ivalues[module.state_obj];
-
         for (const entry of this._all_functions) {
             const name = entry[0];
             const class_index = module.ivalues[name].val.class_type;
             const class_type = this._all_types[class_index];
             class_type.addMethod(entry[1]);
         }
-
         m._min_operator_version = module.operator_version;
         m._bytecode_version = module.bytecode_version;
         return m;
@@ -3163,14 +3162,13 @@ pytorch.jit.StreamReader = class {
         prefix = prefix.length > 0 ? prefix + '/' : prefix;
         entries = Array.from(entries).map((entry) => [ entry[0].substring(prefix.length), entry[1] ]);
         this._entries = new Map(entries);
-        this._version = 0;
+        this._version = '0';
         const stream = this.getRecord('.data/version') || this.getRecord('version') || null;
         if (stream) {
             const decoder = new TextDecoder('utf-8');
             const buffer = stream.peek();
             const text = decoder.decode(buffer);
-            const value = text.split('\n').shift();
-            this._version = parseInt(value, 10);
+            this._version = text.split('\n').shift().trim();
         }
     }
 
@@ -3403,16 +3401,16 @@ pytorch.Utility = class {
         // https://github.com/pytorch/pytorch/blob/master/caffe2/serialize/inline_container.h
         // kProducedFileFormatVersion
         const versions = new Map([
-            [  1,  'v1.3'  ],
-            [  2,  'v1.5'  ], // 7a2889b014ce36fcc333b2c6de6f29f976652f84 (#28122)
-            [  3,  'v1.6'  ], // 2ec6a30722b0ef85632a2f3e7ce6f80da403008a (#36085)
-            [  4,  'v1.6'  ], // 95489b590f00801bdee7f41783f30874883cf6bb (#38620)
-            [  5,  'v1.7'  ], // cb26661fe4faf26386703180a9045e6ac6d157df (#40364)
-            [  6,  'v1.9'  ], // 3ee7637ffa50df0d9b231c7b40778ac1c390bf4a (#59714)
-            [  7,  'v1.10' ], // 880098a7e34a20628f960daa8eab0eb1ad566c39 (#63651)
-            [  8,  'v1.11' ], // b28e696516a7f0c7a6ead6da967590ce6c1d6698 (#71486)
-            [  9,  'v1.11' ], // 8757e21c6a4fc00e83539aa7f9c28eb11eff53c1 (#72051)
-            [ 10, 'v1.12' ]  // 4f8b986e28736b59bc46cd0873a0f36fdaa6f5b8 (#61439)
+            [  '1', 'v1.3'  ],
+            [  '2', 'v1.5'  ], // 7a2889b014ce36fcc333b2c6de6f29f976652f84 (#28122)
+            [  '3', 'v1.6'  ], // 2ec6a30722b0ef85632a2f3e7ce6f80da403008a (#36085)
+            [  '4', 'v1.6'  ], // 95489b590f00801bdee7f41783f30874883cf6bb (#38620)
+            [  '5', 'v1.7'  ], // cb26661fe4faf26386703180a9045e6ac6d157df (#40364)
+            [  '6', 'v1.9'  ], // 3ee7637ffa50df0d9b231c7b40778ac1c390bf4a (#59714)
+            [  '7', 'v1.10' ], // 880098a7e34a20628f960daa8eab0eb1ad566c39 (#63651)
+            [  '8', 'v1.11' ], // b28e696516a7f0c7a6ead6da967590ce6c1d6698 (#71486)
+            [  '9', 'v1.11' ], // 8757e21c6a4fc00e83539aa7f9c28eb11eff53c1 (#72051)
+            [ '10', 'v1.12' ]  // 4f8b986e28736b59bc46cd0873a0f36fdaa6f5b8 (#61439)
         ]);
         if (!versions.has(value)) {
             throw new pytorch.Error("Unsupported PyTorch Zip version '" + value + "'.");
