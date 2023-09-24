@@ -27,6 +27,14 @@ openvino.ModelFactory = class {
                     }
                 }
             }
+            if (/^.*pytorch_model.*\.bin$/.test(identifier) ||
+                /^.*group.+-shard.+of.+\.bin$/.test(identifier)) {
+                return undefined;
+            }
+            const identifiers = new Set([ 'config.bin', 'model.bin', '__model__.bin', 'weights.bin', 'programs.bin', 'best.bin', 'ncnn.bin' ]);
+            if (identifiers.has(identifier)) {
+                return undefined;
+            }
             return 'openvino.bin';
         }
         const tags = context.tags('xml');
