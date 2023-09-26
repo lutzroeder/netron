@@ -521,7 +521,11 @@ const update = async () => {
 const pull = async () => {
     await exec('git fetch --prune origin "refs/tags/*:refs/tags/*"');
     const before = await exec('git rev-parse HEAD', 'utf-8');
-    await exec('git pull --prune --rebase');
+    try {
+        await exec('git pull --prune --rebase');
+    } catch (error) {
+        writeLine(error.message);
+    }
     const after = await exec('git rev-parse HEAD', 'utf-8');
     if (before.trim() !== after.trim()) {
         const output = await exec('git diff --name-only ' + before.trim() + ' ' + after.trim(), 'utf-8');
