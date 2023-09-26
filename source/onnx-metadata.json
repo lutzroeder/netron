@@ -9180,7 +9180,7 @@
     "module": "ai.onnx",
     "version": 11,
     "support_level": "common",
-    "description": "A Function to fuse calculation for Scale, Zero Point and FP32->8Bit conversion of FP32 Input data.\nOutputs Scale, ZeroPoint and Quantized Input for a given FP32 Input.\nScale is calculated as:\n```\ny_scale = (max(x) - min(x))/(qmax - qmin)\n```\n\n* where qmax and qmin are max and min values for quantization range .i.e [0, 255] in case of uint8\n* data range is adjusted to include 0.\n\nZero point is calculated as:\n```\nintermediate_zero_point = qmin - min(x)/y_scale\ny_zero_point = cast(round(saturate(itermediate_zero_point)))\n```\n\n* where qmax and qmin are max and min values for quantization range .i.e [0, 255] in case of uint8\n* for saturation, it saturates to [0, 255] if it's uint8, or [-127, 127] if it's int8. Right now only uint8 is supported.\n* rounding to nearest ties to even.\n\nData quantization formula is:\n```\ny = saturate (round (x / y_scale) + y_zero_point)\n```\n\n* for saturation, it saturates to [0, 255] if it's uint8, or [-127, 127] if it's int8. Right now only uint8 is supported.\n* rounding to nearest ties to even.\n",
+    "description": "A Function to fuse calculation for Scale, Zero Point and FP32->8Bit conversion of FP32 Input data.\nOutputs Scale, ZeroPoint and Quantized Input for a given FP32 Input.\nScale is calculated as:\n```\ny_scale = (maximum(0, max(x)) - minimum(0, min(x))) / (qmax - qmin)\n```\n\n* where qmax and qmin are max and min values for quantization range i.e. [0, 255] in case of uint8\n* data range is adjusted to include 0.\n\nZero point is calculated as:\n```\nintermediate_zero_point = qmin - min(x)/y_scale\ny_zero_point = cast(round(saturate(itermediate_zero_point)))\n```\n\n* where qmax and qmin are max and min values for quantization range .i.e [0, 255] in case of uint8\n* for saturation, it saturates to [0, 255] if it's uint8, or [-127, 127] if it's int8. Right now only uint8 is supported.\n* rounding to nearest ties to even.\n\nData quantization formula is:\n```\ny = saturate (round (x / y_scale) + y_zero_point)\n```\n\n* for saturation, it saturates to [0, 255] if it's uint8, or [-127, 127] if it's int8. Right now only uint8 is supported.\n* rounding to nearest ties to even.\n",
     "inputs": [
       {
         "name": "x",
@@ -14654,7 +14654,7 @@
       {
         "name": "cond",
         "type": "B",
-        "description": "Condition for the if"
+        "description": "Condition for the if. The tensor must contain a single element."
       }
     ],
     "min_input": 1,
@@ -14739,7 +14739,7 @@
       {
         "name": "cond",
         "type": "B",
-        "description": "Condition for the if"
+        "description": "Condition for the if. The tensor must contain a single element."
       }
     ],
     "min_input": 1,
@@ -14824,7 +14824,7 @@
       {
         "name": "cond",
         "type": "B",
-        "description": "Condition for the if"
+        "description": "Condition for the if. The tensor must contain a single element."
       }
     ],
     "min_input": 1,
@@ -14924,7 +14924,7 @@
       {
         "name": "cond",
         "type": "B",
-        "description": "Condition for the if"
+        "description": "Condition for the if. The tensor must contain a single element."
       }
     ],
     "min_input": 1,
@@ -15058,7 +15058,7 @@
       {
         "name": "cond",
         "type": "B",
-        "description": "Condition for the if"
+        "description": "Condition for the if. The tensor must contain a single element."
       }
     ],
     "min_input": 1,
