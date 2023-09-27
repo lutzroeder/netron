@@ -2294,26 +2294,28 @@ view.NodeSidebar = class extends view.ObjectSidebar {
             this.addProperty('device', node.device);
         }
         if (Array.isArray(node.attributes)) {
-            const attributes = node.attributes.filter((attribute) => attribute);
-            this.addHeader('Attributes');
-            attributes.sort((a, b) => {
-                const au = a.name.toUpperCase();
-                const bu = b.name.toUpperCase();
-                return (au < bu) ? -1 : (au > bu) ? 1 : 0;
-            });
-            for (const attribute of attributes) {
-                this._addAttribute(attribute.name, attribute);
+            const attributes = node.attributes.filter((attribute) => attribute.visible !== false);
+            if (attributes.length > 0) {
+                this.addHeader('Attributes');
+                attributes.sort((a, b) => {
+                    const au = a.name.toUpperCase();
+                    const bu = b.name.toUpperCase();
+                    return (au < bu) ? -1 : (au > bu) ? 1 : 0;
+                });
+                for (const attribute of attributes) {
+                    this._addAttribute(attribute.name, attribute);
+                }
             }
         }
         const inputs = node.inputs;
-        if (inputs && inputs.length > 0) {
+        if (Array.isArray(inputs) && inputs.length > 0) {
             this.addHeader('Inputs');
             for (const input of inputs) {
                 this._addInput(input.name, input);
             }
         }
         const outputs = node.outputs;
-        if (outputs && outputs.length > 0) {
+        if (Array.isArray(outputs) && outputs.length > 0) {
             this.addHeader('Outputs');
             for (const output of outputs) {
                 this._addOutput(output.name, output);
