@@ -271,6 +271,8 @@ dlc.Container = class {
                 return new dlc.Container(new Map([ [ 'model', stream ] ]));
             case 'NETP':
                 return new dlc.Container(new Map([ [ 'model.params', stream ] ]));
+            case 'NR64':
+                return new dlc.Container(new Map([ [ 'model', stream ] ]));
             default:
                 return null;
         }
@@ -348,7 +350,7 @@ dlc.Container = class {
                             model = dlc.schema.v4.Model.decode(reader, reader.root);
                         } catch (error) {
                             const message = error && error.message ? error.message : error.toString();
-                            throw new dlc.Error('File format is not dlc.v2.NETD (' + message.replace(/\.$/, '') + ').');
+                            throw new dlc.Error('File format is not dlc.v4.NETD (' + message.replace(/\.$/, '') + ').');
                         }
                         this.graphs = model.graphs;
                         const dataType = (value) => {
@@ -422,6 +424,9 @@ dlc.Container = class {
                             }
                         }
                         break;
+                    }
+                    case '4.NR64': {
+                        throw new dlc.Error("File contains undocumented 'NR64' data.");
                     }
                     default: {
                         const buffer = stream.peek(Math.min(stream.length, 16));
