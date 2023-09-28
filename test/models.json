@@ -4134,6 +4134,13 @@
   },
   {
     "type":     "openvino",
+    "target":   "face-detection-retail-0005.xml,face-detection-retail-0005.bin",
+    "source":   "https://github.com/lutzroeder/netron/files/12750770/face-detection-retail-0005.zip[face-detection-retail-0005.xml,face-detection-retail-0005.bin]",
+    "format":   "OpenVINO IR",
+    "link":     "https://github.com/lutzroeder/netron/issues/191"
+  },
+  {
+    "type":     "openvino",
     "target":   "int4-model.xml,int4-model.bin",
     "source":   "https://github.com/lutzroeder/netron/files/6273773/int4-model.zip[int4-model.xml,int4-model.bin]",
     "format":   "OpenVINO IR",
