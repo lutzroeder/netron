@@ -736,7 +736,8 @@ openvino.TensorType = class {
     }
 
     equals(obj) {
-        return obj && this.dataType === obj.dataType && this.shape && this.shape.equals(obj.shape);
+        return obj && this.dataType === obj.dataType &&
+            ((this.shape === null && obj.shape === null) || this.shape && this.shape.equals(obj.shape));
     }
 
     toString() {

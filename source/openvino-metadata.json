@@ -1036,7 +1036,11 @@
         "type": "int32"
       }
     ],
-    "support_level": "default"
+    "support_level": "default",
+    "inputs": [
+      { "name": "data" },
+      { "name": "slope" }
+    ]
   },
   {
     "name": "PriorBox",
