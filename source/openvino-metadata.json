@@ -18,6 +18,16 @@
     "support_level": "default"
   },
   {
+    "name": "Add",
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ],
+    "outputs": [
+      { "name": "C" }
+    ]
+  },
+  {
     "name": "ArgMax",
     "description": "**Short description**: *ArgMax* layer compute the index of the *K* maximum values for each datum across all dimensions *CxHxW*.\n**Detailed description**: Intended for use after a classification layer to produce a prediction. If parameter *out_max_val* is set to \"true\", output is a vector of pairs *(max_ind, max_val)* for each image. The *axis* parameter specifies an axis along which to maximize.\n**Parameters**: *ArgMax* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*ArgMax* generally does the following with the input blobs:\n\\f[\no_{i} = \\left\\{\nx| x \\in S  \\wedge \\forall y \\in S : f(y) \\leq f(x)\n\\right\\}\n\\f]\n**Example**\n\n```html\n<layer ... type=\"ArgMax\" ... >\n    <data top_k=\"10\" out_max_val=\"1\" axis=\"-1\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
     "attributes": [
@@ -64,20 +74,20 @@
     "name": "BinaryConvolution",
     "category": "Layer",
     "inputs": [
-      {
-        "name": "inputs"
-      },
-      {
-        "name": "weights"
-      },
-      {
-        "name": "bias"
-      }
+      { "name": "inputs" },
+      { "name": "weights" },
+      { "name": "bias" }
     ],
     "outputs": [
-      {
-        "name": "output"
-      }
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Broadcast",
+    "inputs": [
+      { "name": "data" },
+      { "name": "target_shape" },
+      { "name": "axes_mapping" }
     ]
   },
   {
@@ -116,7 +126,7 @@
     "inputs": [
       {
         "name": "inputs",
-        "list": true
+        "type": "Tensor[]"
       }
     ],
     "support_level": "default"
@@ -529,7 +539,7 @@
     "inputs": [
       {
         "name": "inputs",
-        "list": true
+        "type": "Tensor[]"
       }
     ],
     "outputs": [
@@ -552,6 +562,16 @@
         "type": "int32",
         "default": -1
       }
+    ]
+  },
+  {
+    "name": "FakeQuantize",
+    "inputs": [
+      { "name": "X" },
+      { "name": "input_low" },
+      { "name": "input_high" },
+      { "name": "output_low" },
+      { "name": "output_high" }
     ]
   },
   {
@@ -582,7 +602,12 @@
   },
   {
     "name": "Gather",
-    "category": "Transform"
+    "category": "Transform",
+    "inputs": [
+      { "name": "data" },
+      { "name": "indices" },
+      { "name": "axis" }
+    ]
   },
   {
     "name": "GRN",
@@ -598,6 +623,14 @@
       }
     ],
     "support_level": "default"
+  },
+  {
+    "name": "GroupConvolution",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" }
+    ]
   },
   {
     "name": "GRUCell",
@@ -616,6 +649,15 @@
     ]
   },
   {
+    "name": "Interpolate",
+    "inputs": [
+      { "name": "data" },
+      { "name": "sizes" },
+      { "name": "scales" },
+      { "name": "axes" }
+    ]
+  },
+  {
     "name": "LSTMCell",
     "category": "Layer",
     "inputs": [
@@ -630,6 +672,16 @@
   {
     "name": "MaxPool",
     "category": "Pool"
+  },
+  {
+    "name": "MatMul",
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ],
+    "outputs": [
+      { "name": "C" }
+    ]
   },
   {
     "name": "Memory",
@@ -658,6 +710,16 @@
       }
     ],
     "support_level": "default"
+  },
+  {
+    "name": "Multiply",
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ],
+    "outputs": [
+      { "name": "C" }
+    ]
   },
   {
     "name": "MVN",
@@ -750,6 +812,14 @@
       }
     ],
     "support_level": "default"
+  },
+  {
+    "name": "NormalizeL2",
+    "category": "Normalization",
+    "inputs": [
+      { "name": "data" },
+      { "name": "axes" }
+    ]
   },
   {
     "name": "Pad",
@@ -917,7 +987,14 @@
     "name": "Power",
     "description": "**Short description**: *Power* layer computes the output as (shift + scale * x) ^ power for each input element x.\n**Parameters**: Power layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n\\f[\np = (shift + scale * x)^{power}\n\\f]\n**Example**\n\n```html\n<layer ... type=\"Power\" ... >\n    <data power=\"2\" scale=\"0.1\" shift=\"5\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
     "attributes": [],
-    "support_level": "default"
+    "support_level": "default",
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ],
+    "outputs": [
+      { "name": "C" }
+    ]
   },
   {
     "name": "PReLU",
@@ -1155,6 +1232,13 @@
     "support_level": "default"
   },
   {
+    "name": "PriorBox",
+    "inputs": [
+      { "name": "output_size" },
+      { "name": "image_size" }
+    ]
+  },
+  {
     "name": "PSROIPooling",
     "category": "Pool",
     "description": "**Short description**: *PSROIPooling* layer compute position-sensitive max pooling on regions of interest specified by input, takes as input N position-sensitive score maps and a list of R regions of interest.\n**Detailed description**: [Reference](https://arxiv.org/pdf/1703.06211.pdf)\n**Parameters**: *PSRoiPooling* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\nThe output value for \\f$(i, j)\\f$-th bin is obtained by summation from one score map \\f$x_{i,j}\\f$ corresponding to that bin. In short, the difference from *RoIPooling* is that a general feature map \\f$x\\f$ is replaced by a specific positive-sensitive score map \\f$x_{i,j}\\f$.\n**Example**\n\n```html\n<layer ... type=\"PSROIPooling\" ... >\n    <data output_dim=\"10\" out_max_val=\"1\" spatial_scale=\"0.1\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
@@ -1305,6 +1389,13 @@
     "support_level": "default"
   },
   {
+    "name": "ReduceMean",
+    "inputs": [
+      { "name": "data" },
+      { "name": "axes" }
+    ]
+  },
+  {
     "name": "Reshape",
     "category": "Shape",
     "description": "**Short description**: *Reshape* layer changes dimensions of the input blob according to the specified order. Input blob volume is equal to output blob volume, where volume is the product of dimensions.\n**Detailed description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/reshape.html)\n**Parameters**: *Reshape* layer parameters should be specified in the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\nIf you want to reshape input blob *BxCxHxW* into *Bx1x(C*H)xW*, the *dim* parameters of your layer should be:\n```html\n layer {\n    name: \"reshape\"\n    type: \"Reshape\"\n    bottom: \"input\"\n    top: \"output\"\n    reshape_param {\n      shape {\n        dim: 0  # copy the dimension from below\n        dim: 1\n        dim: -1 # infer it from the other dimensions\n        dim: 0\n      }\n    }\n  }\n```\n**Example**\n\n```html\n<layer ... type=\"Reshape\" ... >\n    <data axis=\"0\" dim=\"1, 1001\" num_axes=\"-1\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
@@ -1333,6 +1424,10 @@
         "name": "special_zero",
         "type": "boolean"
       }
+    ],
+    "inputs": [
+      { "name": "data" },
+      { "name": "shape" }
     ],
     "support_level": "default"
   },
@@ -1371,6 +1466,10 @@
     "description": "**Short description**: *ScaleShift* layer performs linear transformation of the input blobs. Weights denote scaling parameter, biases - a shift.\n**Parameters**: *ScaleShift* layer does not have additional parameters.\n**Mathematical Formulation**\n\\f[\no_{i} =\\gamma b_{i} + \\beta\n\\f]\n**Example**\n\n```\n<layer ... type=\"ScaleShift\" ... >\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
     "attributes": [],
     "support_level": "default"
+  },
+  {
+    "name": "Sigmoid",
+    "category": "Activation"
   },
   {
     "name": "SimplerNMS",
@@ -1450,11 +1549,34 @@
   },
   {
     "name": "Squeeze",
-    "category": "Transform"
+    "category": "Transform",
+    "inputs": [
+      { "name": "input" },
+      { "name": "axes" }
+    ]
   },
   {
     "name": "StridedSlice",
-    "category": "Tensor"
+    "category": "Tensor",
+    "inputs": [
+      { "name": "data" },
+      { "name": "begin" },
+      { "name": "end" },
+      { "name": "stride" }
+    ]
+  },
+  {
+    "name": "Swish",
+    "category": "Activation"
+  },
+  {
+    "name": "TensorIterator",
+    "inputs": [
+      { "name": "inputs", "type": "Tensor[]" }
+    ],
+    "outputs": [
+      { "name": "outputs", "type": "Tensor[]" }
+    ]
   },
   {
     "name": "Tile",
@@ -1478,10 +1600,18 @@
   },
   {
     "name": "Transpose",
-    "category": "Transform"
+    "category": "Transform",
+    "inputs": [
+      { "name": "arg" },
+      { "name": "input_order" }
+    ]
   },
   {
     "name": "Unsqueeze",
-    "category": "Transform"
+    "category": "Transform",
+    "inputs": [
+      { "name": "input" },
+      { "name": "axes" }
+    ]
   }
 ]
