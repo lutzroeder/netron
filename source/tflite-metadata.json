@@ -640,6 +640,12 @@
     ]
   },
   {
+    "name": "ReduceWindow",
+    "attributes": [
+      { "name": "reduce_function", "type": "ReduceWindowFunction", "default": "UNSUPPORTED" }
+    ]
+  },
+  {
     "name": "Relu",
     "category": "Activation",
     "inputs": [

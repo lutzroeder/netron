@@ -448,7 +448,8 @@ $root.tflite.BuiltinOperator = {
     STABLEHLO_GATHER: 201,
     STABLEHLO_TRANSPOSE: 202,
     DILATE: 203,
-    STABLEHLO_RNG_BIT_GENERATOR: 204
+    STABLEHLO_RNG_BIT_GENERATOR: 204,
+    REDUCE_WINDOW: 205
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -741,6 +742,7 @@ $root.tflite.BuiltinOptions2 = class {
             case 17: return $root.tflite.StablehloTransposeOptions.decode(reader, position);
             case 18: return $root.tflite.DilateOptions.decode(reader, position);
             case 19: return $root.tflite.StablehloRngBitGeneratorOptions.decode(reader, position);
+            case 20: return $root.tflite.ReduceWindowOptions.decode(reader, position);
             default: return undefined;
         }
     }
@@ -766,6 +768,7 @@ $root.tflite.BuiltinOptions2 = class {
             case 'StablehloTransposeOptions': return $root.tflite.StablehloTransposeOptions.decodeText(reader, json);
             case 'DilateOptions': return $root.tflite.DilateOptions.decodeText(reader, json);
             case 'StablehloRngBitGeneratorOptions': return $root.tflite.StablehloRngBitGeneratorOptions.decodeText(reader, json);
+            case 'ReduceWindowOptions': return $root.tflite.ReduceWindowOptions.decodeText(reader, json);
             default: return undefined;
         }
     }
@@ -3158,6 +3161,31 @@ $root.tflite.DilateOptions = class DilateOptions {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.tflite.DilateOptions();
+        return $;
+    }
+};
+
+$root.tflite.ReduceWindowFunction = {
+    UNSUPPORTED: 0,
+    ADD: 1,
+    MUL: 2,
+    MINIMUM: 3,
+    MAXIMUM: 4,
+    ALL: 5,
+    ANY: 6
+};
+
+$root.tflite.ReduceWindowOptions = class ReduceWindowOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.ReduceWindowOptions();
+        $.reduce_function = reader.int32_(position, 4, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.ReduceWindowOptions();
+        $.reduce_function = $root.tflite.ReduceWindowFunction[json.reduce_function];
         return $;
     }
 };
