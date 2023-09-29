@@ -321,12 +321,16 @@ dlc.Container = class {
                                 case 8: return [ 'int32[]',   Array.from(attr.int32_list)   ];
                                 case 9: return [ 'float32[]', Array.from(attr.float32_list) ];
                                 case 11: {
-                                    const list = [];
+                                    const obj = {};
+                                    let index = 0;
+                                    let list = true;
                                     for (const attribute of attr.attributes) {
                                         const entry = updateAttribute(attribute);
-                                        list.push(entry[1]);
+                                        obj[attribute.name] = entry[1];
+                                        list = list && index.toString() === attribute.name;
+                                        index++;
                                     }
-                                    return [ 'object[]', list ];
+                                    return list ? [ '', Object.values(obj) ] : [ '', obj ];
                                 }
                                 default:
                                     throw new dlc.Error("Unsupported attribute type '" + attr.type + "'.");
