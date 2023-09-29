@@ -680,38 +680,39 @@ view.View = class {
                 }
             }
         }
-        const update = () => {
+        const update = async (model, graphs) => {
+            this._model = model;
+            this._graphs = graphs;
+            await this.renderGraph(this._model, this.activeGraph, this._options);
+            if (this._page !== 'default') {
+                this.show('default');
+            }
             const nameButton = this._element('name-button');
             const backButton = this._element('back-button');
-            if (this._graphs.length > 1) {
-                const graph = this.activeGraph;
-                nameButton.innerHTML = graph ? graph.name : '';
-                backButton.style.opacity = 1;
-                nameButton.style.opacity = 1;
-            } else {
+            if (this._graphs.length <= 1) {
                 backButton.style.opacity = 0;
                 nameButton.style.opacity = 0;
+            } else {
+                const graph = this.activeGraph;
+                const name = graph ? graph.name : '';
+                if (name.length > 61) {
+                    nameButton.setAttribute('title', name);
+                    nameButton.innerHTML = '\u2026' + name.substring(name.length - 61, name.length);
+                } else {
+                    nameButton.removeAttribute('title');
+                    nameButton.innerHTML = name;
+                }
+                backButton.style.opacity = 1;
+                nameButton.style.opacity = 1;
             }
         };
         const lastModel = this._model;
         const lastGraphs = this._graphs;
-        this._model = model;
-        this._graphs = graphs;
         try {
-            await this.renderGraph(this._model, this.activeGraph, this._options);
-            if (this._page !== 'default') {
-                this.show('default');
-            }
-            update();
+            await update(model, graphs);
             return this._model;
         } catch (error) {
-            this._model = lastModel;
-            this._graphs = lastGraphs;
-            await this.renderGraph(this._model, this.activeGraph, this._options);
-            if (this._page !== 'default') {
-                this.show('default');
-            }
-            update();
+            await update(lastModel, lastGraphs);
             throw error;
         }
     }
@@ -778,11 +779,7 @@ view.View = class {
         canvas.appendChild(origin);
 
         viewGraph.build(this._host.document, origin);
-
-        this._zoom = 1;
-
         await this._timeout(20);
-
         viewGraph.update();
 
         const elements = Array.from(canvas.getElementsByClassName('graph-input') || []);
