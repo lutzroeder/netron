@@ -5814,7 +5814,6 @@
     "type":     "sklearn",
     "target":   "tree.pkl",
     "source":   "https://github.com/wjqkkky/TTS-front-end/raw/56e09ef79bb6679e51a7c8ff3d302ccd917c0992/ChineseRhythmPredictor/tree.pkl",
-    "error":    "Invalid string length",
     "format":   "scikit-learn v0.21.3",
     "link":     "https://github.com/wjqkkky/TTS-front-end"
   },

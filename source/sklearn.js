@@ -195,7 +195,7 @@ sklearn.Value = class {
 
 sklearn.Node = class {
 
-    constructor(metadata, group, name, obj, inputs, outputs, value) {
+    constructor(metadata, group, name, obj, inputs, outputs, value, stack) {
         this.group = group || null;
         this.name = name || '';
         const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'Object';
@@ -216,8 +216,29 @@ sklearn.Node = class {
                 const argument = new sklearn.Argument(name, value.map((obj) => new sklearn.Value('', null, new sklearn.Tensor(obj))));
                 this.inputs.push(argument);
             } else if (!name.startsWith('_')) {
-                const attribute = new sklearn.Attribute(metadata.attribute(type, name), name, value);
-                this.attributes.push(attribute);
+                stack = stack || new Set();
+                if (value && Array.isArray(value) && value.length > 0 && value.every((obj) => obj.__class__ && obj.__class__.__module__ === value[0].__class__.__module__ && obj.__class__.__name__ === value[0].__class__.__name__)) {
+                    const values = value.filter((value) => !stack.has(value));
+                    const nodes = values.map((value) => {
+                        stack.add(value);
+                        const node = new sklearn.Node(metadata, group, '', value, [], [], null, stack);
+                        stack.delete(value);
+                        return node;
+                    });
+                    const attribute = new sklearn.Attribute({ type: 'object[]' }, name, nodes);
+                    this.attributes.push(attribute);
+                } else if (value && value.__class__) {
+                    if (!stack.has(value)) {
+                        stack.add(value);
+                        const node = new sklearn.Node(metadata, group, '', value, [], [], null, stack);
+                        const attribute = new sklearn.Attribute({ type: 'object' }, name, node);
+                        this.attributes.push(attribute);
+                        stack.delete(value);
+                    }
+                } else {
+                    const attribute = new sklearn.Attribute(metadata.attribute(type, name), name, value);
+                    this.attributes.push(attribute);
+                }
             }
         }
     }
@@ -229,6 +250,9 @@ sklearn.Attribute = class {
         this.name = name;
         this.value = value;
         if (metadata) {
+            if (metadata.type) {
+                this.type = metadata.type;
+            }
             if (metadata.optional && this.value == null) {
                 this.visible = false;
             } else if (metadata.visible === false) {
@@ -243,13 +267,6 @@ sklearn.Attribute = class {
                 } else {
                     this.visible = this.value !== metadata.default;
                 }
-            }
-        }
-        if (value) {
-            if (Array.isArray(value) && value.length > 0 && value.every((obj) => obj.__class__ && obj.__class__.__module__ === value[0].__class__.__module__ && obj.__class__.__name__ === value[0].__class__.__name__)) {
-                this.type = value[0].__class__.__module__ + '.' + value[0].__class__.__name__ + '[]';
-            } else if (value.__class__) {
-                this.type = value.__class__.__module__ + '.' + value.__class__.__name__;
             }
         }
     }

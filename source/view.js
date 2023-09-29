@@ -3938,8 +3938,10 @@ view.Formatter = class {
                     return value.toString();
                 }
                 return '[...]';
+            case 'object':
             case 'function':
                 return value.type.name;
+            case 'object[]':
             case 'function[]':
                 return value ? value.map((item) => item.type.name).join(', ') : '(null)';
             case 'type':
