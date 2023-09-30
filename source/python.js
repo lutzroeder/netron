@@ -3539,6 +3539,7 @@ python.Execution = class {
                 case 'f': {
                     const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
                     switch (dtype.itemsize) {
+                        case 2: return view.getFloat16(0, dtype.byteorder === '<');
                         case 4: return view.getFloat32(0, dtype.byteorder === '<');
                         case 8: return view.getFloat64(0, dtype.byteorder === '<');
                         default: throw new python.Error("Unsupported scalar dtype float itemsize '" + dtype.itemsize + "'.");
