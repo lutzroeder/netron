@@ -276,19 +276,17 @@ mlnet.Attribute = class {
 mlnet.TensorType = class {
 
     constructor(codec) {
-
         mlnet.TensorType._map = mlnet.TensorType._map || new Map([
             [ 'Byte', 'uint8' ],
             [ 'Boolean', 'boolean' ],
             [ 'Single', 'float32' ],
             [ 'Double', 'float64' ],
             [ 'UInt32', 'uint32' ],
+            [ 'Int64', 'int64' ],
             [ 'TextSpan', 'string' ]
         ]);
-
         this._dataType = '?';
         this._shape = new mlnet.TensorShape(null);
-
         if (mlnet.TensorType._map.has(codec.name)) {
             this._dataType = mlnet.TensorType._map.get(codec.name);
         } else if (codec.name == 'VBuffer') {
