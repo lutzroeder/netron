@@ -5,7 +5,7 @@ var dagre = {};
 // https://github.com/dagrejs/dagre
 // https://github.com/dagrejs/graphlib
 
-dagre.layout = (graph) => {
+dagre.layout = (graph, layout) => {
     const time = (name, callback) => {
         // const start = Date.now();
         const result = callback();
@@ -20,7 +20,7 @@ dagre.layout = (graph) => {
     // attributes can influence layout.
     const buildLayoutGraph = (graph) => {
         const g = new dagre.Graph({ compound: true });
-        g.layout = Object.assign({}, { ranksep: 50, edgesep: 20, nodesep: 50, rankdir: 'tb' }, graph.layout);
+        g.layout = Object.assign({}, { ranksep: 50, edgesep: 20, nodesep: 50, rankdir: 'tb' }, layout);
         g.state = Object.assign({}, graph.state);
         for (const node of graph.nodes.values()) {
             const v = node.v;

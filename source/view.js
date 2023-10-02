@@ -780,6 +780,7 @@ view.View = class {
 
         viewGraph.build(this._host.document, origin);
         await this._timeout(20);
+        viewGraph.layout();
         viewGraph.update();
 
         const elements = Array.from(canvas.getElementsByClassName('graph-input') || []);
@@ -1845,19 +1846,26 @@ view.Node = class extends grapher.Node {
                 }
             }
         }
-        const functions = [];
+        const objects = [];
         const attributes = [];
         if (Array.isArray(node.attributes) && node.attributes.length > 0) {
             for (const attribute of node.attributes) {
-                if (attribute.type === 'function') {
-                    // functions.push(attribute);
-                } else if (options.attributes && attribute.visible !== false) {
-                    attributes.push(attribute);
+                switch (attribute.type) {
+                    /* case 'object':
+                    case 'function': {
+                        objects.push(attribute);
+                        break;
+                    } */
+                    default: {
+                        if (options.attributes && attribute.visible !== false) {
+                            attributes.push(attribute);
+                        }
+                    }
                 }
             }
             attributes.sort((a, b) => a.name.toUpperCase().localeCompare(b.name.toUpperCase()));
         }
-        if (initializers.length > 0 || hiddenInitializers || attributes.length > 0 || functions.length > 0) {
+        if (initializers.length > 0 || hiddenInitializers || attributes.length > 0 || objects.length > 0) {
             const list = this.list();
             list.on('click', () => this.context.activate(node));
             for (const argument of initializers) {
@@ -1908,10 +1916,11 @@ view.Node = class extends grapher.Node {
                     list.add(attribute.name, value, attribute.type, ' = ');
                 }
             }
-            for (const attribute of functions) {
-                if (attribute.type === 'function') {
-                    // const item = list.add(null, attribute.name, ':', '', '');
-                    // item.height = 20;
+            for (const attribute of objects) {
+                if (attribute.type === 'function' || attribute.type === 'object') {
+                    const node = this.context.createNode(attribute.value);
+                    const item = list.add(attribute.name, node, '', '');
+                    item.height = 20;
                 }
             }
         }
