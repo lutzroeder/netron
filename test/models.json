@@ -4078,6 +4078,13 @@
   },
   {
     "type":     "om",
+    "target":   "image_HDR_enhance.om",
+    "source":   "https://github.com/lutzroeder/netron/files/12787720/image_HDR_enhance.om.zip[image_HDR_enhance.om]",
+    "format":   "DaVinci OM",
+    "link":     "https://github.com/lutzroeder/netron/issues/799"
+  },
+  {
+    "type":     "om",
     "target":   "netron_issue_788.om",
     "source":   "https://github.com/lutzroeder/netron/files/7104677/netron_issue_788.om.zip[netron_issue_788.om]",
     "format":   "DaVinci OM",

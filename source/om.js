@@ -13,7 +13,7 @@ om.ModelFactory = class {
     }
 
     async open(context, target) {
-        await target.open();
+        await target.read();
         const metadata = await context.metadata('om-metadata.json');
         return new om.Model(metadata, target);
     }
@@ -22,12 +22,9 @@ om.ModelFactory = class {
 om.Model = class {
 
     constructor(metadata, target) {
-        this.graphs = [];
         this.format = target.format;
         const context = { metadata: metadata, weights: target.weights };
-        for (const graph of target.model.graph) {
-            this.graphs.push(new om.Graph(context, graph));
-        }
+        this.graphs = target.model.graph.map((graph) => new om.Graph(context, graph));
     }
 };
 
@@ -39,7 +36,7 @@ om.Graph = class {
         this.inputs = [];
         this.outputs = [];
         const values = new Map();
-        const value = (name, type, tensor) => {
+        values.map = (name, type, tensor) => {
             if (!values.has(name)) {
                 values.set(name, new om.Value(name, type || null, tensor || null));
             } else if ((type && !type.equals(values.get(name).type)) ||
@@ -73,7 +70,7 @@ om.Graph = class {
             ops.push(op);
         }
         for (const op of ops) {
-            const node = new om.Node(context, op, graph, value, tensors);
+            const node = new om.Node(context, op, graph, values, tensors);
             this.nodes.push(node);
         }
     }
@@ -81,7 +78,7 @@ om.Graph = class {
 
 om.Node = class {
 
-    constructor(context, op, graph, value, tensors) {
+    constructor(context, op, graph, values, tensors) {
         this.name = op.name || '';
         this.type = context.metadata.type(op.type) || { name: op.type };
         this.inputs = [];
@@ -91,23 +88,36 @@ om.Node = class {
         this.controlDependencies = [];
         this.device = null;
         if (op.input) {
+            let index = 0;
             for (let i = 0; i < op.input.length; i++) {
                 const input = op.input[i];
                 if (input === '') {
                     continue;
                 }
-                const name = this.type.inputs && i < this.type.inputs.length ? this.type.inputs[i].name : 'input' + (i === 0 ? '' : i.toString());
-                const index = input.lastIndexOf(':');
-                const identifier = input.substring(0, index);
-                const src_index = input.substring(index + 1);
-                if (src_index === '-1') {
-                    this.controlDependencies.push(value(name));
-                    continue;
+                const name = this.type.inputs && i < this.type.inputs.length ? this.type.inputs[i].name : 'input' + (index === 0 ? '' : index.toString());
+                index++;
+                const end = this.type.inputs && i < this.type.inputs.length && this.type.inputs[i].type && this.type.inputs[i].type === 'Tensor[]' ? op.input.length : i + 1;
+                const list = [];
+                for (let j = i; j < end; j++) {
+                    const input = op.input[j];
+                    if (input === '') {
+                        continue;
+                    }
+                    const index = input.lastIndexOf(':');
+                    const identifier = input.substring(0, index);
+                    const src_index = input.substring(index + 1);
+                    if (src_index === '-1') {
+                        this.controlDependencies.push(values.map(name));
+                        continue;
+                    }
+                    const type = om.Utility.tensorType(op.input_desc[j]);
+                    const tensor = tensors.get(identifier);
+                    const value = values.map(input, type, tensor);
+                    list.push(value);
                 }
-                const type = om.Utility.tensorType(op.input_desc[i]);
-                const tensor = tensors.get(identifier);
-                const argument = new om.Argument(name, [ value(input, type, tensor) ]);
+                const argument = new om.Argument(name, list);
                 this.inputs.push(argument);
+                i = end - 1;
             }
         }
         if (op.output_desc) {
@@ -115,7 +125,8 @@ om.Node = class {
                 const identifier = this.name + ':' + i.toString();
                 const type = om.Utility.tensorType(op.output_desc[i]);
                 const name = this.type.outputs && i < this.type.outputs.length ? this.type.outputs[i].name : 'output' + (i === 0 ? '' : i.toString());
-                const argument = new om.Argument(name, [ value(identifier, type) ]);
+                const value = values.map(identifier, type);
+                const argument = new om.Argument(name, [ value ]);
                 this.outputs.push(argument);
             }
         }
@@ -254,15 +265,8 @@ om.Value = class {
             throw new om.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
         this.name = name;
-        this._type = type || null;
+        this.type = initializer ? initializer.type : type;
         this.initializer = initializer || null;
-    }
-
-    get type() {
-        if (this.initializer) {
-            return this.initializer.type;
-        }
-        return this._type;
     }
 };
 
@@ -340,45 +344,67 @@ om.Container = class {
         this._signature = signature;
     }
 
-    async open() {
+    async read() {
         const stream = this._context.stream;
         const reader = new base.BinaryReader(stream);
         const buffer = reader.read(4);
         this.signature = Array.from(buffer).map((c) => String.fromCharCode(c)).join('');
         switch (this.signature) {
             case 'IMOD': {
-                this.format = 'DaVinci OM';
                 const decoder = new TextDecoder('utf-8');
-                const size = reader.uint32();
-                this.version = reader.uint32();
-                this.checksum = reader.read(64);
-                reader.skip(4);
-                this.is_encrypt = reader.byte();
-                this.is_checksum = reader.byte();
-                this.type = reader.byte(); // 0=IR model, 1=standard model, 2=OM Tiny model
-                this.mode = reader.byte(); // 0=offline, 1=online
-                this.name = decoder.decode(reader.read(32));
-                this.ops = reader.uint32();
-                this.userdefineinfo = reader.read(32);
-                this.ir_version = reader.uint32();
-                this.model_num = reader.uint32();
-                this.platform_version = reader.read(20);
-                this.platform_type = reader.byte();
-                reader.seek(0);
-                reader.skip(size);
-                const partitions = new Array(reader.uint32());
-                for (let i = 0; i < partitions.length; i++) {
-                    partitions[i] = {
-                        type: reader.uint32(),
-                        offset: reader.uint32(),
-                        size: reader.uint32()
-                    };
+                this.format = 'DaVinci OM';
+                const header = {};
+                header.headsize = reader.uint32();
+                header.version = reader.uint32();
+                header.checksum = reader.read(64);
+                header.length = reader.uint32();
+                header.is_encrypt = reader.byte();
+                header.is_checksum = reader.byte();
+                header.modeltype = reader.byte(); // 0=IR model, 1=standard model, 2=OM Tiny model
+                header.genmode = reader.byte(); // 0=offline, 1=online
+                header.name = decoder.decode(reader.read(32));
+                header.ops = reader.uint32();
+                header.userdefineinfo = reader.read(32);
+                header.om_ir_version = reader.uint32();
+                header.model_num = header.version >= 0x20000000 ? reader.uint32() : 1;
+                header.platform_version = decoder.decode(reader.read(20));
+                header.platform_type = reader.byte();
+                header.padd = [ reader.byte(), reader.byte(), reader.byte() ];
+                header.model_length = reader.uint64();
+                header.need_check_os_cpu_info = reader.byte();
+                header.is_unknow_model = reader.byte(); // 0:static model 1:dynamic model
+                header.reserved = reader.read(62);
+                const partitions = new Map();
+                let size = -1;
+                for (let align = 4; align <= 8; align += 4) {
+                    reader.seek(header.headsize);
+                    const count = reader.uint32();
+                    reader.skip(align - 4);
+                    size = 4 + (align - 4) + (count * 3 * align);
+                    for (let i = 0; i < count; i++) {
+                        const type = align === 4 ? reader.uint32() : reader.uint64();
+                        const offset = align === 4 ? reader.uint32() : reader.uint64();
+                        const size = align === 4 ? reader.uint32() : reader.uint64();
+                        if (type >= 32 || partitions.has(type) || (offset + size) >= stream.length) {
+                            partitions.clear();
+                            break;
+                        }
+                        partitions.set(type, { offset: offset, size: size });
+                    }
+                    if (partitions.size > 0) {
+                        break;
+                    }
                 }
-                const offset = 256 + 4 + 12 * partitions.length;
-                for (const partition of partitions) {
+                if (!partitions.has(0)) {
+                    throw new om.Error('File does not contain a model definition.');
+                }
+                const offset = header.headsize + size;
+                for (const entry of partitions) {
+                    const type = entry[0];
+                    const partition = entry[1];
                     reader.seek(offset + partition.offset);
                     const buffer = reader.read(partition.size);
-                    switch (partition.type) {
+                    switch (type) {
                         case 0: { // MODEL_DEF
                             this.model = buffer;
                             break;
@@ -412,9 +438,6 @@ om.Container = class {
                         }
                     }
                 }
-                if (!this.model) {
-                    throw new om.Error('File does not contain a model definition.');
-                }
                 await this._context.require('./om-proto');
                 try {
                     om.proto = protobuf.get('om').ge.proto;
@@ -435,7 +458,6 @@ om.Container = class {
                 reader.uint32(); // tmp_bufsize
                 const tfm_offset = reader.uint32();
                 reader.uint32(); // tfm_size
-                this.type = 2;
                 reader.seek(param_offset);
                 this.param = reader.read(param_size);
                 const buffer = reader.read(tfm_offset - reader.position);

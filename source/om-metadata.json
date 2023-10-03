@@ -405,7 +405,7 @@
     "name": "Concat",
     "category": "Tensor",
     "inputs": [
-      { "name": "x" }
+      { "name": "x", "type": "Tensor[]" }
     ],
     "outputs": [
       { "name": "y" }
@@ -415,7 +415,17 @@
     "name": "ConcatD",
     "category": "Tensor",
     "inputs": [
-      { "name": "x" }
+      { "name": "x", "type": "Tensor[]" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "ConcatV2D",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "x", "type": "Tensor[]" }
     ],
     "outputs": [
       { "name": "y" }

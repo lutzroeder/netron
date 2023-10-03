@@ -484,6 +484,7 @@ openvino.Node = class {
             const precision = blob.precision || layer.precision;
             let itemSize = undefined;
             switch (precision) {
+                case 'BOOLEAN':                      itemSize = 1; break;
                 case 'I8':  case 'U8':               itemSize = 1; break;
                 case 'I16': case 'U16': case 'FP16': itemSize = 2; break;
                 case 'I32': case 'U32': case 'FP32': itemSize = 4; break;
