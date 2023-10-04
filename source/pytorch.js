@@ -962,7 +962,7 @@ pytorch.Container.Zip = class extends pytorch.Container {
             this._format = name + ' ' + pytorch.Utility.version(version);
         }
         const execution = new pytorch.jit.Execution(null, metadata);
-        for (const event in this._events) {
+        for (const event of this._events) {
             execution.on(event[0], event[1]);
         }
         const torch = execution.__import__('torch');
