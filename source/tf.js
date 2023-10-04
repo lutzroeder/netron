@@ -129,8 +129,7 @@ tf.ModelFactory = class {
                     // tensorflow.FingerprintDef
                     if (identifier === 'fingerprint.pb' &&
                         tags.get(1) === 0 && tags.get(2) === 0 &&
-                        tags.get(3) === 0 && tags.get(4) === 0 &&
-                        tags.get(5) === 0 && tags.get(6) === 2) {
+                        tags.get(3) === 0 && tags.get(5) === 0 && tags.get(6) === 2) {
                         return 'tf.pb.FingerprintDef';
                     }
                     const decode = (buffer, value) => {
