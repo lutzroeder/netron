@@ -3310,6 +3310,9 @@ python.Execution = class {
             }
             return defaultValue;
         });
+        this.registerFunction('builtins.setattr', function(obj, name, value) {
+            obj[name] = value;
+        });
         this.registerFunction('builtins.set', function(iterable) {
             return iterable ? iterable : [];
         });
@@ -4403,8 +4406,43 @@ python.Execution = class {
             tensor.quantizer_params = quantizer_params;
             return tensor;
         });
+        this.registerFunction('torch._utils._set_obj_state', function(obj, state) {
+            let dict_state = state;
+            let slots_state = null;
+            if (state instanceof self.builtins.tuple) {
+                if (state.length != 2) {
+                    throw new python.Error("Invalid serialized state: '" + state + "'.");
+                }
+                dict_state = state[0];
+                slots_state = state[1];
+            }
+            if (dict_state) {
+                for (const entry of Object.entries(dict_state)) {
+                    execution.invoke('builtins.setattr', [ obj, entry[0], entry[1] ]);
+                }
+            }
+            if (slots_state) {
+                for (const entry of Object.entries(slots_state)) {
+                    execution.invoke('builtins.setattr', [ obj, entry[0], entry[1] ]);
+                }
+            }
+            return obj;
+        });
         this.registerFunction('torch._set_item', function(dict, key, value) {
             dict[key] = value;
+        });
+        this.registerFunction('torch._tensor._rebuild_from_type_v2', function(func, new_type, args, state) {
+            let ret = func.apply(null, args);
+            if (ret.__class__ !== new_type) {
+                // ret = ret.as_subclass(new_type);
+            }
+            const setstate = execution.invoke('builtins.getattr', [ ret.__class__, '__setstate__', torch.Tensor.__setstate__ ]);
+            if (setstate !== torch.Tensor.__setstate__) {
+                ret.__setstate__(state);
+            } else {
+                ret = execution.invoke('torch._utils._set_obj_state', [ ret, state ]);
+            }
+            return ret;
         });
         this.registerFunction('torch.__and__', function(left, right) {
             return left && right;
