@@ -274,7 +274,7 @@
       },
       {
         "name": "verbose_feature_names_out",
-        "description": "If True, :meth:`get_feature_names_out` will prefix all feature names\nwith the name of the transformer that generated that feature.\nIf False, :meth:`get_feature_names_out` will not prefix any feature\nnames and will error if feature names are not unique.\n\n.. versionadded:: 1.0\n",
+        "description": "If True, :meth:`ColumnTransformer.get_feature_names_out` will prefix\nall feature names with the name of the transformer that generated that\nfeature.\nIf False, :meth:`ColumnTransformer.get_feature_names_out` will not\nprefix any feature names and will error if feature names are not\nunique.\n\n.. versionadded:: 1.0\n",
         "type": "boolean",
         "default": true
       }
@@ -753,7 +753,7 @@
   },
   {
     "name": "sklearn.feature_extraction.text.CountVectorizer",
-    "description": "Convert a collection of text documents to a matrix of token counts.\n\nThis implementation produces a sparse representation of the counts using\nscipy.sparse.csr_matrix.\n\nIf you do not provide an a-priori dictionary and you do not use an analyzer\nthat does some kind of feature selection then the number of features will\nbe equal to the vocabulary size found by analyzing the data.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
+    "description": "Convert a collection of text documents to a matrix of token counts.\n\nThis implementation produces a sparse representation of the counts using\nscipy.sparse.csr_matrix.\n\nIf you do not provide an a-priori dictionary and you do not use an analyzer\nthat does some kind of feature selection then the number of features will\nbe equal to the vocabulary size found by analyzing the data.\n\nFor an efficiency comparision of the different feature extractors, see\n:ref:`sphx_glr_auto_examples_text_plot_hashing_vs_dict_vectorizer.py`.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
     "attributes": [
       {
         "default": "content",
@@ -774,7 +774,7 @@
       },
       {
         "default": null,
-        "description": "Remove accents and perform other character normalization\nduring the preprocessing step.\n'ascii' is a fast method that only works on characters that have\na direct ASCII mapping.\n'unicode' is a slightly slower method that works on any characters.\nNone (default) does nothing.\n\nBoth 'ascii' and 'unicode' use NFKD normalization from\n:func:`unicodedata.normalize`.\n",
+        "description": "Remove accents and perform other character normalization\nduring the preprocessing step.\n'ascii' is a fast method that only works on characters that have\na direct ASCII mapping.\n'unicode' is a slightly slower method that works on any characters.\nNone (default) means no character normalization is performed.\n\nBoth 'ascii' and 'unicode' use NFKD normalization from\n:func:`unicodedata.normalize`.\n",
         "name": "strip_accents"
       },
       {
@@ -854,7 +854,7 @@
   },
   {
     "name": "sklearn.feature_extraction.text.TfidfVectorizer",
-    "description": "Convert a collection of raw documents to a matrix of TF-IDF features.\n\nEquivalent to :class:`CountVectorizer` followed by\n:class:`TfidfTransformer`.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
+    "description": "Convert a collection of raw documents to a matrix of TF-IDF features.\n\nEquivalent to :class:`CountVectorizer` followed by\n:class:`TfidfTransformer`.\n\nFor an example of usage, see\n:ref:`sphx_glr_auto_examples_text_plot_document_classification_20newsgroups.py`.\n\nFor an efficiency comparision of the different feature extractors, see\n:ref:`sphx_glr_auto_examples_text_plot_hashing_vs_dict_vectorizer.py`.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
     "attributes": [
       {
         "default": "content",
@@ -875,7 +875,7 @@
       },
       {
         "default": null,
-        "description": "Remove accents and perform other character normalization\nduring the preprocessing step.\n'ascii' is a fast method that only works on characters that have\na direct ASCII mapping.\n'unicode' is a slightly slower method that works on any characters.\nNone (default) does nothing.\n\nBoth 'ascii' and 'unicode' use NFKD normalization from\n:func:`unicodedata.normalize`.\n",
+        "description": "Remove accents and perform other character normalization\nduring the preprocessing step.\n'ascii' is a fast method that only works on characters that have\na direct ASCII mapping.\n'unicode' is a slightly slower method that works on any characters.\nNone (default) means no character normalization is performed.\n\nBoth 'ascii' and 'unicode' use NFKD normalization from\n:func:`unicodedata.normalize`.\n",
         "name": "strip_accents"
       },
       {
@@ -939,7 +939,7 @@
       },
       {
         "default": false,
-        "description": "If True, all non-zero term counts are set to 1. This does not mean\noutputs will have only 0/1 values, only that the tf term in tf-idf\nis binary. (Set idf and normalization to False to get 0/1 outputs).\n",
+        "description": "If True, all non-zero term counts are set to 1. This does not mean\noutputs will have only 0/1 values, only that the tf term in tf-idf\nis binary. (Set `binary` to True, `use_idf` to False and\n`norm` to None to get 0/1 outputs).\n",
         "name": "binary",
         "type": "boolean"
       },
@@ -951,7 +951,7 @@
       },
       {
         "default": "l2",
-        "description": "Each output row will have unit norm, either:\n\n- 'l2': Sum of squares of vector elements is 1. The cosine\nsimilarity between two vectors is their dot product when l2 norm has\nbeen applied.\n- 'l1': Sum of absolute values of vector elements is 1.\nSee :func:`preprocessing.normalize`.\n- None: No normalization.\n",
+        "description": "Each output row will have unit norm, either:\n\n- 'l2': Sum of squares of vector elements is 1. The cosine\nsimilarity between two vectors is their dot product when l2 norm has\nbeen applied.\n- 'l1': Sum of absolute values of vector elements is 1.\nSee :func:`~sklearn.preprocessing.normalize`.\n- None: No normalization.\n",
         "name": "norm"
       },
       {
@@ -1047,7 +1047,7 @@
       },
       {
         "default": false,
-        "description": "Dual or primal formulation. Dual formulation is only implemented for\nl2 penalty with liblinear solver. Prefer dual=False when\nn_samples > n_features.\n",
+        "description": "Dual (constrained) or primal (regularized, see also\n:ref:`this equation <regularized-logistic-loss>`) formulation. Dual formulation\nis only implemented for l2 penalty with liblinear solver. Prefer dual=False when\nn_samples > n_features.\n",
         "name": "dual",
         "type": "boolean"
       },
@@ -1262,7 +1262,7 @@
       },
       {
         "default": false,
-        "description": "Dual or primal formulation. Dual formulation is only implemented for\nl2 penalty with liblinear solver. Prefer dual=False when\nn_samples > n_features.\n",
+        "description": "Dual (constrained) or primal (regularized, see also\n:ref:`this equation <regularized-logistic-loss>`) formulation. Dual formulation\nis only implemented for l2 penalty with liblinear solver. Prefer dual=False when\nn_samples > n_features.\n",
         "name": "dual",
         "optional": true,
         "type": "boolean"
@@ -1543,7 +1543,7 @@
       },
       {
         "default": "uniform",
-        "description": "Weight function used in prediction.  Possible values:\n\n- 'uniform' : uniform weights.  All points in each neighborhood\nare weighted equally.\n- 'distance' : weight points by the inverse of their distance.\nin this case, closer neighbors of a query point will have a\ngreater influence than neighbors which are further away.\n- [callable] : a user-defined function which accepts an\narray of distances, and returns an array of the same shape\ncontaining the weights.\n",
+        "description": "Weight function used in prediction.  Possible values:\n\n- 'uniform' : uniform weights.  All points in each neighborhood\nare weighted equally.\n- 'distance' : weight points by the inverse of their distance.\nin this case, closer neighbors of a query point will have a\ngreater influence than neighbors which are further away.\n- [callable] : a user-defined function which accepts an\narray of distances, and returns an array of the same shape\ncontaining the weights.\n\nRefer to the example entitled\n:ref:`sphx_glr_auto_examples_neighbors_plot_classification.py`\nshowing the impact of the `weights` parameter on the decision\nboundary.\n",
         "name": "weights",
         "optional": true
       },
@@ -1561,7 +1561,7 @@
         "type": "int32"
       },
       {
-        "default": 2,
+        "default": 2.0,
         "description": "Power parameter for the Minkowski metric. When p = 1, this is\nequivalent to using manhattan_distance (l1), and euclidean_distance\n(l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used.\n",
         "name": "p",
         "optional": true,
@@ -1617,7 +1617,7 @@
         "type": "int32"
       },
       {
-        "default": 2,
+        "default": 2.0,
         "description": "Power parameter for the Minkowski metric. When p = 1, this is\nequivalent to using manhattan_distance (l1), and euclidean_distance\n(l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used.\n",
         "name": "p",
         "optional": true,
@@ -1810,7 +1810,7 @@
   },
   {
     "name": "sklearn.preprocessing._data.StandardScaler",
-    "description": "Standardize features by removing the mean and scaling to unit variance.\n\nThe standard score of a sample `x` is calculated as:\n\nz = (x - u) / s\n\nwhere `u` is the mean of the training samples or zero if `with_mean=False`,\nand `s` is the standard deviation of the training samples or one if\n`with_std=False`.\n\nCentering and scaling happen independently on each feature by computing\nthe relevant statistics on the samples in the training set. Mean and\nstandard deviation are then stored to be used on later data using\n:meth:`transform`.\n\nStandardization of a dataset is a common requirement for many\nmachine learning estimators: they might behave badly if the\nindividual features do not more or less look like standard normally\ndistributed data (e.g. Gaussian with 0 mean and unit variance).\n\nFor instance many elements used in the objective function of\na learning algorithm (such as the RBF kernel of Support Vector\nMachines or the L1 and L2 regularizers of linear models) assume that\nall features are centered around 0 and have variance in the same\norder. If a feature has a variance that is orders of magnitude larger\nthan others, it might dominate the objective function and make the\nestimator unable to learn from other features correctly as expected.\n\nThis scaler can also be applied to sparse CSR or CSC matrices by passing\n`with_mean=False` to avoid breaking the sparsity structure of the data.\n\nRead more in the :ref:`User Guide <preprocessing_scaler>`.\n",
+    "description": "Standardize features by removing the mean and scaling to unit variance.\n\nThe standard score of a sample `x` is calculated as:\n\nz = (x - u) / s\n\nwhere `u` is the mean of the training samples or zero if `with_mean=False`,\nand `s` is the standard deviation of the training samples or one if\n`with_std=False`.\n\nCentering and scaling happen independently on each feature by computing\nthe relevant statistics on the samples in the training set. Mean and\nstandard deviation are then stored to be used on later data using\n:meth:`transform`.\n\nStandardization of a dataset is a common requirement for many\nmachine learning estimators: they might behave badly if the\nindividual features do not more or less look like standard normally\ndistributed data (e.g. Gaussian with 0 mean and unit variance).\n\nFor instance many elements used in the objective function of\na learning algorithm (such as the RBF kernel of Support Vector\nMachines or the L1 and L2 regularizers of linear models) assume that\nall features are centered around 0 and have variance in the same\norder. If a feature has a variance that is orders of magnitude larger\nthan others, it might dominate the objective function and make the\nestimator unable to learn from other features correctly as expected.\n\n`StandardScaler` is sensitive to outliers, and the features may scale\ndifferently from each other in the presence of outliers. For an example\nvisualization, refer to :ref:`Compare StandardScaler with other scalers\n<plot_all_scaling_standard_scaler_section>`.\n\nThis scaler can also be applied to sparse CSR or CSC matrices by passing\n`with_mean=False` to avoid breaking the sparsity structure of the data.\n\nRead more in the :ref:`User Guide <preprocessing_scaler>`.\n",
     "attributes": [
       {
         "default": true,
@@ -1835,7 +1835,7 @@
   },
   {
     "name": "sklearn.preprocessing._encoders.OneHotEncoder",
-    "description": "\nEncode categorical features as a one-hot numeric array.\n\nThe input to this transformer should be an array-like of integers or\nstrings, denoting the values taken on by categorical (discrete) features.\nThe features are encoded using a one-hot (aka 'one-of-K' or 'dummy')\nencoding scheme. This creates a binary column for each category and\nreturns a sparse matrix or dense array (depending on the ``sparse_output``\nparameter)\n\nBy default, the encoder derives the categories based on the unique values\nin each feature. Alternatively, you can also specify the `categories`\nmanually.\n\nThis encoding is needed for feeding categorical data to many scikit-learn\nestimators, notably linear models and SVMs with the standard kernels.\n\nNote: a one-hot encoding of y labels should use a LabelBinarizer\ninstead.\n\nRead more in the :ref:`User Guide <preprocessing_categorical_features>`.\n",
+    "description": "\nEncode categorical features as a one-hot numeric array.\n\nThe input to this transformer should be an array-like of integers or\nstrings, denoting the values taken on by categorical (discrete) features.\nThe features are encoded using a one-hot (aka 'one-of-K' or 'dummy')\nencoding scheme. This creates a binary column for each category and\nreturns a sparse matrix or dense array (depending on the ``sparse_output``\nparameter)\n\nBy default, the encoder derives the categories based on the unique values\nin each feature. Alternatively, you can also specify the `categories`\nmanually.\n\nThis encoding is needed for feeding categorical data to many scikit-learn\nestimators, notably linear models and SVMs with the standard kernels.\n\nNote: a one-hot encoding of y labels should use a LabelBinarizer\ninstead.\n\nRead more in the :ref:`User Guide <preprocessing_categorical_features>`.\nFor a comparison of different encoders, refer to:\n:ref:`sphx_glr_auto_examples_preprocessing_plot_target_encoder.py`.\n",
     "attributes": [
       {
         "description": "Categories (unique values) per feature:\n\n- 'auto' : Determine categories automatically from the training data.\n- list : ``categories[i]`` holds the categories expected in the ith\ncolumn. The passed categories should not mix strings and numeric\nvalues within a single feature, and should be sorted in case of\nnumeric values.\n\nThe used categories can be found in the ``categories_`` attribute.\n\n.. versionadded:: 0.20\n",
@@ -1854,7 +1854,7 @@
         "type": "boolean"
       },
       {
-        "default": "float",
+        "default": "np.float64",
         "description": "Desired dtype of output.\n",
         "name": "dtype"
       },
@@ -2031,7 +2031,7 @@
       },
       {
         "default": "rbf",
-        "description": "Specifies the kernel type to be used in the algorithm.\nIf none is given, 'rbf' will be used. If a callable is given it is\nused to pre-compute the kernel matrix from data matrices; that matrix\nshould be an array of shape ``(n_samples, n_samples)``.\n",
+        "description": "Specifies the kernel type to be used in the algorithm. If\nnone is given, 'rbf' will be used. If a callable is given it is used to\npre-compute the kernel matrix from data matrices; that matrix should be\nan array of shape ``(n_samples, n_samples)``. For an intuitive\nvisualization of different kernel types see\n:ref:`sphx_glr_auto_examples_svm_plot_svm_kernels.py`.\n",
         "name": "kernel",
         "optional": true,
         "type": "string"
@@ -2138,7 +2138,7 @@
       },
       {
         "default": "rbf",
-        "description": "Specifies the kernel type to be used in the algorithm.\nIf none is given, 'rbf' will be used. If a callable is given it is\nused to pre-compute the kernel matrix from data matrices; that matrix\nshould be an array of shape ``(n_samples, n_samples)``.\n",
+        "description": "Specifies the kernel type to be used in the algorithm. If\nnone is given, 'rbf' will be used. If a callable is given it is used to\npre-compute the kernel matrix from data matrices; that matrix should be\nan array of shape ``(n_samples, n_samples)``. For an intuitive\nvisualization of different kernel types see\n:ref:`sphx_glr_auto_examples_svm_plot_svm_kernels.py`.\n",
         "name": "kernel",
         "optional": true,
         "type": "string"
