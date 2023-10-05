@@ -4837,6 +4837,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "multi_return.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/12811973/multi_return.pt.zip[multi_return.pt]",
+    "format":   "PyTorch Package v1.9",
+    "link":     "https://github.com/lutzroeder/netron/issues/928"
+  },
+  {
+    "type":     "pytorch",
     "target":   "netron_issue_313_v1.pt",
     "source":   "https://github.com/lutzroeder/netron/files/3721266/netron_issue_313.zip[netron_issue_313_v1.pt]",
     "format":   "TorchScript v1.0",

@@ -3093,7 +3093,18 @@ pytorch.Container.Package = class extends pytorch.Container {
         const version = this._reader.version();
         this._format = 'PyTorch Package ' + pytorch.Utility.version(version);
         this._modules = new Map();
-        const pickles = this._reader.getAllRecords().filter((name) => !name.startsWith('.data/') && !name.endsWith('py'));
+        const pickles = this._reader.getAllRecords().filter((name) => {
+            if (!name.startsWith('.data/') && !name.endsWith('.py')) { // || name.endsWith('.json')
+                const stream = this._reader.getRecord(name);
+                if (stream && stream.length > 2) {
+                    const signature = stream.peek(2);
+                    if (signature[0] === 0x80 && signature[1] < 7) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        });
         if (pickles.length > 0) {
             const execution = new pytorch.Execution();
             for (const event of this._events) {
