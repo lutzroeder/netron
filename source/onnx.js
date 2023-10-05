@@ -2119,7 +2119,7 @@ onnx.TextReader = class {
             this._decoder = text.Decoder.open(stream);
             this._position = 0;
             this._char = this._decoder.decode();
-            this.model = this._model();
+            this.model = this._parseModel();
             this.format = 'ONNX Text' + (this.model.ir_version ? ' v' + this.model.ir_version.toString() : '');
             delete this._decoder;
             delete this._position;
@@ -2136,35 +2136,35 @@ onnx.TextReader = class {
         this._next();
     }
 
-    _model() {
-        this._whitespace();
+    _parseModel() {
+        this._skipWhitespace();
         const model = new onnx.proto.ModelProto();
         if (this._match('<')) {
             do {
-                const keyword = this._identifier();
+                const keyword = this._parseIdentifier();
                 this._expect(':');
                 switch (keyword) {
                     case 'ir_version':
                     case 'model_version':
-                        model[keyword] = this._integer();
+                        model[keyword] = this._parseInteger();
                         break;
                     case 'opset_import':
-                        model[keyword] = this._operatorSetId();
+                        model[keyword] = this._parseOperatorSetId();
                         break;
                     case 'producer_name':
                     case 'producer_version':
                     case 'domain':
                     case 'doc_string':
-                        model[keyword] = this._string();
+                        model[keyword] = this._parseString();
                         break;
                     case 'metadata_props':
                         this._expect('[');
                         if (!this._match(']')) {
                             do {
                                 const entry = new onnx.proto.StringStringEntryProto();
-                                entry.key = this._string();
+                                entry.key = this._parseString();
                                 this._expect(':');
-                                entry.value = this._string();
+                                entry.value = this._parseString();
                                 model.metadata_props.push(entry);
                             } while (this._match(','));
                             this._expect(']');
@@ -2177,27 +2177,27 @@ onnx.TextReader = class {
             } while (this._match(','));
             this._expect('>');
         }
-        model.graph = this._graph();
-        this._whitespace();
+        model.graph = this._parseGraph();
+        this._skipWhitespace();
         while (this._char !== undefined) {
-            const func = this._function();
+            const func = this._parseFunction();
             if (func) {
                 model.functions.push(func);
             }
-            this._whitespace();
+            this._skipWhitespace();
         }
         return model;
     }
 
-    _graph() {
+    _parseGraph() {
         const graph = new onnx.proto.GraphProto();
-        graph.name = this._identifier();
+        graph.name = this._parseIdentifier();
         if (this._match('(')) {
             if (!this._match(')')) {
                 do {
-                    const valueInfo = this._valueInfo();
+                    const valueInfo = this._parseValueInfo();
                     if (this._match('=')) {
-                        const tensor = this._tensor(valueInfo.type);
+                        const tensor = this._parseTensor(valueInfo.type);
                         tensor.name = valueInfo.name;
                         graph.initializer.push(tensor);
                     }
@@ -2208,13 +2208,13 @@ onnx.TextReader = class {
             }
         }
         this._expect('=>');
-        graph.output = this._valueInfoList();
+        graph.output = this._parseValueInfoList();
         if (this._match('<')) {
             if (!this._match('>')) {
                 do {
-                    const valueInfo = this._valueInfo();
+                    const valueInfo = this._parseValueInfo();
                     if (this._match('=')) {
-                        const tensor = this._tensor(valueInfo.type);
+                        const tensor = this._parseTensor(valueInfo.type);
                         tensor.name = valueInfo.name;
                         graph.initializer.push(tensor);
                     } else {
@@ -2225,49 +2225,49 @@ onnx.TextReader = class {
                 this._expect('>');
             }
         }
-        graph.node = this._nodeList();
+        graph.node = this._parseNodeList();
         return graph;
     }
 
-    _nodeList() {
+    _parseNodeList() {
         const list = [];
         this._expect('{');
         while (!this._match('}')) {
-            list.push(this._node());
+            list.push(this._parseNode());
         }
         return list;
     }
 
-    _node() {
+    _parseNode() {
         const node = new onnx.proto.NodeProto();
-        node.output = this._identifierList();
+        node.output = this._parseIdentifierList();
         this._expect('=');
-        let identifier = this._identifier();
+        let identifier = this._parseIdentifier();
         let domain = '';
         while (this._match('.')) {
             if (domain) {
                 domain += '.';
             }
             domain += identifier;
-            identifier = this._identifier();
+            identifier = this._parseIdentifier();
         }
         node.domain = domain;
         node.op_type = identifier;
-        node.attribute = this._attributeList();
+        node.attribute = this._parseAttributeList();
         this._expect('(');
-        node.input = this._identifierList();
+        node.input = this._parseIdentifierList();
         this._expect(')');
         if (!node.attribute || node.attribute.length === 0) {
-            node.attribute = this._attributeList();
+            node.attribute = this._parseAttributeList();
         }
         return node;
     }
 
-    _attributeList() {
+    _parseAttributeList() {
         const list = [];
         if (this._match('<')) {
             do {
-                list.push(this._attribute());
+                list.push(this._parseAttribute());
             }
             while (this._match(','));
             this._expect('>');
@@ -2275,11 +2275,11 @@ onnx.TextReader = class {
         return list;
     }
 
-    _attribute() {
+    _parseAttribute() {
         const attribute = new onnx.proto.AttributeProto();
-        attribute.name = this._identifier();
+        attribute.name = this._parseIdentifier();
         if (this._match(':')) {
-            const type = this._identifier();
+            const type = this._parseIdentifier();
             if (!this._attributeTypes.has(type)) {
                 this._throw("Unexpected attribute type '" + type + "'.");
             }
@@ -2287,49 +2287,102 @@ onnx.TextReader = class {
         }
         this._expect('=');
         if (this._match('[')) {
-            const list = [];
             if (!this._match(']')) {
                 do {
-                    list.push(this._literal());
+                    const value = new onnx.proto.AttributeProto();
+                    let type;
+                    switch (attribute.type) {
+                        case onnx.AttributeType.FLOATS: type = onnx.AttributeType.FLOAT; break;
+                        case onnx.AttributeType.INTS: type = onnx.AttributeType.INT; break;
+                        case onnx.AttributeType.STRINGS: type = onnx.AttributeType.STRING; break;
+                        case onnx.AttributeType.TENSORS: type = onnx.AttributeType.TENSOR; break;
+                        case onnx.AttributeType.GRAPHS: type = onnx.AttributeType.GRAPH; break;
+                        case onnx.AttributeType.SPARSE_TENSORS: type = onnx.AttributeType.SPARSE_TENSOR; break;
+                        case onnx.AttributeType.TYPE_PROTOS: type = onnx.AttributeType.TYPE_PROTO; break;
+                        default: type = attribute.type; break;
+                    }
+                    this._parseAttributeValue(value, type);
+                    switch (value.type) {
+                        case onnx.AttributeType.INT:
+                            attribute.type = onnx.AttributeType.INTS;
+                            attribute.ints.push(value.i);
+                            break;
+                        case onnx.AttributeType.FLOAT:
+                            attribute.type = onnx.AttributeType.FLOATS;
+                            attribute.floats.push(value.f);
+                            break;
+                        case onnx.AttributeType.STRING:
+                            attribute.type = onnx.AttributeType.STRINGS;
+                            attribute.strings.push(value.s);
+                            break;
+                        default:
+                            break;
+                    }
                 }
                 while (this._match(','));
-                this._expect(']');
-            }
-            if (list.every((value) => typeof value === 'string')) {
-                attribute.type = onnx.AttributeType.STRINGS;
-                attribute.strings = list;
-            } else if (list.every((value) => typeof value === 'number' && Number.isInteger(value))) {
-                attribute.type = onnx.AttributeType.INTS;
-                attribute.ints = list;
-            } else if (list.every((value) => typeof value === 'number')) {
-                attribute.type = onnx.AttributeType.FLOATS;
-                attribute.floats = list;
             } else {
-                this._throw("Unexpected value '" + JSON.stringify(list) + "'.");
-            }
-        } else if ((this._char >= 'a' && this._char <= 'z') || (this._char >= 'A' && this._char <= 'Z') || this._char === '_') {
-            const identifier = this._identifier();
-            if (this._dataTypes.has(identifier)) {
-                attribute.type = onnx.AttributeType.TENSOR;
-                if (!this._dataTypes.has(identifier)) {
-                    this._throw("Unexpected type '" + identifier + "'.");
+                if (attribute.type == onnx.AttributeType.UNDEFINED) {
+                    this._throw('Empty list attribute value requires type annotation.');
                 }
-                const type = this._type(this._dataTypes.get(identifier));
+                switch (attribute.type) {
+                    case onnx.AttributeType.FLOAT:
+                    case onnx.AttributeType.INT:
+                    case onnx.AttributeType.STRING:
+                    case onnx.AttributeType.TENSOR:
+                    case onnx.AttributeType.GRAPH:
+                    case onnx.AttributeType.SPARSE_TENSOR:
+                    case onnx.AttributeType.TYPE_PROTO:
+                        this._throw("Singleton attribute value cannot be specified as a list.");
+                        break;
+                    default:
+                        break;
+                }
+            }
+            this._expect(']');
+        } else {
+            this._parseAttributeValue(attribute, attribute.type);
+        }
+        return attribute;
+    }
+
+    _parseAttributeValue(attribute, type) {
+        if (this._isAlpha(this._char) || this._char === '_') {
+            const identifier = this._peekIdentifier();
+            if (this._isType(identifier)) {
+                const type = this._parseType(this._parseIdentifier());
                 if (!type.tensor_type.elem_type) {
                     this._throw('Expected tensor data type.');
                 }
                 if (!type.tensor_type.shape || !type.tensor_type.shape.dim) {
                     this._throw('Expected tensor shape.');
                 }
-                attribute.t = this._tensor(type);
+                this._skipWhitespace();
+                if (this._char === '{' || this._char === '=' || this._peekIdentifier()) {
+                    attribute.type = onnx.AttributeType.TENSOR;
+                    const name = this._parseIdentifier(true);
+                    this._match('=');
+                    attribute.t = this._parseTensor(type);
+                    if (name) {
+                        attribute.t.name = name;
+                    }
+                } else {
+                    attribute.type = onnx.AttributeType.TYPE_PROTO;
+                    attribute.tp = type;
+                }
             } else {
-                attribute.type = onnx.AttributeType.GRAPH;
-                attribute.g = this._graph();
+                const value = this._peekIdentifier();
+                if (value === 'inf' || value === 'infinity' || value === 'nan') {
+                    attribute.type = onnx.AttributeType.FLOAT;
+                    attribute.f = this._parseLiteral();
+                } else {
+                    attribute.type = onnx.AttributeType.GRAPH;
+                    attribute.g = this._parseGraph();
+                }
             }
         } else if (this._match('@')) {
-            attribute.ref_attr_name = this._identifier();
+            attribute.ref_attr_name = this._parseIdentifier();
         } else {
-            const value = this._literal();
+            const value = this._parseLiteral();
             switch (typeof value) {
                 case 'number':
                     if (Number.isInteger(value)) {
@@ -2349,39 +2402,48 @@ onnx.TextReader = class {
                 }
             }
         }
-        return attribute;
+        if (type !== onnx.AttributeType.UNDEFINED && type !== attribute.type) {
+            if (type === onnx.AttributeType.FLOAT && attribute.type === onnx.AttributeType.INT) {
+                attribute.type = onnx.AttributeType.FLOAT;
+                attribute.f = attribute.i;
+                delete attribute.i;
+            } else {
+                this._throw('Attribute type mismatch.');
+            }
+        }
     }
 
-    _valueInfoList() {
+    _parseValueInfoList() {
         const list = [];
         this._expect('(');
         if (!this._match(')')) {
             do {
-                list.push(this._valueInfo());
+                const value = this._parseValueInfo();
+                list.push(value);
             } while (this._match(','));
             this._expect(')');
         }
         return list;
     }
 
-    _valueInfo() {
+    _parseValueInfo() {
         const valueInfo = new onnx.proto.ValueInfoProto();
-        let identifier = this._identifier();
-        if (this._dataTypes.has(identifier)) {
-            valueInfo.type = this._type(this._dataTypes.get(identifier));
-            identifier = this._identifier();
+        let identifier = this._parseIdentifier();
+        if (this._isType(identifier)) {
+            valueInfo.type = this._parseType(identifier);
+            identifier = this._parseIdentifier();
         }
         valueInfo.name = identifier;
         return valueInfo;
     }
 
-    _type(elem_type) {
+    _parseType(elem_type) {
         const type = new onnx.proto.TypeProto();
         type.tensor_type = new onnx.proto.TypeProto.Tensor();
-        type.tensor_type.elem_type = elem_type;
+        type.tensor_type.elem_type = this._dataTypes.get(elem_type);
         if (this._match('[')) {
             if (!this._match(']')) {
-                type.tensor_type.shape = this._shape();
+                type.tensor_type.shape = this._parseTensorShape();
                 this._expect(']');
             }
         } else {
@@ -2390,16 +2452,16 @@ onnx.TextReader = class {
         return type;
     }
 
-    _shape() {
+    _parseTensorShape() {
         const shape = new onnx.proto.TensorShapeProto();
         do {
             const dimension = new onnx.proto.TensorShapeProto.Dimension();
             if (!this._match('?')) {
-                const identifier = this._identifier(true);
+                const identifier = this._parseIdentifier(true);
                 if (identifier) {
                     dimension.dim_param = identifier;
                 } else {
-                    dimension.dim_value = this._integer();
+                    dimension.dim_value = this._parseInteger();
                 }
             }
             shape.dim.push(dimension);
@@ -2408,7 +2470,7 @@ onnx.TextReader = class {
         return shape;
     }
 
-    _tensor(type) {
+    _parseTensor(type) {
         const tensor = new onnx.proto.TensorProto();
         if (!type.tensor_type || !type.tensor_type.elem_type) {
             this._throw('Expected tensor type.');
@@ -2430,20 +2492,20 @@ onnx.TextReader = class {
                     case onnx.DataType.UINT8:
                     case onnx.DataType.UINT16:
                     case onnx.DataType.BOOL:
-                        tensor.int32_data.push(this._integer());
+                        tensor.int32_data.push(this._parseInteger());
                         break;
                     case onnx.DataType.INT64:
-                        tensor.int64_data.push(this._integer());
+                        tensor.int64_data.push(this._parseInteger());
                         break;
                     case onnx.DataType.UINT32:
                     case onnx.DataType.UINT64:
-                        tensor.uint64_data.push(this._integer());
+                        tensor.uint64_data.push(this._parseInteger());
                         break;
                     case onnx.DataType.FLOAT:
-                        tensor.float_data.push(this._float());
+                        tensor.float_data.push(this._parseFloat());
                         break;
                     case onnx.DataType.DOUBLE:
-                        tensor.double_data.push(this._float());
+                        tensor.double_data.push(this._parseFloat());
                         break;
                     case onnx.DataType.STRING:
                         tensor.string_data.push(this.string());
@@ -2457,19 +2519,19 @@ onnx.TextReader = class {
         return tensor;
     }
 
-    _function() {
+    _parseFunction() {
         const func = new onnx.proto.FunctionProto();
         if (this._match('<')) {
             do {
-                const keyword = this._identifier();
+                const keyword = this._parseIdentifier();
                 this._expect(':');
                 switch (keyword) {
                     case 'opset_import':
-                        func[keyword] = this._operatorSetId();
+                        func[keyword] = this._parseOperatorSetId();
                         break;
                     case 'domain':
                     case 'doc_string':
-                        func[keyword] = this._string();
+                        func[keyword] = this._parseString();
                         break;
                     default:
                         this._throw("Unknown keyword '" + keyword + "'.");
@@ -2479,55 +2541,66 @@ onnx.TextReader = class {
             while (this._match(','));
             this._expect('>');
         }
-        func.name = this._identifier();
+        func.name = this._parseIdentifier();
         if (this._match('<')) {
-            func.attribute = this._identifierList();
+            func.attribute = this._parseIdentifierList();
             this._expect('>');
         }
         if (this._match('(')) {
-            func.input = this._identifierList();
+            func.input = this._parseIdentifierList();
             this._expect(')');
         }
         this._expect('=>');
         if (this._match('(')) {
-            func.output = this._identifierList();
+            func.output = this._parseIdentifierList();
             this._expect(')');
         }
-        func.node = this._nodeList();
+        func.node = this._parseNodeList();
         return func;
     }
 
-    _identifierList() {
+    _parseIdentifierList() {
         const list = [];
-        const identifier = this._identifier(true);
+        const identifier = this._parseIdentifier(true);
         if (identifier) {
             list.push(identifier);
             while (this._match(',')) {
-                list.push(this._identifier());
+                list.push(this._parseIdentifier());
             }
         }
         return list;
     }
 
-    _identifier(optional) {
-        this._whitespace();
+    _peekIdentifier() {
+        const index = this._decoder.position;
+        const position = this._position;
+        const char = this._char;
+        const value = this._parseIdentifier(true);
+        this._char = char;
+        this._position = position;
+        this._decoder.position = index;
+        return value;
+    }
+
+    _parseIdentifier(optional) {
+        this._skipWhitespace();
         const value = [];
-        if ((this._char >= 'a' && this._char <= 'z') || (this._char >= 'A' && this._char <= 'Z')) {
+        if (this._isAlpha(this._char) || this._char === '_') {
             value.push(this._char);
             this._next();
-            while ((this._char >= 'a' && this._char <= 'z') || (this._char >= 'A' && this._char <= 'Z') || (this._char >= '0' && this._char <= '9') || this._char === '_') {
+            while (this._isAlpha(this._char) || (this._char >= '0' && this._char <= '9') || this._char === '_') {
                 value.push(this._char);
                 this._next();
             }
         }
-        if (optional !== true && value.length == 0) {
+        if (!optional && value.length == 0) {
             this._throw('Identifier expected.');
         }
         return value.join('');
     }
 
-    _literal() {
-        this._whitespace();
+    _parseLiteral() {
+        this._skipWhitespace();
         let decimal_point = false;
         if (this._char === '"') {
             const value = [];
@@ -2574,39 +2647,39 @@ onnx.TextReader = class {
         return undefined;
     }
 
-    _integer() {
-        const value = this._literal();
+    _parseInteger() {
+        const value = this._parseLiteral();
         if (!Number.isInteger(value)) {
             this._throw('Integer value expected.');
         }
         return value;
     }
 
-    _float() {
-        const value = this._literal();
+    _parseFloat() {
+        const value = this._parseLiteral();
         if (typeof value !== 'number') {
             this._throw('Float value expected.');
         }
         return value;
     }
 
-    _string() {
-        const value = this._literal();
+    _parseString() {
+        const value = this._parseLiteral();
         if (typeof value !== 'string') {
             this._throw('String value expected.');
         }
         return value;
     }
 
-    _operatorSetId() {
+    _parseOperatorSetId() {
         const list = [];
         this._expect('[');
         if (!this._match(']')) {
             do {
                 const value = new onnx.proto.OperatorSetIdProto();
-                value.domain = this._string();
+                value.domain = this._parseString();
                 this._expect(':');
-                value.version = this._integer();
+                value.version = this._parseInteger();
                 list.push(value);
             }
             while (this._match(','));
@@ -2615,8 +2688,20 @@ onnx.TextReader = class {
         return list;
     }
 
+    _isAlpha(value) {
+        return (value >= 'a' && value <= 'z') || (value >= 'A' && value <= 'Z');
+    }
+
+    _isType(identifier) {
+        return this._dataTypes.has(identifier) ||
+            identifier === 'seq' ||
+            identifier === 'map' ||
+            identifier === 'optional' ||
+            identifier === 'sparse_tensor';
+    }
+
     _match(value) {
-        this._whitespace();
+        this._skipWhitespace();
         if (this._char !== value[0]) {
             return false;
         }
@@ -2642,7 +2727,7 @@ onnx.TextReader = class {
         return true;
     }
 
-    _whitespace() {
+    _skipWhitespace() {
         for (;;) {
             while (this._char === ' ' || this._char === '\n' || this._char === '\r' || this._char === '\t') {
                 this._next();

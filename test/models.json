@@ -3441,6 +3441,27 @@
   },
   {
     "type":     "onnx",
+    "target":   "aten_sum_dim_onnx_inlined.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/12811469/aten_sum_dim_onnx.txt.zip[aten_sum_dim_onnx_inlined.onnx]",
+    "format":   "ONNX v8",
+    "link":     "https://github.com/lutzroeder/netron/issues/884"
+  },
+  {
+    "type":     "onnx",
+    "target":   "aten_sum_dim_onnx.onnx",
+    "source":   "https://github.com/lutzroeder/netron/files/12811469/aten_sum_dim_onnx.txt.zip[aten_sum_dim_onnx.onnx]",
+    "format":   "ONNX v8",
+    "link":     "https://github.com/lutzroeder/netron/issues/884"
+  },
+  {
+    "type":     "onnx",
+    "target":   "aten_sum_dim_onnx.txt",
+    "source":   "https://github.com/lutzroeder/netron/files/12811469/aten_sum_dim_onnx.txt.zip[aten_sum_dim_onnx.txt]",
+    "format":   "ONNX Text v8",
+    "link":     "https://github.com/lutzroeder/netron/issues/884"
+  },
+  {
+    "type":     "onnx",
     "target":   "bert-base-uncased.onnx.zip",
     "source":   "https://github.com/lutzroeder/netron/files/7705191/bert-base-uncased.onnx.zip",
     "format":   "ONNX v7",
