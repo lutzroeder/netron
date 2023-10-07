@@ -26,13 +26,13 @@ pickle.ModelFactory = class {
         let format = 'Pickle';
         const obj = target;
         if (obj === null || obj === undefined) {
-            context.exception(new pickle.Error("Unsupported Pickle null object in '" + context.identifier + "'."));
+            context.exception(new pickle.Error("Unsupported Pickle null object."));
         } else if (Array.isArray(obj)) {
             if (obj.length > 0 && obj[0] && obj.every((item) => item && item.__class__ && obj[0].__class__ && item.__class__.__module__ === obj[0].__class__.__module__ && item.__class__.__name__ === obj[0].__class__.__name__)) {
                 const type = obj[0].__class__.__module__ + "." + obj[0].__class__.__name__;
-                context.exception(new pickle.Error("Unsupported Pickle '" + type + "' array object in '" + context.identifier + "'."));
+                context.exception(new pickle.Error("Unsupported Pickle '" + type + "' array object."));
             } else if (obj.length > 0) {
-                context.exception(new pickle.Error("Unsupported Pickle array object in '" + context.identifier + "'."));
+                context.exception(new pickle.Error("Unsupported Pickle array object."));
             }
         } else if (obj && obj.__class__) {
             const formats = new Map([
@@ -83,7 +83,9 @@ pickle.Graph = class {
 
 pickle.Node = class {
 
-    constructor(obj, name) {
+    constructor(obj, name, stack) {
+        const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'Object';
+        this.type = { name: type };
         this.name = name || '';
         this.inputs = [];
         this.outputs = [];
@@ -91,30 +93,42 @@ pickle.Node = class {
         const isArray = (obj) => {
             return obj && obj.__class__ && obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'ndarray';
         };
-        if (Array.isArray(obj)) {
-            this.type = { name: 'List' };
-            const attribute = new pickle.Attribute('value', obj);
-            this.attributes.push(attribute);
-        } else {
-            const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'Object';
-            this.type = { name: type };
-            const entries = obj instanceof Map ? Array.from(obj.entries()) : Object.entries(obj);
-            for (const entry of entries) {
-                const name = entry[0];
-                const value = entry[1];
-                if (value && isArray(value)) {
-                    const tensor = new pickle.Tensor(value);
-                    const attribute = new pickle.Attribute(name, 'tensor', tensor);
+        const entries = obj instanceof Map ? Array.from(obj) : Object.entries(obj);
+        for (const entry of entries) {
+            const name = entry[0];
+            const value = entry[1];
+            if (value && isArray(value)) {
+                const values = [ new pickle.Value('', null, new pickle.Tensor(value)) ];
+                const argument = new pickle.Argument(name, values);
+                this.inputs.push(argument);
+            } else if (Array.isArray(value) && value.length > 0 && value.every((obj) => isArray(obj))) {
+                const values = value.map((obj) => new pickle.Value('', null, new pickle.Tensor(obj)));
+                const argument = new pickle.Argument(name, values);
+                this.inputs.push(argument);
+            } else {
+                stack = stack || new Set();
+                if (value && Array.isArray(value) && value.length > 0 && value.every((obj) => obj.__class__ && obj.__class__.__module__ === value[0].__class__.__module__ && obj.__class__.__name__ === value[0].__class__.__name__)) {
+                    const values = value.filter((value) => !stack.has(value));
+                    const nodes = values.map((value) => {
+                        stack.add(value);
+                        const node = new pickle.Node(value, '', stack);
+                        stack.delete(value);
+                        return node;
+                    });
+                    const attribute = new pickle.Attribute(name, 'object[]', nodes);
                     this.attributes.push(attribute);
-                } else if (Array.isArray(value) && value.length > 0 && value.every((obj) => isArray(obj))) {
-                    const values = value.map((value) => new pickle.Tensor(value));
-                    const attribute = new pickle.Attribute(name, 'tensor[]', values);
-                    this.attributes.push(attribute);
+                } else if (value && value.__class__) {
+                    if (!stack.has(value)) {
+                        stack.add(value);
+                        const node = new pickle.Node(value, '', stack);
+                        const attribute = new pickle.Attribute(name, 'object', node);
+                        this.attributes.push(attribute);
+                        stack.delete(value);
+                    }
                 } else {
                     const attribute = new pickle.Attribute(name, null, value);
                     this.attributes.push(attribute);
                 }
-
             }
         }
     }
@@ -126,9 +140,6 @@ pickle.Attribute = class {
         this.name = name;
         this.type = type;
         this.value = value;
-        if (!type && value && value.__class__) {
-            this.type = value.__class__.__module__ + '.' + value.__class__.__name__;
-        }
     }
 };
 

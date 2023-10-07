@@ -210,10 +210,12 @@ sklearn.Node = class {
             const name = entry[0];
             const value = entry[1];
             if (value && isArray(value)) {
-                const argument = new sklearn.Argument(name, [ new sklearn.Value('', null, new sklearn.Tensor(value)) ]);
+                const values = [ new sklearn.Value('', null, new sklearn.Tensor(value)) ];
+                const argument = new sklearn.Argument(name, values);
                 this.inputs.push(argument);
             } else if (Array.isArray(value) && value.length > 0 && value.every((obj) => isArray(obj))) {
-                const argument = new sklearn.Argument(name, value.map((obj) => new sklearn.Value('', null, new sklearn.Tensor(obj))));
+                const values = value.map((obj) => new sklearn.Value('', null, new sklearn.Tensor(obj)));
+                const argument = new sklearn.Argument(name, values);
                 this.inputs.push(argument);
             } else if (!name.startsWith('_')) {
                 stack = stack || new Set();
