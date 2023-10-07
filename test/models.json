@@ -4677,6 +4677,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "load_library.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/12839408/load_library.pt.zip[load_library.pt]",
+    "format":   "PyTorch Package v1.9",
+    "link":     "https://github.com/lutzroeder/netron/issues/928"
+  },
+  {
+    "type":     "pytorch",
     "target":   "mask_depthwise_conv.pt",
     "source":   "https://github.com/lutzroeder/netron/files/6186157/mask_depthwise_conv.pt.zip[mask_depthwise_conv.pt]",
     "format":   "TorchScript v1.3",
@@ -5190,6 +5197,13 @@
     "source":   "https://github.com/lutzroeder/netron/files/12439374/silero_vad.zip[silero_vad.jit]",
     "error":    "Supported sampling rates: [8000, 16000] (or multiply of 16000)",
     "link":     "https://github.com/lutzroeder/netron/issues/1142"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "simple_leaf_fx.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/12839399/simple_leaf_fx.pt.zip[simple_leaf_fx.pt]",
+    "format":   "PyTorch Package v1.9",
+    "link":     "https://github.com/lutzroeder/netron/issues/928"
   },
   {
     "type":     "pytorch",

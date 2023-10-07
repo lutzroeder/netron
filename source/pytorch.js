@@ -1015,6 +1015,7 @@ pytorch.Execution = class extends python.Execution {
                 const unpickler = new pickle.Unpickler(stream);
                 unpickler.persistent_load = (saved_id) => {
                     const typename = saved_id.shift();
+                    const data = saved_id;
                     switch (typename) {
                         case 'storage': {
                             const storage_type = saved_id[0];
@@ -1031,14 +1032,14 @@ pytorch.Execution = class extends python.Execution {
                             return this.storage_context.get_storage(key);
                         }
                         case 'reduce_package': {
-                            if (saved_id.left === 2) {
-                                const func = saved_id[0];
-                                const args = saved_id[1];
+                            if (data.length === 2) {
+                                const func = data[0];
+                                const args = data[1];
                                 return execution.invoke(func, args);
                             }
-                            const reduce_id = saved_id[0];
-                            const func = saved_id[1];
-                            const args = saved_id[2];
+                            const reduce_id = data[0];
+                            const func = data[1];
+                            const args = data[2];
                             if (!loaded_reduces.has(reduce_id)) {
                                 const value = execution.invoke(func, [ this ].concat(args));
                                 loaded_reduces.set(reduce_id, value);
@@ -1053,6 +1054,9 @@ pytorch.Execution = class extends python.Execution {
                 const obj = unpickler.load();
                 this.storage_context = null;
                 return obj;
+            }
+            import_module(name) {
+                return execution.import(name);
             }
         });
         this.registerFunction('torch.jit.load', function(file, map_location, extra_files) {

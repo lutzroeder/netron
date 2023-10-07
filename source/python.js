@@ -4994,9 +4994,28 @@ python.Execution = class {
         });
         this.registerFunction('torch.warn', function() {
         });
-        this.registerFunction('torch.fx.graph_module.reduce_graph_module', function(body /*, import_block */) {
+        this.registerFunction('torch.fx.graph_module._deserialize_graph_module', function(/* forward, body */) {
+            return execution.invoke('torch.fx.graph_module.GraphModule', []);
+        });
+        this.registerFunction('torch.fx.graph_module._forward_from_src', function(/* src, globals, co_fields */) {
+            throw new python.Error("'torch.fx.graph_module._forward_from_src' not implemented.");
+        });
+        this.registerFunction('torch.fx.graph_module.reduce_graph_module', function(body, import_block) {
             // https://github.com/pytorch/pytorch/blob/master/torch/fx/graph_module.py
-            return body;
+            const fn_src = body._code || body.code;
+            const forward = execution.invoke('torch.fx.graph_module._forward_from_src', [ import_block + fn_src, {} ]);
+            return execution.invoke('torch.fx.graph_module._deserialize_graph_module', [ forward, body ]);
+        });
+        this.registerFunction('torch.fx.graph_module.reduce_package_graph_module', function(importer, body, generated_module_name) {
+            const forward = importer.import_module(generated_module_name).forward;
+            return execution.invoke('torch.fx.graph_module._deserialize_graph_module', [ forward, body ]);
+        });
+        this.registerType('torch.fx.graph_module.GraphModule', class extends torch.nn.Module {
+        });
+        this.registerFunction('torch.fx._symbolic_trace.wrap', function(fn_or_name) {
+            return fn_or_name;
+        });
+        this.registerType('torch.fx._symbolic_trace.Tracer', class {
         });
         this.registerFunction('torch_utils.persistence._reconstruct_persistent_obj', function(meta) {
             const name = '_imported_module_' + Math.floor(Math.random() * 10000).toString();
