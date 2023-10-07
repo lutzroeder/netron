@@ -2299,18 +2299,16 @@ view.NodeSidebar = class extends view.ObjectSidebar {
         if (node.device) {
             this.addProperty('device', node.device);
         }
-        if (Array.isArray(node.attributes)) {
-            const attributes = node.attributes.filter((attribute) => attribute.visible !== false);
-            if (attributes.length > 0) {
-                this.addHeader('Attributes');
-                attributes.sort((a, b) => {
-                    const au = a.name.toUpperCase();
-                    const bu = b.name.toUpperCase();
-                    return (au < bu) ? -1 : (au > bu) ? 1 : 0;
-                });
-                for (const attribute of attributes) {
-                    this._addAttribute(attribute.name, attribute);
-                }
+        const attributes = node.attributes;
+        if (Array.isArray(attributes) && attributes.length > 0) {
+            this.addHeader('Attributes');
+            attributes.sort((a, b) => {
+                const au = a.name.toUpperCase();
+                const bu = b.name.toUpperCase();
+                return (au < bu) ? -1 : (au > bu) ? 1 : 0;
+            });
+            for (const attribute of attributes) {
+                this._addAttribute(attribute.name, attribute);
             }
         }
         const inputs = node.inputs;
@@ -5086,7 +5084,7 @@ view.ModelFactoryService = class {
         this.register('./numpy', [ '.npz', '.npy', '.pkl', '.pickle', '.model', '.model2', '.mge' ]);
         this.register('./lasagne', [ '.pkl', '.pickle', '.joblib', '.model', '.pkl.z', '.joblib.z' ]);
         this.register('./lightgbm', [ '.txt', '.pkl', '.model' ]);
-        this.register('./keras', [ '.h5', '.hd5', '.hdf5', '.keras', '.json', '.cfg', '.model', '.pb', '.pth', '.weights', '.pkl', '.lite', '.tflite', '.ckpt' ], [ '.zip' ]);
+        this.register('./keras', [ '.h5', '.hd5', '.hdf5', '.keras', '.json', '.cfg', '.model', '.pb', '.pth', '.weights', '.pkl', '.lite', '.tflite', '.ckpt', '.pb' ], [ '.zip' ]);
         this.register('./sklearn', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z', '.pickle.dat' ]);
         this.register('./megengine', [ '.tm', '.mge' ]);
         this.register('./pickle', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z', '.pdstates', '.mge' ]);

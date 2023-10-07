@@ -102,7 +102,7 @@ tf.ModelFactory = class {
                         }
                         // third_party.tensorflow.python.keras.protobuf.SavedMetadata
                         if (match(tags, [[1,[[1,[[1,0],[2,0]]],[2,0],[3,2],[4,2],[5,2]]]])) {
-                            return 'tf.pb.keras.SavedMetadata';
+                            return undefined;
                         }
                     }
                     if ((!tags.has(1) || tags.get(1) === 0) && tags.get(2) === 2) {
@@ -575,17 +575,6 @@ tf.ModelFactory = class {
             }
             return openSavedModel(saved_model, format, null);
         };
-        const openSavedMetadata = async (context) => {
-            /*
-            const stream = context.stream;
-            const reader = protobuf.BinaryReader.open(stream);
-            const saved_metadata = tf.proto.third_party.tensorflow.python.keras.protobuf.SavedMetadata.decode(reader);
-            debugger;
-            */
-            const identifier = 'saved_model.pb';
-            const stream = await context.request(identifier, null);
-            return openBinarySavedModel({ stream: stream });
-        };
         const openFingerprint = async (context) => {
             const identifier = 'saved_model.pb';
             const stream = await context.request(identifier, null);
@@ -672,8 +661,6 @@ tf.ModelFactory = class {
                 return openBinaryMetaGraphDef(context);
             case 'tf.pb.SavedModel':
                 return openBinarySavedModel(context);
-            case 'tf.pb.keras.SavedMetadata':
-                return openSavedMetadata(context);
             case 'tf.pb.FingerprintDef':
                 return openFingerprint(context);
             case 'tf.pb.mmap':

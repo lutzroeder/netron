@@ -64,13 +64,6 @@
   },
   {
     "type":     "_",
-    "target":   "keras_metadata.pb",
-    "source":   "https://github.com/lutzroeder/netron/files/6751650/keras_metadata.pb.zip[keras_metadata.pb]",
-    "error":    "The file 'saved_model.pb' does not exist.",
-    "link":     "https://github.com/lutzroeder/netron/issues/458"
-  },
-  {
-    "type":     "_",
     "target":   "keras2onnx.onnx",
     "source":   "https://github.com/lutzroeder/netron/files/5738366/keras2onnx.onnx.zip[keras2onnx.onnx]",
     "error":    "File format is not onnx.ModelProto (Unexpected end of file).",
@@ -2211,6 +2204,13 @@
     "source":   "https://github.com/lutzroeder/netron/files/6098151/InceptionV3.h5.zip",
     "format":   "Keras v2.4.0",
     "link":     "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "type":     "keras",
+    "target":   "keras_metadata.pb",
+    "source":   "https://github.com/lutzroeder/netron/files/6751650/keras_metadata.pb.zip[keras_metadata.pb]",
+    "format":   "Keras Saved Metadata",
+    "link":     "https://github.com/lutzroeder/netron/issues/458"
   },
   {
     "type":     "keras",
