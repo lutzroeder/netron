@@ -34,7 +34,7 @@
         "electron": "26.3.0",
         "electron-builder": "24.6.4",
         "@electron/notarize": "2.1.0",
-        "eslint": "8.50.0"
+        "eslint": "8.51.0"
     },
     "eslintConfig": {
         "env": {
