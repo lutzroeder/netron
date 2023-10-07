@@ -9827,6 +9827,83 @@ $root.tensorflow.MemmappedFileSystemDirectory = class MemmappedFileSystemDirecto
     }
 };
 
+$root.tensorflow.FingerprintDef = class FingerprintDef {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.FingerprintDef();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.saved_model_checksum = reader.uint64();
+                    break;
+                case 2:
+                    message.graph_def_program_hash = reader.uint64();
+                    break;
+                case 3:
+                    message.signature_def_hash = reader.uint64();
+                    break;
+                case 4:
+                    message.saved_object_graph_hash = reader.uint64();
+                    break;
+                case 5:
+                    message.checkpoint_hash = reader.uint64();
+                    break;
+                case 6:
+                    message.version = $root.tensorflow.VersionDef.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.FingerprintDef();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "saved_model_checksum":
+                    message.saved_model_checksum = reader.uint64();
+                    break;
+                case "graph_def_program_hash":
+                    message.graph_def_program_hash = reader.uint64();
+                    break;
+                case "signature_def_hash":
+                    message.signature_def_hash = reader.uint64();
+                    break;
+                case "saved_object_graph_hash":
+                    message.saved_object_graph_hash = reader.uint64();
+                    break;
+                case "checkpoint_hash":
+                    message.checkpoint_hash = reader.uint64();
+                    break;
+                case "version":
+                    message.version = $root.tensorflow.VersionDef.decodeText(reader);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.FingerprintDef.prototype.saved_model_checksum = protobuf.Uint64.create(0);
+$root.tensorflow.FingerprintDef.prototype.graph_def_program_hash = protobuf.Uint64.create(0);
+$root.tensorflow.FingerprintDef.prototype.signature_def_hash = protobuf.Uint64.create(0);
+$root.tensorflow.FingerprintDef.prototype.saved_object_graph_hash = protobuf.Uint64.create(0);
+$root.tensorflow.FingerprintDef.prototype.checkpoint_hash = protobuf.Uint64.create(0);
+$root.tensorflow.FingerprintDef.prototype.version = null;
+
 $root.google = {};
 
 $root.google.protobuf = {};
