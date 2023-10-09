@@ -46,7 +46,8 @@ text.Decoder = class {
         if (length > 4 && (length % 2) == 0 && (buffer[0] === 0x00 || buffer[1] === 0x00 || buffer[2] === 0x00 || buffer[3] === 0x00)) {
             const lo = new Uint32Array(256);
             const hi = new Uint32Array(256);
-            for (let i = 0; i < length; i += 2) {
+            const size = Math.min(1024, length);
+            for (let i = 0; i < size; i += 2) {
                 lo[buffer[i]]++;
                 hi[buffer[i + 1]]++;
             }
