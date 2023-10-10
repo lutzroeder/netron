@@ -162,7 +162,7 @@ sklearn.Graph = class {
                 }
             }
         };
-        process('', '', obj, ['data']);
+        process('', '', obj, []);
     }
 };
 
@@ -210,13 +210,13 @@ sklearn.Node = class {
             const name = entry[0];
             const value = entry[1];
             if (value && isArray(value)) {
-                const values = [ new sklearn.Value('', null, new sklearn.Tensor(value)) ];
-                const argument = new sklearn.Argument(name, values);
-                this.inputs.push(argument);
+                const tensor = new sklearn.Tensor(value);
+                const attribute = new sklearn.Attribute({ type: 'tensor' }, name, tensor);
+                this.attributes.push(attribute);
             } else if (Array.isArray(value) && value.length > 0 && value.every((obj) => isArray(obj))) {
-                const values = value.map((obj) => new sklearn.Value('', null, new sklearn.Tensor(obj)));
-                const argument = new sklearn.Argument(name, values);
-                this.inputs.push(argument);
+                const tensors = value.map((obj) => new sklearn.Tensor(obj));
+                const attribute = new sklearn.Argument(name, tensors);
+                this.attributes.push(attribute);
             } else if (!name.startsWith('_')) {
                 stack = stack || new Set();
                 if (value && Array.isArray(value) && value.length > 0 && value.every((obj) => obj.__class__ && obj.__class__.__module__ === value[0].__class__.__module__ && obj.__class__.__name__ === value[0].__class__.__name__)) {
