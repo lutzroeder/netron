@@ -98,13 +98,13 @@ pickle.Node = class {
             const name = entry[0];
             const value = entry[1];
             if (value && isArray(value)) {
-                const values = [ new pickle.Value('', null, new pickle.Tensor(value)) ];
-                const argument = new pickle.Argument(name, values);
-                this.inputs.push(argument);
+                const tensor = new pickle.Tensor(value);
+                const attribute = new pickle.Attribute(name, 'tensor', tensor);
+                this.attributes.push(attribute);
             } else if (Array.isArray(value) && value.length > 0 && value.every((obj) => isArray(obj))) {
-                const values = value.map((obj) => new pickle.Value('', null, new pickle.Tensor(obj)));
-                const argument = new pickle.Argument(name, values);
-                this.inputs.push(argument);
+                const tensors = value.map((obj) => new pickle.Tensor(obj));
+                const attribute = new pickle.Attribute(name, 'tensor[]', tensors);
+                this.attributes.push(attribute);
             } else {
                 stack = stack || new Set();
                 if (value && Array.isArray(value) && value.length > 0 && value.every((obj) => obj.__class__ && obj.__class__.__module__ === value[0].__class__.__module__ && obj.__class__.__name__ === value[0].__class__.__name__)) {
