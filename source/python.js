@@ -3397,16 +3397,16 @@ python.Execution = class {
         });
         this.registerFunction('keras.src.saving.pickle_utils.deserialize_model_from_bytecode', keras.saving.pickle_utils.deserialize_model_from_bytecode);
         this.registerFunction('lasagne.nonlinearities.rectify', function() {
-            throw new python.Error('Function not implemented.');
+            throw new python.Error("'lasagne.nonlinearities.rectify' not implemented.");
         });
         this.registerFunction('lasagne.nonlinearities.softmax', function() {
-            throw new python.Error('Function not implemented.');
+            throw new python.Error("'lasagne.nonlinearities.softmax' not implemented.");
         });
         this.registerFunction('lasagne.objectives.categorical_crossentropy', function() {
-            throw new python.Error('Function not implemented.');
+            throw new python.Error("'lasagne.objectives.categorical_crossentropy' not implemented.");
         });
         this.registerFunction('lasagne.updates.nesterov_momentum', function() {
-            throw new python.Error('Function not implemented.');
+            throw new python.Error("'lasagne.updates.nesterov_momentum' not implemented.");
         });
         this.registerFunction('msgpack.unpackb', function(packed, ext_hook) {
             const BinaryReader = class {
@@ -3513,7 +3513,7 @@ python.Execution = class {
             return new BinaryReader(packed, ext_hook).value();
         });
         this.registerFunction('nolearn.lasagne.base.objective', function() {
-            throw new python.Error('Function not implemented.');
+            throw new python.Error("'nolearn.lasagne.base.objective' not implemented.");
         });
         this.registerFunction('numpy._reconstruct', function(subtype, shape, dtype) {
             return self.invoke(subtype, [ shape, dtype ]);
@@ -3797,10 +3797,10 @@ python.Execution = class {
             return {};
         });
         this.registerFunction('sklearn.metrics.scorer._passthrough_scorer', function() {
-            throw new python.Error("Function not implemented.");
+            throw new python.Error("'sklearn.metrics.scorer._passthrough_scorer' not implemented.");
         });
         this.registerFunction('sklearn.feature_selection._univariate_selection.f_classif', function() {
-            throw new python.Error("Function not implemented.");
+            throw new python.Error("'sklearn.feature_selection._univariate_selection.f_classif' not implemented.");
         });
         this.registerFunction('re._compile', function(pattern, flags) {
             return self.invoke('re.Pattern', [ pattern, flags ]);
@@ -3811,26 +3811,26 @@ python.Execution = class {
             };
         });
         this.registerFunction('theano.scalar.basic.same_out', function() {
-            throw new python.Error('Function not implemented.');
+            throw new python.Error("'theano.scalar.basic.same_out' not implemented.");
         });
 
         this.registerFunction('theano.scalar.basic.same_out_nocomplex', function() {
-            throw new python.Error('Function not implemented.');
+            throw new python.Error("'theano.scalar.basic.same_out_nocomplex' not implemented.");
         });
         this.registerFunction('theano.scalar.basic.upcast_out', function() {
-            throw new python.Error('Function not implemented.');
+            throw new python.Error("'theano.scalar.basic.upcast_out' not implemented.");
         });
         this.registerFunction('theano.scalar.basic.upgrade_to_float', function() {
-            throw new python.Error('Function not implemented.');
+            throw new python.Error("'theano.scalar.basic.upgrade_to_float' not implemented.");
         });
         this.registerFunction('theano.tensor.nnet.conv2d', function() {
-            throw new python.Error('Function not implemented.');
+            throw new python.Error("'theano.tensor.nnet.conv2d' not implemented.");
         });
         this.registerFunction('theano.tensor.type.values_eq_approx_remove_inf_nan', function() {
-            throw new python.Error('Function not implemented.');
+            throw new python.Error("'theano.tensor.type.values_eq_approx_remove_inf_nan' not implemented.");
         });
         this.registerFunction('theano.tensor.type.values_eq_approx_remove_nan', function() {
-            throw new python.Error('Function not implemented.');
+            throw new python.Error("'theano.tensor.type.values_eq_approx_remove_nan' not implemented.");
         });
         this.registerType('torch.nn.modules.module.Module', class {
             constructor() {
@@ -4080,6 +4080,9 @@ python.Execution = class {
         this.registerType('torchvision.datasets.mnist.MNIST', class {});
         this.registerType('torchvision.datasets.vision.StandardTransform', class {});
         this.registerType('torchvision.models.alexnet.AlexNet', class {});
+        this.registerType('torchvision.models.convnext.ConvNeXt', class {});
+        this.registerType('torchvision.models.convnext.CNBlock', class {});
+        this.registerType('torchvision.models.convnext.LayerNorm2d', class {});
         this.registerType('torchvision.models.densenet.DenseNet', class {});
         this.registerType('torchvision.models.densenet._DenseBlock', class {});
         this.registerType('torchvision.models.densenet._DenseLayer', class {});
@@ -4177,6 +4180,7 @@ python.Execution = class {
         this.registerType('torchvision.ops.misc.ConvNormActivation', class {});
         this.registerType('torchvision.ops.misc.ConvTranspose2d', class {});
         this.registerType('torchvision.ops.misc.FrozenBatchNorm2d', class {});
+        this.registerType('torchvision.ops.misc.Permute', class {});
         this.registerType('torchvision.ops.misc.SqueezeExcitation', class {});
         this.registerType('torchvision.ops.poolers.LevelMapper', class {});
         this.registerType('torchvision.ops.poolers.MultiScaleRoIAlign', class {});
@@ -4195,6 +4199,9 @@ python.Execution = class {
         this.registerType('torchvision.transforms.transforms.ToPILImage', class {});
         this.registerType('torchvision.transforms.transforms.ToTensor', class {});
         this.registerFunction('torchvision.models.resnet.resnet34', function() {});
+        this.registerFunction('torchvision.ops.boxes.box_iou', function (/* boxes1, boxes2 */) {
+            throw new python.Error("'torchvision.ops.boxes.box_iou' not implemented.");
+        });
         this.registerFunction('builtins.annotate', function(type, value) {
             if (type === self._builtins.int) {
                 return Number.isInteger(value) ? value : NaN;
@@ -4971,23 +4978,26 @@ python.Execution = class {
             }
             throw new python.Error("Unsupported 'torch.sub' expression type.");
         });
+        this.registerFunction('torch.nn.functional.adaptive_avg_pool2d', function(/* input */) {
+            throw new python.Error("'torch.nn.functional.adaptive_avg_pool2d' not implemented.");
+        });
         this.registerFunction('torch.nn.functional.gelu', function(/* input */) {
-            throw new python.Error("Function not implemented.");
+            throw new python.Error("'torch.nn.functional.gelu' not implemented.");
         });
         this.registerFunction('torch.nn.functional.interpolate', function(/* input */) {
-            throw new python.Error("Function not implemented.");
+            throw new python.Error("'torch.nn.functional.interpolate' not implemented.");
         });
         this.registerFunction('torch.nn.functional.leaky_relu', function(/* input */) {
-            throw new python.Error("Function not implemented.");
+            throw new python.Error("'torch.nn.functional.leaky_relu' not implemented.");
         });
         this.registerFunction('torch.nn.functional.linear', function(/* input */) {
-            throw new python.Error("Function not implemented.");
+            throw new python.Error("'torch.nn.functional.linear' not implemented.");
         });
         this.registerFunction('torch.nn.functional.relu', function(/* input */) {
-            throw new python.Error("Function not implemented.");
+            throw new python.Error("'torch.nn.functional.relu' not implemented.");
         });
         this.registerFunction('torch.nn.functional.tanh', function(/* input */) {
-            throw new python.Error("Function not implemented.");
+            throw new python.Error("'torch.nn.functional.tanh' not implemented.");
         });
         this.registerFunction('torch.values', function(dict) {
             return Object.keys(dict).map((key) => dict[key]);
@@ -5441,6 +5451,7 @@ python.Execution = class {
         this.registerType('torch.BFloat16Tensor', class extends torch.Tensor {});
         this.registerType('torch.cuda.FloatTensor', class extends torch.Tensor {});
         this.registerType('torch.cuda.DoubleTensor', class extends torch.Tensor {});
+        this.registerType('torch._C._VariableFunctionsClass', class {});
         this.register('torch.nn').Module = this.register('torch.nn.modules.module').Module;
         this.register('torch.optim').Adam = this.register('torch.optim.adam').Adam;
         this.register('torch.nn').ReLU = this.register('torch.nn.modules.activation').ReLU;
