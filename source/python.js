@@ -1722,6 +1722,7 @@ python.Execution = class {
         this._typing.List = Reflect.construct(this._typing._SpecialGenericAlias, []);
         this._typing.Dict = Reflect.construct(this._typing._SpecialGenericAlias, []);
         this._typing.Tuple = Reflect.construct(this._typing._TupleType, []);
+        this._typing.Union = Reflect.construct(this._typing._SpecialForm, []);
         this._typing.Any = Reflect.construct(this._typing._SpecialForm, []);
         this.registerType('argparse.Namespace', class {
             constructor(args) {
@@ -1931,6 +1932,7 @@ python.Execution = class {
         });
         this.registerType('numpy.generic', class {});
         this.registerType('numpy.inexact', class {});
+        this.registerType('numpy.bool_', class extends numpy.generic {});
         this.registerType('numpy.number', class extends numpy.generic {});
         this.registerType('numpy.integer', class extends numpy.number {});
         this.registerType('numpy.floating', class extends numpy.inexact {});
@@ -2189,6 +2191,7 @@ python.Execution = class {
         this.registerType('megengine.core._imperative_rt.ops.GetVarShape', class {});
         this.registerType('megengine.core.ops._internal.param_defs.ConvolutionV0.Mode', class {});
         this.registerType('megengine.core.ops._internal.param_defs.Convolution.ComputeMode', class {});
+        this.registerType('megengine.distributed.group.Group', class {});
         this.registerType('megengine.module.activation.ReLU', class {});
         this.registerType('megengine.module.batchnorm.BatchNorm1d', class {});
         this.registerType('megengine.module.batchnorm.BatchNorm2d', class {});
@@ -2585,8 +2588,6 @@ python.Execution = class {
         this.registerType('sklearn.linear_model.ridge.Ridge', class {});
         this.registerType('sklearn.linear_model.sgd_fast.Log', class {});
         this.registerType('sklearn.linear_model.stochastic_gradient.SGDClassifier', class {});
-        this.registerType('sklearn.metrics._classification.accuracy_score', class {});
-        this.registerType('sklearn.metrics._regression.mean_squared_error', class {});
         this.registerType('sklearn.metrics._scorer._PredictScorer', class {});
         this.registerType('sklearn.metrics.scorer._PredictScorer', class {});
         this.registerType('sklearn.metrics._scorer._ThresholdScorer', class {});
@@ -3796,11 +3797,26 @@ python.Execution = class {
         this.registerFunction('numpy.core.numeric._frombuffer', function(/* buf, dtype, shape, order */) {
             return {};
         });
+        this.registerFunction('sklearn.feature_selection._univariate_selection.f_classif', function() {
+            throw new python.Error("'sklearn.feature_selection._univariate_selection.f_classif' not implemented.");
+        });
         this.registerFunction('sklearn.metrics.scorer._passthrough_scorer', function() {
             throw new python.Error("'sklearn.metrics.scorer._passthrough_scorer' not implemented.");
         });
-        this.registerFunction('sklearn.feature_selection._univariate_selection.f_classif', function() {
-            throw new python.Error("'sklearn.feature_selection._univariate_selection.f_classif' not implemented.");
+        this.registerFunction('sklearn.metrics._classification.accuracy_score', function() {
+            throw new python.Error("'sklearn.metrics._classification.accuracy_score' not implemented.");
+        });
+        this.registerFunction('sklearn.metrics._classification.f1_score', function() {
+            throw new python.Error("'sklearn.metrics._classification.f1_score' not implemented.");
+        });
+        this.registerFunction('sklearn.metrics._classification.precision_score', function() {
+            throw new python.Error("'sklearn.metrics._classification.precision_score' not implemented.");
+        });
+        this.registerFunction('sklearn.metrics._classification.recall_score', function() {
+            throw new python.Error("'sklearn.metrics._classification.recall_score' not implemented.");
+        });
+        this.registerFunction('sklearn.metrics._regression.mean_squared_error', function() {
+            throw new python.Error("'sklearn.metrics._regression.mean_squared_error' not implemented.");
         });
         this.registerFunction('re._compile', function(pattern, flags) {
             return self.invoke('re.Pattern', [ pattern, flags ]);
@@ -3910,6 +3926,8 @@ python.Execution = class {
         this.registerType('torch.nn.modules.batchnorm.BatchNorm2d', class extends torch.nn.modules.batchnorm._BatchNorm {});
         this.registerType('torch.nn.modules.batchnorm.BatchNorm3d', class extends torch.nn.modules.batchnorm._BatchNorm {});
         this.registerType('torch.nn.modules.batchnorm.LazyBatchNorm1d', class {});
+        this.registerType('torch.nn.modules.batchnorm.LazyBatchNorm2d', class {});
+        this.registerType('torch.nn.modules.batchnorm.LazyBatchNorm3d', class {});
         this.registerType('torch.nn.modules.batchnorm.SyncBatchNorm', class {});
         this.registerType('torch.nn.modules.container.ModuleDict', class extends torch.nn.Module {});
         this.registerType('torch.nn.modules.container.ModuleList', class extends torch.nn.Module {});
@@ -3957,6 +3975,7 @@ python.Execution = class {
         this.registerType('torch.nn.modules.loss.NLLLoss2d', class extends torch.nn.modules.loss.NLLLoss {});
         this.registerType('torch.nn.modules.loss.SmoothL1Loss', class {});
         this.registerType('torch.nn.modules.module._IncompatibleKeys', class {});
+        this.registerType('torch.nn.modules.module._WrappedHook', class {});
         this.registerType('torch.nn.modules.module.PatchForward', class {});
         this.registerType('torch.nn.modules.normalization.CrossMapLRN2d', class {});
         this.registerType('torch.nn.modules.normalization.GroupNorm', class extends torch.nn.Module {});
@@ -4850,6 +4869,9 @@ python.Execution = class {
             }
             return _legacy_load(f);
         });
+        this.registerFunction('torch.log10', function(/* x */) {
+            throw new python.Error("'torch.log10' not implemented.");
+        });
         this.registerFunction('torch.lt', function(left, right) {
             if (typeof left === 'number' && typeof right === 'number') {
                 return left < right;
@@ -5434,6 +5456,7 @@ python.Execution = class {
                 super(undefined, requires_grad);
             }
         });
+        this.registerType('torch.nn.parameter.UninitializedBuffer', class extends torch.Tensor {});
         this.registerType('torch.BoolTensor', class extends torch.Tensor {});
         this.registerType('torch.ByteTensor', class extends torch.Tensor {});
         this.registerType('torch.CharTensor', class extends torch.Tensor {});
