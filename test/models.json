@@ -5340,6 +5340,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "torch_fx_sample.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/12889841/torch_fx_sample.pt.zip[torch_fx_sample.pt]",
+    "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "traced_fft.pt",
     "source":   "https://github.com/lutzroeder/netron/files/5172197/traced_fft.zip[traced_fft.pt]",
     "format":   "TorchScript v1.3",

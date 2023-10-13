@@ -5029,8 +5029,13 @@ python.Execution = class {
         this.registerFunction('torch.fx.graph_module._deserialize_graph_module', function(/* forward, body */) {
             return execution.invoke('torch.fx.graph_module.GraphModule', []);
         });
-        this.registerFunction('torch.fx.graph_module._forward_from_src', function(/* src, globals, co_fields */) {
-            throw new python.Error("'torch.fx.graph_module._forward_from_src' not implemented.");
+        this.registerFunction('torch.fx.graph_module._forward_from_src', function(src, globals /*, co_fields */) {
+            globals = Object.assign({}, globals);
+            const context = new python.Execution.Context(globals, null);
+            execution.exec(src, context);
+            const forward_fn = globals.forward;
+            delete globals.forward;
+            return forward_fn;
         });
         this.registerFunction('torch.fx.graph_module.reduce_graph_module', function(body, import_block) {
             // https://github.com/pytorch/pytorch/blob/master/torch/fx/graph_module.py
@@ -5925,7 +5930,6 @@ python.Execution = class {
         }
         return undefined;
     }
-
 
     expression(expression, context) {
         const self = context.get('self');
