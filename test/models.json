@@ -4641,6 +4641,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "issue1167.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/12901438/issue1167.pt.zip[issue1167.pt]",
+    "format":   "TorchScript v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/1167"
+  },
+  {
+    "type":     "pytorch",
     "target":   "junction_mlp_vehicle_model.pt",
     "source":   "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/junction_mlp_vehicle_model.pt",
     "format":   "TorchScript v1.0",
