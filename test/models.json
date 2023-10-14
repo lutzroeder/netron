@@ -4454,13 +4454,6 @@
   },
   {
     "type":     "pytorch",
-    "target":   "bvlc_googlenet.caffemodel.pth",
-    "source":   "https://www.dropbox.com/s/2ljm35ztj6hllcu/bvlc_googlenet.caffemodel.pth?dl=1",
-    "format":   "PyTorch v0.1.10",
-    "link":     "https://sea-region.github.com/yuminsuh/part_bilinear_reid/issues/2"
-  },
-  {
-    "type":     "pytorch",
     "target":   "ckpt.t7",
     "source":   "https://raw.githubusercontent.com/babajide07/Redundant-Feature-Pruning-Pytorch-Implementation/master/checkpoint/ckpt.t7",
     "format":   "PyTorch v0.1.10",
