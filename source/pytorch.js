@@ -892,7 +892,7 @@ pytorch.Container.Mobile = class extends pytorch.Container {
         const torch = execution.__import__('torch');
         const module = torch.jit.jit_module_from_flatbuffer(stream);
         const version = module._c._bytecode_version.toString();
-        this._version = pytorch.Utility.version(version);
+        this._format = pytorch.Utility.format('PyTorch Mobile', version);
         if (module && module.forward) {
             this._modules = new Map([ ['', module] ]);
         } else {
@@ -902,7 +902,7 @@ pytorch.Container.Mobile = class extends pytorch.Container {
     }
 
     get format() {
-        return 'PyTorch Mobile' + (this._version ? ' ' + this._version : '');
+        return this._format;
     }
 
     get modules() {
@@ -959,7 +959,7 @@ pytorch.Container.Zip = class extends pytorch.Container {
         } else {
             const name = torchscript ? 'TorchScript' : 'PyTorch';
             const version = this._reader.version();
-            this._format = name + ' ' + pytorch.Utility.version(version);
+            this._format = pytorch.Utility.format(name, version);
         }
         const execution = new pytorch.jit.Execution(null, metadata);
         for (const event of this._events) {
@@ -3095,7 +3095,7 @@ pytorch.Container.Package = class extends pytorch.Container {
 
     async read() {
         const version = this._reader.version();
-        this._format = 'PyTorch Package ' + pytorch.Utility.version(version);
+        this._format = pytorch.Utility.format('PyTorch Package', version);
         this._modules = new Map();
         const pickles = this._reader.getAllRecords().filter((name) => {
             if (!name.startsWith('.data/') && !name.endsWith('.py')) { // || name.endsWith('.json')
@@ -3305,7 +3305,7 @@ pytorch.Utility = class {
         return module;
     }
 
-    static version(value) {
+    static format(name, value) {
         // https://github.com/pytorch/pytorch/blob/master/caffe2/serialize/inline_container.h
         // kProducedFileFormatVersion
         const versions = new Map([
@@ -3321,9 +3321,9 @@ pytorch.Utility = class {
             [ '10', 'v1.12' ]  // 4f8b986e28736b59bc46cd0873a0f36fdaa6f5b8 (#61439)
         ]);
         if (!versions.has(value)) {
-            throw new pytorch.Error("Unsupported PyTorch Zip version '" + value + "'.");
+            throw new pytorch.Error("Unsupported '" + name + "' version '" + value + "'.");
         }
-        return versions.get(value);
+        return name + ' ' + versions.get(value);
     }
 
     static find(data) {
