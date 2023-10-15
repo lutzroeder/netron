@@ -611,7 +611,7 @@ host.BrowserHost.BrowserFileContext = class {
         }
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
-            const size = 1024 * 1024 * 1024;
+            const size = 0x10000000;
             let position = 0;
             const chunks = [];
             reader.onload = (e) => {
@@ -751,22 +751,26 @@ host.BrowserHost.FileStream = class {
             throw new Error('Expected ' + (this._position + length - this._length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
         }
         if (!this._buffer || this._position < this._offset || this._position + length > this._offset + this._buffer.length) {
-            this._offset = this._position;
-            this._buffer = new Uint8Array(Math.min(0x10000000, this._size, this._length - this._offset));
+            this._offset = this._start + this._position;
+            this._buffer = new Uint8Array(Math.min(0x10000000, this._start + this._length - this._offset));
             this._read(this._buffer, this._offset);
         }
-        const position = this._position;
+        const position = this._start + this._position - this._offset;
         this._position += length;
-        return position - this._offset;
+        return position;
     }
 
     _read(buffer, offset) {
-        const index = Math.floor(offset / this._size);
+        let index = Math.floor(offset / this._size);
         offset = offset - (index * this._size);
-        const length = Math.min(this._chunks[index].length - offset, buffer.length);
-        buffer.set(this._chunks[index].subarray(offset, offset + length), 0);
-        if (length !== buffer.length) {
-            buffer.set(this._chunks[index + 1].subarray(0, buffer.length - length), length);
+        const chunk = this._chunks[index++];
+        let destination = Math.min(chunk.length - offset, buffer.length);
+        buffer.set(chunk.subarray(offset, offset + destination), 0);
+        while (destination < buffer.length) {
+            const chunk = this._chunks[index++];
+            const size = Math.min(this._size, buffer.length - destination);
+            buffer.set(chunk.subarray(0, size), destination);
+            destination += size;
         }
     }
 };
