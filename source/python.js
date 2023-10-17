@@ -1611,15 +1611,17 @@ python.Execution = class {
                 this.__name__ = name;
             }
         };
-        this._builtins = this.register('builtins', new module('builtins'));
-        this._registry.set('__builtin__', this._builtins);
-        this.registerType('builtins.type', class {}).__class__ = this._builtins.type;
+        const builtins = this.register('builtins', new module('builtins'));
+        this._builtins = builtins;
+        this._registry.set('__builtin__', builtins);
+        this.registerType('builtins.type', class {}).__class__ = builtins.type;
         this.registerType('builtins.module', module);
         this.registerType('builtins.method', class {});
         this.registerType('builtins.function', class {});
         this.import('builtins');
         this.registerType('builtins.builtin_function_or_method', class {});
-        this._typing = this.register('typing');
+        const typing = this.register('typing');
+        this._typing = typing;
         this.register('_codecs');
         this.register('argparse');
         this.register('collections');
@@ -1648,6 +1650,7 @@ python.Execution = class {
         this.register('sys').modules = this._modules;
         this.register('xgboost');
         this.registerType('builtins.dict', dict);
+        this.registerType('builtins.ellipsis', class {});
         this.registerType('builtins.list', class {});
         this.registerType('builtins.number', class {});
         this.registerFunction('builtins.__import__', function(name, globals, locals, fromlist, level) {
@@ -1694,6 +1697,7 @@ python.Execution = class {
             }
             return JSON.stringify(value);
         });
+        this.registerType('builtins.NoneType', class {});
         this.registerType('builtins.object', class {});
         this.registerType('builtins.tuple', class extends Array {
             constructor(items) {
@@ -1711,19 +1715,29 @@ python.Execution = class {
             throw new python.Error("'builtins.unicode' not implemented.");
         });
         this.registerType('builtins.Warning', class {});
-        this.registerType('builtins.FutureWarning', class extends this._builtins.Warning {});
+        this.registerType('builtins.FutureWarning', class extends builtins.Warning {});
+        this.registerType('builtins.BaseException', class {});
+        this.registerType('builtins.Exception', class extends builtins.BaseException {});
+        this.registerType('builtins.SyntaxError', class extends builtins.Exception {});
         this.registerType('typing._Final', class {});
-        this.registerType('typing._SpecialForm', class extends this._typing._Final {});
-        this.registerType('typing._BaseGenericAlias', class extends this._typing._Final {});
-        this.registerType('typing._GenericAlias', class extends this._typing._BaseGenericAlias {});
-        this.registerType('typing._SpecialGenericAlias', class extends this._typing._BaseGenericAlias {});
-        this.registerType('typing._TupleType', class extends this._typing._SpecialGenericAlias {});
-        this._typing.Optional = Reflect.construct(this._typing._SpecialForm, []);
-        this._typing.List = Reflect.construct(this._typing._SpecialGenericAlias, []);
-        this._typing.Dict = Reflect.construct(this._typing._SpecialGenericAlias, []);
-        this._typing.Tuple = Reflect.construct(this._typing._TupleType, []);
-        this._typing.Union = Reflect.construct(this._typing._SpecialForm, []);
-        this._typing.Any = Reflect.construct(this._typing._SpecialForm, []);
+        this.registerType('typing._SpecialForm', class extends typing._Final {});
+        this.registerType('typing._BaseGenericAlias', class extends typing._Final {});
+        this.registerType('typing._GenericAlias', class extends typing._BaseGenericAlias {});
+        this.registerType('typing._SpecialGenericAlias', class extends typing._BaseGenericAlias {});
+        this.registerType('typing._TupleType', class extends typing._SpecialGenericAlias {});
+        this.registerType('typing._CallableType', class {});
+        this.registerFunction('typing.cast', function() {
+            throw new python.Error("'typing.cast' not implemented.");
+        });
+        typing.Any = Reflect.construct(typing._SpecialForm, []);
+        typing.Callable = Reflect.construct(typing._CallableType, []);
+        typing.Dict = Reflect.construct(typing._SpecialGenericAlias, []);
+        typing.List = Reflect.construct(typing._SpecialGenericAlias, []);
+        typing.Optional = Reflect.construct(typing._SpecialForm, []);
+        typing.OrderedDict = Reflect.construct(typing._SpecialGenericAlias, []);
+        typing.Sequence = Reflect.construct(typing._SpecialGenericAlias, []);
+        typing.Tuple = Reflect.construct(typing._TupleType, []);
+        typing.Union = Reflect.construct(typing._SpecialForm, []);
         this.registerType('argparse.Namespace', class {
             constructor(args) {
                 this.args = args;
@@ -1936,6 +1950,7 @@ python.Execution = class {
         this.registerType('numpy.number', class extends numpy.generic {});
         this.registerType('numpy.integer', class extends numpy.number {});
         this.registerType('numpy.floating', class extends numpy.inexact {});
+        this.registerType('numpy.float16', class extends numpy.floating {});
         this.registerType('numpy.float32', class extends numpy.floating {});
         this.registerType('numpy.float64', class extends numpy.floating {});
         this.registerType('numpy.signedinteger', class extends numpy.integer {});
@@ -2178,17 +2193,28 @@ python.Execution = class {
                 }
             }
         });
+        this.registerFunction('megengine.functional.elemwise.clip', function() {});
+        this.registerFunction('megengine.functional.elemwise.sqrt', function() {});
         this.registerFunction('megengine.functional.nn.conv2d', function() {});
         this.registerFunction('megengine.functional.nn.relu', function() {});
         this.registerFunction('megengine.functional.nn.sigmoid', function() {});
-        this.registerFunction('megengine.module.qat.module.QATModule._apply_fakequant_with_observer', function() {});
+        this.registerFunction('megengine.functional.tensor.arange', function() {});
+        this.registerFunction('megengine.functional.tensor.broadcast_to', function() {});
         this.registerFunction('megengine.functional.tensor.concat', function() {});
+        this.registerFunction('megengine.functional.tensor.expand_dims', function() {});
         this.registerFunction('megengine.functional.tensor.flatten', function() {});
-        this.registerFunction('megengine.functional.tensor.split', function() {});
+        this.registerFunction('megengine.functional.tensor.full', function() {});
         this.registerFunction('megengine.functional.tensor.reshape', function() {});
+        this.registerFunction('megengine.functional.tensor.split', function() {});
+        this.registerFunction('megengine.functional.tensor.stack', function() {});
+        this.registerFunction('megengine.functional.tensor.transpose', function() {});
+        this.registerFunction('megengine.functional.vision.interpolate', function() {});
+        this.registerFunction('megengine.module.qat.module.QATModule._apply_fakequant_with_observer', function() {});
         this.registerType('megengine.core._imperative_rt.common.CompNode', class {});
+        this.registerType('megengine.core._imperative_rt.ops.ElemwiseMultiType', class {});
         this.registerType('megengine.core._imperative_rt.ops.FakeQuant', class {});
         this.registerType('megengine.core._imperative_rt.ops.GetVarShape', class {});
+        this.registerType('megengine.core._imperative_rt.ops.Resize', class {});
         this.registerType('megengine.core.ops._internal.param_defs.ConvolutionV0.Mode', class {});
         this.registerType('megengine.core.ops._internal.param_defs.Convolution.ComputeMode', class {});
         this.registerType('megengine.distributed.group.Group', class {});
@@ -2200,6 +2226,7 @@ python.Execution = class {
         this.registerType('megengine.module.identity.Identity', class {});
         this.registerType('megengine.module.linear.Linear', class {});
         this.registerType('megengine.module.module.Module', class {});
+        this.registerType('megengine.module.normalization.GroupNorm', class {});
         this.registerType('megengine.module.pooling.AvgPool2d', class {});
         this.registerType('megengine.module.pooling.MaxPool2d', class {});
         this.registerType('megengine.module.qat.concat.Concat', class {});
@@ -2211,6 +2238,8 @@ python.Execution = class {
         this.registerType('megengine.quantization.observer.PassiveObserver', class {});
         this.registerType('megengine.quantization.observer.MinMaxObserver', class {});
         this.registerType('megengine.quantization.observer.ExponentialMovingAverageObserver', class {});
+        this.registerType('megengine.quantization.observer.SyncMinMaxObserver', class {});
+        this.registerType('megengine.quantization.observer.SyncExponentialMovingAverageObserver', class {});
         this.registerType('megengine.traced_module.expr.Apply', class {});
         this.registerType('megengine.traced_module.expr.CallFunction', class {});
         this.registerType('megengine.traced_module.expr.CallMethod', class {});
@@ -2464,6 +2493,8 @@ python.Execution = class {
         this.registerType('pathlib.Path', class {});
         this.registerType('pathlib.PosixPath', class {});
         this.registerType('pathlib.WindowsPath', class {});
+        this.registerType('sklearn.base.BaseEstimator', class {});
+        this.registerType('sklearn.base.TransformerMixin', class {});
         this.registerType('sklearn.calibration._CalibratedClassifier', class {});
         this.registerType('sklearn.calibration._SigmoidCalibration', class {});
         this.registerType('sklearn.calibration.CalibratedClassifierCV', class {});
@@ -2515,6 +2546,7 @@ python.Execution = class {
             }
         });
         this.registerType('sklearn.ensemble._bagging.BaggingClassifier', class {});
+        this.registerType('sklearn.ensemble._bagging.BaggingRegressor', class {});
         this.registerType('sklearn.ensemble._forest.RandomForestClassifier', class {});
         this.registerType('sklearn.ensemble._forest.RandomForestRegressor', class {});
         this.registerType('sklearn.ensemble._forest.ExtraTreesClassifier', class {});
@@ -2533,6 +2565,7 @@ python.Execution = class {
         this.registerType('sklearn.ensemble._voting.VotingClassifier', class {});
         this.registerType('sklearn.ensemble._voting.VotingRegressor', class {});
         this.registerType('sklearn.ensemble._weight_boosting.AdaBoostClassifier', class {});
+        this.registerType('sklearn.ensemble._weight_boosting.AdaBoostRegressor', class {});
         this.registerType('sklearn.ensemble.forest.RandomForestClassifier', class {});
         this.registerType('sklearn.ensemble.forest.RandomForestRegressor', class {});
         this.registerType('sklearn.ensemble.forest.ExtraTreesClassifier', class {});
@@ -2571,6 +2604,8 @@ python.Execution = class {
         this.registerType('sklearn.linear_model._bayes.BayesianRidge', class {});
         this.registerType('sklearn.linear_model._coordinate_descent.ElasticNetCV', class {});
         this.registerType('sklearn.linear_model._coordinate_descent.ElasticNet', class {});
+        this.registerType('sklearn.linear_model._coordinate_descent.Lasso', class {});
+        this.registerType('sklearn.linear_model._least_angle.LassoLarsCV', class {});
         this.registerType('sklearn.linear_model._logistic.LogisticRegression', class {});
         this.registerType('sklearn.linear_model._ridge.Ridge', class {});
         this.registerType('sklearn.linear_model._ridge.RidgeClassifier', class {});
@@ -2588,6 +2623,7 @@ python.Execution = class {
         this.registerType('sklearn.linear_model.ridge.Ridge', class {});
         this.registerType('sklearn.linear_model.sgd_fast.Log', class {});
         this.registerType('sklearn.linear_model.stochastic_gradient.SGDClassifier', class {});
+        this.registerType('sklearn.metrics._dist_metrics.EuclideanDistance', class {});
         this.registerType('sklearn.metrics._scorer._PredictScorer', class {});
         this.registerType('sklearn.metrics.scorer._PredictScorer', class {});
         this.registerType('sklearn.metrics._scorer._ThresholdScorer', class {});
@@ -2603,12 +2639,14 @@ python.Execution = class {
         this.registerType('sklearn.naive_bayes.ComplementNB', class {});
         this.registerType('sklearn.naive_bayes.GaussianNB', class {});
         this.registerType('sklearn.naive_bayes.MultinomialNB', class {});
+        this.registerType('sklearn.neighbors.ball_tree.BallTree', class {});
         this.registerType('sklearn.neighbors._classification.KNeighborsClassifier', class {});
         this.registerType('sklearn.neighbors._dist_metrics.newObj', class {});
         this.registerType('sklearn.neighbors._dist_metrics.EuclideanDistance', class {});
         this.registerType('sklearn.neighbors._kd_tree.KDTree', class {});
         this.registerType('sklearn.neighbors._kd_tree.newObj', class {});
         this.registerType('sklearn.neighbors._regression.KNeighborsRegressor', class {});
+        this.registerType('sklearn.neighbors._unsupervised.NearestNeighbors', class {});
         this.registerType('sklearn.neighbors.classification.KNeighborsClassifier', class {});
         this.registerType('sklearn.neighbors.dist_metrics.newObj', class {});
         this.registerType('sklearn.neighbors.dist_metrics.EuclideanDistance', class {});
@@ -2638,6 +2676,7 @@ python.Execution = class {
         this.registerType('sklearn.preprocessing._data.StandardScaler', class {});
         this.registerType('sklearn.preprocessing._discretization.KBinsDiscretizer', class {});
         this.registerType('sklearn.preprocessing._encoders.OneHotEncoder', class {});
+        this.registerType('sklearn.preprocessing._encoders.OrdinalEncoder', class {});
         this.registerType('sklearn.preprocessing._function_transformer.FunctionTransformer', class {});
         this.registerType('sklearn.preprocessing._label.LabelBinarizer', class {});
         this.registerType('sklearn.preprocessing._label.LabelEncoder', class {});
@@ -3251,10 +3290,10 @@ python.Execution = class {
             }
         });
         this.registerType('types.CodeType', class {});
-        this.register('types').ObjectType = this._builtins.object;
-        this.register('types').ModuleType = this._builtins.module;
-        this.register('types').MethodType = this._builtins.method;
-        this.register('types').FunctionType = this._builtins.function;
+        this.register('types').ObjectType = builtins.object;
+        this.register('types').ModuleType = builtins.module;
+        this.register('types').MethodType = builtins.method;
+        this.register('types').FunctionType = builtins.function;
         this.registerType('xgboost.compat.XGBoostLabelEncoder', class {});
         this.registerType('xgboost.core.Booster', class {});
         this.registerType('xgboost.sklearn.XGBClassifier', class {});
@@ -3815,6 +3854,9 @@ python.Execution = class {
         this.registerFunction('sklearn.metrics._classification.recall_score', function() {
             throw new python.Error("'sklearn.metrics._classification.recall_score' not implemented.");
         });
+        this.registerFunction('sklearn.metrics._dist_metrics.newObj', function() {
+            throw new python.Error("'sklearn.metrics._dist_metrics.newObj' not implemented.");
+        });
         this.registerFunction('sklearn.metrics._regression.mean_squared_error', function() {
             throw new python.Error("'sklearn.metrics._regression.mean_squared_error' not implemented.");
         });
@@ -3870,6 +3912,11 @@ python.Execution = class {
         });
         torch.nn.Module = torch.nn.modules.module.Module;
         torch.nn.modules.Module = torch.nn.modules.module.Module;
+        this.registerType('torch.ao.nn.quantized.dynamic.modules.rnn.PackedParameter', class extends torch.nn.Module {});
+        this.registerType('torch.ao.nn.quantized.modules.conv.Conv2d', class extends torch.nn.Module {});
+        this.registerType('torch.ao.nn.quantized.modules.Quantize', class extends torch.nn.Module {});
+        this.registerType('torch.ao.nn.quantized.modules.DeQuantize', class extends torch.nn.Module {});
+        this.registerType('torch.ao.nn.quantized.modules.functional_modules.FloatFunctional', class extends torch.nn.Module {});
         this.registerType('torch.ao.quantization.observer._PartialWrapper', class {});
         this.registerType('torch.ao.quantization.observer.HistogramObserver', class {});
         this.registerType('torch.ao.quantization.observer.MovingAverageMinMaxObserver', class {});
@@ -3880,6 +3927,7 @@ python.Execution = class {
         this.registerType('torch.autograd.variable.Variable', class {});
         this.registerType('torch.backends.cudnn.rnn.Unserializable', class {});
         this.registerType('torch.distributions.bernoulli.Bernoulli', class {});
+        this.registerType('torch.distributions.categorical.Categorical', class {});
         this.registerType('torch.distributions.constraints._LowerCholesky', class {});
         this.registerType('torch.distributions.constraints._Real', class {});
         this.registerType('torch.distributions.multivariate_normal.MultivariateNormal', class {});
@@ -4079,6 +4127,7 @@ python.Execution = class {
         this.registerType('torch.optim.rmsprop.RMSprop', class {});
         this.registerType('torch.optim.sgd.SGD', class {});
         this.registerType('torch.optim.sparse_adam.SparseAdam', class {});
+        this.registerType('torch.optim.swa_utils.SWALR', class {});
         this.registerType('torch.quantization.fake_quantize.FakeQuantize', class {});
         this.registerType('torch.quantization.observer._PartialWrapper', class {});
         this.registerType('torch.quantization.observer.MinMaxObserver', class {});
@@ -4137,6 +4186,7 @@ python.Execution = class {
         this.registerType('torchvision.models.detection.ssdlite.SSDLiteRegressionHead', class {});
         this.registerType('torchvision.models.detection.transform.GeneralizedRCNNTransform', class {});
         this.registerType('torchvision.models.efficientnet.EfficientNet', class {});
+        this.registerType('torchvision.models.efficientnet.FusedMBConv', class {});
         this.registerType('torchvision.models.efficientnet.MBConv', class {});
         this.registerType('torchvision.models.googlenet.BasicConv2d', class {});
         this.registerType('torchvision.models.googlenet.GoogLeNet', class {});
@@ -4212,6 +4262,7 @@ python.Execution = class {
         this.registerType('torchvision.transforms.transforms.RandomAffine', class {});
         this.registerType('torchvision.transforms.transforms.RandomCrop', class {});
         this.registerType('torchvision.transforms.transforms.RandomHorizontalFlip', class {});
+        this.registerType('torchvision.transforms.transforms.RandomResizedCrop', class {});
         this.registerType('torchvision.transforms.transforms.RandomRotation', class {});
         this.registerType('torchvision.transforms.transforms.Resize', class {});
         this.registerType('torchvision.transforms.transforms.Scale', class {});
@@ -4366,6 +4417,9 @@ python.Execution = class {
                 }
             }
             throw new python.Error('Unsupported range(' + JSON.stringify(start) + ', ' + JSON.stringify(stop) + ', ' + JSON.stringify(step) + ')');
+        });
+        this.registerFunction('torch._C._nn.gelu', function() {
+            throw new python.Error("'torch._C._nn.gelu' not implemented.");
         });
         this.registerFunction('torch._utils._rebuild_sparse_tensor', function(layout, data) {
             if (layout === torch.sparse_coo) {
@@ -5000,11 +5054,26 @@ python.Execution = class {
             }
             throw new python.Error("Unsupported 'torch.sub' expression type.");
         });
+        this.registerFunction('torch.functional.einsum', function() {
+            throw new python.Error("'torch.functional.einsum' not implemented.");
+        });
+        this.registerFunction('torch.functional.split', function() {
+            throw new python.Error("'torch.functional.split' not implemented.");
+        });
         this.registerFunction('torch.nn.functional.adaptive_avg_pool2d', function(/* input */) {
             throw new python.Error("'torch.nn.functional.adaptive_avg_pool2d' not implemented.");
         });
         this.registerFunction('torch.nn.functional.gelu', function(/* input */) {
             throw new python.Error("'torch.nn.functional.gelu' not implemented.");
+        });
+        this.registerFunction('torch.nn.functional.hardsigmoid', function(/* input */) {
+            throw new python.Error("'torch.nn.functional.hardsigmoid' not implemented.");
+        });
+        this.registerFunction('torch.nn.functional.hardswish', function(/* input */) {
+            throw new python.Error("'torch.nn.functional.hardswish' not implemented.");
+        });
+        this.registerFunction('torch.nn.functional.hardtanh', function(/* input */) {
+            throw new python.Error("'torch.nn.functional.hardtanh' not implemented.");
         });
         this.registerFunction('torch.nn.functional.interpolate', function(/* input */) {
             throw new python.Error("'torch.nn.functional.interpolate' not implemented.");
@@ -5015,8 +5084,23 @@ python.Execution = class {
         this.registerFunction('torch.nn.functional.linear', function(/* input */) {
             throw new python.Error("'torch.nn.functional.linear' not implemented.");
         });
+        this.registerFunction('torch.nn.functional._max_pool2d', function(/* input */) {
+            throw new python.Error("'torch.nn.functional._max_pool2d' not implemented.");
+        });
+        this.registerFunction('torch.nn.functional.max_pool2d_with_indices', function(/* input */) {
+            throw new python.Error("'torch.nn.functional.max_pool2d_with_indices' not implemented.");
+        });
         this.registerFunction('torch.nn.functional.relu', function(/* input */) {
             throw new python.Error("'torch.nn.functional.relu' not implemented.");
+        });
+        this.registerFunction('torch.nn.functional.relu6', function(/* input */) {
+            throw new python.Error("'torch.nn.functional.relu6' not implemented.");
+        });
+        this.registerFunction('torch.nn.functional.silu', function(/* input */) {
+            throw new python.Error("'torch.nn.functional.silu' not implemented.");
+        });
+        this.registerFunction('torch.nn.functional.softmax', function(/* input */) {
+            throw new python.Error("'torch.nn.functional.softmax' not implemented.");
         });
         this.registerFunction('torch.nn.functional.tanh', function(/* input */) {
             throw new python.Error("'torch.nn.functional.tanh' not implemented.");
@@ -5052,8 +5136,7 @@ python.Execution = class {
         this.registerFunction('torch.fx._symbolic_trace.wrap', function(fn_or_name) {
             return fn_or_name;
         });
-        this.registerType('torch.fx._symbolic_trace.Tracer', class {
-        });
+        this.registerType('torch.fx._symbolic_trace.Tracer', class {});
         this.registerFunction('torch_utils.persistence._reconstruct_persistent_obj', function(meta) {
             const name = '_imported_module_' + Math.floor(Math.random() * 10000).toString();
             const module = execution.invoke('types.ModuleType', [ name ]);
@@ -5479,6 +5562,7 @@ python.Execution = class {
         this.registerType('torch.BFloat16Tensor', class extends torch.Tensor {});
         this.registerType('torch.cuda.FloatTensor', class extends torch.Tensor {});
         this.registerType('torch.cuda.DoubleTensor', class extends torch.Tensor {});
+        this.registerType('torch._C._TensorBase', class {});
         this.registerType('torch._C._VariableFunctionsClass', class {});
         this.register('torch.nn').Module = this.register('torch.nn.modules.module').Module;
         this.register('torch.optim').Adam = this.register('torch.optim.adam').Adam;
