@@ -5971,6 +5971,24 @@
     ]
   },
   {
+    "name": "aten::hstack",
+    "inputs": [
+      { "name": "tensors", "type": "Tensor[]" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::hstack.out",
+    "inputs": [
+      { "name": "tensors", "type": "Tensor[]" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::huber_loss",
     "inputs": [
       { "name": "self", "type": "Tensor" },
