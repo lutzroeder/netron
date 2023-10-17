@@ -60477,7 +60477,7 @@
     "inputs": [
       {
         "name": "input",
-        "description": "1-D or higher.",
+        "description": "Can be of any rank.",
         "typeAttr": "T"
       },
       {
