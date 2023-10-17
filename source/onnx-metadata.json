@@ -29235,7 +29235,7 @@
       },
       {
         "summary": "non_reduced_axis_zero",
-        "code": "\"\"\"Test case with the non-reduced-axis of size zero.\"\"\"\nshape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 0, 1]\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([2], dtype=np.int64)\nreduced = np.array([], dtype=np.float32).reshape(reduced_shape)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_empty_set\",\n)"
+        "code": "\"\"\"Test case with the non-reduced-axis of size zero.\"\"\"\nshape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 0, 1]\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([2], dtype=np.int64)\nreduced = np.array([], dtype=np.float32).reshape(reduced_shape)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_empty_set_non_reduced_axis_zero\",\n)"
       }
     ]
   },
@@ -29320,7 +29320,7 @@
       },
       {
         "summary": "non_reduced_axis_zero",
-        "code": "\"\"\"Test case with the non-reduced-axis of size zero.\"\"\"\nshape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 0, 1]\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([2], dtype=np.int64)\nreduced = np.array([], dtype=np.float32).reshape(reduced_shape)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_empty_set\",\n)"
+        "code": "\"\"\"Test case with the non-reduced-axis of size zero.\"\"\"\nshape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 0, 1]\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([2], dtype=np.int64)\nreduced = np.array([], dtype=np.float32).reshape(reduced_shape)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_empty_set_non_reduced_axis_zero\",\n)"
       }
     ]
   },
@@ -29413,7 +29413,7 @@
       },
       {
         "summary": "non_reduced_axis_zero",
-        "code": "\"\"\"Test case with the non-reduced-axis of size zero.\"\"\"\nshape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 0, 1]\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([2], dtype=np.int64)\nreduced = np.array([], dtype=np.float32).reshape(reduced_shape)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_empty_set\",\n)"
+        "code": "\"\"\"Test case with the non-reduced-axis of size zero.\"\"\"\nshape = [2, 0, 4]\nkeepdims = 1\nreduced_shape = [2, 0, 1]\n\nnode = onnx.helper.make_node(\n    \"ReduceSum\",\n    inputs=[\"data\", \"axes\"],\n    outputs=[\"reduced\"],\n    keepdims=keepdims,\n)\n\ndata = np.array([], dtype=np.float32).reshape(shape)\naxes = np.array([2], dtype=np.int64)\nreduced = np.array([], dtype=np.float32).reshape(reduced_shape)\n\nexpect(\n    node,\n    inputs=[data, axes],\n    outputs=[reduced],\n    name=\"test_reduce_sum_empty_set_non_reduced_axis_zero\",\n)"
       }
     ]
   },
