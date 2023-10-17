@@ -21,7 +21,8 @@ view.View = class {
             attributes: false,
             names: false,
             direction: 'vertical',
-            mousewheel: 'scroll'
+            mousewheel: 'scroll',
+            attributeFilters: '',
         };
         this._options = Object.assign({}, this._defaultOptions);
         this._model = null;
@@ -124,6 +125,14 @@ view.View = class {
                     accelerator: 'CmdOrCtrl+D',
                     execute: () => this.toggle('attributes'),
                     enabled: () => this.activeGraph
+                });
+                view.add({
+                    placeholderText: 'Filter Attributes (Enter\u23ce)',
+                    enabled: () => this.activeGraph,
+                    onEnter: (value) => {
+                        this.toggle('attributeFilters', value);
+                    },
+                    startingValue: () => this.options.attributeFilters,
                 });
                 view.add({
                     label: () => this.options.weights ? 'Hide &Weights' : 'Show &Weights',
@@ -289,8 +298,21 @@ view.View = class {
         return this._options;
     }
 
-    toggle(name) {
+    toggle(name, newValue) {
+        console.assert(name === 'attributeFilters' || newValue === undefined);
         switch (name) {
+            case 'attributeFilters':
+                this.options.attributeFilters = newValue;
+                // Turn the attributes on if they aren't already. If you request
+                // a filter presumably you want to see them.
+                if (!this.options.attributes) {
+                    this.toggle('attributes')
+                } else {
+                    // Toggling the attributes will reload, no need to do it
+                    // twice in that case.
+                    this._reload();
+                }
+                break;
             case 'names':
             case 'attributes':
             case 'weights':
@@ -1083,6 +1105,10 @@ view.Menu = class {
             [ 'Up', '&#x2191;' ], [ 'Down', '&#x2193;' ],
         ]);
         this._keydown = (e) => {
+            // Don't interpret this keypress as a shortcut if the user is typing in a field
+            if ((/^(input|textarea|select)$/i).test(e.target.tagName)) {
+                return;
+            }
             this._alt = false;
             const code = e.keyCode | (e.altKey ? 0x0200 : 0) | (e.shiftKey ? 0x0100 : 0);
             const modifier = (e.ctrlKey ? 0x0400 : 0) | (e.metaKey ? 0x0800 : 0);
@@ -1415,6 +1441,21 @@ view.Menu = class {
                         container.appendChild(element);
                         break;
                     }
+                    case 'textinput': {
+                        const element = this._document.createElement('input');
+                        element.setAttribute('type', 'text')
+                        element.setAttribute('placeholder', item.placeholderText)
+                        element.setAttribute('class', 'menu-text-input');
+                        element.setAttribute('id', item.identifier);
+                        element.value = item.startingValue();
+                        element.addEventListener("keydown", function (e) {
+                            if (e.key === "Enter") {
+                                item.onEnter(element.value);
+                            }
+                        });
+                        container.appendChild(element);
+                        break;
+                    }
                     default: {
                         break;
                     }
@@ -1511,7 +1552,16 @@ view.Menu.Group = class {
     }
 
     add(value) {
-        const item = Object.keys(value).length > 0 ? new view.Menu.Command(value) : new view.Menu.Separator();
+        const item = (() => {
+            if (value.execute) {
+                return new view.Menu.Command(value);
+            } else if (value.placeholderText) {
+                return new view.Menu.TextInput(value);
+            } else {
+                console.assert(Object.keys(value).length == 0);
+                return new view.Menu.Separator()
+            }
+        })();
         item.identifier = this.identifier + '-' + this.items.length.toString();
         this.items.push(item);
         item.shortcut = this.parent.register(item, item.accelerator);
@@ -1566,6 +1616,21 @@ view.Menu.Command = class {
         if (this._execute && this.enabled) {
             this._execute();
         }
+    }
+};
+
+view.Menu.TextInput = class {
+
+    constructor(item) {
+        this.type = 'textinput';
+        this.placeholderText = item.placeholderText;
+        this._enabled = item.enabled;
+        this.onEnter = item.onEnter;
+        this.startingValue = item.startingValue;
+    }
+
+    get enabled() {
+        return this._enabled ? this._enabled() : true;
     }
 };
 
@@ -1849,6 +1914,7 @@ view.Node = class extends grapher.Node {
         const objects = [];
         const attributes = [];
         if (Array.isArray(node.attributes) && node.attributes.length > 0) {
+            const attrFilters = options.attributeFilters.split(",").map((filter) => filter.trim().toLowerCase());
             for (const attribute of node.attributes) {
                 switch (attribute.type) {
                     /* case 'object':
@@ -1857,7 +1923,10 @@ view.Node = class extends grapher.Node {
                         break;
                     } */
                     default: {
-                        if (options.attributes && attribute.visible !== false) {
+                        const attribute_matches = attrFilters === [] || attrFilters.some((filter) => {
+                            return attribute.name.toLowerCase().includes(filter);
+                        });
+                        if (options.attributes && attribute.visible !== false && attribute_matches) {
                             attributes.push(attribute);
                         }
                     }
