@@ -3249,9 +3249,9 @@ view.Tensor = class {
     constructor(tensor) {
         this._tensor = tensor;
         this._type = tensor.type;
-        this._stride = tensor.stride;
         this._encoding = tensor.encoding;
         this._layout = tensor.type.layout;
+        this._stride = tensor.stride;
         switch (this._encoding) {
             case undefined:
             case '':
@@ -3342,10 +3342,10 @@ view.Tensor = class {
         switch (context.encoding) {
             case '<':
             case '>': {
-                return this._decodeData(context, 0);
+                return this._decodeData(context, 0, 0);
             }
             case '|': {
-                return this._decodeValues(context, 0);
+                return this._decodeValues(context, 0, 0);
             }
             default: {
                 throw new Error("Unsupported tensor encoding '" + context.encoding + "'.");
@@ -3359,11 +3359,11 @@ view.Tensor = class {
         switch (context.encoding) {
             case '<':
             case '>': {
-                const value = this._decodeData(context, 0);
+                const value = this._decodeData(context, 0, 0);
                 return view.Tensor._stringify(value, '', '    ');
             }
             case '|': {
-                const value = this._decodeValues(context, 0);
+                const value = this._decodeValues(context, 0, 0);
                 return view.Tensor._stringify(value, '', '    ');
             }
             default: {
@@ -3384,7 +3384,16 @@ view.Tensor = class {
         context.encoding = this._encoding;
         context.dimensions = this._type.shape.dimensions.map((value) => !Number.isInteger(value) && value.toNumber ? value.toNumber() : value);
         context.dataType = dataType;
-        const size = context.dimensions.reduce((a, b) => a * b, 1);
+        const shape = context.dimensions;
+        context.stride = this._stride;
+        if (!Array.isArray(context.stride)) {
+            context.stride = new Array(shape.length);
+            let value = 1;
+            for (let i = shape.length - 1; i >= 0; i--) {
+                context.stride[i] = value;
+                value *= shape[i];
+            }
+        }
         switch (this._layout) {
             case 'sparse': {
                 const indices = new view.Tensor(this._indices).value;
@@ -3422,10 +3431,17 @@ view.Tensor = class {
                         context.data = (this._data instanceof Uint8Array || this._data instanceof Int8Array) ? this._data : this._data.peek();
                         context.view = new DataView(context.data.buffer, context.data.byteOffset, context.data.byteLength);
                         if (view.Tensor.dataTypes.has(dataType)) {
-                            context.itemsize = view.Tensor.dataTypes.get(dataType);
-                            if (context.data.length < (context.itemsize * size)) {
-                                throw new Error('Invalid tensor data size.');
+                            const itemsize = view.Tensor.dataTypes.get(dataType);
+                            const length = context.data.length;
+                            const stride = context.stride;
+                            if (length < (itemsize * shape.reduce((a, v) => a * v, 1))) {
+                                const max = stride.reduce((a, v, i) => v > stride[i] ? i : a, 0);
+                                if (length !== (itemsize * stride[max] * shape[max])) {
+                                    throw new Error('Invalid tensor data size.');
+                                }
                             }
+                            context.itemsize = itemsize;
+                            context.stride = stride.map((v) => v * itemsize);
                         } else if (dataType.startsWith('uint') && !isNaN(parseInt(dataType.substring(4), 10))) {
                             context.dataType = 'uint';
                             context.bits = parseInt(dataType.substring(4), 10);
@@ -3444,6 +3460,7 @@ view.Tensor = class {
                         if (!view.Tensor.dataTypes.has(dataType) && dataType !== 'string' && dataType !== 'object') {
                             throw new Error("Tensor data type '" + dataType + "' is not implemented.");
                         }
+                        const size = context.dimensions.reduce((a, v) => a * v, 1);
                         if (size !== this._values.length) {
                             throw new Error('Invalid tensor data length.');
                         }
@@ -3486,135 +3503,133 @@ view.Tensor = class {
         return array;
     }
 
-    _decodeData(context, dimension) {
+    _decodeData(context, dimension, offset) {
         const results = [];
-        const dimensions = (context.dimensions.length == 0) ? [ 1 ] : context.dimensions;
-        const size = dimensions[dimension];
+        const shape = context.dimensions.length == 0 ? [ 1 ] : context.dimensions;
+        const size = shape[dimension];
         const dataType = context.dataType;
         const view = context.view;
-        if (dimension == dimensions.length - 1) {
+        const stride = context.stride[dimension];
+        if (dimension == shape.length - 1) {
             const ellipsis = (context.count + size) > context.limit;
             const length = ellipsis ? context.limit - context.count : size;
-            let i = context.index;
-            const max = i + (length * context.itemsize);
+            const max = offset + (length * context.itemsize);
             switch (dataType) {
                 case 'boolean':
-                    for (; i < max; i += 1) {
-                        results.push(view.getUint8(i) === 0 ? false : true);
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getUint8(offset) === 0 ? false : true);
                     }
                     break;
                 case 'qint8':
                 case 'xint8':
                 case 'int8':
-                    for (; i < max; i++) {
-                        results.push(view.getInt8(i));
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getInt8(offset));
                     }
                     break;
                 case 'qint16':
                 case 'int16':
-                    for (; i < max; i += 2) {
-                        results.push(view.getInt16(i, this._littleEndian));
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getInt16(offset, this._littleEndian));
                     }
                     break;
                 case 'qint32':
                 case 'int32':
-                    for (; i < max; i += 4) {
-                        results.push(view.getInt32(i, this._littleEndian));
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getInt32(offset, this._littleEndian));
                     }
                     break;
                 case 'int64':
-                    for (; i < max; i += 8) {
-                        results.push(view.getInt64(i, this._littleEndian));
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getInt64(offset, this._littleEndian));
                     }
                     break;
                 case 'int':
-                    for (; i < size; i++) {
-                        results.push(view.getIntBits(i, context.bits));
+                    for (; offset < size; offset += stride) {
+                        results.push(view.getIntBits(offset, context.bits));
                     }
                     break;
                 case 'quint8':
                 case 'uint8':
-                    for (; i < max; i++) {
-                        results.push(view.getUint8(i));
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getUint8(offset));
                     }
                     break;
                 case 'quint16':
                 case 'uint16':
-                    for (; i < max; i += 2) {
-                        results.push(view.getUint16(i, true));
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getUint16(offset, true));
                     }
                     break;
                 case 'quint32':
                 case 'uint32':
-                    for (; i < max; i += 4) {
-                        results.push(view.getUint32(i, true));
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getUint32(offset, true));
                     }
                     break;
                 case 'uint64':
-                    for (; i < max; i += 8) {
-                        results.push(view.getUint64(i, true));
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getUint64(offset, true));
                     }
                     break;
                 case 'uint':
-                    for (; i < max; i++) {
-                        results.push(view.getUintBits(i, context.bits));
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getUintBits(offset, context.bits));
                     }
                     break;
                 case 'float16':
-                    for (; i < max; i += 2) {
-                        results.push(view.getFloat16(i, this._littleEndian));
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getFloat16(offset, this._littleEndian));
                     }
                     break;
                 case 'float32':
-                    for (; i < max; i += 4) {
-                        results.push(view.getFloat32(i, this._littleEndian));
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getFloat32(offset, this._littleEndian));
                     }
                     break;
                 case 'float64':
-                    for (; i < max; i += 8) {
-                        results.push(view.getFloat64(i, this._littleEndian));
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getFloat64(offset, this._littleEndian));
                     }
                     break;
                 case 'bfloat16':
-                    for (; i < max; i += 2) {
-                        results.push(view.getBfloat16(i, this._littleEndian));
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getBfloat16(offset, this._littleEndian));
                     }
                     break;
                 case 'complex64':
-                    for (; i < max; i += 8) {
-                        results.push(view.getComplex64(i, this._littleEndian));
-                        context.index += 8;
+                    for (; offset < max; offset += stride) {
+                        results.push(view.getComplex64(offset, this._littleEndian));
                     }
                     break;
                 case 'complex128':
-                    for (; i < size; i += 16) {
-                        results.push(view.getComplex128(i, this._littleEndian));
+                    for (; offset < size; offset += stride) {
+                        results.push(view.getComplex128(offset, this._littleEndian));
                     }
                     break;
                 case 'float8e4m3fn':
-                    for (; i < size; i++) {
-                        results.push(view.getFloat8e4m3(i, true, false));
+                    for (; offset < size; offset += stride) {
+                        results.push(view.getFloat8e4m3(offset, true, false));
                     }
                     break;
                 case 'float8e4m3fnuz':
-                    for (; i < size; i++) {
-                        results.push(view.getFloat8e4m3(i, true, true));
+                    for (; offset < size; offset += stride) {
+                        results.push(view.getFloat8e4m3(offset, true, true));
                     }
                     break;
                 case 'float8e5m2':
-                    for (; i < size; i++) {
-                        results.push(view.getFloat8e5m2(i, false, false));
+                    for (; offset < size; offset += stride) {
+                        results.push(view.getFloat8e5m2(offset, false, false));
                     }
                     break;
                 case 'float8e5m2fnuz':
-                    for (; i < size; i++) {
-                        results.push(view.getFloat8e5m2(i, true, true));
+                    for (; offset < size; offset += stride) {
+                        results.push(view.getFloat8e5m2(offset, true, true));
                     }
                     break;
                 default:
                     throw new Error("Unsupported tensor data type '" + dataType + "'.");
             }
-            context.index = i;
             context.count += length;
             if (ellipsis) {
                 results.push('...');
@@ -3625,7 +3640,8 @@ view.Tensor = class {
                     results.push('...');
                     return results;
                 }
-                results.push(this._decodeData(context, dimension + 1));
+                const nextOffset = offset + (j * stride);
+                results.push(this._decodeData(context, dimension + 1, nextOffset));
             }
         }
         if (context.dimensions.length == 0) {
@@ -3634,35 +3650,40 @@ view.Tensor = class {
         return results;
     }
 
-    _decodeValues(context, dimension) {
+    _decodeValues(context, dimension, position) {
         const results = [];
-        const dimensions = (context.dimensions.length == 0) ? [ 1 ] : context.dimensions;
-        const size = dimensions[dimension];
+        const shape = (context.dimensions.length == 0) ? [ 1 ] : context.dimensions;
+        const size = shape[dimension];
         const dataType = context.dataType;
-        if (dimension == dimensions.length - 1) {
-            for (let i = 0; i < size; i++) {
+        const stride = context.stride[dimension];
+        if (dimension == shape.length - 1) {
+            const ellipsis = (context.count + size) > context.limit;
+            const length = ellipsis ? context.limit - context.count : size;
+            const data = context.data;
+            for (let i = 0; i < length; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
                 }
                 switch (dataType) {
                     case 'boolean':
-                        results.push(context.data[context.index] === 0 ? false : true);
+                        results.push(data[position] === 0 ? false : true);
                         break;
                     default:
-                        results.push(context.data[context.index]);
+                        results.push(data[position]);
                         break;
                 }
-                context.index++;
+                position += stride;
                 context.count++;
             }
         } else {
-            for (let j = 0; j < size; j++) {
-                if (context.count > context.limit) {
+            for (let i = 0; i < size; i++) {
+                if (context.count >= context.limit) {
                     results.push('...');
                     return results;
                 }
-                results.push(this._decodeValues(context, dimension + 1));
+                const nextPosition = position + (i * stride);
+                results.push(this._decodeValues(context, dimension + 1, nextPosition));
             }
         }
         if (context.dimensions.length == 0) {

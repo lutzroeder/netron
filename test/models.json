@@ -5495,17 +5495,17 @@
   },
   {
     "type":     "pytorch",
-    "target":   "ViT-B-32.pt",
-    "source":   "https://github.com/lutzroeder/netron/files/5790183/ViT-B-32.pt.zip[ViT-B-32.pt]",
-    "format":   "TorchScript v1.6",
-    "link":     "https://github.com/lutzroeder/netron/issues/546"
-  },
-  {
-    "type":     "pytorch",
     "target":   "video_classification.pt",
     "source":   "https://github.com/lutzroeder/netron/files/6341327/video_classification.pt.zip[video_classification.pt]",
     "format":   "TorchScript v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/728"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "ViT-B-32.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/5790183/ViT-B-32.pt.zip[ViT-B-32.pt]",
+    "format":   "TorchScript v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/546"
   },
   {
     "type":     "pytorch",
@@ -5516,13 +5516,6 @@
   },
   {
     "type":     "pytorch",
-    "target":   "wav2vec2.ptl",
-    "source":   "https://github.com/lutzroeder/netron/files/7447547/wav2vec2.ptl.zip[wav2vec2.ptl]",
-    "format":   "TorchScript v1.6",
-    "link":     "https://github.com/lutzroeder/netron/issues/827"
-  },
-  {
-    "type":     "pytorch",
     "target":   "WAV2VEC2_BASE_quant-none-cpu.pt",
     "source":   "https://github.com/lutzroeder/netron/files/8820082/WAV2VEC2_BASE_quant-none-cpu.pt.zip[WAV2VEC2_BASE_quant-none-cpu.pt]",
     "format":   "TorchScript v1.6",
@@ -5530,11 +5523,17 @@
   },
   {
     "type":     "pytorch",
-    "target":   "yolov5n.torchscript",
-    "source":   "https://github.com/lutzroeder/netron/files/8457287/yolov5n.torchscript.zip[yolov5n.torchscript]",
+    "target":   "wav2vec2.ptl",
+    "source":   "https://github.com/lutzroeder/netron/files/7447547/wav2vec2.ptl.zip[wav2vec2.ptl]",
     "format":   "TorchScript v1.6",
-    "error":    "Invalid tensor data size.",
-    "link":     "https://github.com/lutzroeder/netron/issues/882"
+    "link":     "https://github.com/lutzroeder/netron/issues/827"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "yolo4_tiny.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/7995416/yolo4_tiny.pt.zip[yolo4_tiny.pt]",
+    "format":   "TorchScript v1.5",
+    "link":     "https://github.com/lutzroeder/netron/issues/842"
   },
   {
     "type":     "pytorch",
@@ -5548,15 +5547,14 @@
     "target":   "yolov5n.tensor.pth",
     "source":   "https://github.com/lutzroeder/netron/files/9543602/yolov5n.tensor.pth.zip[yolov5n.tensor.pth]",
     "format":   "PyTorch v1.6",
-    "error":    "Invalid tensor data size.",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
     "type":     "pytorch",
-    "target":   "yolo4_tiny.pt",
-    "source":   "https://github.com/lutzroeder/netron/files/7995416/yolo4_tiny.pt.zip[yolo4_tiny.pt]",
-    "format":   "TorchScript v1.5",
-    "link":     "https://github.com/lutzroeder/netron/issues/842"
+    "target":   "yolov5n.torchscript",
+    "source":   "https://github.com/lutzroeder/netron/files/8457287/yolov5n.torchscript.zip[yolov5n.torchscript]",
+    "format":   "TorchScript v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/882"
   },
   {
     "type":     "rknn",
