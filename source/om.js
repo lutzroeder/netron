@@ -23,7 +23,11 @@ om.Model = class {
 
     constructor(metadata, target) {
         this.format = target.format;
-        const context = { metadata: metadata, weights: target.weights };
+        const context = {
+            metadata: metadata,
+            signature: target.signature,
+            weights: target.weights
+        };
         this.graphs = target.model.graph.map((graph) => new om.Graph(context, graph));
     }
 };
@@ -31,7 +35,11 @@ om.Model = class {
 om.Graph = class {
 
     constructor(context, graph) {
-        this.name = graph.name;
+        switch (context.signature) {
+            case 'IMOD': this.name = graph.name; break;
+            case 'PICO': this.name = graph.id.toString(); break;
+            default: throw new om.Error('Unsupported DaVinci OM ' + context.signature + ' signature.');
+        }
         this.nodes = [];
         this.inputs = [];
         this.outputs = [];
