@@ -485,6 +485,7 @@ openvino.Node = class {
             let itemSize = undefined;
             switch (precision) {
                 case 'BOOL': case 'BOOLEAN':         itemSize = 1; break;
+                case 'I4':  case 'U4':               itemSize = 0.5; break;
                 case 'I8':  case 'U8':               itemSize = 1; break;
                 case 'I16': case 'U16': case 'FP16': itemSize = 2; break;
                 case 'I32': case 'U32': case 'FP32': itemSize = 4; break;
