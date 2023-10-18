@@ -2318,7 +2318,7 @@ python.Execution = class {
                 this.dtype = dtype;
                 this.data = buffer !== undefined ? buffer : null;
                 this.offset = offset !== undefined ? offset : 0;
-                this.strides = strides !== undefined ? strides : null;
+                this._strides = strides !== undefined ? strides : null;
                 this.order = offset !== undefined ? order : null;
                 this.flags = {};
                 this._read();
@@ -2382,8 +2382,24 @@ python.Execution = class {
                     }
                 }
             }
+            get itemsize() {
+                return this.dtype.itemsize;
+            }
             get size() {
                 return (this.shape || []).reduce((a, b) => a * b, 1);
+            }
+            get strides() {
+                if (!this._strides) {
+                    const shape = this.shape;
+                    const strides = new Array(shape.length);
+                    let stride = this.itemsize;
+                    for (let i = shape.length - 1; i >= 0; i--) {
+                        strides[i] = stride;
+                        stride *= shape[i];
+                    }
+                    return strides;
+                }
+                return this._strides;
             }
             _read() {
                 if (this.data) {
@@ -4440,10 +4456,11 @@ python.Execution = class {
                 throw new python.Error("Unsupported numpy.ndarray type '" + obj.dtype.str + "'.");
             }
             const dtype = dtypes.get(obj.dtype.str);
+            const strides = obj.strides.map((stride) => stride / obj.itemsize);
             const storage = execution.invoke('torch.storage._TypedStorage', [ obj.size, dtype ]);
             storage._set_cdata(obj.data);
             const tensor = execution.invoke('torch.Tensor', []);
-            tensor.__setstate__([ storage, 0, obj.shape, null ]);
+            tensor.__setstate__([ storage, 0, obj.shape, strides ]);
             return tensor;
         });
         this.registerFunction('torch._utils._rebuild_device_tensor_from_numpy', function(data, dtype, device, requires_grad) {

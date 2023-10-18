@@ -147,6 +147,7 @@ pickle.Tensor = class {
 
     constructor(array) {
         this.type = new pickle.TensorType(array.dtype.__name__, new pickle.TensorShape(array.shape));
+        this.stride = array.strides.map((stride) => stride / array.itemsize);
         this.layout = this.type.dataType == 'string' || this.type.dataType == 'object' ? '|' : array.dtype.byteorder;
         this.values = this.type.dataType == 'string' || this.type.dataType == 'object' ? array.tolist() : array.tobytes();
     }

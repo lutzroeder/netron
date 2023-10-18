@@ -570,10 +570,9 @@ pytorch.Tensor = class {
 
     constructor(name, tensor) {
         this._name = name || '';
-        const storage = tensor.storage();
-        const size = tensor.size();
         const layout = tensor.layout ? tensor.layout.__str__() : null;
-        this._stride = tensor.stride();
+        const storage = tensor.storage();
+        const size = tensor.size() || [];
         if (layout && layout.startsWith('torch.sparse_')) {
             this._type = new pytorch.TensorType(storage.dtype.__reduce__(), new pytorch.TensorShape(size), layout.split('.').pop().replace('_', '.'));
             this._indices = new pytorch.Tensor('', tensor.indices);
@@ -583,6 +582,15 @@ pytorch.Tensor = class {
             this._data = storage.data;
             this._encoding = '<';
             this._indices = null;
+            this._stride = tensor.stride();
+            const stride = this._stride;
+            const offset = tensor.storage_offset();
+            const length = size.every((v) => v !== 0) ? size.reduce((a, v, i) => a + stride[i] * (v - 1), 1) : 0;
+            if (offset !== 0 || length !== storage.size()) {
+                const itemsize = storage.dtype.itemsize();
+                this._offset = itemsize * offset;
+                this._length = itemsize * length;
+            }
         } else {
             throw new pytorch.Error("Unsupported tensor layout '" + layout + "'.");
         }
@@ -613,7 +621,18 @@ pytorch.Tensor = class {
         if (type && type.startsWith('sparse.')) {
             return this._values;
         }
-        return this._data instanceof Uint8Array ? this._data : this._data.peek();
+        if (this._data instanceof Uint8Array) {
+            return this._data;
+        }
+        if (this._offset !== undefined) {
+            const stream = this._data;
+            const position = stream.position;
+            stream.seek(this._offset);
+            const values = stream.peek(this._length);
+            stream.seek(position);
+            return values;
+        }
+        return this._data.peek();
     }
 
     decode() {
@@ -2796,17 +2815,18 @@ pytorch.jit.ScriptModuleDeserializer = class {
             }
             const type = tensorTypeMap.get(constant.dataType);
             const shape = constant.dims ? constant.dims.map((dim) => parseInt(dim, 10)) : null;
+            const strides = constant.strides ? constant.strides.map((dim) => parseInt(dim, 10)) : null;
             const storage_type = execution.resolve('torch.' + type + 'Storage');
             const size = (shape || []).reduce((a, b) => a * b, 1);
             const offset = parseInt(constant.offset, 10) || 0;
-            const storage = new storage_type([ size ]);
+            const storage = new storage_type(size);
             const itemsize = storage.dtype.itemsize();
             const stream = this._reader.getRecord(key);
             const buffer = stream.peek();
             const length = size * itemsize;
             const data = buffer.slice(offset, offset + length);
             storage._set_cdata(data);
-            const tensor = execution.invoke('torch._utils._rebuild_tensor', [ storage, 0, shape, 0 ]);
+            const tensor = execution.invoke('torch._utils._rebuild_tensor', [ storage, 0, shape, strides ]);
             tensor.name = constant.data.key;
             return tensor;
         });

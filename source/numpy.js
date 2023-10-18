@@ -232,6 +232,7 @@ numpy.Tensor = class  {
 
     constructor(array) {
         this.type = new numpy.TensorType(array.dtype.__name__, new numpy.TensorShape(array.shape));
+        this.stride = array.strides.map((stride) => stride / array.itemsize);
         this.values = this.type.dataType == 'string' || this.type.dataType == 'object' ? array.flatten().tolist() : array.tobytes();
         this.encoding = this.type.dataType == 'string' || this.type.dataType == 'object' ? '|' : array.dtype.byteorder;
     }
