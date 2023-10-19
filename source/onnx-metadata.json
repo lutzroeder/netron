@@ -39735,13 +39735,13 @@
         "name": "base_values",
         "type": "float32[]",
         "required": false,
-        "description": "Base values for classification, added to final class score; the size must be the same as the classes or can be left unassigned (assumed 0)"
+        "description": "Base values for regression, added to final prediction after applying aggregate_function; the size must be the same as the classes or can be left unassigned (assumed 0)"
       },
       {
         "name": "base_values_as_tensor",
         "type": "tensor",
         "required": false,
-        "description": "Base values for classification, added to final class score; the size must be the same as the classes or can be left unassigned (assumed 0)"
+        "description": "Base values for regression, added to final prediction after applying aggregate_function; the size must be the same as the classes or can be left unassigned (assumed 0)"
       },
       {
         "name": "n_targets",
