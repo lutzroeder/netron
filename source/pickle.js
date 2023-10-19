@@ -27,6 +27,8 @@ pickle.ModelFactory = class {
         const obj = target;
         if (obj === null || obj === undefined) {
             context.exception(new pickle.Error("Unsupported Pickle null object."));
+        } else if (obj instanceof Error) {
+            throw obj;
         } else if (Array.isArray(obj)) {
             if (obj.length > 0 && obj[0] && obj.every((item) => item && item.__class__ && obj[0].__class__ && item.__class__.__module__ === obj[0].__class__.__module__ && item.__class__.__name__ === obj[0].__class__.__name__)) {
                 const type = obj[0].__class__.__module__ + "." + obj[0].__class__.__name__;

@@ -3357,6 +3357,13 @@
   },
   {
     "type":     "numpy",
+    "target":   "dill_array.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/13031222/dill_array.pkl.zip[dill_array.pkl]",
+    "format":   "NumPy NDArray",
+    "link":     "https://github.com/lutzroeder/netron/issues/711"
+  },
+  {
+    "type":     "numpy",
     "target":   "mlp.npz",
     "source":   "https://github.com/lutzroeder/netron/files/6225731/mlp.zip[mlp.npz]",
     "format":   "NumPy Zip",
@@ -4350,6 +4357,14 @@
     "format":   "Pickle",
     "error":    "Unsupported Pickle object.",
     "link":     "https://github.com/MadryLab/cifar10_challenge"
+  },
+  {
+    "type":     "pickle",
+    "target":   "dill_custom_class.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/13035743/dill_custom_class.pkl.zip[dill_custom_class.pkl]",
+    "format":   "Pickle",
+    "error":    "Unknown type name '__builtin__.__main__'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
   },
   {
     "type":     "pickle",

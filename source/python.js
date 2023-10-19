@@ -1709,6 +1709,7 @@ python.Execution = class {
                 }
             }
         });
+        this.registerType('builtins.staticmethod', class {});
         this.registerFunction('builtins.long', this.builtins.int);
         this.registerFunction('builtins.print', function() {});
         this.registerFunction('builtins.unicode', function(/* value */) {
@@ -3306,10 +3307,13 @@ python.Execution = class {
             }
         });
         this.registerType('types.CodeType', class {});
+        this.registerType('types.GenericAlias', class {});
+        this.registerType('types.SimpleNamespace', class {});
         this.register('types').ObjectType = builtins.object;
         this.register('types').ModuleType = builtins.module;
         this.register('types').MethodType = builtins.method;
         this.register('types').FunctionType = builtins.function;
+        this.register('types').TypeType = builtins.type;
         this.registerType('xgboost.compat.XGBoostLabelEncoder', class {});
         this.registerType('xgboost.core.Booster', class {});
         this.registerType('xgboost.sklearn.XGBClassifier', class {});
@@ -3370,11 +3374,17 @@ python.Execution = class {
         this.registerFunction('builtins.setattr', function(obj, name, value) {
             obj[name] = value;
         });
-        this.registerFunction('builtins.set', function(iterable) {
-            return iterable ? iterable : [];
+        this.registerType('builtins.set', class extends Set {
+            constructor(iterable) {
+                super(iterable);
+            }
         });
-        this.registerFunction('builtins.slice', function(start, stop, step) {
-            return [ start, stop, step ];
+        this.registerType('builtins.slice', class {
+            constructor(start, stop, step) {
+                this.start = start;
+                this.stop = stop;
+                this.step = step;
+            }
         });
         this.registerFunction('builtins.hash', function(/* obj */) {
             throw new python.Error("'builtins.hash' not implemented.");
@@ -3404,6 +3414,16 @@ python.Execution = class {
         this.registerFunction('copy.deepcopy', function(/* x */) {
             throw new python.Error('Unsupported copy.deepcopy().');
         });
+        this.registerFunction('dill._dill._create_array', function(f, args, state, npdict) {
+            const array = f(...args);
+            if (array.__setstate__) {
+                array.__setstate__(state);
+            }
+            if (npdict) {
+                throw new python.Error("'dill._dill._create_array::npdict' not implemented.");
+            }
+            return array;
+        });
         this.registerFunction('dill._dill._create_cell', function(/* args */) {
             return function() {
                 // TODO
@@ -3423,6 +3443,13 @@ python.Execution = class {
                 return obj;
             }
             return undefined;
+        });
+        this.registerFunction('dill._dill._create_type', function(/* typeobj */) {
+            // return execution.invoke(typeobj, Array.from(arguments).slice(1));
+            throw new python.Error("'dill._dill._create_type' not implemented.");
+        });
+        this.registerFunction('dill._dill._eval_repr', function(/* repr_str */) {
+            throw new python.Error("'dill._dill._eval_repr' not implemented.");
         });
         this.registerFunction('dill._dill._get_attr', function(self, name) {
             if (Object.prototype.hasOwnProperty.call(self, name)) {
@@ -3446,10 +3473,26 @@ python.Execution = class {
             }
         });
         this.registerFunction('dill._dill._load_type', function(name) {
-            return self.resolve('types.' + name);
+            const root = self.register('dill._dill');
+            if (!root._reverse_typemap) {
+                root._reverse_typemap = new Map();
+                for (const name of [ '__builtin__', 'types' ]) {
+                    const module = self.register(name);
+                    for (const entry of Object.entries(module)) {
+                        if (entry[1].__module__ === 'builtins' &&
+                            entry[1].__class__ === builtins.type) {
+                            root._reverse_typemap.set(entry[0], entry[1]);
+                        }
+                    }
+                }
+            }
+            if (!root._reverse_typemap.has(name)) {
+                throw new python.Error("Unknown type name '" + name + "' in 'dill._dill._load_type'.");
+            }
+            return root._reverse_typemap.get(name);
         });
         this.registerFunction('keras.saving.pickle_utils.deserialize_model_from_bytecode', function(/* serialized_model */) {
-            throw new python.Error("'keras.saving.pickle_utils.deserialize_model_from_bytecode' not implemented.");
+            return null; // throw new python.Error("'keras.saving.pickle_utils.deserialize_model_from_bytecode' not implemented.");
         });
         this.registerFunction('keras.src.saving.pickle_utils.deserialize_model_from_bytecode', keras.saving.pickle_utils.deserialize_model_from_bytecode);
         this.registerFunction('lasagne.nonlinearities.rectify', function() {

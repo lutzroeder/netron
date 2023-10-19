@@ -4914,8 +4914,12 @@ view.ModelContext = class {
                             }
                             if (unpickler) {
                                 unpickler.persistent_load = (saved_id) => saved_id;
-                                const obj = unpickler.load();
-                                this._content.set(type, obj);
+                                try {
+                                    const obj = unpickler.load();
+                                    this._content.set(type, obj);
+                                } catch (error) {
+                                    this._content.set(type, error);
+                                }
                             }
                             break;
                         }
