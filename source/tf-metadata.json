@@ -9144,6 +9144,25 @@
     ]
   },
   {
+    "name": "ComputeDedupDataSize",
+    "summary": "An op computes the size of the deduplication data from embedding core and returns the updated config.",
+    "description": "This op is to compute size of the deduplication data so to provide this\ninformation to the op that computes the tuple mask of deduplication data can\nhave static output shape.",
+    "attributes": [
+      {
+        "name": "config",
+        "type": "string",
+        "description": "Serialized TPUEmbeddingConfiguration proto."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "num_elements",
+        "description": "The size of the deduplicated data from infeed.",
+        "type": 3
+      }
+    ]
+  },
+  {
     "name": "ComputeDedupDataTupleMask",
     "summary": "An op computes tuple mask of deduplication data from embedding core.",
     "description": "The deduplication data receiving from embedding core is a Tensor with\ntype=DT_VARIANT. The tensor itself is an XLA nested tuple, whose elements are\nrank 1 tensors. This op is to represents types and length of these elements.",
