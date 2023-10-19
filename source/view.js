@@ -299,14 +299,16 @@ view.View = class {
     }
 
     toggle(name, newValue) {
-        console.assert(name === 'attributeFilters' || newValue === undefined);
+        if (!(name === 'attributeFilters' || newValue === undefined)) {
+            throw new view.Error("Unsupported toogle value: '" + name + "' = '" + newValue + "'.");
+        }
         switch (name) {
             case 'attributeFilters':
                 this.options.attributeFilters = newValue;
                 // Turn the attributes on if they aren't already. If you request
                 // a filter presumably you want to see them.
                 if (!this.options.attributes) {
-                    this.toggle('attributes')
+                    this.toggle('attributes');
                 } else {
                     // Toggling the attributes will reload, no need to do it
                     // twice in that case.
@@ -1443,8 +1445,8 @@ view.Menu = class {
                     }
                     case 'textinput': {
                         const element = this._document.createElement('input');
-                        element.setAttribute('type', 'text')
-                        element.setAttribute('placeholder', item.placeholderText)
+                        element.setAttribute('type', 'text');
+                        element.setAttribute('placeholder', item.placeholderText);
                         element.setAttribute('class', 'menu-text-input');
                         element.setAttribute('id', item.identifier);
                         element.value = item.startingValue();
@@ -1555,12 +1557,14 @@ view.Menu.Group = class {
         const item = (() => {
             if (value.execute) {
                 return new view.Menu.Command(value);
-            } else if (value.placeholderText) {
-                return new view.Menu.TextInput(value);
-            } else {
-                console.assert(Object.keys(value).length == 0);
-                return new view.Menu.Separator()
             }
+            if (value.placeholderText) {
+                return new view.Menu.TextInput(value);
+            }
+            if (Object.keys(value).length !== 0) {
+                throw new view.Error("Unexpected menu item: '" + value + "'.");
+            }
+            return new view.Menu.Separator();
         })();
         item.identifier = this.identifier + '-' + this.items.length.toString();
         this.items.push(item);
