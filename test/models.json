@@ -4231,6 +4231,13 @@
     "link":     "https://github.com/lutzroeder/netron/issues/191"
   },
   {
+    "type":     "openvino",
+    "target":   "openvino_i4_matmul_model.xml,openvino_i4_matmul_model.bin",
+    "source":   "https://github.com/lutzroeder/netron/files/13052433/openvino_i4_matmul_model.zip[openvino_i4_matmul_model.zip]",
+    "format":   "OpenVINO IR",
+    "error":     "Unsupported data type size: i4"
+  },
+  {
     "type":     "paddle",
     "target":   "adam.pdopt",
     "source":   "https://github.com/lutzroeder/netron/files/8882900/adam.pdopt.zip[adam.pdopt]",
