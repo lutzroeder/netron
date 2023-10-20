@@ -1272,6 +1272,14 @@
     "support_level": "default"
   },
   {
+    "name": "Range",
+    "inputs": [
+      { "name": "start" },
+      { "name": "stop" },
+      { "name": "step" }
+    ]
+  },
+  {
     "name": "RegionYolo",
     "category": "Layer",
     "description": "**Short description**: *RegionYolo* computes coordinates of regions with probability for each class.\n**Detailed description**:  [Reference][p_yolo]\n**Parameters**: *RegionYolo* layer parameters should be specified as the `data` node, which is a child of the `layer` node.\n**Example**\n\n```html\n<layer ... type=\"RegionYolo\" ... >\n    <data bias=\"1.0\"/>\n    <input> ... </input>\n    <output> ... </output>\n    <weights .../>\n</layer>\n```",
@@ -1524,6 +1532,16 @@
       }
     ],
     "support_level": "default"
+  },
+  {
+    "name": "Subtract",
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ],
+    "outputs": [
+      { "name": "C" }
+    ]
   },
   {
     "name": "SoftMax",
