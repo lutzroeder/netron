@@ -4204,6 +4204,7 @@ python.Execution = class {
         this.registerType('torch.utils.data.sampler.RandomSampler', class {});
         this.registerType('torch.utils.data.sampler.SequentialSampler', class {});
         this.registerType('torchvision.datasets.folder.ImageFolder', class {});
+        this.registerType('torchvision.datasets.mnist.FashionMNIST', class {});
         this.registerType('torchvision.datasets.mnist.MNIST', class {});
         this.registerType('torchvision.datasets.vision.StandardTransform', class {});
         this.registerType('torchvision.models.alexnet.AlexNet', class {});
