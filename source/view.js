@@ -3320,7 +3320,7 @@ view.Tensor = class {
         switch (this._layout) {
             case 'sparse':
             case 'sparse.coo': {
-                return !this._values || this.indices || this._values.values.length === 0;
+                return !this._values || this.indices || this._values.values === null || this._values.values.length === 0;
             }
             default: {
                 switch (this._encoding) {
@@ -4908,7 +4908,27 @@ view.ModelContext = class {
                                 // continue regardless of error
                             }
                             if (unpickler) {
-                                unpickler.persistent_load = (saved_id) => saved_id;
+                                const storages = new Map();
+                                unpickler.persistent_load = (saved_id) => {
+                                    if (Array.isArray(saved_id) && saved_id.length > 3) {
+                                        switch (saved_id[0]) {
+                                            case 'storage': {
+                                                const storage_type = saved_id[1];
+                                                const key = saved_id[2];
+                                                const size = saved_id[4];
+                                                if (!storages.has(key)) {
+                                                    const storage = new storage_type(size);
+                                                    storages.set(key, storage);
+                                                }
+                                                return storages.get(key);
+                                            }
+                                            default: {
+                                                throw new python.Error("Unsupported persistent load type '" + saved_id[0] + "'.");
+                                            }
+                                        }
+                                    }
+                                    throw new view.Error("Unsupported 'persistent_load'.");
+                                };
                                 try {
                                     const obj = unpickler.load();
                                     this._content.set(type, obj);

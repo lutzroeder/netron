@@ -109,7 +109,7 @@ pickle.Node = class {
                 this.attributes.push(attribute);
             } else {
                 stack = stack || new Set();
-                if (value && Array.isArray(value) && value.length > 0 && value.every((obj) => obj.__class__ && obj.__class__.__module__ === value[0].__class__.__module__ && obj.__class__.__name__ === value[0].__class__.__name__)) {
+                if (value && Array.isArray(value) && value.length > 0 && value.every((obj) => obj && obj.__class__ && obj.__class__.__module__ === value[0].__class__.__module__ && obj.__class__.__name__ === value[0].__class__.__name__)) {
                     const values = value.filter((value) => !stack.has(value));
                     const nodes = values.map((value) => {
                         stack.add(value);

@@ -4548,6 +4548,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "densenet.data.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/13064609/densenet.data.pkl.zip[densenet.data.pkl]",
+    "format":   "PyTorch",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "densenet161_traced.pt",
     "source":   "https://github.com/lutzroeder/netron/files/6096613/densenet161_traced.pt.zip[densenet161_traced.pt]",
     "action":   "skip-render",
@@ -4593,6 +4600,13 @@
     "source":   "https://github.com/lutzroeder/netron/files/9145928/fairseq.lightweightconv.pt.zip[fairseq.lightweightconv.pt]",
     "format":   "TorchScript v1.6",
     "link":     "https://github.com/lutzroeder/netron/issues/931"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "fast.ai.data.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/13064775/fast.ai.data.pkl.zip[fast.ai.data.pkl]",
+    "format":   "PyTorch",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
     "type":     "pytorch",
@@ -5355,6 +5369,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "tensors.data.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/13061412/tensors.data.pkl.zip[tensors.data.pkl]",
+    "format":   "PyTorch Pickle Weights",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
     "target":   "test.8bit.pth",
     "source":   "https://github.com/lutzroeder/netron/files/5238524/test.8bit.pth.zip[test.8bit.pth]",
     "format":   "TorchScript v1.6",
@@ -5576,6 +5597,13 @@
     "target":   "yolov5n.tensor.pth",
     "source":   "https://github.com/lutzroeder/netron/files/9543602/yolov5n.tensor.pth.zip[yolov5n.tensor.pth]",
     "format":   "PyTorch v1.6",
+    "link":     "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":     "pytorch",
+    "target":   "yolov5n.tensor.data.pkl",
+    "source":   "https://github.com/lutzroeder/netron/files/13064842/yolov5n.tensor.data.pkl.zip[yolov5n.tensor.data.pkl]",
+    "format":   "PyTorch Pickle Weights",
     "link":     "https://github.com/lutzroeder/netron/issues/720"
   },
   {
