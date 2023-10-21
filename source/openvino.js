@@ -485,6 +485,8 @@ openvino.Node = class {
             let itemSize = undefined;
             switch (precision) {
                 case 'BOOL': case 'BOOLEAN':         itemSize = 1; break;
+                case 'I1':  case 'U1':               itemSize = 0.125; break;
+                case 'I4':  case 'U4':               itemSize = 0.5; break;
                 case 'I8':  case 'U8':               itemSize = 1; break;
                 case 'I16': case 'U16': case 'FP16': itemSize = 2; break;
                 case 'I32': case 'U32': case 'FP32': itemSize = 4; break;
@@ -497,7 +499,7 @@ openvino.Node = class {
                 const tensor = new openvino.Tensor(type, data, category);
                 const value = new openvino.Value(id, null, tensor);
                 this.inputs.push(new openvino.Argument(name, [ value ]));
-                const size = dimensions.reduce((a, b) => a * b, 1) * itemSize;
+                const size = Math.ceil(dimensions.reduce((a, b) => a * b, 1) * itemSize);
                 if (data && data.length !== size) {
                     return data.slice(size, data.length);
                 }
@@ -507,7 +509,7 @@ openvino.Node = class {
                 switch (type + ':' + name) {
                     case 'FullyConnected:weights': {
                         const outSize = parseInt(layer.data['out-size'], 10);
-                        dimensions = [ blob.size / (outSize * itemSize), outSize ];
+                        dimensions = [ layer.input[0].dims[1], outSize ];
                         break;
                     }
                     case 'FullyConnected:biases': {
@@ -551,12 +553,18 @@ openvino.Node = class {
                         data = weight('B', precision, dimensions, data);
                         break;
                     }
+                    case 'Convolution:biases': {
+                        dimensions = [ parseInt(layer.data.output, 10) ];
+                        break;
+                    }
                     case 'ScaleShift:weights':
                     case 'ScaleShift:biases':
-                    case 'Convolution:biases':
-                    case 'Normalize:weights':
+                    case 'Normalize:weights': {
+                        dimensions = [ layer.input[0].dims[1] ];
+                        break;
+                    }
                     case 'PReLU:weights': {
-                        dimensions = [ Math.floor(blob.size / itemSize) ];
+                        dimensions = layer.data.channel_shared === '1' ? [ 1 ] : [ layer.input[0].dims[1] ];
                         break;
                     }
                     case 'Const:custom': {

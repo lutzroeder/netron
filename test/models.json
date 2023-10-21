@@ -4204,6 +4204,13 @@
   },
   {
     "type":     "openvino",
+    "target":   "openvino_i4_matmul_model.xml,openvino_i4_matmul_model.bin",
+    "source":   "https://github.com/lutzroeder/netron/files/13059592/openvino_i4_matmul_model.zip[openvino_i4_matmul_model.xml,openvino_i4_matmul_model.bin]",
+    "format":   "OpenVINO IR",
+    "link":     "https://github.com/lutzroeder/netron/issues/191"
+  },
+  {
+    "type":     "openvino",
     "target":   "text-recognition-0012.xml,text-recognition-0012.bin",
     "source":   "https://github.com/lutzroeder/netron/files/8983714/text-recognition-0012.zip[text-recognition-0012.xml,text-recognition-0012.bin]",
     "format":   "OpenVINO IR",
