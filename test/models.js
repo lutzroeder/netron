@@ -392,7 +392,7 @@ class Target {
             const start = process.hrtime.bigint();
             let err = null;
             try {
-                await method.bind(this)();
+                await method.call(this);
             } catch (error) {
                 err = error;
             }

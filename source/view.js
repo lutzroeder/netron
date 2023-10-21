@@ -4883,6 +4883,7 @@ view.ModelContext = class {
                         }
                         case 'pkl': {
                             let unpickler = null;
+                            const types = new Set();
                             try {
                                 const archive = zip.Archive.open(stream, 'zlib');
                                 const data = archive ? archive.entries.get('') : stream;
@@ -4898,14 +4899,8 @@ view.ModelContext = class {
                                     }
                                 }
                                 if (condition) {
-                                    const signature = [ 0x80, undefined, 0x63, 0x5F, 0x5F, 0x74, 0x6F, 0x72, 0x63, 0x68, 0x5F, 0x5F, 0x2E]; // __torch__.
-                                    const torch = signature.length <= data.length && data.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value);
                                     const execution = new python.Execution();
-                                    execution.on('resolve', (_, name) => {
-                                        if (!torch || !name.startsWith('__torch__.')) {
-                                            this.exception(new view.Error("Unknown type name '" + name + "'."));
-                                        }
-                                    });
+                                    execution.on('resolve', (_, name) => types.add(name));
                                     const pickle = execution.__import__('pickle');
                                     unpickler = new pickle.Unpickler(data);
                                 }
@@ -4919,6 +4914,13 @@ view.ModelContext = class {
                                     this._content.set(type, obj);
                                 } catch (error) {
                                     this._content.set(type, error);
+                                }
+                                if (Array.from(types).every((name) => !name.startsWith('__torch__.'))) {
+                                    for (const name of types) {
+                                        this.exception(new view.Error("Unknown type name '" + name + "'."));
+                                    }
+                                } else {
+                                    this._content.set(type, new view.Error("PyTorch standalone 'data.pkl' format not supported."));
                                 }
                             }
                             break;

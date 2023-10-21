@@ -843,7 +843,7 @@ pytorch.Container.data_pkl = class extends pytorch.Container {
     }
 
     get modules() {
-        throw new pytorch.Error("PyTorch data.pkl format not supported.");
+        throw new pytorch.Error("PyTorch standalone 'data.pkl' not supported.");
     }
 };
 
