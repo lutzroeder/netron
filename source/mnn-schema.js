@@ -851,6 +851,7 @@ $root.MNN.UnaryOp = class UnaryOp {
         const $ = new $root.MNN.UnaryOp();
         $.opType = reader.int32_(position, 4, 0);
         $.T = reader.int32_(position, 6, 0);
+        $.tableInt8 = reader.typedArray(position, 8, Int8Array);
         return $;
     }
 };
