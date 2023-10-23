@@ -2095,6 +2095,13 @@
   },
   {
     "type":     "keras",
+    "target":   "demo_mnist_convnet.keras",
+    "source":   "https://github.com/lutzroeder/netron/files/13066160/demo_mnist_convnet.keras.zip[demo_mnist_convnet.keras]",
+    "format":   "Keras v0.1.7",
+    "link":     "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "type":     "keras",
     "target":   "DenseNet121.h5.zip",
     "source":   "https://github.com/lutzroeder/netron/files/6251712/DenseNet121.h5.zip",
     "format":   "Keras v2.4.0",

@@ -2,15 +2,17 @@
 var keras = {};
 var tfjs = {};
 var json = require('./json');
+var hdf5 = require('./hdf5');
 var python = require('./python');
 var protobuf = require('./protobuf');
 
 keras.ModelFactory = class {
 
     match(context) {
+        const identifier = context.identifier;
         const group = context.open('hdf5');
         if (group && group.attributes && group.attributes.get('CLASS') !== 'hickle') {
-            return 'keras.h5';
+            return identifier === 'model.weights.h5' ? 'keras.model.weights.h5' : 'keras.h5';
         }
         const json = context.open('json');
         if (json) {
@@ -18,7 +20,10 @@ keras.ModelFactory = class {
                 return null;
             }
             if (json.model_config || (json.class_name && json.config)) {
-                return 'keras.json';
+                return 'keras.config.json';
+            }
+            if (identifier === 'metadata.json' && json.keras_version) {
+                return 'keras.metadata.json';
             }
         }
         if (tfjs.Container.open(context)) {
@@ -31,7 +36,6 @@ keras.ModelFactory = class {
             pickle.__class__.__name__ === 'Sequential') {
             return 'keras.pickle';
         }
-        const identifier = context.identifier;
         if (identifier === 'keras_metadata.pb') {
             const tags = context.tags('pb');
             if (tags.size === 1 && tags.get(1) === 2) {
@@ -42,11 +46,91 @@ keras.ModelFactory = class {
     }
 
     async open(context, target) {
+        const request = async (context, name) => {
+            try {
+                return await context.request(name, null);
+            } catch (error) {
+                return null;
+            }
+        };
+        const requestJson = async (context, name) => {
+            const stream = await request(context, name);
+            if (stream) {
+                const reader = json.TextReader.open(stream);
+                return reader.read();
+            }
+            return null;
+        };
+        const requestHdf5 = async (context, name) => {
+            const stream = await request(context, name);
+            const file = hdf5.File.open(stream);
+            return file ? file.read() : null;
+        };
+        const requestWeights = async (context, root) => {
+            const weights = new keras.Weights();
+            const group = root || await requestHdf5(context, 'model.weights.h5');
+            if (group) {
+                const names = [ '_layer_checkpoint_dependencies', 'layers' ].filter((name) => group.groups.has(name));
+                if (names.length > 0) {
+                    const checkpoint = group.groups.get(names[0]);
+                    for (const layer of checkpoint.groups) {
+                        for (const vars of layer[1].groups) {
+                            for (const entry of vars[1].groups) {
+                                const variable = entry[1].value;
+                                if (variable) {
+                                    const layout = variable.littleEndian ? '<' : '>';
+                                    const tensor = new keras.Tensor(entry[0], variable.shape, variable.type, null, layout, variable.data);
+                                    weights.add(layer[0], tensor);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return weights;
+        };
         const openModel = async (format, producer, backend, config, weights) => {
             const metadata = await context.metadata('keras-metadata.json');
             return new keras.Model(metadata, format, producer, backend, config, weights);
         };
         switch (target) {
+            case 'keras.config.json': {
+                const obj = context.open('json');
+                const config = obj.model_config ? obj.model_config : obj;
+                const backend = obj.backend || '';
+                let version = obj.keras_version ? obj.keras_version : null;
+                let weights = new keras.Weights();
+                if (context.identifier === 'config.json') {
+                    weights = await requestWeights(context);
+                    if (!version) {
+                        const metadata = await requestJson(context, 'metadata.json');
+                        if (metadata && metadata.keras_version) {
+                            version = metadata.keras_version;
+                        }
+                    }
+                }
+                const format = 'Keras' + (version ? ' v' + version : '');
+                return openModel(format, '', backend, config, weights);
+            }
+            case 'keras.model.weights.h5': {
+                const weights = await requestWeights(context, context.open('hdf5'));
+                const config = await requestJson(context, 'config.json');
+                const metadata = await requestJson(context, 'metadata.json');
+                const name = config ? 'Keras' : 'Keras Weights';
+                const format = name + (metadata && metadata.keras_version ? ' v' + metadata.keras_version : '');
+                return openModel(format, '', '', config, weights);
+            }
+            case 'keras.metadata.json': {
+                const metadata = target;
+                const config = await requestJson(context, 'config.json');
+                const weights = await requestWeights(context);
+                if (!config && weights.empty) {
+                    throw new keras.Error("'config.json' or 'model.weights.h5' not present.");
+                }
+                const name = config ? 'Keras' : 'Keras Weights';
+                const format = name + (metadata.keras_version ? 'v' + metadata.keras_version : '');
+                return openModel(format, '', '', config, weights);
+            }
             case 'keras.h5': {
                 const find_root_group = (root_group) => {
                     const kerasmodel = root_group.group('model/kerasmodel');
@@ -144,41 +228,6 @@ keras.ModelFactory = class {
                     }
                     return openModel(format, '', backend, null, weights);
                 }
-                if (context.identifier === 'model.weights.h5' &&
-                    group.attributes.size === 0 &&
-                    group.groups.has('_layer_checkpoint_dependencies')) {
-                    const checkpoint = group.groups.get('_layer_checkpoint_dependencies');
-                    for (const layer of checkpoint.groups) {
-                        for (const vars of layer[1].groups) {
-                            for (const entry of vars[1].groups) {
-                                const variable = entry[1].value;
-                                if (variable) {
-                                    const layout = variable.littleEndian ? '<' : '>';
-                                    const tensor = new keras.Tensor(entry[0], variable.shape, variable.type, null, layout, variable.data);
-                                    weights.add(layer[0], tensor);
-                                }
-                            }
-                        }
-                    }
-                    let model_config = null;
-                    try {
-                        const stream = await context.request('config.json', 'utf-8');
-                        const reader = json.TextReader.open(stream);
-                        model_config = reader.read();
-                    } catch (error) {
-                        // continue regardless of error
-                    }
-                    let metadata = null;
-                    try {
-                        const stream = await context.request('metadata.json', 'utf-8');
-                        const reader = json.TextReader.open(stream);
-                        metadata = reader.read();
-                    } catch (error) {
-                        // continue regardless of error
-                    }
-                    const format = 'Keras' + (metadata && metadata.keras_version ? ' v' + metadata.keras_version : '');
-                    return openModel(format, '', '', model_config, weights);
-                }
                 const rootKeys = new Set(root_group.attributes.keys());
                 rootKeys.delete('nb_layers');
                 if (rootKeys.size > 0 || root_group.value !== null) {
@@ -251,14 +300,6 @@ keras.ModelFactory = class {
                 walk(weights_group);
                 return openModel(format, '', '', null, weights);
             }
-            case 'keras.json': {
-                const obj = context.open('json');
-                const format = 'Keras' + (obj.keras_version ? ' v' + obj.keras_version : '');
-                const backend = obj.backend || '';
-                const config = obj.model_config ? obj.model_config : obj;
-                const weights = new keras.Weights();
-                return openModel(format, '', backend, config, weights);
-            }
             case 'tfjs.json': {
                 const container = tfjs.Container.open(context);
                 await container.open();
@@ -325,14 +366,6 @@ keras.Model = class {
         this._producer = producer;
         metadata = new keras.GraphMetadata(metadata);
         this._graphs = [ new keras.Graph(metadata, config, weights) ];
-    }
-
-    get name() {
-        return null;
-    }
-
-    get description() {
-        return null;
     }
 
     get format() {
@@ -1102,6 +1135,10 @@ keras.Weights = class {
 
     constructor() {
         this._map = new Map();
+    }
+
+    get empty() {
+        return this._map.size === 0;
     }
 
     add(layer_name, tensor) {
