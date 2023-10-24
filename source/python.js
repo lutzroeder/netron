@@ -3321,49 +3321,101 @@ python.Execution = class {
         this.registerFunction('_codecs.encode', function(obj, encoding) {
             return execution.invoke('builtins.bytearray', [ obj, encoding ]);
         });
-        this.registerFunction('builtins.bytearray', function(source, encoding /*, errors */) {
-            if (source) {
-                if (Array.isArray(source) || source instanceof Uint8Array) {
-                    const target = new Uint8Array(source.length);
+        this.registerType('builtins.bytearray', class extends Uint8Array {
+            constructor(source, encoding /*, errors */) {
+                source = builtins.bytes.__encode__(source, encoding);
+                super(Number.isInteger(source) ? source : source.length);
+                if (Array.isArray(source)) {
                     for (let i = 0; i < source.length; i++) {
-                        target[i] = source[i];
+                        this[i] = source;
                     }
-                    return target;
-                }
-                if (encoding === 'latin-1' || encoding === 'latin1') {
-                    const target = new Uint8Array(source.length);
-                    const length = source.length;
-                    for (let i = 0; i < length; i++) {
-                        target[i] = source.charCodeAt(i);
+                } else if (source instanceof Uint8Array) {
+                    this.set(source, 0);
+                } else if (typeof source === 'string') {
+                    for (let i = 0; i < source.length; i++) {
+                        this[i] = source.charCodeAt(i);
                     }
-                    return target;
                 }
-                throw new python.Error("Unsupported bytearray encoding '" + JSON.stringify(encoding) + "'.");
             }
-            return [];
-        });
-        this.registerFunction('builtins.bytes', function(source, encoding /*, errors */) {
-            if (source) {
+            static __encode__(source, encoding) {
+                if (source === undefined) {
+                    return 0;
+                }
+                if (Number.isInteger(source)) {
+                    return source;
+                }
                 if (Array.isArray(source) || source instanceof Uint8Array) {
-                    const target = new Uint8Array(source.length);
-                    for (let i = 0; i < source.length; i++) {
-                        target[i] = source[i];
-                    }
-                    return target;
+                    return source;
                 }
-                if (encoding === 'latin-1') {
-                    const array = new Uint8Array(source.length);
-                    for (let i = 0; i < source.length; i++) {
-                        array[i] = source.charCodeAt(i);
+                if (typeof source === 'string') {
+                    switch (encoding) {
+                        case 'latin1':
+                        case 'latin-1':
+                            return source;
+                        case 'utf8':
+                        case 'utf-8':
+                            return new TextEncoder('utf-8').encode(source);
+                        case undefined:
+                            throw new python.Error('Unsupported string argument without an encoding.');
+                        default:
+                            throw new python.Error("Unsupported encoding '" + encoding + "'.");
                     }
-                    return array;
                 }
-                throw new python.Error("Unsupported bytes encoding '" + JSON.stringify(encoding) + "'.");
+                throw new python.Error('Unsupported source.');
             }
-            return [];
         });
-        this.registerFunction('builtins.frozenset', function(iterable) {
-            return iterable ? iterable : [];
+        this.registerType('builtins.bytes', class extends Uint8Array {
+            constructor(source, encoding /*, errors */) {
+                source = builtins.bytes.__encode__(source, encoding);
+                super(Number.isInteger(source) ? source : source.length);
+                if (Array.isArray(source)) {
+                    for (let i = 0; i < source.length; i++) {
+                        this[i] = source;
+                    }
+                } else if (source instanceof Uint8Array) {
+                    this.set(source, 0);
+                } else if (typeof source === 'string') {
+                    for (let i = 0; i < source.length; i++) {
+                        this[i] = source.charCodeAt(i);
+                    }
+                }
+            }
+            static __encode__(source, encoding) {
+                if (source === undefined) {
+                    return 0;
+                }
+                if (Number.isInteger(source)) {
+                    return source;
+                }
+                if (Array.isArray(source) || source instanceof Uint8Array) {
+                    return source;
+                }
+                if (typeof source === 'string') {
+                    switch (encoding) {
+                        case 'latin1':
+                        case 'latin-1':
+                            return source;
+                        case 'utf8':
+                        case 'utf-8':
+                            return new TextEncoder('utf-8').encode(source);
+                        case undefined:
+                            throw new python.Error('Unsupported string argument without an encoding.');
+                        default:
+                            throw new python.Error("Unsupported encoding '" + encoding + "'.");
+                    }
+                }
+                throw new python.Error('Unsupported source.');
+            }
+        });
+        this.registerType('builtins.frozenset', class extends Set {
+            constructor(iterable) {
+                super();
+                if (iterable) {
+                    for (const item of iterable) {
+                        this.add(item);
+                    }
+                }
+            }
         });
         this.registerFunction('builtins.getattr', function(obj, name, defaultValue) {
             if (Object.prototype.hasOwnProperty.call(obj, name)) {
@@ -4174,6 +4226,7 @@ python.Execution = class {
         this.registerType('torch.optim.adamw.AdamW', class {});
         this.registerType('torch.optim.adagrad.Adagrad', class {});
         this.registerType('torch.optim.adadelta.Adadelta', class {});
+        this.registerType('torch.optim.lbfgs.LBFGS', class {});
         this.registerType('torch.optim.lr_scheduler.CosineAnnealingLR', class {});
         this.registerType('torch.optim.lr_scheduler.CyclicLR', class {});
         this.registerType('torch.optim.lr_scheduler.ExponentialLR', class {});
