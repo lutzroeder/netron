@@ -193,14 +193,6 @@ $root.paddle.lite.fbs.proto.ProgramDesc = class ProgramDesc {
 
 $root.paddle.lite.fbs.proto.CombinedParamsDesc = class CombinedParamsDesc {
 
-    static create(reader) {
-        return $root.paddle.lite.fbs.proto.CombinedParamsDesc.decode(reader, reader.root);
-    }
-
-    static createText(reader) {
-        return $root.paddle.lite.fbs.proto.CombinedParamsDesc.decodeText(reader, reader.root);
-    }
-
     static decode(reader, position) {
         const $ = new $root.paddle.lite.fbs.proto.CombinedParamsDesc();
         $.params = reader.tableArray(position, 4, $root.paddle.lite.fbs.proto.ParamDesc.decode);
