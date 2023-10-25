@@ -2227,6 +2227,7 @@ python.Execution = class {
         this.registerType('megengine.module.identity.Identity', class {});
         this.registerType('megengine.module.linear.Linear', class {});
         this.registerType('megengine.module.module.Module', class {});
+        this.registerType('megengine.module.normalization.InstanceNorm', class {});
         this.registerType('megengine.module.normalization.GroupNorm', class {});
         this.registerType('megengine.module.pooling.AvgPool2d', class {});
         this.registerType('megengine.module.pooling.MaxPool2d', class {});
@@ -4101,6 +4102,9 @@ python.Execution = class {
         this.registerType('torch.nn.modules.conv.ConvTranspose1d', class extends torch.nn.modules.conv._ConvTransposeNd {});
         this.registerType('torch.nn.modules.conv.ConvTranspose2d', class extends torch.nn.modules.conv._ConvTransposeNd {});
         this.registerType('torch.nn.modules.conv.ConvTranspose3d', class extends torch.nn.modules.conv._ConvTransposeNd {});
+        this.registerType('torch.nn.modules.conv.LazyConv1d', class {});
+        this.registerType('torch.nn.modules.conv.LazyConv2d', class {});
+        this.registerType('torch.nn.modules.conv.LazyConv3d', class {});
         this.registerType('torch.nn.modules.distance.CosineSimilarity', class {});
         this.registerType('torch.nn.modules.dropout._DropoutNd', class extends torch.nn.Module {});
         this.registerType('torch.nn.modules.dropout.AlphaDropout', class extends torch.nn.modules.dropout._DropoutNd {});
@@ -4324,6 +4328,11 @@ python.Execution = class {
         this.registerType('torchvision.models.mobilenetv3.InvertedResidual', class {});
         this.registerType('torchvision.models.mobilenetv3.MobileNetV3', class {});
         this.registerType('torchvision.models.mobilenetv3.SqueezeExcitation', class {});
+        this.registerType('torchvision.models.regnet.AnyStage', class {});
+        this.registerType('torchvision.models.regnet.BottleneckTransform', class {});
+        this.registerType('torchvision.models.regnet.ResBottleneckBlock', class {});
+        this.registerType('torchvision.models.regnet.RegNet', class {});
+        this.registerType('torchvision.models.regnet.SimpleStemIN', class {});
         this.registerType('torchvision.models.resnet.Bottleneck', class {});
         this.registerType('torchvision.models.resnet.BasicBlock', class {});
         this.registerType('torchvision.models.quantization.mobilenet.QuantizableInvertedResidual', class {});
