@@ -4413,6 +4413,13 @@
   },
   {
     "type":     "pytorch",
+    "target":   "add.pte",
+    "source":   "https://github.com/lutzroeder/netron/files/13156981/add.pte.zip[add.pte]",
+    "error":    "Invalid file content. File contains executorch.Program data.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1175"
+  },
+  {
+    "type":     "pytorch",
     "target":   "alexnet_traced.pt.zip",
     "source":   "https://github.com/lutzroeder/netron/files/6096602/alexnet_traced.pt.zip",
     "format":   "TorchScript v1.6",

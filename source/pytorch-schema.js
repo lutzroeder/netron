@@ -349,3 +349,399 @@ $root.torch.jit.mobile.serialization.Module = class Module {
         return $;
     }
 };
+
+$root.executorch_flatbuffer = $root.executorch_flatbuffer || {};
+
+$root.executorch_flatbuffer.ScalarType = {
+    BYTE: 0,
+    CHAR: 1,
+    SHORT: 2,
+    INT: 3,
+    LONG: 4,
+    FLOAT: 6,
+    DOUBLE: 7,
+    BOOL: 11,
+    QINT8: 12,
+    QUINT8: 13,
+    QINT32: 14,
+    QUINT4X2: 16,
+    QUINT2X4: 17
+};
+
+$root.executorch_flatbuffer.ContainerMetadata = class ContainerMetadata {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.ContainerMetadata();
+        $.encoded_inp_str = reader.string_(position, 4, null);
+        $.encoded_out_str = reader.string_(position, 6, null);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.Null = class Null {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.executorch_flatbuffer.Null();
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.AllocationDetails = class AllocationDetails {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.AllocationDetails();
+        $.memory_id = reader.uint32_(position, 4, 0);
+        $.memory_offset = reader.uint32_(position, 6, 0);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.TensorShapeDynamism = {
+    STATIC: 0,
+    DYNAMIC_BOUND: 1,
+    DYNAMIC_UNBOUND: 2
+};
+
+$root.executorch_flatbuffer.Tensor = class Tensor {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.Tensor();
+        $.scalar_type = reader.int8_(position, 4, 0);
+        $.storage_offset = reader.int32_(position, 6, 0);
+        $.sizes = reader.typedArray(position, 8, Int32Array);
+        $.dim_order = reader.typedArray(position, 10, Uint8Array);
+        $.requires_grad = reader.bool_(position, 12, false);
+        $.constant_buffer_idx = reader.uint32_(position, 14, 0);
+        $.allocation_info = reader.table(position, 16, $root.executorch_flatbuffer.AllocationDetails.decode);
+        $.layout = reader.int8_(position, 18, 0);
+        $.shape_dynamism = reader.int8_(position, 20, 0);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.Int = class Int {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.Int();
+        $.int_val = reader.int64_(position, 4, 0);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.Bool = class Bool {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.Bool();
+        $.bool_val = reader.bool_(position, 4, false);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.Double = class Double {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.Double();
+        $.double_val = reader.float64_(position, 4, 0);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.String = class String {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.String();
+        $.string_val = reader.string_(position, 4, null);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.IntList = class IntList {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.IntList();
+        $.items = reader.int64s_(position, 4);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.DoubleList = class DoubleList {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.DoubleList();
+        $.items = reader.typedArray(position, 4, Float64Array);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.BoolList = class BoolList {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.BoolList();
+        $.items = reader.bools_(position, 4);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.TensorList = class TensorList {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.TensorList();
+        $.items = reader.typedArray(position, 4, Int32Array);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.OptionalTensorList = class OptionalTensorList {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.OptionalTensorList();
+        $.items = reader.typedArray(position, 4, Int32Array);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.KernelTypes = class {
+
+    static decode(reader, position, type) {
+        switch (type) {
+            case 1: return $root.executorch_flatbuffer.Null.decode(reader, position);
+            case 2: return $root.executorch_flatbuffer.Int.decode(reader, position);
+            case 3: return $root.executorch_flatbuffer.Bool.decode(reader, position);
+            case 4: return $root.executorch_flatbuffer.Double.decode(reader, position);
+            case 5: return $root.executorch_flatbuffer.Tensor.decode(reader, position);
+            case 6: return $root.executorch_flatbuffer.String.decode(reader, position);
+            case 7: return $root.executorch_flatbuffer.IntList.decode(reader, position);
+            case 8: return $root.executorch_flatbuffer.DoubleList.decode(reader, position);
+            case 9: return $root.executorch_flatbuffer.BoolList.decode(reader, position);
+            case 10: return $root.executorch_flatbuffer.TensorList.decode(reader, position);
+            case 11: return $root.executorch_flatbuffer.OptionalTensorList.decode(reader, position);
+            default: return undefined;
+        }
+    }
+};
+
+$root.executorch_flatbuffer.EValue = class EValue {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.EValue();
+        $.val = reader.union(position, 4, $root.executorch_flatbuffer.KernelTypes.decode);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.Operator = class Operator {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.Operator();
+        $.name = reader.string_(position, 4, null);
+        $.overload = reader.string_(position, 6, null);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.KernelCall = class KernelCall {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.KernelCall();
+        $.op_index = reader.int32_(position, 4, 0);
+        $.args = reader.typedArray(position, 6, Int32Array);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.DelegateCall = class DelegateCall {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.DelegateCall();
+        $.delegate_index = reader.int32_(position, 4, 0);
+        $.args = reader.typedArray(position, 6, Int32Array);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.MoveCall = class MoveCall {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.MoveCall();
+        $.move_from = reader.int32_(position, 4, 0);
+        $.move_to = reader.int32_(position, 6, 0);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.JumpFalseCall = class JumpFalseCall {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.JumpFalseCall();
+        $.cond_value_index = reader.int32_(position, 4, 0);
+        $.destination_instruction = reader.int32_(position, 6, 0);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.FreeCall = class FreeCall {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.FreeCall();
+        $.value_index = reader.int32_(position, 4, 0);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.InstructionArguments = class {
+
+    static decode(reader, position, type) {
+        switch (type) {
+            case 1: return $root.executorch_flatbuffer.KernelCall.decode(reader, position);
+            case 2: return $root.executorch_flatbuffer.DelegateCall.decode(reader, position);
+            case 3: return $root.executorch_flatbuffer.MoveCall.decode(reader, position);
+            case 4: return $root.executorch_flatbuffer.JumpFalseCall.decode(reader, position);
+            case 5: return $root.executorch_flatbuffer.FreeCall.decode(reader, position);
+            default: return undefined;
+        }
+    }
+};
+
+$root.executorch_flatbuffer.Instruction = class Instruction {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.Instruction();
+        $.instr_args = reader.union(position, 4, $root.executorch_flatbuffer.InstructionArguments.decode);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.Frame = class Frame {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.Frame();
+        $.filename = reader.string_(position, 4, null);
+        $.lineno = reader.int32_(position, 6, 0);
+        $.name = reader.string_(position, 8, null);
+        $.context = reader.string_(position, 10, null);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.FrameList = class FrameList {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.FrameList();
+        $.items = reader.tableArray(position, 4, $root.executorch_flatbuffer.Frame.decode);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.DataLocation = {
+    INLINE: 0,
+    SEGMENT: 1
+};
+
+$root.executorch_flatbuffer.BackendDelegateDataReference = class BackendDelegateDataReference {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.BackendDelegateDataReference();
+        $.location = reader.int8_(position, 4, 0);
+        $.index = reader.uint32_(position, 6, 0);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.CompileSpec = class CompileSpec {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.CompileSpec();
+        $.key = reader.string_(position, 4, null);
+        $.value = reader.typedArray(position, 6, Uint8Array);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.BackendDelegate = class BackendDelegate {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.BackendDelegate();
+        $.id = reader.string_(position, 4, null);
+        $.processed = reader.table(position, 6, $root.executorch_flatbuffer.BackendDelegateDataReference.decode);
+        $.compile_specs = reader.tableArray(position, 8, $root.executorch_flatbuffer.CompileSpec.decode);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.Chain = class Chain {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.Chain();
+        $.inputs = reader.typedArray(position, 4, Int32Array);
+        $.outputs = reader.typedArray(position, 6, Int32Array);
+        $.instructions = reader.tableArray(position, 8, $root.executorch_flatbuffer.Instruction.decode);
+        $.stacktrace = reader.tableArray(position, 10, $root.executorch_flatbuffer.FrameList.decode);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.ExecutionPlan = class ExecutionPlan {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.ExecutionPlan();
+        $.name = reader.string_(position, 4, null);
+        $.container_meta_type = reader.table(position, 6, $root.executorch_flatbuffer.ContainerMetadata.decode);
+        $.values = reader.tableArray(position, 8, $root.executorch_flatbuffer.EValue.decode);
+        $.inputs = reader.typedArray(position, 10, Int32Array);
+        $.outputs = reader.typedArray(position, 12, Int32Array);
+        $.chains = reader.tableArray(position, 14, $root.executorch_flatbuffer.Chain.decode);
+        $.operators = reader.tableArray(position, 16, $root.executorch_flatbuffer.Operator.decode);
+        $.delegates = reader.tableArray(position, 18, $root.executorch_flatbuffer.BackendDelegate.decode);
+        $.non_const_buffer_sizes = reader.int64s_(position, 20);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.Buffer = class Buffer {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.Buffer();
+        $.storage = reader.typedArray(position, 4, Uint8Array);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.BackendDelegateInlineData = class BackendDelegateInlineData {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.BackendDelegateInlineData();
+        $.data = reader.typedArray(position, 4, Uint8Array);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.DataSegment = class DataSegment {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.DataSegment();
+        $.offset = reader.uint64_(position, 4, 0);
+        $.size = reader.uint64_(position, 6, 0);
+        return $;
+    }
+};
+
+$root.executorch_flatbuffer.Program = class Program {
+
+    static identifier(reader) {
+        return reader.identifier === 'ET12';
+    }
+
+    static create(reader) {
+        return $root.executorch_flatbuffer.Program.decode(reader, reader.root);
+    }
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.Program();
+        $.version = reader.uint32_(position, 4, 0);
+        $.execution_plan = reader.tableArray(position, 6, $root.executorch_flatbuffer.ExecutionPlan.decode);
+        $.constant_buffer = reader.tableArray(position, 8, $root.executorch_flatbuffer.Buffer.decode);
+        $.backend_delegate_data = reader.tableArray(position, 10, $root.executorch_flatbuffer.BackendDelegateInlineData.decode);
+        $.segments = reader.tableArray(position, 12, $root.executorch_flatbuffer.DataSegment.decode);
+        return $;
+    }
+};

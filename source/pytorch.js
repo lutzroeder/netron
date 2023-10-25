@@ -723,6 +723,10 @@ pytorch.Container = class {
         if (mobile) {
             return mobile;
         }
+        const executorch = pytorch.Container.ExecuTorch.open(context);
+        if (executorch) {
+            return executorch;
+        }
         return null;
     }
 
@@ -982,6 +986,31 @@ pytorch.Container.Mobile = class extends pytorch.Container {
 
     get modules() {
         return this._modules;
+    }
+};
+
+pytorch.Container.ExecuTorch = class extends pytorch.Container {
+
+    static open(context) {
+        const tags = context.tags('flatbuffers');
+        if (tags.get('file_identifier') === 'ET12') {
+            return new pytorch.Container.ExecuTorch(context);
+        }
+        return null;
+    }
+
+    constructor(context) {
+        super();
+        this._context = context;
+    }
+
+    async read() {
+        await this._context.require('./pytorch-schema');
+        pytorch.executorch = flatbuffers.get('torch').executorch_flatbuffer;
+        const stream = this._context.stream;
+        const reader = flatbuffers.BinaryReader.open(stream);
+        /* const program = */ pytorch.executorch.Program.create(reader);
+        throw new pytorch.Error('Invalid file content. File contains executorch.Program data.');
     }
 };
 

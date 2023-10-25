@@ -43,7 +43,7 @@ flatc.Namespace = class extends flatc.Object {
     constructor(parent, name) {
         super(parent, name);
         this.children = new Map();
-        this.root_type = new Set();
+        this.root_type = new Map();
     }
 
     resolve() {
@@ -52,10 +52,13 @@ flatc.Namespace = class extends flatc.Object {
                 child.resolve();
             }
             if (this.root_type.size > 0) {
-                for (const root_type of this.root_type) {
-                    const type = this.find(root_type, flatc.Type);
+                for (const entry of this.root_type) {
+                    const type = this.find(entry[0], flatc.Type);
                     if (!type) {
-                        throw new flatc.Error("Failed to resolve root type '" + root_type + "'.");
+                        throw new flatc.Error("Failed to resolve root type '" + entry[0] + "'.");
+                    }
+                    if (entry[1]) {
+                        type.file_identifier = entry[1];
                     }
                     this.root.root_type.add(type);
                 }
@@ -413,13 +416,14 @@ flatc.Parser = class {
                 throw new flatc.Error("Unsupported keyword 'rpc_service'." + this._tokenizer.location());
             }
             if (this._tokenizer.eat('id', 'root_type')) {
-                this._context.root_type.add(this._tokenizer.identifier());
+                const root_type = this._tokenizer.identifier();
+                this._root_type = this._root_type || root_type;
                 this._tokenizer.eat(';');
                 continue;
             }
             if (this._tokenizer.eat('id', 'file_extension')) {
                 const value = this._tokenizer.string();
-                this._root.file_extension = value;
+                this._file_extension = value;
                 this._tokenizer.eat(';');
                 continue;
             }
@@ -428,7 +432,7 @@ flatc.Parser = class {
                 if (value.length !== 4) {
                     throw new flatc.Error("'file_identifier' must be exactly 4 characters " + this._tokenizer.location());
                 }
-                this._root.file_identifier = value;
+                this._file_identifier = value;
                 this._tokenizer.eat(';');
                 continue;
             }
@@ -451,6 +455,9 @@ flatc.Parser = class {
                 throw new flatc.Error('Unsupported object.' + this._tokenizer.location());
             }
             throw new flatc.Error("Unexpected token '" + this._tokenizer.peek().token + "'" + this._tokenizer.location());
+        }
+        if (this._root_type) {
+            this._context.root_type.set(this._root_type, this._file_identifier);
         }
     }
 
@@ -926,7 +933,7 @@ flatc.Generator = class {
 
             if (this._root.root_type.has(type)) {
 
-                const file_identifier = this._root.file_identifier;
+                const file_identifier = type.file_identifier;
                 if (file_identifier) {
                     this._builder.add('');
                     this._builder.add('static identifier(reader) {');
