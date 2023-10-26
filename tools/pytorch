@@ -28,7 +28,7 @@ schema() {
     echo "caffe2 schema"
     node ./tools/protoc.js --text --root caffe2 --out ./source/caffe2-proto.js ./third_party/source/pytorch/caffe2/proto/caffe2.proto
     echo "pytorch schema"
-    node ./tools/flatc.js --root torch --out ./source/pytorch-schema.js ./third_party/source/pytorch/torch/csrc/jit/serialization/mobile_bytecode.fbs ./third_party/source/executorch/schema/program.proto
+    node ./tools/flatc.js --root torch --out ./source/pytorch-schema.js ./third_party/source/pytorch/torch/csrc/jit/serialization/mobile_bytecode.fbs ./third_party/source/executorch/schema/program.fbs
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/caffe2-proto.js ./source/caffe2-proto.js
     fi
