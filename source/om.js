@@ -426,7 +426,7 @@ om.Container = class {
                         case 4: { // CUST_AICPU_KERNELS
                             break;
                         }
-                        case 5: { // DEVICE_CONFIG
+                        case 5: { // DEVICE_CONFIG, SO_BINS
                             this.devices = new Map();
                             const decoder = new TextDecoder('ascii');
                             const reader = new base.BinaryReader(buffer);
@@ -439,6 +439,17 @@ om.Container = class {
                                 this.devices.set(name, device);
                                 position += 4 + length + 4;
                             }
+                            break;
+                        }
+                        case 6: // FLOW_MODEL
+                        case 7: // FLOW_SUBMODEL
+                        case 8: // MODEL_INOUT_INFO
+                        case 9: // STATIC_TASK_DESC
+                        case 10: // DYNAMIC_TASK_DESC
+                        case 11: // TASK_PARAM
+                        case 20: // PRE_MODEL_DESC
+                        case 21: // PRE_MODEL_SQE
+                        case 22: { // PRE_KERNEL_ARGS
                             break;
                         }
                         default: {
