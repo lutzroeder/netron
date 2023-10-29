@@ -1618,7 +1618,7 @@ view.Graph = class extends grapher.Graph {
             this._values.set(name, value);
             this._table.set(argument, value);
         } else {
-            // TODO #1109 duplicate argument name
+            // duplicate argument name
             const value = this._values.get(name);
             this._table.set(argument, value);
         }
