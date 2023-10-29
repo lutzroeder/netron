@@ -4024,11 +4024,15 @@ python.Execution = class {
         });
         torch.nn.Module = torch.nn.modules.module.Module;
         torch.nn.modules.Module = torch.nn.modules.module.Module;
-        this.registerType('torch.ao.nn.quantized.dynamic.modules.rnn.PackedParameter', class extends torch.nn.Module {});
+        this.registerType('torch.ao.nn.quantized.modules.utils.WeightedQuantizedModule', class extends torch.nn.Module {});
         this.registerType('torch.ao.nn.quantized.modules.conv.Conv2d', class extends torch.nn.Module {});
         this.registerType('torch.ao.nn.quantized.modules.Quantize', class extends torch.nn.Module {});
         this.registerType('torch.ao.nn.quantized.modules.DeQuantize', class extends torch.nn.Module {});
         this.registerType('torch.ao.nn.quantized.modules.functional_modules.FloatFunctional', class extends torch.nn.Module {});
+        this.registerType('torch.ao.nn.quantized.modules.linear.Linear', class extends torch.ao.nn.quantized.modules.utils.WeightedQuantizedModule {});
+        this.registerType('torch.ao.nn.quantized.modules.linear.LinearPackedParams', class extends torch.nn.Module {});
+        this.registerType('torch.ao.nn.quantized.dynamic.modules.linear.Linear', class extends torch.ao.nn.quantized.modules.linear.Linear {});
+        this.registerType('torch.ao.nn.quantized.dynamic.modules.rnn.PackedParameter', class extends torch.nn.Module {});
         this.registerType('torch.ao.quantization.observer._PartialWrapper', class {});
         this.registerType('torch.ao.quantization.observer.HistogramObserver', class {});
         this.registerType('torch.ao.quantization.observer.MovingAverageMinMaxObserver', class {});
