@@ -1,6 +1,7 @@
 
 var dlc = {};
 var text = require('./text');
+var flatbuffers = require('./flatbuffers');
 
 dlc.ModelFactory = class {
 
