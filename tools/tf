@@ -52,11 +52,7 @@ schema() {
     [[ $(grep -U $'\x0D' ./source/tflite-schema.js) ]] && crlf=1
     temp1=$(mktemp -d)
     temp2=$(mktemp -d)
-    node ./tools/flatc.js --text --root tflite --out ./source/tflite-schema.js ./third_party/source/tensorflow/tensorflow/lite/schema/schema.fbs
-    node ./tools/flatc.js --root tflite --out ${temp1}/tflite-metadata-schema.js ./third_party/source/tflite-support/tensorflow_lite_support/metadata/metadata_schema.fbs
-    sed "s/var \$root = flatbuffers.get('tflite');//g" < ${temp1}/tflite-metadata-schema.js >> ${temp2}/tflite-metadata-schema.js
-    cat ${temp2}/tflite-metadata-schema.js >> ./source/tflite-schema.js
-    rm -rf ${temp1} ${temp2}
+    node ./tools/flatc.js --text --root tflite --out ./source/tflite-schema.js ./third_party/source/tensorflow/tensorflow/lite/schema/schema.fbs ./third_party/source/tflite-support/tensorflow_lite_support/metadata/metadata_schema.fbs
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/tflite-schema.js ./source/tflite-schema.js
     fi
