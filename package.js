@@ -506,6 +506,7 @@ const update = async () => {
         'paddle',
         'pytorch',
         'rknn',
+        'sentencepiece',
         'sklearn',
         'tf',
         'uff',
@@ -606,5 +607,4 @@ const next = async () => {
     }
 };
 
-load();
-next();
+load().then(() => next());
