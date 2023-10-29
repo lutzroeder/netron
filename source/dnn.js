@@ -2,6 +2,7 @@
 // Experimental
 
 var dnn = {};
+var protobuf = require('./protobuf');
 
 dnn.ModelFactory = class {
 
