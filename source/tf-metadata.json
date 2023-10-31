@@ -10370,6 +10370,48 @@
     ]
   },
   {
+    "name": "ConvertToCooTensor",
+    "attributes": [
+      {
+        "name": "sample_count",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "combiner",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "indices_or_row_splits",
+        "type": 3
+      },
+      {
+        "name": "values",
+        "type": 3
+      },
+      {
+        "name": "weights",
+        "type": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "row_ids",
+        "type": 3
+      },
+      {
+        "name": "col_ids",
+        "type": 3
+      },
+      {
+        "name": "gains",
+        "type": 1
+      }
+    ]
+  },
+  {
     "name": "Copy",
     "summary": "Copy a tensor from CPU-to-CPU or GPU-to-GPU.",
     "description": "Performs CPU-to-CPU or GPU-to-GPU deep-copying of tensor, depending on the\ndevice on which the tensor is allocated.\nN.B.: If the all downstream attached debug ops are disabled given the current\ngRPC gating status, the output will simply forward the input tensor without\ndeep-copying. See the documentation of Debug* ops for more details.\n\nUnlike the CopyHost Op, this op does not have HostMemory constraint on its\ninput or output.",
@@ -20753,6 +20795,196 @@
       {
         "name": "components",
         "typeListAttr": "output_types"
+      }
+    ]
+  },
+  {
+    "name": "GetMinibatchSplitsWithPhysicalReplica",
+    "attributes": [
+      {
+        "name": "sample_count",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "num_replica",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "table_vocab_size",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "feature_width",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "num_sc_per_chip",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      },
+      {
+        "name": "mini_batch_splits",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "program_key",
+        "type": 7
+      },
+      {
+        "name": "row_ids",
+        "type": 3
+      },
+      {
+        "name": "col_ids",
+        "type": 3
+      },
+      {
+        "name": "gains",
+        "type": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "sorted_row_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_col_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "splits",
+        "type": 9
+      },
+      {
+        "name": "id_counts",
+        "type": 3
+      },
+      {
+        "name": "max_ids",
+        "type": 3
+      },
+      {
+        "name": "max_uniques",
+        "type": 3
+      }
+    ]
+  },
+  {
+    "name": "GetMinibatchesInCsrWithPhysicalReplica",
+    "attributes": [
+      {
+        "name": "sample_count",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "num_replica",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "max_minibatches_per_sc",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "max_ids_per_chip_per_sample",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "table_vocab_size",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "feature_width",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "num_sc_per_chip",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      },
+      {
+        "name": "mini_batch_in_csr",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "program_key",
+        "type": 7
+      },
+      {
+        "name": "row_ids",
+        "type": 3
+      },
+      {
+        "name": "col_ids",
+        "type": 3
+      },
+      {
+        "name": "gains",
+        "type": 1
+      },
+      {
+        "name": "splits",
+        "type": 9
+      },
+      {
+        "name": "id_counts",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "row_pointers_unpadded_size",
+        "type": 3
+      },
+      {
+        "name": "ids_unpadded_size",
+        "type": 3
+      },
+      {
+        "name": "num_minibatches_per_physical_sparse_core",
+        "type": 3
       }
     ]
   },
@@ -56105,6 +56337,53 @@
     ]
   },
   {
+    "name": "StoreMinibatchStatisticsInFdo",
+    "attributes": [
+      {
+        "name": "sample_count",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "num_replica",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "feature_width",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "num_sc_per_chip",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      },
+      {
+        "name": "mini_batch_splits",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "program_key",
+        "type": 7
+      },
+      {
+        "name": "max_ids",
+        "type": 3
+      },
+      {
+        "name": "max_uniques",
+        "type": 3
+      }
+    ]
+  },
+  {
     "name": "StridedSlice",
     "category": "Tensor",
     "summary": "Return a strided slice from `input`.",
@@ -57154,6 +57433,28 @@
     ]
   },
   {
+    "name": "TPUAnnotateTensorsWithDynamicShape",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type[]",
+        "minimum": 1
+      }
+    ],
+    "inputs": [
+      {
+        "name": "tensors",
+        "typeListAttr": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "tpu_tensors",
+        "typeListAttr": "T"
+      }
+    ]
+  },
+  {
     "name": "TPUCompilationResult",
     "summary": "Returns the result of a TPU compilation.",
     "description": "This operation returns the result of a TPU compilation as a serialized\nCompilationResultProto, which holds a status and an error message if an error\noccurred during compilation.",
@@ -57229,6 +57530,39 @@
       {
         "name": "compilation_status",
         "type": 7
+      }
+    ]
+  },
+  {
+    "name": "TPUCopyWithDynamicShape",
+    "summary": "Op that copies host tensor to device with dynamic shape support.\nFor internal use only.",
+    "attributes": [
+      {
+        "name": "N",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "T",
+        "type": "type[]",
+        "minimum": 1
+      }
+    ],
+    "inputs": [
+      {
+        "name": "tensors",
+        "typeListAttr": "T"
+      },
+      {
+        "name": "unpadded_sizes",
+        "numberAttr": "N",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "tpu_tensors",
+        "typeListAttr": "T"
       }
     ]
   },
@@ -63797,6 +64131,763 @@
       {
         "name": "input",
         "typeAttr": "Tinput"
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseCoreAdagrad",
+    "attributes": [
+      {
+        "name": "feature_width",
+        "type": "int64"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "indices",
+        "type": 3
+      },
+      {
+        "name": "gradient",
+        "type": 1
+      },
+      {
+        "name": "learning_rate",
+        "type": 1
+      },
+      {
+        "name": "accumulator",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_embedding_table",
+        "type": 1
+      },
+      {
+        "name": "updated_accumulator",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseCoreAdagradMomentum",
+    "attributes": [
+      {
+        "name": "feature_width",
+        "type": "int64"
+      },
+      {
+        "name": "use_nesterov",
+        "type": "boolean"
+      },
+      {
+        "name": "beta_2",
+        "type": "float32"
+      },
+      {
+        "name": "exponent",
+        "type": "float32"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "indices",
+        "type": 3
+      },
+      {
+        "name": "gradient",
+        "type": 1
+      },
+      {
+        "name": "learning_rate",
+        "type": 1
+      },
+      {
+        "name": "beta_1",
+        "type": 1
+      },
+      {
+        "name": "epsilon",
+        "type": 1
+      },
+      {
+        "name": "accumulator",
+        "type": 1
+      },
+      {
+        "name": "momentum",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_embedding_table",
+        "type": 1
+      },
+      {
+        "name": "updated_accumulator",
+        "type": 1
+      },
+      {
+        "name": "updated_momentum",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseCoreAdam",
+    "attributes": [
+      {
+        "name": "feature_width",
+        "type": "int64"
+      },
+      {
+        "name": "use_sum_inside_sqrt",
+        "type": "boolean"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "embedding_table",
+        "type": 1
+      },
+      {
+        "name": "indices",
+        "type": 3
+      },
+      {
+        "name": "gradient",
+        "type": 1
+      },
+      {
+        "name": "learning_rate",
+        "type": 1
+      },
+      {
+        "name": "momentum",
+        "type": 1
+      },
+      {
+        "name": "velocity",
+        "type": 1
+      },
+      {
+        "name": "beta_1",
+        "type": 1
+      },
+      {
+        "name": "beta_2",
+        "type": 1
+      },
+      {
+        "name": "epsilon",
+        "type": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_embedding_table",
+        "type": 1
+      },
+      {
+        "name": "updated_velocity",
+        "type": 1
+      },
+      {
+        "name": "updated_momentum",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseCoreFtrl",
+    "attributes": [
+      {
+        "name": "feature_width",
+        "type": "int64"
+      },
+      {
+        "name": "multiply_linear_by_learning_rate",
+        "type": "boolean"
+      },
+      {
+        "name": "l1_regularization_strength",
+        "type": "float32"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "embedding_table",
+        "type": 1
+      },
+      {
+        "name": "accumulator",
+        "type": 1
+      },
+      {
+        "name": "linear",
+        "type": 1
+      },
+      {
+        "name": "learning_rate",
+        "type": 1
+      },
+      {
+        "name": "indices",
+        "type": 3
+      },
+      {
+        "name": "gradient",
+        "type": 1
+      },
+      {
+        "name": "beta",
+        "type": 1
+      },
+      {
+        "name": "learning_rate_power",
+        "type": 1
+      },
+      {
+        "name": "l2_regularization_strength",
+        "type": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_embedding_table",
+        "type": 1
+      },
+      {
+        "name": "updated_accumulator",
+        "type": 1
+      },
+      {
+        "name": "updated_linear",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseCoreSgd",
+    "attributes": [
+      {
+        "name": "feature_width",
+        "type": "int64"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "indices",
+        "type": 3
+      },
+      {
+        "name": "gradient",
+        "type": 1
+      },
+      {
+        "name": "learning_rate",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_embedding_table",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseDenseMatmul",
+    "attributes": [
+      {
+        "name": "max_ids_per_partition",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "max_unique_ids_per_partition",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "input_size",
+        "type": "int64",
+        "minimum": 0
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_ids",
+        "type": 3
+      },
+      {
+        "name": "col_ids",
+        "type": 22
+      },
+      {
+        "name": "values",
+        "type": 1
+      },
+      {
+        "name": "offsets",
+        "type": 22
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      }
+    ],
+    "outputs": [
+      {
+        "name": "activations",
+        "type": 1
+      },
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_embedding_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseDenseMatmulGradWithAdagradAndCsrInput",
+    "attributes": [
+      {
+        "name": "table_name",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "activation_gradients",
+        "type": 1
+      },
+      {
+        "name": "learning_rate",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      },
+      {
+        "name": "accumulator",
+        "type": 1
+      },
+      {
+        "name": "num_minibatches_per_physical_sparse_core",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_embedding_table",
+        "type": 1
+      },
+      {
+        "name": "updated_accumulator",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseDenseMatmulGradWithAdagradMomentumAndCsrInput",
+    "attributes": [
+      {
+        "name": "use_nesterov",
+        "type": "boolean"
+      },
+      {
+        "name": "exponent",
+        "type": "float32"
+      },
+      {
+        "name": "beta1",
+        "type": "float32"
+      },
+      {
+        "name": "beta2",
+        "type": "float32"
+      },
+      {
+        "name": "epsilon",
+        "type": "float32"
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "activation_gradients",
+        "type": 1
+      },
+      {
+        "name": "learning_rate",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      },
+      {
+        "name": "accumulator",
+        "type": 1
+      },
+      {
+        "name": "momenta",
+        "type": 1
+      },
+      {
+        "name": "num_minibatches_per_physical_sparse_core",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_embedding_table",
+        "type": 1
+      },
+      {
+        "name": "updated_accumulator",
+        "type": 1
+      },
+      {
+        "name": "updated_momenta",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseDenseMatmulGradWithAdamAndCsrInput",
+    "attributes": [
+      {
+        "name": "use_sum_inside_sqrt",
+        "type": "boolean"
+      },
+      {
+        "name": "beta1",
+        "type": "float32"
+      },
+      {
+        "name": "beta2",
+        "type": "float32"
+      },
+      {
+        "name": "epsilon",
+        "type": "float32"
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "activation_gradients",
+        "type": 1
+      },
+      {
+        "name": "learning_rate",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      },
+      {
+        "name": "momenta",
+        "type": 1
+      },
+      {
+        "name": "velocity",
+        "type": 1
+      },
+      {
+        "name": "num_minibatches_per_physical_sparse_core",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_embedding_table",
+        "type": 1
+      },
+      {
+        "name": "updated_momenta",
+        "type": 1
+      },
+      {
+        "name": "updated_velocity",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseDenseMatmulGradWithFtrlAndCsrInput",
+    "attributes": [
+      {
+        "name": "multiply_linear_by_learning_rate",
+        "type": "boolean"
+      },
+      {
+        "name": "beta",
+        "type": "float32"
+      },
+      {
+        "name": "learning_rate_power",
+        "type": "float32"
+      },
+      {
+        "name": "l1_regularization_strength",
+        "type": "float32"
+      },
+      {
+        "name": "l2_regularization_strength",
+        "type": "float32"
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "activation_gradients",
+        "type": 1
+      },
+      {
+        "name": "learning_rate",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      },
+      {
+        "name": "accumulator",
+        "type": 1
+      },
+      {
+        "name": "linear",
+        "type": 1
+      },
+      {
+        "name": "num_minibatches_per_physical_sparse_core",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_embedding_table",
+        "type": 1
+      },
+      {
+        "name": "updated_accumulator",
+        "type": 1
+      },
+      {
+        "name": "updated_linear",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseDenseMatmulGradWithSgdAndCsrInput",
+    "attributes": [
+      {
+        "name": "table_name",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "activation_gradients",
+        "type": 1
+      },
+      {
+        "name": "learning_rate",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      },
+      {
+        "name": "num_minibatches_per_physical_sparse_core",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "updated_embedding_table",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "XlaSparseDenseMatmulWithCsrInput",
+    "attributes": [
+      {
+        "name": "input_size",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "quantization_config_low",
+        "type": "float32"
+      },
+      {
+        "name": "quantization_config_high",
+        "type": "float32"
+      },
+      {
+        "name": "quantization_config_num_buckets",
+        "type": "int64",
+        "minimum": 0
+      },
+      {
+        "name": "table_name",
+        "type": "string"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "row_pointers",
+        "type": 3
+      },
+      {
+        "name": "sorted_sample_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_token_ids",
+        "type": 3
+      },
+      {
+        "name": "sorted_gains",
+        "type": 1
+      },
+      {
+        "name": "embedding_table",
+        "type": 1
+      },
+      {
+        "name": "num_minibatches_per_physical_sparse_core",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "activations",
+        "type": 1
       }
     ]
   },
