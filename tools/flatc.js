@@ -390,6 +390,7 @@ flatc.Parser = class {
                     const key = this._tokenizer.identifier();
                     const value = this._tokenizer.eat('=') ? this._tokenizer.integer() : undefined;
                     type.values.set(key, value);
+                    this._parseMetadata(new Map());
                     if (this._tokenizer.eat(',')) {
                         continue;
                     }
@@ -406,6 +407,7 @@ flatc.Parser = class {
                     const key = this._tokenizer.eat(':') ? this._tokenizer.identifier() : name;
                     const value = this._tokenizer.eat('=') ? this._tokenizer.integer() : undefined;
                     union.values.set(key, value);
+                    this._parseMetadata(new Map());
                     if (this._tokenizer.eat(',')) {
                         continue;
                     }
