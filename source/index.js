@@ -5,26 +5,31 @@ if (window.location.hostname.endsWith('.github.io')) {
     window.location.replace('https://netron.app');
 }
 
-window.require = function(id, callback) {
+window.require = function(id, callback, preload) {
     var name = id.startsWith('./') ? id.substring(2) : id;
-    var value = window[name];
+    var key = name === 'browser' ? 'host' : name;
+    var value = window[key];
     if (callback) {
-        if (value && id !== 'browser') {
+        if (value) {
             return callback(value);
         }
         window.module = { exports: {} };
         var url = new URL(id + '.js', window.location.href).href;
         var script = document.createElement('script');
-        script.setAttribute('id', id);
+        script.setAttribute('id', 'script-' + id);
         script.setAttribute('type', 'text/javascript');
         /* eslint-disable no-use-before-define */
         var loadHandler = function() {
             script.removeEventListener('load', loadHandler);
             script.removeEventListener('error', errorHandler);
-            var module = window[name];
+            var module = window[key];
             if (!module) {
+                if (preload) {
+                    callback(null, new Error('The script \'' + id + '\' failed to load.'));
+                    return;
+                }
                 module = window.module.exports;
-                window[name] = module;
+                window[key] = module;
             }
             delete window.module;
             callback(module);
@@ -51,9 +56,9 @@ window.require = function(id, callback) {
 
 window.preload = function(callback) {
     var modules = [
-        [ 'view' ],
-        [ 'json', 'xml', 'protobuf', 'hdf5', 'grapher', 'browser' ],
-        [ 'base', 'text', 'flatbuffers', 'flexbuffers', 'zip',  'tar', 'python', 'dagre' ]
+        [ './view' ],
+        [ './json', './xml', './protobuf', './hdf5', './grapher', './browser' ],
+        [ './base', './text', './flatbuffers', './flexbuffers', './zip',  './tar', './python', './dagre' ]
     ];
     var next = function() {
         if (modules.length === 0) {
@@ -72,7 +77,7 @@ window.preload = function(callback) {
                 if (resolved === 0) {
                     next();
                 }
-            });
+            }, true);
         }
     };
     next();
