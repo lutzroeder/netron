@@ -236,9 +236,11 @@ hailo.Container = class {
                 break;
             }
             case 'har': {
-                const read = (name) => {
-                    const entries = context.entries('tar');
-                    const stream = entries.get(name);
+                const read = () => {
+                    const entries = [...context.entries('tar')];
+                    const regExp = new RegExp(`hn`);
+                    const searchResult = entries.find(([name]) => regExp.test(name));
+                    const [, stream] = searchResult;
                     if (stream) {
                         try {
                             const buffer = stream.peek();
