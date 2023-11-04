@@ -10663,7 +10663,7 @@
     "name": "aten::repeat_interleave.Tensor",
     "inputs": [
       { "name": "repeats", "type": "Tensor" },
-      { "name": "output_size", "type": "int64", "optional": true, "default": null }
+      { "name": "output_size", "type": "SymInt", "optional": true, "default": null }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -10675,7 +10675,7 @@
       { "name": "self", "type": "Tensor" },
       { "name": "repeats", "type": "Tensor" },
       { "name": "dim", "type": "int64", "optional": true, "default": null },
-      { "name": "output_size", "type": "int64", "optional": true, "default": null }
+      { "name": "output_size", "type": "SymInt", "optional": true, "default": null }
     ],
     "outputs": [
       { "type": "Tensor" }
@@ -10687,7 +10687,7 @@
       { "name": "self", "type": "Tensor" },
       { "name": "repeats", "type": "SymInt" },
       { "name": "dim", "type": "int64", "optional": true, "default": null },
-      { "name": "output_size", "type": "int64", "optional": true, "default": null }
+      { "name": "output_size", "type": "SymInt", "optional": true, "default": null }
     ],
     "outputs": [
       { "type": "Tensor" }
