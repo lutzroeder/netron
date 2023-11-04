@@ -240,16 +240,13 @@ const build = async (target) => {
             await copy(source_dir, dist_dir, (file) => extensions.has(file.split('.').pop()));
             await rm('dist', 'web', 'app.js');
             await rm('dist', 'web', 'electron.js');
-            const manifestFile = path.join(__dirname, 'package.json');
             const contentFile = path.join(__dirname, 'dist', 'web', 'index.html');
-            const manifestContent = await fs.readFile(manifestFile, 'utf-8');
-            const manifest = JSON.parse(manifestContent);
             let content = await fs.readFile(contentFile, 'utf-8');
             content = content.replace(/(<meta\s*name="version"\s*content=")(.*)(">)/m, (match, p1, p2, p3) => {
-                return p1 + manifest.version + p3;
+                return p1 + configuration.version + p3;
             });
             content = content.replace(/(<meta\s*name="date"\s*content=")(.*)(">)/m, (match, p1, p2, p3) => {
-                return p1 + manifest.date + p3;
+                return p1 + configuration.date + p3;
             });
             await fs.writeFile(contentFile, content, 'utf-8');
             break;
@@ -563,6 +560,7 @@ const analyze = async () => {
 };
 
 const version = async () => {
+    await pull();
     const file = path.join(__dirname, 'package.json');
     let content = await fs.readFile(file, 'utf-8');
     content = content.replace(/(\s*"version":\s")(\d\.\d\.\d)(",)/m, (match, p1, p2, p3) => {
