@@ -10809,6 +10809,15 @@
     ]
   },
   {
+    "name": "aten::resolve_neg",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::reverse.t",
     "inputs": [
       { "name": "self", "type": "t[]" }
