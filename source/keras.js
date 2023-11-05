@@ -571,6 +571,17 @@ keras.Graph = class {
                                                 throw new keras.Error("Invalid inbound connection '" + JSON.stringify(input_data) + "'.");
                                             }
                                         }
+                                    } else if (inbound_node && Array.isArray(inbound_node.args)) {
+                                        for (const arg of inbound_node.args) {
+                                            if (arg && arg.class_name === '__keras_tensor__' && arg.config && is_connection(arg.config.keras_history)) {
+                                                const input_data = arg.config.keras_history;
+                                                layer.inputs.push(read_connection(input_data));
+                                            } else if (Array.isArray(arg) && arg.every((arg) => arg && arg.class_name === '__keras_tensor__' && arg.config && is_connection(arg.config.keras_history))) {
+                                                for (const input of arg) {
+                                                    layer.inputs.push(read_connection(input.config.keras_history));
+                                                }
+                                            }
+                                        }
                                     } else {
                                         throw new keras.Error("Invalid inbound node '" + JSON.stringify(inbound_node) + "'.");
                                     }

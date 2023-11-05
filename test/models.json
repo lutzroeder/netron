@@ -2292,7 +2292,6 @@
     "type":     "keras",
     "target":   "multi_input_and_output_model.keras",
     "source":   "https://github.com/lutzroeder/netron/files/13241361/multi_input_and_output_model.zip[multi_input_and_output_model.keras]",
-    "error":    "Invalid inbound node '{\"args\":[{\"class_name\":\"__keras_tensor__\",\"config\":{\"shape\":[null,null],\"dtype\":\"float32\",\"keras_history\":[\"title\",0,0]}}],\"kwargs\":{}}'.",
     "format":   "Keras v0.1.5",
     "link":     "https://github.com/lutzroeder/netron/issues/1180"
   },
