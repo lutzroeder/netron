@@ -6,6 +6,7 @@ import os
 import google.protobuf # pylint: disable=import-error
 
 logging.getLogger('tensorflow').setLevel(logging.ERROR)
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 from tensorflow.core.framework import api_def_pb2 # pylint: disable=import-error,no-name-in-module,wrong-import-position
 from tensorflow.core.framework import op_def_pb2 # pylint: disable=import-error,no-name-in-module,wrong-import-position

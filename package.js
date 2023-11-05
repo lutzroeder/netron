@@ -494,6 +494,7 @@ const update = async () => {
         'coreml',
         'dlc',
         'dnn',
+        'keras',
         'mnn',
         'mslite',
         'megengine',

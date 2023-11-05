@@ -4,21 +4,12 @@ import json
 import os
 import pydoc
 import re
-import logging
 
-logging.getLogger('tensorflow').setLevel(logging.ERROR)
+os.environ["KERAS_BACKEND"] = "jax"
 
 def _read(path):
     with open(path, 'r', encoding='utf-8') as file:
         return file.read()
-
-def _find_docstring(class_name):
-    class_definition = pydoc.locate(class_name)
-    if not class_definition:
-        raise Exception('\'' + class_name + '\' not found.') # pylint: disable=broad-exception-raised
-    if not class_definition.__doc__:
-        raise Exception('\'' + class_name + '\' missing __doc__.') # pylint: disable=broad-exception-raised
-    return class_definition.__doc__
 
 def _parse_docstring(docstring):
     headers = []
@@ -182,11 +173,25 @@ def _metadata():
     json_path = os.path.join(root, 'source', 'keras-metadata.json')
     json_root = json.loads(_read(json_path))
 
-    for schema in json_root:
-        if 'module' in schema:
-            class_name = schema['module'] + '.' + schema['name']
-            docstring = _find_docstring(class_name)
-            _update_headers(schema, docstring)
+    skip_names = set([
+        'keras.layers.InputLayer',
+        'keras.layers.ThresholdedReLU',
+        'keras.layers.LocallyConnected1D',
+        'keras.layers.LocallyConnected2D'
+    ])
+
+    for metadata in json_root:
+        if 'module' in metadata:
+            name = metadata['module'] + '.' + metadata['name']
+            if not name in skip_names:
+                cls = pydoc.locate(name)
+                if not cls:
+                    raise KeyError('\'' + name + '\' not found.')
+                if not cls.__doc__:
+                    raise AttributeError("'" + name + "' missing __doc__.")
+                if cls.__doc__ == 'DEPRECATED.':
+                    raise DeprecationWarning("'" + name + "' __doc__ string is deprecated.'")
+                _update_headers(metadata, cls.__doc__)
 
     with open(json_path, 'w', encoding='utf-8') as file:
         content = json.dumps(json_root, sort_keys=False, indent=2)
