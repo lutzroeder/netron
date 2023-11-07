@@ -2291,8 +2291,8 @@
   {
     "type":     "keras",
     "target":   "multi_input_and_output_model.keras",
-    "source":   "https://github.com/lutzroeder/netron/files/13241361/multi_input_and_output_model.zip[multi_input_and_output_model.keras]",
-    "format":   "Keras v0.1.5",
+    "source":   "https://github.com/lutzroeder/netron/files/13275502/functional_api.zip[multi_input_and_output_model.keras]",
+    "format":   "Keras v0.1.7",
     "link":     "https://github.com/lutzroeder/netron/issues/1180"
   },
   {
