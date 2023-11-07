@@ -1,0 +1,61 @@
+#!/bin/bash
+
+set -e
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
+
+case "${OSTYPE}" in
+    msys*) python="winpty python";;
+    *) python="python";;
+esac
+
+venv() {
+    env_dir=./third_party/env/keras
+    [ -d "${env_dir}" ] || ${python} -m venv ${env_dir}
+    case "${OSTYPE}" in
+        msys*) source ${env_dir}/Scripts/activate;;
+        *) source ${env_dir}/bin/activate;;
+    esac
+    ${python} -m pip install --quiet --upgrade pip
+}
+
+clean() {
+    echo "tf clean"
+    rm -rf "./third_party/env/keras"
+    rm -rf "./third_party/source/keras"
+}
+
+sync() {
+    echo "keras sync"
+    [ -d "./third_party/source/keras" ] || git clone --quiet https://github.com/keras-team/keras.git "./third_party/source/keras"
+    git -C "./third_party/source/keras" pull --quiet --prune
+}
+
+install() {
+    echo "keras install"
+    venv
+    ${python} -m pip install --quiet --upgrade packaging
+    ${python} -m pip install --quiet --upgrade keras-nightly
+    ${python} -m pip install --quiet --upgrade jax[cpu]
+    deactivate
+}
+
+metadata() {
+    echo "keras metadata"
+    venv
+    if [[ $(grep -U $'\x0D' ./source/keras-metadata.json) ]]; then crlf=1; else crlf=; fi
+    ${python} ./tools/keras_metadata.py
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/keras-metadata.json ./source/keras-metadata.json
+    fi
+    deactivate
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+        "install") install;;
+        "metadata") metadata;;
+    esac
+done

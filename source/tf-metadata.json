@@ -64479,6 +64479,16 @@
     "name": "XlaSparseDenseMatmulGradWithAdagradAndCsrInput",
     "attributes": [
       {
+        "name": "clip_weight_min",
+        "type": "float32",
+        "default": "-NaN"
+      },
+      {
+        "name": "clip_weight_max",
+        "type": "float32",
+        "default": "NaN"
+      },
+      {
         "name": "table_name",
         "type": "string"
       }
@@ -64554,6 +64564,16 @@
       {
         "name": "epsilon",
         "type": "float32"
+      },
+      {
+        "name": "clip_weight_min",
+        "type": "float32",
+        "default": "-NaN"
+      },
+      {
+        "name": "clip_weight_max",
+        "type": "float32",
+        "default": "NaN"
       },
       {
         "name": "table_name",
@@ -64635,6 +64655,16 @@
       {
         "name": "epsilon",
         "type": "float32"
+      },
+      {
+        "name": "clip_weight_min",
+        "type": "float32",
+        "default": "-NaN"
+      },
+      {
+        "name": "clip_weight_max",
+        "type": "float32",
+        "default": "NaN"
       },
       {
         "name": "table_name",
@@ -64722,6 +64752,16 @@
         "type": "float32"
       },
       {
+        "name": "clip_weight_min",
+        "type": "float32",
+        "default": "-NaN"
+      },
+      {
+        "name": "clip_weight_max",
+        "type": "float32",
+        "default": "NaN"
+      },
+      {
         "name": "table_name",
         "type": "string"
       }
@@ -64786,6 +64826,16 @@
   {
     "name": "XlaSparseDenseMatmulGradWithSgdAndCsrInput",
     "attributes": [
+      {
+        "name": "clip_weight_min",
+        "type": "float32",
+        "default": "-NaN"
+      },
+      {
+        "name": "clip_weight_max",
+        "type": "float32",
+        "default": "NaN"
+      },
       {
         "name": "table_name",
         "type": "string"

@@ -348,7 +348,7 @@ dlc.Container = class {
                     break;
                 }
                 case '4.NR64': {
-                    throw new dlc.Error("File contains undocumented 'NR64' params data.");
+                    throw new dlc.Error("File contains 'NR64' data.");
                 }
                 default: {
                     const buffer = stream.peek(Math.min(stream.length, 16));

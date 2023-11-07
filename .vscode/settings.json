@@ -4,8 +4,8 @@
         "node_modules": true,
         "third_party": true
     },
-    "python.linting.enabled": true,
-    "python.linting.pylintEnabled": true,
-    "python.linting.pylintCategorySeverity.convention": "Warning",
-    "python.linting.pylintCategorySeverity.refactor": "Warning"
+    "pylint.severity": {
+        "convention": "Warning",
+        "refactor": "Warning"
+    }
 }
