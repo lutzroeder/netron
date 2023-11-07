@@ -1,4 +1,7 @@
 
+const fs = require("fs");
+const npyz = require('npyz');
+
 // Experimental
 
 var hailo = {};
@@ -40,30 +43,43 @@ hailo.Graph = class {
             if (name.length === 0 && tensor) {
                 return new hailo.Value(name, type || null, tensor);
             }
-            if (!args.has(name)) {
-                args.set(name, new hailo.Value(name, type || null, tensor || null));
-            } else if (tensor) {
+
+            args.set(name, new hailo.Value(name, type || null, tensor || null));
+
+            if (tensor) {
                 throw new hailo.Error("Duplicate value '" + name + "'.");
             } else if (type && !type.equals(args.get(name).type)) {
                 return new hailo.Value(name, type, null);
             }
             return args.get(name);
         };
+
         const layers = Object.entries(configuration.layers || {}).map((entry) => {
             entry[1].name = entry[0];
             return entry[1];
         });
+
         for (const layer of layers) {
             switch (layer.type) {
                 case 'input_layer': {
-                    for (let i = 0; i < layer.output.length; i++) {
-                        const shape = layer.output_shapes ? layer.output_shapes[i] : null;
-                        const type = shape ? new hailo.TensorType('?', new hailo.TensorShape(shape)) : null;
-                        const argument = new hailo.Argument('input', [ arg(layer.name, type) ]);
-                        this.inputs.push(argument);
-                    }
+                    const { name, output_shapes: [output_shape] = [] } = layer;
+
+                    const type = output_shape ? new hailo.TensorType('?', new hailo.TensorShape(output_shape)) : null;
+                    const argument = new hailo.Argument('input', [ arg(name, type) ]);
+                    this.inputs.push(argument);
                     break;
                 }
+
+                case 'const_input': {
+                    const { name, output_shapes: [output_shape] = [] } = layer;
+
+                    const type = output_shape ? new hailo.TensorType('?', new hailo.TensorShape(output_shape)) : null;
+                    const argument = new hailo.Argument('input', [ arg(name, type) ]);
+                    this.inputs.push(argument);
+
+                    break;
+                }
+
                 case 'output_layer': {
                     for (let i = 0; i < layer.input.length; i++) {
                         const shape = layer.input_shapes ? layer.input_shapes[i] : null;
@@ -225,8 +241,9 @@ hailo.Container = class {
     static open(context) {
         const parts = context.identifier.split('.');
         const extension = parts.pop().toLowerCase();
-        const basename = parts.join('.');
+        const TEMP_FILE_PATH = './temp.npz';
         let format = '';
+        let npz = null;
         let configuration = null;
         let metadata = null;
         switch (extension) {
@@ -236,17 +253,14 @@ hailo.Container = class {
                 break;
             }
             case 'har': {
-                const read = () => {
+                const read = (extension) => {
                     const entries = [...context.entries('tar')];
-                    const regExp = new RegExp(`hn`);
-                    const searchResult = entries.find(([name]) => regExp.test(name));
-                    const [, stream] = searchResult;
+                    const regExp = new RegExp(extension);
+                    const hnFiles = entries.find(([name]) => regExp.test(name));
+                    const [, stream] = hnFiles;
                     if (stream) {
                         try {
-                            const buffer = stream.peek();
-                            const decoder = new TextDecoder('utf-8');
-                            const content = decoder.decode(buffer);
-                            return JSON.parse(content);
+                            return stream.peek();
                         } catch (err) {
                             // continue regardless of error
                         }
@@ -254,8 +268,43 @@ hailo.Container = class {
                     return null;
                 };
                 format = 'Hailo Archive';
-                configuration = read(basename + '.hn');
-                metadata = read(basename + '.metadata.json');
+                const decoder = new TextDecoder('utf-8');
+
+                const metadata_buffer = read('.metadata.json');
+                metadata = JSON.parse(decoder.decode(metadata_buffer));
+
+                const hn_extension = '.hn';
+                let npz_extension = '.npz';
+
+                switch (metadata.state) {
+                    case 'fp_optimized_model': {
+                        npz_extension = '.fpo.npz';
+                        break;
+                    }
+                    case 'quantized_model': {
+                        npz_extension = '.q.npz';
+                        break;
+                    }
+                    case 'compiled_model': {
+                        npz_extension = '.q.npz';
+                        break;
+                    }
+                    default:
+                }
+
+                const configuration_buffer = read(hn_extension);
+                configuration = JSON.parse(decoder.decode(configuration_buffer));
+
+                const npz_buffer = read(npz_extension);
+                fs.rmSync(TEMP_FILE_PATH, { force: true });
+                fs.writeFile(TEMP_FILE_PATH, npz_buffer, 'binary', (err) => {
+                    if (!err) {
+                        npyz.loadNpz(TEMP_FILE_PATH).then((result) => {
+                            npz = result;
+                        });
+                    }
+                });
+
                 break;
             }
             default: {
@@ -263,15 +312,16 @@ hailo.Container = class {
             }
         }
         if (configuration && configuration.name && configuration.net_params && configuration.layers) {
-            return new hailo.Container(format, configuration, metadata);
+            return new hailo.Container(format, configuration, metadata, npz);
         }
         return null;
     }
 
-    constructor(format, configuration, metadata) {
+    constructor(format, configuration, metadata, npz) {
         this.format = format;
         this.configuration = configuration;
         this.metadata = metadata;
+        this.npz = npz;
     }
 };
 
