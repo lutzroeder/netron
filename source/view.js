@@ -49,11 +49,8 @@ view.View = class {
             this._element('zoom-out-button').addEventListener('click', () => {
                 this.zoomOut();
             });
-            this._element('back-button').addEventListener('click', () => {
+            this._element('toolbar-path-back-button').addEventListener('click', () => {
                 this.popGraph();
-            });
-            this._element('name-button').addEventListener('click', () => {
-                this.showDocumentation(this.activeGraph);
             });
             this._element('sidebar').addEventListener('mousewheel', (e) => {
                 if (e.shiftKey || e.ctrlKey) {
@@ -687,23 +684,44 @@ view.View = class {
             if (this._page !== 'default') {
                 this.show('default');
             }
-            const nameButton = this._element('name-button');
-            const backButton = this._element('back-button');
+            const path = this._element('toolbar-path');
+            const back = this._element('toolbar-path-back-button');
+            while (path.children.length > 1) {
+                path.removeChild(path.lastElementChild);
+            }
             if (this._graphs.length <= 1) {
-                backButton.style.opacity = 0;
-                nameButton.style.opacity = 0;
+                back.style.opacity = 0;
             } else {
-                const graph = this.activeGraph;
-                const name = graph ? graph.name : '';
-                if (name.length > 61) {
-                    nameButton.setAttribute('title', name);
-                    nameButton.innerHTML = '\u2026' + name.substring(name.length - 61, name.length);
-                } else {
-                    nameButton.removeAttribute('title');
-                    nameButton.innerHTML = name;
+                back.style.opacity = 1;
+                const last = this._graphs.length - 2;
+                const count = Math.min(2, last);
+                if (count < last) {
+                    const element = this._host.document.createElement('button');
+                    element.setAttribute('class', 'toolbar-path-name-button');
+                    element.innerHTML = '&hellip;';
+                    path.appendChild(element);
                 }
-                backButton.style.opacity = 1;
-                nameButton.style.opacity = 1;
+                for (let i = count; i >= 0; i--) {
+                    const graph = this._graphs[i];
+                    const element = this._host.document.createElement('button');
+                    element.setAttribute('class', 'toolbar-path-name-button');
+                    element.addEventListener('click', () => {
+                        if (i > 0) {
+                            this._graphs = this._graphs.slice(i);
+                            this._updateGraph(this._model, this._graphs);
+                        }
+                        this.showDefinition(this._graphs[0]);
+                    });
+                    const name = graph && graph.name ? graph.name : '';
+                    if (name.length > 24) {
+                        element.setAttribute('title', name);
+                        element.innerHTML = '&hellip;' + name.substring(name.length - 24, name.length);
+                    } else {
+                        element.removeAttribute('title');
+                        element.innerHTML = name;
+                    }
+                    path.appendChild(element);
+                }
             }
         };
         const lastModel = this._model;
@@ -955,7 +973,7 @@ view.View = class {
                 }
                 const nodeSidebar = new view.NodeSidebar(this._host, node);
                 nodeSidebar.on('show-documentation', (/* sender, e */) => {
-                    this.showDocumentation(node.type);
+                    this.showDefinition(node.type);
                 });
                 nodeSidebar.on('show-graph', (sender, graph) => {
                     this.pushGraph(graph);
@@ -1036,7 +1054,7 @@ view.View = class {
         }
     }
 
-    showDocumentation(type) {
+    showDefinition(type) {
         if (type && (type.description || type.inputs || type.outputs || type.attributes)) {
             if (type.nodes && type.nodes.length > 0) {
                 this.pushGraph(type);
