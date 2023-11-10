@@ -1618,6 +1618,7 @@ python.Execution = class {
         this.registerType('builtins.module', module);
         this.registerType('builtins.method', class {});
         this.registerType('builtins.function', class {});
+        this.registerType('builtins.code', class {});
         this.import('builtins');
         this.registerType('builtins.builtin_function_or_method', class {});
         const typing = this.register('typing');
@@ -3307,7 +3308,6 @@ python.Execution = class {
                 Object.assign(this, dict);
             }
         });
-        this.registerType('types.CodeType', class {});
         this.registerType('types.GenericAlias', class {});
         this.registerType('types.SimpleNamespace', class {});
         this.register('types').ObjectType = builtins.object;
@@ -3315,6 +3315,7 @@ python.Execution = class {
         this.register('types').MethodType = builtins.method;
         this.register('types').FunctionType = builtins.function;
         this.register('types').TypeType = builtins.type;
+        this.register('types').CodeType = builtins.code;
         this.registerType('xgboost.compat.XGBoostLabelEncoder', class {});
         this.registerType('xgboost.core.Booster', class {});
         this.registerType('xgboost.sklearn.XGBClassifier', class {});
@@ -4024,15 +4025,6 @@ python.Execution = class {
         });
         torch.nn.Module = torch.nn.modules.module.Module;
         torch.nn.modules.Module = torch.nn.modules.module.Module;
-        this.registerType('torch.ao.nn.quantized.modules.utils.WeightedQuantizedModule', class extends torch.nn.Module {});
-        this.registerType('torch.ao.nn.quantized.modules.conv.Conv2d', class extends torch.nn.Module {});
-        this.registerType('torch.ao.nn.quantized.modules.Quantize', class extends torch.nn.Module {});
-        this.registerType('torch.ao.nn.quantized.modules.DeQuantize', class extends torch.nn.Module {});
-        this.registerType('torch.ao.nn.quantized.modules.functional_modules.FloatFunctional', class extends torch.nn.Module {});
-        this.registerType('torch.ao.nn.quantized.modules.linear.Linear', class extends torch.ao.nn.quantized.modules.utils.WeightedQuantizedModule {});
-        this.registerType('torch.ao.nn.quantized.modules.linear.LinearPackedParams', class extends torch.nn.Module {});
-        this.registerType('torch.ao.nn.quantized.dynamic.modules.linear.Linear', class extends torch.ao.nn.quantized.modules.linear.Linear {});
-        this.registerType('torch.ao.nn.quantized.dynamic.modules.rnn.PackedParameter', class extends torch.nn.Module {});
         this.registerType('torch.ao.quantization.observer._PartialWrapper', class {});
         this.registerType('torch.ao.quantization.observer.HistogramObserver', class {});
         this.registerType('torch.ao.quantization.observer.MovingAverageMinMaxObserver', class {});
@@ -4040,7 +4032,6 @@ python.Execution = class {
         this.registerType('torch.ao.quantization.qconfig.QConfig', class {});
         this.registerType('torch.ao.quantization.stubs.DeQuantStub', class {});
         this.registerType('torch.ao.quantization.stubs.QuantStub', class {});
-        this.registerType('torch.ao.nn.intrinsic.quantized.modules.conv_relu.ConvReLU2d', class extends torch.ao.nn.quantized.modules.conv.Conv2d {});
         this.registerType('torch.autograd.variable.Variable', class {});
         this.registerType('torch.backends.cudnn.rnn.Unserializable', class {});
         this.registerType('torch.distributions.bernoulli.Bernoulli', class {});
@@ -4114,6 +4105,7 @@ python.Execution = class {
         this.registerType('torch.nn.modules.dropout._DropoutNd', class extends torch.nn.Module {});
         this.registerType('torch.nn.modules.dropout.AlphaDropout', class extends torch.nn.modules.dropout._DropoutNd {});
         this.registerType('torch.nn.modules.dropout.Dropout', class extends torch.nn.modules.dropout._DropoutNd {});
+        this.registerType('torch.nn.modules.dropout.Dropout1d', class extends torch.nn.modules.dropout._DropoutNd {});
         this.registerType('torch.nn.modules.dropout.Dropout2d', class extends torch.nn.modules.dropout._DropoutNd {});
         this.registerType('torch.nn.modules.dropout.Dropout3d', class extends torch.nn.modules.dropout._DropoutNd {});
         this.registerType('torch.nn.modules.fold.Fold', class {});
@@ -4225,6 +4217,20 @@ python.Execution = class {
         this.registerType('torch.nn.quantized.modules.normalization.InstanceNorm2d', class {});
         this.registerType('torch.nn.quantized.modules.normalization.LayerNorm', class {});
         this.registerType('torch.nn.quantized.modules.Quantize', class {});
+        this.registerType('torch.ao.nn.quantized.modules.utils.WeightedQuantizedModule', class extends torch.nn.Module {});
+        this.registerType('torch.ao.nn.quantized.modules.conv.Conv2d', class extends torch.nn.Module {});
+        this.registerType('torch.ao.nn.quantized.modules.conv._ConvNd', class extends torch.ao.nn.quantized.modules.utils.WeightedQuantizedModule {});
+        this.registerType('torch.ao.nn.quantized.modules.conv._ConvTransposeNd', class extends torch.ao.nn.quantized.modules.conv._ConvNd {});
+        this.registerType('torch.ao.nn.quantized.modules.conv.ConvTranspose2d', class extends torch.ao.nn.quantized.modules.conv._ConvTransposeNd {});
+        this.registerType('torch.ao.nn.quantized.modules.Quantize', class extends torch.nn.Module {});
+        this.registerType('torch.ao.nn.quantized.modules.DeQuantize', class extends torch.nn.Module {});
+        this.registerType('torch.ao.nn.quantized.modules.dropout.Dropout', class extends torch.nn.modules.dropout.Dropout {});
+        this.registerType('torch.ao.nn.quantized.modules.functional_modules.FloatFunctional', class extends torch.nn.Module {});
+        this.registerType('torch.ao.nn.quantized.modules.linear.Linear', class extends torch.ao.nn.quantized.modules.utils.WeightedQuantizedModule {});
+        this.registerType('torch.ao.nn.quantized.modules.linear.LinearPackedParams', class extends torch.nn.Module {});
+        this.registerType('torch.ao.nn.quantized.dynamic.modules.linear.Linear', class extends torch.ao.nn.quantized.modules.linear.Linear {});
+        this.registerType('torch.ao.nn.quantized.dynamic.modules.rnn.PackedParameter', class extends torch.nn.Module {});
+        this.registerType('torch.ao.nn.intrinsic.quantized.modules.conv_relu.ConvReLU2d', class extends torch.ao.nn.quantized.modules.conv.Conv2d {});
         this.registerType('torch.nn.utils.prune.L1Unstructured', class {});
         this.registerType('torch.nn.utils.spectral_norm.SpectralNorm', class {});
         this.registerType('torch.nn.utils.spectral_norm.SpectralNormStateDictHook', class {});
@@ -5191,6 +5197,9 @@ python.Execution = class {
         });
         this.registerFunction('torch.nn.functional.adaptive_avg_pool2d', function(/* input */) {
             throw new python.Error("'torch.nn.functional.adaptive_avg_pool2d' not implemented.");
+        });
+        this.registerFunction('torch.nn.functional.elu', function(/* input */) {
+            throw new python.Error("'torch.nn.functional.elu' not implemented.");
         });
         this.registerFunction('torch.nn.functional.gelu', function(/* input */) {
             throw new python.Error("'torch.nn.functional.gelu' not implemented.");
