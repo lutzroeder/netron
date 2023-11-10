@@ -7950,5 +7950,32 @@
         "description": "A N-D array."
       }
     ]
+  },
+  {
+    "name": "Einsum",
+    "description": "Evaluates the Einstein summation convention on the inputs.\nSee the numpy.einsum documentation for more information about equation.",
+    "inputs": [
+      {
+        "name": "x",
+        "type": "nnabla.Variable",
+        "list": true,
+        "description": "List of N-D array."
+      }
+    ],
+    "attributes": [
+      {
+        "name": "equation",
+        "type": "string",
+        "default": "",
+        "description": "A string that folllows Einstein summation convention."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "y",
+        "type": "nnabla.Variable",
+        "description": "A N-D array."
+      }
+    ]
   }
 ]
