@@ -201,9 +201,9 @@ numpy.Node = class {
         this._inputs = [];
         for (const parameter of layer.parameters) {
             const initializer = new numpy.Tensor(parameter.tensor.array);
-            this._inputs.push(new numpy.Argument(parameter.name, [
-                new numpy.Value(parameter.tensor.name || '', initializer)
-            ]));
+            const value = new numpy.Value(parameter.tensor.name || '', initializer);
+            const argument = new numpy.Argument(parameter.name, [ value ]);
+            this._inputs.push(argument);
         }
     }
 
