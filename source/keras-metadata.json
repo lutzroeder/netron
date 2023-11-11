@@ -2,6 +2,7 @@
   {
     "name": "Activation",
     "module": "keras.layers",
+    "category": "Activation",
     "description": "Applies an activation function to an output.",
     "attributes": [
       {

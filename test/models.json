@@ -2269,10 +2269,17 @@
   },
   {
     "type":     "keras",
-    "target":   "model_denoise.h5",
-    "source":   "https://github.com/lutzroeder/netron/files/8452765/model_denoise.h5.zip[model_denoise.h5]",
-    "format":   "Keras v2.4.0",
-    "link":     "https://github.com/lutzroeder/netron/issues/900"
+    "target":   "model.weights.h5",
+    "source":   "https://github.com/lutzroeder/netron/files/13326420/model.weights.h5.zip[model.weights.h5]",
+    "format":   "Keras Weights",
+    "link":     "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "type":     "keras",
+    "target":   "model.weights.npz",
+    "source":   "https://github.com/lutzroeder/netron/files/13326421/model.weights.npz.zip[model.weights.npz]",
+    "format":   "Keras Weights",
+    "link":     "https://github.com/lutzroeder/netron/issues/57"
   },
   {
     "type":     "keras",
@@ -2308,6 +2315,20 @@
     "source":   "https://github.com/lutzroeder/netron/files/4304644/nested_bidrectional.zip[nested_bidrectional.h5]",
     "format":   "Keras v2.3.1",
     "link":     "https://github.com/lutzroeder/netron/issues/428"
+  },
+  {
+    "type":     "keras",
+    "target":   "nested.h5.keras",
+    "source":   "https://github.com/lutzroeder/netron/files/13324444/nested.zip[nested.h5.keras]",
+    "format":   "Keras v2.14.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "type":     "keras",
+    "target":   "nested.npz.keras",
+    "source":   "https://github.com/lutzroeder/netron/files/13324444/nested.zip[nested.npz.keras]",
+    "format":   "Keras v2.14.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/57"
   },
   {
     "type":     "keras",
@@ -2349,6 +2370,20 @@
     "target":   "residual_cnn.h5",
     "source":   "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[residual_cnn.h5]",
     "format":   "Keras v2.1.2",
+    "link":     "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "type":     "keras",
+    "target":   "resnet50.h5.keras",
+    "source":   "https://github.com/lutzroeder/netron/files/13324443/resnet50.zip[resnet50.h5.keras]",
+    "format":   "Keras v0.1.7",
+    "link":     "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "type":     "keras",
+    "target":   "resnet50.npz.keras",
+    "source":   "https://github.com/lutzroeder/netron/files/13324443/resnet50.zip[resnet50.npz.keras]",
+    "format":   "Keras v0.1.7",
     "link":     "https://github.com/lutzroeder/netron/issues/57"
   },
   {

@@ -5,6 +5,7 @@ var json = require('./json');
 var hdf5 = require('./hdf5');
 var python = require('./python');
 var protobuf = require('./protobuf');
+var zip = require('./zip');
 
 keras.ModelFactory = class {
 
@@ -12,7 +13,10 @@ keras.ModelFactory = class {
         const identifier = context.identifier;
         const group = context.open('hdf5');
         if (group && group.attributes && group.attributes.get('CLASS') !== 'hickle') {
-            return identifier === 'model.weights.h5' ? 'keras.model.weights.h5' : 'keras.h5';
+            if (identifier === 'model.weights.h5') {
+                return 'keras.model.weights.h5';
+            }
+            return 'keras.h5';
         }
         const json = context.open('json');
         if (json) {
@@ -30,8 +34,7 @@ keras.ModelFactory = class {
             return 'tfjs.json';
         }
         const pickle = context.open('pkl');
-        if (pickle &&
-            pickle.__class__ &&
+        if (pickle && pickle.__class__ &&
             pickle.__class__.__module__ === 'keras.engine.sequential' &&
             pickle.__class__.__name__ === 'Sequential') {
             return 'keras.pickle';
@@ -41,6 +44,9 @@ keras.ModelFactory = class {
             if (tags.size === 1 && tags.get(1) === 2) {
                 return 'keras.pb.SavedMetadata';
             }
+        }
+        if (identifier === 'model.weights.npz') {
+            return 'keras.model.weights.npz';
         }
         return null;
     }
@@ -53,7 +59,7 @@ keras.ModelFactory = class {
                 return null;
             }
         };
-        const requestJson = async (context, name) => {
+        const request_json = async (context, name) => {
             const stream = await request(context, name);
             if (stream) {
                 const reader = json.TextReader.open(stream);
@@ -61,35 +67,135 @@ keras.ModelFactory = class {
             }
             return null;
         };
-        const requestHdf5 = async (context, name) => {
-            const stream = await request(context, name);
-            const file = hdf5.File.open(stream);
-            return file ? file.read() : null;
+        const _create_config = (weights_store) => {
+            const config = {};
+            config.class_name = 'Model';
+            config.config = {};
+            config.config.layers = [];
+            const snake_to_pascal_case = (name) => {
+                return name.replace(/(^|_|\d)([a-z])/g, (match, p1, p2) => p1 === '_' ? p2.toUpperCase() : p1 + p2.toUpperCase());
+            };
+            for (const entry of weights_store) {
+                const layer = {};
+                layer.name = entry[0];
+                layer.class_name = entry[0].split('/').pop().replace(/_[0-9]+$/, '');
+                layer.class_name = snake_to_pascal_case(layer.class_name);
+                layer.config = {};
+                layer.config.name = entry[0];
+                layer._trainable_variables = entry[1];
+                config.config.layers.push(layer);
+            }
+            return config;
         };
-        const requestWeights = async (context, root) => {
-            const weights = new keras.Weights();
-            const group = root || await requestHdf5(context, 'model.weights.h5');
-            if (group) {
-                const names = [ '_layer_checkpoint_dependencies', 'layers' ].filter((name) => group.groups.has(name));
-                if (names.length > 0) {
-                    const checkpoint = group.groups.get(names[0]);
+        const _load_state = (trackable, weights_store, assets_store, inner_path) => {
+            inner_path = inner_path || '';
+            if (trackable && trackable.config && Array.isArray(trackable.config.layers)) {
+                /* eslint-disable no-use-before-define */
+                _load_container_state(trackable, weights_store, assets_store, inner_path ? inner_path + '/layers' : 'layers');
+                /* eslint-enable no-use-before-define */
+            } else {
+                const weights = weights_store.get(inner_path);
+                if (weights) {
+                    trackable._trainable_variables = weights;
+                }
+            }
+        };
+        const _load_container_state = (container, weights_store, assets_store, inner_path) => {
+            const used_names = new Map();
+            for (const trackable of container.config.layers) {
+                const pascal_to_snake_case = (name) => {
+                    name = name.replace(/\W+/g, "");
+                    name = name.replace(/(.)([A-Z][a-z]+)/g, (match, p1, p2) => p1 + '_' + p2);
+                    name = name.replace(/([a-z])([A-Z])/g, (match, p1, p2) => p1 + '_' + p2);
+                    return name.toLowerCase();
+                };
+                let name = pascal_to_snake_case(trackable.class_name);
+                if (!used_names.has(name)) {
+                    used_names.set(name, 0);
+                } else {
+                    const next = used_names.get(name) + 1;
+                    used_names.set(name, next);
+                    name = name + '_' + next.toString();
+                }
+                _load_state(trackable, weights_store, assets_store, inner_path + '/' + name);
+            }
+        };
+        const read_weights_hdf5 = (group) => {
+            const walk = (group, path, weights_store) => {
+                const checkpoint = group.groups.get('layers') || group.groups.get('_layer_checkpoint_dependencies');
+                if (checkpoint) {
                     for (const layer of checkpoint.groups) {
+                        const name = (path ? path + '/' : '') + 'layers/' + layer[0];
+                        walk(layer[1], name, weights_store);
+                        const values = [];
                         for (const vars of layer[1].groups) {
                             for (const entry of vars[1].groups) {
                                 const variable = entry[1].value;
                                 if (variable) {
                                     const layout = variable.littleEndian ? '<' : '>';
-                                    const tensor = new keras.Tensor(entry[0], variable.shape, variable.type, null, layout, variable.data);
-                                    weights.add(layer[0], tensor);
+                                    const tensor = new keras.Tensor(entry[0], variable.shape, variable.type, null, null, layout, variable.data);
+                                    values.push(tensor);
                                 }
                             }
+                        }
+                        if (values.length > 0) {
+                            weights_store.set(name, values);
+                        }
+                    }
+                }
+            };
+            const weights_store = new Map();
+            walk(group, '', weights_store);
+            return weights_store;
+        };
+        const read_weights_numpy = (entries) => {
+            const weights_store = new Map();
+            const execution = new python.Execution();
+            for (const entry of entries) {
+                entry[0] = entry[0].split('/').map((name) => name === '_layer_checkpoint_dependencies' ? 'layers' : name).join('/');
+                if (entry[0].endsWith('.npy') && entry[0].startsWith('layers/')) {
+                    const name = entry[0].replace(/\.npy$/, '');
+                    const stream = entry[1];
+                    const buffer = stream.peek();
+                    const bytes = execution.invoke('io.BytesIO', [ buffer ]);
+                    const array = execution.invoke('numpy.load', [ bytes ]);
+                    if (array.dtype.name === 'object' && array.shape.length === 0 &&
+                        Array.isArray(array.data) && array.data.length === 1) {
+                        const values = Object.values(array.data[0]).map((array) => {
+                            const stride = array.strides.map((stride) => stride / array.itemsize);
+                            const dataType = array.dtype.__name__;
+                            const values = dataType == 'string' || dataType == 'object' ? array.flatten().tolist() : array.tobytes();
+                            const encoding = dataType == 'string' || dataType == 'object' ? '|' : array.dtype.byteorder;
+                            return new keras.Tensor('', array.shape, dataType, stride, null, encoding, values);
+                        });
+                        if (values.length > 0) {
+                            weights_store.set(name, values);
                         }
                     }
                 }
             }
-            return weights;
+            return weights_store;
         };
-        const openModel = async (format, producer, backend, config, weights) => {
+        const request_weights = async (context) => {
+            const stream = await request(context, 'model.weights.h5');
+            if (stream) {
+                const file = hdf5.File.open(stream);
+                const group = file.read();
+                if (group) {
+                    return read_weights_hdf5(group);
+                }
+            } else {
+                const stream = await request(context, 'model.weights.npz');
+                if (stream) {
+                    const entries = zip.Archive.open(stream);
+                    if (entries && entries.length > 0) {
+                        return read_weights_numpy(entries);
+                    }
+                }
+            }
+            return new Map();
+        };
+        const open_model = async (format, producer, backend, config, weights) => {
             const metadata = await context.metadata('keras-metadata.json');
             return new keras.Model(metadata, format, producer, backend, config, weights);
         };
@@ -99,37 +205,58 @@ keras.ModelFactory = class {
                 const config = obj.model_config ? obj.model_config : obj;
                 const backend = obj.backend || '';
                 let version = obj.keras_version ? obj.keras_version : null;
-                let weights = new keras.Weights();
-                if (context.identifier === 'config.json') {
-                    weights = await requestWeights(context);
-                    if (!version) {
-                        const metadata = await requestJson(context, 'metadata.json');
-                        if (metadata && metadata.keras_version) {
-                            version = metadata.keras_version;
-                        }
+                if (!version) {
+                    const metadata = await request_json(context, 'metadata.json');
+                    if (metadata && metadata.keras_version) {
+                        version = metadata.keras_version;
                     }
                 }
                 const format = 'Keras' + (version ? ' v' + version : '');
-                return openModel(format, '', backend, config, weights);
+                const weights_store = await request_weights(context);
+                _load_state(config, weights_store);
+                return open_model(format, '', backend, config, null);
             }
             case 'keras.model.weights.h5': {
-                const weights = await requestWeights(context, context.open('hdf5'));
-                const config = await requestJson(context, 'config.json');
-                const metadata = await requestJson(context, 'metadata.json');
+                const weights_store = read_weights_hdf5(context.open('hdf5'));
+                const metadata = await request_json(context, 'metadata.json');
+                let config = await request_json(context, 'config.json');
                 const name = config ? 'Keras' : 'Keras Weights';
                 const format = name + (metadata && metadata.keras_version ? ' v' + metadata.keras_version : '');
-                return openModel(format, '', '', config, weights);
+                if (config) {
+                    _load_state(config, weights_store);
+                } else {
+                    config = _create_config(weights_store);
+                }
+                return open_model(format, '', '', config, null);
+            }
+            case 'keras.model.weights.npz': {
+                const weights_store = read_weights_numpy(context.entries('zip'));
+                const metadata = await request_json(context, 'metadata.json');
+                let config = await request_json(context, 'config.json');
+                const name = config ? 'Keras' : 'Keras Weights';
+                const format = name + (metadata && metadata.keras_version ? ' v' + metadata.keras_version : '');
+                if (config) {
+                    _load_state(config, weights_store);
+                } else {
+                    config = _create_config(weights_store);
+                }
+                return open_model(format, '', '', config, null);
             }
             case 'keras.metadata.json': {
                 const metadata = target;
-                const config = await requestJson(context, 'config.json');
-                const weights = await requestWeights(context);
-                if (!config && weights.empty) {
-                    throw new keras.Error("'config.json' or 'model.weights.h5' not present.");
-                }
+                let config = await request_json(context, 'config.json');
                 const name = config ? 'Keras' : 'Keras Weights';
                 const format = name + (metadata.keras_version ? 'v' + metadata.keras_version : '');
-                return openModel(format, '', '', config, weights);
+                const weights_store = await request_weights(context);
+                if (!config && (!weights_store || weights_store.size === 0)) {
+                    throw new keras.Error("'config.json' or 'model.weights.*' not present.");
+                }
+                if (config) {
+                    _load_state(config, weights_store);
+                } else {
+                    config = _create_config(weights_store);
+                }
+                return open_model(format, '', '', config, null);
             }
             case 'keras.h5': {
                 const find_root_group = (root_group) => {
@@ -185,7 +312,7 @@ keras.ModelFactory = class {
                                         const weight = layer_weights.group(weight_name);
                                         if (weight && weight.value) {
                                             const variable = weight.value;
-                                            const tensor = new keras.Tensor(weight_name, variable.shape, variable.type, null, variable.littleEndian ? '<' : '>', variable.data);
+                                            const tensor = new keras.Tensor(weight_name, variable.shape, variable.type, null, null, variable.littleEndian ? '<' : '>', variable.data);
                                             weights.add(layer_name, tensor);
                                         }
                                     }
@@ -199,7 +326,7 @@ keras.ModelFactory = class {
                     if (!model_config.class_name) {
                         throw new keras.Error("'class_name' is not present.");
                     }
-                    return openModel(format, '', backend, model_config, weights);
+                    return open_model(format, '', backend, model_config, weights);
                 }
                 const layer_names = load_attributes_from_hdf5_group(root_group, 'layer_names');
                 if (layer_names && Array.isArray(layer_names)) {
@@ -219,14 +346,14 @@ keras.ModelFactory = class {
                                         components.pop();
                                         const name = (components.length == 0 || components[0] !== layer_name) ? [ layer_name ].concat(components).join('/') : components.join('/');
                                         const encoding = variable.littleEndian ? '<' : '>';
-                                        const tensor = new keras.Tensor(weight_name, variable.shape, variable.type, null, encoding, variable.data);
+                                        const tensor = new keras.Tensor(weight_name, variable.shape, variable.type, null, null, encoding, variable.data);
                                         weights.add(name, tensor);
                                     }
                                 }
                             }
                         }
                     }
-                    return openModel(format, '', backend, null, weights);
+                    return open_model(format, '', backend, null, weights);
                 }
                 const rootKeys = new Set(root_group.attributes.keys());
                 rootKeys.delete('nb_layers');
@@ -247,10 +374,10 @@ keras.ModelFactory = class {
                     for (const group of groups) {
                         const variable = group.value;
                         const layout = variable.littleEndian ? '<' : '>';
-                        const tensor = new keras.Tensor(group.name, variable.shape, variable.type, null, layout, variable.type === 'string' ? variable.value : variable.data);
+                        const tensor = new keras.Tensor(group.name, variable.shape, variable.type, null, null, layout, variable.type === 'string' ? variable.value : variable.data);
                         weights.add('', tensor);
                     }
-                    return openModel(format, '', '', null, weights);
+                    return open_model(format, '', '', null, weights);
                 }
                 if (groups.every((group) => group.value === null && Array.from(group.attributes.keys()).filter((key) => !tensorKeys.has(key)).length === 0 && Array.from(group.groups.values()).every((variable) => Object.keys(variable.attributes).length === 0 && variable.value !== null))) {
                     for (const group of groups) {
@@ -265,11 +392,11 @@ keras.ModelFactory = class {
                             }
                             const name = moduleName ? [ moduleName, variableGroup.name ].join('/') : moduleName.name;
                             const layout = variable.littleEndian ? '<' : '>';
-                            const tensor = new keras.Tensor(name, variable.shape, variable.type, null, layout, variable.type === 'string' ? variable.value : variable.data);
+                            const tensor = new keras.Tensor(name, variable.shape, variable.type, null, null, layout, variable.type === 'string' ? variable.value : variable.data);
                             weights.add(moduleName, tensor);
                         }
                     }
-                    return openModel(format, '', '', null, weights);
+                    return open_model(format, '', '', null, weights);
                 }
                 const walk = function(group) {
                     if (group.attributes.size === 0 && group.value === null && group.groups.size > 0) {
@@ -291,19 +418,19 @@ keras.ModelFactory = class {
                             moduleName = parts.join('/');
                         }
                         const layout = variable.littleEndian ? '<' : '>';
-                        const tensor = new keras.Tensor(variableName, variable.shape, variable.type, null, layout, variable.type === 'string' ? variable.value : variable.data);
+                        const tensor = new keras.Tensor(variableName, variable.shape, variable.type, null, null, layout, variable.type === 'string' ? variable.value : variable.data);
                         weights.add(moduleName, tensor);
                         return;
                     }
                     throw new keras.Error('Module group format is not HDF5 Weights.');
                 };
                 walk(weights_group);
-                return openModel(format, '', '', null, weights);
+                return open_model(format, '', '', null, weights);
             }
             case 'tfjs.json': {
                 const container = tfjs.Container.open(context);
                 await container.open();
-                return openModel(container.format, container.producer, container.backend, container.config, container.weights);
+                return open_model(container.format, container.producer, container.backend, container.config, container.weights);
             }
             case 'keras.pickle': {
                 const execution = new python.Execution();
@@ -326,14 +453,14 @@ keras.ModelFactory = class {
                                     const buffer = layer_weights[weight_name];
                                     const unpickler = execution.invoke('pickle.Unpickler', [ buffer ]);
                                     const variable = unpickler.load();
-                                    const tensor = new keras.Tensor(weight_name, variable.shape, variable.dtype.__name__, null, '<', variable.data);
+                                    const tensor = new keras.Tensor(weight_name, variable.shape, variable.dtype.__name__, null, null, '<', variable.data);
                                     weights.add(layer_name, tensor);
                                 }
                             }
                         }
                     }
                 }
-                return openModel(format, '', backend, model_config, weights);
+                return open_model(format, '', backend, model_config, weights);
             }
             case 'keras.pb.SavedMetadata': {
                 await context.require('./keras-proto');
@@ -349,7 +476,7 @@ keras.ModelFactory = class {
                     objects.set(node.node_path, node);
                 }
                 const model_config = objects.get('root').metadata;
-                return openModel(format, '', '', model_config, null);
+                return open_model(format, '', '', model_config, null);
             }
             default: {
                 throw new keras.Error("Unsupported Keras format '" + target + "'.");
@@ -736,9 +863,9 @@ keras.Node = class {
         this._attributes = [];
         this._chain = [];
         let names = [ name ];
-        let type = layer.class_name;
+        let class_name = layer.class_name;
         let model = false;
-        switch (type) {
+        switch (class_name) {
             case 'Model':
             case 'Functional':
             case 'Sequential': {
@@ -763,44 +890,50 @@ keras.Node = class {
                     const inner = config.layer;
                     delete config.layer;
                     this._inner = new keras.Node(metadata, inner, null, null, values);
-                    if (type == 'Bidirectional' && inner.config.name) {
+                    if (class_name == 'Bidirectional' && inner.config.name) {
                         names = [ name + '/forward_' + inner.config.name, name + '/backward_' + inner.config.name ];
                         if (!group) {
                             group = name;
                         }
                     }
                 }
-                this._type = metadata.type(type) || { name: type };
+                this._type = metadata.type(class_name) || { name: class_name };
                 break;
             }
             case 'TFOpLambda': {
                 if (config && config.function) {
-                    type = config.function;
+                    class_name = config.function;
                     delete config.function;
                 }
-                this._type = metadata.type(type) || { name: type };
+                this._type = metadata.type(class_name) || { name: class_name };
                 break;
             }
             default: {
-                this._type = metadata.type(type) || { name: type };
+                this._type = metadata.type(class_name) || { name: class_name };
                 break;
             }
         }
 
-        const initializers = {};
-        if (weights && !model) {
+        if (layer._trainable_variables) {
+            if (inputs.length === 0 && Array.isArray(this._type.inputs) && this._type.inputs.length > 0) {
+                // weights-only, remove 'input' from type metadata
+                this._type = Object.assign({}, this._type);
+                this._type.inputs = this._type.inputs.slice(1);
+            }
+            for (const variable of layer._trainable_variables) {
+                inputs.push({ name: '', initializer: variable });
+            }
+        } else if (weights && !model) {
             for (const name of names) {
                 let tensors = weights.get(group, name);
                 if (tensors.length > 0) {
                     for (const initializer of tensors) {
-                        inputs.push({ name: initializer.name });
-                        initializers[initializer.name] = initializer;
+                        inputs.push({ name: initializer.name, initializer: initializer });
                     }
                 } else {
                     tensors = weights.get('', name);
                     for (const initializer of tensors) {
-                        inputs.push({ name: initializer.name });
-                        initializers[initializer.name] = initializer;
+                        inputs.push({ name: initializer.name, initializer: initializer });
                     }
                 }
             }
@@ -810,21 +943,22 @@ keras.Node = class {
             for (const entry of Object.entries(config)) {
                 const name = entry[0];
                 const value = entry[1];
-                if (name === 'activation' && value !== 'linear') {
+                if (class_name !== 'Activation' && name === 'activation' && value !== 'linear') {
                     if (typeof value === 'string') {
-                        const set = new Map([ [ 'elu', 'ELU' ], [ 'exponential', 'Exponential' ], [ 'hard_sigmoid', 'HardSigmoid' ], [ 'linear', 'Linear' ], [ 'relu', 'ReLU' ], [ 'selu', 'SELU' ], [ 'softmax', 'Softmax'], [ 'sigmoid', 'Sigmoid' ], [ 'softplus', 'SoftPlus' ], [ 'softsign', 'SoftSign' ], [ 'tanh', 'TanH' ] ]);
-                        const type = set.has(value) ? set.get(value) : value;
-                        this.chain.push(new keras.Node(metadata, { class_name: type }, null, null, value));
+                        const config = { activation: value };
+                        const node = new keras.Node(metadata, { class_name: 'Activation', config: config }, null, null, value);
+                        this.chain.push(node);
                     } else if (value && typeof value.class_name === 'string' && value.config) {
                         const type = value.class_name;
                         if (!metadata.type(type)) {
                             metadata.add(type, { name: type, category: 'Activation' });
                         }
-                        this.chain.push(new keras.Node(metadata, value, null, null, value));
+                        const node = new keras.Node(metadata, value, null, null, value);
+                        this.chain.push(node);
                     }
                 }
                 if (name !== 'name' && name !== 'batch_input_shape') {
-                    const attribute = new keras.Attribute(metadata.attribute(type, name), name, value);
+                    const attribute = new keras.Attribute(metadata.attribute(class_name, name), name, value);
                     this._attributes.push(attribute);
                 }
             }
@@ -841,7 +975,7 @@ keras.Node = class {
                 if (this._type && this._type.inputs && inputIndex < this._type.inputs.length) {
                     const input = this._type.inputs[inputIndex];
                     name = input.name;
-                    if (type === 'BatchNormalization' && name === 'gamma' && config.scale === false) {
+                    if (class_name === 'BatchNormalization' && name === 'gamma' && config.scale === false) {
                         inputIndex++;
                         continue;
                     }
@@ -851,7 +985,7 @@ keras.Node = class {
                     }
                 }
             } else {
-                switch (type) {
+                switch (class_name) {
                     case 'Bidirectional': {
                         let innerIndex = inputIndex;
                         if (innerMetadata && innerMetadata.inputs) {
@@ -879,10 +1013,13 @@ keras.Node = class {
             const input = !list ? [ inputs.shift() ] : inputs.splice(0, inputs.length);
             const inputArguments = input.map((input) => {
                 if (input.name) {
-                    return values.map(input.name, null, initializers[input.name]);
+                    return values.map(input.name, null, input.initializer);
+                }
+                if (input.initializer) {
+                    return values.map(input.name, null, input.initializer);
                 }
                 if (input.value !== undefined) {
-                    const tensor = new keras.Tensor('', input.shape, config.dtype || '?', null, '|', input.value);
+                    const tensor = new keras.Tensor('', input.shape, config.dtype || '?', null, null, '|', input.value);
                     return values.map('', null, tensor);
                 }
                 throw new keras.Error("Invalid argument '" + JSON.stringify(input.name) + "'.");
@@ -921,13 +1058,13 @@ keras.Node = class {
                         const argument = new keras.Argument(name, true, [ value ]);
                         this._inputs.push(argument);
                     } else {
-                        const tensor = new keras.Tensor('', arg.shape, config.dtype || '?', null, '|', arg.value);
+                        const tensor = new keras.Tensor('', arg.shape, config.dtype || '?', null, null, '|', arg.value);
                         const value = values.map('', null, tensor);
                         const argument = new keras.Argument(name, true, [ value ]);
                         this._inputs.push(argument);
                     }
                 } else {
-                    const attribute = new keras.Attribute(metadata.attribute(type, name), name, arg);
+                    const attribute = new keras.Attribute(metadata.attribute(class_name, name), name, arg);
                     this._attributes.push(attribute);
                 }
             }
@@ -1044,24 +1181,13 @@ keras.Attribute = class {
 
 keras.Tensor = class {
 
-    constructor(name, shape, type, quantization, encoding, data) {
-        this._name = name;
-        this._type = new keras.TensorType(type, new keras.TensorShape(shape));
+    constructor(name, shape, type, stride, quantization, encoding, data) {
+        this.name = name;
+        this.type = new keras.TensorType(type, new keras.TensorShape(shape));
+        this.stride = stride;
         this._quantization = quantization;
-        this._encoding = encoding;
+        this.encoding = encoding;
         this._data = data;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get encoding() {
-        return this._encoding;
     }
 
     get quantization() {
@@ -1074,7 +1200,7 @@ keras.Tensor = class {
     }
 
     get values() {
-        if (this._encoding === '|') {
+        if (this.encoding === '|') {
             return this._data;
         }
         if (this._data === null) {
@@ -1305,7 +1431,7 @@ tfjs.Container = class {
                 const size = weight.shape.reduce((a, b) => a * b, 1);
                 const length = itemsize * size;
                 const data = buffer ? buffer.slice(offset, offset + length) : null;
-                this._weights.add(weight.identifier, new keras.Tensor(weight.name, weight.shape, dtype, weight.quantization, '<', data));
+                this._weights.add(weight.identifier, new keras.Tensor(weight.name, weight.shape, dtype, null, weight.quantization, '<', data));
                 offset += length;
             }
         }
