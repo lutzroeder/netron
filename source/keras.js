@@ -11,6 +11,7 @@ keras.ModelFactory = class {
 
     match(context) {
         const identifier = context.identifier;
+        const extension = identifier.split('.').pop().toLowerCase();
         const group = context.open('hdf5');
         if (group && group.attributes && group.attributes.get('CLASS') !== 'hickle') {
             if (identifier === 'model.weights.h5') {
@@ -39,14 +40,23 @@ keras.ModelFactory = class {
             pickle.__class__.__name__ === 'Sequential') {
             return 'keras.pickle';
         }
-        if (identifier === 'keras_metadata.pb') {
+        // model.weights.npz
+        const entries = context.entries('zip');
+        const regex = /^(__root__|layers\/.+|_layer_checkpoint_dependencies\/.+)\.npy$/;
+        if (entries.size > 0 && Array.from(entries).every((entry) => regex.test(entry[0]))) {
+            return 'keras.model.weights.npz';
+        }
+        // keras_metadata.pb
+        if (extension === 'pb' && context.stream && context.stream.length > 16) {
             const tags = context.tags('pb');
             if (tags.size === 1 && tags.get(1) === 2) {
-                return 'keras.pb.SavedMetadata';
+                const stream = context.stream;
+                const buffer = stream.peek(Math.min(stream.length, 1024));
+                const content = String.fromCharCode.apply(null, buffer);
+                if (/root"/.test(content) && /\{\s*"class_name"\s*:/.test(content)) {
+                    return 'keras.pb.SavedMetadata';
+                }
             }
-        }
-        if (identifier === 'model.weights.npz') {
-            return 'keras.model.weights.npz';
         }
         return null;
     }
@@ -469,6 +479,10 @@ keras.ModelFactory = class {
                 const stream = context.stream;
                 const reader = protobuf.BinaryReader.open(stream);
                 const saved_metadata = keras.proto.third_party.tensorflow.python.keras.protobuf.SavedMetadata.decode(reader);
+                if (!saved_metadata || !Array.isArray(saved_metadata.nodes) ||
+                    !saved_metadata.nodes.every((node) => node && typeof node.metadata === 'string' && node.metadata.length > 0)) {
+                    throw new keras.Error('Invalid keras.protobuf.SavedMetadata.');
+                }
                 const objects = new Map();
                 for (const node of saved_metadata.nodes) {
                     const reader = json.TextReader.open(node.metadata);
@@ -762,8 +776,9 @@ keras.Graph = class {
                     }
                     break;
                 }
-                default:
+                default: {
                     throw new keras.Error('\'' + config.class_name + '\' is not supported.');
+                }
             }
         } else if (weights) {
             for (const name of weights.keys()) {

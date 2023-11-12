@@ -2011,6 +2011,20 @@
   },
   {
     "type":     "keras",
+    "target":   "1141.1.keras",
+    "source":   "https://github.com/lutzroeder/netron/files/13329220/1141.zip[1141.1.keras]",
+    "format":   "Keras v2.13.1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1141"
+  },
+  {
+    "type":     "keras",
+    "target":   "1141.2.keras",
+    "source":   "https://github.com/lutzroeder/netron/files/13329220/1141.zip[1141.2.keras]",
+    "format":   "Keras v2.13.1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1141"
+  },
+  {
+    "type":     "keras",
     "target":   "1151.1.keras",
     "source":   "https://github.com/lutzroeder/netron/files/13329206/1151.zip[1151.1.keras]",
     "format":   "Keras v2.14.0",
@@ -2197,20 +2211,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/12449745/issue855.h5.zip[issue855.h5]",
     "format":   "Keras v2.7.0",
     "link":     "https://github.com/lutzroeder/netron/issues/855"
-  },
-  {
-    "type":     "keras",
-    "target":   "issue1142.1.keras",
-    "source":   "https://github.com/lutzroeder/netron/files/12407995/issue1142.1.keras.zip[issue1142.1.keras]",
-    "format":   "Keras v2.13.1",
-    "link":     "https://github.com/lutzroeder/netron/issues/1141"
-  },
-  {
-    "type":     "keras",
-    "target":   "issue1142.2.keras",
-    "source":   "https://github.com/lutzroeder/netron/files/12407996/issue1142.2.keras.zip[issue1142.2.keras]",
-    "format":   "Keras v2.13.1",
-    "link":     "https://github.com/lutzroeder/netron/issues/1141"
   },
   {
     "type":     "keras",
