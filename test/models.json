@@ -2011,6 +2011,34 @@
   },
   {
     "type":     "keras",
+    "target":   "1151.1.keras",
+    "source":   "https://github.com/lutzroeder/netron/files/13329206/1151.zip[1151.1.keras]",
+    "format":   "Keras v2.14.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1151"
+  },
+  {
+    "type":     "keras",
+    "target":   "1151.2.keras",
+    "source":   "https://github.com/lutzroeder/netron/files/13329206/1151.zip[1151.2.keras]",
+    "format":   "Keras v2.14.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1151"
+  },
+  {
+    "type":     "keras",
+    "target":   "1151.3.keras",
+    "source":   "https://github.com/lutzroeder/netron/files/13329206/1151.zip[1151.3.keras]",
+    "format":   "Keras v2.14.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/1151"
+  },
+  {
+    "type":     "keras",
+    "target":   "1151.4.keras",
+    "source":   "https://github.com/lutzroeder/netron/files/13329206/1151.zip[1151.4.keras]",
+    "format":   "Keras v2.13.1",
+    "link":     "https://github.com/lutzroeder/netron/issues/1151"
+  },
+  {
+    "type":     "keras",
     "target":   "5_model_fold_0.h5",
     "source":   "https://github.com/lutzroeder/netron/files/6174822/5_model_fold_0.h5.zip[5_model_fold_0.h5]",
     "format":   "Keras v2.4.0",
@@ -2336,13 +2364,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/4304644/nested_bidrectional.zip[nested_bidrectional_weights.h5]",
     "format":   "Keras Weights v2.3.1",
     "link":     "https://github.com/lutzroeder/netron/issues/428"
-  },
-  {
-    "type":     "keras",
-    "target":   "nested_function.keras",
-    "source":   "https://github.com/lutzroeder/netron/files/13292203/nested_function.keras.zip[nested_function.keras]",
-    "format":   "Keras v2.13.1",
-    "link":     "https://github.com/lutzroeder/netron/issues/1151"
   },
   {
     "type":     "keras",
