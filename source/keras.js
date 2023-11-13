@@ -546,12 +546,6 @@ keras.Graph = class {
             }
             return values.get(name);
         };
-        const loadNode = (layer, inputs, outputs, weights, group) => {
-            layer = Object.assign({}, layer);
-            layer.inputs = inputs;
-            layer.outputs = outputs;
-            return new keras.Node(this._metadata, layer, group, weights, values);
-        };
         const getInputType = (layer) => {
             if (layer && layer.config) {
                 let dataType = '?';
@@ -576,12 +570,6 @@ keras.Graph = class {
         };
         if (config) {
             this._name = config.name || (config.config && config.config.name ? config.config.name : '');
-            const is_connection = (item) => {
-                return Array.isArray(item) && (item.length === 3 || item.length === 4) && typeof item[0] === 'string' && typeof item[1] === 'number'  && typeof item[2] === 'number';
-            };
-            const is_constant = (item) => {
-                return Array.isArray(item) && (item.length === 3 || item.length === 4) && item[0] === '_CONSTANT_VALUE' && item[1] === -1;
-            };
             switch (config.class_name) {
                 case 'AllCNN':
                 case 'Sequential': {
@@ -613,7 +601,10 @@ keras.Graph = class {
                                 name = null;
                             }
                         }
-                        this.nodes.push(loadNode(layer, nodeInputs, nodeOutputs, weights, group));
+                        layer.inputs = nodeInputs;
+                        layer.outputs = nodeOutputs;
+                        const node = new keras.Node(this._metadata, layer, group, weights, values);
+                        this.nodes.push(node);
                     }
                     if (name) {
                         const value = values.map(name);
@@ -627,41 +618,23 @@ keras.Graph = class {
                     config = config.config;
                     const nodes = new Map();
                     if (config.layers) {
-                        for (const layer of config.layers) {
-                            layer.inputs = [];
-                            layer.outputs = [];
-                            layer.args = {};
-                            if (layer.name && !nodes.has(layer.name)) {
-                                nodes.set(layer.name, layer);
-                            }
-                        }
-                        const read_connection = (input_data) => {
-                            let name = input_data[0];
-                            const node = nodes.get(name);
-                            if (node) {
-                                // const node_index = input_data[1];
-                                const tensor_index = input_data[2];
-                                if (tensor_index !== 0) {
-                                    name += ':' + tensor_index.toString();
-                                }
-                                while (tensor_index >= node.outputs.length) {
-                                    node.outputs.push('');
-                                }
-                                node.outputs[tensor_index] = name;
-                            }
-                            return { name: name };
+                        const is_constant = (item) => {
+                            return Array.isArray(item) && (item.length === 3 || item.length === 4) && item[0] === '_CONSTANT_VALUE' && item[1] === -1;
+                        };
+                        const is_connection = (item) => {
+                            return Array.isArray(item) && (item.length === 3 || item.length === 4) && typeof item[0] === 'string' && typeof item[1] === 'number'  && typeof item[2] === 'number';
                         };
                         const read_value = (input_data) => {
                             if (!Array.isArray(input_data)) {
-                                return { shape: [], value: [ input_data ] };
+                                return input_data;
                             }
-                            const shape = (value) => {
+                            const transform = (value) => {
                                 if (value.every((item) => is_constant(item))) {
                                     for (let i = 0; i < value.length; i++) {
                                         value[i] = value[i][2];
                                     }
                                 } else if (value.every((item) => Array.isArray(item))) {
-                                    const dims = value.map((item) => shape(item));
+                                    const dims = value.map((item) => transform(item));
                                     const dim = dims[0];
                                     for (let i = 1; i < dims.length; i++) {
                                         if (dim.length === dims[i].length) {
@@ -674,105 +647,276 @@ keras.Graph = class {
                                 }
                                 return [ value.length ];
                             };
+                            const shape = transform(input_data);
                             const flatten = (input) => input.reduce((a, b) => a.concat(Array.isArray(b) ? flatten(b) : b), []);
-                            return { shape: shape(input_data), value: flatten(input_data) };
+                            const value = flatten(input_data);
+                            return { shape: shape, value: value };
                         };
-                        for (const layer of config.layers) {
-                            if (layer.inbound_nodes) {
-                                for (const inbound_node of layer.inbound_nodes) {
-                                    if (is_constant(inbound_node)) {
-                                        layer.inputs.push(read_value(inbound_node[2]));
-                                        const args = inbound_node[3] || {};
-                                        layer.args = {};
-                                        for (const entry of Object.entries(args)) {
-                                            const key = entry[0];
-                                            const value = entry[1];
-                                            layer.args[key] = is_connection(value) ? read_connection(value) : read_value(value);
+                        const node_mode = false;
+                        if (node_mode) {
+                            const functional = config.layers.every((layer) => Array.isArray(layer.inbound_nodes));
+                            const layers = new Map();
+                            if (functional) {
+                                const read_connection = (input_data) => {
+                                    const node_name = input_data[0];
+                                    const node_index = input_data[1];
+                                    const tensor_index = input_data[2];
+                                    const inbound_node_key = node_name + '[' + node_index.toString() + ']';
+                                    const inbound_node = nodes.get(inbound_node_key);
+                                    const tensor_key = node_name + '[' + node_index + '][' + tensor_index + ']';
+                                    if (inbound_node) {
+                                        while (tensor_index >= inbound_node.outputs.length) {
+                                            inbound_node.outputs.push(undefined);
                                         }
-                                    } else if (is_connection(inbound_node)) {
-                                        layer.inputs.push(read_connection(inbound_node));
-                                        const args = inbound_node[3] || {};
-                                        layer.args = {};
-                                        for (const entry of Object.entries(args)) {
-                                            const key = entry[0];
+                                        inbound_node.outputs[tensor_index] = tensor_key;
+                                    }
+                                    return tensor_key;
+                                };
+                                const process_node = (node, inbound_node) => {
+                                    if (Array.isArray(inbound_node) && inbound_node.length === 4 && typeof inbound_node[0] === 'string') {
+                                        const key = read_connection(inbound_node);
+                                        node.inputs.push({ name: key });
+                                        for (const entry of Object.entries(inbound_node[3])) {
+                                            const name = entry[0];
                                             const value = entry[1];
-                                            layer.args[key] = is_connection(value) ? read_connection(value) : read_value(value);
+                                            if (is_connection(value)) {
+                                                const key = read_connection(value);
+                                                node.inputs.push({ name: key });
+                                            } else if (Array.isArray(value)) {
+                                                const array = read_value(value);
+                                                node.args[name] = array;
+                                            } else {
+                                                node.args[name] = value;
+                                            }
                                         }
                                     } else if (Array.isArray(inbound_node)) {
                                         for (const input_data of inbound_node) {
-                                            if (is_connection(input_data)) {
-                                                layer.inputs.push(read_connection(input_data));
-                                            } else if (Array.isArray(input_data) && input_data.every((item) => is_connection(item))) {
-                                                for (const input of input_data) {
-                                                    layer.inputs.push(read_connection(input));
-                                                }
+                                            // [ 'conv2d', 0, 0 ] or [ 'conv2d', 0, 0, {} ]
+                                            if (Array.isArray(input_data) && (input_data.length === 3 || input_data.length === 4)) {
+                                                const key = read_connection(input_data);
+                                                node.inputs.push({ name: key });
                                             } else if (Array.isArray(input_data)) {
-                                                layer.inputs.push(read_value(input_data));
+                                                const value = read_value(input_data);
+                                                node.inputs.push(value);
                                             } else {
                                                 throw new keras.Error("Invalid inbound connection '" + JSON.stringify(input_data) + "'.");
                                             }
                                         }
-                                    } else if (inbound_node && Array.isArray(inbound_node.args)) {
+                                    } else if (inbound_node && inbound_node.args) {
                                         for (const arg of inbound_node.args) {
                                             if (arg && arg.class_name === '__keras_tensor__' && arg.config && is_connection(arg.config.keras_history)) {
-                                                const input_data = arg.config.keras_history;
-                                                layer.inputs.push(read_connection(input_data));
+                                                const key = read_connection(arg.config.keras_history);
+                                                node.inputs.push({ name: key });
                                             } else if (Array.isArray(arg) && arg.every((arg) => arg && arg.class_name === '__keras_tensor__' && arg.config && is_connection(arg.config.keras_history))) {
                                                 for (const input of arg) {
-                                                    layer.inputs.push(read_connection(input.config.keras_history));
+                                                    const key = read_connection(input.config.keras_history);
+                                                    node.inputs.push({ name: key });
                                                 }
                                             }
                                         }
+                                    }
+                                };
+                                for (const layer of config.layers) {
+                                    layers.set(layer.name, layers);
+                                    if (Array.isArray(layer.inbound_nodes) && layer.inbound_nodes.length === 0) {
+                                        layer.inputs = [];
+                                        layer.outputs = [];
+                                        layer.args = {};
+                                        nodes.set(layer.name + '[0]', layer);
+                                    } else if (Array.isArray(layer.inbound_nodes) && layer.inbound_nodes.length === 1) {
+                                        layer.inputs = [];
+                                        layer.outputs = [];
+                                        layer.args = {};
+                                        layer.inbound_node = layer.inbound_nodes[0];
+                                        nodes.set(layer.name + '[0]', layer);
                                     } else {
-                                        throw new keras.Error("Invalid inbound node '" + JSON.stringify(inbound_node) + "'.");
+                                        for (let i = 0; i < layer.inbound_nodes.length; i++) {
+                                            const key = layer.name + '[' + i.toString() + ']';
+                                            const node = {};
+                                            node.name = key;
+                                            node.class_name = key;
+                                            node.config = {};
+                                            node.config.name = key;
+                                            node.inputs = [];
+                                            node.outputs = [];
+                                            node.args = {};
+                                            node.layer = layer;
+                                            node.inbound_node = layer.inbound_nodes[i];
+                                            nodes.set(key, node);
+                                        }
+                                    }
+                                }
+                                /*
+                                if (Array.isArray(config.output_layers)) {
+                                    for (const layer of config.output_layers) {
+                                        const key = layer[0] + '[' + layer[1].toString() + ']';
+                                        if (!nodes.has(key)) {
+                                            const node = {};
+                                            node.name = key;
+                                            node.class_name = key;
+                                            node.config = {};
+                                            node.config.name = key;
+                                            node.inputs = [];
+                                            node.outputs = [];
+                                            node.args = {};
+                                            node.layer = layer;
+                                            // node.inbound_node = layer.inbound_nodes[i];
+                                            nodes.set(key, node);
+                                        }
+                                    }
+                                }
+                                */
+                                for (const entry of nodes) {
+                                    if (entry[1].inbound_node) {
+                                        process_node(entry[1], entry[1].inbound_node);
+                                    }
+                                }
+                                if (Array.isArray(config.input_layers)) {
+                                    for (let i = 0; i < config.input_layers.length; i++) {
+                                        const input = config.input_layers[i];
+                                        const name = read_connection(input);
+                                        const value = values.map(name);
+                                        const argument = new keras.Argument(i.toString(), true, [ value ]);
+                                        this._inputs.push(argument);
+                                    }
+                                }
+                                if (Array.isArray(config.output_layers)) {
+                                    for (let i = 0; i < config.output_layers.length; i++) {
+                                        const output = config.output_layers[i];
+                                        const key = read_connection(output);
+                                        const value = values.map(key);
+                                        const argument = new keras.Argument(i.toString(), true, [ value ]);
+                                        this._outputs.push(argument);
+                                    }
+                                }
+                            } else {
+                                for (const layer of config.layers) {
+                                    layer.inputs = [];
+                                    layer.outputs = [];
+                                    layer.args = {};
+                                    nodes.set(layer.name + '[0]', layer);
+                                }
+                            }
+                        } else {
+                            for (const layer of config.layers) {
+                                layer.inputs = [];
+                                layer.outputs = [];
+                                layer.args = {};
+                                if (layer.name && !nodes.has(layer.name)) {
+                                    nodes.set(layer.name, layer);
+                                }
+                            }
+                            const read_connection = (input_data) => {
+                                let name = input_data[0];
+                                const node = nodes.get(name);
+                                if (node) {
+                                    // const node_index = input_data[1];
+                                    const tensor_index = input_data[2];
+                                    if (tensor_index !== 0) {
+                                        name += ':' + tensor_index.toString();
+                                    }
+                                    while (tensor_index >= node.outputs.length) {
+                                        node.outputs.push('');
+                                    }
+                                    node.outputs[tensor_index] = name;
+                                }
+                                return { name: name };
+                            };
+                            for (const entry of nodes) {
+                                const layer = entry[1];
+                                if (Array.isArray(layer.inbound_nodes)) {
+                                    for (const inbound_node of layer.inbound_nodes) {
+                                        if (is_constant(inbound_node)) {
+                                            layer.inputs.push(read_value(inbound_node[2]));
+                                            const args = inbound_node[3] || {};
+                                            layer.args = {};
+                                            for (const entry of Object.entries(args)) {
+                                                const key = entry[0];
+                                                const value = entry[1];
+                                                layer.args[key] = is_connection(value) ? read_connection(value) : read_value(value);
+                                            }
+                                        } else if (is_connection(inbound_node)) {
+                                            layer.inputs.push(read_connection(inbound_node));
+                                            const args = inbound_node[3] || {};
+                                            layer.args = {};
+                                            for (const entry of Object.entries(args)) {
+                                                const key = entry[0];
+                                                const value = entry[1];
+                                                layer.args[key] = is_connection(value) ? read_connection(value) : read_value(value);
+                                            }
+                                        } else if (Array.isArray(inbound_node)) {
+                                            for (const input_data of inbound_node) {
+                                                if (is_connection(input_data)) {
+                                                    layer.inputs.push(read_connection(input_data));
+                                                } else if (Array.isArray(input_data) && input_data.every((item) => is_connection(item))) {
+                                                    for (const input of input_data) {
+                                                        layer.inputs.push(read_connection(input));
+                                                    }
+                                                } else if (Array.isArray(input_data)) {
+                                                    layer.inputs.push(read_value(input_data));
+                                                } else {
+                                                    throw new keras.Error("Invalid inbound connection '" + JSON.stringify(input_data) + "'.");
+                                                }
+                                            }
+                                        } else if (inbound_node && Array.isArray(inbound_node.args)) {
+                                            for (const arg of inbound_node.args) {
+                                                if (arg && arg.class_name === '__keras_tensor__' && arg.config && is_connection(arg.config.keras_history)) {
+                                                    const input_data = arg.config.keras_history;
+                                                    layer.inputs.push(read_connection(input_data));
+                                                } else if (Array.isArray(arg) && arg.every((arg) => arg && arg.class_name === '__keras_tensor__' && arg.config && is_connection(arg.config.keras_history))) {
+                                                    for (const input of arg) {
+                                                        layer.inputs.push(read_connection(input.config.keras_history));
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            throw new keras.Error("Invalid inbound node '" + JSON.stringify(inbound_node) + "'.");
+                                        }
                                     }
                                 }
                             }
-                        }
-                    }
-                    const input_layers = is_connection(config.input_layers) ? [ config.input_layers ] : config.input_layers;
-                    if (input_layers) {
-                        for (let i = 0; i < input_layers.length; i++) {
-                            const input_layer = input_layers[i];
-                            const name = input_layer[0];
-                            let type = null;
-                            const node = nodes.get(name);
-                            if (node && node.class_name == 'InputLayer') {
-                                type = getInputType(node);
-                                nodes.delete(name);
-                            }
-                            const value = values.map(name, type);
-                            const argument = new keras.Argument(name, true, [ value ]);
-                            this._inputs.push(argument);
-                        }
-                    }
-                    const output_layers = is_connection(config.output_layers) ? [ config.output_layers ] : config.output_layers;
-                    if (output_layers) {
-                        for (let j = 0; j < output_layers.length; j++) {
-                            const output_layer = output_layers[j];
-                            let name = output_layer[0];
-                            const outputNode = nodes.get(name);
-                            if (outputNode) {
-                                const outputIndex = output_layer[2];
-                                if (outputIndex != 0) {
-                                    name += ':' + outputIndex.toString();
+                            const input_layers = is_connection(config.input_layers) ? [ config.input_layers ] : config.input_layers;
+                            if (input_layers) {
+                                for (let i = 0; i < input_layers.length; i++) {
+                                    const input_layer = input_layers[i];
+                                    const name = input_layer[0];
+                                    let type = null;
+                                    const node = nodes.get(name);
+                                    if (node && node.class_name == 'InputLayer') {
+                                        type = getInputType(node);
+                                        nodes.delete(name);
+                                    }
+                                    const value = values.map(name, type);
+                                    const argument = new keras.Argument(name, true, [ value ]);
+                                    this._inputs.push(argument);
                                 }
-                                while (outputIndex >= outputNode.outputs.length) {
-                                    outputNode.outputs.push('');
-                                }
-                                outputNode.outputs[outputIndex] = name;
                             }
-                            const value = values.map(name);
-                            const argument = new keras.Argument(name, true, [ value ]);
-                            this._outputs.push(argument);
+                            const output_layers = is_connection(config.output_layers) ? [ config.output_layers ] : config.output_layers;
+                            if (output_layers) {
+                                for (let j = 0; j < output_layers.length; j++) {
+                                    const output_layer = output_layers[j];
+                                    let name = output_layer[0];
+                                    const outputNode = nodes.get(name);
+                                    if (outputNode) {
+                                        const outputIndex = output_layer[2];
+                                        if (outputIndex != 0) {
+                                            name += ':' + outputIndex.toString();
+                                        }
+                                        while (outputIndex >= outputNode.outputs.length) {
+                                            outputNode.outputs.push('');
+                                        }
+                                        outputNode.outputs[outputIndex] = name;
+                                    }
+                                    const value = values.map(name);
+                                    const argument = new keras.Argument(name, true, [ value ]);
+                                    this._outputs.push(argument);
+                                }
+                            }
                         }
                     }
-                    if (config.layers) {
-                        for (const layer of config.layers) {
-                            if (nodes.has(layer.name)) {
-                                this._nodes.push(loadNode(layer, layer.inputs, layer.outputs, weights, group));
-                            }
-                        }
+                    for (const entry of nodes) {
+                        const node = new keras.Node(this._metadata, entry[1], group, weights, values);
+                        this._nodes.push(node);
                     }
                     break;
                 }
@@ -1057,8 +1201,8 @@ keras.Node = class {
 
         for (let i = 0; i < outputs.length; i++) {
             const output = outputs[i];
-            const outputName = (this._type && this._type.outputs && i < this._type.outputs.length && this._type.outputs[i] && this._type.outputs[i].name) ? this._type.outputs[i].name : i.toString();
-            const argument = new keras.Argument(outputName, true, output.length === 0 ? [] : [ values.map(output) ]);
+            const name = this._type && this._type.outputs && i < this._type.outputs.length && this._type.outputs[i] && this._type.outputs[i].name ? this._type.outputs[i].name : i.toString();
+            const argument = new keras.Argument(name, true, output === undefined || output.length === 0 ? [] : [ values.map(output) ]);
             this._outputs.push(argument);
         }
 
@@ -1067,7 +1211,7 @@ keras.Node = class {
             const name = entry[0];
             const arg = entry[1];
             if (name !== 'name') {
-                if (arg.name || (inputTypes.has(name) && inputTypes.get(name) === 'Tensor' && arg)) {
+                if ((arg && arg.name) || (inputTypes.has(name) && inputTypes.get(name) === 'Tensor' && arg)) {
                     if (arg.name) {
                         const value = values.map(arg.name);
                         const argument = new keras.Argument(name, true, [ value ]);
