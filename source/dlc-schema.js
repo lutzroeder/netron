@@ -227,6 +227,16 @@ $root.dlc.v4.TensorInfo3 = class TensorInfo3 {
     }
 };
 
+$root.dlc.v4.ModelParameters64 = class ModelParameters64 {
+
+    static decode(reader, position) {
+        const $ = new $root.dlc.v4.ModelParameters64();
+        $.buffers = reader.tableArray(position, 4, $root.dlc.v4.Buffer.decode);
+        $.params = reader.typedArray(position, 6, Uint8Array);
+        return $;
+    }
+};
+
 $root.dlc.v4.ModelParameters = class ModelParameters {
 
     static decode(reader, position) {
@@ -262,6 +272,15 @@ $root.dlc.v4.TensorData = class TensorData {
         const $ = new $root.dlc.v4.TensorData();
         $.name = reader.string_(position, 4, null);
         $.bytes = reader.typedArray(position, 6, Uint8Array);
+        return $;
+    }
+};
+
+$root.dlc.v4.Buffer = class Buffer {
+
+    static decode(reader, position) {
+        const $ = new $root.dlc.v4.Buffer();
+        $.bytes = reader.typedArray(position, 4, Uint8Array);
         return $;
     }
 };

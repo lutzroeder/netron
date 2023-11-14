@@ -343,12 +343,10 @@ dlc.Container = class {
                     this.graphs = dlc.Container._params3(stream, signature, this.graphs);
                     break;
                 }
-                case '4.NETP': {
-                    dlc.Container._params4(stream, this.graphs);
-                    break;
-                }
+                case '4.NETP':
                 case '4.NR64': {
-                    throw new dlc.Error("File contains 'NR64' data.");
+                    dlc.Container._params4(stream, this.graphs, signature);
+                    break;
                 }
                 default: {
                     const buffer = stream.peek(Math.min(stream.length, 16));
@@ -385,7 +383,7 @@ dlc.Container = class {
             model = dlc.schema.v3.Model.decode(reader, reader.root);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            throw new dlc.Error('File format is not dlc.v1.NETD (' + message.replace(/\.$/, '') + ').');
+            throw new dlc.Error('File format is not dlc.v3.NETD (' + message.replace(/\.$/, '') + ').');
         }
         model.tensors = [];
         const updateAttribute = (attr) => {
@@ -516,7 +514,7 @@ dlc.Container = class {
             params = dlc.schema.v3.ModelParameters.decode(reader, reader.root);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            throw new dlc.Error('File format is not dlc.v1.NETP (' + message.replace(/\.$/, '') + ').');
+            throw new dlc.Error('File format is not dlc.v3.NETP (' + message.replace(/\.$/, '') + ').');
         }
         if (graphs.length === 0) {
             const graph = new dlc.schema.v3.ModelParameters();
@@ -556,15 +554,27 @@ dlc.Container = class {
         return graphs;
     }
 
-    static _params4(stream, graphs) {
+    static _params4(stream, graphs, signature) {
+        let buffer = stream.peek().subarray(8);
+        let buffers = null;
+        if (signature === '4.NR64') {
+            try {
+                const reader = flatbuffers.BinaryReader.open(buffer);
+                const nr64 = dlc.schema.v4.ModelParameters64.decode(reader, reader.root);
+                buffers = nr64.buffers;
+                buffer = nr64.params;
+            } catch (error) {
+                const message = error && error.message ? error.message : error.toString();
+                throw new dlc.Error('File format is not dlc.v4.NR64 (' + message.replace(/\.$/, '') + ').');
+            }
+        }
         let params = null;
         try {
-            const buffer = new Uint8Array(stream.peek().subarray(8));
             const reader = flatbuffers.BinaryReader.open(buffer);
             params = dlc.schema.v4.ModelParameters.decode(reader, reader.root);
         } catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            throw new dlc.Error('File format is not dlc.v2.NETP (' + message.replace(/\.$/, '') + ').');
+            throw new dlc.Error('File format is not dlc.v4.NETP (' + message.replace(/\.$/, '') + ').');
         }
         if (graphs.length === 0) {
             throw new dlc.Error('Model definition not available.');
@@ -573,9 +583,11 @@ dlc.Container = class {
         for (const graph of graphs) {
             const params = weights.get(graph.name);
             const tensors = new Map(params.tensors.map((tensor) => [ tensor.name, tensor ]));
+            let index = 0;
+            graph.tensors.sort((a, b) => a.name.localeCompare(b.name));
             for (const tensor of graph.tensors) {
                 if (tensor.location === 4) {
-                    tensor.data = tensors.get(tensor.name).bytes;
+                    tensor.data = buffers ? buffers[index++].bytes : tensors.get(tensor.name).bytes;
                 }
             }
             for (let i = 0; i < graph.nodes.length; i++) {
@@ -584,7 +596,7 @@ dlc.Container = class {
                 for (const attribute of node.attributes) {
                     const tensor = attribute.tensor;
                     if (tensor) {
-                        tensor.data = tensors.get(tensor.name).bytes;
+                        tensor.data = buffers ? buffers[index++].bytes : tensors.get(tensor.name).bytes;
                     }
                 }
             }

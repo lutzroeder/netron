@@ -31,10 +31,12 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .toolbar { position: absolute; bottom: 10px; left: 10px; padding: 0; margin: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .toolbar button:focus { outline: 0; }
 .toolbar-button { float: left; background: None; border-radius: 6px; border: 0; margin: 0; margin-right: 1px; padding: 0; fill: None; stroke: #777; cursor: pointer; width: 24px; height: 24px; user-select: none; }
-.toolbar-back-button { float: left; background: #777; border-top-left-radius: 6px; border-bottom-left-radius: 6px; border: 0px solid; border-color: #777; margin: 2px 1px 2px 8px; padding: 0 8px 0 8px; cursor: pointer; height: 20px; color: #ffffff; font-size: 11px; line-height: 0; transition: 0.1s; }
-.toolbar-back-button:hover { background: #000000; border-color: #000000; }
-.toolbar-name-button { float: left; background: #777; border-top-right-radius: 6px; border-bottom-right-radius: 6px; border: 0px solid; border-color: #777; color: #ffffff; border-left: 1px; border-left-color: #ffffff; margin: 2px 0 2px 0; padding: 0 12px 0 6px; cursor: pointer; width: auto; height: 20px; font-size: 11px; line-height: 0; transition: 0.1s; }
-.toolbar-name-button:hover { background: #000000; border-color: #000000; }
+.toolbar-path { float: left }
+.toolbar-path-back-button { float: left; background: #777; border-top-left-radius: 6px; border-bottom-left-radius: 6px; border: 0px solid; border-color: #777; margin: 2px 0px 2px 8px; padding: 0 8px 0 8px; cursor: pointer; height: 20px; color: #ffffff; font-size: 11px; line-height: 0; transition: 0.1s; }
+.toolbar-path-back-button:hover { background: #000000; border-color: #000000; }
+.toolbar-path-name-button { float: left; background: #777; border: 0px solid; border-color: #777; color: #ffffff; border-left: 1px; border-left-color: #ffffff; margin: 2px 0 2px 1px; padding: 0 8px 0 8px; cursor: pointer; width: auto; height: 20px; font-size: 11px; line-height: 0; transition: 0.1s; }
+.toolbar-path-name-button:hover { background: #000000; border-color: #000000; }
+.toolbar-path-name-button:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
 .toolbar-icon .border { stroke: #fff; }
 .toolbar-icon .stroke { stroke: #808080; }
 .toolbar-icon:hover .stroke { stroke: #000000; }
@@ -135,10 +137,10 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .toolbar-icon .border { stroke: #1d1d1d; }
 .toolbar-icon .stroke { stroke: #aaaaaa; }
 .toolbar-icon:hover .stroke { stroke: #dfdfdf; }
-.toolbar-back-button { background: #aaaaaa; border-color: #aaaaaa; color: #333333; }
-.toolbar-back-button:hover { background: #dfdfdf; border-color: #dfdfdf; }
-.toolbar-name-button { background: #aaaaaa ; border-color: #aaaaaa; color: #404040; }
-.toolbar-name-button:hover { background: #dfdfdf; border-color: #dfdfdf; }
+.toolbar-path-back-button { background: #aaaaaa; border-color: #aaaaaa; color: #333333; }
+.toolbar-path-back-button:hover { background: #dfdfdf; border-color: #dfdfdf; }
+.toolbar-path-name-button { background: #aaaaaa ; border-color: #aaaaaa; color: #404040; }
+.toolbar-path-name-button:hover { background: #dfdfdf; border-color: #dfdfdf; }
 .titlebar { color: #949494; }
 .welcome body { background-color: #1e1e1e; }
 .default body { background-color: #404040; }
@@ -171,8 +173,8 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 }
 @media only screen and (max-device-width: 1024px) {
 .toolbar-button { width: 32px; height: 32px; }
-.toolbar-back-button { margin-top: 6px; margin-bottom: 6px; }
-.toolbar-name-button { margin-top: 6px; margin-bottom: 6px; }
+.toolbar-path-back-button { margin-top: 6px; margin-bottom: 6px; }
+.toolbar-path-name-button { margin-top: 6px; margin-bottom: 6px; }
 }
 .sidebar { display: flex; flex-direction: column; font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif; font-size: 12px; height: 100%; right: -100%; position: fixed; transition: 0.1s; top: 0; background-color: #ececec; color: #242424; overflow: hidden; border-left: 1px solid rgba(255, 255, 255, 0.5); opacity: 0; }
 .sidebar-title { font-weight: bold; font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase; height: 20px; margin: 0; padding: 20px; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
@@ -304,11 +306,11 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
             <line class="stroke" x1="78" y1="78" x2="82" y2="82" stroke-width="8" stroke-linecap="square"></line>
         </svg>
     </button>
-    <button id="back-button" class="toolbar-back-button" title="Back">
-        &#x276E;
-    </button>
-    <button id="name-button" class="toolbar-name-button" title="Name">
-    </button>
+    <div id="toolbar-path" class="toolbar-path">
+        <button id="toolbar-path-back-button" class="toolbar-path-back-button" title="Back">
+            &#x276E;
+        </button>
+    </div>
 </div>
 <div id="logo" class="center logo">
     <a href="https://github.com/lutzroeder/netron" target="blank_">

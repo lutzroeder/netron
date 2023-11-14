@@ -4840,6 +4840,39 @@
     "category": "Shape"
   },
   {
+    "name": "Trilu",
+    "description": "Returns an array in which the values of the last dimension consist of the triangular\nmatrix of the last two dimensions of an input array.",
+    "inputs": [
+      {
+        "name": "x",
+        "type": "nnabla.Variable",
+        "description": "N-D array with shape (:math:`M_0 \\times \\ldots \\times M_N`)."
+      }
+    ],
+    "attributes": [
+      {
+        "name": "k",
+        "type": "int64",
+        "default": 0,
+        "description": "The number diagonals above or below the main diagonal to exclude or include."
+      },
+      {
+        "name": "upper",
+        "type": "boolean",
+        "default": true,
+        "description": "Determine whether upper or lower part of matrix is retained."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "y",
+        "type": "nnabla.Variable",
+        "description": "N-D array with shape (:math:`M_0 \\times \\ldots \\times M_N`)."
+      }
+    ],
+    "category": "Shape"
+  },
+  {
     "name": "Meshgrid",
     "description": "Return coordinate matrices from coordinate vectors. Given N 1-D arrays, this function returns N-D coordinate arrays for vectorized evaluations on an N-D grid.\nExample: \n  >>> x,y = F.meshgrid(F.arange(0,3), F.arange(0,2))\n  >>> x.d\n  array([[0., 1., 2.],\n         [0., 1., 2.]], dtype=float32)\n >>> y.d \n array([[0., 0., 0.],\n        [1., 1., 1.]], dtype=float32)\n\n >>> i,j = F.meshgrid(F.arange(0,3), F.arange(0,2), ij_indexing=True)\n >>> i.d \n array([[0., 0.],\n        [1., 1.],\n        [2., 2.]], dtype=float32)\n >>> j.d \n array([[0., 1.],\n        [0., 1.],\n        [0., 1.]], dtype=float32)",
     "inputs": [
@@ -7941,6 +7974,33 @@
         "type": "string",
         "default": "LEFT",
         "description": "Direction of bit shift."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "y",
+        "type": "nnabla.Variable",
+        "description": "A N-D array."
+      }
+    ]
+  },
+  {
+    "name": "Einsum",
+    "description": "Evaluates the Einstein summation convention on the inputs.\nSee the numpy.einsum documentation for more information about equation.",
+    "inputs": [
+      {
+        "name": "x",
+        "type": "nnabla.Variable",
+        "list": true,
+        "description": "List of N-D array."
+      }
+    ],
+    "attributes": [
+      {
+        "name": "equation",
+        "type": "string",
+        "default": "",
+        "description": "A string that folllows Einstein summation convention."
       }
     ],
     "outputs": [

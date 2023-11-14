@@ -49,11 +49,8 @@ view.View = class {
             this._element('zoom-out-button').addEventListener('click', () => {
                 this.zoomOut();
             });
-            this._element('back-button').addEventListener('click', () => {
+            this._element('toolbar-path-back-button').addEventListener('click', () => {
                 this.popGraph();
-            });
-            this._element('name-button').addEventListener('click', () => {
-                this.showDocumentation(this.activeGraph);
             });
             this._element('sidebar').addEventListener('mousewheel', (e) => {
                 if (e.shiftKey || e.ctrlKey) {
@@ -598,7 +595,7 @@ view.View = class {
             { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto \(Cannot read properties of undefined \(reading 'ModelProto'\)\)\./, url: 'https://github.com/lutzroeder/netron/issues/1156' },
             { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto/, url: 'https://github.com/lutzroeder/netron/issues/549' },
             { name: 'Error loading TensorFlow Lite model.', message: /^Offset is outside the bounds of the DataView/, url: 'https://github.com/lutzroeder/netron/issues/563' },
-            { name: 'Error loading TensorRT model.', message: /^Invalid file content. File contains undocumented TensorRT engine data\./, url: 'https://github.com/lutzroeder/netron/issues/725' },
+            { name: 'Error loading TensorRT model.', message: /^Invalid file content. File contains undocumented TensorRT engine data\./, url: 'https://github.com/lutzroeder/netron/issues/725' }
         ];
         const known = knowns.find((known) => (known.name.length === 0 || known.name === err.name) && err.message.match(known.message));
         const url = known && known.url ? known.url : null;
@@ -687,23 +684,44 @@ view.View = class {
             if (this._page !== 'default') {
                 this.show('default');
             }
-            const nameButton = this._element('name-button');
-            const backButton = this._element('back-button');
+            const path = this._element('toolbar-path');
+            const back = this._element('toolbar-path-back-button');
+            while (path.children.length > 1) {
+                path.removeChild(path.lastElementChild);
+            }
             if (this._graphs.length <= 1) {
-                backButton.style.opacity = 0;
-                nameButton.style.opacity = 0;
+                back.style.opacity = 0;
             } else {
-                const graph = this.activeGraph;
-                const name = graph ? graph.name : '';
-                if (name.length > 61) {
-                    nameButton.setAttribute('title', name);
-                    nameButton.innerHTML = '\u2026' + name.substring(name.length - 61, name.length);
-                } else {
-                    nameButton.removeAttribute('title');
-                    nameButton.innerHTML = name;
+                back.style.opacity = 1;
+                const last = this._graphs.length - 2;
+                const count = Math.min(2, last);
+                if (count < last) {
+                    const element = this._host.document.createElement('button');
+                    element.setAttribute('class', 'toolbar-path-name-button');
+                    element.innerHTML = '&hellip;';
+                    path.appendChild(element);
                 }
-                backButton.style.opacity = 1;
-                nameButton.style.opacity = 1;
+                for (let i = count; i >= 0; i--) {
+                    const graph = this._graphs[i];
+                    const element = this._host.document.createElement('button');
+                    element.setAttribute('class', 'toolbar-path-name-button');
+                    element.addEventListener('click', () => {
+                        if (i > 0) {
+                            this._graphs = this._graphs.slice(i);
+                            this._updateGraph(this._model, this._graphs);
+                        }
+                        this.showDefinition(this._graphs[0]);
+                    });
+                    const name = graph && graph.name ? graph.name : '';
+                    if (name.length > 24) {
+                        element.setAttribute('title', name);
+                        element.innerHTML = '&hellip;' + name.substring(name.length - 24, name.length);
+                    } else {
+                        element.removeAttribute('title');
+                        element.innerHTML = name;
+                    }
+                    path.appendChild(element);
+                }
             }
         };
         const lastModel = this._model;
@@ -955,7 +973,7 @@ view.View = class {
                 }
                 const nodeSidebar = new view.NodeSidebar(this._host, node);
                 nodeSidebar.on('show-documentation', (/* sender, e */) => {
-                    this.showDocumentation(node.type);
+                    this.showDefinition(node.type);
                 });
                 nodeSidebar.on('show-graph', (sender, graph) => {
                     this.pushGraph(graph);
@@ -1036,7 +1054,7 @@ view.View = class {
         }
     }
 
-    showDocumentation(type) {
+    showDefinition(type) {
         if (type && (type.description || type.inputs || type.outputs || type.attributes)) {
             if (type.nodes && type.nodes.length > 0) {
                 this.pushGraph(type);
@@ -5128,10 +5146,10 @@ view.ModelFactoryService = class {
         this.register('./mediapipe', [ '.pbtxt' ]);
         this.register('./uff', [ '.uff', '.pb', '.pbtxt', '.uff.txt', '.trt', '.engine' ]);
         this.register('./tensorrt', [ '.trt', '.trtmodel', '.engine', '.model', '.txt', '.uff', '.pb', '.tmfile', '.onnx', '.pth', '.dnn', '.plan', '.pt', '.dat' ]);
+        this.register('./keras', [ '.h5', '.hd5', '.hdf5', '.keras', '.json', '.cfg', '.model', '.pb', '.pth', '.weights', '.pkl', '.lite', '.tflite', '.ckpt', '.pb', 'model.weights.npz' ], [ '.zip' ]);
         this.register('./numpy', [ '.npz', '.npy', '.pkl', '.pickle', '.model', '.model2', '.mge', '.joblib' ]);
         this.register('./lasagne', [ '.pkl', '.pickle', '.joblib', '.model', '.pkl.z', '.joblib.z' ]);
         this.register('./lightgbm', [ '.txt', '.pkl', '.model' ]);
-        this.register('./keras', [ '.h5', '.hd5', '.hdf5', '.keras', '.json', '.cfg', '.model', '.pb', '.pth', '.weights', '.pkl', '.lite', '.tflite', '.ckpt', '.pb' ], [ '.zip' ]);
         this.register('./sklearn', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z', '.pickle.dat' ]);
         this.register('./megengine', [ '.tm', '.mge' ]);
         this.register('./pickle', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z', '.pdstates', '.mge' ]);
@@ -5563,15 +5581,15 @@ view.ModelFactoryService = class {
                     }
                     // Keras
                     if (matches.length === 3 &&
-                        matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'model.weights.h5') &&
+                        matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'model.weights.h5' || context.identifier.toLowerCase().split('/').pop() === 'model.weights.npz') &&
                         matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'config.json') &&
                         matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'metadata.json')) {
-                        matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == 'model.weights.h5');
+                        matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == 'model.weights.h5' || context.identifier.toLowerCase().split('/').pop() === 'model.weights.npz');
                     }
                     if (matches.length === 2 &&
-                        matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'model.weights.h5') &&
+                        matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'model.weights.h5' || context.identifier.toLowerCase().split('/').pop() === 'model.weights.npz') &&
                         matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'config.json')) {
-                        matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == 'model.weights.h5');
+                        matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == 'model.weights.h5' || context.identifier.toLowerCase().split('/').pop() === 'model.weights.npz');
                     }
                     if ((matches.length === 2) &&
                         matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'config.json') &&
