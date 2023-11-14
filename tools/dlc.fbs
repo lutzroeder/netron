@@ -136,6 +136,11 @@ table TensorInfo3 {
     b1: ubyte;
 }
 
+table ModelParameters64 {
+    buffers: [Buffer];
+    params: [ubyte];
+}
+
 table ModelParameters {
     graphs: [GraphParameters];
 }
@@ -152,5 +157,9 @@ table NodeParameters {
 
 table TensorData {
     name: string;
+    bytes: [ubyte];
+}
+
+table Buffer {
     bytes: [ubyte];
 }

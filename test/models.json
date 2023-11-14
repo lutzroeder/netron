@@ -1921,7 +1921,7 @@
     "target":   "model_front_mibokeh_video.dlc",
     "source":   "https://github.com/lutzroeder/netron/files/8767521/model_front_mibokeh_video.dlc.zip[model_front_mibokeh_video.dlc]",
     "format":   "DLC",
-    "error":    "File format is not dlc.v1.NETP (Offset is outside the bounds of the DataView).",
+    "error":    "File format is not dlc.v3.NETP (Offset is outside the bounds of the DataView).",
     "link":     "https://github.com/lutzroeder/netron/issues/640"
   },
   {
@@ -1950,6 +1950,13 @@
     "type":     "dlc",
     "target":   "sample.dlc",
     "source":   "https://github.com/lutzroeder/netron/files/12207883/sample.dlc.zip[sample.dlc]",
+    "format":   "DLC",
+    "link":     "https://github.com/lutzroeder/netron/issues/640"
+  },
+  {
+    "type":     "dlc",
+    "target":   "yolov8n.dlc",
+    "source":   "https://github.com/lutzroeder/netron/files/13344121/yolov8n.dlc.zip[yolov8n.dlc]",
     "format":   "DLC",
     "link":     "https://github.com/lutzroeder/netron/issues/640"
   },
