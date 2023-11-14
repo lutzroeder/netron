@@ -3522,5 +3522,13 @@
       { "name": "group", "type": "uint32", "default": 1 },
       { "name": "format", "type": "ConvolutionFormat", "default": "NCHW" }
     ]
+  },
+  {
+    "name": "MultinomialRNG",
+    "attributes": [
+      { "name": "seed", "type": "uint64", "default": 0 },
+      { "name": "num_samples", "type": "uint64", "default": 1 },
+      { "name": "replacement", "type": "bool", "default": false }
+    ]
   }
 ]

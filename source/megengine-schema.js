@@ -1251,6 +1251,17 @@ $root.mgb.serialization.fbs.param.PoissonRNG = class PoissonRNG {
     }
 };
 
+$root.mgb.serialization.fbs.param.MultinomialRNG = class MultinomialRNG {
+
+    static decode(reader, position) {
+        const $ = new $root.mgb.serialization.fbs.param.MultinomialRNG();
+        $.seed = reader.uint64_(position, 4, 0);
+        $.num_samples = reader.uint64_(position, 6, 1);
+        $.replacement = reader.bool_(position, 8, false);
+        return $;
+    }
+};
+
 $root.mgb.serialization.fbs.param.PermutationRNG = class PermutationRNG {
 
     static decode(reader, position) {
