@@ -546,49 +546,57 @@ keras.Graph = class {
             }
             return values.get(name);
         };
-        const getInputType = (layer) => {
-            if (layer && layer.config) {
-                let dataType = '?';
-                let shape = [];
-                const config = layer.config;
-                if (config.dtype) {
-                    dataType = config.dtype;
-                    delete config.dtype;
-                }
-                if (Array.isArray(config.batch_input_shape)) {
-                    shape = config.batch_input_shape.map(s => s == null ? '?' : s);
-                    delete config.batch_input_shape;
-                } else if (config.batch_input_shape &&
-                    config.batch_input_shape.class_name === '__tuple__' &&
-                    Array.isArray(config.batch_input_shape.items)) {
-                    shape = config.batch_input_shape.items.map(s => s == null ? '?' : s);
-                    delete config.batch_input_shape;
-                }
-                return new keras.TensorType(dataType, new keras.TensorShape(shape));
-            }
-            return null;
-        };
         if (config) {
+            const getInputType = (layer) => {
+                if (layer && layer.config) {
+                    let dataType = '?';
+                    let shape = [];
+                    const config = layer.config;
+                    if (config.dtype) {
+                        dataType = config.dtype;
+                        delete config.dtype;
+                    }
+                    if (Array.isArray(config.batch_input_shape)) {
+                        shape = config.batch_input_shape.map(s => s == null ? '?' : s);
+                        delete config.batch_input_shape;
+                    } else if (config.batch_input_shape &&
+                        config.batch_input_shape.class_name === '__tuple__' &&
+                        Array.isArray(config.batch_input_shape.items)) {
+                        shape = config.batch_input_shape.items.map(s => s == null ? '?' : s);
+                        delete config.batch_input_shape;
+                    }
+                    return new keras.TensorType(dataType, new keras.TensorShape(shape));
+                }
+                return null;
+            };
             this._name = config.name || (config.config && config.config.name ? config.config.name : '');
             switch (config.class_name) {
                 case 'AllCNN':
                 case 'Sequential': {
                     config = config.config;
                     const outputs = null;
-                    const inputName = 'input';
-                    let name = inputName;
-                    let index = 0;
-                    const layers = config.layers ? config.layers : config;
-                    for (const layer of layers) {
+                    let name = 'input';
+                    let index = -1;
+                    const layers = Array.from(config.layers ? config.layers : config);
+                    while (layers.length > 0) {
+                        const layer = layers.shift();
                         let current = index.toString();
-                        const nodeInputs = [ { name: name } ];
+                        index++;
                         if (index == 0) {
                             const type = getInputType(layer);
-                            const value = values.map(inputName, type);
-                            const argument = new keras.Argument(inputName, true, [ value ]);
+                            let remove = false;
+                            if (layer.class_name === 'InputLayer' && layer.config && layer.config.name) {
+                                name = layer.config.name;
+                                remove = true;
+                            }
+                            const value = values.map(name, type);
+                            const argument = new keras.Argument(name, true, [ value ]);
                             this._inputs.push(argument);
+                            if (remove) {
+                                continue;
+                            }
                         }
-                        index++;
+                        const nodeInputs = [ { name: name } ];
                         if (layer.config && layer.config.name) {
                             current = layer.config.name;
                         }
@@ -730,13 +738,13 @@ keras.Graph = class {
                                 }
                             }
                             for (const layer of config.layers) {
+                                const class_name = layer.class_name;
                                 let first_index = 0;
                                 if (legacy_format) {
                                     const keys = new Set(Object.keys(layer.config));
                                     const is_functional_config = keys.has('name') && keys.has('layers') && keys.has('input_layers') && keys.has('output_layers');
-                                    if (is_functional_config &&
-                                        Array.isArray(layer.config.layers) && layer.config.layers.length > 0 &&
-                                        layer.config.layers[0].class_name === 'InputLayer') {
+                                    if (class_name == 'Sequential' ||
+                                        (is_functional_config && Array.isArray(layer.config.layers) && layer.config.layers.length > 0 && layer.config.layers[0].class_name === 'InputLayer')) {
                                         first_index++;
                                     }
                                 }
@@ -754,16 +762,23 @@ keras.Graph = class {
                                     nodes.set(layer.name + '[' + first_index + ']', layer);
                                 } else {
                                     let config = {};
-                                    if (layer.class_name === 'Functional') {
-                                        config = layer;
-                                    } else {
-                                        config.class_name = '__Function__';
-                                        config.name = layer.name;
-                                        config.config = {};
-                                        config.config.layers = [ Object.assign({}, layer) ];
-                                        delete config.config.layers[0].inbound_nodes;
-                                        delete config.config.layers[0].input_layers;
-                                        delete config.config.layers[0].output_layers;
+                                    switch (class_name) {
+                                        case 'Functional':
+                                        case 'Sequential':
+                                        case 'Model': {
+                                            config = layer;
+                                            break;
+                                        }
+                                        default: {
+                                            config.class_name = '__Function__';
+                                            config.name = layer.name;
+                                            config.config = {};
+                                            config.config.layers = [ Object.assign({}, layer) ];
+                                            delete config.config.layers[0].inbound_nodes;
+                                            delete config.config.layers[0].input_layers;
+                                            delete config.config.layers[0].output_layers;
+                                            break;
+                                        }
                                     }
                                     const type = new keras.Graph(this._metadata, config, weights, '');
                                     for (let i = 0; i < layer.inbound_nodes.length; i++) {
