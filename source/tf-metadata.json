@@ -21079,6 +21079,15 @@
     ]
   },
   {
+    "name": "GlobalIterId",
+    "outputs": [
+      {
+        "name": "iter_id",
+        "type": 9
+      }
+    ]
+  },
+  {
     "name": "Greater",
     "summary": "Returns the truth value of (x > y) element-wise.",
     "description": "*NOTE*: `Greater` supports broadcasting. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\nExample:\n\n```python\nx = tf.constant([5, 4, 6])\ny = tf.constant([5, 2, 5])\ntf.math.greater(x, y) ==> [False, True, True]\n\nx = tf.constant([5, 4, 6])\ny = tf.constant([5])\ntf.math.greater(x, y) ==> [False, False, True]\n```",
