@@ -25246,8 +25246,121 @@
     ],
     "examples": [
       {
-        "summary": "qlinearmatmul",
-        "code": "node = onnx.helper.make_node(\n    \"QLinearMatMul\",\n    inputs=[\n        \"a\",\n        \"a_scale\",\n        \"a_zero_point\",\n        \"b\",\n        \"b_scale\",\n        \"b_zero_point\",\n        \"y_scale\",\n        \"y_zero_point\",\n    ],\n    outputs=[\"y\"],\n)\n\n# 2D\na = np.array(\n    [\n        [208, 236, 0, 238],\n        [3, 214, 255, 29],\n    ],\n    dtype=np.uint8,\n)\n\na_scale = np.array([0.0066], dtype=np.float32)\na_zero_point = np.array([113], dtype=np.uint8)\n\nb = np.array(\n    [[152, 51, 244], [60, 26, 255], [0, 127, 246], [127, 254, 247]],\n    dtype=np.uint8,\n)\n\nb_scale = np.array([0.00705], dtype=np.float32)\nb_zero_point = np.array([114], dtype=np.uint8)\n\ny_scale = np.array([0.0107], dtype=np.float32)\ny_zero_point = np.array([118], dtype=np.uint8)\n\noutput = np.array(\n    [\n        [168, 115, 255],\n        [1, 66, 151],\n    ],\n    dtype=np.uint8,\n)\n\nexpect(\n    node,\n    inputs=[\n        a,\n        a_scale,\n        a_zero_point,\n        b,\n        b_scale,\n        b_zero_point,\n        y_scale,\n        y_zero_point,\n    ],\n    outputs=[output],\n    name=\"test_qlinearmatmul_2D\",\n)\n\n# 3D\na = np.array(\n    [\n        [[208, 236, 0, 238], [3, 214, 255, 29]],\n        [[208, 236, 0, 238], [3, 214, 255, 29]],\n    ],\n    dtype=np.uint8,\n)\n\na_scale = np.array([0.0066], dtype=np.float32)\na_zero_point = np.array([113], dtype=np.uint8)\n\nb = np.array(\n    [\n        [[152, 51, 244], [60, 26, 255], [0, 127, 246], [127, 254, 247]],\n        [[152, 51, 244], [60, 26, 255], [0, 127, 246], [127, 254, 247]],\n    ],\n    dtype=np.uint8,\n)\n\nb_scale = np.array([0.00705], dtype=np.float32)\nb_zero_point = np.array([114], dtype=np.uint8)\n\ny_scale = np.array([0.0107], dtype=np.float32)\ny_zero_point = np.array([118], dtype=np.uint8)\n\noutput = np.array(\n    [[[168, 115, 255], [1, 66, 151]], [[168, 115, 255], [1, 66, 151]]],\n    dtype=np.uint8,\n)\n\nexpect(\n    node,\n    inputs=[\n        a,\n        a_scale,\n        a_zero_point,\n        b,\n        b_scale,\n        b_zero_point,\n        y_scale,\n        y_zero_point,\n    ],\n    outputs=[output],\n    name=\"test_qlinearmatmul_3D\",\n)"
+        "summary": "int",
+        "code": "for quant_type_name in [\"uint8\", \"int8\"]:\n    quant_type = getattr(np, quant_type_name)\n    for dtype_name in [\"float32\", \"float16\"]:\n        dtype = getattr(np, dtype_name)\n        node = onnx.helper.make_node(\n            \"QLinearMatMul\",\n            inputs=[\n                \"a\",\n                \"a_scale\",\n                \"a_zero_point\",\n                \"b\",\n                \"b_scale\",\n                \"b_zero_point\",\n                \"y_scale\",\n                \"y_zero_point\",\n            ],\n            outputs=[\"y\"],\n        )\n\n        # 2D\n        a = np.array([[208, 236, 0, 238], [3, 214, 255, 29]])\n        if quant_type == np.int8:\n            a -= 127\n        a = a.astype(quant_type)\n\n        a_scale = np.array([0.0066], dtype=dtype)\n        a_zero_point = np.array(\n            [113 - 127] if quant_type == np.int8 else [113], dtype=quant_type\n        )\n\n        b = np.array(\n            [[152, 51, 244], [60, 26, 255], [0, 127, 246], [127, 254, 247]]\n        )\n        if quant_type == np.int8:\n            b -= 127\n        b = b.astype(quant_type)\n\n        b_scale = np.array([0.00705], dtype=dtype)\n        b_zero_point = np.array(\n            [114 - 127] if quant_type == np.int8 else [114], dtype=quant_type\n        )\n\n        y_scale = np.array([0.0107], dtype=dtype)\n        y_zero_point = np.array(\n            [118 - 127] if quant_type == np.int8 else [118], dtype=quant_type\n        )\n\n        if quant_type == np.int8:\n            output = np.array([[41, -12, -9], [1, -75, 20]])\n        else:\n            output = np.array([[168, 115, 255], [1, 66, 151]])\n        output = output.astype(quant_type)\n\n        expect(\n            node,\n            inputs=[\n                a,\n                a_scale,\n                a_zero_point,\n                b,\n                b_scale,\n                b_zero_point,\n                y_scale,\n                y_zero_point,\n            ],\n            outputs=[output],\n            name=f\"test_qlinearmatmul_2D_{quant_type_name}_{dtype_name}\",\n        )\n\n        # 3D\n        a = np.array(\n            [\n                [[208, 236, 0, 238], [3, 214, 255, 29]],\n                [[208, 236, 0, 238], [3, 214, 255, 29]],\n            ],\n        )\n        if quant_type == np.int8:\n            a -= 127\n        a = a.astype(quant_type)\n\n        a_scale = np.array([0.0066], dtype=dtype)\n        a_zero_point = np.array(\n            [113 - 127] if quant_type == np.int8 else [113], dtype=quant_type\n        )\n\n        b = np.array(\n            [\n                [[152, 51, 244], [60, 26, 255], [0, 127, 246], [127, 254, 247]],\n                [[152, 51, 244], [60, 26, 255], [0, 127, 246], [127, 254, 247]],\n            ],\n        )\n        if quant_type == np.int8:\n            b -= 127\n        b = b.astype(quant_type)\n\n        b_scale = np.array([0.00705], dtype=dtype)\n        b_zero_point = np.array([114], dtype=quant_type)\n\n        y_scale = np.array([0.0107], dtype=dtype)\n        y_zero_point = np.array(\n            [118 - 127] if quant_type == np.int8 else [118], dtype=quant_type\n        )\n\n        if quant_type == np.int8:\n            if dtype == np.float32:\n                output = np.array(\n                    [\n                        [[-86, 117, 120], [115, 39, -121]],\n                        [[-86, 117, 120], [115, 39, -121]],\n                    ]\n                )\n            else:\n                output = np.array(\n                    [\n                        [[-86, 116, 119], [115, 39, -121]],\n                        [[-86, 116, 119], [115, 39, -121]],\n                    ]\n                )\n        else:\n            output = np.array(\n                [\n                    [[168, 115, 255], [1, 66, 151]],\n                    [[168, 115, 255], [1, 66, 151]],\n                ]\n            )\n        output = output.astype(quant_type)\n\n        expect(\n            node,\n            inputs=[\n                a,\n                a_scale,\n                a_zero_point,\n                b,\n                b_scale,\n                b_zero_point,\n                y_scale,\n                y_zero_point,\n            ],\n            outputs=[output],\n            name=f\"test_qlinearmatmul_3D_{quant_type_name}_{dtype_name}\",\n        )"
+      }
+    ]
+  },
+  {
+    "name": "QLinearMatMul",
+    "module": "ai.onnx",
+    "version": 21,
+    "support_level": "common",
+    "description": "Matrix product that behaves like numpy.matmul: https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.matmul.html.\nIt consumes two quantized input tensors, their scales and zero points, scale and zero point of output,\nand computes the quantized output. The quantization formula is y = saturate((x / y_scale) + y_zero_point).\nFor (x / y_scale), it is rounding to nearest ties to even. Refer to https://en.wikipedia.org/wiki/Rounding for details.\nScale and zero point must have same shape. They must be either scalar (per tensor) or N-D tensor\n(per row for 'a' and per column for 'b'). Scalar refers to per tensor quantization whereas N-D refers to per row\nor per column quantization. If the input is 2D of shape [M, K] then zero point and scale tensor may be\nan M element vector [v_1, v_2, ..., v_M] for per row quantization and K element vector of shape [v_1, v_2, ..., v_K]\nfor per column quantization. If the input is N-D tensor with shape [D1, D2, M, K] then zero point and scale tensor may\nhave shape [D1, D2, M, 1] for per row quantization and shape [D1, D2, 1, K] for per column quantization.\nProduction must never overflow, and accumulation may overflow if and only if in 32 bits.\n",
+    "inputs": [
+      {
+        "name": "a",
+        "type": "T1",
+        "description": "N-dimensional quantized matrix a"
+      },
+      {
+        "name": "a_scale",
+        "type": "TS",
+        "description": "scale of quantized input a"
+      },
+      {
+        "name": "a_zero_point",
+        "type": "T1",
+        "description": "zero point of quantized input a"
+      },
+      {
+        "name": "b",
+        "type": "T2",
+        "description": "N-dimensional quantized matrix b"
+      },
+      {
+        "name": "b_scale",
+        "type": "TS",
+        "description": "scale of quantized input b"
+      },
+      {
+        "name": "b_zero_point",
+        "type": "T2",
+        "description": "zero point of quantized input b"
+      },
+      {
+        "name": "y_scale",
+        "type": "TS",
+        "description": "scale of quantized output y"
+      },
+      {
+        "name": "y_zero_point",
+        "type": "T3",
+        "description": "zero point of quantized output y"
+      }
+    ],
+    "min_input": 8,
+    "max_input": 8,
+    "outputs": [
+      {
+        "name": "y",
+        "type": "T3",
+        "description": "Quantized matrix multiply results from a * b"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain scales.",
+        "type_param_str": "TS",
+        "allowed_type_strs": [
+          "tensor(float)",
+          "tensor(float16)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "The type of input a and its zeropoint.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(int8)",
+          "tensor(uint8)",
+          "tensor(float8e4m3fn)",
+          "tensor(float8e4m3fnuz)",
+          "tensor(float8e5m2)",
+          "tensor(float8e5m2fnuz)"
+        ]
+      },
+      {
+        "description": "The type of input b and its zeropoint.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(int8)",
+          "tensor(uint8)",
+          "tensor(float8e4m3fn)",
+          "tensor(float8e4m3fnuz)",
+          "tensor(float8e5m2)",
+          "tensor(float8e5m2fnuz)"
+        ]
+      },
+      {
+        "description": "The type of the output and its zeropoint.",
+        "type_param_str": "T3",
+        "allowed_type_strs": [
+          "tensor(int8)",
+          "tensor(uint8)",
+          "tensor(float8e4m3fn)",
+          "tensor(float8e4m3fnuz)",
+          "tensor(float8e5m2)",
+          "tensor(float8e5m2fnuz)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "int",
+        "code": "for quant_type_name in [\"uint8\", \"int8\"]:\n    quant_type = getattr(np, quant_type_name)\n    for dtype_name in [\"float32\", \"float16\"]:\n        dtype = getattr(np, dtype_name)\n        node = onnx.helper.make_node(\n            \"QLinearMatMul\",\n            inputs=[\n                \"a\",\n                \"a_scale\",\n                \"a_zero_point\",\n                \"b\",\n                \"b_scale\",\n                \"b_zero_point\",\n                \"y_scale\",\n                \"y_zero_point\",\n            ],\n            outputs=[\"y\"],\n        )\n\n        # 2D\n        a = np.array([[208, 236, 0, 238], [3, 214, 255, 29]])\n        if quant_type == np.int8:\n            a -= 127\n        a = a.astype(quant_type)\n\n        a_scale = np.array([0.0066], dtype=dtype)\n        a_zero_point = np.array(\n            [113 - 127] if quant_type == np.int8 else [113], dtype=quant_type\n        )\n\n        b = np.array(\n            [[152, 51, 244], [60, 26, 255], [0, 127, 246], [127, 254, 247]]\n        )\n        if quant_type == np.int8:\n            b -= 127\n        b = b.astype(quant_type)\n\n        b_scale = np.array([0.00705], dtype=dtype)\n        b_zero_point = np.array(\n            [114 - 127] if quant_type == np.int8 else [114], dtype=quant_type\n        )\n\n        y_scale = np.array([0.0107], dtype=dtype)\n        y_zero_point = np.array(\n            [118 - 127] if quant_type == np.int8 else [118], dtype=quant_type\n        )\n\n        if quant_type == np.int8:\n            output = np.array([[41, -12, -9], [1, -75, 20]])\n        else:\n            output = np.array([[168, 115, 255], [1, 66, 151]])\n        output = output.astype(quant_type)\n\n        expect(\n            node,\n            inputs=[\n                a,\n                a_scale,\n                a_zero_point,\n                b,\n                b_scale,\n                b_zero_point,\n                y_scale,\n                y_zero_point,\n            ],\n            outputs=[output],\n            name=f\"test_qlinearmatmul_2D_{quant_type_name}_{dtype_name}\",\n        )\n\n        # 3D\n        a = np.array(\n            [\n                [[208, 236, 0, 238], [3, 214, 255, 29]],\n                [[208, 236, 0, 238], [3, 214, 255, 29]],\n            ],\n        )\n        if quant_type == np.int8:\n            a -= 127\n        a = a.astype(quant_type)\n\n        a_scale = np.array([0.0066], dtype=dtype)\n        a_zero_point = np.array(\n            [113 - 127] if quant_type == np.int8 else [113], dtype=quant_type\n        )\n\n        b = np.array(\n            [\n                [[152, 51, 244], [60, 26, 255], [0, 127, 246], [127, 254, 247]],\n                [[152, 51, 244], [60, 26, 255], [0, 127, 246], [127, 254, 247]],\n            ],\n        )\n        if quant_type == np.int8:\n            b -= 127\n        b = b.astype(quant_type)\n\n        b_scale = np.array([0.00705], dtype=dtype)\n        b_zero_point = np.array([114], dtype=quant_type)\n\n        y_scale = np.array([0.0107], dtype=dtype)\n        y_zero_point = np.array(\n            [118 - 127] if quant_type == np.int8 else [118], dtype=quant_type\n        )\n\n        if quant_type == np.int8:\n            if dtype == np.float32:\n                output = np.array(\n                    [\n                        [[-86, 117, 120], [115, 39, -121]],\n                        [[-86, 117, 120], [115, 39, -121]],\n                    ]\n                )\n            else:\n                output = np.array(\n                    [\n                        [[-86, 116, 119], [115, 39, -121]],\n                        [[-86, 116, 119], [115, 39, -121]],\n                    ]\n                )\n        else:\n            output = np.array(\n                [\n                    [[168, 115, 255], [1, 66, 151]],\n                    [[168, 115, 255], [1, 66, 151]],\n                ]\n            )\n        output = output.astype(quant_type)\n\n        expect(\n            node,\n            inputs=[\n                a,\n                a_scale,\n                a_zero_point,\n                b,\n                b_scale,\n                b_zero_point,\n                y_scale,\n                y_zero_point,\n            ],\n            outputs=[output],\n            name=f\"test_qlinearmatmul_3D_{quant_type_name}_{dtype_name}\",\n        )"
       }
     ]
   },
