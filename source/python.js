@@ -4257,6 +4257,7 @@ python.Execution = class {
         this.registerType('torch.optim.swa_utils.SWALR', class {});
         this.registerType('torch.quantization.fake_quantize.FakeQuantize', class {});
         this.registerType('torch.quantization.observer._PartialWrapper', class {});
+        this.registerType('torch.quantization.observer.HistogramObserver', class {});
         this.registerType('torch.quantization.observer.MinMaxObserver', class {});
         this.registerType('torch.quantization.observer.MovingAverageMinMaxObserver', class {});
         this.registerType('torch.quantization.observer.MovingAveragePerChannelMinMaxObserver', class {});
@@ -4401,7 +4402,11 @@ python.Execution = class {
         this.registerType('torchvision.transforms.transforms.Scale', class {});
         this.registerType('torchvision.transforms.transforms.ToPILImage', class {});
         this.registerType('torchvision.transforms.transforms.ToTensor', class {});
+        this.registerFunction('torchvision.models.resnet.resnet18', function() {});
         this.registerFunction('torchvision.models.resnet.resnet34', function() {});
+        this.registerFunction('torchvision.models.resnet.resnet50', function() {});
+        this.registerFunction('torchvision.models.resnet.resnet101', function() {});
+        this.registerFunction('torchvision.models.resnet.resnet152', function() {});
         this.registerFunction('torchvision.ops.boxes.box_iou', function (/* boxes1, boxes2 */) {
             throw new python.Error("'torchvision.ops.boxes.box_iou' not implemented.");
         });
