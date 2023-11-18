@@ -48,6 +48,7 @@
         },
         "rules": {
             "array-callback-return": "error",
+            "arrow-parens": "error",
             "brace-style": "error",
             "curly": "error",
             "consistent-return": "error",

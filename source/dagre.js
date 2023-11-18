@@ -2212,8 +2212,8 @@ dagre.Graph = class {
 
     toString() {
         return [
-            '[nodes]', Array.from(this.nodes.values()).map(n => JSON.stringify(n.label)).join('\n'),
-            '[edges]', Array.from(this.edges.values()).map(e => JSON.stringify(e.label)).join('\n'),
+            '[nodes]', Array.from(this.nodes.values()).map((n) => JSON.stringify(n.label)).join('\n'),
+            '[edges]', Array.from(this.edges.values()).map((e) => JSON.stringify(e.label)).join('\n'),
             '[parents]', JSON.stringify(this._parent, null, 2),
             '[children]', JSON.stringify(this._children, null, 2)
         ].join('\n');

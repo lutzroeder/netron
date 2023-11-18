@@ -1404,11 +1404,11 @@ coreml.Utility = class {
 
     static tensorType(type) {
         if (!coreml.Utility._dataTypes) {
-            coreml.Utility._dataTypes = new Map(Object.entries(coreml.proto.MILSpec.DataType).map((entry => [entry[1], entry[0].toLowerCase()])));
+            coreml.Utility._dataTypes = new Map(Object.entries(coreml.proto.MILSpec.DataType).map(((entry) => [entry[1], entry[0].toLowerCase()])));
             coreml.Utility._dataTypes.delete(0);
             coreml.Utility._dataTypes.set(1, 'boolean');
         }
-        const shape = type.dimensions.map(dim => dim.constant ? dim.constant.size : '?');
+        const shape = type.dimensions.map((dim) => dim.constant ? dim.constant.size : '?');
         const dataType = coreml.Utility._dataTypes.get(type.dataType);
         if (!dataType) {
             throw new coreml.Error("Unsupported data type '" + type.dataType + "'.");

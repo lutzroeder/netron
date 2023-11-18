@@ -557,12 +557,12 @@ keras.Graph = class {
                         delete config.dtype;
                     }
                     if (Array.isArray(config.batch_input_shape)) {
-                        shape = config.batch_input_shape.map(s => s == null ? '?' : s);
+                        shape = config.batch_input_shape.map((s) => s == null ? '?' : s);
                         delete config.batch_input_shape;
                     } else if (config.batch_input_shape &&
                         config.batch_input_shape.class_name === '__tuple__' &&
                         Array.isArray(config.batch_input_shape.items)) {
-                        shape = config.batch_input_shape.items.map(s => s == null ? '?' : s);
+                        shape = config.batch_input_shape.items.map((s) => s == null ? '?' : s);
                         delete config.batch_input_shape;
                     }
                     return new keras.TensorType(dataType, new keras.TensorShape(shape));
