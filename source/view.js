@@ -5188,6 +5188,7 @@ view.ModelFactoryService = class {
         this.register('./hailo', [ '.hn', '.har' ]);
         this.register('./nnc', [ '.nnc' ]);
         this.register('./safetensors', [ '.safetensors' ]);
+        this.register('./modular', [ '.mod' ]);
     }
 
     register(id, factories, containers) {
