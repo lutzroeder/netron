@@ -68,6 +68,10 @@ view.View = class {
                 accelerator: platform === 'darwin' ? 'Ctrl+Cmd+F' : 'F11',
                 execute: () => this._host.execute('fullscreen')
             });
+            this._menu.add({
+                accelerator: 'Backspace',
+                execute: () => this.popGraph()
+            });
             if (this._host.environment('menu')) {
                 this._menu.attach(this._element('menu'), this._element('menu-button'));
                 const file = this._menu.group('&File');
