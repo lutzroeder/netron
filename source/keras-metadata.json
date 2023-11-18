@@ -3614,11 +3614,11 @@
         "name": "data_format"
       },
       {
-        "description": "int or tuple/list of 1 integers, specifying the dilation\n        rate to use for dilated convolution. If only one int is specified,\n        the same dilation rate will be used for all dimensions.\n     depth_multiplier: The number of depthwise convolution output channels\n        for each input channel. The total number of depthwise convolution\n        output channels will be equal to `input_channel * depth_multiplier`.",
+        "description": "int or tuple/list of 1 integers, specifying the dilation\n        rate to use for dilated convolution. If only one int is specified,\n        the same dilation rate will be used for all dimensions.",
         "name": "dilation_rate"
       },
       {
-        "description": "The number of depthwise convolution output channels for\n    each input channel. The total number of depthwise convolution output\n    channels will be equal to `num_filters_in * depth_multiplier`.",
+        "description": "The number of depthwise convolution output channels\n        for each input channel. The total number of depthwise convolution\n        output channels will be equal to `input_channel * depth_multiplier`.",
         "name": "depth_multiplier"
       },
       {
