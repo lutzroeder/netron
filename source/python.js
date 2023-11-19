@@ -1631,6 +1631,8 @@ python.Execution = class {
         this.register('gensim');
         this.register('io');
         this.register('joblib');
+        const functools = this.register('functools');
+        this.registerType('functools.partial', class {});
         const keras = this.register('keras');
         this.register('lightgbm');
         this.register('nolearn');
@@ -1652,6 +1654,7 @@ python.Execution = class {
         this.register('xgboost');
         this.registerType('builtins.dict', dict);
         this.registerType('builtins.ellipsis', class {});
+        this.registerType('builtins.cell', class {});
         this.registerType('builtins.list', class extends Array {});
         this.registerType('builtins.number', class {});
         this.registerFunction('builtins.__import__', function(name, globals, locals, fromlist, level) {
@@ -2024,7 +2027,6 @@ python.Execution = class {
         this.registerType('fastcore.foundation.L', class {});
         this.registerType('fastcore.transform.Pipeline', class {});
         this.registerType('fastcore.transform.Transform', class {});
-        this.registerType('functools.partial', class {});
         this.registerType('gensim.models.doc2vec.Doctag', class {});
         this.registerType('gensim.models.doc2vec.Doc2Vec', class {});
         this.registerType('gensim.models.doc2vec.Doc2VecTrainables', class {});
@@ -2221,6 +2223,7 @@ python.Execution = class {
         this.registerType('megengine.core.ops._internal.param_defs.Convolution.ComputeMode', class {});
         this.registerType('megengine.distributed.group.Group', class {});
         this.registerType('megengine.module.activation.ReLU', class {});
+        this.registerType('megengine.module.adaptive_pooling.AdaptiveAvgPool2d', class {});
         this.registerType('megengine.module.batchnorm.BatchNorm1d', class {});
         this.registerType('megengine.module.batchnorm.BatchNorm2d', class {});
         this.registerType('megengine.module.conv.Conv2d', class {});
@@ -3527,23 +3530,25 @@ python.Execution = class {
             }
         });
         this.registerFunction('dill._dill._load_type', function(name) {
-            const root = self.register('dill._dill');
-            if (!root._reverse_typemap) {
-                root._reverse_typemap = new Map();
+            const _dill = self.register('dill._dill');
+            if (!_dill._reverse_typemap) {
+                _dill._reverse_typemap = new Map();
                 for (const name of [ '__builtin__', 'types' ]) {
                     const module = self.register(name);
                     for (const entry of Object.entries(module)) {
                         if (entry[1].__module__ === 'builtins' &&
                             entry[1].__class__ === builtins.type) {
-                            root._reverse_typemap.set(entry[0], entry[1]);
+                            _dill._reverse_typemap.set(entry[0], entry[1]);
                         }
                     }
                 }
+                _dill._reverse_typemap.set('PartialType', functools.partial);
+                _dill._reverse_typemap.set('CellType', builtins.cell);
             }
-            if (!root._reverse_typemap.has(name)) {
+            if (!_dill._reverse_typemap.has(name)) {
                 throw new python.Error("Unknown type name '" + name + "' in 'dill._dill._load_type'.");
             }
-            return root._reverse_typemap.get(name);
+            return _dill._reverse_typemap.get(name);
         });
         this.registerFunction('keras.saving.pickle_utils.deserialize_model_from_bytecode', function(/* serialized_model */) {
             return null; // throw new python.Error("'keras.saving.pickle_utils.deserialize_model_from_bytecode' not implemented.");
@@ -4231,6 +4236,7 @@ python.Execution = class {
         this.registerType('torch.ao.nn.quantized.dynamic.modules.linear.Linear', class extends torch.ao.nn.quantized.modules.linear.Linear {});
         this.registerType('torch.ao.nn.quantized.dynamic.modules.rnn.PackedParameter', class extends torch.nn.Module {});
         this.registerType('torch.ao.nn.intrinsic.quantized.modules.conv_relu.ConvReLU2d', class extends torch.ao.nn.quantized.modules.conv.Conv2d {});
+        this.registerType('torch.ao.nn.intrinsic.modules.fused._FusedModule', class extends torch.nn.modules.container.Sequential {});
         this.registerType('torch.nn.utils.prune.L1Unstructured', class {});
         this.registerType('torch.nn.utils.spectral_norm.SpectralNorm', class {});
         this.registerType('torch.nn.utils.spectral_norm.SpectralNormStateDictHook', class {});
