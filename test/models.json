@@ -5056,8 +5056,8 @@
   },
   {
     "type":     "pytorch",
-    "target":   "norm_inplace.pt.zip",
-    "source":   "https://github.com/lutzroeder/netron/files/4516621/norm_inplace.pt.zip",
+    "target":   "norm_inplace.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/13404598/norm_inplace.pt.zip[norm_inplace.pt]",
     "format":   "TorchScript v1.3",
     "link":     "https://github.com/lutzroeder/netron/issues/473"
   },
