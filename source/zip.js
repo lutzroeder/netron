@@ -30,15 +30,15 @@ zip.Archive = class {
                 const signature = buffer[0] === 0x50 && buffer[1] === 0x4B;
                 const location = stream.position;
                 const seek = (content) => {
-                    let index = stream.length;
+                    let position = stream.length;
                     do {
-                        index = Math.max(0, index - 66000);
-                        stream.seek(index);
-                        const length = Math.min(stream.length - index, 66000 + 4);
+                        position = Math.max(0, position - 66000);
+                        stream.seek(position);
+                        const length = Math.min(stream.length - position, 66000 + 4);
                         const buffer = stream.read(length);
                         for (let i = buffer.length - 4; i >= 0; i--) {
                             if (content[0] === buffer[i] && content[1] === buffer[i + 1] && content[2] === buffer[i + 2] && content[3] === buffer[i + 3]) {
-                                stream.seek(index + i + 4);
+                                stream.seek(position + i + 4);
                                 return true;
                             }
                         }
@@ -46,27 +46,42 @@ zip.Archive = class {
                             break;
                         }
                     }
-                    while (index > 0);
+                    while (position > 0);
                     return false;
                 };
-                let offset = -1;
+                const header = {};
                 let position = -1;
                 if (seek([ 0x50, 0x4B, 0x06, 0x06 ])) {
                     position = stream.position - 4;
-                    const reader = new zip.BinaryReader(stream.read(52));
-                    reader.skip(36);
-                    position -= reader.uint64(); // size of central directory
-                    offset = reader.uint64(); // central directory offset
-                    if (offset === undefined) {
+                    const buffer = stream.read(52);
+                    const reader = new zip.BinaryReader(buffer);
+                    reader.recordSize = reader.uint64();
+                    reader.version = reader.uint16();
+                    reader.minVersion = reader.uint16();
+                    reader.disks = reader.uint32();
+                    reader.startDisk = reader.uint32();
+                    header.diskRecords = reader.uint64();
+                    header.totalRecords = reader.uint64();
+                    header.size = reader.uint64();
+                    header.offset = reader.uint64();
+                    if (header.offset === undefined) {
                         stream.seek(location);
                         throw new zip.Error('Zip 64-bit central directory offset not supported.');
                     }
                 } else if (seek([ 0x50, 0x4B, 0x05, 0x06 ])) {
                     position = stream.position - 4;
-                    const reader = new zip.BinaryReader(stream.read(16));
-                    reader.skip(8);
-                    position -= reader.uint32(); // size of central directory
-                    offset = reader.uint32(); // central directory offset
+                    const buffer = stream.read(16);
+                    const reader = new zip.BinaryReader(buffer);
+                    header.disk = reader.uint16();
+                    header.startDisk = reader.uint16();
+                    header.diskRecords = reader.uint16();
+                    header.totalRecords = reader.uint16();
+                    header.size = reader.uint32();
+                    header.offset = reader.uint32();
+                    if (header.offset === 0xffffffff || header.disk === 0xffff || header.totalRecords === 0xffff) {
+                        stream.seek(location);
+                        throw new zip.Error('Zip64 end of central directory not found.');
+                    }
                 } else {
                     stream.seek(location);
                     if (!signature) {
@@ -74,12 +89,18 @@ zip.Archive = class {
                     }
                     throw new zip.Error('End of Zip central directory not found.');
                 }
+                position -= header.size;
                 if (position < 0 || position > stream.length) {
+                    stream.seek(location);
+                    throw new zip.Error('Invalid Zip central directory size.');
+                }
+                if (position < header.offset) {
                     stream.seek(location);
                     throw new zip.Error('Invalid Zip central directory offset.');
                 }
                 stream.seek(position);
-                const archive = new zip.Archive(stream, position - offset);
+                position -= header.offset;
+                const archive = new zip.Archive(stream, position);
                 stream.seek(location);
                 return archive;
             }
@@ -902,5 +923,4 @@ gzip.Error = class extends Error {
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.Archive = zip.Archive;
-    module.exports.Inflater = zip.Inflater;
 }
