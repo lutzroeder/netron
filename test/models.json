@@ -2999,6 +2999,14 @@
     "link":     "https://github.com/xindongzhang/MNN-APPLICATIONS"
   },
   {
+    "type":     "modular",
+    "target":   "resnet34.maxviz",
+    "source":   "https://github.com/lutzroeder/netron/files/13420171/resnet34.maxviz[resnet34.maxviz]",
+    "action":   "skip-render",
+    "format":   "Modular",
+    "link":     "https://github.com/lutzroeder/netron/pull/1189"
+  },
+  {
     "type":     "mslite",
     "target":   "blazeface_quant.ms",
     "source":   "https://github.com/lutzroeder/netron/files/6097966/blazeface_quant.ms.zip[blazeface_quant.ms]",
