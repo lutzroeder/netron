@@ -194,10 +194,10 @@ app.Application = class {
                 if (stat.isFile() || stat.isDirectory()) {
                     const views = Array.from(this._views.views);
                     // find existing view for this file
-                    let view = views.find(view => view.match(path));
+                    let view = views.find((view) => view.match(path));
                     // find empty welcome window
                     if (view == null) {
-                        view = views.find(view => view.match(null));
+                        view = views.find((view) => view.match(null));
                     }
                     // create new window
                     if (view == null) {

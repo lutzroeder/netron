@@ -24,7 +24,7 @@ mlir.Model = class {
 
     constructor(obj) {
         this._format = 'MLIR';
-        this._graphs = obj.functions.map(func => new mlir.Graph(func, ''));
+        this._graphs = obj.functions.map((func) => new mlir.Graph(func, ''));
     }
 
     get format() {
@@ -936,8 +936,8 @@ mlir.Parser = class {
         this._read(mlir.TokenType.RBRACE);
         return {
             name: name,
-            inputs: inputs.map(input => input.name),
-            inputTypes: inputs.map(input => input.type),
+            inputs: inputs.map((input) => input.name),
+            inputTypes: inputs.map((input) => input.type),
             outputTypes: outputs,
             operations: operations,
             attributes: attributes,

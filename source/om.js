@@ -197,7 +197,7 @@ om.Attribute = class {
             case 's': {
                 if (typeof value.s === 'string') {
                     this.value = value.s;
-                } else if (value.s.filter(c => c <= 32 && c >= 128).length === 0) {
+                } else if (value.s.filter((c) => c <= 32 && c >= 128).length === 0) {
                     this.value = om.Utility.decodeText(value.s);
                 } else {
                     this.value = value.s;
@@ -217,7 +217,7 @@ om.Attribute = class {
                 const list = value.list;
                 this.value = [];
                 if (list.s && list.s.length > 0) {
-                    this.value = list.s.map(v => String.fromCharCode.apply(null, new Uint16Array(v))).join(', ');
+                    this.value = list.s.map((v) => String.fromCharCode.apply(null, new Uint16Array(v))).join(', ');
                     this.type = 'string[]';
                 } else if (list.b && list.b.length > 0) {
                     this.value = list.b;

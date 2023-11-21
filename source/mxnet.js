@@ -409,7 +409,7 @@ mxnet.Graph = class {
                                     if (arg_node.attrs && arg_node.attrs.__dtype__ && arg_node.attrs.__shape__) {
                                         try {
                                             dataType = parseInt(arg_node.attrs.__dtype__);
-                                            shape = JSON.parse('[' + arg_node.attrs.__shape__.replace('(', '').replace(')', '').split(' ').join('').split(',').map((dimension => dimension || '"?"')).join(',') + ']');
+                                            shape = JSON.parse('[' + arg_node.attrs.__shape__.replace('(', '').replace(')', '').split(' ').join('').split(',').map(((dimension) => dimension || '"?"')).join(',') + ']');
                                         } catch (err) {
                                             // continue regardless of error
                                         }

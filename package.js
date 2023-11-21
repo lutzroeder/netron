@@ -495,6 +495,7 @@ const update = async () => {
         'dlc',
         'dnn',
         'keras',
+        'maxviz',
         'mnn',
         'mslite',
         'megengine',

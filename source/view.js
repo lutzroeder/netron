@@ -68,6 +68,10 @@ view.View = class {
                 accelerator: platform === 'darwin' ? 'Ctrl+Cmd+F' : 'F11',
                 execute: () => this._host.execute('fullscreen')
             });
+            this._menu.add({
+                accelerator: 'Backspace',
+                execute: () => this.popGraph()
+            });
             if (this._host.environment('menu')) {
                 this._menu.attach(this._element('menu'), this._element('menu-button'));
                 const file = this._menu.group('&File');
@@ -839,7 +843,7 @@ view.View = class {
             }
             let x = xs[0];
             const y = ys[0];
-            if (ys.every(y => y === ys[0])) {
+            if (ys.every((y) => y === ys[0])) {
                 x = xs.reduce((a, b) => a + b, 0) / xs.length;
             }
             const graphRect = container.getBoundingClientRect();
@@ -4160,7 +4164,7 @@ markdown.Generator = class {
                 const matchIndent = match[0].match(/^(\s+)(?:```)/);
                 if (matchIndent !== null) {
                     const indent = matchIndent[1];
-                    content = content.split('\n').map(node => {
+                    content = content.split('\n').map((node) => {
                         const match = node.match(/^\s+/);
                         return (match !== null && match[0].length >= indent.length) ? node.slice(indent.length) : node;
                     }).join('\n');
@@ -5188,6 +5192,7 @@ view.ModelFactoryService = class {
         this.register('./hailo', [ '.hn', '.har' ]);
         this.register('./nnc', [ '.nnc' ]);
         this.register('./safetensors', [ '.safetensors' ]);
+        this.register('./modular', [ '.maxviz' ]);
     }
 
     register(id, factories, containers) {
@@ -5475,9 +5480,9 @@ view.ModelFactoryService = class {
         try {
             const rootFolder = (files) => {
                 const map = files.map((file) => file.split('/').slice(0, -1));
-                const at = index => list => list[index];
-                const rotate = list => list.length === 0 ? [] : list[0].map((item, index) => list.map(at(index)));
-                const equals = list => list.every((item) => item === list[0]);
+                const at = (index) => (list) => list[index];
+                const rotate = (list) => list.length === 0 ? [] : list[0].map((item, index) => list.map(at(index)));
+                const equals = (list) => list.every((item) => item === list[0]);
                 const folder = rotate(map).filter(equals).map(at(0)).join('/');
                 return folder.length === 0 ? folder : folder + '/';
             };

@@ -2018,6 +2018,13 @@
   },
   {
     "type":     "keras",
+    "target":   "0326.json",
+    "source":   "https://github.com/lutzroeder/netron/files/13367043/0326.json.zip[0326.json]",
+    "format":   "Keras v2.2.4-tf",
+    "link":     "https://github.com/lutzroeder/netron/issues/326"
+  },
+  {
+    "type":     "keras",
     "target":   "1141.1.keras",
     "source":   "https://github.com/lutzroeder/netron/files/13329220/1141.zip[1141.1.keras]",
     "format":   "Keras v2.13.1",
@@ -2183,13 +2190,6 @@
     "source":   "https://github.com/lutzroeder/netron/files/6098151/InceptionV3.h5.zip",
     "format":   "Keras v2.4.0",
     "link":     "https://github.com/lutzroeder/netron/issues/57"
-  },
-  {
-    "type":     "keras",
-    "target":   "issue326.json",
-    "source":   "https://github.com/lutzroeder/netron/files/12449721/issue326.json.zip[issue326.json]",
-    "format":   "Keras v2.2.4-tf",
-    "link":     "https://github.com/lutzroeder/netron/issues/326"
   },
   {
     "type":     "keras",
@@ -2997,6 +2997,14 @@
     "format":   "MNN v2",
     "error":    "Invalid tensor data length.",
     "link":     "https://github.com/xindongzhang/MNN-APPLICATIONS"
+  },
+  {
+    "type":     "modular",
+    "target":   "resnet34.maxviz",
+    "source":   "https://github.com/lutzroeder/netron/files/13421032/resnet34.maxviz.zip[resnet34.maxviz]",
+    "action":   "skip-render",
+    "format":   "Modular",
+    "link":     "https://github.com/lutzroeder/netron/issues/1187"
   },
   {
     "type":     "mslite",
@@ -5048,8 +5056,8 @@
   },
   {
     "type":     "pytorch",
-    "target":   "norm_inplace.pt.zip",
-    "source":   "https://github.com/lutzroeder/netron/files/4516621/norm_inplace.pt.zip",
+    "target":   "norm_inplace.pt",
+    "source":   "https://github.com/lutzroeder/netron/files/13404598/norm_inplace.pt.zip[norm_inplace.pt]",
     "format":   "TorchScript v1.3",
     "link":     "https://github.com/lutzroeder/netron/issues/473"
   },
