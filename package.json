@@ -113,6 +113,7 @@
             { "ext": "kmodel",      "name": "Kendryte Model"           },
             { "ext": "lite",        "name": "TensorFlow Lite Model"    },
             { "ext": "mar",         "name": "MXNet Model"              },
+            { "ext": "maxviz",      "name": "Modular Model"            },
             { "ext": "meta",        "name": "TensorFlow Meta Graph"    },
             { "ext": "mge",         "name": "MegEngine Mge Model"      },
             { "ext": "mlmodel",     "name": "Core ML Model"            },
