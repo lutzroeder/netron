@@ -6,8 +6,8 @@
         "email": "lutzroeder@users.noreply.github.com",
         "url": "https://www.lutzroeder.com"
     },
-    "version": "7.3.0",
-    "date": "2023-11-18 04:22:40",
+    "version": "7.2.9",
+    "date": "2023-11-11 20:44:10",
     "description": "Visualizer for neural network, deep learning, and machine learning models",
     "license": "MIT",
     "repository": "lutzroeder/netron",
@@ -28,13 +28,13 @@
         "pull": "node package.js pull"
     },
     "dependencies": {
-        "electron-updater": "6.1.4"
+        "electron-updater": "6.1.4",
     },
     "devDependencies": {
-        "electron": "27.1.0",
+        "@electron/notarize": "2.1.0",
+        "electron": "27.0.4",
         "electron-builder": "24.6.4",
-        "@electron/notarize": "2.2.0",
-        "eslint": "8.54.0"
+        "eslint": "8.53.0"
     },
     "eslintConfig": {
         "env": {
@@ -48,13 +48,18 @@
         },
         "rules": {
             "array-callback-return": "error",
-            "arrow-parens": "error",
             "brace-style": "error",
             "curly": "error",
             "consistent-return": "error",
             "default-case": "error",
             "default-case-last": "error",
-            "indent": [ "error", 4, { "SwitchCase": 1 } ],
+            "indent": [
+                "error",
+                4,
+                {
+                    "SwitchCase": 1
+                }
+            ],
             "keyword-spacing": "error",
             "linebreak-style": "off",
             "no-array-constructor": "error",
@@ -79,10 +84,21 @@
             "no-unreachable-loop": "error",
             "no-unused-private-class-members": "error",
             "no-use-before-define": "error",
-            "object-curly-spacing": [ "error", "always" ],
-            "prefer-const": [ "error", { "destructuring": "all" } ],
+            "object-curly-spacing": [
+                "error",
+                "always"
+            ],
+            "prefer-const": [
+                "error",
+                {
+                    "destructuring": "all"
+                }
+            ],
             "require-atomic-updates": "error",
-            "semi": [ "error", "always" ],
+            "semi": [
+                "error",
+                "always"
+            ],
             "space-before-blocks": "error",
             "space-in-parens": "error"
         },
@@ -94,73 +110,251 @@
     "build": {
         "appId": "com.lutzroeder.netron",
         "productName": "Netron",
-        "files": [ "source/**/*" ],
-        "directories": { "buildResources": "./publish" },
+        "files": [
+            "source/**/*"
+        ],
+        "directories": {
+            "buildResources": "./publish"
+        },
         "fileAssociations": [
-            { "ext": "armnn",       "name": "Arm NN Model"             },
-            { "ext": "caffemodel",  "name": "Caffe Model"              },
-            { "ext": "circle",      "name": "Circle Model"             },
-            { "ext": "ckpt",        "name": "Model Checkpoint"         },
-            { "ext": "cmf",         "name": "CNTK Model"               },
-            { "ext": "dlc",         "name": "DLC Model"                },
-            { "ext": "dnn",         "name": "CNTK Model"               },
-            { "ext": "h5",          "name": "Keras Model"              },
-            { "ext": "har",         "name": "Hailo Model"              },
-            { "ext": "hd5",         "name": "Keras Model"              },
-            { "ext": "hdf5",        "name": "Keras Model"              },
-            { "ext": "hn",          "name": "Hailo Model"              },
-            { "ext": "keras",       "name": "Keras Model"              },
-            { "ext": "kmodel",      "name": "Kendryte Model"           },
-            { "ext": "lite",        "name": "TensorFlow Lite Model"    },
-            { "ext": "mar",         "name": "MXNet Model"              },
-            { "ext": "maxviz",      "name": "Modular Model"            },
-            { "ext": "meta",        "name": "TensorFlow Meta Graph"    },
-            { "ext": "mge",         "name": "MegEngine Mge Model"      },
-            { "ext": "mlmodel",     "name": "Core ML Model"            },
-            { "ext": "mlnet",       "name": "ML.NET Model"             },
-            { "ext": "mlpackage",   "name": "Core ML Model Package", "isPackage": true },
-            { "ext": "mnn",         "name": "MNN Model"                },
-            { "ext": "model",       "name": "Model"                    },
-            { "ext": "nb",          "name": "Paddle Lite Model"        },
-            { "ext": "ngf",         "name": "ONNX Model"               },
-            { "ext": "nn",          "name": "Barracuda Model"          },
-            { "ext": "nnp",         "name": "Neural Network Libraries" },
-            { "ext": "npy",         "name": "NumPy Array"              },
-            { "ext": "npz",         "name": "NumPy Archive"            },
-            { "ext": "om",          "name": "DaVinci OM Model"         },
-            { "ext": "onnx",        "name": "ONNX Model"               },
-            { "ext": "ort",         "name": "ONNX Runtime Model"       },
-            { "ext": "paddle",      "name": "PaddlePaddle Model"       },
-            { "ext": "param",       "name": "NCNN Model"               },
-            { "ext": "pb",          "name": "Protocol Buffer"          },
-            { "ext": "pbtxt",       "name": "Text Protocol Buffer"     },
-            { "ext": "pdiparams",   "name": "PaddlePaddle Model"       },
-            { "ext": "pdmodel",     "name": "PaddlePaddle Model"       },
-            { "ext": "pdopt",       "name": "PaddlePaddle Model"       },
-            { "ext": "pdparams",    "name": "PaddlePaddle Model"       },
-            { "ext": "pkl",         "name": "Pickle Model"             },
-            { "ext": "prototxt",    "name": "Text Protocol Buffer"     },
-            { "ext": "pt",          "name": "PyTorch Model"            },
-            { "ext": "pth",         "name": "PyTorch Model"            },
-            { "ext": "ptl",         "name": "PyTorch Model"            },
-            { "ext": "rknn",        "name": "RKNN Model"               },
-            { "ext": "safetensors", "name": "Safetensors Checkpoint"   },
-            { "ext": "t7",          "name": "Torch Model"              },
-            { "ext": "tfl",         "name": "TensorFlow Lite Model"    },
-            { "ext": "tflite",      "name": "TensorFlow Lite Model"    },
-            { "ext": "tmfile",      "name": "Tengine Model"            },
-            { "ext": "tm",          "name": "MegEngine Traced Model"   },
-            { "ext": "tnnproto",    "name": "TNN Model"                },
-            { "ext": "torchscript", "name": "PyTorch Model"            },
-            { "ext": "uff",         "name": "UFF Model"                },
-            { "ext": "xmodel",      "name": "Vitis AI Model"           }
+            {
+                "ext": "armnn",
+                "name": "Arm NN Model"
+            },
+            {
+                "ext": "caffemodel",
+                "name": "Caffe Model"
+            },
+            {
+                "ext": "circle",
+                "name": "Circle Model"
+            },
+            {
+                "ext": "ckpt",
+                "name": "Model Checkpoint"
+            },
+            {
+                "ext": "cmf",
+                "name": "CNTK Model"
+            },
+            {
+                "ext": "dlc",
+                "name": "DLC Model"
+            },
+            {
+                "ext": "dnn",
+                "name": "CNTK Model"
+            },
+            {
+                "ext": "h5",
+                "name": "Keras Model"
+            },
+            {
+                "ext": "har",
+                "name": "Hailo Model"
+            },
+            {
+                "ext": "hd5",
+                "name": "Keras Model"
+            },
+            {
+                "ext": "hdf5",
+                "name": "Keras Model"
+            },
+            {
+                "ext": "hn",
+                "name": "Hailo Model"
+            },
+            {
+                "ext": "keras",
+                "name": "Keras Model"
+            },
+            {
+                "ext": "kmodel",
+                "name": "Kendryte Model"
+            },
+            {
+                "ext": "lite",
+                "name": "TensorFlow Lite Model"
+            },
+            {
+                "ext": "mar",
+                "name": "MXNet Model"
+            },
+            {
+                "ext": "meta",
+                "name": "TensorFlow Meta Graph"
+            },
+            {
+                "ext": "mge",
+                "name": "MegEngine Mge Model"
+            },
+            {
+                "ext": "mlmodel",
+                "name": "Core ML Model"
+            },
+            {
+                "ext": "mlnet",
+                "name": "ML.NET Model"
+            },
+            {
+                "ext": "mlpackage",
+                "name": "Core ML Model Package",
+                "isPackage": true
+            },
+            {
+                "ext": "mnn",
+                "name": "MNN Model"
+            },
+            {
+                "ext": "model",
+                "name": "Model"
+            },
+            {
+                "ext": "nb",
+                "name": "Paddle Lite Model"
+            },
+            {
+                "ext": "ngf",
+                "name": "ONNX Model"
+            },
+            {
+                "ext": "nn",
+                "name": "Barracuda Model"
+            },
+            {
+                "ext": "nnp",
+                "name": "Neural Network Libraries"
+            },
+            {
+                "ext": "npy",
+                "name": "NumPy Array"
+            },
+            {
+                "ext": "npz",
+                "name": "NumPy Archive"
+            },
+            {
+                "ext": "om",
+                "name": "DaVinci OM Model"
+            },
+            {
+                "ext": "onnx",
+                "name": "ONNX Model"
+            },
+            {
+                "ext": "ort",
+                "name": "ONNX Runtime Model"
+            },
+            {
+                "ext": "paddle",
+                "name": "PaddlePaddle Model"
+            },
+            {
+                "ext": "param",
+                "name": "NCNN Model"
+            },
+            {
+                "ext": "pb",
+                "name": "Protocol Buffer"
+            },
+            {
+                "ext": "pbtxt",
+                "name": "Text Protocol Buffer"
+            },
+            {
+                "ext": "pdiparams",
+                "name": "PaddlePaddle Model"
+            },
+            {
+                "ext": "pdmodel",
+                "name": "PaddlePaddle Model"
+            },
+            {
+                "ext": "pdopt",
+                "name": "PaddlePaddle Model"
+            },
+            {
+                "ext": "pdparams",
+                "name": "PaddlePaddle Model"
+            },
+            {
+                "ext": "pkl",
+                "name": "Pickle Model"
+            },
+            {
+                "ext": "prototxt",
+                "name": "Text Protocol Buffer"
+            },
+            {
+                "ext": "pt",
+                "name": "PyTorch Model"
+            },
+            {
+                "ext": "pth",
+                "name": "PyTorch Model"
+            },
+            {
+                "ext": "ptl",
+                "name": "PyTorch Model"
+            },
+            {
+                "ext": "rknn",
+                "name": "RKNN Model"
+            },
+            {
+                "ext": "safetensors",
+                "name": "Safetensors Checkpoint"
+            },
+            {
+                "ext": "t7",
+                "name": "Torch Model"
+            },
+            {
+                "ext": "tfl",
+                "name": "TensorFlow Lite Model"
+            },
+            {
+                "ext": "tflite",
+                "name": "TensorFlow Lite Model"
+            },
+            {
+                "ext": "tmfile",
+                "name": "Tengine Model"
+            },
+            {
+                "ext": "tm",
+                "name": "MegEngine Traced Model"
+            },
+            {
+                "ext": "tnnproto",
+                "name": "TNN Model"
+            },
+            {
+                "ext": "torchscript",
+                "name": "PyTorch Model"
+            },
+            {
+                "ext": "uff",
+                "name": "UFF Model"
+            },
+            {
+                "ext": "xmodel",
+                "name": "Vitis AI Model"
+            }
         ],
         "afterSign": "./publish/notarize.js",
         "publish": [
-            { "provider": "github", "releaseType": "release" }
+            {
+                "provider": "github",
+                "releaseType": "release"
+            }
         ],
         "linux": {
-            "target": [ "AppImage", "snap" ]
+            "target": [
+                "AppImage",
+                "snap"
+            ]
         },
         "mac": {
             "artifactName": "${productName}-${version}-mac.${ext}",
@@ -168,11 +362,18 @@
             "darkModeSupport": true,
             "gatekeeperAssess": false,
             "hardenedRuntime": true,
-            "target": [ "dmg", "zip" ]
+            "target": [
+                "dmg",
+                "zip"
+            ]
         },
         "win": {
-            "target": [ "nsis" ],
-            "signingHashAlgorithms": [ "sha256" ],
+            "target": [
+                "nsis"
+            ],
+            "signingHashAlgorithms": [
+                "sha256"
+            ],
             "verifyUpdateCodeSignature": false
         },
         "dmg": {
@@ -181,16 +382,34 @@
             "writeUpdateInfo": false,
             "iconSize": 160,
             "contents": [
-                { "x": 180, "y": 170 },
-                { "x": 480, "y": 170, "type": "link", "path": "/Applications" }
+                {
+                    "x": 180,
+                    "y": 170
+                },
+                {
+                    "x": 480,
+                    "y": 170,
+                    "type": "link",
+                    "path": "/Applications"
+                }
             ]
         },
         "nsis": {
             "differentialPackage": false
         },
         "snap": {
-            "plugs": [ "default", "removable-media" ],
-            "publish": [ { "provider": "snapStore", "channels": [ "stable" ] } ]
+            "plugs": [
+                "default",
+                "removable-media"
+            ],
+            "publish": [
+                {
+                    "provider": "snapStore",
+                    "channels": [
+                        "stable"
+                    ]
+                }
+            ]
         }
     }
 }

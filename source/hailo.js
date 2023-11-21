@@ -1,6 +1,5 @@
-
-const fs = require("fs");
-const npyz = require('npyz');
+const zip = require("./zip");
+const npyjs = require("./npyjs");
 
 // Experimental
 
@@ -22,7 +21,7 @@ hailo.Model = class {
 
     constructor(metadata, container) {
         const configuration = container.configuration;
-        this.graphs = [ new hailo.Graph(metadata, configuration) ];
+        this.graphs = [ new hailo.Graph(metadata, configuration, container.npz) ];
         this.name = configuration && configuration.name || "";
         this.format = container.format + (container.metadata && container.metadata.sdk_version ? ' v' + container.metadata.sdk_version : '');
         this.metadata = [];
@@ -34,7 +33,7 @@ hailo.Model = class {
 
 hailo.Graph = class {
 
-    constructor(metadata, configuration) {
+    constructor(metadata, configuration, npz_configuration) {
         this.inputs = [];
         this.outputs = [];
         this.nodes = [];
@@ -43,9 +42,7 @@ hailo.Graph = class {
             if (name.length === 0 && tensor) {
                 return new hailo.Value(name, type || null, tensor);
             }
-
             args.set(name, new hailo.Value(name, type || null, tensor || null));
-
             if (tensor) {
                 throw new hailo.Error("Duplicate value '" + name + "'.");
             } else if (type && !type.equals(args.get(name).type)) {
@@ -90,7 +87,8 @@ hailo.Graph = class {
                     break;
                 }
                 default: {
-                    const node = new hailo.Node(metadata, layer, arg);
+                    const layer_npz_data = npz_configuration[layer.name];
+                    const node = new hailo.Node(metadata, layer, arg, layer_npz_data);
                     this.nodes.push(node);
                     break;
                 }
@@ -121,7 +119,34 @@ hailo.Value = class {
 
 hailo.Node = class {
 
-    constructor(metadata, layer, arg) {
+    constructor(metadata, layer, arg, npz_data = {}) {
+        const getParams = (params_array) => {
+            return params_array.reduce((acc, [name, value]) => {
+                const schema = metadata.attribute(layer.type, name) || {};
+                if (schema.visible) {
+                    const label = schema.label ? schema.label : name;
+                    if (!npz_data[label]) {
+                        const shape = new hailo.TensorShape(value);
+                        const type = new hailo.TensorType(npz_data && npz_data[label] && npz_data[label].dataType, shape);
+                        const tensor = new hailo.Tensor(type, npz_data && npz_data[label] && npz_data[label].buffer);
+                        acc.push(new hailo.Argument(label, [ arg('', type, tensor) ]));
+                    }
+                }
+                return acc;
+            }, []);
+        };
+
+        const getNPZParams = (npz_params) => {
+            const entries = npz_params ? Object.entries(npz_params) : [];
+            return entries.map(([key, params]) => {
+                const label = key;
+                const shape = new hailo.TensorShape(params.shape);
+                const type = new hailo.TensorType(params.dataType, shape);
+                const tensor = new hailo.Tensor(type, params.buffer);
+                return new hailo.Argument(label, [ arg('', type, tensor) ]);
+            });
+        };
+
         this.name = layer.name || '';
         this.type = metadata.type(layer.type);
         if (layer.type === 'activation') {
@@ -132,23 +157,10 @@ hailo.Node = class {
             const type = shape ? new hailo.TensorType('?', new hailo.TensorShape(shape)) : null;
             return new hailo.Argument("input", [ arg(name, type) ]);
         });
-        const getParams = (params_array) => {
-            return params_array.reduce((acc, obj) => {
-                const name = obj[0];
-                const value = obj[1];
-                const schema = metadata.attribute(layer.type, name) || {};
-                if (schema.visible) {
-                    const label = schema.label ? schema.label : name;
-                    const shape = new hailo.TensorShape(value);
-                    const type = new hailo.TensorType('?', shape);
-                    const tensor = new hailo.Tensor(type, value);
-                    acc.push(new hailo.Argument(label, [ arg('', type, tensor) ]));
-                }
-                return acc;
-            }, []);
-        };
-        const params_list = getParams(layer.params ? Object.entries(layer.params) : []);
-        this.inputs = this.inputs.concat(params_list);
+        const layer_params = layer.params ? Object.entries(layer.params) : [];
+        const params_list = getParams(layer_params);
+        const params_from_npz = getNPZParams(npz_data);
+        this.inputs = this.inputs.concat(params_list).concat(params_from_npz);
         this.outputs = (layer.output || []).map((_, index) => {
             const shape = layer.output_shapes ? layer.output_shapes[index] : null;
             const type = shape ? new hailo.TensorType('?', new hailo.TensorShape(shape)) : null;
@@ -187,8 +199,9 @@ hailo.Attribute = class {
 
 hailo.Tensor = class {
 
-    constructor(type) {
+    constructor(type, values) {
         this.type = type;
+        this.values = values;
     }
 };
 
@@ -241,9 +254,8 @@ hailo.Container = class {
     static open(context) {
         const parts = context.identifier.split('.');
         const extension = parts.pop().toLowerCase();
-        const TEMP_FILE_PATH = './temp.npz';
         let format = '';
-        let npz = null;
+        const npz = {};
         let configuration = null;
         let metadata = null;
         switch (extension) {
@@ -292,18 +304,50 @@ hailo.Container = class {
                     default:
                 }
 
+                const toArrayBuffer = (buffer) => {
+                    const array_buffer = new ArrayBuffer(buffer.length);
+                    const view = new Uint8Array(array_buffer);
+                    for (let i = 0; i < buffer.length; ++i) {
+                        view[i] = buffer[i];
+                    }
+                    return array_buffer;
+                };
+
                 const configuration_buffer = read(hn_extension);
                 configuration = JSON.parse(decoder.decode(configuration_buffer));
-
                 const npz_buffer = read(npz_extension);
-                fs.rmSync(TEMP_FILE_PATH, { force: true });
-                fs.writeFile(TEMP_FILE_PATH, npz_buffer, 'binary', (err) => {
-                    if (!err) {
-                        npyz.loadNpz(TEMP_FILE_PATH).then((result) => {
-                            npz = result;
-                        });
+                const archive = zip.Archive.open(npz_buffer);
+                const allowed_inputs = ['kernel', 'bias', 'input_activation_bits', 'weight_bits', 'output_activation_bits', 'bias_decomposition'];
+                if (archive) {
+                    for (const [raw_key, raw_value] of archive.entries) {
+                        try {
+                            const key = raw_key.split('.').slice(0, -1).join('.');
+                            const match_result = key.match(/.*?(?=:[0-9])/);
+                            const HEADER_OFFSET = 128;
+                            if (match_result) {
+                                const [keyPath] = match_result;
+                                const key_path_array = keyPath.split('/');
+                                const [network_name, layer_name, parameter_name] = key_path_array;
+                                const array_buffer = toArrayBuffer(raw_value._buffer);
+                                const buffer =   npyjs.parse(array_buffer);
+                                const key = `${network_name}/${layer_name}`;
+                                if (!npz[key]) {
+                                    npz[key] = {};
+                                }
+                                if (allowed_inputs.includes(parameter_name)) {
+                                    npz[key][parameter_name] = {
+                                        buffer: raw_value._buffer.slice(HEADER_OFFSET),
+                                        dataType: buffer.dtype,
+                                        shape: buffer.shape
+                                    };
+                                }
+                            }
+                        } catch (err) {
+                            console.log(err);
+                        }
+
                     }
-                });
+                }
 
                 break;
             }
