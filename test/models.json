@@ -3000,11 +3000,11 @@
   },
   {
     "type":     "modular",
-    "target":   "resnet34.mod",
-    "source":   "https://github.com/lutzroeder/netron/files/13398809/resnet34.mod.zip[resnet34.mod]",
+    "target":   "resnet34.maxviz",
+    "source":   "https://github.com/lutzroeder/netron/files/13421032/resnet34.maxviz.zip[resnet34.maxviz]",
     "action":   "skip-render",
     "format":   "Modular",
-    "link":     "https://github.com/lutzroeder/netron/pull/1186"
+    "link":     "https://github.com/lutzroeder/netron/issues/1187"
   },
   {
     "type":     "mslite",
