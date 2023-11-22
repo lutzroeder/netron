@@ -665,8 +665,8 @@ host.BrowserHost.BrowserFileContext = class {
         });
     }
 
-    require(id) {
-        return this._host.require(id);
+    async require(id) {
+        return await this._host.require(id);
     }
 
     exception(error, fatal) {

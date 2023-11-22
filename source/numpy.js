@@ -12,8 +12,8 @@ numpy.ModelFactory = class {
         if (stream && signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
             return { name: 'npy' };
         }
-        const entries = context.entries('zip');
-        if (entries.size > 0 && Array.from(entries.keys()).every((name) => name.endsWith('.npy'))) {
+        const entries = context.open('npz');
+        if (entries && entries.size > 0) {
             return { name: 'npz', value: entries };
         }
         const obj = context.open('pkl');
@@ -50,11 +50,7 @@ numpy.ModelFactory = class {
             case 'npz': {
                 format = 'NumPy Zip';
                 const layers = new Map();
-                const execution = new python.Execution();
                 for (const entry of target.value) {
-                    if (!entry[0].endsWith('.npy')) {
-                        throw new numpy.Error("Invalid file name '" + entry.name + "'.");
-                    }
                     const name = entry[0].replace(/\.npy$/, '');
                     const parts = name.split('/');
                     const parameterName = parts.pop();
@@ -63,10 +59,7 @@ numpy.ModelFactory = class {
                         layers.set(groupName, { name: groupName, parameters: [] });
                     }
                     const layer = layers.get(groupName);
-                    const stream = entry[1];
-                    const buffer = stream.peek();
-                    const bytes = execution.invoke('io.BytesIO', [ buffer ]);
-                    const array = execution.invoke('numpy.load', [ bytes ]);
+                    const array = entry[1];
                     layer.parameters.push({
                         name: parameterName,
                         tensor: { name: name, array: array }

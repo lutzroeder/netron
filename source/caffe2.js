@@ -90,7 +90,8 @@ caffe2.ModelFactory = class {
                 };
                 if (base.toLowerCase().endsWith('init_net') || base.toLowerCase().startsWith('init_net')) {
                     try {
-                        const stream =  await context.request(identifier.replace('init_net', 'predict_net'), null);
+                        const file = identifier.replace('init_net', 'predict_net');
+                        const stream = await context.request(file, null);
                         const buffer = stream.read();
                         return openText(buffer, context.stream.peek(), true);
                     } catch (error) {
@@ -99,12 +100,14 @@ caffe2.ModelFactory = class {
                 }
                 if (base.toLowerCase().endsWith('predict_net') || base.toLowerCase().startsWith('predict_net')) {
                     try {
-                        const stream = await context.request(identifier.replace('predict_net', 'init_net').replace(/\.pbtxt/, '.pb'), null);
+                        const file = identifier.replace('predict_net', 'init_net').replace(/\.pbtxt/, '.pb');
+                        const stream = await context.request(file, null);
                         const buffer = stream.read();
                         return openText(context.stream.peek(), buffer, false);
                     } catch (error) {
                         try {
-                            const stream = await context.request(identifier.replace('predict_net', 'init_net'), null);
+                            const file = identifier.replace('predict_net', 'init_net');
+                            const stream = await context.request(file, null);
                             const buffer = stream.read();
                             return openText(context.stream.peek(), buffer, true);
                         } catch (error) {
@@ -113,7 +116,8 @@ caffe2.ModelFactory = class {
                     }
                 }
                 try {
-                    const stream = await context.request(base + '_init.pb', null);
+                    const file = base + '_init.pb';
+                    const stream = await context.request(file, null);
                     const buffer = stream.read();
                     return openText(context.stream.peek(), buffer, false);
                 } catch (error) {
@@ -145,7 +149,8 @@ caffe2.ModelFactory = class {
                 };
                 if (base.toLowerCase().endsWith('init_net')) {
                     try {
-                        const stream = await context.request(base.replace(/init_net$/, '') + 'predict_net.' + extension, null);
+                        const file = base.replace(/init_net$/, '') + 'predict_net.' + extension;
+                        const stream = await context.request(file, null);
                         const buffer = stream.read();
                         return openBinary(buffer, context.stream.peek());
                     } catch (error) {
@@ -154,7 +159,8 @@ caffe2.ModelFactory = class {
                 }
                 if (base.toLowerCase().endsWith('_init')) {
                     try {
-                        const stream = await context.request(base.replace(/_init$/, '') + '.' + extension, null);
+                        const file = base.replace(/_init$/, '') + '.' + extension;
+                        const stream = await context.request(file, null);
                         const buffer = stream.read();
                         return openBinary(buffer, context.stream.peek());
                     } catch (error) {
@@ -163,7 +169,8 @@ caffe2.ModelFactory = class {
                 }
                 if (base.toLowerCase().endsWith('predict_net') || base.toLowerCase().startsWith('predict_net')) {
                     try {
-                        const stream = await context.request(identifier.replace('predict_net', 'init_net'), null);
+                        const file = identifier.replace('predict_net', 'init_net');
+                        const stream = await context.request(file, null);
                         const buffer = stream.read();
                         return openBinary(context.stream.peek(), buffer);
                     } catch (error) {
@@ -171,7 +178,8 @@ caffe2.ModelFactory = class {
                     }
                 }
                 try {
-                    const stream = await context.request(base + '_init.' + extension, null);
+                    const file = base + '_init.' + extension;
+                    const stream = await context.request(file, null);
                     const buffer = stream.read();
                     return openBinary(context.stream.peek(), buffer);
                 } catch (error) {

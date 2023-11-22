@@ -2304,14 +2304,14 @@
   },
   {
     "type":     "keras",
-    "target":   "model.weights.h5",
+    "target":   "model.weights.h5/model.weights.h5",
     "source":   "https://github.com/lutzroeder/netron/files/13326420/model.weights.h5.zip[model.weights.h5]",
     "format":   "Keras Weights",
     "link":     "https://github.com/lutzroeder/netron/issues/57"
   },
   {
     "type":     "keras",
-    "target":   "model.weights.npz",
+    "target":   "model.weights.npz/model.weights.npz",
     "source":   "https://github.com/lutzroeder/netron/files/13326421/model.weights.npz.zip[model.weights.npz]",
     "format":   "Keras Weights",
     "link":     "https://github.com/lutzroeder/netron/issues/57"
@@ -2360,9 +2360,23 @@
   },
   {
     "type":     "keras",
+    "target":   "nested.h5/config.json,nested.h5/model.weights.h5",
+    "source":   "https://github.com/lutzroeder/netron/files/13432710/nested.h5.zip[config.json,model.weights.h5]",
+    "format":   "Keras",
+    "link":     "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "type":     "keras",
     "target":   "nested.npz.keras",
     "source":   "https://github.com/lutzroeder/netron/files/13324444/nested.zip[nested.npz.keras]",
     "format":   "Keras v2.14.0",
+    "link":     "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "type":     "keras",
+    "target":   "nested.npz/config.json,nested.npz/model.weights.npz",
+    "source":   "https://github.com/lutzroeder/netron/files/13432711/nested.npz.zip[config.json,model.weights.npz]",
+    "format":   "Keras",
     "link":     "https://github.com/lutzroeder/netron/issues/57"
   },
   {
