@@ -153,8 +153,8 @@ paddle.ModelFactory = class {
                         const file = identifier !== 'params' ? base + '.pdmodel' : 'model';
                         const params = loadParams(context.stream);
                         try {
-                            const stream = await context.request(file, null);
-                            const program = openProgram(stream, 'paddle.pb');
+                            const content = await context.fetch(file);
+                            const program = openProgram(content.stream, 'paddle.pb');
                             const weights = mapParams(params, program);
                             return createModel(metadata, program.format, program.desc, weights);
                         } catch (error) {
@@ -165,7 +165,7 @@ paddle.ModelFactory = class {
                     case 'paddle.pb':
                     case 'paddle.pbtxt': {
                         const loadEntries = async (context, program) => {
-                            const promises = program.vars.map((name) => context.request(name, null).then((stream) => stream).catch(() => null));
+                            const promises = program.vars.map((name) => context.fetch(name).then((context) => context.stream).catch(() => null));
                             const streams = await Promise.all(promises);
                             const params = streams.map((stream) => stream ? paddle.Utility.openTensorDesc(stream) : null);
                             const weights = mapParams(params, program);
@@ -181,17 +181,20 @@ paddle.ModelFactory = class {
                         const program = openProgram(context.stream, target);
                         if (extension === 'pdmodel') {
                             try {
-                                const stream = await context.request(base + '.pdiparams', null);
-                                const params = loadParams(stream);
+                                const name = base + '.pdiparams';
+                                const content = await context.fetch(name);
+                                const params = loadParams(content.stream);
                                 const weights = mapParams(params, program);
                                 return createModel(metadata, program.format, program.desc, weights);
                             } catch (error) {
                                 try {
-                                    const stream = await context.request(base + '.pdparams', null);
-                                    const weights = openNumPyArrayPickle(stream);
+                                    const name = base + '.pdparams';
+                                    const content = await context.fetch(name);
+                                    const weights = openNumPyArrayPickle(content.stream);
                                     try {
-                                        const stream = await context.request(base + '.pdopt', null);
-                                        for (const entry of openNumPyArrayPickle(stream)) {
+                                        const name = base + '.pdopt';
+                                        const content = await context.fetch(name);
+                                        for (const entry of openNumPyArrayPickle(content.stream)) {
                                             if (!weights.has(entry[0])) {
                                                 weights.set(entry[0], entry[1]);
                                             }
@@ -202,8 +205,9 @@ paddle.ModelFactory = class {
                                     }
                                 } catch (error) {
                                     try {
-                                        const stream = await context.request(base + '.pdopt', null);
-                                        const weights = openNumPyArrayPickle(stream);
+                                        const name = base + '.pdopt';
+                                        const content = await context.fetch(name);
+                                        const weights = openNumPyArrayPickle(content.stream);
                                         return createModel(metadata, program.format, program.desc, weights);
                                     } catch (error) {
                                         return loadEntries(context, program);
@@ -213,8 +217,8 @@ paddle.ModelFactory = class {
                         }
                         if (identifier === 'model') {
                             try {
-                                const stream = await context.request('params', null);
-                                const params = loadParams(stream);
+                                const content = await context.fetch('params');
+                                const params = loadParams(content.stream);
                                 const weights = mapParams(params, program);
                                 return createModel(metadata, program.format, program.desc, weights);
                             } catch (error) {
@@ -658,9 +662,11 @@ paddle.TensorShape = class {
 paddle.Entries = class {
 
     static open(context) {
-        const extension = [ 'zip', 'tar' ].find((extension) => context.entries(extension).size > 0);
-        if (extension) {
-            const entries = new Map(Array.from(context.entries(extension)).filter((entry) => !entry[0].endsWith('/') && !entry[0].split('/').pop().startsWith('.')).slice());
+        let entries = context.peek('zip');
+        entries = entries instanceof Map ? entries : context.peek('tar');
+        if (entries instanceof Map) {
+            entries = Array.from(entries);
+            entries = new Map(entries.filter((entry) => !entry[0].endsWith('/') && !entry[0].split('/').pop().startsWith('.')).slice());
             if (entries.size > 2 && Array.from(entries).every((entry) => entry[0].split('_').length > 0 && entry[1].peek(16).every((value) => value === 0x00))) {
                 return new paddle.Entries(entries);
             }
@@ -708,7 +714,7 @@ paddle.Entries = class {
 paddle.Pickle = class {
 
     static open(context) {
-        const obj = context.open('pkl');
+        const obj = context.peek('pkl');
         const container = new paddle.Pickle(obj);
         return container.weights !== null ? container : null;
     }

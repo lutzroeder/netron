@@ -101,15 +101,15 @@ caffe.ModelFactory = class {
                 if (solver.net_param) {
                     return openModel(context, solver.net_param);
                 }
-                let file = solver.net || solver.train_net;
-                file = file.split('/').pop();
+                let name = solver.net || solver.train_net;
+                name = name.split('/').pop();
                 try {
-                    const stream = await context.request(file, null);
-                    const buffer = stream.peek();
-                    return openNetParameterText(context, file, buffer);
+                    const content = await context.fetch(name);
+                    const buffer = content.stream.peek();
+                    return openNetParameterText(context, name, buffer);
                 } catch (error) {
                     const message = error.message ? error.message : error.toString();
-                    throw new caffe.Error("Failed to load '" + file + "' (" + message.replace(/\.$/, '') + ').');
+                    throw new caffe.Error("Failed to load '" + name + "' (" + message.replace(/\.$/, '') + ').');
                 }
             }
             case 'caffe.pbtxt': {

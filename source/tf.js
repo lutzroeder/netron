@@ -178,7 +178,7 @@ tf.ModelFactory = class {
         }
         if (extension === 'json') {
             for (const type of [ 'json', 'json.gz' ]) {
-                const obj = context.open(type);
+                const obj = context.peek(type);
                 if (obj && obj.modelTopology && (obj.format === 'graph-model' || Array.isArray(obj.modelTopology.node))) {
                     return 'tf.' + type;
                 }
@@ -241,7 +241,8 @@ tf.ModelFactory = class {
                 saved_model.meta_graphs[0].object_graph_def.nodes.length > 0) {
                 const identifier = 'variables/variables.index';
                 try {
-                    const stream = await context.request(identifier, null);
+                    const content = await context.fetch(identifier);
+                    const stream = content.stream;
                     const bundle = await tf.TensorBundle.open(stream, identifier, context);
                     return openModel(saved_model, format, producer, bundle);
                 } catch (error) {
@@ -272,11 +273,13 @@ tf.ModelFactory = class {
             base.pop();
             const file = base.join('.') + '.index';
             try {
-                const stream = await context.request(file, null);
+                const content = await context.fetch(file);
+                const stream = content.stream;
                 return openBundle(context, stream, file);
             } catch (error) {
                 const file = base.join('.') + '.ckpt';
-                const stream = await context.request(file, null);
+                const content = await context.fetch(file);
+                const stream = content.stream;
                 return openBundle(context, stream, file);
             }
         };
@@ -346,7 +349,7 @@ tf.ModelFactory = class {
                 producer = 'PyTorch';
                 const openPyTorchMetadata = async (context, saved_model) => {
                     try {
-                        const data = await context.request('pytorch-metadata.json', 'utf-8', null);
+                        const data = await context.request('pytorch-metadata.json');
                         const metadata = new Map();
                         for (const item of JSON.parse(data)) {
                             const name = item.name;
@@ -376,7 +379,7 @@ tf.ModelFactory = class {
         };
         const openJson = async (context, type) => {
             try {
-                const obj = context.open(type);
+                const obj = context.peek(type);
                 const format = 'TensorFlow.js ' + (obj.format || 'graph-model');
                 const producer = obj.convertedBy || obj.generatedBy || '';
                 const meta_graph = new tf.proto.tensorflow.MetaGraphDef();
@@ -395,7 +398,7 @@ tf.ModelFactory = class {
                 for (const manifest of manifests) {
                     for (const path of manifest.paths) {
                         if (!shards.has(path)) {
-                            shards.set(path, context.request(path, null));
+                            shards.set(path, context.fetch(path));
                         }
                     }
                 }
@@ -460,10 +463,10 @@ tf.ModelFactory = class {
                     return openSavedModel(context, saved_model, format, producer);
                 };
                 try {
-                    const streams = await Promise.all(shards.values());
+                    const contexts = await Promise.all(shards.values());
                     for (const key of shards.keys()) {
-                        const stream = streams.shift();
-                        const buffer = stream.peek();
+                        const context = contexts.shift();
+                        const buffer = context.stream.peek();
                         shards.set(key, buffer);
                     }
                     if (type === 'json.gz') {
@@ -573,7 +576,8 @@ tf.ModelFactory = class {
             let saved_model = null;
             try {
                 const identifier = 'saved_model.pb';
-                const stream = await context.request(identifier, null);
+                const content = await context.fetch(identifier);
+                const stream = content.stream;
                 saved_model = openBinarySavedModel(stream);
 
             } catch (error) {
@@ -1433,10 +1437,11 @@ tf.TensorBundle = class {
             filename.pop();
             const basename = filename.join('.');
             const name = basename + '.data-' + shardIndex + '-of-' + shardCount;
-            promises.push(context.request(name, null));
+            promises.push(context.fetch(name));
         }
         try {
-            const streams = await Promise.all(promises);
+            const contexts = await Promise.all(promises);
+            const streams = contexts.map((context) => context.stream);
             return new tf.TensorBundle(format, table.entries, streams);
         } catch (error) {
             context.exception(error, false);

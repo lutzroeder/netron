@@ -6,7 +6,7 @@ var sklearn = {};
 sklearn.ModelFactory = class {
 
     match(context) {
-        const obj = context.open('pkl');
+        const obj = context.peek('pkl');
         const validate = (obj, name) => {
             if (obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__) {
                 const key = obj.__class__.__module__ + '.' + obj.__class__.__name__;
@@ -40,7 +40,7 @@ sklearn.ModelFactory = class {
 
     async open(context, target) {
         const metadata = await context.metadata('sklearn-metadata.json');
-        const obj = context.open('pkl');
+        const obj = context.peek('pkl');
         return new sklearn.Model(metadata, target, obj);
     }
 };

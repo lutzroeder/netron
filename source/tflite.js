@@ -24,7 +24,7 @@ tflite.ModelFactory = class {
                 }
             }
         }
-        const obj = context.open('json');
+        const obj = context.peek('json');
         if (obj && obj.subgraphs && obj.operator_codes) {
             return 'tflite.flatbuffers.json';
         }
@@ -39,7 +39,7 @@ tflite.ModelFactory = class {
         switch (target) {
             case 'tflite.flatbuffers.json': {
                 try {
-                    const obj = context.open('json');
+                    const obj = context.peek('json');
                     const reader = new flatbuffers.TextReader(obj);
                     model = tflite.schema.Model.createText(reader);
                 } catch (error) {

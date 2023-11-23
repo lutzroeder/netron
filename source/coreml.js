@@ -1,7 +1,6 @@
 
 var coreml = {};
 var base = require('./base');
-var json = require('./json');
 var protobuf = require('./protobuf');
 
 coreml.ModelFactory = class {
@@ -32,7 +31,7 @@ coreml.ModelFactory = class {
             return 'coreml.pb';
         }
         if (identifier === 'manifest.json') {
-            const obj = context.open('json');
+            const obj = context.peek('json');
             if (obj && obj.rootModelIdentifier && obj.itemInfoEntries) {
                 const entries = Object.keys(obj.itemInfoEntries).map((key) => obj.itemInfoEntries[key]);
                 if (entries.filter((entry) => entry.path.toLowerCase().endsWith('.mlmodel').length === 1)) {
@@ -41,13 +40,13 @@ coreml.ModelFactory = class {
             }
         }
         if (identifier === 'metadata.json') {
-            const obj = context.open('json');
+            const obj = context.peek('json');
             if (obj && obj.rootModelIdentifier && obj.itemInfoEntries) {
                 return 'coreml.metadata';
             }
         }
         if (identifier === 'featuredescriptions.json') {
-            const obj = context.open('json');
+            const obj = context.peek('json');
             if (obj && (obj.Inputs || obj.Outputs)) {
                 return 'coreml.featuredescriptions';
             }
@@ -121,9 +120,9 @@ coreml.ModelFactory = class {
                 const keys = Array.from(weightPaths);
                 const paths = keys.map((path) => path.replace(/^@model_path\//, folder + '/'));
                 try {
-                    const streams = await Promise.all(paths.map((path) => context.request(path, null)));
+                    const contexts = await Promise.all(paths.map((path) => context.fetch(path)));
                     for (let i = 0; i < keys.length; i++) {
-                        weights.set(keys[i], streams[i]);
+                        weights.set(keys[i], contexts[i].stream);
                     }
                 } catch (error) {
                     // continue regardless of error
@@ -136,14 +135,14 @@ coreml.ModelFactory = class {
             if (entries.length !== 1) {
                 throw new coreml.Error('Manifest does not contain Core ML model.');
             }
-            const file = path + 'Data/' + entries[0].path;
-            const stream = await context.request(file, null);
-            return openModel(stream, context, file, 'Core ML Package');
+            const name = path + 'Data/' + entries[0].path;
+            const content = await context.fetch(name);
+            return openModel(content.stream, context, name, 'Core ML Package');
         };
         const openManifestStream = async (context, path) => {
-            const stream = await context.request(path + 'Manifest.json', null);
-            const reader = json.TextReader.open(stream);
-            const obj = reader.read();
+            const name = path + 'Manifest.json';
+            const content = await context.fetch(name);
+            const obj = content.read('json');
             return openManifest(obj, context, path);
         };
         switch (target) {
@@ -151,7 +150,7 @@ coreml.ModelFactory = class {
                 return openModel(context.stream, context, context.identifier);
             }
             case 'coreml.manifest': {
-                const obj = context.open('json');
+                const obj = context.peek('json');
                 return openManifest(obj, context, '');
             }
             case 'coreml.featuredescriptions':

@@ -40,19 +40,19 @@ tnn.ModelFactory = class {
         const metadata = await context.metadata('tnn-metadata.json');
         switch (target) {
             case 'tnn.model': {
-                const tnnmodel = context.identifier.substring(0, context.identifier.length - 9) + '.tnnmodel';
+                const name = context.identifier.substring(0, context.identifier.length - 9) + '.tnnmodel';
                 try {
-                    const stream = await context.request(tnnmodel, null);
-                    const buffer = stream.peek();
+                    const content = await context.fetch(name);
+                    const buffer = content.stream.peek();
                     return new tnn.Model(metadata, context.stream.peek(), buffer);
                 } catch (error) {
                     return new tnn.Model(metadata, context.stream.peek(), null);
                 }
             }
             case 'tnn.params': {
-                const tnnproto = context.identifier.substring(0, context.identifier.length - 9) + '.tnnproto';
-                const stream = await context.request(tnnproto, null);
-                const buffer = stream.peek();
+                const name = context.identifier.substring(0, context.identifier.length - 9) + '.tnnproto';
+                const content = await context.fetch(name, null);
+                const buffer = content.stream.peek();
                 return new tnn.Model(metadata, buffer, context.stream.peek());
             }
             default: {

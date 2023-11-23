@@ -8,23 +8,19 @@ lightgbm.ModelFactory = class {
         const stream = context.stream;
         const signature = [ 0x74, 0x72, 0x65, 0x65, 0x0A ];
         if (stream && stream.length >= signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-            return 'lightgbm.text';
+            return [ 'lightgbm.text' ];
         }
-        const obj = context.open('pkl');
+        const obj = context.peek('pkl');
         if (obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__module__.startsWith('lightgbm.')) {
-            return 'lightgbm.pickle';
+            return [ 'lightgbm.pickle', obj ];
         }
         return null;
     }
 
     async open(context, target) {
-        let obj;
-        let format;
-        switch (target) {
+        switch (target[0]) {
             case 'lightgbm.pickle': {
-                obj = context.open('pkl');
-                format = 'LightGBM Pickle';
-                break;
+                return new lightgbm.Model(target[1], 'LightGBM Pickle');
             }
             case 'lightgbm.text': {
                 const stream = context.stream;
@@ -32,16 +28,14 @@ lightgbm.ModelFactory = class {
                 const decoder = new TextDecoder('utf-8');
                 const model_str = decoder.decode(buffer);
                 const execution = new python.Execution();
-                obj = execution.invoke('lightgbm.basic.Booster', []);
+                const obj = execution.invoke('lightgbm.basic.Booster', []);
                 obj.LoadModelFromString(model_str);
-                format = 'LightGBM';
-                break;
+                return new lightgbm.Model(obj, 'LightGBM');
             }
             default: {
                 throw new lightgbm.Error("Unsupported LightGBM format '" + target + "'.");
             }
         }
-        return new lightgbm.Model(obj, format);
     }
 };
 

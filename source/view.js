@@ -4774,52 +4774,14 @@ markdown.Generator = class {
     }
 };
 
-view.ModelContext = class {
+view.Context = class {
 
-    constructor(context, identifier, stream, entries) {
+    constructor(context, identifier, stream) {
         this._context = context;
         this._tags = new Map();
         this._content = new Map();
         this._identifier = identifier || context.identifier;
         this._stream = stream || context.stream;
-        this._entries = entries || context.entries;
-        this._format = '';
-        if (this._stream && (!this._entries || this._entries.size === 0)) {
-            this._entries = new Map();
-            let stream = this._stream;
-            const entry = context instanceof view.EntryContext;
-            try {
-                const archive = zip.Archive.open(this._stream, 'gzip');
-                if (archive) {
-                    this._entries = archive.entries;
-                    this._format = 'gzip';
-                    if (this._entries.size === 1) {
-                        stream = this._entries.values().next().value;
-                    }
-                }
-            } catch (error) {
-                if (!entry) {
-                    throw error;
-                }
-            }
-            try {
-                const formats = new Map([ [ 'zip', zip ], [ 'tar', tar ] ]);
-                for (const pair of formats) {
-                    const format = pair[0];
-                    const module = pair[1];
-                    const archive = module.Archive.open(stream);
-                    if (archive) {
-                        this._entries = archive.entries;
-                        this._format = format;
-                        break;
-                    }
-                }
-            } catch (error) {
-                if (!entry) {
-                    throw error;
-                }
-            }
-        }
     }
 
     get identifier() {
@@ -4830,13 +4792,13 @@ view.ModelContext = class {
         return this._stream;
     }
 
-    async request(file, encoding, base) {
-        return this._context.request(file, encoding, base);
+    async request(file) {
+        return this._context.request(file, 'utf-8', null);
     }
 
     async fetch(file) {
-        const stream = await this.request(file, null);
-        return new view.ModelContext(this, file, stream, new Map());
+        const stream = await this._context.request(file, null);
+        return new view.Context(this, file, stream, new Map());
     }
 
     async require(id) {
@@ -4850,14 +4812,7 @@ view.ModelContext = class {
         this._context.exception(error, fatal);
     }
 
-    entries(format) {
-        if (format !== undefined && format !== this._format) {
-            return new Map();
-        }
-        return this._entries;
-    }
-
-    open(type) {
+    peek(type) {
         if (!this._content.has(type)) {
             this._content.set(type, undefined);
             const stream = this.stream;
@@ -4869,7 +4824,7 @@ view.ModelContext = class {
                 const buffer = stream.peek(Math.min(stream.length, 16));
                 const skip =
                     match(buffer, [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ]) || // PyTorch
-                    (type !== 'npz' && match(buffer, [ 0x50, 0x4B, 0x03, 0x04 ])) || // Zip
+                    (type !== 'npz' && type !== 'zip' && match(buffer, [ 0x50, 0x4B, 0x03, 0x04 ])) || // Zip
                     (type !== 'hdf5' && match(buffer, [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ])) || // \x89HDF\r\n\x1A\n
                     Array.from(this._tags).some((entry) => entry[0] !== 'flatbuffers' && entry[1].size > 0) ||
                     Array.from(this._content.values()).some((obj) => obj !== undefined);
@@ -4894,7 +4849,7 @@ view.ModelContext = class {
                         }
                         case 'json.gz': {
                             try {
-                                const entries = this.entries('gzip');
+                                const entries = this.peek('gzip');
                                 if (entries && entries.size === 1) {
                                     const stream = entries.values().next().value;
                                     const reader = json.TextReader.open(stream);
@@ -4983,10 +4938,51 @@ view.ModelContext = class {
                             }
                             break;
                         }
+                        case 'zip':
+                        case 'tar':
+                        case 'gzip': {
+                            this._content.set('zip', undefined);
+                            this._content.set('tar', undefined);
+                            this._content.set('gzip', undefined);
+                            let stream = this._stream;
+                            try {
+                                const archive = zip.Archive.open(this._stream, 'gzip');
+                                if (archive) {
+                                    const entries = archive.entries;
+                                    this._content.set('gzip', entries);
+                                    if (entries.size === 1) {
+                                        stream = entries.values().next().value;
+                                    }
+                                }
+                            } catch (error) {
+                                this._content.set('gzip', error);
+                            }
+                            let skipTar = false;
+                            try {
+                                const archive = zip.Archive.open(stream, 'zip');
+                                if (archive) {
+                                    this._content.set('zip', archive.entries);
+                                    skipTar = true;
+                                }
+                            } catch (error) {
+                                this._content.set('zip', error);
+                            }
+                            if (!skipTar) {
+                                try {
+                                    const archive = tar.Archive.open(stream);
+                                    if (archive) {
+                                        this._content.set('tar', archive.entries);
+                                    }
+                                } catch (error) {
+                                    this._content.set('tar', error);
+                                }
+                            }
+                            break;
+                        }
                         case 'npz': {
                             try {
                                 const content = new Map();
-                                const entries = this.entries('zip');
+                                const entries = this.peek('zip');
                                 if (entries.size > 0 &&
                                     Array.from(entries.keys()).every((name) => name.endsWith('.npy'))) {
                                     const execution = new python.Execution();
@@ -5016,6 +5012,26 @@ view.ModelContext = class {
             }
         }
         return this._content.get(type);
+    }
+
+    read(type) {
+        if (!this._content.has(type)) {
+            switch (type) {
+                case 'json': {
+                    const reader = json.TextReader.open(this._stream);
+                    if (reader) {
+                        const obj = reader.read();
+                        this._content.set('json', obj);
+                        return obj;
+                    }
+                    throw new view.Error('Invalid JSON content.');
+                }
+                default: {
+                    break;
+                }
+            }
+        }
+        return this.peek('json');
     }
 
     tags(type) {
@@ -5235,18 +5251,34 @@ view.ModelFactoryService = class {
     async open(context) {
         try {
             await this._openSignature(context);
-            const modelContext = new view.ModelContext(context);
-            const model = await this._openContext(modelContext);
+            const content = new view.Context(context);
+            const model = await this._openContext(content);
             if (!model) {
-                const entries = modelContext.entries();
-                if (!entries || entries.size === 0) {
-                    this._unsupported(modelContext);
+                const check = (obj) => {
+                    if (obj instanceof Error) {
+                        throw obj;
+                    }
+                    return obj instanceof Map && obj.size > 0;
+                };
+
+                let entries = context.entries;
+                if (!check(entries)) {
+                    entries = content.peek('zip');
+                    if (!check(entries)) {
+                        entries = content.peek('tar');
+                        if (!check(entries)) {
+                            entries = content.peek('gzip');
+                        }
+                    }
                 }
-                const context = await this._openEntries(entries);
-                if (!context) {
-                    this._unsupported(modelContext);
+                if (!check(entries)) {
+                    this._unsupported(content);
                 }
-                return this._openContext(context);
+                const entryContext = await this._openEntries(entries);
+                if (!entryContext) {
+                    this._unsupported(content);
+                }
+                return this._openContext(entryContext);
             }
             return model;
         } catch (error) {
@@ -5278,7 +5310,7 @@ view.ModelFactoryService = class {
             }
         }
         const json = () => {
-            const obj = context.open('json');
+            const obj = context.peek('json');
             if (obj) {
                 const formats = [
                     { name: 'Netron metadata', tags: [ '[].name', '[].schema' ] },
@@ -5438,7 +5470,7 @@ view.ModelFactoryService = class {
             }
         };
         const hdf5 = () => {
-            const obj = context.open('hdf5');
+            const obj = context.peek('hdf5');
             if (obj instanceof Error) {
                 throw obj;
             }
@@ -5534,7 +5566,7 @@ view.ModelFactoryService = class {
                 const nextEntry = async () => {
                     if (queue.length > 0) {
                         const entry = queue.shift();
-                        const context = new view.ModelContext(new view.EntryContext(this._host, entries, folder, entry.name, entry.stream));
+                        const context = new view.Context(new view.EntryContext(this._host, entries, folder, entry.name, entry.stream));
                         const modules = this._filter(context);
                         const nextModule = async () => {
                             if (modules.length > 0) {
@@ -5739,7 +5771,7 @@ view.Metadata = class {
             return view.Metadata._metadata.get(name);
         }
         try {
-            const json = await context.request(name, 'utf-8', null);
+            const json = await context.request(name);
             const data = JSON.parse(json);
             const library = new view.Metadata(data);
             view.Metadata._metadata.set(name, library);

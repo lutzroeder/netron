@@ -53,15 +53,18 @@ openvino.ModelFactory = class {
             case 'openvino.xml': {
                 stream = context.stream;
                 try {
-                    const stream = await context.request(base + '.bin', null);
-                    bin = stream.read();
+                    const file = base + '.bin';
+                    const content = await context.fetch(file);
+                    bin = content.stream.peek();
                 } catch (error) {
                     // continue regardless of error
                 }
                 break;
             }
             case 'openvino.bin': {
-                stream = await context.request(base + '.xml', null);
+                const file = base + '.xml';
+                const content = await context.fetch(file, null);
+                stream = content.stream;
                 bin = context.stream.peek();
                 break;
             }

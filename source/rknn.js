@@ -511,7 +511,7 @@ rknn.Container = class extends Map {
                 default:
                     break;
             }
-            const obj = context.open('json');
+            const obj = context.peek('json');
             if (obj && obj.version && Array.isArray(obj.nodes) && obj.network_platform) {
                 const entries = new Map();
                 entries.set('json', stream);

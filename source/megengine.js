@@ -28,7 +28,7 @@ megengine.ModelFactory = class {
                 }
             }
         }
-        const obj = context.open('pkl');
+        const obj = context.peek('pkl');
         if (obj && obj.__class__ && obj.__class__.__module__ === 'megengine.traced_module.traced_module' && obj.__class__.__name__ === 'TracedModule') {
             return 'megengine.tm';
         }
@@ -39,7 +39,7 @@ megengine.ModelFactory = class {
         const metadata = await context.metadata('megengine-metadata.json');
         switch (target) {
             case 'megengine.tm': {
-                const obj = context.open('pkl');
+                const obj = context.peek('pkl');
                 return new megengine.Model(metadata, obj, target);
             }
             case 'megengine.mge': {

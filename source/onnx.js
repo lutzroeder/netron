@@ -95,8 +95,8 @@ onnx.ModelFactory = class {
         }
         const weights = new Map();
         const keys = Array.from(locations);
-        const promises = keys.map((location) => context.request(location, null));
-        const streams = await Promise.all(promises.map((promise) => promise.then((value) => value).catch(() => null)));
+        const promises = keys.map((location) => context.fetch(location));
+        const streams = await Promise.all(promises.map((promise) => promise.then((context) => context.stream).catch(() => null)));
         for (let i = 0; i < keys.length; i++) {
             if (streams[i] !== null) {
                 weights.set(keys[i], streams[i]);
@@ -1027,7 +1027,7 @@ onnx.Metadata = class {
             return onnx.Metadata._metadata;
         }
         try {
-            const data = await context.request('onnx-metadata.json', 'utf-8', null);
+            const data = await context.request('onnx-metadata.json');
             onnx.Metadata._metadata = new onnx.Metadata(data);
             return onnx.Metadata._metadata;
         } catch (error) {
@@ -1846,7 +1846,7 @@ onnx.OrtReader = class {
 onnx.JsonReader = class {
 
     static open(context) {
-        const obj = context.open('json');
+        const obj = context.peek('json');
         if (obj && (obj.irVersion !== undefined || (obj.graph && Array.isArray(obj.graph.node)))) {
             return new onnx.JsonReader(obj);
         }

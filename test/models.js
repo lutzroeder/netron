@@ -504,7 +504,7 @@ class Target {
             const buffer = await fs.readFile(target, null);
             const reader = new base.BinaryStream(buffer);
             const dirname = path.dirname(target);
-            context = new host.TestHost.Context(this.host, dirname, identifier, reader);
+            context = new host.TestHost.Context(this.host, dirname, identifier, reader, new Map());
         } else if (stat.isDirectory()) {
             const entries = new Map();
             const file = async (pathname) => {

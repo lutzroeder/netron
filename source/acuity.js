@@ -6,7 +6,7 @@ acuity.ModelFactory = class {
     match(context) {
         const extension = context.identifier.split('.').pop().toLowerCase();
         if (extension === 'json') {
-            const obj = context.open('json');
+            const obj = context.peek('json');
             if (obj && obj.MetaData && obj.Layers) {
                 return obj;
             }

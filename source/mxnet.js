@@ -9,16 +9,16 @@ mxnet.ModelFactory = class {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'json') {
-            const obj = context.open('json');
+            const obj = context.peek('json');
             if (obj && obj.nodes && obj.arg_nodes && obj.heads) {
-                return 'mxnet.json';
+                return [ 'mxnet.json', obj ];
             }
         }
         if (extension === 'params') {
             const stream = context.stream;
             const signature = [ 0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
             if (stream && stream.length > signature.length && stream.peek(signature.length).every((value, index) => value == signature[index])) {
-                return 'mxnet.params';
+                return [ 'mxnet.params' ];
             }
         }
         return undefined;
@@ -128,9 +128,8 @@ mxnet.ModelFactory = class {
                         }
                         if (obj.Model && obj.Model.Signature) {
                             try {
-                                const stream = await context.request(obj.Model.Signature);
-                                const reader = json.TextReader.open(stream);
-                                manifest.signature = reader.read();
+                                const content = await context.fetch(obj.Model.Signature);
+                                manifest.signature = content.read('json');
                                 return manifest;
                             } catch (error) {
                                 return manifest;
@@ -143,12 +142,12 @@ mxnet.ModelFactory = class {
                 }
             };
             try {
-                const stream = await context.request('MANIFEST.json');
-                return parse(stream);
+                const content = await context.fetch('MANIFEST.json');
+                return parse(content.stream);
             } catch (error) {
                 try {
-                    const stream = await context.request('MAR-INF/MANIFEST.json');
-                    return parse(stream);
+                    const content = await context.fetch('MAR-INF/MANIFEST.json');
+                    return parse(content.stream);
                 } catch (error) {
                     return parse(null);
                 }
@@ -180,11 +179,11 @@ mxnet.ModelFactory = class {
             return new mxnet.Model(metadata, manifest, symbol, parameters);
         };
         const identifier = context.identifier;
-        switch (target) {
+        switch (target[0]) {
             case 'mxnet.json': {
                 let symbol = null;
                 try {
-                    symbol = context.open('json');
+                    symbol = target[1];
                 } catch (error) {
                     const message = error && error.message ? error.message : error.toString();
                     throw new mxnet.Error("Failed to load symbol entry (" + message.replace(/\.$/, '') + ').');
@@ -193,8 +192,8 @@ mxnet.ModelFactory = class {
                     const file = basename(manifest.params, identifier, '.json', 'symbol', '-0000.params');
                     if (file) {
                         try {
-                            const stream = await context.request(file, null);
-                            const buffer = stream.peek();
+                            const content = await context.fetch(file);
+                            const buffer = content.stream.peek();
                             return createModel(metadata, manifest, symbol, buffer);
                         } catch (error) {
                             return createModel(metadata, manifest, symbol, null);
@@ -208,11 +207,11 @@ mxnet.ModelFactory = class {
             case 'mxnet.params': {
                 const params = context.stream.peek();
                 const requestSymbol = async (manifest) => {
-                    const file = basename(manifest.symbol, identifier, '.params', null, '-symbol.json');
-                    if (file) {
+                    const name = basename(manifest.symbol, identifier, '.params', null, '-symbol.json');
+                    if (name) {
                         try {
-                            const text = await context.request(file, 'utf-8');
-                            const symbol = JSON.parse(text);
+                            const content = await context.fetch(name);
+                            const symbol = content.read('json');
                             return createModel(metadata, manifest, symbol, params);
                         } catch (error) {
                             return createModel(metadata, manifest, null, params);

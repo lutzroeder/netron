@@ -72,8 +72,8 @@ ncnn.ModelFactory = class {
                     bin = context.identifier.substring(0, context.identifier.length - 9) + '.weights.ncnn';
                 }
                 try {
-                    const stream = await context.request(bin, null);
-                    const buffer = stream.read();
+                    const content = await context.fetch(bin);
+                    const buffer = content.stream.peek();
                     return openText(context.stream.peek(), buffer);
                 } catch (error) {
                     return openText(context.stream.peek(), null);
@@ -82,27 +82,27 @@ ncnn.ModelFactory = class {
             case 'ncnn.model.bin': {
                 bin = context.identifier.substring(0, context.identifier.length - 10) + '.bin';
                 try {
-                    const stream = await context.request(bin, null);
-                    const buffer = stream.read();
+                    const content = await context.fetch(bin);
+                    const buffer = content.stream.peek();
                     return openBinary(context.stream.peek(), buffer);
                 } catch (error) {
                     return openBinary(context.stream.peek(), null);
                 }
             }
             case 'ncnn.weights': {
-                let content = null;
+                let file = null;
                 if (identifier.endsWith('bin')) {
-                    content = context.identifier.substring(0, context.identifier.length - 4) + '.param';
+                    file = context.identifier.substring(0, context.identifier.length - 4) + '.param';
                 } else if (identifier.endsWith('.weights.ncnn')) {
-                    content = context.identifier.substring(0, context.identifier.length - 13) + '.cfg.ncnn';
+                    file = context.identifier.substring(0, context.identifier.length - 13) + '.cfg.ncnn';
                 }
                 try {
-                    const stream = await context.request(content, null);
-                    const buffer = stream.peek();
+                    const content = await context.fetch(file);
+                    const buffer = content.stream.peek();
                     return openText(buffer, context.stream.peek());
                 } catch (error) {
-                    const stream = await context.request(content + '.bin', null);
-                    const buffer = stream.peek();
+                    const content = await context.fetch(file + '.bin');
+                    const buffer = content.stream.peek();
                     return openBinary(buffer, context.stream.peek());
                 }
             }

@@ -2,14 +2,13 @@
 // Experimental
 
 var dl4j = {};
-var json = require('./json');
 
 dl4j.ModelFactory = class {
 
     match(context) {
         const identifier = context.identifier;
         if (identifier === 'configuration.json') {
-            const obj = context.open('json');
+            const obj = context.peek('json');
             if (obj && (obj.confs || obj.vertices)) {
                 return 'dl4j.configuration';
             }
@@ -28,18 +27,18 @@ dl4j.ModelFactory = class {
         const metadata = await context.metadata('dl4j-metadata.json');
         switch (target) {
             case 'dl4j.configuration': {
-                const obj = context.open('json');
+                const obj = context.peek('json');
                 try {
-                    const stream = await context.request('coefficients.bin', null);
-                    return new dl4j.Model(metadata, obj, stream.peek());
+                    const content = await context.fetch('coefficients.bin');
+                    const buffer = content.stream.peek();
+                    return new dl4j.Model(metadata, obj, buffer);
                 } catch (error) {
                     return new dl4j.Model(metadata, obj, null);
                 }
             }
             case 'dl4j.coefficients': {
-                const stream = await context.request('configuration.json', null);
-                const reader = json.TextReader.open(stream);
-                const obj = reader.read();
+                const content = await context.fetch('configuration.json');
+                const obj = content.read('json');
                 return new dl4j.Model(metadata, obj, context.stream.peek());
             }
             default: {

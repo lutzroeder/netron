@@ -232,12 +232,12 @@ hailo.Container = class {
         switch (extension) {
             case 'hn': {
                 format = 'Hailo NN';
-                configuration = context.open('json');
+                configuration = context.peek('json');
                 break;
             }
             case 'har': {
                 const read = (name) => {
-                    const entries = context.entries('tar');
+                    const entries = context.peek('tar');
                     const stream = entries.get(name);
                     if (stream) {
                         try {

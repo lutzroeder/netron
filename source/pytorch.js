@@ -753,8 +753,8 @@ pytorch.Container = class {
 pytorch.Container.Tar = class extends pytorch.Container {
 
     static open(context) {
-        const entries = context.entries('tar');
-        if (entries.has('pickle')) {
+        const entries = context.peek('tar');
+        if (entries instanceof Map && entries.has('pickle')) {
             return new pytorch.Container.Tar(entries);
         }
         return null;
@@ -829,7 +829,7 @@ pytorch.Container.Pickle = class extends pytorch.Container {
 pytorch.Container.data_pkl = class extends pytorch.Container {
 
     static open(context) {
-        const obj = context.open('pkl');
+        const obj = context.peek('pkl');
         if (obj) {
             if (obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__) {
                 const name = obj.__class__.__module__ + '.' + obj.__class__.__name__;
@@ -916,7 +916,7 @@ pytorch.Container.torch_utils = class extends pytorch.Container {
             if (buffer[0] === 0x80) {
                 const content = String.fromCharCode.apply(null, buffer);
                 if (content.indexOf('torch_utils') !== -1) {
-                    const obj = context.open('pkl');
+                    const obj = context.peek('pkl');
                     if (obj && Object.entries(obj).some((entry) => pytorch.Utility.isInstance(entry[1], 'torch.nn.modules.module.Module'))) {
                         return new pytorch.Container.torch_utils(obj);
                     }
@@ -1017,8 +1017,8 @@ pytorch.Container.ExecuTorch = class extends pytorch.Container {
 pytorch.Container.Zip = class extends pytorch.Container {
 
     static open(context) {
-        const entries = context.entries('zip');
-        if (entries.size > 0) {
+        const entries = context.peek('zip');
+        if (entries instanceof Map && entries.size > 0) {
             const reader = new pytorch.jit.StreamReader(entries);
             if (reader.hasRecord('model.json')) {
                 try {
@@ -4203,7 +4203,7 @@ pytorch.Metadata = class {
             return pytorch.Metadata._metadata;
         }
         try {
-            const data = await context.request('pytorch-metadata.json', 'utf-8', null);
+            const data = await context.request('pytorch-metadata.json');
             pytorch.Metadata._metadata = new pytorch.Metadata(data);
             return pytorch.Metadata._metadata;
         } catch (error) {

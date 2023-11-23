@@ -24,18 +24,17 @@ nnabla.ModelFactory = class {
                 const stream = context.stream;
                 const reader = protobuf.TextReader.open(stream);
                 const model = nnabla.proto.NNablaProtoBuf.decodeText(reader);
-                const promises = [
-                    context.request('nnp_version.txt', null),
-                    context.request('parameter.protobuf', null)
-                ];
                 const open = async (model, version) => {
                     const metadata = await context.metadata('nnabla-metadata.json');
                     return new nnabla.Model(metadata, model, 'NNabla' + (version ? ' v' + version : ''));
                 };
                 try {
-                    const streams = await Promise.all(promises);
-                    const version = text.Reader.open(streams[0]).read();
-                    const reader = protobuf.BinaryReader.open(streams[1]);
+                    const contexts = await Promise.all([
+                        context.fetch('nnp_version.txt'),
+                        context.fetch('parameter.protobuf')
+                    ]);
+                    const version = text.Reader.open(contexts[0].stream).read();
+                    const reader = protobuf.BinaryReader.open(contexts[1].stream);
                     const params = nnabla.proto.NNablaProtoBuf.decode(reader);
                     model.parameter = params.parameter;
                     return await open(model, version);

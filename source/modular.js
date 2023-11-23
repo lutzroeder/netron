@@ -4,22 +4,21 @@ var modular = {};
 modular.ModelFactory = class {
 
     match(context) {
-        const obj = context.open('json');
+        const obj = context.peek('json');
         if (obj && obj.signature == "netron:modular") {
-            return 'modular';
+            return obj;
         }
         return null;
     }
 
-    async open(context) {
-        return new modular.Model(context);
+    async open(context, target) {
+        return new modular.Model(target);
     }
 };
 
 modular.Model = class {
 
-    constructor(context) {
-        const obj = context.open('json');
+    constructor(obj) {
         this._graphs = obj.graphs.map((graph) => new modular.Graph(graph));
     }
 

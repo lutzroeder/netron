@@ -815,6 +815,7 @@ gzip.Archive = class {
         const reader = new zip.BinaryReader(stream.read(8));
         const compressionMethod = reader.byte();
         if (compressionMethod != 8) {
+            stream.seek(position);
             throw new gzip.Error("Invalid compression method '" + compressionMethod.toString() + "'.");
         }
         const flags = reader.byte();

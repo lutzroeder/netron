@@ -11,7 +11,7 @@ circle.ModelFactory = class {
         if (tags.get('file_identifier') === 'CIR0') {
             return 'circle.flatbuffers';
         }
-        const obj = context.open('json');
+        const obj = context.peek('json');
         if (obj && obj.subgraphs && obj.operator_codes) {
             return 'circle.flatbuffers.json';
         }
@@ -26,7 +26,7 @@ circle.ModelFactory = class {
         switch (target) {
             case 'circle.flatbuffers.json': {
                 try {
-                    const obj = context.open('json');
+                    const obj = context.peek('json');
                     const reader = new flatbuffers.TextReader(obj);
                     model = circle.schema.Model.createText(reader);
                 } catch (error) {

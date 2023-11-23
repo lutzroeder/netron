@@ -259,9 +259,11 @@ dlc.Tensor = class {
 dlc.Container = class {
 
     static open(context) {
-        const entries = context.entries('zip');
-        if (entries.has('model') || entries.has('model.params')) {
-            return new dlc.Container(entries.get('model'), entries.get('model.params'), entries.get('dlc.metadata'));
+        const entries = context.peek('zip');
+        if (entries instanceof Map) {
+            if (entries.has('model') || entries.has('model.params')) {
+                return new dlc.Container(entries.get('model'), entries.get('model.params'), entries.get('dlc.metadata'));
+            }
         }
         const stream = context.stream;
         switch (dlc.Container._signature(stream).split('.').pop()) {
@@ -285,7 +287,8 @@ dlc.Container = class {
     async read(context) {
         const request = async (context, name) => {
             try {
-                return await context.request(name, null);
+                context = await context.fetch(name);
+                return context.stream;
             } catch (error) {
                 return null;
             }

@@ -4,7 +4,7 @@ var hickle = {};
 hickle.ModelFactory = class {
 
     match(context) {
-        const group = context.open('hdf5');
+        const group = context.peek('hdf5');
         if (group && group.attributes && group.attributes.get('CLASS') === 'hickle') {
             return group;
         }

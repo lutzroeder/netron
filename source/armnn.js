@@ -9,12 +9,12 @@ armnn.ModelFactory = class {
         const extension = identifier.split('.').pop().toLowerCase();
         const stream = context.stream;
         if (stream && extension === 'armnn') {
-            return 'armnn.flatbuffers';
+            return [ 'armnn.flatbuffers', stream ];
         }
         if (extension === 'json') {
-            const obj = context.open('json');
+            const obj = context.peek('json');
             if (obj && obj.layers && obj.inputIds && obj.outputIds) {
-                return 'armnn.flatbuffers.json';
+                return [ 'armnn.flatbuffers.json', obj ];
             }
         }
         return undefined;
@@ -24,10 +24,10 @@ armnn.ModelFactory = class {
         await context.require('./armnn-schema');
         armnn.schema = flatbuffers.get('armnn').armnnSerializer;
         let model = null;
-        switch (target) {
+        switch (target[0]) {
             case 'armnn.flatbuffers': {
                 try {
-                    const stream = context.stream;
+                    const stream = target[1];
                     const reader = flatbuffers.BinaryReader.open(stream);
                     model = armnn.schema.SerializedGraph.create(reader);
                 } catch (error) {
@@ -38,7 +38,7 @@ armnn.ModelFactory = class {
             }
             case 'armnn.flatbuffers.json': {
                 try {
-                    const obj = context.open('json');
+                    const obj = target[1];
                     const reader = flatbuffers.TextReader.open(obj);
                     model = armnn.schema.SerializedGraph.createText(reader);
                 } catch (error) {

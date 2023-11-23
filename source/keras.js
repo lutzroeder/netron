@@ -10,14 +10,14 @@ keras.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        const group = context.open('hdf5');
+        const group = context.peek('hdf5');
         if (group && group.attributes && group.attributes.get('CLASS') !== 'hickle') {
             if (identifier === 'model.weights.h5') {
                 return [ 'keras.model.weights.h5', group ];
             }
             return [ 'keras.h5', group ];
         }
-        const json = context.open('json');
+        const json = context.peek('json');
         if (json) {
             if (json.mxnet_version || (json.nodes && json.arg_nodes && json.heads)) {
                 return null;
@@ -33,14 +33,14 @@ keras.ModelFactory = class {
         if (container) {
             return [ 'tfjs.json', container ];
         }
-        const pickle = context.open('pkl');
+        const pickle = context.peek('pkl');
         if (pickle && pickle.__class__ &&
             pickle.__class__.__module__ === 'keras.engine.sequential' &&
             pickle.__class__.__name__ === 'Sequential') {
             return [ 'keras.pickle', pickle ];
         }
         // model.weights.npz
-        const entries = context.open('npz');
+        const entries = context.peek('npz');
         const regex = /^(__root__|layers\/.+|_layer_checkpoint_dependencies\/.+)\.npy$/;
         if (entries && entries.size > 0 && Array.from(entries).every((entry) => regex.test(entry[0]))) {
             return [ 'keras.model.weights.npz', entries ];
@@ -62,17 +62,12 @@ keras.ModelFactory = class {
 
     async open(context, target) {
         const request_json = async (context, name) => {
-            let stream = null;
             try {
-                stream = await context.request(name, null);
+                context = await context.fetch(name);
             } catch (error) {
                 return null;
             }
-            if (stream) {
-                const reader = json.TextReader.open(stream);
-                return reader.read();
-            }
-            return null;
+            return context.read('json');
         };
         const _create_config = (weights_store) => {
             const config = {};
@@ -185,19 +180,19 @@ keras.ModelFactory = class {
                 [ 'model.weights.npz', 'npz', read_weights_numpy ],
             ];
             for (const format of formats) {
-                const file = format[0];
+                const name = format[0];
                 const type = format[1];
                 const callback = format[2];
                 let content = null;
                 try {
                     /* eslint-disable no-await-in-loop */
-                    content = await context.fetch(file);
+                    content = await context.fetch(name);
                     /* eslint-enable no-await-in-loop */
                 } catch (error) {
                     // continue regardless of error
                 }
                 if (content) {
-                    const obj = content.open(type);
+                    const obj = content.peek(type);
                     if (obj) {
                         return callback(obj);
                     }
@@ -445,8 +440,8 @@ keras.ModelFactory = class {
                 return open_model(container.format, container.producer, container.backend, container.config, container.weights);
             }
             case 'keras.pickle': {
+                const obj = target[1];
                 const execution = new python.Execution();
-                const obj = context.open('pkl');
                 const decoder = new TextDecoder('utf-8');
                 const format = 'Keras Pickle' + (obj.keras_version ? ' v' + decoder.decode(obj.keras_version) : '');
                 const backend = obj.backend ? decoder.decode(obj.backend) : '';
@@ -1423,7 +1418,7 @@ keras.Error = class extends Error {
 tfjs.Container = class {
 
     static open(context) {
-        const json = context.open('json');
+        const json = context.peek('json');
         if (json) {
             if (json.modelTopology && (json.format === 'layers-model' || json.modelTopology.class_name || json.modelTopology.model_config)) {
                 return new tfjs.Container(context, '');
@@ -1466,13 +1461,13 @@ tfjs.Container = class {
     async open() {
         switch (this._type) {
             case '': {
-                const obj = this._context.open('json');
+                const obj = this._context.peek('json');
                 return this._openModelJson(obj);
             }
             case 'weights': {
                 this._format = 'TensorFlow.js Weights';
                 this._config = null;
-                const obj = this._context.open('json');
+                const obj = this._context.peek('json');
                 const manifests = Array.from(obj);
                 for (const manifest of manifests) {
                     for (const weight of manifest.weights) {
@@ -1484,9 +1479,8 @@ tfjs.Container = class {
                 return this._openManifests(manifests);
             }
             case 'metadata': {
-                const stream = await this._context.request('model.json');
-                const reader = json.TextReader.open(stream);
-                const obj = reader.read();
+                const content = await this._context.fetch('model.json');
+                const obj = content.read('json');
                 return this._openModelJson(obj);
             }
             default: {
@@ -1535,16 +1529,18 @@ tfjs.Container = class {
         for (const manifest of manifests) {
             for (const path of manifest.paths) {
                 if (!shards.has(path)) {
-                    const promise = this._context.request(path, null);
+                    const promise = this._context.fetch(path);
                     shards.set(path, promise);
                 }
             }
         }
         const promises = shards.values();
         try {
-            const streams = await Promise.all(promises);
+            const contexts = await Promise.all(promises);
             for (const key of shards.keys()) {
-                shards.set(key, streams.shift().peek());
+                const context = contexts.shift();
+                const buffer = context.stream.peek();
+                shards.set(key, buffer);
             }
             this._openShards(manifests, shards);
             return;

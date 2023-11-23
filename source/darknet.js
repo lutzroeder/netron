@@ -49,14 +49,16 @@ darknet.ModelFactory = class {
         const basename = parts.join('.');
         switch (target) {
             case 'darknet.weights': {
-                const stream = await context.request(basename + '.cfg', null);
-                const buffer = stream.read();
+                const name = basename + '.cfg';
+                const content = await context.fetch(name);
+                const buffer = content.stream.peek();
                 return openModel(metadata, buffer, context.stream);
             }
             case 'darknet.model': {
                 try {
-                    const stream = await context.request(basename + '.weights', null);
-                    return openModel(metadata, context.stream.peek(), stream);
+                    const name = basename + '.weights';
+                    const content = await context.fetch(name);
+                    return openModel(metadata, context.stream.peek(), content.stream);
                 } catch (error) {
                     return openModel(metadata, context.stream.peek(), null);
                 }

@@ -12,11 +12,11 @@ numpy.ModelFactory = class {
         if (stream && signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
             return { name: 'npy' };
         }
-        const entries = context.open('npz');
+        const entries = context.peek('npz');
         if (entries && entries.size > 0) {
             return { name: 'npz', value: entries };
         }
-        const obj = context.open('pkl');
+        const obj = context.peek('pkl');
         if (obj) {
             if (numpy.Utility.isTensor(obj)) {
                 return { name: 'numpy.ndarray', value: obj };
