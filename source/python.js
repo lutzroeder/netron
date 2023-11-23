@@ -4220,7 +4220,8 @@ python.Execution = class {
         this.registerType('torch.nn.quantized.modules.linear.Linear', class {});
         this.registerType('torch.nn.quantized.modules.linear.LinearPackedParams', class {});
         this.registerType('torch.nn.quantized.modules.normalization.InstanceNorm2d', class {});
-        this.registerType('torch.nn.quantized.modules.normalization.LayerNorm', class {});
+        this.registerType('torch.nn.quantized.modules.normalization.GroupNorm', class extends torch.nn.modules.normalization.GroupNorm {});
+        this.registerType('torch.nn.quantized.modules.normalization.LayerNorm', class extends torch.nn.modules.normalization.LayerNorm {});
         this.registerType('torch.nn.quantized.modules.Quantize', class {});
         this.registerType('torch.ao.nn.quantized.modules.utils.WeightedQuantizedModule', class extends torch.nn.Module {});
         this.registerType('torch.ao.nn.quantized.modules.conv.Conv2d', class extends torch.nn.Module {});
@@ -5280,8 +5281,8 @@ python.Execution = class {
             const forward = importer.import_module(generated_module_name).forward;
             return execution.invoke('torch.fx.graph_module._deserialize_graph_module', [ forward, body ]);
         });
-        this.registerType('torch.fx.graph_module.GraphModule', class extends torch.nn.Module {
-        });
+        this.registerType('torch.fx.graph._Namespace', class extends torch.nn.Module {});
+        this.registerType('torch.fx.graph_module.GraphModule', class extends torch.nn.Module {});
         this.registerFunction('torch.fx._symbolic_trace.wrap', function(fn_or_name) {
             return fn_or_name;
         });
