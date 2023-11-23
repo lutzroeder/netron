@@ -42,7 +42,7 @@ keras.ModelFactory = class {
         // model.weights.npz
         const entries = context.peek('npz');
         const regex = /^(__root__|layers\/.+|_layer_checkpoint_dependencies\/.+)\.npy$/;
-        if (entries && entries.size > 0 && Array.from(entries).every((entry) => regex.test(entry[0]))) {
+        if (entries instanceof Map && entries.size > 0 && Array.from(entries).every((entry) => regex.test(entry[0]))) {
             return [ 'keras.model.weights.npz', entries ];
         }
         // keras_metadata.pb
