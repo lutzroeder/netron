@@ -4983,7 +4983,7 @@ view.Context = class {
                             try {
                                 const content = new Map();
                                 const entries = this.peek('zip');
-                                if (entries.size > 0 &&
+                                if (entries instanceof Map && entries.size > 0 &&
                                     Array.from(entries.keys()).every((name) => name.endsWith('.npy'))) {
                                     const execution = new python.Execution();
                                     for (const entry of entries) {
