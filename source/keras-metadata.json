@@ -124,6 +124,10 @@
       {
         "name": "use_causal_mask",
         "description": "Boolean. Set to `True` for decoder self-attention. Adds\n        a mask such that position `i` cannot attend to positions `j > i`.\n        This prevents the flow of information from the future towards the\n        past. Defaults to `False`.\n\nOutput:\n    Attention outputs of shape `(batch_size, Tq, dim)`.\n    (Optional) Attention scores after masking and softmax with shape\n        `(batch_size, Tq, Tv)`."
+      },
+      {
+        "name": "seed",
+        "description": "A Python integer to use as random seed incase of `dropout`."
       }
     ]
   },
@@ -4587,6 +4591,10 @@
       {
         "name": "use_causal_mask",
         "description": "Boolean. Set to `True` for decoder self-attention. Adds\n        a mask such that position `i` cannot attend to positions `j > i`.\n        This prevents the flow of information from the future towards the\n        past. Defaults to `False`.\n\nOutput:\n    Attention outputs of shape `(batch_size, Tq, dim)`.\n    (Optional) Attention scores after masking and softmax with shape\n        `(batch_size, Tq, Tv)`."
+      },
+      {
+        "name": "seed",
+        "description": "A Python integer to use as random seed incase of `dropout`."
       }
     ]
   },
