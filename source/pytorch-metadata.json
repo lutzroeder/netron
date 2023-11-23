@@ -11927,6 +11927,24 @@
     ]
   },
   {
+    "name": "aten::special_expit",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "aten::special_expit.out",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "type": "Tensor" }
+    ]
+  },
+  {
     "name": "aten::split",
     "inputs": [
       { "name": "self", "type": "Tensor" },
