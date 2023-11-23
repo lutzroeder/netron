@@ -2,6 +2,29 @@
 var grapher = {};
 var dagre = require('./dagre');
 
+let context = null;
+const fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"';
+
+const nodeItemFontSize = 11;
+const edgeLabelFontSize = 10;
+const noteAttributeFontSize = 9;
+
+function measureText(document, text, fontSize) {
+    if (context == null) {
+        context = document.createElement("canvas").getContext("2d");
+        context.textRendering = "geometricPrecision";
+    }
+    context.font = `${fontSize}px ${fontFamily}`;
+    const metrics = context.measureText(text);
+    return {
+        width: metrics.width,
+        height: metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent,
+        y: -fontSize,
+        x: 0
+    };
+}
+
+
 grapher.Graph = class {
 
     constructor(compound, layout) {
@@ -241,9 +264,8 @@ grapher.Node = class {
             height = height + block.height;
         }
         this.border.setAttribute('d', grapher.Node.roundedRect(0, 0, width, height, true, true, true, true));
-        const nodeBox = this.element.getBBox();
-        this.width = nodeBox.width;
-        this.height = nodeBox.height;
+        this.width = width;
+        this.height = height;
     }
 
     update() {
@@ -417,7 +439,7 @@ grapher.Node.Header.Entry = class {
         if (this.content) {
             this.text.textContent = this.content;
         }
-        const boundingBox = this.text.getBBox();
+        const boundingBox = measureText(document, this.text.textContent, nodeItemFontSize);
         this.width = boundingBox.width + xPadding + xPadding;
         this.height = boundingBox.height + yPadding + yPadding;
         this.tx = xPadding;
@@ -492,7 +514,11 @@ grapher.Node.List = class {
                 element.textContent = item.separator + item.value;
                 text.appendChild(element);
             }
-            const size = text.getBBox();
+            let textToBeMeasured = item.name;
+            if (!(item.value instanceof grapher.Node)) {
+                textToBeMeasured += item.separator + item.value;
+            }
+            const size = measureText(document, textToBeMeasured , noteAttributeFontSize);
             const width = xPadding + size.width + xPadding;
             this.width = Math.max(width, this.width);
             text.setAttribute('x', x + xPadding);
@@ -584,7 +610,7 @@ grapher.Edge = class {
                 this.labelElement.setAttribute('id', 'edge-label-' + this.id);
             }
             edgeLabelGroupElement.appendChild(this.labelElement);
-            const edgeBox = this.labelElement.getBBox();
+            const edgeBox = measureText(document, this.label, edgeLabelFontSize);
             this.width = edgeBox.width;
             this.height = edgeBox.height;
         }

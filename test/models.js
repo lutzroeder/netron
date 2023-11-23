@@ -2,6 +2,7 @@
 const fs = require('fs').promises;
 const path = require('path');
 const process = require('process');
+const { createCanvas } = require('canvas');
 
 const base = require('../source/base');
 const view = require('../source/view');
@@ -149,7 +150,10 @@ global.Document = class {
         this.body = new HTMLElement();
     }
 
-    createElement(/* name */) {
+    createElement(name) {
+        if (name === "canvas") {
+            return createCanvas(100, 100);
+        }
         return new HTMLElement();
     }
 
