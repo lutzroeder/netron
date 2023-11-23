@@ -7,60 +7,58 @@ darknet.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        switch (extension) {
-            case 'weights':
-                if (darknet.Weights.open(context.stream)) {
-                    return 'darknet.weights';
+        if (extension === 'weights') {
+            const weights = darknet.Weights.open(context.stream);
+            if (weights) {
+                return [ 'darknet.weights', weights ];
+            }
+            return undefined;
+        }
+        try {
+            const reader = text.Reader.open(context.stream, 65536);
+            for (;;) {
+                const line = reader.read();
+                if (line === undefined) {
+                    break;
                 }
-                break;
-            default:
-                try {
-                    const reader = text.Reader.open(context.stream, 65536);
-                    for (;;) {
-                        const line = reader.read();
-                        if (line === undefined) {
-                            break;
-                        }
-                        const content = line.trim();
-                        if (content.length === 0 || content.startsWith('#')) {
-                            continue;
-                        }
-                        if (content.startsWith('[') && content.endsWith(']')) {
-                            return 'darknet.model';
-                        }
-                        return undefined;
-                    }
-                } catch (err) {
-                    // continue regardless of error
+                const content = line.trim();
+                if (content.length === 0 || content.startsWith('#')) {
+                    continue;
                 }
-                break;
+                if (content.startsWith('[') && content.endsWith(']')) {
+                    return [ 'darknet.model', context.stream ];
+                }
+                return undefined;
+            }
+        } catch (err) {
+            // continue regardless of error
         }
         return undefined;
     }
 
     async open(context, target) {
         const metadata = await context.metadata('darknet-metadata.json');
-        const openModel = (metadata, cfg, weights) => {
-            return new darknet.Model(metadata, cfg, darknet.Weights.open(weights));
-        };
         const identifier = context.identifier;
         const parts = identifier.split('.');
         parts.pop();
         const basename = parts.join('.');
-        switch (target) {
+        switch (target[0]) {
             case 'darknet.weights': {
                 const name = basename + '.cfg';
                 const content = await context.fetch(name);
                 const buffer = content.stream.peek();
-                return openModel(metadata, buffer, context.stream);
+                return new darknet.Model(metadata, buffer, target[1]);
             }
             case 'darknet.model': {
                 try {
                     const name = basename + '.weights';
                     const content = await context.fetch(name);
-                    return openModel(metadata, context.stream.peek(), content.stream);
+                    const weights = darknet.Weights.open(content.stream);
+                    const buffer = target[1].peek();
+                    return new darknet.Model(metadata, buffer, weights);
                 } catch (error) {
-                    return openModel(metadata, context.stream.peek(), null);
+                    const buffer = target[1].peek();
+                    return new darknet.Model(metadata, buffer, null);
                 }
             }
             default: {
@@ -989,10 +987,6 @@ darknet.Tensor = class {
     constructor(type, data) {
         this._type = type;
         this._values = data;
-    }
-
-    get category() {
-        return 'Weights';
     }
 
     get name() {
