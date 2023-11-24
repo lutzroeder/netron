@@ -200,9 +200,34 @@ const pullrequest = async (organization, repository, body) => {
     });
 };
 
+const clean = async () => {
+    await rm('dist');
+    await rm('node_modules');
+    await rm('package-lock.json');
+    await rm('yarn.lock');
+};
+
 const install = async () => {
     const node_modules = path.join(__dirname, 'node_modules');
-    const exists = await access(node_modules);
+    let exists = await access(node_modules);
+    if (exists) {
+        const dependencies = Object.assign({}, configuration.dependencies, configuration.devDependencies);
+        const matches = await Promise.all(Object.entries(dependencies).map(async (entry) => {
+            const file = path.join('node_modules', entry[0], 'package.json');
+            const exists = await access(file);
+            if (exists) {
+                const content = await fs.readFile(file, 'utf8');
+                const obj = JSON.parse(content);
+                return obj.version === entry[1];
+            }
+            return false;
+        }));
+        exists = matches.every((match) => match);
+        if (!exists) {
+            await clean();
+        }
+    }
+    exists = await access(node_modules);
     if (!exists) {
         await exec('npm install');
     }
@@ -211,13 +236,6 @@ const install = async () => {
 const start = async () => {
     await install();
     await exec('npx electron .');
-};
-
-const clean = async () => {
-    await rm('dist');
-    await rm('node_modules');
-    await rm('package-lock.json');
-    await rm('yarn.lock');
 };
 
 const purge = async () => {
