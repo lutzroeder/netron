@@ -588,6 +588,7 @@ const next = async () => {
             case 'start': await start(); break;
             case 'clean': await clean(); break;
             case 'purge': await purge(); break;
+            case 'install': await install(); break;
             case 'build': await build(); break;
             case 'publish': await publish(); break;
             case 'version': await version(); break;

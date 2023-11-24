@@ -19,6 +19,7 @@
         "lint": "node package.js lint",
         "clean": "node package.js clean",
         "purge": "node package.js purge",
+        "install": "node package.js install",
         "build": "node package.js build",
         "publish": "node package.js publish",
         "version": "node package.js version",
