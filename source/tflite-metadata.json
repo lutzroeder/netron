@@ -351,6 +351,13 @@
     ]
   },
   {
+    "name": "InstanceNorm",
+    "attributes": [
+      { "name": "epsilon", "type": "float32", "default": 0 },
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+    ]
+  },
+  {
     "name": "LeakyRelu",
     "attributes": [
       { "name": "alpha", "type": "float32", "default": 0 }
