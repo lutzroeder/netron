@@ -4139,6 +4139,7 @@ python.Execution = class {
         this.registerType('torch.nn.modules.loss.NLLLoss', class extends torch.nn.modules.loss._WeightedLoss {});
         this.registerType('torch.nn.modules.loss.NLLLoss2d', class extends torch.nn.modules.loss.NLLLoss {});
         this.registerType('torch.nn.modules.loss.SmoothL1Loss', class {});
+        this.registerType('torch.nn.modules.loss.TripletMarginLoss', class {});
         this.registerType('torch.nn.modules.module._IncompatibleKeys', class {});
         this.registerType('torch.nn.modules.module._WrappedHook', class {});
         this.registerType('torch.nn.modules.module.PatchForward', class {});
