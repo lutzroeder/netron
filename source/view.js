@@ -980,9 +980,6 @@ view.View = class {
                 nodeSidebar.on('show-documentation', (/* sender, e */) => {
                     this.showDefinition(node.type);
                 });
-                nodeSidebar.on('show-graph', (sender, graph) => {
-                    this.pushGraph(graph);
-                });
                 nodeSidebar.on('export-tensor', (sender, tensor) => {
                     const defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
                     this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
@@ -1613,7 +1610,13 @@ view.Graph = class extends grapher.Graph {
         this._selection = new Set();
     }
 
-    createNode(node) {
+    createNode(node, type) {
+        if (type) {
+            const value = new view.Node(this, { type: type });
+            value.name = (this._nodeKey++).toString();
+            this._table.set(type, value);
+            return value;
+        }
         const value = new view.Node(this, node);
         value.name = (this._nodeKey++).toString();
         this._table.set(node, value);
@@ -1847,25 +1850,29 @@ view.Node = class extends grapher.Node {
         const content = options.names && (node.name || node.location) ? (node.name || node.location) : type.name.split('.').pop();
         const tooltip = options.names && (node.name || node.location) ? type.name : (node.name || node.location);
         const title = header.add(null, styles, content, tooltip);
-        title.on('click', () => this.context.activate(node));
-        if (node.type.nodes && node.type.nodes.length > 0) {
+        title.on('click', () => {
+            this.context.activate(node);
+        });
+        if (Array.isArray(node.type.nodes) && node.type.nodes.length > 0) {
             const definition = header.add(null, styles, '\u0192', 'Show Function Definition');
             definition.on('click', () => this.context.view.pushGraph(node.type));
         }
-        if (node.nodes) {
+        if (Array.isArray(node.nodes)) {
             // this._expand = header.add(null, styles, '+', null);
             // this._expand.on('click', () => this.toggle());
         }
         const initializers = [];
         let hiddenInitializers = false;
         if (options.weights) {
-            for (const input of node.inputs) {
-                if (input.visible !== false && input.value.length === 1 && input.value[0].initializer != null) {
-                    initializers.push(input);
-                }
-                if ((input.visible === false || input.value.length > 1) &&
-                    input.value.some((argument) => argument.initializer != null)) {
-                    hiddenInitializers = true;
+            if (Array.isArray(node.inputs)) {
+                for (const input of node.inputs) {
+                    if (input.visible !== false && input.value.length === 1 && input.value[0].initializer != null) {
+                        initializers.push(input);
+                    }
+                    if ((input.visible === false || input.value.length > 1) &&
+                        input.value.some((argument) => argument.initializer != null)) {
+                        hiddenInitializers = true;
+                    }
                 }
             }
         }
@@ -1874,13 +1881,14 @@ view.Node = class extends grapher.Node {
         if (Array.isArray(node.attributes) && node.attributes.length > 0) {
             for (const attribute of node.attributes) {
                 switch (attribute.type) {
-                    /*
+                    case 'graph':
                     case 'object':
-                    case 'function': {
+                    case 'object[]':
+                    case 'function':
+                    case 'function[]': {
                         objects.push(attribute);
                         break;
                     }
-                    */
                     default: {
                         if (options.attributes && attribute.visible !== false) {
                             attributes.push(attribute);
@@ -1942,9 +1950,17 @@ view.Node = class extends grapher.Node {
                 }
             }
             for (const attribute of objects) {
+                if (attribute.type === 'graph') {
+                    const node = this.context.createNode(null, attribute.value);
+                    list.add(attribute.name, node, '', '');
+                }
                 if (attribute.type === 'function' || attribute.type === 'object') {
                     const node = this.context.createNode(attribute.value);
                     list.add(attribute.name, node, '', '');
+                }
+                if (attribute.type === 'function[]' || attribute.type === 'object[]') {
+                    const nodes = attribute.value.map((value) => this.context.createNode(value));
+                    list.add(attribute.name, nodes, '', '');
                 }
             }
         }
@@ -2369,8 +2385,8 @@ view.NodeSidebar = class extends view.ObjectSidebar {
             }
             default: {
                 value = new view.AttributeView(this._host, attribute);
-                value.on('show-graph', (sender, graph) => {
-                    this.emit('show-graph', graph);
+                value.on('activate', (sender, graph) => {
+                    this.emit('activate', graph);
                 });
                 break;
             }
@@ -2535,9 +2551,9 @@ view.AttributeView = class extends view.Control {
         switch (type) {
             case 'graph': {
                 const line = this.createElement('div', 'sidebar-item-value-line-link');
-                line.innerHTML = value.name;
+                line.innerHTML = value.name || '&nbsp;';
                 line.addEventListener('click', () => {
-                    this.emit('show-graph', value);
+                    this.emit('activate', value);
                 });
                 this._element.appendChild(line);
                 break;
@@ -2546,7 +2562,7 @@ view.AttributeView = class extends view.Control {
                 const line = this.createElement('div', 'sidebar-item-value-line-link');
                 line.innerHTML = value.type.name;
                 line.addEventListener('click', () => {
-                    this.emit('show-graph', value.type);
+                    this.emit('activate', value);
                 });
                 this._element.appendChild(line);
                 break;

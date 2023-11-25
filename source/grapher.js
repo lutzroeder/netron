@@ -438,16 +438,17 @@ grapher.Node.Header.Entry = class {
             this.element.setAttribute('id', this.id);
         }
         if (this._events.click) {
-            this.element.addEventListener('click', () => this.emit('click'));
+            this.element.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.emit('click');
+            });
         }
         if (this.tooltip) {
             const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
             title.textContent = this.tooltip;
             this.element.appendChild(title);
         }
-        if (this.content) {
-            this.text.textContent = this.content;
-        }
+        this.text.textContent = this.content || '\u00A0';
     }
 
     measure() {
@@ -495,7 +496,10 @@ grapher.Node.List = class {
         this.element = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         this.element.setAttribute('class', 'node-attribute-list');
         if (this._events.click) {
-            this.element.addEventListener('click', () => this.emit('click'));
+            this.element.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.emit('click');
+            });
         }
         this.background = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         this.element.appendChild(this.background);
@@ -510,10 +514,10 @@ grapher.Node.List = class {
                 title.textContent = item.tooltip;
                 text.appendChild(title);
             }
-            const node = item.value instanceof grapher.Node;
+            const colon = item.type === 'node' || item.type === 'node[]';
             const name = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
-            name.textContent = node ? item.name + ':' : item.name;
-            if (item.separator.trim() !== '=' && !node) {
+            name.textContent =  colon ? item.name + ':' : item.name;
+            if (item.separator.trim() !== '=' && !colon) {
                 name.style.fontWeight = 'bold';
             }
             text.appendChild(name);
@@ -521,9 +525,13 @@ grapher.Node.List = class {
             this.element.appendChild(group);
             item.group = group;
             item.text = text;
-            if (node) {
+            if (item.type === 'node') {
                 const node = item.value;
                 node.build(document, item.group);
+            } else if (item.type === 'node[]') {
+                for (const node of item.value) {
+                    node.build(document, item.group);
+                }
             } else {
                 const tspan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
                 tspan.textContent = item.separator + item.value;
@@ -538,28 +546,38 @@ grapher.Node.List = class {
     }
 
     measure() {
-        this.width = 0;
+        this.width = 75;
         this.height = 3;
         const yPadding = 1;
         const xPadding = 6;
-        let minWidth = 75;
-        for (const item of this._items) {
+        for (let i = 0; i < this._items.length; i++) {
+            const item = this._items[i];
             const size = item.text.getBBox();
             item.width = xPadding + size.width + xPadding;
             item.height = yPadding + size.height + yPadding;
             item.offset = size.y;
-            if (item.value instanceof grapher.Node) {
+            this.height += item.height;
+            if (item.type === 'node') {
                 const node = item.value;
                 node.measure();
-                this.width = Math.max(this.width, node.width + (2 * xPadding));
-                this.height += node.height + (2 * yPadding);
-                minWidth = 150;
+                this.width = Math.max(150, this.width, node.width + (2 * xPadding));
+                this.height += node.height + yPadding + yPadding + yPadding + yPadding;
+                if (i === this._items.length - 1) {
+                    this.height += 3;
+                }
+            } else if (item.type === 'node[]') {
+                for (const node of item.value) {
+                    node.measure();
+                    this.width = Math.max(150, this.width, node.width + (2 * xPadding));
+                    this.height += node.height + yPadding + yPadding + yPadding + yPadding;
+                }
+                if (i === this._items.length - 1) {
+                    this.height += 3;
+                }
             }
-            this.height += item.height;
             this.width = Math.max(this.width, item.width);
         }
         this.height += 3;
-        this.width = Math.max(minWidth, this.width);
     }
 
     layout() {
@@ -570,15 +588,22 @@ grapher.Node.List = class {
             item.x = this.x + xPadding;
             item.y = y + yPadding - item.offset;
             y += item.height;
-            if (item.value instanceof grapher.Node) {
+            if (item.type === 'node') {
                 const node = item.value;
                 node.width = this.width - xPadding - xPadding;
                 node.layout();
                 node.x = this.x + xPadding + (node.width / 2);
-                node.y = y +  + (node.height / 2) + yPadding;
-                y += node.height + yPadding;
+                node.y = y + (node.height / 2) + yPadding + yPadding;
+                y += node.height + yPadding + yPadding + yPadding + yPadding;
+            } else if (item.type === 'node[]') {
+                for (const node of item.value) {
+                    node.width = this.width - xPadding - xPadding;
+                    node.layout();
+                    node.x = this.x + xPadding + (node.width / 2);
+                    node.y = y + (node.height / 2) + yPadding + yPadding;
+                    y += node.height + yPadding + yPadding + yPadding + yPadding;
+                }
             }
-            // y += yPadding;
         }
     }
 
@@ -589,9 +614,13 @@ grapher.Node.List = class {
             const text = item.text;
             text.setAttribute('x', item.x);
             text.setAttribute('y', item.y);
-            if (item.value instanceof grapher.Node) {
+            if (item.type === 'node') {
                 const node = item.value;
                 node.update();
+            } else if (item.type === 'node[]') {
+                for (const node of item.value) {
+                    node.update();
+                }
             }
         }
         if (this.line) {
@@ -616,6 +645,11 @@ grapher.Node.List.Item = class {
         this.value = value;
         this.tooltip = tooltip;
         this.separator = separator;
+        if (value instanceof grapher.Node) {
+            this.type = 'node';
+        } else if (Array.isArray(value) && value.every((value) => value instanceof grapher.Node)) {
+            this.type = 'node[]';
+        }
     }
 };
 

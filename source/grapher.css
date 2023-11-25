@@ -69,7 +69,7 @@
 .edge-path { stroke: #000; stroke-width: 1px; fill: none; marker-end: url("#arrowhead"); }
 .edge-path-hit-test { pointer-events: stroke; stroke-width: 0.5em; fill: none; stroke: #000; stroke-opacity: 0.001; }
 
-.select .node.node-border { stroke: #e00; stroke-width: 2px; }
+.select > .node.node-border { stroke: #e00; stroke-width: 2px; }
 .select.edge-path { stroke: #e00; stroke-width: 1px; marker-end: url("#arrowhead-select"); }
 
 .edge-label { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"; font-size: 10px; }
@@ -86,7 +86,7 @@
     .node path { stroke: #1d1d1d; }
     .node line { stroke: #1d1d1d; }
 
-    .select .node.node-border { stroke: #b00; }
+    .select > .node.node-border { stroke: #b00; }
     .select.edge-path { stroke: #b00; }
 
     #arrowhead { fill: #888; }
