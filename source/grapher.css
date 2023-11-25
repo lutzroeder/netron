@@ -50,10 +50,10 @@
 .node-item-undefined:hover { cursor: pointer; }
 .node-item-undefined:hover path { fill: #fff; }
 
-.node-attribute:hover { cursor: pointer; }
-.node-attribute text { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"; font-size: 9px; font-weight: normal; text-rendering: geometricPrecision; user-select: none; }
-.node-attribute path { fill: #fff; stroke-width: 0; stroke: #000; }
-.node-attribute:hover path { fill: #f6f6f6; }
+.node-attribute-list > path { fill: #fff; stroke-width: 0; stroke: #000; }
+.node-attribute-list:hover { cursor: pointer; }
+.node-attribute-list:hover > path { fill: #f6f6f6; }
+.node-attribute > text { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"; font-size: 9px; font-weight: normal; text-rendering: geometricPrecision; user-select: none; }
 
 .graph-item-input path { fill: #eee; }
 .graph-item-input:hover { cursor: pointer; }
@@ -69,7 +69,7 @@
 .edge-path { stroke: #000; stroke-width: 1px; fill: none; marker-end: url("#arrowhead"); }
 .edge-path-hit-test { pointer-events: stroke; stroke-width: 0.5em; fill: none; stroke: #000; stroke-opacity: 0.001; }
 
-.select .node.border { stroke: #e00; stroke-width: 2px; }
+.select .node.node-border { stroke: #e00; stroke-width: 2px; }
 .select.edge-path { stroke: #e00; stroke-width: 1px; marker-end: url("#arrowhead-select"); }
 
 .edge-label { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"; font-size: 10px; }
@@ -86,7 +86,7 @@
     .node path { stroke: #1d1d1d; }
     .node line { stroke: #1d1d1d; }
 
-    .select .node.border { stroke: #b00; }
+    .select .node.node-border { stroke: #b00; }
     .select.edge-path { stroke: #b00; }
 
     #arrowhead { fill: #888; }
@@ -109,9 +109,9 @@
     .node-item path { stroke: #fff; }
     .node-item text { fill: #dfdfdf; }
 
-    .node-attribute text { fill: #b2b2b2; }
-    .node-attribute path { fill: #2d2d2d; }
-    .node-attribute:hover path { fill: #666666; }
+    .node-attribute > text { fill: #b2b2b2; }
+    .node-attribute-list > path { fill: #2d2d2d; }
+    .node-attribute-list:hover > path { fill: #666666; }
 
     .graph-item-input path { fill: #404040; }
     .graph-item-input:hover { cursor: pointer; }

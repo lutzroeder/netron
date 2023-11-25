@@ -354,6 +354,8 @@ pytorch.Node = class {
                     item.attributes = Object.entries(value).filter((entry) => entry[0] !== '__class__').map((entry) => {
                         return { name: entry[0], value: entry[1] };
                     });
+                    item.inputs = [];
+                    item.outputs = [];
                     const node = new pytorch.Node(metadata, group, item);
                     return new pytorch.Attribute({ type: 'object' }, name, node);
                 }

@@ -254,6 +254,10 @@ global.CSSStyleDeclaration = class {
     setProperty(name, value) {
         this._properties.set(name, value);
     }
+
+    removeProperty(name) {
+        this._properties.delete(name);
+    }
 };
 
 global.DOMTokenList = class {

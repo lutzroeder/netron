@@ -802,6 +802,7 @@ view.View = class {
 
         viewGraph.build(this._host.document, origin);
         await this._timeout(20);
+        viewGraph.measure();
         viewGraph.layout();
         viewGraph.update();
 
@@ -1873,11 +1874,13 @@ view.Node = class extends grapher.Node {
         if (Array.isArray(node.attributes) && node.attributes.length > 0) {
             for (const attribute of node.attributes) {
                 switch (attribute.type) {
-                    /* case 'object':
+                    /*
+                    case 'object':
                     case 'function': {
                         objects.push(attribute);
                         break;
-                    } */
+                    }
+                    */
                     default: {
                         if (options.attributes && attribute.visible !== false) {
                             attributes.push(attribute);
@@ -1941,8 +1944,7 @@ view.Node = class extends grapher.Node {
             for (const attribute of objects) {
                 if (attribute.type === 'function' || attribute.type === 'object') {
                     const node = this.context.createNode(attribute.value);
-                    const item = list.add(attribute.name, node, '', '');
-                    item.height = 20;
+                    list.add(attribute.name, node, '', '');
                 }
             }
         }
