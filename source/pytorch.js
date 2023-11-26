@@ -3485,6 +3485,9 @@ pytorch.Utility = class {
                 module._parameters.set('value', obj);
                 return new Map([ [ '', { _modules: new Map([ [ '', module ] ]) } ] ]);
             }
+            if (!Array.isArray(obj) && obj === Object(obj) && Object.keys(obj).length === 0) {
+                return new Map();
+            }
             const keys = !Array.isArray(obj) ? Object.keys(obj) : [];
             if (keys.length > 1) {
                 keys.splice(0, keys.length);
