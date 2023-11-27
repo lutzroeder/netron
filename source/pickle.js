@@ -86,7 +86,7 @@ pickle.Graph = class {
 pickle.Node = class {
 
     constructor(obj, name, stack) {
-        const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'Object';
+        const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'builtins.dict';
         this.type = { name: type };
         this.name = name || '';
         this.inputs = [];
@@ -109,7 +109,13 @@ pickle.Node = class {
                 this.attributes.push(attribute);
             } else {
                 stack = stack || new Set();
-                if (value && Array.isArray(value) && value.length > 0 && value.every((obj) => obj && obj.__class__ && obj.__class__.__module__ === value[0].__class__.__module__ && obj.__class__.__name__ === value[0].__class__.__name__)) {
+                if (value && Array.isArray(value) && value.every((obj) => typeof obj === 'string')) {
+                    const attribute = new pickle.Attribute('string[]', name, value);
+                    this.attributes.push(attribute);
+                } else if (value && Array.isArray(value) && value.every((obj) => typeof obj === 'number')) {
+                    const attribute = new pickle.Attribute(null, name, value);
+                    this.attributes.push(attribute);
+                } else if (value && Array.isArray(value) && value.length > 0 && value.every((obj) => obj && (obj.__class__ || obj === Object(obj)))) {
                     const values = value.filter((value) => !stack.has(value));
                     const nodes = values.map((value) => {
                         stack.add(value);
@@ -117,18 +123,18 @@ pickle.Node = class {
                         stack.delete(value);
                         return node;
                     });
-                    const attribute = new pickle.Attribute(name, 'object[]', nodes);
+                    const attribute = new pickle.Attribute('object[]', name, nodes);
                     this.attributes.push(attribute);
                 } else if (value && value.__class__) {
                     if (!stack.has(value)) {
                         stack.add(value);
                         const node = new pickle.Node(value, '', stack);
-                        const attribute = new pickle.Attribute(name, 'object', node);
+                        const attribute = new pickle.Attribute('object', name, node);
                         this.attributes.push(attribute);
                         stack.delete(value);
                     }
                 } else {
-                    const attribute = new pickle.Attribute(name, null, value);
+                    const attribute = new pickle.Attribute(null, name, value);
                     this.attributes.push(attribute);
                 }
             }
@@ -138,9 +144,9 @@ pickle.Node = class {
 
 pickle.Attribute = class {
 
-    constructor(name, type, value) {
-        this.name = name;
+    constructor(type, name, value) {
         this.type = type;
+        this.name = name;
         this.value = value;
     }
 };
