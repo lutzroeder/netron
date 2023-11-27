@@ -198,7 +198,7 @@ sklearn.Node = class {
     constructor(metadata, group, name, obj, inputs, outputs, value, stack) {
         this.group = group || null;
         this.name = name || '';
-        const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'Object';
+        const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'builtins.dict';
         this.type = metadata.type(type) || { name: type };
         this.inputs = inputs.map((input) => new sklearn.Argument(input, [ value(input) ]));
         this.outputs = outputs.map((output) => new sklearn.Argument(output, [ value(output) ]));
@@ -206,12 +206,44 @@ sklearn.Node = class {
         const isArray = (obj) => {
             return obj && obj.__class__ && obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'ndarray';
         };
+        const isObject = (obj) => {
+            if (obj && typeof obj === 'object') {
+                const proto = Object.getPrototypeOf(obj);
+                return proto === Object.prototype || proto === null;
+            }
+            return false;
+        };
+        const createAttribute = (metadata, name, value) => {
+            let type = undefined;
+            let visible = undefined;
+            if (metadata) {
+                if (metadata.type) {
+                    type = metadata.type;
+                }
+                if (metadata.optional && value == null) {
+                    visible = false;
+                } else if (metadata.visible === false) {
+                    visible = false;
+                } else if (metadata.default !== undefined) {
+                    if (Array.isArray(value)) {
+                        if (Array.isArray(metadata.default)) {
+                            visible = value.length !== metadata.default || !value.every((item, index) => item == metadata.default[index]);
+                        } else {
+                            visible = !value.every((item) => item == metadata.default);
+                        }
+                    } else {
+                        visible = value !== metadata.default;
+                    }
+                }
+            }
+            return new sklearn.Attribute(name, value, type, visible);
+        };
         for (const entry of Object.entries(obj)) {
             const name = entry[0];
             const value = entry[1];
             if (value && isArray(value)) {
                 const tensor = new sklearn.Tensor(value);
-                const attribute = new sklearn.Attribute({ type: 'tensor' }, name, tensor);
+                const attribute = createAttribute({ type: 'tensor' }, name, tensor);
                 this.attributes.push(attribute);
             } else if (Array.isArray(value) && value.length > 0 && value.every((obj) => isArray(obj))) {
                 const tensors = value.map((obj) => new sklearn.Tensor(obj));
@@ -219,7 +251,13 @@ sklearn.Node = class {
                 this.attributes.push(attribute);
             } else if (!name.startsWith('_')) {
                 stack = stack || new Set();
-                if (value && Array.isArray(value) && value.length > 0 && value.every((obj) => obj.__class__ && obj.__class__.__module__ === value[0].__class__.__module__ && obj.__class__.__name__ === value[0].__class__.__name__)) {
+                if (value && Array.isArray(value) && value.every((obj) => typeof obj === 'string')) {
+                    const attribute = createAttribute({ type: 'string[]' }, name, value);
+                    this.attributes.push(attribute);
+                } else if (value && Array.isArray(value) && value.every((obj) => typeof obj === 'number')) {
+                    const attribute = createAttribute(null, name, value);
+                    this.attributes.push(attribute);
+                } else if (value && Array.isArray(value) && value.length > 0 && value.every((obj) => obj.__class__ && obj.__class__.__module__ === value[0].__class__.__module__ && obj.__class__.__name__ === value[0].__class__.__name__)) {
                     const values = value.filter((value) => !stack.has(value));
                     const nodes = values.map((value) => {
                         stack.add(value);
@@ -227,18 +265,18 @@ sklearn.Node = class {
                         stack.delete(value);
                         return node;
                     });
-                    const attribute = new sklearn.Attribute({ type: 'object[]' }, name, nodes);
+                    const attribute = createAttribute({ type: 'object[]' }, name, nodes);
                     this.attributes.push(attribute);
-                } else if (value && value.__class__) {
+                } else if (value && (value.__class__ || isObject(value))) {
                     if (!stack.has(value)) {
                         stack.add(value);
                         const node = new sklearn.Node(metadata, group, '', value, [], [], null, stack);
-                        const attribute = new sklearn.Attribute({ type: 'object' }, name, node);
+                        const attribute = createAttribute({ type: 'object' }, name, node);
                         this.attributes.push(attribute);
                         stack.delete(value);
                     }
                 } else {
-                    const attribute = new sklearn.Attribute(metadata.attribute(type, name), name, value);
+                    const attribute = createAttribute(metadata.attribute(type, name), name, value);
                     this.attributes.push(attribute);
                 }
             }
@@ -248,28 +286,14 @@ sklearn.Node = class {
 
 sklearn.Attribute = class {
 
-    constructor(metadata, name, value) {
+    constructor(name, value, type, visible) {
         this.name = name;
         this.value = value;
-        if (metadata) {
-            if (metadata.type) {
-                this.type = metadata.type;
-            }
-            if (metadata.optional && this.value == null) {
-                this.visible = false;
-            } else if (metadata.visible === false) {
-                this.visible = false;
-            } else if (metadata.default !== undefined) {
-                if (Array.isArray(value)) {
-                    if (Array.isArray(metadata.default)) {
-                        this.visible = value.length !== metadata.default || !this.value.every((item, index) => item == metadata.default[index]);
-                    } else {
-                        this.visible = !this.value.every((item) => item == metadata.default);
-                    }
-                } else {
-                    this.visible = this.value !== metadata.default;
-                }
-            }
+        if (type) {
+            this.type = type;
+        }
+        if (visible === false) {
+            this.visible = visible;
         }
     }
 };
