@@ -1997,6 +1997,14 @@
   },
   {
     "type":     "hailo",
+    "target":   "fcn_hailo_pp_v2.har",
+    "source":   "https://github.com/lutzroeder/netron/files/13482814/fcn_hailo_pp_v2.har.zip[fcn_hailo_pp_v2.har]",
+    "format":   "Hailo Archive v3.26.0.dev0",
+    "error":    "Duplicate value 'fcn_hailo_pp_v2/feature_splitter1'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/1058"
+  },
+  {
+    "type":     "hailo",
     "target":   "resnet_v1_8.hn",
     "source":   "https://github.com/lutzroeder/netron/files/11015765/resnet_v1_8.zip[resnet_v1_8.hn]",
     "format":   "Hailo NN",

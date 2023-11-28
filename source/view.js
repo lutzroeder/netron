@@ -5678,6 +5678,12 @@ view.ModelFactoryService = class {
                         matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'metadata.json')) {
                         matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == 'config.json');
                     }
+                    // Hailo
+                    if (matches.length >= 2 &&
+                        matches.some((context) => context.identifier.toLowerCase().endsWith('.hn'))) {
+                        matches = matches.filter((context) => !context.identifier.toLowerCase().endsWith('.native.hn'));
+                        matches = matches.filter((context) => !context.identifier.toLowerCase().endsWith('.npz'));
+                    }
                     if (matches.length > 1) {
                         throw new view.ArchiveError('Archive contains multiple model files.');
                     }
