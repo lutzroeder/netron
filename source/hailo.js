@@ -54,14 +54,6 @@ hailo.Graph = class {
             return entry[1];
         });
         for (const layer of layers) {
-            for (let i = 0; i < layer.input.length; i++) {
-                const name = layer.input[i];
-                const shape = layer.input_shapes ? layer.input_shapes[i] : null;
-                const type = shape ? new hailo.TensorType('?', new hailo.TensorShape(shape)) : null;
-                arg(name, type);
-            }
-        }
-        for (const layer of layers) {
             switch (layer.type) {
                 case 'input_layer':
                 case 'const_input': {
@@ -243,27 +235,36 @@ hailo.Container = class {
 
     static open(context) {
         const identifier = context.identifier;
-        const parts = identifier.split('.');
-        const extension = parts.pop().toLowerCase();
-        const basename = parts.join('.');
-        if (extension === 'hn') {
+        const basename = identifier.split('.');
+        basename.pop();
+        if (identifier.toLowerCase().endsWith('.hn')) {
+            if (basename.length > 1 && (basename[basename.length - 1] === 'native' || basename[basename.length - 1] === 'fp')) {
+                basename.pop();
+            }
             const configuration = context.peek('json');
             if (configuration && configuration.name && configuration.net_params && configuration.layers) {
-                return new hailo.Container(context, basename, configuration);
+                return new hailo.Container(context, basename.join('.'), configuration, null);
+            }
+        } else if (identifier.toLowerCase().endsWith('.metadata.json')) {
+            basename.pop();
+            const metadata = context.peek('json');
+            if (metadata && metadata.state && metadata.hn) {
+                return new hailo.Container(context, basename.join('.'), null, metadata);
             }
         }
         return null;
     }
 
-    constructor(context, basename, configuration) {
+    constructor(context, basename, configuration, metadata) {
         this._context = context;
         this._basename = basename;
         this.configuration = configuration;
+        this.metadata = metadata;
     }
 
-    async _request(extension, type) {
+    async _request(name, type) {
         try {
-            const content = await this._context.fetch(this._basename + extension);
+            const content = await this._context.fetch(name);
             if (content) {
                 return content.read(type);
             }
@@ -276,9 +277,15 @@ hailo.Container = class {
     async read() {
         this.format = 'Hailo NN';
         this.weights = new Map();
-        this.metadata = await this._request('.metadata.json', 'json');
+        if (!this.metadata) {
+            this.metadata = await this._request(this._basename + '.metadata.json', 'json');
+        }
         if (this.metadata) {
             this.format = 'Hailo Archive';
+            this.configuration = await this._request(this.metadata.hn, 'json');
+            if (!this.configuration) {
+                throw new hailo.Error("Archive does not contain '.nn' configuration.");
+            }
             let extension = undefined;
             switch (this.metadata.state) {
                 case 'fp_optimized_model': extension = '.fpo.npz'; break;
@@ -286,7 +293,7 @@ hailo.Container = class {
                 case 'compiled_model': extension = '.q.npz'; break;
                 default: extension = '.npz'; break;
             }
-            const entries = await this._request(extension, 'npz');
+            const entries = await this._request(this._basename + extension, 'npz');
             if (entries && entries.size > 0) {
                 const inputs = new Set([
                     'kernel', 'bias',

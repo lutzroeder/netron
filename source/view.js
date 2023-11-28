@@ -5255,7 +5255,7 @@ view.ModelFactoryService = class {
         this.register('./onednn', [ '.json']);
         this.register('./mlir', [ '.mlir']);
         this.register('./sentencepiece', [ '.model' ]);
-        this.register('./hailo', [ '.hn', '.har' ]);
+        this.register('./hailo', [ '.hn', '.har', '.metadata.json' ]);
         this.register('./nnc', [ '.nnc' ]);
         this.register('./safetensors', [ '.safetensors' ]);
         this.register('./modular', [ '.maxviz' ]);
@@ -5678,16 +5678,15 @@ view.ModelFactoryService = class {
                         matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'config.json')) {
                         matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == 'model.weights.h5' || context.identifier.toLowerCase().split('/').pop() === 'model.weights.npz');
                     }
-                    if ((matches.length === 2) &&
+                    if (matches.length === 2 &&
                         matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'config.json') &&
                         matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'metadata.json')) {
                         matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == 'config.json');
                     }
                     // Hailo
                     if (matches.length >= 2 &&
-                        matches.some((context) => context.identifier.toLowerCase().endsWith('.hn'))) {
-                        matches = matches.filter((context) => !context.identifier.toLowerCase().endsWith('.native.hn'));
-                        matches = matches.filter((context) => !context.identifier.toLowerCase().endsWith('.npz'));
+                        matches.some((context) => context.identifier.toLowerCase().endsWith('.metadata.json'))) {
+                        matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.metadata.json'));
                     }
                     if (matches.length > 1) {
                         throw new view.ArchiveError('Archive contains multiple model files.');
