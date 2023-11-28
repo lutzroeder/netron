@@ -3129,6 +3129,11 @@ view.FindSidebar = class extends view.Control {
             this.update(e.target.value);
             this.emit('search-text-changed', e.target.value);
         });
+        this._searchElement.addEventListener('keydown', (e) => {
+            if (e.keyCode === 0x08 && !e.altKey && !e.ctrlKey && !e.shiftKey && !e.metaKey) {
+                e.stopPropagation();
+            }
+        });
         this._contentElement = this.createElement('ol', 'sidebar-find-content');
         this._contentElement.addEventListener('click', (e) => {
             const identifier = e.target.getAttribute('data');
