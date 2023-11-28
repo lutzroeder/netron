@@ -5049,7 +5049,7 @@ view.Context = class {
                 }
             }
         }
-        return this.peek('json');
+        return this.peek(type);
     }
 
     tags(type) {
