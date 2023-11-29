@@ -3552,6 +3552,7 @@ pytorch.Utility = class {
                 return obj;
             }
             if (obj && obj instanceof Map) {
+                obj.delete('_ema');
                 return obj;
             }
             if (obj && Object(obj) === obj) {
