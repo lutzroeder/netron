@@ -36,6 +36,7 @@ hailo.Graph = class {
         this.outputs = [];
         this.nodes = [];
         const args = new Map();
+
         const arg = (name, type, tensor) => {
             if (name.length === 0 && tensor) {
                 return new hailo.Value(name, type || null, tensor);
@@ -45,7 +46,8 @@ hailo.Graph = class {
             } else if (tensor) {
                 throw new hailo.Error("Duplicate value '" + name + "'.");
             } else if (type && !type.equals(args.get(name).type)) {
-                throw new hailo.Error("Duplicate value '" + name + "'.");
+                name = name + '\n';
+                arg(name, type, tensor);
             }
             return args.get(name);
         };
