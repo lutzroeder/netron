@@ -36,7 +36,6 @@ hailo.Graph = class {
         this.outputs = [];
         this.nodes = [];
         const args = new Map();
-
         const arg = (name, type, tensor) => {
             if (name.length === 0 && tensor) {
                 return new hailo.Value(name, type || null, tensor);
