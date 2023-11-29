@@ -1737,9 +1737,7 @@ dagre.layout = (graph, layout) => {
             for (const xs of Object.values(xss)) {
                 let max = Number.NEGATIVE_INFINITY;
                 let min = Number.POSITIVE_INFINITY;
-                for (const entry of Object.entries(xs)) {
-                    const v = entry[0];
-                    const x = entry[1];
+                for (const [v, x] of Object.entries(xs)) {
                     const halfWidth = g.node(v).label.width / 2;
                     max = Math.max(x + halfWidth, max);
                     min = Math.min(x - halfWidth, min);

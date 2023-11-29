@@ -50,9 +50,8 @@ hickle.Graph = class {
                         }
                         case 'dict': {
                             const dict = new Map();
-                            for (const entry of group.groups) {
-                                const name = entry[0];
-                                const value = deserialize(entry[1]);
+                            for (const [name, obj] of group.groups) {
+                                const value = deserialize(obj);
                                 dict.set(name, value);
                             }
                             return dict;
@@ -72,9 +71,7 @@ hickle.Graph = class {
         const obj = deserialize(group);
         const layers = new Map();
         if (obj && obj instanceof Map && Array.from(obj.values()).every((value) => value.type && value.shape)) {
-            for (const entry of obj) {
-                const key = entry[0];
-                const value = entry[1];
+            for (const [key, value] of obj) {
                 const tensor = new hickle.Tensor(key, value.shape, value.type, value.littleEndian, value.type === 'string' ? value.value : value.data);
                 const bits = key.split('.');
                 const parameter = bits.pop();
@@ -85,7 +82,7 @@ hickle.Graph = class {
                 layers.get(layer).push({ name: parameter, value: tensor });
             }
         }
-        this._nodes = Array.from(layers).map((entry) => new hickle.Node(entry[0], entry[1]));
+        this._nodes = Array.from(layers).map(([name, value]) => new hickle.Node(name, value));
     }
 
     get inputs() {

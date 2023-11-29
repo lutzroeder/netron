@@ -9,8 +9,8 @@ flax.ModelFactory = class {
     match(context) {
         const stream = context.stream;
         if (stream.length > 4) {
-            const code = stream.peek(1)[0];
-            if (code === 0xDE || code === 0xDF || ((code & 0x80) === 0x80)) {
+            const buffer = stream.peek(1);
+            if (buffer[0] === 0xDE || buffer[0] === 0xDF || ((buffer[0] & 0x80) === 0x80)) {
                 return 'msgpack.map';
             }
         }
@@ -67,9 +67,7 @@ flax.Graph = class {
             return layers.get(name);
         };
         const flatten = (path, obj) => {
-            for (const entry of Object.entries(obj)) {
-                const name = entry[0];
-                const value = entry[1];
+            for (const [name, value] of Object.entries(obj)) {
                 if (flax.Utility.isTensor(value)) {
                     const obj = layer(path);
                     obj[name] = value;
@@ -89,7 +87,7 @@ flax.Graph = class {
         } else {
             flatten([], obj);
         }
-        this._nodes = Array.from(layers).map((entry) => new flax.Node(entry[0], entry[1]));
+        this._nodes = Array.from(layers).map(([name, value]) => new flax.Node(name, value));
     }
 
     get inputs() {
@@ -151,9 +149,7 @@ flax.Node = class {
         this._type = { name: 'Module' };
         this._attributes = [];
         this._inputs = [];
-        for (const entry of Object.entries(layer)) {
-            const name = entry[0];
-            const value = entry[1];
+        for (const [name, value] of Object.entries(layer)) {
             if (flax.Utility.isTensor(value)) {
                 const tensor = new flax.Tensor(value);
                 const argument = new flax.Argument(name, [ new flax.Value(this._name + '.' + name, tensor) ]);

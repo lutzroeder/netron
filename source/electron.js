@@ -351,7 +351,7 @@ host.ElectronHost = class {
                         } else {
                             const match = error.stack.match(/.*\n\s*(.*)\s*/);
                             if (match) {
-                                stack = match[1];
+                                [, stack] = match;
                             }
                         }
                     }

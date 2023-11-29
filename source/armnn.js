@@ -9,12 +9,12 @@ armnn.ModelFactory = class {
         const extension = identifier.split('.').pop().toLowerCase();
         const stream = context.stream;
         if (stream && extension === 'armnn') {
-            return [ 'armnn.flatbuffers', stream ];
+            return { name: 'armnn.flatbuffers', value: stream };
         }
         if (extension === 'json') {
             const obj = context.peek('json');
             if (obj && obj.layers && obj.inputIds && obj.outputIds) {
-                return [ 'armnn.flatbuffers.json', obj ];
+                return { name: 'armnn.flatbuffers.json', value: obj };
             }
         }
         return undefined;
@@ -24,10 +24,10 @@ armnn.ModelFactory = class {
         await context.require('./armnn-schema');
         armnn.schema = flatbuffers.get('armnn').armnnSerializer;
         let model = null;
-        switch (target[0]) {
+        switch (target.name) {
             case 'armnn.flatbuffers': {
                 try {
-                    const stream = target[1];
+                    const stream = target.value;
                     const reader = flatbuffers.BinaryReader.open(stream);
                     model = armnn.schema.SerializedGraph.create(reader);
                 } catch (error) {
@@ -38,7 +38,7 @@ armnn.ModelFactory = class {
             }
             case 'armnn.flatbuffers.json': {
                 try {
-                    const obj = target[1];
+                    const obj = target.value;
                     const reader = flatbuffers.TextReader.open(obj);
                     model = armnn.schema.SerializedGraph.createText(reader);
                 } catch (error) {
@@ -172,16 +172,12 @@ armnn.Node = class {
         }
         if (layer.layer) {
             if (layer.layer.descriptor && this.type.attributes) {
-                for (const entry of Object.entries(layer.layer.descriptor)) {
-                    const name = entry[0];
-                    const value = entry[1];
+                for (const [name, value] of Object.entries(layer.layer.descriptor)) {
                     const attribute = new armnn.Attribute(metadata.attribute(type, name), name, value);
                     this.attributes.push(attribute);
                 }
             }
-            for (const entry of Object.entries(layer.layer).filter((entry) => entry[1] instanceof armnn.schema.ConstTensor)) {
-                const name = entry[0];
-                const tensor = entry[1];
+            for (const [name, tensor] of Object.entries(layer.layer).filter((entry) => entry[1] instanceof armnn.schema.ConstTensor)) {
                 const value = new armnn.Value('', tensor.info, new armnn.Tensor(tensor));
                 this.inputs.push(new armnn.Argument(name, [ value ]));
             }

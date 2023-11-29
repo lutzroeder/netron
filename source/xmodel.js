@@ -120,10 +120,9 @@ xmodel.Node = class {
         this.attributes = [];
         this.chain = [];
         if (op_node.op_attr) {
-            for (const entry of Object.entries(op_node.op_attr)) {
-                const name = entry[0];
+            for (const [name, obj] of Object.entries(op_node.op_attr)) {
                 if (name === 'device') {
-                    this.device = entry[1].string_value;
+                    this.device = obj.string_value;
                     continue;
                 }
                 if (name === 'workload') {
@@ -132,7 +131,7 @@ xmodel.Node = class {
                 if (name.startsWith('quant_in_') || name.startsWith('quant_out_')) {
                     continue;
                 }
-                const value = xmodel.Utility.attribute(entry[1]);
+                const value = xmodel.Utility.attribute(obj);
                 if (name === 'nonlinear' && value.value && value.value !== 'NONE' && value.value !== 0) {
                     let activation = value.value;
                     if (typeof activation === 'string') {
@@ -196,9 +195,8 @@ xmodel.TensorType = class {
         this.shape = new xmodel.TensorShape(tensor.tensor_dim);
         if (tensor.tensor_attr) {
             const attr = {};
-            for (const entry of Object.entries(tensor.tensor_attr)) {
-                const key = entry[0];
-                const value = entry[1][entry[1].value];
+            for (const [key, obj] of Object.entries(tensor.tensor_attr)) {
+                const value = obj[obj.value];
                 if (key.startsWith('quant_')) {
                     continue;
                 }
@@ -331,7 +329,7 @@ xmodel.Metadata = class {
             [ 'transposed-depthwise-conv2d-fix', 'Layer' ],
             [ 'upsample-fix', 'Data' ],
         ];
-        this._types = new Map(categories.map((entry) => [ entry[0], { name: entry[0], category: entry[1] } ]));
+        this._types = new Map(categories.map(([name, category]) => [ name, { name: name, category: category } ]));
         for (const op_def of op_defs) {
             const type = this._types.get(op_def.name) || { name: op_def.name };
             if (op_def.annotation) {

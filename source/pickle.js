@@ -72,8 +72,9 @@ pickle.Graph = class {
                 this.nodes.push(new pickle.Node(item));
             }
         } else if (obj && obj instanceof Map && !Array.from(obj.values()).some((value) => typeof value === 'string' || typeof value === 'number')) {
-            for (const entry of obj) {
-                this.nodes.push(new pickle.Node(entry[1], entry[0]));
+            for (const [name, value] of obj) {
+                const node = new pickle.Node(value, name);
+                this.nodes.push(node);
             }
         } else if (obj && obj.__class__) {
             this.nodes.push(new pickle.Node(obj));
@@ -96,9 +97,7 @@ pickle.Node = class {
             return obj && obj.__class__ && obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'ndarray';
         };
         const entries = obj instanceof Map ? Array.from(obj) : Object.entries(obj);
-        for (const entry of entries) {
-            const name = entry[0];
-            const value = entry[1];
+        for (const [name, value] of entries) {
             if (value && isArray(value)) {
                 const tensor = new pickle.Tensor(value);
                 const attribute = new pickle.Attribute(name, 'tensor', tensor);

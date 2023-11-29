@@ -3375,7 +3375,7 @@
     "name": "PersistentDTypeScalar",
     "attributes": [
       { "name": "dtype", "type": "DTypeEnum", "default": "Float32" },
-      { "name": "storage", "type": "uint8", "default": 0 }
+      { "name": "storage", "type": "uint8[]", "default": 0 }
     ]
   },
   {
@@ -3399,7 +3399,7 @@
     "name": "Dimshuffle",
     "category": "Shape",
     "attributes": [
-      { "name": "pattern", "type": "int32", "default": 0 },
+      { "name": "pattern", "type": "int32[]", "default": 0 },
       { "name": "ndim", "type": "uint32", "default": 0 }
     ]
   },
@@ -3413,7 +3413,7 @@
   {
     "name": "AxisAddRemove",
     "attributes": [
-      { "name": "desc", "type": "AxisDesc" }
+      { "name": "desc", "type": "AxisDesc[]" }
     ]
   },
   {
@@ -3437,7 +3437,7 @@
   {
     "name": "IndexDescMaskDump",
     "attributes": [
-      { "name": "items", "type": "IndexDescMaskItem" }
+      { "name": "items", "type": "IndexDescMaskItem[]" }
     ]
   },
   {

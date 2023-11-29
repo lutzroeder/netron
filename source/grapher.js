@@ -355,15 +355,15 @@ grapher.Node.Header = class {
 
     layout() {
         let x = this.width;
-        for (let i = this._entries.length - 1; i > 0; i--) {
+        for (let i = this._entries.length - 1; i >= 0; i--) {
             const entry = this._entries[i];
-            x -= entry.width;
-            entry.x = x;
-        }
-        if (this._entries.length > 0) {
-            const entry = this._entries[0];
-            entry.x = 0;
-            entry.width = x;
+            if (i > 0) {
+                x -= entry.width;
+                entry.x = x;
+            } else {
+                entry.x = 0;
+                entry.width = x;
+            }
         }
     }
 

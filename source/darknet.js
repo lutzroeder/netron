@@ -10,7 +10,7 @@ darknet.ModelFactory = class {
         if (extension === 'weights') {
             const weights = darknet.Weights.open(context.stream);
             if (weights) {
-                return [ 'darknet.weights', weights ];
+                return { name: 'darknet.weights', value: weights };
             }
             return undefined;
         }
@@ -26,7 +26,7 @@ darknet.ModelFactory = class {
                     continue;
                 }
                 if (content.startsWith('[') && content.endsWith(']')) {
-                    return [ 'darknet.model', context.stream ];
+                    return { name: 'darknet.model', value: context.stream };
                 }
                 return undefined;
             }
@@ -42,22 +42,24 @@ darknet.ModelFactory = class {
         const parts = identifier.split('.');
         parts.pop();
         const basename = parts.join('.');
-        switch (target[0]) {
+        switch (target.name) {
             case 'darknet.weights': {
+                const weights = target.value;
                 const name = basename + '.cfg';
                 const content = await context.fetch(name);
                 const buffer = content.stream.peek();
-                return new darknet.Model(metadata, buffer, target[1]);
+                return new darknet.Model(metadata, buffer, weights);
             }
             case 'darknet.model': {
+                const stream = target.value;
                 try {
                     const name = basename + '.weights';
                     const content = await context.fetch(name);
                     const weights = darknet.Weights.open(content.stream);
-                    const buffer = target[1].peek();
+                    const buffer = stream.peek();
                     return new darknet.Model(metadata, buffer, weights);
                 } catch (error) {
-                    const buffer = target[1].peek();
+                    const buffer = stream.peek();
                     return new darknet.Model(metadata, buffer, null);
                 }
             }

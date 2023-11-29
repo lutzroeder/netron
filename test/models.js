@@ -440,9 +440,9 @@ class Target {
         let sourceFiles = [];
         const match = sources.match(/^(.*?)\[(.*?)\](.*)$/);
         if (match) {
-            source = match[1];
-            sourceFiles = match[2].split(',').map((file) => file.trim());
-            sources = match[3] && match[3].startsWith(',') ? match[3].substring(1).trim() : '';
+            [, source, sourceFiles, sources] = match;
+            sourceFiles = sourceFiles.split(',').map((file) => file.trim());
+            sources = sources && sources.startsWith(',') ? sources.substring(1).trim() : '';
         } else {
             const commaIndex = sources.indexOf(',');
             if (commaIndex != -1) {

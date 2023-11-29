@@ -695,7 +695,7 @@ caffe.Utility = class {
         if (type) {
             caffe.Utility._enumKeyMap = caffe.Utility._enumKeyMap || new Map();
             if (!caffe.Utility._enumKeyMap.has(name)) {
-                const map = new Map(Object.entries(type).map((pair) => [ pair[1], pair[0] ]));
+                const map = new Map(Object.entries(type).map(([name, value]) => [ value, name ]));
                 caffe.Utility._enumKeyMap.set(name, map);
             }
             const map = caffe.Utility._enumKeyMap.get(name);

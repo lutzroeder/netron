@@ -102,9 +102,7 @@ mlir.Graph = class {
             };
             // TODO: convert attributes to proper types
             operation.attributes = op.attributes;
-            // for (const entry of Object.entries(op.attributes)) {
-            //     const key = entry[0];
-            //     const value = entry[1];
+            // for (const [key, value] of Object.entries(op.attributes)) {
             //     operation.attributes[key] = convertValue(value);
             // }
             for (let j = 0; j < (op.inputs ? op.inputs.length : 0); j++) {

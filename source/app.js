@@ -767,9 +767,7 @@ app.View = class {
     }
 
     update(data) {
-        for (const entry of Object.entries(data)) {
-            const name = entry[0];
-            const value = entry[1];
+        for (const [name, value] of Object.entries(data)) {
             switch (name) {
                 case 'path': {
                     if (value) {
@@ -1035,15 +1033,14 @@ app.MenuService = class {
 
     _updateLabel(view) {
         let rebuild = false;
-        for (const entry of this._commandTable.entries()) {
+        for (const [name, command] of this._commandTable.entries()) {
             if (this._menu) {
-                const menuItem = this._menu.getMenuItemById(entry[0]);
-                const command = entry[1];
+                const item = this._menu.getMenuItemById(name);
                 if (command && command.label) {
                     const label = command.label(view);
-                    if (label !== menuItem.label) {
-                        if (this._itemTable.has(entry[0])) {
-                            this._itemTable.get(entry[0]).label = label;
+                    if (label !== item.label) {
+                        if (this._itemTable.has(name)) {
+                            this._itemTable.get(name).label = label;
                             rebuild = true;
                         }
                     }
@@ -1054,12 +1051,11 @@ app.MenuService = class {
     }
 
     _updateEnabled(view) {
-        for (const entry of this._commandTable.entries()) {
+        for (const [name, command] of this._commandTable.entries()) {
             if (this._menu) {
-                const menuItem = this._menu.getMenuItemById(entry[0]);
-                const command = entry[1];
-                if (menuItem && command.enabled) {
-                    menuItem.enabled = command.enabled(view);
+                const item = this._menu.getMenuItemById(name);
+                if (item && command.enabled) {
+                    item.enabled = command.enabled(view);
                 }
             }
         }

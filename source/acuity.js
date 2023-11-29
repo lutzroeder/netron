@@ -68,10 +68,10 @@ acuity.Graph = class {
             });
         }
         acuity.Inference.infer(model.Layers);
-        for (const entry of values) {
-            const type = new acuity.TensorType(null, new acuity.TensorShape(entry[1].shape));
-            const value = new acuity.Value(entry[0], type, null, null);
-            values.set(entry[0], value);
+        for (const [name, obj] of values) {
+            const type = new acuity.TensorType(null, new acuity.TensorShape(obj.shape));
+            const value = new acuity.Value(name, type, null, null);
+            values.set(name, value);
         }
         for (const layerName of Object.keys(model.Layers)) {
             const layer = model.Layers[layerName];
@@ -241,9 +241,7 @@ acuity.Inference = class {
             'reduceany', 'reducemax', 'reducemean', 'reducemin', 'reduceprod', 'reducesum'
         ]);
         const operators = new Map();
-        operators.set('broadcast', (inputs) => {
-            const a = inputs[0];
-            const b = inputs[1];
+        operators.set('broadcast', ([a, b]) => {
             const longer = a.length >= b.length ? a.slice() : b.slice();
             const shorter = a.length < b.length ? a.slice() : b.slice();
             const remain = longer.length - shorter.length;
@@ -305,9 +303,7 @@ acuity.Inference = class {
             const newShape = params.return_sequences ? [ inputs[0][0], inputs[0][1], output ] : [ batch, output ];
             return [ newShape, [batch, output], [batch, params.weights] ];
         });
-        operators.set('matmul', (inputs, params) => {
-            const a = inputs[0];
-            const b = inputs[1];
+        operators.set('matmul', ([a, b], params) => {
             let newShape = a.slice(0, -2);
             if (params.transpose_a) {
                 newShape = newShape.concat(a.slice(-1));

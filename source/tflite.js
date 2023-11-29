@@ -60,8 +60,8 @@ tflite.ModelFactory = class {
                 try {
                     const archive = zip.Archive.open(stream);
                     if (archive) {
-                        for (const entry of archive.entries) {
-                            attachments.set(entry[0], entry[1]);
+                        for (const [name, value] of archive.entries) {
+                            attachments.set(name, value);
                         }
                     }
                 } catch (error) {
@@ -348,9 +348,7 @@ tflite.Node = class {
                                 this._attributes.push(attribute);
                                 decoded = true;
                             } else if (custom_options) {
-                                for (const pair of Object.entries(custom_options)) {
-                                    const key = pair[0];
-                                    const value = pair[1];
+                                for (const [key, value] of Object.entries(custom_options)) {
                                     const schema = metadata.attribute(type.name, key);
                                     const attribute = new tflite.Attribute(schema, key, value);
                                     this._attributes.push(attribute);
@@ -369,9 +367,7 @@ tflite.Node = class {
             }
             const options = node.builtin_options;
             if (options) {
-                for (const entry of Object.entries(options)) {
-                    const name = entry[0];
-                    const value = entry[1];
+                for (const [name, value] of Object.entries(options)) {
                     if (name === 'fused_activation_function' && value) {
                         const activationFunctionMap = { 1: 'Relu', 2: 'ReluN1To1', 3: 'Relu6', 4: 'Tanh', 5: 'SignBit' };
                         if (!activationFunctionMap[value]) {

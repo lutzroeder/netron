@@ -8,22 +8,23 @@ lightgbm.ModelFactory = class {
         const stream = context.stream;
         const signature = [ 0x74, 0x72, 0x65, 0x65, 0x0A ];
         if (stream && stream.length >= signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-            return [ 'lightgbm.text' ];
+            return { name: 'lightgbm.text', value: stream };
         }
         const obj = context.peek('pkl');
         if (obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__module__.startsWith('lightgbm.')) {
-            return [ 'lightgbm.pickle', obj ];
+            return { name: 'lightgbm.pickle', value: obj };
         }
         return null;
     }
 
     async open(context, target) {
-        switch (target[0]) {
+        switch (target.name) {
             case 'lightgbm.pickle': {
-                return new lightgbm.Model(target[1], 'LightGBM Pickle');
+                const obj = target.value;
+                return new lightgbm.Model(obj, 'LightGBM Pickle');
             }
             case 'lightgbm.text': {
-                const stream = context.stream;
+                const stream = target.value;
                 const buffer = stream.peek();
                 const decoder = new TextDecoder('utf-8');
                 const model_str = decoder.decode(buffer);
@@ -141,9 +142,7 @@ lightgbm.Node = class {
         this._outputs = [];
         this._attributes = [];
         this._inputs.push(new lightgbm.Argument('features', args));
-        for (const entry of Object.entries(model)) {
-            const key = entry[0];
-            const value = entry[1];
+        for (const [key, value] of Object.entries(model)) {
             if (value === undefined) {
                 continue;
             }

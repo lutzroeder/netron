@@ -78,13 +78,10 @@ coreml.ModelFactory = class {
             }
             const weightPaths = new Set();
             const walkProgram = (program) => {
-                for (const entry of Object.entries(program.functions)) {
-                    const func = entry[1];
-                    for (const entry of Object.entries(func.block_specializations)) {
-                        const block = entry[1];
+                for (const func of Object.values(program.functions)) {
+                    for (const block of Object.values(func.block_specializations)) {
                         for (const operation of block.operations) {
-                            for (const entry of Object.entries(operation.attributes)) {
-                                const value = entry[1];
+                            for (const value of Object.values(operation.attributes)) {
                                 if (value.blobFileValue && value.blobFileValue.fileName) {
                                     weightPaths.add(value.blobFileValue.fileName);
                                 }
@@ -266,8 +263,8 @@ coreml.Node = class {
             const values = argument.value.map((value) => value.obj);
             return new coreml.Argument(argument.name, argument.visible, values);
         });
-        this.attributes = Object.entries(obj.attributes).map((entry) => {
-            return new coreml.Attribute(metadata.attribute(obj.type, entry[0]), entry[0], entry[1]);
+        this.attributes = Object.entries(obj.attributes).map(([name, value]) => {
+            return new coreml.Attribute(metadata.attribute(obj.type, name), name, value);
         });
     }
 };
@@ -720,10 +717,9 @@ coreml.Transformer = class {
         };
         if (data) {
             const map = weights(type, data, initializers);
-            for (const entry of Object.entries(data)) {
-                const name = entry[0];
+            for (const [name, value] of Object.entries(data)) {
                 if (!map[name]) {
-                    obj.attributes[name] = entry[1];
+                    obj.attributes[name] = value;
                 }
             }
         }
@@ -1205,12 +1201,11 @@ coreml.Transformer = class {
                 type: op.type,
                 attributes: {}
             };
-            for (const entry of Object.entries(op.attributes)) {
-                const key = entry[0];
-                operation.attributes[key] = convertValue(entry[1]);
+            for (const [key, value] of Object.entries(op.attributes)) {
+                operation.attributes[key] = convertValue(value);
             }
-            operation.inputs = Object.entries(op.inputs).map((entry) => {
-                const args = entry[1].arguments.map((argument) => {
+            operation.inputs = Object.entries(op.inputs).map(([name, input]) => {
+                const args = input.arguments.map((argument) => {
                     if (argument.name) {
                         const value = this.input(argument.name);
                         value.to.push(operation);
@@ -1218,7 +1213,7 @@ coreml.Transformer = class {
                     }
                     return { value: argument.value };
                 });
-                return { name: entry[0], value: args };
+                return { name: name, value: args };
             });
             operation.outputs = op.outputs.map((output) => {
                 const value = this.input(output.name);
@@ -1322,7 +1317,7 @@ coreml.Utility = class {
         if (type) {
             coreml.Utility._enumKeyMap = coreml.Utility._enumKeyMap || new Map();
             if (!coreml.Utility._enumKeyMap.has(name)) {
-                const map = new Map(Object.entries(type).map((pair) => [ pair[1], pair[0] ]));
+                const map = new Map(Object.entries(type).map(([key, value]) => [ value, key ]));
                 coreml.Utility._enumKeyMap.set(name, map);
             }
             const map = coreml.Utility._enumKeyMap.get(name);
@@ -1403,7 +1398,7 @@ coreml.Utility = class {
 
     static tensorType(type) {
         if (!coreml.Utility._dataTypes) {
-            coreml.Utility._dataTypes = new Map(Object.entries(coreml.proto.MILSpec.DataType).map(((entry) => [entry[1], entry[0].toLowerCase()])));
+            coreml.Utility._dataTypes = new Map(Object.entries(coreml.proto.MILSpec.DataType).map((([key, value]) => [value, key.toLowerCase()])));
             coreml.Utility._dataTypes.delete(0);
             coreml.Utility._dataTypes.set(1, 'boolean');
         }
