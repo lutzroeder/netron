@@ -45,7 +45,8 @@ hailo.Graph = class {
             } else if (tensor) {
                 throw new hailo.Error("Duplicate value '" + name + "'.");
             } else if (type && !type.equals(args.get(name).type)) {
-                throw new hailo.Error("Duplicate value '" + name + "'.");
+                name = name + '\n';
+                arg(name, type, tensor);
             }
             return args.get(name);
         };
