@@ -212,13 +212,13 @@ const install = async () => {
     let exists = await access(node_modules);
     if (exists) {
         const dependencies = Object.assign({}, configuration.dependencies, configuration.devDependencies);
-        const matches = await Promise.all(Object.entries(dependencies).map(async (entry) => {
-            const file = path.join('node_modules', entry[0], 'package.json');
+        const matches = await Promise.all(Object.entries(dependencies).map(async ([name, version]) => {
+            const file = path.join('node_modules', name, 'package.json');
             const exists = await access(file);
             if (exists) {
                 const content = await fs.readFile(file, 'utf8');
                 const obj = JSON.parse(content);
-                return obj.version === entry[1];
+                return obj.version === version;
             }
             return false;
         }));

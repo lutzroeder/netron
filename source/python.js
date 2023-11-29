@@ -1589,8 +1589,8 @@ python.Execution = class {
             constructor(items) {
                 super();
                 if (items) {
-                    for (const pair of items) {
-                        this.__setitem__(pair[0], pair[1]);
+                    for (const [name, value] of items) {
+                        this.__setitem__(name, value);
                     }
                 }
             }
@@ -3535,10 +3535,10 @@ python.Execution = class {
                 _dill._reverse_typemap = new Map();
                 for (const name of [ '__builtin__', 'types' ]) {
                     const module = self.register(name);
-                    for (const entry of Object.entries(module)) {
-                        if (entry[1].__module__ === 'builtins' &&
-                            entry[1].__class__ === builtins.type) {
-                            _dill._reverse_typemap.set(entry[0], entry[1]);
+                    for (const [name, obj] of Object.entries(module)) {
+                        if (obj.__module__ === 'builtins' &&
+                        obj.__class__ === builtins.type) {
+                            _dill._reverse_typemap.set(name, obj);
                         }
                     }
                 }
@@ -4641,17 +4641,16 @@ python.Execution = class {
                 if (state.length != 2) {
                     throw new python.Error("Invalid serialized state: '" + state + "'.");
                 }
-                dict_state = state[0];
-                slots_state = state[1];
+                [dict_state, slots_state] = state;
             }
             if (dict_state) {
-                for (const entry of Object.entries(dict_state)) {
-                    execution.invoke('builtins.setattr', [ obj, entry[0], entry[1] ]);
+                for (const [name, value] of Object.entries(dict_state)) {
+                    execution.invoke('builtins.setattr', [ obj, name, value ]);
                 }
             }
             if (slots_state) {
-                for (const entry of Object.entries(slots_state)) {
-                    execution.invoke('builtins.setattr', [ obj, entry[0], entry[1] ]);
+                for (const [name, value] of Object.entries(slots_state)) {
+                    execution.invoke('builtins.setattr', [ obj, name, value ]);
                 }
             }
             return obj;
@@ -4756,9 +4755,7 @@ python.Execution = class {
             const obj = {};
             if (args) {
                 if (Array.isArray(args)) {
-                    for (const pair of args) {
-                        const key = pair[0];
-                        const value = pair[1];
+                    for (const [key, value] of args) {
                         obj[key] = value;
                     }
                 } else {
@@ -4919,8 +4916,7 @@ python.Execution = class {
                     const num_storages = unpickler.load();
                     for (let i = 0; i < num_storages; i++) {
                         const args = unpickler.load();
-                        const key = args[0];
-                        const storage_type = args[2];
+                        const [key, , storage_type] = args;
                         const obj = storage_type._new_with_file(unpickler);
                         deserialized_objects[key] = obj;
                     }
@@ -4948,8 +4944,7 @@ python.Execution = class {
                     };
                     for (let i = 0; i < num_tensors; i++) {
                         const args = unpickler.load();
-                        const key = args[0];
-                        const storage_id = args[1];
+                        const [key, storage_id] = args;
                         const storage = deserialized_objects[storage_id];
                         const ndim = int32(unpickler);
                         unpickler.read(4);
@@ -4984,16 +4979,12 @@ python.Execution = class {
                 unpickler.persistent_load = (saved_id) => {
                     switch (saved_id[0]) {
                         case 'module': {
-                            const module = saved_id[1];
-                            const source = saved_id[3];
+                            const [, module, ,source] = saved_id;
                             module_source_map.set(module, source);
                             return saved_id[1];
                         }
                         case 'storage': {
-                            const storage_type = saved_id[1];
-                            const key = saved_id[2];
-                            const size = saved_id[4];
-                            const view_metadata = saved_id[5];
+                            const [, storage_type, key, , size, view_metadata] = saved_id;
                             if (!deserialized_objects.has(key)) {
                                 const obj = new storage_type(size);
                                 deserialized_objects.set(key, obj);
@@ -5037,9 +5028,7 @@ python.Execution = class {
                 const persistent_load = (saved_id) => {
                     switch (saved_id[0]) {
                         case 'storage': {
-                            const storage_type = saved_id[1];
-                            const key = saved_id[2];
-                            const numel = saved_id[4];
+                            const [, storage_type, key, , numel] = saved_id;
                             if (!loaded_storages.has(key)) {
                                 const storage = new storage_type(numel);
                                 const name = 'data/' + key;
@@ -5815,8 +5804,8 @@ python.Execution = class {
             const program = this.parse(file);
             if (program) {
                 module.__file__ = file;
-                for (const entry of Object.entries(this.builtins)) {
-                    switch (entry[0]) {
+                for (const [name, value] of Object.entries(this.builtins)) {
+                    switch (name) {
                         case '__class__':
                         case '__package__':
                         case '__module__':
@@ -5825,7 +5814,7 @@ python.Execution = class {
                         case '__file__':
                             break;
                         default:
-                            module[entry[0]] = entry[1];
+                            module[name] = value;
                             break;
                     }
                 }
@@ -6080,7 +6069,7 @@ python.Execution = class {
                 if (statement.target.length == 1 &&
                     statement.variable.length === 1 && statement.variable[0].type === 'id') {
                     const range = this.expression(statement.target[0], context);
-                    const variable = statement.variable[0];
+                    const [variable] = statement.variable;
                     for (const current of range) {
                         this.statement({ type: '=', target: variable, expression: { type: 'number', value: current } }, context);
                         const value = this.block(statement.body.statements, context);

@@ -56,8 +56,7 @@ lasagne.Graph = class {
             return value;
         };
 
-        for (const pair of model.layers) {
-            const name = pair[0];
+        for (const [name] of model.layers) {
             const layer = model.layers_[name];
             if (layer && layer.__class__ && layer.__class__.__module__ === 'lasagne.layers.input' && layer.__class__.__name__ === 'InputLayer') {
                 const type = new lasagne.TensorType(layer.input_var.type.dtype, new lasagne.TensorShape(layer.shape));
@@ -167,8 +166,7 @@ lasagne.Node = class {
         }
 
         if (layer.params) {
-            for (const pair of layer.params) {
-                const param = pair[0];
+            for (const [param] of layer.params) {
                 const param_key = params.get(param.name);
                 if (param_key) {
                     const initializer = new lasagne.Tensor(param.container.storage[0]);

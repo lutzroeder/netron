@@ -255,8 +255,7 @@ openvino.Graph = class {
                     constants.set(from, { layer: layer, counter: 0 });
                 }
             }
-            for (const entry of Object.entries(edges)) {
-                const from = entry[1];
+            for (const from of Object.values(edges)) {
                 if (constants.has(from)) {
                     constants.get(from).counter++;
                 }
@@ -269,9 +268,9 @@ openvino.Graph = class {
                     }
                 }
             }
-            for (const entry of constants) {
-                if (entry[1].counter !== 1) {
-                    constants.delete(entry[0]);
+            for (const [name, value] of constants) {
+                if (value.counter !== 1) {
+                    constants.delete(name);
                 }
             }
             for (const layer of layers) {
@@ -378,8 +377,7 @@ openvino.Graph = class {
                 const to = layer.id + ':' + input.id;
                 if (body.edges[to]) {
                     const output = body.edges[to] ? body.edges[to].split(':') : [];
-                    const outputLayerId = output[0];
-                    const outputId = output[1];
+                    const [outputLayerId, outputId] = output;
                     const outputLayer = layers.get(outputLayerId);
                     if (outputLayer && outputId) {
                         const output = outputLayer.output.find((output) => output.id === outputId);
@@ -413,12 +411,11 @@ openvino.Graph = class {
         if (net.port_map) {
             const createMapLayer = (obj) => {
                 const data = {};
-                for (const entry of Object.entries(obj)) {
-                    const name = entry[0];
+                for (const [name, value] of Object.entries(obj)) {
                     if (name === 'external_port_id' || name === 'internal_layer_id' || name === 'internal_port_id') {
                         continue;
                     }
-                    data[name] = entry[1];
+                    data[name] = value;
                 }
                 const layer = {};
                 layer.type = '-';

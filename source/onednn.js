@@ -137,9 +137,7 @@ onednn.Node = class {
         this._location = node.id;
         const attrs = node.attrs;
         if (attrs) {
-            for (const entry of Object.entries(attrs)) {
-                const name = entry[0];
-                const value = entry[1];
+            for (const [name, value] of Object.entries(attrs)) {
                 this._attributes.push(new onednn.Attribute(name, value.type, value.value));
             }
         }

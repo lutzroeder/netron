@@ -52,13 +52,13 @@ flatc.Namespace = class extends flatc.Object {
                 child.resolve();
             }
             if (this.root_type.size > 0) {
-                for (const entry of this.root_type) {
-                    const type = this.find(entry[0], flatc.Type);
+                for (const [name, value] of this.root_type) {
+                    const type = this.find(name, flatc.Type);
                     if (!type) {
-                        throw new flatc.Error("Failed to resolve root type '" + entry[0] + "'.");
+                        throw new flatc.Error("Failed to resolve root type '" + name + "'.");
                     }
-                    if (entry[1]) {
-                        type.file_identifier = entry[1];
+                    if (value) {
+                        type.file_identifier = value;
                     }
                     this.root.root_type.add(type);
                 }
@@ -134,7 +134,7 @@ flatc.Enum = class extends flatc.Type {
                 }
                 index = this.values.get(key) + 1;
             }
-            this.keys = new Map(Array.from(this.values).map((pair) => [ pair[1], pair[0] ]));
+            this.keys = new Map(Array.from(this.values).map(([key, value]) => [ value, key ]));
             super.resolve();
         }
     }
@@ -156,12 +156,12 @@ flatc.Union = class extends flatc.Type {
                 }
                 index = this.values.get(key) + 1;
             }
-            const map = new Map();
-            for (const pair of this.values) {
-                const type = this.parent.find(pair[0], flatc.Type);
-                map.set(pair[1], type);
+            const values = new Map();
+            for (const [name, value] of this.values) {
+                const type = this.parent.find(name, flatc.Type);
+                values.set(value, type);
             }
-            this.values = map;
+            this.values = values;
             super.resolve();
         }
     }
@@ -637,7 +637,7 @@ flatc.Tokenizer = class {
 
         const boolean_constant = content.match(/^(true|false)/);
         if (boolean_constant) {
-            const content = boolean_constant[0];
+            const [content] = boolean_constant;
             return { type: 'boolean', token: content, value: content === 'true' };
         }
 
@@ -648,13 +648,13 @@ flatc.Tokenizer = class {
 
         const string_constant = content.match(/^".*?"/) || content.match(/^'.*?'/);
         if (string_constant) {
-            const content = string_constant[0];
+            const [content] = string_constant;
             return { type: 'string', token: content, value: content.substring(1, content.length - 1) };
         }
 
         const dec_float_constant = content.match(/^[-+]?(([.][0-9]+)|([0-9]+[.][0-9]*)|([0-9]+))([eE][-+]?[0-9]+)?/);
         if (dec_float_constant) {
-            const content = dec_float_constant[0];
+            const [content] = dec_float_constant;
             if (content.indexOf('.') !== -1 || content.indexOf('e') !== -1) {
                 return { type: 'float', token: content, value: parseFloat(content) };
             }
@@ -667,7 +667,7 @@ flatc.Tokenizer = class {
 
         const dec_integer_constant = content.match(/^[-+]?[0-9]+/);
         if (dec_integer_constant) {
-            const content = dec_integer_constant[0];
+            const [content] = dec_integer_constant;
             return { type: 'integer', token: content, value: parseInt(content, 10) };
         }
         const hex_integer_constant = content.match(/^[-+]?0[xX][0-9a-fA-F]+/);
@@ -1150,9 +1150,9 @@ flatc.Generator = class {
             this._builder.indent();
                 this._builder.add('switch (type) {');
                 this._builder.indent();
-                    for (const pair of type.values) {
-                        const valueType = '$root.' + pair[1].parent.name + '.' + pair[1].name;
-                        this._builder.add('case ' + pair[0] + ': return ' + valueType + '.decode(reader, position);');
+                    for (const [name, value] of type.values) {
+                        const valueType = '$root.' + value.parent.name + '.' + value.name;
+                        this._builder.add('case ' + name + ': return ' + valueType + '.decode(reader, position);');
                     }
                     this._builder.add('default: return undefined;');
                 this._builder.outdent();

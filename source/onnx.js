@@ -127,7 +127,7 @@ onnx.Model = class {
                     imports.set(domain, version);
                 }
             }
-            this._imports = Array.from(imports).map((entry) => entry[0] + ' v' + entry[1].toString());
+            this._imports = Array.from(imports).map(([name, version]) => name + ' v' + version.toString());
         }
         if (imports.size == 0) {
             imports.set('ai.onnx', 1);
@@ -163,9 +163,7 @@ onnx.Model = class {
             metadata.delete('license');
             metadata.delete('license_url');
             const imageMetadata = {};
-            for (const entry of metadata) {
-                const name = entry[0];
-                const value = entry[1];
+            for (const [ name, value ] of metadata) {
                 switch (name) {
                     case 'Image.BitmapPixelFormat':
                     case 'Image.ColorSpaceGamma':
@@ -545,14 +543,13 @@ onnx.Group = class {
         this._type = { name: 'Scope' };
         this._name = name;
         this._nodes = [];
-        for (const entry of groups) {
-            const key = entry[0];
+        for (const [key, value] of groups) {
             if (key === '') {
-                for (const node of entry[1]) {
+                for (const node of value) {
                     this._nodes.push(node);
                 }
             } else {
-                this._nodes.push(new onnx.Group(name === '' ? key : name + '/' + key, entry[1]));
+                this._nodes.push(new onnx.Group(name === '' ? key : name + '/' + key, value));
             }
         }
         const set = new Set();
@@ -1202,7 +1199,7 @@ onnx.GraphContext = class {
 
     constructor(context, nodes) {
         this._context = context;
-        this._dataTypes = new Map(Object.entries(onnx.DataType).map((entry) => [ entry[1], entry[0].toLowerCase() ]));
+        this._dataTypes = new Map(Object.entries(onnx.DataType).map(([name, value]) => [ value, name.toLowerCase() ]));
         this._dataTypes.set(onnx.DataType.UNDEFINED, 'undefined');
         this._dataTypes.set(onnx.DataType.BOOL, 'boolean');
         this._dataTypes.set(onnx.DataType.FLOAT, 'float32');
@@ -1438,14 +1435,14 @@ onnx.GraphContext = class {
     pop() {
         /*
         const nodes = [];
-        for (const entry of this._groups) {
-            if (entry[0] === '') {
-                for (const node of entry[1].get('')) {
+        for (const [name, value] of this._groups) {
+            if (name === '') {
+                for (const node of value.get('')) {
                     nodes.push(node);
                 }
                 continue;
             }
-            nodes.push(new onnx.Group(entry[0], entry[1]));
+            nodes.push(new onnx.Group(name, value));
         }
         return nodes;
         */
@@ -1462,9 +1459,7 @@ onnx.ProtoReader = class {
             if (tags.size === 1 && tags.get(1) === 2) {
                 const tags = context.tags('pb+');
                 const match = (tags, schema) => {
-                    for (const entry of schema) {
-                        const key = entry[0];
-                        const inner = entry[1];
+                    for (const [key, inner] of schema) {
                         const value = tags[key];
                         if (value === undefined) {
                             continue;
@@ -1499,14 +1494,14 @@ onnx.ProtoReader = class {
                 // TensorProto
                 if (tags.get(1) === 0 && tags.get(2) === 0) {
                     const schema = [[1,0],[2,0],[4,2],[5,2],[7,2],[8,2],[9,2]];
-                    if (schema.every((entry) => !tags.has(entry[0]) || tags.get(entry[0]) === entry[1])) {
+                    if (schema.every(([key, value]) => !tags.has(key) || tags.get(key) === value)) {
                         return new onnx.ProtoReader(context, 'binary', 'tensor');
                     }
                 }
                 // GraphProto
                 if (tags.get(1) === 2) {
                     const schema = [[1,2],[2,2],[3,2],[4,2],[5,2],[6,0],[7,0],[8,2],[9,2],[10,2],[11,2],[12,2],[13,2],[14,2]];
-                    if (schema.every((entry) => !tags.has(entry[0]) || tags.get(entry[0]) === entry[1])) {
+                    if (schema.every(([key, value]) => !tags.has(key) || tags.get(key) === value)) {
                         const decode = (buffer, value) => {
                             const reader = protobuf.BinaryReader.open(buffer);
                             const length = reader.length;
@@ -1535,7 +1530,7 @@ onnx.ProtoReader = class {
                 // ModelProto
                 if (tags.get(7) === 2) {
                     const schema = [[1,0],[2,2],[3,2],[4,2],[5,0],[6,2],[7,2],[8,2],[14,2],[20,2]];
-                    if (schema.every((entry) => !tags.has(entry[0]) || tags.get(entry[0]) === entry[1])) {
+                    if (schema.every(([key, value]) => !tags.has(key) || tags.get(key) === value)) {
                         return new onnx.ProtoReader(context, 'binary', 'model');
                     }
                 }
@@ -2107,8 +2102,8 @@ onnx.TextReader = class {
 
     constructor(context) {
         this._context = context;
-        this._dataTypes = new Map(Object.entries(onnx.DataType).map((entry) => [ entry[0].toLowerCase(), entry[1] ]));
-        this._attributeTypes = new Map(Object.entries(onnx.AttributeType).map((entry) => [ entry[0].toLowerCase(), entry[1] ]));
+        this._dataTypes = new Map(Object.entries(onnx.DataType).map(([key, value]) => [ key.toLowerCase(), value ]));
+        this._attributeTypes = new Map(Object.entries(onnx.AttributeType).map(([key, value]) => [ key.toLowerCase(), value ]));
     }
 
     async read() {

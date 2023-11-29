@@ -49,9 +49,9 @@ hailo.Graph = class {
             }
             return args.get(name);
         };
-        const layers = Object.entries(configuration.layers || {}).map((entry) => {
-            entry[1].name = entry[0];
-            return entry[1];
+        const layers = Object.entries(configuration.layers || {}).map(([ name, value ]) => {
+            value.name = name;
+            return value;
         });
         for (const layer of layers) {
             switch (layer.type) {
@@ -117,9 +117,7 @@ hailo.Node = class {
             return new hailo.Argument("input", [ arg(name, type) ]);
         });
         const layer_params = layer.params ? Object.entries(layer.params) : [];
-        const params_list = layer_params.reduce((acc, entry) => {
-            const name = entry[0];
-            const value = entry[1];
+        const params_list = layer_params.reduce((acc, [ name, value ]) => {
             const schema = metadata.attribute(layer.type, name) || {};
             if (schema.visible) {
                 const label = schema.label ? schema.label : name;
@@ -131,9 +129,8 @@ hailo.Node = class {
             }
             return acc;
         }, []);
-        const params_from_npz = Array.from(weights).filter((entry) => entry[1]).map((entry) => {
-            const name = entry[0];
-            const tensor = new hailo.Tensor(entry[1]);
+        const params_from_npz = Array.from(weights).filter((entry) => entry[1]).map(([ name, value ]) => {
+            const tensor = new hailo.Tensor(value);
             return new hailo.Argument(name, [ arg('', tensor.type, tensor) ]);
         });
         this.inputs = this.inputs.concat(params_list).concat(params_from_npz);
@@ -143,7 +140,7 @@ hailo.Node = class {
             return new hailo.Argument("output", [ arg(layer.name, type) ]);
         });
         const attrs = Object.assign(layer.params || {}, { original_names: layer.original_names || [] });
-        this.attributes = Object.entries(attrs).map((entry) => new hailo.Attribute(metadata.attribute(layer.type, entry[0]), entry[0], entry[1]));
+        this.attributes = Object.entries(attrs).map(([name, value]) => new hailo.Attribute(metadata.attribute(layer.type, name), name, value));
         this.chain = [];
         if (layer && layer.params && layer.params.activation && layer.params.activation !== 'linear' && layer.type !== 'activation') {
             const activation = {
@@ -299,8 +296,8 @@ hailo.Container = class {
                     'kernel', 'bias',
                     'input_activation_bits', 'output_activation_bits', 'weight_bits', 'bias_decomposition'
                 ]);
-                for (const entry of entries) {
-                    const key = entry[0].split('.').slice(0, -1).join('.');
+                for (const [name, value] of entries) {
+                    const key = name.split('.').slice(0, -1).join('.');
                     const match = key.match(/.*?(?=:[0-9])/);
                     if (match) {
                         const path = match[0].split('/');
@@ -310,7 +307,7 @@ hailo.Container = class {
                                 this.weights.set(layer, new Map());
                             }
                             const weights = this.weights.get(layer);
-                            weights.set(path[2], entry[1]);
+                            weights.set(path[2], value);
                         }
                     }
                 }

@@ -1050,10 +1050,10 @@ base.Telemetry = class {
                     params.engagement_time_msec = this._engagement_time_msec;
                     this._engagement_time_msec = 0;
                 }
-                const build = (entires) => entires.map((entry) => entry[0] + '=' + encodeURIComponent(entry[1])).join('&');
+                const build = (entires) => entires.map(([name, value]) => name + '=' + encodeURIComponent(value)).join('&');
                 this._cache = this._cache || build(Array.from(this._config));
                 const key = (name, value) => this._schema.get(name) || ('number' === typeof value && !isNaN(value) ? 'epn.' : 'ep.') + name;
-                const body = build(Object.entries(params).map((entry) => [ key(entry[0], entry[1]), entry[1] ]));
+                const body = build(Object.entries(params).map(([name, value]) => [ key(name, value), value ]));
                 const url = 'https://analytics.google.com/g/collect?' + this._cache;
                 this._navigator.sendBeacon(url, body);
                 this._session[2] = this.get('session_engaged') || '0';

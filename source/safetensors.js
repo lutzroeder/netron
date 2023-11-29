@@ -45,20 +45,20 @@ safetensors.Graph = class {
         this.outputs = [];
         this.nodes = [];
         const layers = new Map();
-        for (const entry of Object.entries(obj)) {
-            if (entry[0] === '__metadata__') {
+        for (const [key, value] of Object.entries(obj)) {
+            if (key === '__metadata__') {
                 continue;
             }
-            const parts = entry[0].split('.');
+            const parts = key[0].split('.');
             const name = parts.pop();
             const layer = parts.join('.');
             if (!layers.has(layer)) {
                 layers.set(layer, []);
             }
-            layers.get(layer).push([ name, entry[0], entry[1]]);
+            layers.get(layer).push([ name, key, value]);
         }
-        for (const entry of layers) {
-            this.nodes.push(new safetensors.Node(entry[0], entry[1], position, stream));
+        for (const [name, values] of layers) {
+            this.nodes.push(new safetensors.Node(name, values, position, stream));
         }
     }
 };

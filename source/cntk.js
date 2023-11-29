@@ -345,9 +345,7 @@ cntk.Node = class {
                 const type = obj.__type__;
                 this._type = metadata.type(type) || { name: type };
                 this._name = obj.name;
-                for (const entry of Object.entries(obj)) {
-                    const name = entry[0];
-                    const value = entry[1];
+                for (const [name, value] of Object.entries(obj)) {
                     if (name != '__type__' && name != 'name' && name != 'inputs' && name != 'precision') {
                         this._attributes.push(new cntk.Attribute(metadata.attribute(type, name), name, value));
                     }
@@ -374,8 +372,9 @@ cntk.Node = class {
                     }
                 }
                 if (obj.attributes) {
-                    for (const entry of Object.entries(obj.attributes)) {
-                        this._attributes.push(new cntk.Attribute(metadata.attribute(this._type, entry[0]), entry[0], entry[1]));
+                    for (const [name, value] of Object.entries(obj.attributes)) {
+                        const attribute = new cntk.Attribute(metadata.attribute(this._type, name), name, value);
+                        this._attributes.push(attribute);
                     }
                 }
                 inputs = obj.inputs.map((input) => arg(input, version));

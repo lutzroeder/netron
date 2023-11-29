@@ -80,11 +80,10 @@ sklearn.Model = class {
             }
             case 'sklearn.map':
             case 'scipy.map': {
-                for (const entry of Object.entries(obj)) {
-                    const obj = entry[1];
-                    this.graphs.push(new sklearn.Graph(metadata, entry[0], obj));
-                    if (obj._sklearn_version) {
-                        version.push(' v' + obj._sklearn_version.toString());
+                for (const [name, value] of Object.entries(obj)) {
+                    this.graphs.push(new sklearn.Graph(metadata, name, value));
+                    if (value._sklearn_version) {
+                        version.push(' v' + value._sklearn_version.toString());
                     }
                 }
                 break;
@@ -238,9 +237,7 @@ sklearn.Node = class {
             }
             return new sklearn.Attribute(name, value, type, visible);
         };
-        for (const entry of Object.entries(obj)) {
-            const name = entry[0];
-            const value = entry[1];
+        for (const [name, value] of Object.entries(obj)) {
             if (value && isArray(value)) {
                 const tensor = new sklearn.Tensor(value);
                 const attribute = createAttribute({ type: 'tensor' }, name, tensor);

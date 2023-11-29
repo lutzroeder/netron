@@ -36,9 +36,8 @@ view.View = class {
         try {
             await this._host.view(this);
             const options = this._host.get('options') || {};
-            for (const entry of Object.entries(options)) {
-                const name = entry[0];
-                this._options[name] = entry[1];
+            for (const [name, value] of Object.entries(options)) {
+                this._options[name] = value;
             }
             this._element('sidebar-button').addEventListener('click', () => {
                 this.showModelProperties();
@@ -309,10 +308,9 @@ view.View = class {
                 throw new view.Error("Unsupported toogle '" + name + "'.");
         }
         const options = {};
-        for (const entry of Object.entries(this._options)) {
-            const name = entry[0];
-            if (this._defaultOptions[name] !== entry[1]) {
-                options[name] = entry[1];
+        for (const [name, value] of Object.entries(this._options)) {
+            if (this._defaultOptions[name] !== value) {
+                options[name] = value;
             }
         }
         if (Object.entries(options).length == 0) {
@@ -1902,7 +1900,7 @@ view.Node = class extends grapher.Node {
             const list = this.list();
             list.on('click', () => this.context.activate(node));
             for (const argument of initializers) {
-                const value = argument.value[0];
+                const [value] = argument.value;
                 const type = value.type;
                 let shape = '';
                 let separator = '';
@@ -2906,7 +2904,7 @@ view.ConnectionSidebar = class extends view.ObjectSidebar {
         this._value = value;
         this._from = from;
         this._to = to;
-        const name = value.name.split('\n')[0];
+        const [name] = value.name.split('\n');
         this.addProperty('name', name);
         if (value.type) {
             const item = new view.ValueView(this._host, value, '');
@@ -4066,7 +4064,7 @@ view.Formatter = class {
         }
         this._values.add(value);
         let list = null;
-        const entries = Object.entries(value).filter((entry) => !entry[0].startsWith('__') && !entry[0].endsWith('__'));
+        const entries = Object.entries(value).filter(([name]) => !name.startsWith('__') && !name.endsWith('__'));
         if (entries.length == 1) {
             list = [ this._format(entries[0][1], null, true) ];
         } else {
@@ -4258,7 +4256,7 @@ markdown.Generator = class {
                         item = item.replace(new RegExp('^ {1,' + space + '}', 'gm'), '');
                     }
                     if (i !== length - 1) {
-                        const bullet = this._bulletRegExp.exec(itemMatch[i + 1])[0];
+                        const [bullet] = this._bulletRegExp.exec(itemMatch[i + 1]);
                         if (ordered ? bullet.length === 1 || (!parent && bullet[bullet.length - 1] === ')') : (bullet.length > 1)) {
                             const addBack = itemMatch.slice(i + 1).join('\n');
                             list.raw = list.raw.substring(0, list.raw.length - addBack.length);
@@ -4618,7 +4616,7 @@ markdown.Generator = class {
                 }
                 case 'code': {
                     const code = token.text;
-                    const language = (token.language || '').match(/\S*/)[0];
+                    const [language] = (token.language || '').match(/\S*/);
                     html += '<pre><code' + (language ? ' class="' + 'language-' + this._encode(language) + '"' : '') + '>' + (token.escaped ? code : this._encode(code)) + '</code></pre>\n';
                     continue;
                 }
@@ -4849,7 +4847,7 @@ view.Context = class {
                     match(buffer, [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ]) || // PyTorch
                     (type !== 'npz' && type !== 'zip' && match(buffer, [ 0x50, 0x4B, 0x03, 0x04 ])) || // Zip
                     (type !== 'hdf5' && match(buffer, [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ])) || // \x89HDF\r\n\x1A\n
-                    Array.from(this._tags).some((entry) => entry[0] !== 'flatbuffers' && entry[1].size > 0) ||
+                    Array.from(this._tags).some(([key, value]) => key !== 'flatbuffers' && value.size > 0) ||
                     Array.from(this._content.values()).some((obj) => obj !== undefined);
                 if (!skip) {
                     switch (type) {
@@ -4918,9 +4916,7 @@ view.Context = class {
                                     if (Array.isArray(saved_id) && saved_id.length > 3) {
                                         switch (saved_id[0]) {
                                             case 'storage': {
-                                                const storage_type = saved_id[1];
-                                                const key = saved_id[2];
-                                                const size = saved_id[4];
+                                                const [, storage_type, key, , size] = saved_id;
                                                 if (!storages.has(key)) {
                                                     const storage = new storage_type(size);
                                                     storages.set(key, storage);
@@ -5009,9 +5005,7 @@ view.Context = class {
                                 if (entries instanceof Map && entries.size > 0 &&
                                     Array.from(entries.keys()).every((name) => name.endsWith('.npy'))) {
                                     const execution = new python.Execution();
-                                    for (const entry of entries) {
-                                        const name = entry[0];
-                                        const stream = entry[1];
+                                    for (const [name, stream] of entries) {
                                         const buffer = stream.peek();
                                         const bytes = execution.invoke('io.BytesIO', [ buffer ]);
                                         const array = execution.invoke('numpy.load', [ bytes ]);
@@ -5071,7 +5065,7 @@ view.Context = class {
                 ];
                 const skip =
                     signatures.some((signature) => signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) ||
-                    (Array.from(this._tags).some((pair) => pair[0] !== 'flatbuffers' && pair[1].size > 0) && type !== 'pb+') ||
+                    (Array.from(this._tags).some(([key, value]) => key !== 'flatbuffers' && value.size > 0) && type !== 'pb+') ||
                     Array.from(this._content.values()).some((obj) => obj !== undefined) ||
                     (stream.length < 0x7ffff000 && json.TextReader.open(stream));
                 if (!skip && stream.length < 0x7ffff000) {
@@ -5145,10 +5139,10 @@ view.EntryContext = class {
         this._stream = stream;
         this._entries = new Map();
         if (entries) {
-            for (const entry of entries) {
-                if (entry[0].startsWith(rootFolder)) {
-                    const name = entry[0].substring(rootFolder.length);
-                    this._entries.set(name, entry[1]);
+            for (const [path, stream] of entries) {
+                if (path.startsWith(rootFolder)) {
+                    const name = path.substring(rootFolder.length);
+                    this._entries.set(name, stream);
                 }
             }
         }
@@ -5401,9 +5395,9 @@ view.ModelFactoryService = class {
                     }
                 }
                 const entries = [];
-                entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') === -1));
-                entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') !== -1));
-                const content = entries.map((pair) => pair[1] === true ? pair[0] : pair[0] + ':' + JSON.stringify(pair[1])).join(',');
+                entries.push(...Array.from(tags).filter(([key]) => key.toString().indexOf('.') === -1));
+                entries.push(...Array.from(tags).filter(([key]) => key.toString().indexOf('.') !== -1));
+                const content = entries.map(([key, value]) => value === true ? key : key + ':' + JSON.stringify(value)).join(',');
                 throw new view.Error("Unsupported Protocol Buffers text content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "'.");
             }
         };
@@ -5417,9 +5411,7 @@ view.ModelFactoryService = class {
                     { name: 'pblczero.Net data', tags: [[1,5],[2,2],[3,[[1,0],[2,0],[3,0]],[10,[[1,[]],[2,[]],[3,[]],[4,[]],[5,[]],[6,[]]]],[11,[]]]] } // https://github.com/LeelaChessZero/lczero-common/blob/master/proto/net.proto
                 ];
                 const match = (tags, schema) => {
-                    for (const pair of schema) {
-                        const key = pair[0];
-                        const inner = pair[1];
+                    for (const [key, inner] of schema) {
                         const value = tags[key];
                         if (value === undefined) {
                             continue;
@@ -5449,9 +5441,7 @@ view.ModelFactoryService = class {
                     }
                 }
                 const format = (tags) => {
-                    const content = Object.entries(tags).map((pair) => {
-                        const key = pair[0];
-                        const value = pair[1];
+                    const content = Object.entries(tags).map(([key, value]) => {
                         return key.toString() + ':' + (Object(value) === value ? '{' + format(value) + '}' : value.toString());
                     });
                     return content.join(',');
@@ -5568,8 +5558,8 @@ view.ModelFactoryService = class {
                 const folder = rotate(map).filter(equals).map(at(0)).join('/');
                 return folder.length === 0 ? folder : folder + '/';
             };
-            const list = Array.from(entries).map((entry) => {
-                return { name: entry[0], stream: entry[1] };
+            const list = Array.from(entries).map(([name, stream]) => {
+                return { name: name, stream: stream };
             });
             const files = list.filter((entry) => {
                 if (entry.name.endsWith('/')) {

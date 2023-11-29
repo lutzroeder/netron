@@ -50,8 +50,8 @@ numpy.ModelFactory = class {
             case 'npz': {
                 format = 'NumPy Zip';
                 const layers = new Map();
-                for (const entry of target.value) {
-                    const name = entry[0].replace(/\.npy$/, '');
+                for (const [key, array] of target.value) {
+                    const name = key.replace(/\.npy$/, '');
                     const parts = name.split('/');
                     const parameterName = parts.pop();
                     const groupName = parts.join('/');
@@ -59,7 +59,6 @@ numpy.ModelFactory = class {
                         layers.set(groupName, { name: groupName, parameters: [] });
                     }
                     const layer = layers.get(groupName);
-                    const array = entry[1];
                     layer.parameters.push({
                         name: parameterName,
                         tensor: { name: name, array: array }
@@ -85,9 +84,7 @@ numpy.ModelFactory = class {
                 if (Array.from(weights.keys()).every((key) => key.indexOf('_') > key.indexOf('.'))) {
                     separator = '_';
                 }
-                for (const pair of weights) {
-                    const name = pair[0];
-                    const value = pair[1];
+                for (const [name, value] of weights) {
                     if (name.endsWith('.__class__')) {
                         layer(name.substring(0, name.length - 10)).type = value;
                         continue;
@@ -119,9 +116,7 @@ numpy.ModelFactory = class {
                 format = 'dnnlib';
                 for (const obj of target.value) {
                     const layers = new Map();
-                    for (const entry of obj.variables) {
-                        const name = entry[0];
-                        const value = entry[1];
+                    for (const [name, value] of obj.variables) {
                         if (numpy.Utility.isTensor(value)) {
                             const parts = name.split('/');
                             const parameterName = parts.length > 1 ? parts.pop() : '?';
@@ -268,15 +263,13 @@ numpy.Utility = class {
             if (dict) {
                 const weights = new Map();
                 if (dict instanceof Map) {
-                    for (const pair of dict) {
-                        const key = pair[0];
-                        const obj = pair[1];
+                    for (const [key, obj] of dict) {
                         if (numpy.Utility.isTensor(obj)) {
                             weights.set(key, obj);
                             continue;
                         } else if (obj instanceof Map && Array.from(obj).every((pair) => numpy.Utility.isTensor(pair[1]))) {
-                            for (const pair of obj) {
-                                weights.set(key + '.' + pair[0], pair[1]);
+                            for (const [name, value] of obj) {
+                                weights.set(key + '.' + name, value);
                             }
                             continue;
                         } else if (key === '_metadata') {
@@ -287,9 +280,7 @@ numpy.Utility = class {
                     return weights;
                 } else if (!Array.isArray(dict)) {
                     const set = new Set([ 'weight_order', 'lr', 'model_iter', '__class__' ]);
-                    for (const entry of Object.entries(dict)) {
-                        const key = entry[0];
-                        const value = entry[1];
+                    for (const [key, value] of Object.entries(dict)) {
                         if (key) {
                             if (numpy.Utility.isTensor(value)) {
                                 weights.set(key, value);
@@ -303,7 +294,7 @@ numpy.Utility = class {
                                 if (value && value.__class__ && value.__class__.__module__ && value.__class__.__name__) {
                                     weights.set(name + '.__class__', value.__class__.__module__ + '.' + value.__class__.__name__);
                                 }
-                                for (const entry of Object.entries(value)) {
+                                for (const [entry] of Object.entries(value)) {
                                     weights.set(name + '.' + entry[0], entry[1]);
                                 }
                                 continue;
@@ -329,8 +320,8 @@ numpy.Utility = class {
                         weights.set(i.toString(), obj);
                         continue;
                     } else if (obj instanceof Map && Array.from(obj).every((pair) => numpy.Utility.isTensor(pair[1]))) {
-                        for (const pair of obj) {
-                            weights.set(i.toString() + '.' + pair[0], pair[1]);
+                        for (const [name, value] of obj) {
+                            weights.set(i.toString() + '.' + name, value);
                         }
                         continue;
                     }

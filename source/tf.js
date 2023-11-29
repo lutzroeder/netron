@@ -43,11 +43,9 @@ tf.ModelFactory = class {
             }
             const tags = context.tags('pb');
             if (tags.size > 0) {
-                if (Array.from(tags).every((pair) => pair[0] < 8 && pair[1] !== 5)) {
+                if (Array.from(tags).every(([key, value]) => key < 8 && value !== 5)) {
                     const match = (tags, schema) => {
-                        for (const pair of schema) {
-                            const key = pair[0];
-                            const inner = pair[1];
+                        for (const [key, inner] of schema) {
                             const value = tags[key];
                             if (value === undefined) {
                                 continue;
@@ -768,9 +766,9 @@ tf.Graph = class {
                 nodes.get(name).push({ name: tensorName, value: tensor });
             }
             const namespaces = new Set();
-            this._nodes = Array.from(nodes).map((entry) => {
-                const node = { op: 'Node', name: entry[0] };
-                return new tf.Node(metadata, node, namespaces, new tf.Context(), entry[1]);
+            this._nodes = Array.from(nodes).map(([name, value]) => {
+                const node = { op: 'Node', name: name };
+                return new tf.Node(metadata, node, namespaces, new tf.Context(), value);
             });
         }
     }
@@ -966,8 +964,8 @@ tf.Node = class {
                 this._device = node.device;
             }
             if (node.attr) {
-                this._attributes = Object.entries(node.attr).map((entry) => {
-                    return new tf.Attribute(metadata, node.op, entry[0], entry[1]);
+                this._attributes = Object.entries(node.attr).map(([name, value]) => {
+                    return new tf.Attribute(metadata, node.op, name, value);
                 });
             }
             let inputIndex = 0;
@@ -1458,9 +1456,8 @@ tf.TensorBundle = class {
                 const reader = protobuf.BinaryReader.open(buffer);
                 const header = tf.proto.tensorflow.SavedTensorSlices.decode(reader);
                 const data = new Map();
-                for (const pair of entries) {
-                    if (pair[0] !== '' && pair[0] !== 'global_step') {
-                        const buffer = pair[1];
+                for (const [name, buffer] of entries) {
+                    if (name !== '' && name !== 'global_step') {
                         const reader = protobuf.BinaryReader.open(buffer);
                         const slices = tf.proto.tensorflow.SavedTensorSlices.decode(reader);
                         const name = slices.data.name;
@@ -1560,8 +1557,8 @@ tf.TensorBundle.Table = class {
             const offset = valueReader.varint64();
             const size = valueReader.varint64();
             const block = new tf.TensorBundle.Table.Block(stream, offset, size);
-            for (const pair of block.entries) {
-                this.entries.set(pair[0], pair[1]);
+            for (const [name, value] of block.entries) {
+                this.entries.set(name, value);
             }
         }
         stream.seek(0);
@@ -1938,7 +1935,7 @@ tf.Context = class {
             node.controlDependencies = [];
             for (const input of inputs) {
                 const split = input.split(':', 3);
-                const input_name = split[0];
+                const [input_name] = split;
                 const input_index = split.length == 1 ? 0 : parseInt(split[split.length - 1]);
                 const from_name = input_name.startsWith('^') ? input_name.substring(1) : input_name;
                 const from = node_map.get(from_name);
@@ -2305,9 +2302,9 @@ tf.Utility = class {
     static dataType(type) {
         if (!tf.Utility._dataTypes) {
             const DataType = tf.proto.tensorflow.DataType;
-            const dataTypes = new Map(Object.entries(DataType).map((entry) => {
-                const key = entry[0].startsWith('DT_') ? entry[0].substring(3) : entry[0];
-                return [ entry[1], key.toLowerCase() ];
+            const dataTypes = new Map(Object.entries(DataType).map(([name, value]) => {
+                const key = name.startsWith('DT_') ? name.substring(3) : name;
+                return [ value, key.toLowerCase() ];
             }));
             dataTypes.set(DataType.DT_HALF, 'float16');
             dataTypes.set(DataType.DT_FLOAT, 'float32');
@@ -2321,7 +2318,7 @@ tf.Utility = class {
     static dataTypeKey(type) {
         if (!tf.Utility._dataTypeKeys) {
             tf.Utility.dataType(0);
-            tf.Utility._dataTypeKeys = new Map(Array.from(tf.Utility._dataTypes).map((entry) => [ entry[1], entry[0] ]));
+            tf.Utility._dataTypeKeys = new Map(Array.from(tf.Utility._dataTypes).map(([key, value]) => [ value, key ]));
         }
         return tf.Utility._dataTypeKeys.get(type);
     }
@@ -2349,8 +2346,8 @@ tf.JsonReader = class {
         }
         message.attr = {};
         if (json.attr) {
-            for (const entry of Object.entries(json.attr)) {
-                message.attr[entry[0]] = tf.JsonReader.decodeAttrValue(entry[1]);
+            for (const [name, value] of Object.entries(json.attr)) {
+                message.attr[name] = tf.JsonReader.decodeAttrValue(value);
             }
         }
         return message;
@@ -2362,7 +2359,7 @@ tf.JsonReader = class {
         if (keys.length !== 1) {
             throw new tf.Error("Unsupported JSON tensorflow.AttrValue '" + JSON.stringify(keys) + "'.");
         }
-        const key = keys[0];
+        const [key] = keys;
         const value = json[key];
         switch (key) {
             case 'type':
@@ -2465,8 +2462,8 @@ tf.JsonReader = class {
         message.signature = tf.JsonReader.decodeOpDef(json.signature);
         message.attr = {};
         if (json.attr) {
-            for (const entry of Object.entries(json.attr)) {
-                message.attr[entry[0]] = tf.JsonReader.decodeAttrValue(entry[1]);
+            for (const [name, value] of Object.entries(json.attr)) {
+                message.attr[name] = tf.JsonReader.decodeAttrValue(value);
             }
         }
         message.nodeDef = (json.nodeDef || []).map((json) => tf.JsonReader.decodeNodeDef(json));

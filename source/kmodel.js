@@ -196,9 +196,7 @@ kmodel.Node = class {
         this.chain = [];
         this.attributes = [];
         this.chain = [];
-        for (const entry of Object.entries(layer)) {
-            const name = entry[0];
-            const value = entry[1];
+        for (const [name, value] of Object.entries(layer)) {
             if (name === 'type' || name === 'location' || name === 'inputs' || name === 'outputs' || name === 'chain') {
                 continue;
             }

@@ -94,9 +94,7 @@ dlc.Graph = class {
                 break;
             }
         }
-        for (const entry of values) {
-            const name = entry[0];
-            const tensor = entry[1];
+        for (const [name, tensor] of values) {
             const type = tensor.shape ? new dlc.TensorType(tensor.dtype, tensor.shape) : null;
             const initializer = tensor.data && tensor.data ? new dlc.Tensor(type, tensor.data) : null;
             const value = new dlc.Value(name, type, initializer);
@@ -405,8 +403,8 @@ dlc.Container = class {
                     let list = true;
                     for (const attribute of attr.attributes) {
                         const name = attribute.name;
-                        const entry = updateAttribute(attribute);
-                        obj[name] = entry[1];
+                        const [, data] = updateAttribute(attribute);
+                        obj[name] = data;
                         list = list && index.toString() === attribute.name;
                         index++;
                     }
@@ -418,9 +416,9 @@ dlc.Container = class {
         };
         for (const node of model.nodes) {
             for (const attribute of node.attributes) {
-                const entry = updateAttribute(attribute);
-                attribute.type = entry[0];
-                attribute.data = entry[1];
+                const [type, data] = updateAttribute(attribute);
+                attribute.type = type;
+                attribute.data = data;
             }
         }
         return [ model ];

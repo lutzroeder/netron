@@ -440,8 +440,7 @@ megengine.Graph = class {
             return allOprAndTensor;
         };
         const allOprAndTensor = getAllOprAndTensor(obj.oprs);
-        for (const entry of allOprAndTensor) {
-            const op = entry[1];
+        for (const op of Array.from(allOprAndTensor.values())) {
             if (op.type === 'Host2DeviceCopy') {
                 const argument = new megengine.Argument('input', op.extraInfo.args);
                 this.inputs.push(argument);
@@ -526,9 +525,7 @@ megengine.Node = class {
                 this.outputs.push(argument);
             }
             if (item.param) {
-                for (const pair of Object.entries(item.param)) {
-                    const name = pair[0];
-                    const value = pair[1];
+                for (const [name, value] of Object.entries(item.param)) {
                     if (value !== null) {
                         const attribute = new megengine.Attribute(metadata.attribute(item.param.constructor.name, name), name, value);
                         this.attributes.push(attribute);

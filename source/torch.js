@@ -201,9 +201,7 @@ torch.Node = class {
         const type = module.__class__ ? module.__class__.__module__ + '.' + module.__class__.__name__ : 'nn.Module';
         this.type = metadata.type(type);
         let initializers = [];
-        for (const entry of Object.entries(module)) {
-            const key = entry[0];
-            const obj = entry[1];
+        for (const [key, obj] of Object.entries(module)) {
             if (obj && obj.__class__ && obj.__class__.__module__ === 'torch' && obj.__class__.__name__.endsWith('Storage')) {
                 module[key] = obj.data();
             }
@@ -298,9 +296,7 @@ torch.Node = class {
         }
         this.attributes = [];
         if (module.__class__) {
-            for (const entry of Object.entries(module)) {
-                const key = entry[0];
-                const obj = entry[1];
+            for (const [key, obj] of Object.entries(module)) {
                 if (key == '_type') {
                     continue;
                 }
@@ -906,9 +902,8 @@ torch.T7Reader = class {
         } else {
             const attributes = this.read();
             if (attributes != null) {
-                for (const entry of Object.entries(attributes)) {
-                    const key = entry[0];
-                    obj[key] = entry[1];
+                for (const [key, value] of Object.entries(attributes)) {
+                    obj[key] = value;
                 }
             }
         }

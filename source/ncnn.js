@@ -151,9 +151,7 @@ ncnn.Graph = class {
         };
         for (const layer of layers) {
             const attributes = layer.attributes;
-            for (const entry of attributes) {
-                const key = entry[0];
-                const list = entry[1];
+            for (const [key, list] of attributes) {
                 if (key === '30' && Array.isArray(list)) {
                     const value = list.map((item) => parseInt(item, 10));
                     for (const output of layer.outputs || []) {
@@ -545,9 +543,7 @@ ncnn.Node = class {
             }
         }
 
-        this._attributes = Array.from(attributes).map((attribute) => {
-            const key = attribute[0];
-            const value = attribute[1];
+        this._attributes = Array.from(attributes).map(([key, value]) => {
             const metadata = attributeMetadata[key];
             return new ncnn.Attribute(metadata, key, value);
         });

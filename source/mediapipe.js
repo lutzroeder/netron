@@ -75,9 +75,9 @@ mediapipe.Graph = class {
             node.output_side_packet = type(node.output_side_packet);
         }
         const values = new Map();
-        for (const entry of types) {
-            const type = Array.from(entry[1]).join(',');
-            values.set(entry[0], new mediapipe.Value(entry[0], type || null));
+        for (const [name, value] of types) {
+            const type = Array.from(value).join(',');
+            values.set(name, new mediapipe.Value(name, type || null));
         }
         const value = (name) => {
             return values.get(name);
@@ -156,21 +156,22 @@ mediapipe.Node = class {
                     }
                 }
                 const message = new mediapipe.Object(reader);
-                for (const entry of Object.entries(message)) {
-                    options.set(entry[0], entry[1]);
+                for (const [name, value] of Object.entries(message)) {
+                    options.set(name, value);
                 }
             }
         } else {
             for (const option of node_options) {
-                for (const entry of Object.entries(option)) {
-                    if (entry[0] !== '__type__') {
-                        options.set(entry[0], entry[1]);
+                for (const [name, value] of Object.entries(option)) {
+                    if (name !== '__type__') {
+                        options.set(name, value);
                     }
                 }
             }
         }
-        for (const pair of options) {
-            this.attributes.push(new mediapipe.Argument(pair[0], pair[1]));
+        for (const [name, value] of options) {
+            const attribute = new mediapipe.Argument(name, value);
+            this.attributes.push(attribute);
         }
     }
 };

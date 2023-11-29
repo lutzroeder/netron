@@ -105,11 +105,11 @@ protobuf.BinaryReader = class {
                                 } else if (!type) {
                                     tags[field] = inner;
                                 } else {
-                                    for (const pair of Object.entries(inner)) {
-                                        if (type[pair[0]] === 2 && pair[1] !== 2) {
+                                    for (const [key, value] of Object.entries(inner)) {
+                                        if (type[key] === 2 && value !== 2) {
                                             continue;
                                         }
-                                        type[pair[0]] = pair[1];
+                                        type[key] = value;
                                     }
                                 }
                                 continue;
@@ -155,11 +155,11 @@ protobuf.BinaryReader = class {
                                 } else if (!type) {
                                     tags[field] = inner;
                                 } else {
-                                    for (const pair of Object.entries(inner)) {
-                                        if (type[pair[0]] === 2 && pair[1] !== 2) {
+                                    for (const [name, value] of Object.entries(inner)) {
+                                        if (type[name] === 2 && value !== 2) {
                                             continue;
                                         }
-                                        type[pair[0]] = pair[1];
+                                        type[name] = value;
                                     }
                                 }
                                 continue;
