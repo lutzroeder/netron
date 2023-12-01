@@ -725,6 +725,16 @@ $root.executorch_flatbuffer.DataSegment = class DataSegment {
     }
 };
 
+$root.executorch_flatbuffer.SubsegmentOffsets = class SubsegmentOffsets {
+
+    static decode(reader, position) {
+        const $ = new $root.executorch_flatbuffer.SubsegmentOffsets();
+        $.segment_index = reader.uint32_(position, 4, 0);
+        $.offsets = reader.uint64s_(position, 6);
+        return $;
+    }
+};
+
 $root.executorch_flatbuffer.Program = class Program {
 
     static identifier(reader) {
@@ -742,6 +752,7 @@ $root.executorch_flatbuffer.Program = class Program {
         $.constant_buffer = reader.tableArray(position, 8, $root.executorch_flatbuffer.Buffer.decode);
         $.backend_delegate_data = reader.tableArray(position, 10, $root.executorch_flatbuffer.BackendDelegateInlineData.decode);
         $.segments = reader.tableArray(position, 12, $root.executorch_flatbuffer.DataSegment.decode);
+        $.constant_segment = reader.table(position, 14, $root.executorch_flatbuffer.SubsegmentOffsets.decode);
         return $;
     }
 };
