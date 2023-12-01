@@ -52,16 +52,8 @@ nnabla.ModelFactory = class {
 nnabla.Model = class {
 
     constructor(metadata, model, format) {
-        this._format = format;
-        this._graphs = [ new nnabla.Graph(metadata, model) ];
-    }
-
-    get format() {
-        return this._format;
-    }
-
-    get graphs() {
-        return this._graphs;
+        this.format = format;
+        this.graphs = [ new nnabla.Graph(metadata, model) ];
     }
 };
 
@@ -71,7 +63,6 @@ nnabla.Graph = class {
         const executor = model.executor[0]; // TODO: Multiple executors?
         const network_name = executor.network_name;
         const network = model.network.find((item) => item.name === network_name);
-
         const dataTypes = new Map(network.variable.map((item) => {
             const shape = new nnabla.TensorShape(item.shape.dim);
             const type = new nnabla.TensorType(item.type, shape);
@@ -81,23 +72,21 @@ nnabla.Graph = class {
             const name = item.variable_name;
             return [ name, new nnabla.Tensor(name, dataTypes.get(name), item.data) ];
         }));
-        const args = new Map();
-        const arg = (name) => {
-            if (!args.has(name)) {
-                args.set(name, new nnabla.Value(name, dataTypes.get(name), tensors.get(name)));
+        const values = new Map();
+        values.map = (name) => {
+            if (!values.has(name)) {
+                values.set(name, new nnabla.Value(name, dataTypes.get(name), tensors.get(name)));
             }
-            return args.get(name);
+            return values.get(name);
         };
-
-        this._inputs = executor.data_variable.map((item) => {
+        this.inputs = executor.data_variable.map((item) => {
             const name = item.variable_name;
-            return new nnabla.Argument(name, [ arg(name) ]);
+            return new nnabla.Argument(name, [ values.map(name) ]);
         });
-        this._outputs = executor.output_variable.map((item) => {
+        this.outputs = executor.output_variable.map((item) => {
             const name = item.variable_name;
-            return new nnabla.Argument(name, [ arg(name) ]);
+            return new nnabla.Argument(name, [ values.map(name) ]);
         });
-
         const get_parameters = (func) => {
             for (const [key, value] of Object.entries(func)) {
                 if (key.endsWith("_param")) {
@@ -107,8 +96,7 @@ nnabla.Graph = class {
 
             return undefined;
         };
-
-        this._nodes = network.function.map((func) => {
+        this.nodes = network.function.map((func) => {
             const parameters = get_parameters(func) || [];
             const attributes = Object.entries(parameters).map(([name, value]) => {
                 return new nnabla.Attribute(metadata, func.type, name, value);
@@ -118,7 +106,7 @@ nnabla.Graph = class {
             for (let index = 0; index < func.input.length;) {
                 const input = func_type.inputs && index < func_type.inputs.length ? func_type.inputs[index] : { name: index.toString() };
                 const count = input.list ? func.input.length - index : 1;
-                const args = func.input.slice(index, index + count).map((input) => arg(input));
+                const args = func.input.slice(index, index + count).map((input) => values.map(input));
                 inputs.push(new nnabla.Argument(input.name, args));
                 index += count;
             }
@@ -126,40 +114,20 @@ nnabla.Graph = class {
             for (let index = 0; index < func.output.length;) {
                 const output = func_type.outputs && index < func_type.outputs.length ? func_type.outputs[index] : { name: index.toString() };
                 const count = output.list ? func.output.length - index : 1;
-                const args = func.output.slice(index, index + count).map((output) => arg(output));
+                const args = func.output.slice(index, index + count).map((output) => values.map(output));
                 outputs.push(new nnabla.Argument(output.name, args));
                 index += count;
             }
             return new nnabla.Node(metadata, func, attributes, inputs, outputs);
         });
     }
-
-    get nodes() {
-        return this._nodes;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
 };
 
 nnabla.Argument = class {
 
     constructor(name, value) {
-        this._name = name;
-        this._value = value;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
+        this.name = name;
+        this.value = value;
     }
 };
 
@@ -193,12 +161,11 @@ nnabla.Value = class {
 nnabla.Node = class {
 
     constructor(metadata, func, attributes, inputs, outputs) {
-        this._name = func.name;
-        this._type = metadata.type(func.type) || { name: func.type, type: func.type };
-        this._attributes = attributes || [];
-        this._outputs = outputs || [];
-        this._chain = [];
-
+        this.name = func.name;
+        this.type = metadata.type(func.type) || { name: func.type, type: func.type };
+        this.attributes = attributes || [];
+        this.outputs = outputs || [];
+        this.chain = [];
         // TODO: "nonlinearity" does not match metadata type
         const get_nonlinearity = (name) => {
             switch (name) {
@@ -212,125 +179,69 @@ nnabla.Node = class {
                 default: return name;
             }
         };
-
         switch (func.type) {
             case "FusedConvolution": {
-                this._inputs = inputs.slice(0, 3) || [];
+                this.inputs = inputs.slice(0, 3) || [];
                 if (inputs.length > 3) {
-                    this._chain.push(new nnabla.Node(metadata, { name: func.name + "/bn", type: "BatchNormalization" }, [], inputs.slice(3, 7)));
+                    this.chain.push(new nnabla.Node(metadata, { name: func.name + "/bn", type: "BatchNormalization" }, [], inputs.slice(3, 7)));
                 }
                 if (inputs.length > 7) {
-                    this._chain.push(new nnabla.Node(metadata, { name: func.name + "/add", type: "Add2" }, [], inputs.slice(7)));
+                    this.chain.push(new nnabla.Node(metadata, { name: func.name + "/add", type: "Add2" }, [], inputs.slice(7)));
                 }
                 const type_a = attributes.find((item) => item.name === "nonlinearity").value;
-                this._chain.push(new nnabla.Node(metadata, { name: func.name + "/act", type: get_nonlinearity(type_a) }));
+                this.chain.push(new nnabla.Node(metadata, { name: func.name + "/act", type: get_nonlinearity(type_a) }));
                 break;
             }
             case "FusedBatchNormalization": {
-                this._inputs = inputs.slice(0, 5) || [];
+                this.inputs = inputs.slice(0, 5) || [];
                 if (inputs.length > 4) {
-                    this._chain.push(new nnabla.Node(metadata, { name: func.name + "/add", type: "Add2" }, [], inputs.slice(5)));
+                    this.chain.push(new nnabla.Node(metadata, { name: func.name + "/add", type: "Add2" }, [], inputs.slice(5)));
                 }
                 const type_b = attributes.find((item) => item.name === "nonlinearity").value;
-                this._chain.push(new nnabla.Node(metadata, { name: func.name + "/act", type: get_nonlinearity(type_b) }));
+                this.chain.push(new nnabla.Node(metadata, { name: func.name + "/act", type: get_nonlinearity(type_b) }));
                 break;
             }
             default: {
-                this._inputs = inputs || [];
+                this.inputs = inputs || [];
                 break;
             }
         }
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get attributes() {
-        return this._attributes;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get chain() {
-        return this._chain;
     }
 };
 
 nnabla.Attribute = class {
 
     constructor(metadata, type, name, value) {
-        this._name = name;
+        this.name = name;
         const attribute = metadata.attribute(type, name);
-        this._description = attribute.description;
+        this.description = attribute.description;
         switch (attribute.type) {
             case "shape":
-                this._type = "int64[]";
-                this._value = value.dim;
+                this.type = "int64[]";
+                this.value = value.dim;
                 break;
             default:
-                this._type = attribute.type;
-                this._value = value;
+                this.type = attribute.type;
+                this.value = value;
                 break;
         }
-        if (Object.prototype.hasOwnProperty.call(attribute, 'default') && this._value == attribute.default) {
-            this._visible = false;
+        if (Object.prototype.hasOwnProperty.call(attribute, 'default') && this.value == attribute.default) {
+            this.visible = false;
         }
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get description() {
-        return this._description;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get value() {
-        return this._value;
-    }
-
-    get visible() {
-        return this._visible == false ? false : true;
     }
 };
 
 nnabla.Tensor = class {
 
     constructor(name, type, values) {
-        this._name = name;
-        this._type = type;
+        this.name = name;
+        this.type = type;
+        this.encoding = '|';
         this._values = values;
     }
 
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get encoding() {
-        return '|';
-    }
-
     get values() {
-        const dataType = this._type.dataType;
+        const dataType = this.type.dataType;
         switch (dataType) {
             case 'float32': return new Float32Array(this._values);
             default: throw new nnabla.Error("Unsupported data type '" + dataType + "'.");
@@ -341,40 +252,24 @@ nnabla.Tensor = class {
 nnabla.TensorType = class {
 
     constructor(dataType, shape) {
-        this._dataType = "float32";
-        this._shape = shape;
-        this._denotation = null; // TODO
-    }
-
-    get dataType() {
-        return this._dataType;
-    }
-
-    get shape() {
-        return this._shape;
-    }
-
-    get denotation() {
-        return this._denotation;
+        this.dataType = "float32";
+        this.shape = shape;
+        this.denotation = null; // TODO
     }
 
     toString() {
-        return this._dataType + this._shape.toString();
+        return this.dataType + this.shape.toString();
     }
 };
 
 nnabla.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = dimensions;
-    }
-
-    get dimensions() {
-        return this._dimensions;
+        this.dimensions = dimensions;
     }
 
     toString() {
-        return (this._dimensions && this._dimensions.length) ? ('[' + this._dimensions.join(',') + ']') : '';
+        return (this.dimensions && this.dimensions.length) ? ('[' + this.dimensions.join(',') + ']') : '';
     }
 };
 

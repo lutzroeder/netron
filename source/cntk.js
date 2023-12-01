@@ -137,36 +137,39 @@ cntk.Graph = class {
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
-        const args = new Map();
-        const arg = (name, version, obj) => {
-            if (obj && args.has(name)) {
+        const values = new Map();
+        values.map = (name, version, obj) => {
+            if (obj && values.has(name)) {
                 throw new cntk.Error("Duplicate value '" + name + "'.");
             }
-            if (!args.has(name)) {
+            if (!values.has(name)) {
                 switch (version) {
                     case 1:
-                        args.set(name, new cntk.Value(version, obj ? obj : { name: name }));
+                        values.set(name, new cntk.Value(version, obj ? obj : { name: name }));
                         break;
                     case 2:
-                        args.set(name, new cntk.Value(version, obj ? obj : { uid: name }));
+                        values.set(name, new cntk.Value(version, obj ? obj : { uid: name }));
                         break;
                     default:
                         throw new cntk.Error("Unsupported CNTK version '" + version + "'.");
                 }
             }
-            return args.get(name);
+            return values.get(name);
         };
         switch (version) {
             case 1: {
                 for (const name of Object.keys(obj.nodes)) {
                     const node = obj.nodes[name];
                     switch (node.__type__) {
-                        case 'InputValue':
-                            this._inputs.push(new cntk.Argument(node.name, [ arg(node.name, version, node) ]));
+                        case 'InputValue': {
+                            const argument = new cntk.Argument(node.name, [ values.map(node.name, version, node) ]);
+                            this._inputs.push(argument);
                             break;
-                        case 'LearnableParameter':
-                            arg(node.name, version, node);
+                        }
+                        case 'LearnableParameter': {
+                            values.map(node.name, version, node);
                             break;
+                        }
                         default:
                             break;
                     }
@@ -174,12 +177,13 @@ cntk.Graph = class {
                 for (const name of Object.keys(obj.nodes)) {
                     const node = obj.nodes[name];
                     if (node.__type__ != 'InputValue' && node.__type__ != 'LearnableParameter') {
-                        this._nodes.push(new cntk.Node(metadata, version, node, arg));
+                        this._nodes.push(new cntk.Node(metadata, version, node, values));
                     }
                 }
                 if (obj.output) {
                     for (const output of obj.output) {
-                        this._outputs.push(new cntk.Argument(output, [ arg(output, version) ]));
+                        const argument = new cntk.Argument(output, [ values.map(output, version) ]);
+                        this._outputs.push(argument);
                     }
                 }
                 break;
@@ -187,7 +191,7 @@ cntk.Graph = class {
             case 2: {
                 const map = new Map(obj.primitive_functions.map((node) => [ node.uid, node ]));
                 for (const input of obj.inputs) {
-                    const value = arg(input.uid, version, input);
+                    const value = values.map(input.uid, version, input);
                     // VariableKind { 0: 'input', 1: 'output', 2: 'parameter', 3: 'constant', 4: 'placeholder' }
                     if (input.kind == 0) {
                         const inputName = input.name || input.uid;
@@ -199,19 +203,19 @@ cntk.Graph = class {
                         const list = [ block.block_function_composite.root ];
                         const output = map.get(block.block_function_composite.root);
                         const keys = block.block_function_composite_arguments_map_keys;
-                        const values = block.block_function_composite_arguments_map_values;
-                        block.inputs = values;
-                        if (!Array.isArray(keys) || !Array.isArray(values) || keys.length !== values.length) {
+                        const args = block.block_function_composite_arguments_map_values;
+                        block.inputs = args;
+                        if (!Array.isArray(keys) || !Array.isArray(args) || keys.length !== args.length) {
                             throw new cntk.Error('Invalid block function composite arguments.');
                         }
-                        const inputs = keys.map((key) => new cntk.Argument(key, [ arg(key, version) ]));
-                        const outputs = [ new cntk.Argument('output', [ arg(output.uid + '_Output_0', version) ]) ];
+                        const inputs = keys.map((key) => new cntk.Argument(key, [ values.map(key, version) ]));
+                        const outputs = [ new cntk.Argument('output', [ values.map(output.uid + '_Output_0', version) ]) ];
                         const nodes = [];
                         while (list.length > 0) {
                             const name = list.shift();
                             if (map.has(name)) {
                                 const node = map.get(name);
-                                nodes.push(new cntk.Node(metadata, version, node, arg));
+                                nodes.push(new cntk.Node(metadata, version, node, values));
                                 map.delete(name);
                                 for (let i = 0; i < node.inputs.length; i++) {
                                     const parts = node.inputs[i].split('_');
@@ -229,7 +233,7 @@ cntk.Graph = class {
                     }
                 }
                 for (const node of map.values()) {
-                    this._nodes.push(new cntk.Node(metadata, version, node, arg));
+                    this._nodes.push(new cntk.Node(metadata, version, node, values));
                 }
                 break;
             }
@@ -334,7 +338,7 @@ cntk.Value = class {
 
 cntk.Node = class {
 
-    constructor(metadata, version, obj, arg) {
+    constructor(metadata, version, obj, values) {
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
@@ -350,8 +354,8 @@ cntk.Node = class {
                         this._attributes.push(new cntk.Attribute(metadata.attribute(type, name), name, value));
                     }
                 }
-                inputs = obj.inputs.map((input) => arg(input, version));
-                outputs = [ arg(this._name, version) ];
+                inputs = obj.inputs.map((input) => values.map(input, version));
+                outputs = [ values.map(this._name, version) ];
                 break;
             }
             case 2: {
@@ -377,8 +381,8 @@ cntk.Node = class {
                         this._attributes.push(attribute);
                     }
                 }
-                inputs = obj.inputs.map((input) => arg(input, version));
-                outputs.push(arg(output + '_Output_0', version));
+                inputs = obj.inputs.map((input) => values.map(input, version));
+                outputs.push(values.map(output + '_Output_0', version));
                 break;
             }
             default: {

@@ -274,21 +274,21 @@ caffe2.Graph = class {
             });
             index++;
         }
-        const args = new Map();
-        const arg = (name, type, tensor) => {
-            if (!args.has(name)) {
-                args.set(name, new caffe2.Value(name, type || null, tensor || null));
+        const values = new Map();
+        values.map = (name, type, tensor) => {
+            if (!values.has(name)) {
+                values.set(name, new caffe2.Value(name, type || null, tensor || null));
             } else if (type || tensor) {
                 throw new caffe2.Value("Duplicate value '" + name + "'.");
             }
-            return args.get(name);
+            return values.get(name);
         };
         for (const op of netDef.op) {
             let index = 0;
             for (const name of op.input) {
                 if (index > 0 && tensors.has(name)) {
-                    if (!args.has(name)) {
-                        args.set(name, new caffe2.Value(name, null, tensors.get(name)));
+                    if (!values.has(name)) {
+                        values.set(name, new caffe2.Value(name, null, tensors.get(name)));
                     }
                     initializers.add(name);
                 }
@@ -305,7 +305,7 @@ caffe2.Graph = class {
         let lastNode = null;
         let lastOutput = null;
         for (const op of netDef.op) {
-            const node = new caffe2.Node(metadata, op, arg);
+            const node = new caffe2.Node(metadata, op, values);
             if (op.input.length == 1 &&
                 op.output.length >= 1 &&
                 op.input[0].split('\n').shift() == op.output[0].split('\n').shift() &&
@@ -327,11 +327,13 @@ caffe2.Graph = class {
             if (netDef.external_input.length > 1 && initializers.has(input)) {
                 continue;
             }
-            this._inputs.push(new caffe2.Argument(input, [ arg(input) ]));
+            const argument = new caffe2.Argument(input, [ values.map(input) ]);
+            this._inputs.push(argument);
         }
         this._outputs = [];
         for (const output of netDef.external_output) {
-            this._outputs.push(new caffe2.Argument(output, [ arg(output) ]));
+            const argument = new caffe2.Argument(output, [ values.map(output) ]);
+            this._outputs.push(argument);
         }
     }
 
@@ -408,7 +410,7 @@ caffe2.Value = class {
 
 caffe2.Node = class {
 
-    constructor(metadata, op, arg) {
+    constructor(metadata, op, values) {
         this._name = op.name || '';
         this._device = op.engine || '';
         this._metadata = metadata;
@@ -423,7 +425,7 @@ caffe2.Node = class {
             for (const inputDef of this._type.inputs) {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     const inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
-                    const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => arg(id));
+                    const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => values.map(id));
                     this._inputs.push(new caffe2.Argument(inputDef.name, inputArguments));
                     inputIndex += inputCount;
                 }
@@ -431,7 +433,7 @@ caffe2.Node = class {
         } else {
             this._inputs.push(...inputs.slice(inputIndex).map((input, index) => {
                 const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
-                return new caffe2.Argument(inputName, [ arg(input) ]);
+                return new caffe2.Argument(inputName, [ values.map(input) ]);
             }));
         }
         this._outputs = [];
@@ -440,7 +442,7 @@ caffe2.Node = class {
             for (const outputDef of this._type.outputs) {
                 if (outputIndex < outputs.length || outputDef.option != 'optional') {
                     const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
-                    const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => arg(id));
+                    const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => values.map(id));
                     this._outputs.push(new caffe2.Argument(outputDef.name, outputArguments));
                     outputIndex += outputCount;
                 }
@@ -448,7 +450,7 @@ caffe2.Node = class {
         } else {
             this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
                 const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
-                return new caffe2.Argument(outputName, [ arg(output) ]);
+                return new caffe2.Argument(outputName, [ values.map(output) ]);
             }));
         }
     }

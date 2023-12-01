@@ -35,19 +35,19 @@ hailo.Graph = class {
         this.inputs = [];
         this.outputs = [];
         this.nodes = [];
-        const args = new Map();
-        const arg = (name, type, tensor) => {
+        const values = new Map();
+        values.map = (name, type, tensor) => {
             if (name.length === 0 && tensor) {
                 return new hailo.Value(name, type || null, tensor);
             }
-            if (!args.has(name)) {
-                args.set(name, new hailo.Value(name, type || null, tensor || null));
+            if (!values.has(name)) {
+                values.set(name, new hailo.Value(name, type || null, tensor || null));
             } else if (tensor) {
                 throw new hailo.Error("Duplicate value '" + name + "'.");
-            } else if (type && !type.equals(args.get(name).type)) {
+            } else if (type && !type.equals(values.get(name).type)) {
                 throw new hailo.Error("Duplicate value '" + name + "'.");
             }
-            return args.get(name);
+            return values.get(name);
         };
         const layers = Object.entries(configuration.layers || {}).map(([ name, value ]) => {
             value.name = name;
@@ -59,7 +59,7 @@ hailo.Graph = class {
                 case 'const_input': {
                     const shape = Array.isArray(layer.output_shapes) && layer.output_shapes.length > 0 ? layer.output_shapes[0] : null;
                     const type = shape ? new hailo.TensorType('?', new hailo.TensorShape(shape)) : null;
-                    const argument = new hailo.Argument('input', [ arg(layer.name, type) ]);
+                    const argument = new hailo.Argument('input', [ values.map(layer.name, type) ]);
                     this.inputs.push(argument);
                     break;
                 }
@@ -67,13 +67,13 @@ hailo.Graph = class {
                     for (let i = 0; i < layer.input.length; i++) {
                         const shape = Array.isArray(layer.input_shapes) && layer.input_shapes.length > 0 ? layer.input_shapes[i] : null;
                         const type = shape ? new hailo.TensorType('?', new hailo.TensorShape(shape)) : null;
-                        const argument = new hailo.Argument('output', [ arg(layer.input[i], type) ]);
+                        const argument = new hailo.Argument('output', [ values.map(layer.input[i], type) ]);
                         this.outputs.push(argument);
                     }
                     break;
                 }
                 default: {
-                    const node = new hailo.Node(metadata, layer, arg, weights.get(layer.name));
+                    const node = new hailo.Node(metadata, layer, values, weights.get(layer.name));
                     this.nodes.push(node);
                     break;
                 }
@@ -104,7 +104,7 @@ hailo.Value = class {
 
 hailo.Node = class {
 
-    constructor(metadata, layer, arg, weights) {
+    constructor(metadata, layer, values, weights) {
         weights = weights || new Map();
         this.name = layer.name || '';
         this.type = metadata.type(layer.type);
@@ -114,7 +114,7 @@ hailo.Node = class {
         this.inputs = layer.input.map((name, index) => {
             const shape = layer.input_shapes ? layer.input_shapes[index] : null;
             const type = shape ? new hailo.TensorType('?', new hailo.TensorShape(shape)) : null;
-            return new hailo.Argument("input", [ arg(name, type) ]);
+            return new hailo.Argument("input", [ values.map(name, type) ]);
         });
         const layer_params = layer.params ? Object.entries(layer.params) : [];
         const params_list = layer_params.reduce((acc, [ name, value ]) => {
@@ -124,20 +124,20 @@ hailo.Node = class {
                 if (!weights.has(label)) {
                     const array = weights.get(label);
                     const tensor = new hailo.Tensor(array, value);
-                    acc.push(new hailo.Argument(label, [ arg('', tensor.type, tensor) ]));
+                    acc.push(new hailo.Argument(label, [ values.map('', tensor.type, tensor) ]));
                 }
             }
             return acc;
         }, []);
         const params_from_npz = Array.from(weights).filter((entry) => entry[1]).map(([ name, value ]) => {
             const tensor = new hailo.Tensor(value);
-            return new hailo.Argument(name, [ arg('', tensor.type, tensor) ]);
+            return new hailo.Argument(name, [ values.map('', tensor.type, tensor) ]);
         });
         this.inputs = this.inputs.concat(params_list).concat(params_from_npz);
         this.outputs = (layer.output || []).map((_, index) => {
             const shape = layer.output_shapes ? layer.output_shapes[index] : null;
             const type = shape ? new hailo.TensorType('?', new hailo.TensorShape(shape)) : null;
-            return new hailo.Argument("output", [ arg(layer.name, type) ]);
+            return new hailo.Argument("output", [ values.map(layer.name, type) ]);
         });
         const attrs = Object.assign(layer.params || {}, { original_names: layer.original_names || [] });
         this.attributes = Object.entries(attrs).map(([name, value]) => new hailo.Attribute(metadata.attribute(layer.type, name), name, value));
@@ -149,7 +149,7 @@ hailo.Node = class {
                 input: [],
                 output: []
             };
-            const node = new hailo.Node(metadata, activation, arg);
+            const node = new hailo.Node(metadata, activation, values.map);
             this.chain.push(node);
         }
     }

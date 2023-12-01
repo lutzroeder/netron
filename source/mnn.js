@@ -40,6 +40,7 @@ mnn.ModelFactory = class {
 mnn.Model = class {
 
     constructor(metadata, net) {
+        this.format = 'MNN v2';
         const sources = new Map([
             [ mnn.schema.NetSource.CAFFE, 'Caffe' ],
             [ mnn.schema.NetSource.TENSORFLOW, 'TensorFlow' ],
@@ -50,31 +51,20 @@ mnn.Model = class {
         if (!sources.has(net.sourceType)) {
             throw new mnn.Error("Unsupported model source '" + net.sourceType + "'.");
         }
-        this._metadata = [
+        this.metadata = [
             { name: 'source', value: sources.get(net.sourceType) }
         ];
-        this._graphs = [ new mnn.Graph(metadata, net) ];
-    }
-
-    get format() {
-        return 'MNN v2';
-    }
-
-    get metadata() {
-        return this._metadata;
-    }
-
-    get graphs() {
-        return this._graphs;
+        this.graphs = [ new mnn.Graph(metadata, net) ];
     }
 };
 
 mnn.Graph = class {
 
     constructor(metadata, net) {
-        this._nodes = [];
-        this._inputs = [];
-        this._outputs = [];
+        this.name = '';
+        this.nodes = [];
+        this.inputs = [];
+        this.outputs = [];
         for (let i = 0; i < net.tensorName.length; i++) {
             if (net.tensorName[i] === '') {
                 net.tensorName[i] = '\n' + i.toString();
@@ -98,74 +88,62 @@ mnn.Graph = class {
             }
             return true;
         });
-        const args = new Map();
-        const arg = (index) => {
-            if (!args.has(index)) {
+        const values = new Map();
+        values.map = (index) => {
+            if (!values.has(index)) {
                 const name = net.tensorName[index];
                 const op = consts.get(index);
                 if (op) {
                     const tensor = op ? mnn.Utility.createTensor(op.main, 'Const') : null;
-                    args.set(index, new mnn.Value(name, null, tensor));
+                    values.set(index, new mnn.Value(name, null, tensor));
                 } else {
                     const extraTensorDescribe = net.extraTensorDescribe[index];
                     const blob = extraTensorDescribe ? extraTensorDescribe.blob : null;
                     const type = blob && blob.dims && blob.dims.length > 0 ? new mnn.TensorType(blob.dataType, new mnn.TensorShape(blob.dims), blob.dataFormat) : null;
-                    args.set(index, new mnn.Value(name, type, null));
+                    values.set(index, new mnn.Value(name, type, null));
                 }
             }
-            return args.get(index);
+            return values.get(index);
         };
 
         for (const op of oplists) {
             if (op.type === mnn.schema.OpType.Input) {
-                const args = Array.from(op.outputIndexes).map((index) => arg(index));
-                this._inputs.push(new mnn.Argument(op.name, args));
+                const args = Array.from(op.outputIndexes).map((index) => values.map(index));
+                const argument = new mnn.Argument(op.name, args);
+                this.inputs.push(argument);
             } else {
-                this._nodes.push(new mnn.Node(metadata, op, net, arg));
+                const node = new mnn.Node(metadata, op, net, values);
+                this.nodes.push(node);
             }
         }
 
         for (let i = 0; i < net.tensorName.length; i++) {
             if (!inputs.has(i)) {
-                const value = arg(i);
+                const value = values.map(i);
                 const argument = new mnn.Argument(value.name, [ value ]);
-                this._outputs.push(argument);
+                this.outputs.push(argument);
             }
         }
-    }
-
-    get name() {
-        return '';
-    }
-
-    get nodes() {
-        return this._nodes;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get inputs() {
-        return this._inputs;
     }
 };
 
 mnn.Node = class {
 
-    constructor(metadata, op, net, arg) {
+    constructor(metadata, op, net, values) {
         const type = mnn.Utility.enum('OpType', op.type) || '(' + op.type.toString() + ')';
-        this._type = metadata.type(type) || { name: type };
-        this._name = op.name || '';
-        this._attributes = [];
-        this._inputs = [];
-        this._outputs = [];
-        this._chains = [];
+        this.type = metadata.type(type) || { name: type };
+        this.name = op.name || '';
+        this.attributes = [];
+        this.inputs = [];
+        this.outputs = [];
+        this.chains = [];
         if (op.inputIndexes && op.inputIndexes.length > 0) {
-            this._inputs.push(new mnn.Argument('input', Array.from(op.inputIndexes).map((index) => arg(index))));
+            const argument = new mnn.Argument('input', Array.from(op.inputIndexes).map((index) => values.map(index)));
+            this.inputs.push(argument);
         }
         if (op.outputIndexes && op.outputIndexes.length > 0) {
-            this._outputs.push(new mnn.Argument('output', Array.from(op.outputIndexes).map((index) => arg(index))));
+            const argument = new mnn.Argument('output', Array.from(op.outputIndexes).map((index) => values.map(index)));
+            this.outputs.push(argument);
         }
         const param = op.main;
         if (param) {
@@ -174,7 +152,7 @@ mnn.Node = class {
                 const tensor = mnn.Utility.createTensor(param, 'Blob');
                 const value = new mnn.Value('', null, tensor);
                 const argument = new mnn.Argument('value', [ value ]);
-                this._inputs.push(argument);
+                this.inputs.push(argument);
                 parameters.splice(0, parameters.length);
             } else if (param instanceof mnn.schema.Convolution2D) {
                 const common = param.common;
@@ -229,7 +207,7 @@ mnn.Node = class {
                             continue;
                         }
                         const schema = metadata.attribute(this.type, key);
-                        this._attributes.push(new mnn.Attribute(schema, key, value));
+                        this.attributes.push(new mnn.Attribute(schema, key, value));
                     }
                 }
             }
@@ -241,86 +219,38 @@ mnn.Node = class {
         const type = new mnn.TensorType(dataType, shape);
         const tensor = new mnn.Tensor('Weight', type, value);
         const argument = new mnn.Argument(name, [ new mnn.Value('', null, tensor) ]);
-        this._inputs.push(argument);
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get chain() {
-        return this._chains;
-    }
-
-    get attributes() {
-        return this._attributes;
+        this.inputs.push(argument);
     }
 };
 
 mnn.Attribute = class {
 
-    constructor(schema, name, value, visible) {
-        this._type = null;
-        this._value = ArrayBuffer.isView(value) ? Array.from(value) : value;
-        this._name = name;
-        this._visible = visible ? true : false;
-        if (schema) {
-            if (schema.type) {
-                this._type = schema.type;
-                switch (this._type) {
+    constructor(metadata, name, value, visible) {
+        this.type = null;
+        this.value = ArrayBuffer.isView(value) ? Array.from(value) : value;
+        this.name = name;
+        this.visible = visible ? true : false;
+        if (metadata) {
+            if (metadata.type) {
+                this.type = metadata.type;
+                switch (this.type) {
                     case 'DataType':
-                        this._value = mnn.Utility.dataType(this._value);
+                        this.value = mnn.Utility.dataType(this.value);
                         break;
                     default:
-                        this._value = mnn.Utility.enum(this._type, this._value);
+                        this.value = mnn.Utility.enum(this.type, this.value);
                         break;
                 }
             }
         }
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get value() {
-        return this._value;
-    }
-
-    get visible() {
-        return this._visible == false ? false : true;
     }
 };
 
 mnn.Argument = class {
 
     constructor(name, value) {
-        this._name = name;
-        this._value = value;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
+        this.name = name;
+        this.value = value;
     }
 };
 
@@ -351,37 +281,28 @@ mnn.Value = class {
 mnn.Tensor = class {
 
     constructor(category, type, data) {
-        this._category = category;
-        this._type = type;
-        this._data = data ? data.slice(0) : null;
-    }
-
-    get category() {
-        return this._category;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get encoding() {
-        switch (this._type.dataType) {
+        this.category = category;
+        this.type = type;
+        switch (this.type.dataType) {
             case 'int32':
             case 'float32':
-                return '|';
+                this.encoding = '|';
+                break;
             case 'float16':
-                return '<';
+                this.encoding = '<';
+                break;
             default:
                 throw new mnn.Error("Unsupported data type '" + this._type.dataType + "'.");
         }
+        this._values = data ? data.slice(0) : null;
     }
 
     get values() {
-        switch (this._type.dataType) {
+        switch (this.type.dataType) {
             case 'int32':
             case 'float32':
             case 'float16':
-                return this._data;
+                return this._values;
             default:
                 throw new mnn.Error("Unsupported data type '" + this._type.dataType + "'.");
         }
@@ -391,49 +312,33 @@ mnn.Tensor = class {
 mnn.TensorType = class {
 
     constructor(dataType, shape, format) {
-        this._dataType = mnn.Utility.dataType(dataType);
-        this._shape = shape;
+        this.dataType = mnn.Utility.dataType(dataType);
+        this.shape = shape;
         if (format) {
             switch (format) {
-                case mnn.schema.MNN_DATA_FORMAT.NCHW: this._denotation = 'NCHW'; break;
-                case mnn.schema.MNN_DATA_FORMAT.NHWC: this._denotation = 'NHWC'; break;
-                case mnn.schema.MNN_DATA_FORMAT.NC4HW4: this._denotation = 'NC4HW4'; break;
-                case mnn.schema.MNN_DATA_FORMAT.NHWC4: this._denotation = 'NHWC4'; break;
+                case mnn.schema.MNN_DATA_FORMAT.NCHW: this.denotation = 'NCHW'; break;
+                case mnn.schema.MNN_DATA_FORMAT.NHWC: this.denotation = 'NHWC'; break;
+                case mnn.schema.MNN_DATA_FORMAT.NC4HW4: this.denotation = 'NC4HW4'; break;
+                case mnn.schema.MNN_DATA_FORMAT.NHWC4: this.denotation = 'NHWC4'; break;
                 default: throw new mnn.Error("Unsupported tensor type format '" + format + "'.");
             }
         }
     }
 
-    get dataType() {
-        return this._dataType;
-    }
-
-    get shape() {
-        return this._shape;
-    }
-
-    get denotation() {
-        return this._denotation;
-    }
-
     toString() {
-        return this._dataType + this._shape.toString();
+        return this.dataType + this.shape.toString();
     }
 };
 
 mnn.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = Array.from(dimensions);
-    }
-
-    get dimensions() {
-        return this._dimensions;
+        this.dimensions = Array.from(dimensions);
     }
 
     toString() {
-        if (this._dimensions && this._dimensions.length > 0) {
-            return '[' + this._dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',') + ']';
+        if (this.dimensions && this.dimensions.length > 0) {
+            return '[' + this.dimensions.map((dimension) => dimension ? dimension.toString() : '?').join(',') + ']';
         }
         return '';
     }

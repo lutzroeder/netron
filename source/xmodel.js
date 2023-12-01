@@ -52,32 +52,32 @@ xmodel.Graph = class {
                 }
             }
         }
-        const args = new Map();
-        const arg = (name, node, initializer) => {
-            if (!args.has(name)) {
-                args.set(name, new xmodel.Value(name, node, initializer));
+        const values = new Map();
+        values.map = (name, node, initializer) => {
+            if (!values.has(name)) {
+                values.set(name, new xmodel.Value(name, node, initializer));
             }
-            return args.get(name);
+            return values.get(name);
         };
         const nodes = [];
         for (const node of graph.op_node) {
             if (node.args.length === 0) {
                 if (node.op_type === 'data' || node.op_type === 'data-fix') {
-                    const value = arg(node.op_name, node);
+                    const value = values.map(node.op_name, node);
                     this.inputs.push(new xmodel.Argument(node.op_name, [ value ]));
                     continue;
                 }
             }
             if (node.args.length === 0 && counts.get(node.op_name) === 1) {
                 if (node.op_type === 'const' || node.op_type === 'const-fix') {
-                    arg(node.op_name, node, true);
+                    values.map(node.op_name, node, true);
                     continue;
                 }
             }
-            arg(node.op_name, node);
+            values.map(node.op_name, node);
             nodes.push(node);
         }
-        this.nodes = nodes.map((node) => new xmodel.Node(metadata, node, arg));
+        this.nodes = nodes.map((node) => new xmodel.Node(metadata, node, values));
     }
 };
 
@@ -112,7 +112,7 @@ xmodel.Value = class {
 
 xmodel.Node = class {
 
-    constructor(metadata, op_node, arg) {
+    constructor(metadata, op_node, values) {
         this.name = op_node.op_name || '';
         this.type = metadata.type(op_node.op_type);
         this.inputs = [];
@@ -141,7 +141,7 @@ xmodel.Node = class {
                     } else {
                         activation = JSON.stringify(activation);
                     }
-                    this.chain.push(new xmodel.Node(metadata, { op_type: activation }, arg));
+                    this.chain.push(new xmodel.Node(metadata, { op_type: activation }, values));
                     continue;
                 }
                 const attribute = new xmodel.Attribute(metadata.attribute(this.type, name), name, value);
@@ -150,12 +150,14 @@ xmodel.Node = class {
         }
         if (op_node.args) {
             for (const input of op_node.args) {
-                const args = input.arg_ops.map((arg_op) => arg(arg_op));
-                this.inputs.push(new xmodel.Argument(input.arg_name, args));
+                const args = input.arg_ops.map((arg_op) => values.map(arg_op));
+                const argument = new xmodel.Argument(input.arg_name, args);
+                this.inputs.push(argument);
             }
         }
         if (op_node.op_name) {
-            this.outputs.push(new xmodel.Argument('output', [ arg(op_node.op_name) ]));
+            const argument = new xmodel.Argument('output', [ values.map(op_node.op_name) ]);
+            this.outputs.push(argument);
         }
     }
 };
