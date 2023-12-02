@@ -4066,6 +4066,7 @@ python.Execution = class {
         this.registerType('torch.nn.modules.activation.Softmax', class extends torch.nn.Module {});
         this.registerType('torch.nn.modules.activation.Softmax2d', class extends torch.nn.Module {});
         this.registerType('torch.nn.modules.activation.Softplus', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.Softsign', class extends torch.nn.Module {});
         this.registerType('torch.nn.modules.activation.Tanh', class extends torch.nn.Module {});
         this.registerType('torch.nn.modules.activation.Tanhshrink', class extends torch.nn.Module {});
         this.registerType('torch.nn.modules.activation.Threshold', class extends torch.nn.Module {});
@@ -4120,6 +4121,7 @@ python.Execution = class {
         this.registerType('torch.nn.modules.loss.BCEWithLogitsLoss', class extends torch.nn.modules.loss._Loss {});
         this.registerType('torch.nn.modules.loss.CrossEntropyLoss', class extends torch.nn.modules.loss._Loss {});
         this.registerType('torch.nn.modules.loss.CTCLoss', class extends torch.nn.modules.loss._Loss {});
+        this.registerType('torch.nn.modules.loss.GaussianNLLLoss', class extends torch.nn.modules.loss._Loss {});
         this.registerType('torch.nn.modules.loss.KLDivLoss', class extends torch.nn.modules.loss._Loss {});
         this.registerType('torch.nn.modules.loss.L1Loss', class extends torch.nn.modules.loss._Loss {});
         this.registerType('torch.nn.modules.loss.MarginRankingLoss', class extends torch.nn.modules.loss._Loss {});
@@ -5187,6 +5189,9 @@ python.Execution = class {
         this.registerFunction('torch.nn.functional.adaptive_avg_pool2d', function(/* input */) {
             throw new python.Error("'torch.nn.functional.adaptive_avg_pool2d' not implemented.");
         });
+        this.registerFunction('torch.nn.functional.cross_entropy', function() {
+            throw new python.Error("'torch.nn.functional.cross_entropy' not implemented.");
+        });
         this.registerFunction('torch.nn.functional.elu', function(/* input */) {
             throw new python.Error("'torch.nn.functional.elu' not implemented.");
         });
@@ -5258,6 +5263,7 @@ python.Execution = class {
             const forward = importer.import_module(generated_module_name).forward;
             return execution.invoke('torch.fx.graph_module._deserialize_graph_module', [ forward, body ]);
         });
+        this.registerType('torch.fx.graph.CodeGen', class {});
         this.registerType('torch.fx.graph._Namespace', class extends torch.nn.Module {});
         this.registerType('torch.fx.graph_module.GraphModule', class extends torch.nn.Module {});
         this.registerFunction('torch.fx._symbolic_trace.wrap', function(fn_or_name) {
@@ -5383,7 +5389,7 @@ python.Execution = class {
             }
             static _new_with_file(unpickler) {
                 const buffer = unpickler.read(8);
-                const size = buffer.reverse().reduce((a, b) => (a*256)+b, 0);
+                const size = buffer.reverse().reduce((a, b) => (a * 256) + b, 0);
                 const storage = new this(size);
                 const itemsize = storage.dtype.itemsize();
                 const data = unpickler.stream(itemsize * size);
