@@ -68,49 +68,13 @@ pytorch.Graph = class {
                 const argument = new pytorch.Argument(inputName, true, args.map((argument) => values.map(argument)));
                 inputs.push(argument);
             }
-            const filterParameters = (obj) => {
-                const entries = Object.entries(obj).filter((entry) => {
-                    if (Array.isArray(entry[1]) && entry[1].every((tensor) => pytorch.Utility.isTensor(tensor))) {
-                        return true;
-                    }
-                    return pytorch.Utility.isTensor(entry[1]);
-                });
-                return new Map(entries);
-            };
-            const parameters = obj._parameters || obj._buffers || filterParameters(obj);
-            for (const [key, value] of parameters) {
-                const list = Array.isArray(value) ? value.map((item) => pytorch.Utility.toTensor(item)) : [ pytorch.Utility.toTensor(value) ];
-                let visible = true;
-                let name = '';
-                if (inputSchema.length > 0) {
-                    const input = inputSchema.shift();
-                    name = input.name;
-                    visible = input.visible === false ? false : true;
-                }
-                if (list) {
-                    const args = list.filter((value) => value !== null).map((value) => {
-                        const identifier = value && value.name ? value.name : '';
-                        const initializer = value ? new pytorch.Tensor(identifier, value) : null;
-                        return new pytorch.Value(identifier, null, initializer);
-                    });
-                    const argument = new pytorch.Argument(name || key, visible, args);
-                    inputs.push(argument);
-                }
-            }
             const group = groups.join('/');
             const name = group ? (group + '/' + key) : key;
             const outputs = output ? [ new pytorch.Argument('output', true, [ values.map(name) ]) ] : [];
-            const attributes = [];
-            for (const [name, value] of Object.entries(obj)) {
-                if (!name.startsWith('_') && !parameters.has(name)) {
-                    attributes.push({ name: name, value: value });
-                }
-            }
             const item = {
                 name: name,
                 type: type,
-                attributes: attributes,
-                children: obj._modules && obj._modules.size > 0 ? true : false,
+                obj: obj,
                 inputs: inputs,
                 outputs: outputs
             };
@@ -310,6 +274,7 @@ pytorch.Node = class {
     constructor(metadata, group, item, initializers, values) {
         this.group = group || '';
         this.name = item.name || '';
+        this.nodes = [];
         const type = (metadata, name) => {
             if (name instanceof pytorch.nnapi.Graph) {
                 return name;
@@ -350,13 +315,63 @@ pytorch.Node = class {
         };
         if (!item.module && !item.node) {
             this.type = type(metadata, item.type);
-            this.nodes = item.children;
-            this.inputs = item.inputs;
-            this.outputs = item.outputs;
-            this.attributes = item.attributes.map((attribute) => {
+            this.inputs = item.inputs || [];
+            this.outputs = item.outputs || [];
+            let obj = item.obj;
+            if (obj && obj.__class__ && obj.__class__.__module__ === 'builtins' && obj.__class__.__name__ === 'function') {
+                this.type = { name: obj.__module__ + '.' + obj.__name__ };
+                obj = {};
+            }
+            const parameters = new Map();
+            const entries = [];
+            const attributes = new Map();
+            for (const [name, value] of Object.entries(obj)) {
+                if (name === '__class__') {
+                    continue;
+                } else if (name === '_parameters' && value instanceof Map) {
+                    for (const [name, parameter] of Array.from(value)) {
+                        parameters.set(name, parameter);
+                    }
+                } else if (name === '_buffers' && value instanceof Map) {
+                    for (const [name, buffer] of Array.from(value)) {
+                        parameters.set(name, buffer);
+                    }
+                } else if (Array.isArray(value) && value.every((tensor) => pytorch.Utility.isTensor(tensor))) {
+                    parameters.set(name, value);
+                } else if (pytorch.Utility.isTensor(value)) {
+                    parameters.set(name, value);
+                } else if (value && value.__class__ && value.__class__.__module__ === 'collections' && value.__class__.__name__ === 'OrderedDict' &&
+                    value instanceof Map && value.size === 0) {
+                    continue;
+                } else if (value && value.__class__ && value.__class__.__module__ === 'builtins' && value.__class__.__name__ === 'set' &&
+                    value instanceof Set && value.size === 0) {
+                    continue;
+                } else if (value && value.__class__ && value.__class__.__module__ === 'builtins' && value.__class__.__name__ === 'list' &&
+                    Array.isArray(value) && value.length === 0) {
+                    continue;
+                } else {
+                    entries.push([name, value]);
+                }
+            }
+            for (const [name, value] of entries) {
+                if (!parameters.has(name)) {
+                    attributes.set(name, value);
+                }
+            }
+            const inputs = new Map(Array.isArray(this.type.inputs) ? this.type.inputs.map((input) => [ input.name, input ]) : []);
+            for (const [name, value] of parameters) {
+                const list = Array.isArray(value) ? value.map((item) => pytorch.Utility.toTensor(item)) : [ pytorch.Utility.toTensor(value) ];
+                const visible = inputs.has(name) ? inputs.get(name).visible || true : true;
+                const values = list.filter((value) => value !== null).map((value) => {
+                    const identifier = value && value.name ? value.name : '';
+                    const tensor = value ? new pytorch.Tensor(identifier, value) : null;
+                    return new pytorch.Value(identifier, null, tensor);
+                });
+                const argument = new pytorch.Argument(name, visible, values);
+                this.inputs.push(argument);
+            }
+            this.attributes = Array.from(attributes).map(([name, value]) => {
                 const type = this.type.identifier;
-                const name = attribute.name;
-                const value = attribute.value;
                 if (pytorch.Utility.isTensor(value)) {
                     const tensor = new pytorch.Tensor('', value);
                     return createAttribute({ type: 'tensor' }, name, tensor);
@@ -367,14 +382,22 @@ pytorch.Node = class {
                     return createAttribute({ type: 'string[]' }, name, value);
                 } else if (Array.isArray(value) && value.every((value) => typeof value === 'number')) {
                     return createAttribute(null, name, value);
-                } else if (value && value.__class__) {
-                    const item = {};
-                    item.type = value.__class__.__module__ + '.' + value.__class__.__name__;
-                    item.attributes = Object.entries(value).filter(([name]) => name !== '__class__').map(([name, value]) => {
-                        return { name: name, value: value };
+                } else if (name === '_modules' && value && value.__class__ && value.__class__.__module__ === 'collections' && value.__class__.__name__ === 'OrderedDict' &&
+                    value instanceof Map && Array.from(value).every(([, value]) => value.__class__)) {
+                    const values = Array.from(value).map(([name, value]) => {
+                        const item = {
+                            name: name,
+                            type: value.__class__.__module__ + '.' + value.__class__.__name__,
+                            obj: value
+                        };
+                        return new pytorch.Node(metadata, group, item);
                     });
-                    item.inputs = [];
-                    item.outputs = [];
+                    return createAttribute({ type: 'object[]' }, name, values);
+                } else if (value && value.__class__) {
+                    const item = {
+                        type: value.__class__.__module__ + '.' + value.__class__.__name__,
+                        obj: value
+                    };
                     const node = new pytorch.Node(metadata, group, item);
                     return createAttribute({ type: 'object' }, name, node);
                 }
