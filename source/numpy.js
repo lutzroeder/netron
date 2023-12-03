@@ -267,7 +267,7 @@ numpy.Utility = class {
                         if (numpy.Utility.isTensor(obj)) {
                             weights.set(key, obj);
                             continue;
-                        } else if (obj instanceof Map && Array.from(obj).every((pair) => numpy.Utility.isTensor(pair[1]))) {
+                        } else if (obj instanceof Map && Array.from(obj).every(([, value]) => numpy.Utility.isTensor(value))) {
                             for (const [name, value] of obj) {
                                 weights.set(key + '.' + name, value);
                             }
@@ -280,25 +280,22 @@ numpy.Utility = class {
                     return weights;
                 } else if (!Array.isArray(dict)) {
                     const set = new Set([ 'weight_order', 'lr', 'model_iter', '__class__' ]);
-                    for (const [key, value] of Object.entries(dict)) {
-                        if (key) {
-                            if (numpy.Utility.isTensor(value)) {
-                                weights.set(key, value);
-                                continue;
+                    for (const [name, value] of Object.entries(dict)) {
+                        if (numpy.Utility.isTensor(value)) {
+                            weights.set(name, value);
+                            continue;
+                        }
+                        if (set.has(name)) {
+                            continue;
+                        }
+                        if (value && !Array.isArray(value) && Object.entries(value).every(([, value]) => numpy.Utility.isTensor(value))) {
+                            if (value && value.__class__ && value.__class__.__module__ && value.__class__.__name__) {
+                                weights.set(name + '.__class__', value.__class__.__module__ + '.' + value.__class__.__name__);
                             }
-                            if (set.has(key)) {
-                                continue;
+                            for (const [name, obj] of Object.entries(value)) {
+                                weights.set(name + '.' + name, obj);
                             }
-                            if (value && !Array.isArray(value) && Object.entries(value).every((entry) => numpy.Utility.isTensor(entry[1]))) {
-                                const name = key;
-                                if (value && value.__class__ && value.__class__.__module__ && value.__class__.__name__) {
-                                    weights.set(name + '.__class__', value.__class__.__module__ + '.' + value.__class__.__name__);
-                                }
-                                for (const [entry] of Object.entries(value)) {
-                                    weights.set(name + '.' + entry[0], entry[1]);
-                                }
-                                continue;
-                            }
+                            continue;
                         }
                         return null;
                     }
@@ -309,7 +306,7 @@ numpy.Utility = class {
         };
         const list = (obj, key) => {
             let list = key === '' ? obj : obj[key];
-            if (list && Array.isArray(list) && list.every((obj) => Object.entries(obj).every((entry) => numpy.Utility.isTensor(entry[1])))) {
+            if (list && Array.isArray(list) && list.every((obj) => Object.values(obj).every((value) => numpy.Utility.isTensor(value)))) {
                 list = list.map((obj) => obj instanceof Map ? obj : new Map(Object.entries(obj)));
             }
             if (list && Array.isArray(list)) {
@@ -319,7 +316,7 @@ numpy.Utility = class {
                     if (numpy.Utility.isTensor(obj)) {
                         weights.set(i.toString(), obj);
                         continue;
-                    } else if (obj instanceof Map && Array.from(obj).every((pair) => numpy.Utility.isTensor(pair[1]))) {
+                    } else if (obj instanceof Map && Array.from(obj).every(([, value]) => numpy.Utility.isTensor(value))) {
                         for (const [name, value] of obj) {
                             weights.set(i.toString() + '.' + name, value);
                         }

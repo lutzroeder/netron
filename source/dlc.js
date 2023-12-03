@@ -314,7 +314,8 @@ dlc.Container = class {
                 case '3.NETD':
                 case 'NETD': {
                     this.version = 3;
-                    this.graphs = dlc.Container._model3(stream, signature);
+                    this.graph = dlc.Container._model3(stream, signature);
+                    this.graphs = [ this.graph ];
                     break;
                 }
                 case '4.NETD': {
@@ -341,7 +342,8 @@ dlc.Container = class {
                 case '3.NETP':
                 case 'NETP': {
                     this.version = this.graphs.length > 0 ? this.version : 3;
-                    this.graphs = dlc.Container._params3(stream, signature, this.graphs);
+                    this.graph = dlc.Container._params3(stream, signature, this.graph);
+                    this.graphs = [ this.graph ];
                     break;
                 }
                 case '4.NETP':
@@ -421,7 +423,7 @@ dlc.Container = class {
                 attribute.data = data;
             }
         }
-        return [ model ];
+        return model;
     }
 
     static _model4(stream) {
@@ -507,7 +509,7 @@ dlc.Container = class {
         return model.graphs;
     }
 
-    static _params3(stream, signature, graphs) {
+    static _params3(stream, signature, graph) {
         let params = null;
         try {
             const buffer = new Uint8Array(signature === 'NETP' ? stream.peek() : stream.peek().subarray(8));
@@ -517,8 +519,8 @@ dlc.Container = class {
             const message = error && error.message ? error.message : error.toString();
             throw new dlc.Error('File format is not dlc.v3.NETP (' + message.replace(/\.$/, '') + ').');
         }
-        if (graphs.length === 0) {
-            const graph = new dlc.schema.v3.ModelParameters();
+        if (!graph) {
+            graph = new dlc.schema.v3.ModelParameters();
             graph.nodes = new Array(params.nodes.length);
             graph.tensors = [];
             for (let i = 0; i < graph.nodes.length; i++) {
@@ -530,9 +532,7 @@ dlc.Container = class {
                 node.attributes = [];
                 graph.nodes[i] = node;
             }
-            graphs.push(graph);
         }
-        const graph = graphs[0];
         const dataType = (value) => {
             switch (value) {
                 case null: return '?';
@@ -552,7 +552,7 @@ dlc.Container = class {
                 node.weights = tensors;
             }
         }
-        return graphs;
+        return graph;
     }
 
     static _params4(stream, graphs, signature) {

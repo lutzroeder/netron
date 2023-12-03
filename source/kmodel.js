@@ -1023,10 +1023,12 @@ kmodel.BinaryReader = class extends base.BinaryReader {
         fields.push([ null, Math.min(64, fields[fields.length - 1][1] + 56)]);
         const obj = {};
         for (let i = 0; i < fields.length - 1; i++) {
-            const key = fields[i][0];
+            const current = fields[i];
+            const next = fields[i + 1];
+            const [key, start] = current;
+            const [, end] = next;
             let value = 0;
-            let position = fields[i][1];
-            const end = fields[i + 1][1];
+            let position = start;
             while (position < end) {
                 const offset = (position / 8) >> 0;
                 const start = (position & 7);

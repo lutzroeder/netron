@@ -295,12 +295,14 @@ acuity.Inference = class {
             return [ prefix.concat(suffix) ];
         });
         operators.set('lstm', (inputs, params) => {
-            let batch = inputs[0][0];
+            const [input] = inputs;
+            const [a, b] = input;
+            let batch = a;
             const output = params.num_proj != null ? params.num_proj : params.weights;
             if (params.time_major) {
-                batch = inputs[0][1];
+                batch = b;
             }
-            const newShape = params.return_sequences ? [ inputs[0][0], inputs[0][1], output ] : [ batch, output ];
+            const newShape = params.return_sequences ? [ a, b, output ] : [ batch, output ];
             return [ newShape, [batch, output], [batch, params.weights] ];
         });
         operators.set('matmul', ([a, b], params) => {

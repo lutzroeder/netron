@@ -2751,7 +2751,7 @@ python.Execution = class {
                 const memo = new Map();
                 while (reader.position < reader.length) {
                     const opcode = reader.byte();
-                    // console.log((reader.position - 1).toString() + ' ' + Object.entries(OpCode).find((entry) => entry[1] === opcode)[0]);
+                    // console.log((reader.position - 1).toString() + ' ' + Object.entries(OpCode).find(([, value]) => value === opcode)[0]);
                     // https://svn.python.org/projects/python/trunk/Lib/pickletools.py
                     // https://github.com/python/cpython/blob/master/Lib/pickle.py
                     switch (opcode) {
@@ -3762,8 +3762,8 @@ python.Execution = class {
             if (!file.read(6).every((v, i) => v == signature[i])) {
                 throw new python.Error('Invalid signature.');
             }
-            const major = file.read(1)[0];
-            const minor = file.read(1)[0];
+            const version = file.read(2);
+            const [major, minor] = version;
             if (major > 3) {
                 throw new python.Error("Invalid version '" + [ major, minor ].join('.') + "'.");
             }
@@ -3782,7 +3782,7 @@ python.Execution = class {
             }
             const shape = header.shape;
             const dtype = self.invoke('numpy.dtype', [ header.descr.substring(1) ]);
-            dtype.byteorder = header.descr[0];
+            dtype.byteorder = header.descr.substring(0, 1);
             let data = null;
             switch (dtype.byteorder) {
                 case '|': {
@@ -5345,8 +5345,8 @@ python.Execution = class {
         });
         this.registerType('torch.utils.hooks.RemovableHandle', class {
             __setstate__(state) {
-                this.hooks_dict_ref = state[0] || new Map();
-                this.id = state[1];
+                [this.hooks_dict_ref, this.id] = state;
+                this.hooks_dict_ref = this.hooks_dict_ref || new Map();
             }
         });
         this.registerType('torch.storage._StorageBase', class {

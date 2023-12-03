@@ -177,9 +177,10 @@ armnn.Node = class {
                     this.attributes.push(attribute);
                 }
             }
-            for (const [name, tensor] of Object.entries(layer.layer).filter((entry) => entry[1] instanceof armnn.schema.ConstTensor)) {
+            for (const [name, tensor] of Object.entries(layer.layer).filter(([, value]) => value instanceof armnn.schema.ConstTensor)) {
                 const value = new armnn.Value('', tensor.info, new armnn.Tensor(tensor));
-                this.inputs.push(new armnn.Argument(name, [ value ]));
+                const argument = new armnn.Argument(name, [ value ]);
+                this.inputs.push(argument);
             }
         }
     }

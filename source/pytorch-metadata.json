@@ -15578,7 +15578,7 @@
       { "name": "bias" },
       { "name": "running_mean" },
       { "name": "running_var" },
-      { "name": "num_batches_tracked" },
+      { "name": "num_batches_tracked", "visible": false },
       { "name": "eps", "default": 1e-05 },
       { "name": "momentum", "default": 0.1 },
       { "name": "affine", "default": true },

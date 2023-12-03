@@ -794,11 +794,11 @@ protobuf.TextReader = class {
         if (token.length < 2) {
             throw new protobuf.Error('String is too short' + this.location());
         }
-        const quote = token[0];
+        const quote = token.substring(0, 1);
         if (quote !== "'" && quote !== '"') {
             throw new protobuf.Error('String is not in quotes' + this.location());
         }
-        if (quote !== token[token.length - 1]) {
+        if (quote !== token.substring(token.length - 1)) {
             throw new protobuf.Error('String quotes do not match' + this.location());
         }
         const value = token.substring(1, token.length - 1);

@@ -739,13 +739,13 @@ paddle.Pickle = class {
                 this._weights = weights;
             } else {
                 const list = entries(obj);
-                if (list.filter((entry) => entry[0] !== 'StructuredToParameterName@@').length === 1) {
+                if (list.filter(([name]) => name !== 'StructuredToParameterName@@').length === 1) {
                     const weights = filter(list[0][1]);
                     if (weights.length > 0) {
                         this._weights = weights;
                     }
                 }
-                if (this._weights === null && list.filter((entry) => entry[0] === 'StructuredToParameterName@@').length > 0) {
+                if (this._weights === null && list.filter(([name]) => name === 'StructuredToParameterName@@').length > 0) {
                     this._weights = [];
                 }
             }
@@ -876,7 +876,7 @@ paddle.Utility = class {
 
     static createTensorType(data_type, shape) {
         if (!paddle.Utility._dataTypes) {
-            const length = Math.max.apply(null, Object.entries(paddle.DataType).map((entry) => entry[1]));
+            const length = Math.max.apply(null, Object.entries(paddle.DataType).map(([, value]) => value));
             paddle.Utility._dataTypes = new Array(length);
             const map = new Map([ [ 'bool', 'boolean' ], [ 'bf16', 'bfloat16' ], [ 'fp16', 'float16' ], [ 'fp32', 'float32' ], [ 'fp64', 'float64' ] ]);
             for (const [name, index] of Object.entries(paddle.DataType)) {

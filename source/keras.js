@@ -126,16 +126,16 @@ keras.ModelFactory = class {
             const walk = (group, path, weights_store) => {
                 const checkpoint = group.groups.get('layers') || group.groups.get('_layer_checkpoint_dependencies');
                 if (checkpoint) {
-                    for (const layer of checkpoint.groups) {
+                    for (const [, layer] of checkpoint.groups) {
                         const name = (path ? path + '/' : '') + 'layers/' + layer[0];
-                        walk(layer[1], name, weights_store);
+                        walk(layer, name, weights_store);
                         const values = [];
-                        for (const vars of layer[1].groups) {
-                            for (const entry of vars[1].groups) {
-                                const variable = entry[1].value;
+                        for (const vars of layer.groups) {
+                            for (const [name, group] of vars[1].groups) {
+                                const variable = group.value;
                                 if (variable) {
                                     const layout = variable.littleEndian ? '<' : '>';
-                                    const tensor = new keras.Tensor(entry[0], variable.shape, variable.type, null, null, layout, variable.data);
+                                    const tensor = new keras.Tensor(name, variable.shape, variable.type, null, null, layout, variable.data);
                                     values.push(tensor);
                                 }
                             }
@@ -657,9 +657,7 @@ keras.Graph = class {
                         const layers = new Map();
                         if (functional) {
                             const read_connection = (input_data) => {
-                                const node_name = input_data[0];
-                                const node_index = input_data[1];
-                                const tensor_index = input_data[2];
+                                const [node_name, node_index, tensor_index] = input_data;
                                 const inbound_node_key = node_name + '[' + node_index.toString() + ']';
                                 const inbound_node = nodes.get(inbound_node_key);
                                 const tensor_key = node_name + '[' + node_index + '][' + tensor_index + ']';
@@ -798,8 +796,7 @@ keras.Graph = class {
                                 for (let i = 0; i < config.input_layers.length; i++) {
                                     const input_data = config.input_layers[i];
                                     const name = read_connection(input_data);
-                                    const node_name = input_data[0];
-                                    const node_index = input_data[1];
+                                    const [node_name, node_index] = input_data;
                                     const inbound_node_key = node_name + '[' + node_index.toString() + ']';
                                     const node = nodes.get(inbound_node_key);
                                     let type = null;

@@ -1166,9 +1166,9 @@ flatc.Generator = class {
                 this._builder.indent();
                     this._builder.add('switch (type) {');
                     this._builder.indent();
-                        for (const pair of type.values) {
-                            const valueType = '$root.' + pair[1].parent.name + '.' + pair[1].name;
-                            this._builder.add('case \'' + pair[1].name + '\': return ' + valueType + '.decodeText(reader, json);');
+                        for (const [, value] of type.values) {
+                            const valueType = '$root.' + value.parent.name + '.' + value.name;
+                            this._builder.add('case \'' + value.name + '\': return ' + valueType + '.decodeText(reader, json);');
                         }
                         this._builder.add('default: return undefined;');
                     this._builder.outdent();

@@ -129,7 +129,7 @@ hailo.Node = class {
             }
             return acc;
         }, []);
-        const params_from_npz = Array.from(weights).filter((entry) => entry[1]).map(([ name, value ]) => {
+        const params_from_npz = Array.from(weights).filter(([, value]) => value).map(([ name, value ]) => {
             const tensor = new hailo.Tensor(value);
             return new hailo.Argument(name, [ values.map('', tensor.type, tensor) ]);
         });

@@ -30,7 +30,7 @@ sklearn.ModelFactory = class {
             }
             if (Object(obj) === obj) {
                 const entries = Object.entries(obj);
-                if (entries.length > 0 && entries.every((entry) => validate(entry[1], format.name))) {
+                if (entries.length > 0 && entries.every(([, value]) => validate(value, format.name))) {
                     return format.format + '.map';
                 }
             }

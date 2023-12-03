@@ -1295,7 +1295,7 @@ view.Menu = class {
     }
 
     unregister(action) {
-        this._accelerators = new Map(Array.from(this._accelerators.entries()).filter((entry) => entry[1] !== action));
+        this._accelerators = new Map(Array.from(this._accelerators.entries()).filter(([, value]) => value !== action));
     }
 
     _execute(action) {
@@ -4068,11 +4068,7 @@ view.Formatter = class {
         if (entries.length == 1) {
             list = [ this._format(entries[0][1], null, true) ];
         } else {
-            list = new Array(entries.length);
-            for (let i = 0; i < entries.length; i++) {
-                const entry = entries[i];
-                list[i] = entry[0] + ': ' + this._format(entry[1], null, true);
-            }
+            list = entries.map(([name, value]) => name + ': ' + this._format(value, null, true));
         }
         let objectType = value.__type__;
         if (!objectType && value.constructor.name && value.constructor.name !== 'Object') {

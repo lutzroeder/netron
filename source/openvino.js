@@ -283,8 +283,8 @@ openvino.Graph = class {
                             break;
                         }
                         const constLayer = constants.get(from).layer;
-                        if (constLayer && Array.isArray(constLayer.blobs)) {
-                            const blob = constLayer.blobs[0];
+                        if (constLayer && Array.isArray(constLayer.blobs) && constLayer.blobs.length > 0) {
+                            const [blob] = constLayer.blobs;
                             if (blob) {
                                 blob.id = constLayer.name || constLayer.id;
                                 layer.input[i].blob = blob;
@@ -465,8 +465,8 @@ openvino.Node = class {
             this.outputs.push(argument);
             i += count;
         }
-        for (const entry of Object.entries(layer.data)) {
-            const attribute = new openvino.Attribute(metadata.attribute(type, entry[0]), entry[0], entry[1]);
+        for (const [name, value] of Object.entries(layer.data)) {
+            const attribute = new openvino.Attribute(metadata.attribute(type, name), name, value);
             this.attributes.push(attribute);
         }
         if (layer.type === 'TensorIterator') {

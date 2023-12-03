@@ -615,7 +615,7 @@ tf.ModelFactory = class {
                     length: element.length ? element.length.toNumber() : 0
                 });
             }
-            const offsets = Array.from(elements).map((entry) => entry[1].offset);
+            const offsets = Array.from(elements).map(([, value]) => value.offset);
             offsets.push(offset);
             for (const value of elements.values()) {
                 if (value.length === 0) {
@@ -625,11 +625,11 @@ tf.ModelFactory = class {
                     }
                 }
             }
-            for (const entry of elements) {
-                const offset = entry[1].offset;
-                const length = entry[1].length;
+            for (const [, value] of elements) {
+                const offset = value.offset;
+                const length = value.length;
                 stream.seek(offset);
-                entry[1].buffer = stream.read(length);
+                value.buffer = stream.read(length);
             }
             if (!elements.has('memmapped_package://.')) {
                 throw new tf.Error('Memory mapped file directory does not contain tensorflow.GraphDef root.');
@@ -1552,8 +1552,8 @@ tf.TensorBundle.Table = class {
         const indexOffset = reader.varint64();
         const indexSize = reader.varint64();
         const indexBlock = new tf.TensorBundle.Table.Block(stream, indexOffset, indexSize);
-        for (const entry of indexBlock.entries) {
-            const valueReader = new tf.BinaryReader(entry[1]);
+        for (const [, value] of indexBlock.entries) {
+            const valueReader = new tf.BinaryReader(value);
             const offset = valueReader.varint64();
             const size = valueReader.varint64();
             const block = new tf.TensorBundle.Table.Block(stream, offset, size);
