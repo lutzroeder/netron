@@ -408,7 +408,51 @@ $root.circle.BuiltinOperator = {
     SIGN: 158,
     BITCAST: 159,
     BITWISE_XOR: 160,
-    RIGHT_SHIFT: 161
+    RIGHT_SHIFT: 161,
+    STABLEHLO_LOGISTIC: 162,
+    STABLEHLO_ADD: 163,
+    STABLEHLO_DIVIDE: 164,
+    STABLEHLO_MULTIPLY: 165,
+    STABLEHLO_MAXIMUM: 166,
+    STABLEHLO_RESHAPE: 167,
+    STABLEHLO_CLAMP: 168,
+    STABLEHLO_CONCATENATE: 169,
+    STABLEHLO_BROADCAST_IN_DIM: 170,
+    STABLEHLO_CONVOLUTION: 171,
+    STABLEHLO_SLICE: 172,
+    STABLEHLO_CUSTOM_CALL: 173,
+    STABLEHLO_REDUCE: 174,
+    STABLEHLO_ABS: 175,
+    STABLEHLO_AND: 176,
+    STABLEHLO_COSINE: 177,
+    STABLEHLO_EXPONENTIAL: 178,
+    STABLEHLO_FLOOR: 179,
+    STABLEHLO_LOG: 180,
+    STABLEHLO_MINIMUM: 181,
+    STABLEHLO_NEGATE: 182,
+    STABLEHLO_OR: 183,
+    STABLEHLO_POWER: 184,
+    STABLEHLO_REMAINDER: 185,
+    STABLEHLO_RSQRT: 186,
+    STABLEHLO_SELECT: 187,
+    STABLEHLO_SUBTRACT: 188,
+    STABLEHLO_TANH: 189,
+    STABLEHLO_SCATTER: 190,
+    STABLEHLO_COMPARE: 191,
+    STABLEHLO_CONVERT: 192,
+    STABLEHLO_DYNAMIC_SLICE: 193,
+    STABLEHLO_DYNAMIC_UPDATE_SLICE: 194,
+    STABLEHLO_PAD: 195,
+    STABLEHLO_IOTA: 196,
+    STABLEHLO_DOT_GENERAL: 197,
+    STABLEHLO_REDUCE_WINDOW: 198,
+    STABLEHLO_SORT: 199,
+    STABLEHLO_WHILE: 200,
+    STABLEHLO_GATHER: 201,
+    STABLEHLO_TRANSPOSE: 202,
+    DILATE: 203,
+    STABLEHLO_RNG_BIT_GENERATOR: 204,
+    REDUCE_WINDOW: 205
 };
 
 $root.circle.BuiltinOptions = class {
@@ -684,6 +728,460 @@ $root.circle.BuiltinOptions = class {
     }
 };
 
+$root.circle.BuiltinOptions2 = class {
+
+    static decode(reader, position, type) {
+        switch (type) {
+            case 1: return $root.circle.StablehloConcatenateOptions.decode(reader, position);
+            case 2: return $root.circle.StablehloBroadcastInDimOptions.decode(reader, position);
+            case 3: return $root.circle.StablehloSliceOptions.decode(reader, position);
+            case 4: return $root.circle.StablehloConvolutionOptions.decode(reader, position);
+            case 5: return $root.circle.StablehloCustomCallOptions.decode(reader, position);
+            case 6: return $root.circle.StablehloReduceOptions.decode(reader, position);
+            case 7: return $root.circle.StablehloScatterOptions.decode(reader, position);
+            case 8: return $root.circle.StablehloCompareOptions.decode(reader, position);
+            case 9: return $root.circle.StablehloDynamicSliceOptions.decode(reader, position);
+            case 10: return $root.circle.StablehloPadOptions.decode(reader, position);
+            case 11: return $root.circle.StablehloIotaOptions.decode(reader, position);
+            case 12: return $root.circle.StablehloDotGeneralOptions.decode(reader, position);
+            case 13: return $root.circle.StablehloReduceWindowOptions.decode(reader, position);
+            case 14: return $root.circle.StablehloSortOptions.decode(reader, position);
+            case 15: return $root.circle.StablehloWhileOptions.decode(reader, position);
+            case 16: return $root.circle.StablehloGatherOptions.decode(reader, position);
+            case 17: return $root.circle.StablehloTransposeOptions.decode(reader, position);
+            case 18: return $root.circle.DilateOptions.decode(reader, position);
+            case 19: return $root.circle.StablehloRngBitGeneratorOptions.decode(reader, position);
+            case 20: return $root.circle.ReduceWindowOptions.decode(reader, position);
+            default: return undefined;
+        }
+    }
+
+    static decodeText(reader, json, type) {
+        switch (type) {
+            case 'StablehloConcatenateOptions': return $root.circle.StablehloConcatenateOptions.decodeText(reader, json);
+            case 'StablehloBroadcastInDimOptions': return $root.circle.StablehloBroadcastInDimOptions.decodeText(reader, json);
+            case 'StablehloSliceOptions': return $root.circle.StablehloSliceOptions.decodeText(reader, json);
+            case 'StablehloConvolutionOptions': return $root.circle.StablehloConvolutionOptions.decodeText(reader, json);
+            case 'StablehloCustomCallOptions': return $root.circle.StablehloCustomCallOptions.decodeText(reader, json);
+            case 'StablehloReduceOptions': return $root.circle.StablehloReduceOptions.decodeText(reader, json);
+            case 'StablehloScatterOptions': return $root.circle.StablehloScatterOptions.decodeText(reader, json);
+            case 'StablehloCompareOptions': return $root.circle.StablehloCompareOptions.decodeText(reader, json);
+            case 'StablehloDynamicSliceOptions': return $root.circle.StablehloDynamicSliceOptions.decodeText(reader, json);
+            case 'StablehloPadOptions': return $root.circle.StablehloPadOptions.decodeText(reader, json);
+            case 'StablehloIotaOptions': return $root.circle.StablehloIotaOptions.decodeText(reader, json);
+            case 'StablehloDotGeneralOptions': return $root.circle.StablehloDotGeneralOptions.decodeText(reader, json);
+            case 'StablehloReduceWindowOptions': return $root.circle.StablehloReduceWindowOptions.decodeText(reader, json);
+            case 'StablehloSortOptions': return $root.circle.StablehloSortOptions.decodeText(reader, json);
+            case 'StablehloWhileOptions': return $root.circle.StablehloWhileOptions.decodeText(reader, json);
+            case 'StablehloGatherOptions': return $root.circle.StablehloGatherOptions.decodeText(reader, json);
+            case 'StablehloTransposeOptions': return $root.circle.StablehloTransposeOptions.decodeText(reader, json);
+            case 'DilateOptions': return $root.circle.DilateOptions.decodeText(reader, json);
+            case 'StablehloRngBitGeneratorOptions': return $root.circle.StablehloRngBitGeneratorOptions.decodeText(reader, json);
+            case 'ReduceWindowOptions': return $root.circle.ReduceWindowOptions.decodeText(reader, json);
+            default: return undefined;
+        }
+    }
+};
+
+$root.circle.StablehloGatherOptions = class StablehloGatherOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.StablehloGatherOptions();
+        $.offset_dims = reader.int64s_(position, 4);
+        $.collapsed_slice_dims = reader.int64s_(position, 6);
+        $.start_index_map = reader.int64s_(position, 8);
+        $.index_vector_dim = reader.int64_(position, 10, 0);
+        $.slice_sizes = reader.int64s_(position, 12);
+        $.indices_are_sorted = reader.bool_(position, 14, false);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.StablehloGatherOptions();
+        $.offset_dims = reader.array(json.offset_dims);
+        $.collapsed_slice_dims = reader.array(json.collapsed_slice_dims);
+        $.start_index_map = reader.array(json.start_index_map);
+        $.index_vector_dim = reader.value(json.index_vector_dim, 0);
+        $.slice_sizes = reader.array(json.slice_sizes);
+        $.indices_are_sorted = reader.value(json.indices_are_sorted, false);
+        return $;
+    }
+};
+
+$root.circle.StablehloTransposeOptions = class StablehloTransposeOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.StablehloTransposeOptions();
+        $.permutation = reader.int64s_(position, 4);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.StablehloTransposeOptions();
+        $.permutation = reader.array(json.permutation);
+        return $;
+    }
+};
+
+$root.circle.StablehloPrecisionConfig = {
+    DEFAULT: 0,
+    HIGH: 1,
+    HIGHEST: 2
+};
+
+$root.circle.StablehloDotGeneralOptions = class StablehloDotGeneralOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.StablehloDotGeneralOptions();
+        $.lhs_batching_dimensions = reader.int64s_(position, 4);
+        $.rhs_batching_dimensions = reader.int64s_(position, 6);
+        $.lhs_contracting_dimensions = reader.int64s_(position, 8);
+        $.rhs_contracting_dimensions = reader.int64s_(position, 10);
+        $.precision_config = reader.typedArray(position, 12, Uint32Array);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.StablehloDotGeneralOptions();
+        $.lhs_batching_dimensions = reader.array(json.lhs_batching_dimensions);
+        $.rhs_batching_dimensions = reader.array(json.rhs_batching_dimensions);
+        $.lhs_contracting_dimensions = reader.array(json.lhs_contracting_dimensions);
+        $.rhs_contracting_dimensions = reader.array(json.rhs_contracting_dimensions);
+        $.precision_config = reader.objectArray(json.precision_config, $root.circle.StablehloPrecisionConfig.decodeText);
+        return $;
+    }
+};
+
+$root.circle.StablehloReduceWindowOptions = class StablehloReduceWindowOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.StablehloReduceWindowOptions();
+        $.window_dimensions = reader.int64s_(position, 4);
+        $.window_strides = reader.int64s_(position, 6);
+        $.base_dilations = reader.int64s_(position, 8);
+        $.window_dilations = reader.int64s_(position, 10);
+        $.padding = reader.int64s_(position, 12);
+        $.body_subgraph_index = reader.int32_(position, 14, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.StablehloReduceWindowOptions();
+        $.window_dimensions = reader.array(json.window_dimensions);
+        $.window_strides = reader.array(json.window_strides);
+        $.base_dilations = reader.array(json.base_dilations);
+        $.window_dilations = reader.array(json.window_dilations);
+        $.padding = reader.array(json.padding);
+        $.body_subgraph_index = reader.value(json.body_subgraph_index, 0);
+        return $;
+    }
+};
+
+$root.circle.StablehloWhileOptions = class StablehloWhileOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.StablehloWhileOptions();
+        $.cond_subgraph_index = reader.int32_(position, 4, 0);
+        $.body_subgraph_index = reader.int32_(position, 6, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.StablehloWhileOptions();
+        $.cond_subgraph_index = reader.value(json.cond_subgraph_index, 0);
+        $.body_subgraph_index = reader.value(json.body_subgraph_index, 0);
+        return $;
+    }
+};
+
+$root.circle.StablehloSortOptions = class StablehloSortOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.StablehloSortOptions();
+        $.dimension = reader.int64_(position, 4, 0);
+        $.is_stable = reader.bool_(position, 6, false);
+        $.comparator_subgraph_index = reader.int32_(position, 8, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.StablehloSortOptions();
+        $.dimension = reader.value(json.dimension, 0);
+        $.is_stable = reader.value(json.is_stable, false);
+        $.comparator_subgraph_index = reader.value(json.comparator_subgraph_index, 0);
+        return $;
+    }
+};
+
+$root.circle.StablehloConcatenateOptions = class StablehloConcatenateOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.StablehloConcatenateOptions();
+        $.dimension = reader.int64_(position, 4, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.StablehloConcatenateOptions();
+        $.dimension = reader.value(json.dimension, 0);
+        return $;
+    }
+};
+
+$root.circle.StablehloBroadcastInDimOptions = class StablehloBroadcastInDimOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.StablehloBroadcastInDimOptions();
+        $.broadcast_dimensions = reader.int64s_(position, 4);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.StablehloBroadcastInDimOptions();
+        $.broadcast_dimensions = reader.array(json.broadcast_dimensions);
+        return $;
+    }
+};
+
+$root.circle.StablehloComparisonDirection = {
+    STABLEHLO_COMPARISON_DIRECTION_EQ: 0,
+    STABLEHLO_COMPARISON_DIRECTION_NE: 1,
+    STABLEHLO_COMPARISON_DIRECTION_GE: 2,
+    STABLEHLO_COMPARISON_DIRECTION_GT: 3,
+    STABLEHLO_COMPARISON_DIRECTION_LE: 4,
+    STABLEHLO_COMPARISON_DIRECTION_LT: 5
+};
+
+$root.circle.StablehloComparisonType = {
+    STABLEHLO_COMPARISON_TYPE_NOTYPE: 0,
+    STABLEHLO_COMPARISON_TYPE_FLOAT: 1,
+    STABLEHLO_COMPARISON_TYPE_FLOAT_TOTAL_ORDER: 2,
+    STABLEHLO_COMPARISON_TYPE_SIGNED: 3,
+    STABLEHLO_COMPARISON_TYPE_UNSIGNED: 4
+};
+
+$root.circle.StablehloCompareOptions = class StablehloCompareOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.StablehloCompareOptions();
+        $.comparison_direction = reader.uint32_(position, 4, 0);
+        $.compare_type = reader.uint32_(position, 6, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.StablehloCompareOptions();
+        $.comparison_direction = $root.circle.StablehloComparisonDirection[json.comparison_direction];
+        $.compare_type = $root.circle.StablehloComparisonType[json.compare_type];
+        return $;
+    }
+};
+
+$root.circle.StablehloDynamicSliceOptions = class StablehloDynamicSliceOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.StablehloDynamicSliceOptions();
+        $.slice_sizes = reader.int64s_(position, 4);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.StablehloDynamicSliceOptions();
+        $.slice_sizes = reader.array(json.slice_sizes);
+        return $;
+    }
+};
+
+$root.circle.StablehloPadOptions = class StablehloPadOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.StablehloPadOptions();
+        $.edge_padding_low = reader.int64s_(position, 4);
+        $.edge_padding_high = reader.int64s_(position, 6);
+        $.interior_padding = reader.int64s_(position, 8);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.StablehloPadOptions();
+        $.edge_padding_low = reader.array(json.edge_padding_low);
+        $.edge_padding_high = reader.array(json.edge_padding_high);
+        $.interior_padding = reader.array(json.interior_padding);
+        return $;
+    }
+};
+
+$root.circle.StablehloIotaOptions = class StablehloIotaOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.StablehloIotaOptions();
+        $.iota_dimension = reader.int64_(position, 4, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.StablehloIotaOptions();
+        $.iota_dimension = reader.value(json.iota_dimension, 0);
+        return $;
+    }
+};
+
+$root.circle.StablehloCustomCallOptions = class StablehloCustomCallOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.StablehloCustomCallOptions();
+        $.call_target_name = reader.string_(position, 4, null);
+        $.has_side_effect = reader.bool_(position, 6, false);
+        $.backend_config = reader.string_(position, 8, null);
+        $.api_version = reader.int32_(position, 10, 0);
+        $.called_computations = reader.typedArray(position, 12, Int32Array);
+        $.custom_attributes = reader.typedArray(position, 14, Uint8Array);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.StablehloCustomCallOptions();
+        $.call_target_name = reader.value(json.call_target_name, null);
+        $.has_side_effect = reader.value(json.has_side_effect, false);
+        $.backend_config = reader.value(json.backend_config, null);
+        $.api_version = reader.value(json.api_version, 0);
+        $.called_computations = reader.typedArray(json.called_computations, Int32Array);
+        $.custom_attributes = reader.typedArray(json.custom_attributes, Uint8Array);
+        return $;
+    }
+};
+
+$root.circle.StablehloReduceOptions = class StablehloReduceOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.StablehloReduceOptions();
+        $.dimensions = reader.int64s_(position, 4);
+        $.body_subgraph_index = reader.int32_(position, 6, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.StablehloReduceOptions();
+        $.dimensions = reader.array(json.dimensions);
+        $.body_subgraph_index = reader.value(json.body_subgraph_index, 0);
+        return $;
+    }
+};
+
+$root.circle.StablehloSliceOptions = class StablehloSliceOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.StablehloSliceOptions();
+        $.start_indices = reader.int64s_(position, 4);
+        $.limit_indices = reader.int64s_(position, 6);
+        $.strides = reader.int64s_(position, 8);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.StablehloSliceOptions();
+        $.start_indices = reader.array(json.start_indices);
+        $.limit_indices = reader.array(json.limit_indices);
+        $.strides = reader.array(json.strides);
+        return $;
+    }
+};
+
+$root.circle.StablehloConvolutionOptions = class StablehloConvolutionOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.StablehloConvolutionOptions();
+        $.window_strides = reader.int64s_(position, 4);
+        $.padding = reader.int64s_(position, 6);
+        $.lhs_dilation = reader.int64s_(position, 8);
+        $.rhs_dilation = reader.int64s_(position, 10);
+        $.window_reversal = reader.bools_(position, 12);
+        $.input_batch_dimension = reader.int64_(position, 14, 0);
+        $.input_feature_dimension = reader.int64_(position, 16, 0);
+        $.input_spatial_dimensions = reader.int64s_(position, 18);
+        $.kernel_input_feature_dimension = reader.int64_(position, 20, 0);
+        $.kernel_output_feature_dimension = reader.int64_(position, 22, 0);
+        $.kernel_spatial_dimensions = reader.int64s_(position, 24);
+        $.output_batch_dimension = reader.int64_(position, 26, 0);
+        $.output_feature_dimension = reader.int64_(position, 28, 0);
+        $.output_spatial_dimensions = reader.int64s_(position, 30);
+        $.feature_group_count = reader.int64_(position, 32, 0);
+        $.batch_group_count = reader.int64_(position, 34, 0);
+        $.precision_config = reader.typedArray(position, 36, Uint32Array);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.StablehloConvolutionOptions();
+        $.window_strides = reader.array(json.window_strides);
+        $.padding = reader.array(json.padding);
+        $.lhs_dilation = reader.array(json.lhs_dilation);
+        $.rhs_dilation = reader.array(json.rhs_dilation);
+        $.window_reversal = reader.array(json.window_reversal);
+        $.input_batch_dimension = reader.value(json.input_batch_dimension, 0);
+        $.input_feature_dimension = reader.value(json.input_feature_dimension, 0);
+        $.input_spatial_dimensions = reader.array(json.input_spatial_dimensions);
+        $.kernel_input_feature_dimension = reader.value(json.kernel_input_feature_dimension, 0);
+        $.kernel_output_feature_dimension = reader.value(json.kernel_output_feature_dimension, 0);
+        $.kernel_spatial_dimensions = reader.array(json.kernel_spatial_dimensions);
+        $.output_batch_dimension = reader.value(json.output_batch_dimension, 0);
+        $.output_feature_dimension = reader.value(json.output_feature_dimension, 0);
+        $.output_spatial_dimensions = reader.array(json.output_spatial_dimensions);
+        $.feature_group_count = reader.value(json.feature_group_count, 0);
+        $.batch_group_count = reader.value(json.batch_group_count, 0);
+        $.precision_config = reader.objectArray(json.precision_config, $root.circle.StablehloPrecisionConfig.decodeText);
+        return $;
+    }
+};
+
+$root.circle.StablehloScatterOptions = class StablehloScatterOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.StablehloScatterOptions();
+        $.indices_are_sorted = reader.bool_(position, 4, false);
+        $.update_window_dims = reader.int64s_(position, 6);
+        $.inserted_window_dims = reader.int64s_(position, 8);
+        $.scatter_dims_to_operand_dims = reader.int64s_(position, 10);
+        $.index_vector_dim = reader.int64_(position, 12, 0);
+        $.unique_indices = reader.bool_(position, 14, false);
+        $.update_computation_subgraph_index = reader.int32_(position, 16, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.StablehloScatterOptions();
+        $.indices_are_sorted = reader.value(json.indices_are_sorted, false);
+        $.update_window_dims = reader.array(json.update_window_dims);
+        $.inserted_window_dims = reader.array(json.inserted_window_dims);
+        $.scatter_dims_to_operand_dims = reader.array(json.scatter_dims_to_operand_dims);
+        $.index_vector_dim = reader.value(json.index_vector_dim, 0);
+        $.unique_indices = reader.value(json.unique_indices, false);
+        $.update_computation_subgraph_index = reader.value(json.update_computation_subgraph_index, 0);
+        return $;
+    }
+};
+
+$root.circle.RngAlgorithm = {
+    DEFAULT: 0,
+    PHILOX: 1,
+    THREEFRY: 2
+};
+
+$root.circle.StablehloRngBitGeneratorOptions = class StablehloRngBitGeneratorOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.StablehloRngBitGeneratorOptions();
+        $.algorithm = reader.int8_(position, 4, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.StablehloRngBitGeneratorOptions();
+        $.algorithm = $root.circle.RngAlgorithm[json.algorithm];
+        return $;
+    }
+};
+
 $root.circle.Padding = {
     SAME: 0,
     VALID: 1
@@ -708,6 +1206,7 @@ $root.circle.Conv2DOptions = class Conv2DOptions {
         $.fused_activation_function = reader.int8_(position, 10, 0);
         $.dilation_w_factor = reader.int32_(position, 12, 1);
         $.dilation_h_factor = reader.int32_(position, 14, 1);
+        $.quantized_bias_type = reader.int8_(position, 16, 0);
         return $;
     }
 
@@ -719,6 +1218,7 @@ $root.circle.Conv2DOptions = class Conv2DOptions {
         $.fused_activation_function = $root.circle.ActivationFunctionType[json.fused_activation_function];
         $.dilation_w_factor = reader.value(json.dilation_w_factor, 1);
         $.dilation_h_factor = reader.value(json.dilation_h_factor, 1);
+        $.quantized_bias_type = $root.circle.TensorType[json.quantized_bias_type];
         return $;
     }
 };
@@ -934,6 +1434,7 @@ $root.circle.FullyConnectedOptions = class FullyConnectedOptions {
         $.weights_format = reader.int8_(position, 6, 0);
         $.keep_num_dims = reader.bool_(position, 8, false);
         $.asymmetric_quantize_inputs = reader.bool_(position, 10, false);
+        $.quantized_bias_type = reader.int8_(position, 12, 0);
         return $;
     }
 
@@ -943,6 +1444,7 @@ $root.circle.FullyConnectedOptions = class FullyConnectedOptions {
         $.weights_format = $root.circle.FullyConnectedOptionsWeightsFormat[json.weights_format];
         $.keep_num_dims = reader.value(json.keep_num_dims, false);
         $.asymmetric_quantize_inputs = reader.value(json.asymmetric_quantize_inputs, false);
+        $.quantized_bias_type = $root.circle.TensorType[json.quantized_bias_type];
         return $;
     }
 };
@@ -1485,6 +1987,7 @@ $root.circle.StridedSliceOptions = class StridedSliceOptions {
         $.ellipsis_mask = reader.int32_(position, 8, 0);
         $.new_axis_mask = reader.int32_(position, 10, 0);
         $.shrink_axis_mask = reader.int32_(position, 12, 0);
+        $.offset = reader.bool_(position, 14, false);
         return $;
     }
 
@@ -1495,6 +1998,7 @@ $root.circle.StridedSliceOptions = class StridedSliceOptions {
         $.ellipsis_mask = reader.value(json.ellipsis_mask, 0);
         $.new_axis_mask = reader.value(json.new_axis_mask, 0);
         $.shrink_axis_mask = reader.value(json.shrink_axis_mask, 0);
+        $.offset = reader.value(json.offset, false);
         return $;
     }
 };
@@ -1697,6 +2201,7 @@ $root.circle.TransposeConvOptions = class TransposeConvOptions {
         $.stride_w = reader.int32_(position, 6, 0);
         $.stride_h = reader.int32_(position, 8, 0);
         $.fused_activation_function = reader.int8_(position, 10, 0);
+        $.quantized_bias_type = reader.int8_(position, 12, 0);
         return $;
     }
 
@@ -1706,6 +2211,7 @@ $root.circle.TransposeConvOptions = class TransposeConvOptions {
         $.stride_w = reader.value(json.stride_w, 0);
         $.stride_h = reader.value(json.stride_h, 0);
         $.fused_activation_function = $root.circle.ActivationFunctionType[json.fused_activation_function];
+        $.quantized_bias_type = $root.circle.TensorType[json.quantized_bias_type];
         return $;
     }
 };
@@ -2656,6 +3162,44 @@ $root.circle.RightShiftOptions = class RightShiftOptions {
     }
 };
 
+$root.circle.DilateOptions = class DilateOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.circle.DilateOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.circle.DilateOptions();
+        return $;
+    }
+};
+
+$root.circle.ReduceWindowFunction = {
+    UNSUPPORTED: 0,
+    ADD: 1,
+    MUL: 2,
+    MINIMUM: 3,
+    MAXIMUM: 4,
+    ALL: 5,
+    ANY: 6
+};
+
+$root.circle.ReduceWindowOptions = class ReduceWindowOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.circle.ReduceWindowOptions();
+        $.reduce_function = reader.int32_(position, 4, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.circle.ReduceWindowOptions();
+        $.reduce_function = $root.circle.ReduceWindowFunction[json.reduce_function];
+        return $;
+    }
+};
+
 $root.circle.BCQGatherOptions = class BCQGatherOptions {
 
     static decode(reader, position) {
@@ -2749,6 +3293,9 @@ $root.circle.Operator = class Operator {
         $.custom_options_format = reader.int8_(position, 16, 0);
         $.mutating_variable_inputs = reader.bools_(position, 18);
         $.intermediates = reader.typedArray(position, 20, Int32Array);
+        $.large_custom_options_offset = reader.uint64_(position, 22, 0);
+        $.large_custom_options_size = reader.uint64_(position, 24, 0);
+        $.builtin_options_2 = reader.union(position, 26, $root.circle.BuiltinOptions2.decode);
         return $;
     }
 
@@ -2762,6 +3309,9 @@ $root.circle.Operator = class Operator {
         $.custom_options_format = $root.circle.CustomOptionsFormat[json.custom_options_format];
         $.mutating_variable_inputs = reader.array(json.mutating_variable_inputs);
         $.intermediates = reader.typedArray(json.intermediates, Int32Array);
+        $.large_custom_options_offset = reader.value(json.large_custom_options_offset, 0);
+        $.large_custom_options_size = reader.value(json.large_custom_options_size, 0);
+        $.builtin_options_2 = $root.circle.BuiltinOptions2.decodeText(reader, json.builtin_options_2, json.builtin_options_2_type);
         return $;
     }
 };
@@ -2775,7 +3325,7 @@ $root.circle.SubGraph = class SubGraph {
         $.outputs = reader.typedArray(position, 8, Int32Array);
         $.operators = reader.tableArray(position, 10, $root.circle.Operator.decode);
         $.name = reader.string_(position, 12, null);
-        $.data_format = reader.int8_(position, 14, 0);
+        $.deprecated_data_format = reader.int8_(position, 14, 0);
         return $;
     }
 
@@ -2786,7 +3336,7 @@ $root.circle.SubGraph = class SubGraph {
         $.outputs = reader.typedArray(json.outputs, Int32Array);
         $.operators = reader.objectArray(json.operators, $root.circle.Operator.decodeText);
         $.name = reader.value(json.name, null);
-        $.data_format = $root.circle.DataFormat[json.data_format];
+        $.deprecated_data_format = $root.circle.DataFormat[json.deprecated_data_format];
         return $;
     }
 };
@@ -2796,12 +3346,16 @@ $root.circle.Buffer = class Buffer {
     static decode(reader, position) {
         const $ = new $root.circle.Buffer();
         $.data = reader.typedArray(position, 4, Uint8Array);
+        $.offset = reader.uint64_(position, 6, 0);
+        $.size = reader.uint64_(position, 8, 0);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new $root.circle.Buffer();
         $.data = reader.typedArray(json.data, Uint8Array);
+        $.offset = reader.value(json.offset, 0);
+        $.size = reader.value(json.size, 0);
         return $;
     }
 };
