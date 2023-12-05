@@ -4214,6 +4214,8 @@ python.Execution = class {
         this.registerType('torch.nn.quantized.modules.normalization.GroupNorm', class extends torch.nn.modules.normalization.GroupNorm {});
         this.registerType('torch.nn.quantized.modules.normalization.LayerNorm', class extends torch.nn.modules.normalization.LayerNorm {});
         this.registerType('torch.nn.quantized.modules.Quantize', class {});
+        this.registerType('torch.ao.nn.quantizable.modules.activation.MultiheadAttention', class extends torch.nn.modules.activation.MultiheadAttention {});
+        this.registerType('torch.ao.nn.quantized.modules.activation.MultiheadAttention', class extends torch.ao.nn.quantizable.modules.activation.MultiheadAttention {});
         this.registerType('torch.ao.nn.quantized.modules.utils.WeightedQuantizedModule', class extends torch.nn.Module {});
         this.registerType('torch.ao.nn.quantized.modules.conv.Conv2d', class extends torch.nn.Module {});
         this.registerType('torch.ao.nn.quantized.modules.conv._ConvNd', class extends torch.ao.nn.quantized.modules.utils.WeightedQuantizedModule {});
@@ -4223,8 +4225,10 @@ python.Execution = class {
         this.registerType('torch.ao.nn.quantized.modules.DeQuantize', class extends torch.nn.Module {});
         this.registerType('torch.ao.nn.quantized.modules.dropout.Dropout', class extends torch.nn.modules.dropout.Dropout {});
         this.registerType('torch.ao.nn.quantized.modules.functional_modules.FloatFunctional', class extends torch.nn.Module {});
+        this.registerType('torch.ao.nn.quantized.modules.functional_modules.QFunctional', class extends torch.nn.Module {});
         this.registerType('torch.ao.nn.quantized.modules.linear.Linear', class extends torch.ao.nn.quantized.modules.utils.WeightedQuantizedModule {});
         this.registerType('torch.ao.nn.quantized.modules.linear.LinearPackedParams', class extends torch.nn.Module {});
+        this.registerType('torch.ao.nn.quantized.modules.normalization.LayerNorm', class extends torch.nn.modules.normalization.LayerNorm {});
         this.registerType('torch.ao.nn.quantized.dynamic.modules.linear.Linear', class extends torch.ao.nn.quantized.modules.linear.Linear {});
         this.registerType('torch.ao.nn.quantized.dynamic.modules.rnn.PackedParameter', class extends torch.nn.Module {});
         this.registerType('torch.ao.nn.intrinsic.quantized.modules.conv_relu.ConvReLU2d', class extends torch.ao.nn.quantized.modules.conv.Conv2d {});
@@ -4614,9 +4618,28 @@ python.Execution = class {
             return tensor;
         });
         this.registerFunction('torch._utils._rebuild_parameter', function(data, requires_grad, backward_hooks) {
-            const obj = self.invoke('torch.nn.parameter.Parameter', [ data, requires_grad ]);
-            obj.backward_hooks = backward_hooks;
-            return obj;
+            const param = self.invoke('torch.nn.parameter.Parameter', [ data, requires_grad ]);
+            param.backward_hooks = backward_hooks;
+            return param;
+        });
+        this.registerFunction('torch._utils._rebuild_parameter_with_state', function(data, requires_grad, backward_hooks, state) {
+            const _set_obj_state = (obj, state) => {
+                const [dict_state, slots_state] = Array.isArray(state) ? state : [state, null];
+                if (dict_state) {
+                    for (const [k, v] of Object.entries(dict_state)) {
+                        self.invoke('builtins.setattr', [ obj, k, v ]);
+                    }
+                }
+                if (slots_state) {
+                    for (const [k, v] of Object.entries(slots_state)) {
+                        self.invoke('builtins.setattr', [ obj, k, v ]);
+                    }
+                }
+            };
+            const param = self.invoke('torch.nn.parameter.Parameter', [ data, requires_grad ]);
+            param._backward_hooks = backward_hooks;
+            _set_obj_state(param, state);
+            return param;
         });
         this.registerFunction('torch._utils._rebuild_qtensor', function(storage, storage_offset, size, stride, quantizer_params, requires_grad, backward_hooks) {
             const tensor = execution.invoke('torch._utils._rebuild_tensor_v2', [ storage, storage_offset, size, stride, requires_grad, backward_hooks ]);
@@ -5221,6 +5244,9 @@ python.Execution = class {
         });
         this.registerFunction('torch.nn.functional.max_pool2d_with_indices', function(/* input */) {
             throw new python.Error("'torch.nn.functional.max_pool2d_with_indices' not implemented.");
+        });
+        this.registerFunction('torch.nn.functional.mse_loss', function(/* input */) {
+            throw new python.Error("'torch.nn.functional.mse_loss' not implemented.");
         });
         this.registerFunction('torch.nn.functional.relu', function(/* input */) {
             throw new python.Error("'torch.nn.functional.relu' not implemented.");
