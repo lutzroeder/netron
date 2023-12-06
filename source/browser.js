@@ -1,5 +1,7 @@
 ﻿
-var host = {};
+import * as base from './base.js';
+
+const host = {};
 
 host.BrowserHost = class {
 
@@ -7,7 +9,6 @@ host.BrowserHost = class {
         this._window = window;
         this._navigator = window.navigator;
         this._document = window.document;
-        const base = require('./base');
         this._telemetry = new base.Telemetry(this._window);
         this._window.eval = () => {
             throw new Error('window.eval() not supported.');
@@ -57,7 +58,7 @@ host.BrowserHost = class {
             const days = (new Date() - new Date(this._environment.date)) / (24 * 60 * 60 * 1000);
             if (days > 180) {
                 this.document.body.classList.remove('spinner');
-                this.window.terminate('Please update to the newest version.', 'Download', () => {
+                this.window.exports.terminate('Please update to the newest version.', 'Download', () => {
                     const link = this._element('logo-github').href;
                     this.openURL(link);
                 });
@@ -140,7 +141,7 @@ host.BrowserHost = class {
                 browser_capabilities: capabilities.map((capability) => capability.split('.').pop()).join(',')
             });
             if (required.length > available.length) {
-                this.window.terminate('Your browser is not supported.');
+                this.window.exports.terminate('Your browser is not supported.');
                 return new Promise(() => {});
             }
             return Promise.resolve();
@@ -191,7 +192,6 @@ host.BrowserHost = class {
             });
             const mobileSafari = this.environment('platform') === 'darwin' && navigator.maxTouchPoints && navigator.maxTouchPoints > 1;
             if (!mobileSafari) {
-                const base = require('./base');
                 const extensions = new base.Metadata().extensions.map((extension) => '.' + extension);
                 openFileDialog.setAttribute('accept', extensions.join(', '));
             }
@@ -237,10 +237,8 @@ host.BrowserHost = class {
         return confirm(message + ' ' + detail);
     }
 
-    require(id) {
-        return new Promise((resolve, reject) => {
-            this.window.require(id, (module) => resolve(module), (error) => reject(error));
-        });
+    async require(id) {
+        return import(id + '.js');
     }
 
     save(name, extension, defaultPath, callback) {
@@ -371,7 +369,6 @@ host.BrowserHost = class {
                 progress(0);
                 if (request.status == 200) {
                     if (request.responseType == 'arraybuffer') {
-                        const base = require('./base');
                         const buffer = new Uint8Array(request.response);
                         const stream = new base.BinaryStream(buffer);
                         resolve(stream);
@@ -484,7 +481,6 @@ host.BrowserHost = class {
                 this.error('Error while loading Gist.', 'Gist does not contain a model file.');
                 return;
             }
-            const base = require('./base');
             const file = json.files[key];
             const identifier = file.filename;
             const encoder = new TextEncoder();
@@ -620,7 +616,6 @@ host.BrowserHost.BrowserFileContext = class {
                 } else {
                     const buffer = new Uint8Array(e.target.result);
                     if (position === 0 && buffer.length === blob.size) {
-                        const base = require('./base');
                         const stream = new base.BinaryStream(buffer);
                         resolve(stream);
                     } else {
@@ -848,3 +843,9 @@ if (!('scrollBehavior' in window.document.documentElement.style)) {
         }
     };
 }
+
+if (typeof window !== 'undefined' && window.exports) {
+    window.exports.browser = host;
+}
+
+export const BrowserHost = host.BrowserHost;

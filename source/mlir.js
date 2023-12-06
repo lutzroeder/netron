@@ -2,8 +2,9 @@
 // Experimental
 // contributor @tucan9389
 
-var mlir = {};
-var text = require('./text');
+import * as text from './text.js';
+
+const mlir = {};
 
 mlir.ModelFactory = class {
 
@@ -1214,6 +1215,5 @@ mlir.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = mlir.ModelFactory;
-}
+export const ModelFactory = mlir.ModelFactory;
+

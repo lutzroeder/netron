@@ -1,5 +1,5 @@
 
-var base = {};
+const base = {};
 
 base.Int64 = class Int64 {
 
@@ -1108,13 +1108,11 @@ if (typeof window !== 'undefined' && typeof window.Long != 'undefined') {
     window.Uint64 = base.Uint64;
 }
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.Int64 = base.Int64;
-    module.exports.Uint64 = base.Uint64;
-    module.exports.Complex64 = base.Complex64;
-    module.exports.Complex128 = base.Complex128;
-    module.exports.BinaryStream = base.BinaryStream;
-    module.exports.BinaryReader = base.BinaryReader;
-    module.exports.Telemetry = base.Telemetry;
-    module.exports.Metadata = base.Metadata;
-}
+export const Int64 = base.Int64;
+export const Uint64 = base.Uint64;
+export const Complex64 = base.Complex64;
+export const Complex128 = base.Complex128;
+export const BinaryStream = base.BinaryStream;
+export const BinaryReader = base.BinaryReader;
+export const Telemetry = base.Telemetry;
+export const Metadata = base.Metadata;

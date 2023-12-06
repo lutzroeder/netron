@@ -1,7 +1,8 @@
 
-var json = {};
-var bson = {};
-var text = require('./text');
+import * as text from './text.js';
+
+const json = {};
+const bson = {};
 
 json.TextReader = class {
 
@@ -559,7 +560,5 @@ bson.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.TextReader = json.TextReader;
-    module.exports.BinaryReader = json.BinaryReader;
-}
+export const TextReader = json.TextReader;
+export const BinaryReader = json.BinaryReader;

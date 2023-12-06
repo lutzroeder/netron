@@ -1,8 +1,9 @@
 
 // Experimental
 
-var tengine = {};
-var base = require('./base');
+import * as base from './base.js';
+
+const tengine = {};
 
 tengine.ModelFactory = class {
 
@@ -785,6 +786,5 @@ tengine.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = tengine.ModelFactory;
-}
+export const ModelFactory = tengine.ModelFactory;
+

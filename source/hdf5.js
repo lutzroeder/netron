@@ -1,8 +1,9 @@
 
 // Experimental HDF5 reader
 
-var hdf5 = {};
-var zip = require('./zip');
+import * as zip from './zip.js';
+
+const hdf5 = {};
 
 hdf5.File = class {
 
@@ -247,8 +248,8 @@ hdf5.Variable = class {
                         }
                     }
                     const chunk_offset = node.fields;
-                    var data_pos = chunk_offset.slice();
-                    var chunk_pos = data_pos.map(() => 0);
+                    const data_pos = chunk_offset.slice();
+                    const chunk_pos = data_pos.map(() => 0);
                     for (let chunk_index = 0; chunk_index < chunk_size; chunk_index++) {
                         for (let i = max_dim; i >= 0; i--) {
                             if (chunk_pos[i] >= chunk_shape[i]) {
@@ -1630,6 +1631,4 @@ hdf5.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.File = hdf5.File;
-}
+export const File = hdf5.File;

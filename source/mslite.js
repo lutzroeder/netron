@@ -1,6 +1,7 @@
 
-var mslite = {};
-var flatbuffers = require('./flatbuffers');
+import * as flatbuffers from './flatbuffers.js';
+
+const mslite = {};
 
 mslite.ModelFactory = class {
 
@@ -468,6 +469,4 @@ mslite.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = mslite.ModelFactory;
-}
+export const ModelFactory = mslite.ModelFactory;

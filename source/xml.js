@@ -1,6 +1,6 @@
 
-var xml = {};
-var text = require('./text');
+const xml = {};
+import * as text from './text.js';
 
 // https://www.w3.org/TR/xml
 
@@ -1748,6 +1748,5 @@ xml.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.TextReader = xml.TextReader;
-}
+export const TextReader = xml.TextReader;
+

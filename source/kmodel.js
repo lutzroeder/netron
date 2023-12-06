@@ -1,6 +1,7 @@
 
-var kmodel = {};
-var base = require('./base');
+import * as base from './base.js';
+
+const kmodel = {};
 
 kmodel.ModelFactory = class {
 
@@ -1351,6 +1352,4 @@ kmodel.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = kmodel.ModelFactory;
-}
+export const ModelFactory = kmodel.ModelFactory;

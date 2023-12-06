@@ -11,6 +11,7 @@
     "description": "Visualizer for neural network, deep learning, and machine learning models",
     "license": "MIT",
     "repository": "lutzroeder/netron",
+    "type": "module",
     "main": "source/app.js",
     "scripts": {
         "start": "node package.js start",
@@ -39,7 +40,7 @@
     },
     "eslintConfig": {
         "env": {
-            "es2017": true,
+            "es2020": true,
             "browser": true,
             "node": true
         },
@@ -65,8 +66,10 @@
             "no-duplicate-imports": "error",
             "no-else-return": "error",
             "no-extra-semi": "error",
+            "no-global-assign": "error",
             "no-invalid-this": "error",
             "no-iterator": "error",
+            "no-import-assign": "error",
             "no-labels": "error",
             "no-lone-blocks": "error",
             "no-lonely-if": "error",
@@ -80,6 +83,7 @@
             "no-unreachable-loop": "error",
             "no-unused-private-class-members": "error",
             "no-use-before-define": "error",
+            "no-var": "error",
             "object-curly-spacing": [ "error", "always" ],
             "prefer-const": [ "error" ],
             "prefer-destructuring": [ "error", { "array": false } ],
@@ -157,7 +161,7 @@
             { "ext": "uff",         "name": "UFF Model"                },
             { "ext": "xmodel",      "name": "Vitis AI Model"           }
         ],
-        "afterSign": "./publish/notarize.js",
+        "afterSign": "./publish/notarize.cjs",
         "publish": [
             { "provider": "github", "releaseType": "release" }
         ],

@@ -1,4 +1,7 @@
-var $root = flatbuffers.get('ort');
+
+import * as flatbuffers from './flatbuffers.js';
+
+const $root = flatbuffers.get('ort');
 
 $root.onnxruntime = $root.onnxruntime || {};
 

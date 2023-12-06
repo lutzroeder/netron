@@ -1,16 +1,17 @@
 
-var view =  {};
-var markdown = {};
-var base = require('./base');
-var zip = require('./zip');
-var tar = require('./tar');
-var json = require('./json');
-var xml = require('./xml');
-var protobuf = require('./protobuf');
-var flatbuffers = require('./flatbuffers');
-var hdf5 = require('./hdf5');
-var python = require('./python');
-var grapher = require('./grapher');
+import * as base from './base.js';
+import * as zip from './zip.js';
+import * as tar from './tar.js';
+import * as json from './json.js';
+import * as xml from './xml.js';
+import * as protobuf from './protobuf.js';
+import * as flatbuffers from './flatbuffers.js';
+import * as hdf5 from './hdf5.js';
+import * as python from './python.js';
+import * as grapher from './grapher.js';
+
+const view =  {};
+const markdown = {};
 
 view.View = class {
 
@@ -34,6 +35,7 @@ view.View = class {
 
     async start() {
         try {
+            await zip.Archive.import();
             await this._host.view(this);
             const options = this._host.get('options') || {};
             for (const [name, value] of Object.entries(options)) {
@@ -5273,7 +5275,6 @@ view.ModelFactoryService = class {
                     }
                     return obj instanceof Map && obj.size > 0;
                 };
-
                 let entries = context.entries;
                 if (!check(entries)) {
                     entries = content.peek('zip');
@@ -5314,7 +5315,9 @@ view.ModelFactoryService = class {
         for (const callback of callbacks) {
             let archive = null;
             try {
+                /* eslint-disable no-await-in-loop */
                 archive = callback(stream);
+                /* eslint-enable no-await-in-loop */
             } catch (error) {
                 // continue regardless of error
             }
@@ -5509,27 +5512,36 @@ view.ModelFactoryService = class {
         let success = false;
         const next = async () => {
             if (modules.length > 0) {
+                let module = null;
                 try {
                     const id = modules.shift();
-                    const module = await this._host.require(id);
+                    module = await this._host.require(id);
                     if (!module.ModelFactory) {
                         throw new view.Error("Failed to load module '" + id + "'.");
                     }
-                    const modelFactory = new module.ModelFactory();
-                    const target = modelFactory.match(context);
-                    if (target) {
-                        success = true;
-                        const model = await modelFactory.open(context, target);
-                        if (!model.identifier) {
-                            model.identifier = context.identifier;
-                        }
-                        return model;
-                    }
                 } catch (error) {
-                    if (context.stream && context.stream.position !== 0) {
-                        context.stream.seek(0);
-                    }
+                    success = true;
+                    modules.splice(0, modules.length);
                     errors.push(error);
+                }
+                if (module) {
+                    try {
+                        const modelFactory = new module.ModelFactory();
+                        const target = modelFactory.match(context);
+                        if (target) {
+                            success = true;
+                            const model = await modelFactory.open(context, target);
+                            if (!model.identifier) {
+                                model.identifier = context.identifier;
+                            }
+                            return model;
+                        }
+                    } catch (error) {
+                        if (context.stream && context.stream.position !== 0) {
+                            context.stream.seek(0);
+                        }
+                        errors.push(error);
+                    }
                 }
                 return await next();
             }
@@ -5853,10 +5865,12 @@ view.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.View = view.View;
-    module.exports.ModelFactoryService = view.ModelFactoryService;
-    module.exports.Documentation = view.Documentation;
-    module.exports.Formatter = view.Formatter;
-    module.exports.Tensor = view.Tensor;
+if (typeof window !== 'undefined' && window.exports) {
+    window.exports.view = view;
 }
+
+export const View = view.View;
+export const ModelFactoryService = view.ModelFactoryService;
+export const Documentation = view.Documentation;
+export const Formatter = view.Formatter;
+export const Tensor = view.Tensor;

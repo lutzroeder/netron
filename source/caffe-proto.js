@@ -1,4 +1,7 @@
-var $root = protobuf.get('caffe');
+
+import * as protobuf from './protobuf.js';
+
+const $root = protobuf.get('caffe');
 
 $root.caffe = {};
 

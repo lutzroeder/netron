@@ -1,4 +1,7 @@
-var $root = flatbuffers.get('rknn');
+
+import * as flatbuffers from './flatbuffers.js';
+
+const $root = flatbuffers.get('rknn');
 
 $root.rknn = $root.rknn || {};
 

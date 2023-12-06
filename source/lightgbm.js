@@ -1,6 +1,7 @@
 
-var lightgbm = {};
-var python = require('./python');
+import * as python from './python.js';
+
+const lightgbm = {};
 
 lightgbm.ModelFactory = class {
 
@@ -43,66 +44,39 @@ lightgbm.ModelFactory = class {
 lightgbm.Model = class {
 
     constructor(obj, format) {
-        this._format = format + (obj && obj.version ? ' ' + obj.version : '');
-        this._graphs = [ new lightgbm.Graph(obj) ];
-    }
-
-    get format() {
-        return this._format;
-    }
-
-    get graphs() {
-        return this._graphs;
+        this.format = format + (obj && obj.version ? ' ' + obj.version : '');
+        this.graphs = [ new lightgbm.Graph(obj) ];
     }
 };
 
 lightgbm.Graph = class {
 
     constructor(model) {
-        this._inputs = [];
-        this._outputs = [];
-        this._nodes = [];
-
-        const args = [];
+        this.inputs = [];
+        this.outputs = [];
+        this.nodes = [];
+        const values = [];
         const feature_names = model.feature_names || [];
         for (let i = 0; i < feature_names.length; i++) {
             const name = feature_names[i];
             const info = model.feature_infos && i < model.feature_infos.length ? model.feature_infos[i] : null;
             const value = new lightgbm.Value(name, info);
-            args.push(value);
+            values.push(value);
             if (feature_names.length < 1000) {
-                this._inputs.push(new lightgbm.Argument(name, [ value ]));
+                const argument = new lightgbm.Argument(name, [ value ]);
+                this.inputs.push(argument);
             }
         }
-        this._nodes.push(new lightgbm.Node(model, args));
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get nodes() {
-        return this._nodes;
+        const node = new lightgbm.Node(model, values);
+        this.nodes.push(node);
     }
 };
 
 lightgbm.Argument = class {
 
     constructor(name, value) {
-        this._name = name;
-        this._value = value;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
+        this.name = name;
+        this.value = value;
     }
 };
 
@@ -112,86 +86,65 @@ lightgbm.Value = class {
         if (typeof name !== 'string') {
             throw new lightgbm.Error("Invalid value identifier '" + JSON.stringify(name) + "'.");
         }
-        this._name = name;
-        this._quantization = quantization;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get type() {
-        return null;
-    }
-
-    get quantization() {
-        return this._quantization;
-    }
-
-    get initializer() {
-        return null;
+        this.name = name;
+        this.quantization = quantization;
     }
 };
 
 lightgbm.Node = class {
 
-    constructor(model, args) {
-        const type = model.__class__.__module__ + '.' + model.__class__.__name__;
-        this._type = { name: type };
-        this._inputs = [];
-        this._outputs = [];
-        this._attributes = [];
-        this._inputs.push(new lightgbm.Argument('features', args));
-        for (const [key, value] of Object.entries(model)) {
-            if (value === undefined) {
-                continue;
+    constructor(obj, values, stack) {
+        const type = obj && obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'builtins.object';
+        this.name = '';
+        this.type = { name: type };
+        this.inputs = [];
+        this.outputs = [];
+        this.attributes = [];
+        if (values) {
+            const argument = new lightgbm.Argument('features', values);
+            this.inputs.push(argument);
+        }
+        const isObject = (obj) => {
+            if (obj && typeof obj === 'object') {
+                const proto = Object.getPrototypeOf(obj);
+                return proto === Object.prototype || proto === null;
             }
-            switch (key) {
-                case 'tree':
-                case 'version':
-                case 'feature_names':
-                case 'feature_infos':
-                    break;
-                default:
-                    this._attributes.push(new lightgbm.Attribute(key, value));
+            return false;
+        };
+        stack = stack || new Set();
+        const entries = Object.entries(obj).filter(([key, value]) => value !== undefined && key !== 'feature_names' && key !== 'feature_infos');
+        for (const [key, value] of entries) {
+            if (Array.isArray(value) && value.every((obj) => isObject(obj))) {
+                const values = value.filter((obj) => !stack.has(obj));
+                const nodes = values.map((obj) => {
+                    stack.add(obj);
+                    const node = new lightgbm.Node(obj, null, stack);
+                    stack.delete(obj);
+                    return node;
+                });
+                const attribute = new lightgbm.Attribute('object[]', key, nodes);
+                this.attributes.push(attribute);
+                continue;
+            } else if (isObject(value) && !stack.has(value)) {
+                stack.add(obj);
+                const node = new lightgbm.Node(obj, null, stack);
+                stack.delete(obj);
+                const attribute = new lightgbm.Attribute('object', key, node);
+                this.attributes.push(attribute);
+            } else {
+                const attribute = new lightgbm.Attribute(null, key, value);
+                this.attributes.push(attribute);
             }
         }
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get name() {
-        return '';
-    }
-
-    get inputs() {
-        return this._inputs;
-    }
-
-    get outputs() {
-        return this._outputs;
-    }
-
-    get attributes() {
-        return this._attributes;
     }
 };
 
 lightgbm.Attribute = class {
 
-    constructor(name, value) {
-        this._name = name;
-        this._value = value;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return this._value;
+    constructor(type, name, value) {
+        this.type = type;
+        this.name = name;
+        this.value = value;
     }
 };
 
@@ -203,6 +156,5 @@ lightgbm.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = lightgbm.ModelFactory;
-}
+export const ModelFactory = lightgbm.ModelFactory;
+

@@ -1,9 +1,10 @@
 
-var paddle = {};
-var flatbuffers = require('./flatbuffers');
-var protobuf = require('./protobuf');
-var python = require('./python');
-var base = require('./base');
+import * as base from './base.js';
+import * as flatbuffers from './flatbuffers.js';
+import * as protobuf from './protobuf.js';
+import * as python from './python.js';
+
+const paddle = {};
 
 paddle.ModelFactory = class {
 
@@ -970,6 +971,4 @@ paddle.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = paddle.ModelFactory;
-}
+export const ModelFactory = paddle.ModelFactory;

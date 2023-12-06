@@ -1,6 +1,7 @@
 
-var sentencepiece = {};
-var protobuf = require('./protobuf');
+import * as protobuf from './protobuf.js';
+
+const sentencepiece = {};
 
 sentencepiece.ModelFactory = class {
 
@@ -54,6 +55,5 @@ sentencepiece.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = sentencepiece.ModelFactory;
-}
+export const ModelFactory = sentencepiece.ModelFactory;
+

@@ -1,5 +1,5 @@
 
-var flexbuffers = {};
+const flexbuffers = {};
 
 flexbuffers.BinaryReader = class {
 
@@ -193,6 +193,4 @@ flexbuffers.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.BinaryReader = flexbuffers.BinaryReader;
-}
+export const BinaryReader = flexbuffers.BinaryReader;

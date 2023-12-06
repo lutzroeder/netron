@@ -1,4 +1,7 @@
-var $root = flatbuffers.get('armnn');
+
+import * as flatbuffers from './flatbuffers.js';
+
+const $root = flatbuffers.get('armnn');
 
 $root.armnnSerializer = $root.armnnSerializer || {};
 

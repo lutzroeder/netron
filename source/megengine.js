@@ -1,8 +1,9 @@
 
 // Experimental
 
-var megengine = {};
-var flatbuffers = require('./flatbuffers');
+import * as flatbuffers from './flatbuffers.js';
+
+const megengine = {};
 
 megengine.ModelFactory = class {
 
@@ -414,7 +415,7 @@ megengine.Graph = class {
                     if (opr.type === 'MultipleDeviceTensorWithFormatHolder' || opr.type === 'MultipleDeviceTensorHolder') {
                         opr.type = 'ImmutableTensor';
                     }
-                    for (var id = 0; id < opr.outputs.length; id++) {
+                    for (let id = 0; id < opr.outputs.length; id++) {
                         const keyId = opr.outputs[id];
                         const name = obj.middle_tensors[keyId] ? obj.middle_tensors[keyId].name : String(keyId);
                         const type = opr.type;
@@ -637,6 +638,5 @@ megengine.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = megengine.ModelFactory;
-}
+export const ModelFactory = megengine.ModelFactory;
+

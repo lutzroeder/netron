@@ -1,5 +1,5 @@
 
-var modular = {};
+const modular = {};
 
 modular.ModelFactory = class {
 
@@ -151,6 +151,4 @@ modular.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = modular.ModelFactory;
-}
+export const ModelFactory = modular.ModelFactory;

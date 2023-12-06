@@ -1,10 +1,11 @@
 
 // Experimental
 
-var om = {};
-var svp = {};
-var protobuf = require('./protobuf');
-var base = require('./base');
+import * as base from './base.js';
+import * as protobuf from './protobuf.js';
+
+const om = {};
+const svp = {};
 
 om.ModelFactory = class {
 
@@ -789,6 +790,4 @@ svp.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = om.ModelFactory;
-}
+export const ModelFactory = om.ModelFactory;

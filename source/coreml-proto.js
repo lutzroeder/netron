@@ -1,4 +1,7 @@
-var $root = protobuf.get('coreml');
+
+import * as protobuf from './protobuf.js';
+
+const $root = protobuf.get('coreml');
 
 $root.CoreML = {};
 

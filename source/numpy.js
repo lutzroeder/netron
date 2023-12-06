@@ -1,8 +1,9 @@
 
 // Experimental
 
-var numpy = {};
-var python = require('./python');
+import * as python from './python.js';
+
+const numpy = {};
 
 numpy.ModelFactory = class {
 
@@ -353,6 +354,4 @@ numpy.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = numpy.ModelFactory;
-}
+export const ModelFactory = numpy.ModelFactory;

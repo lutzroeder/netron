@@ -1,8 +1,9 @@
 
 // Experimental
 
-var dnn = {};
-var protobuf = require('./protobuf');
+import * as protobuf from './protobuf.js';
+
+const dnn = {};
 
 dnn.ModelFactory = class {
 
@@ -257,6 +258,5 @@ dnn.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = dnn.ModelFactory;
-}
+export const ModelFactory = dnn.ModelFactory;
+

@@ -1,6 +1,7 @@
 
-var tensorrt = {};
-var base = require('./base');
+import * as base from './base.js';
+
+const tensorrt = {};
 
 tensorrt.ModelFactory = class {
 
@@ -178,6 +179,4 @@ tensorrt.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = tensorrt.ModelFactory;
-}
+export const ModelFactory = tensorrt.ModelFactory;

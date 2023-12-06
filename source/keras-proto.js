@@ -1,4 +1,7 @@
-var $root = protobuf.get('tf');
+
+import * as protobuf from './protobuf.js';
+
+const $root = protobuf.get('tf');
 
 $root.third_party = {};
 

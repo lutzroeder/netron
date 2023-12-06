@@ -1,4 +1,7 @@
-var $root = flatbuffers.get('megengine');
+
+import * as flatbuffers from './flatbuffers.js';
+
+const $root = flatbuffers.get('megengine');
 
 $root.mgb = $root.mgb || {};
 

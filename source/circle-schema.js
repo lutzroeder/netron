@@ -1,4 +1,7 @@
-var $root = flatbuffers.get('circle');
+
+import * as flatbuffers from './flatbuffers.js';
+
+const $root = flatbuffers.get('circle');
 
 $root.circle = $root.circle || {};
 

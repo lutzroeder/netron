@@ -1,8 +1,8 @@
 
 // Experimental
 
-var weka = {};
-var java = {};
+const weka = {};
+const java = {};
 
 weka.ModelFactory = class {
 
@@ -146,8 +146,8 @@ java.io.InputObjectStream = class {
         }
         if (flags & 0x02) { // SC_SERIALIZABLE
             debugger;
-            var customObject = objects[classname];
-            var hasReadObjectMethod = customObject && customObject.readObject;
+            const customObject = objects[classname];
+            const hasReadObjectMethod = customObject && customObject.readObject;
             if (flags & 0x01) { // SC_WRITE_METHOD
                 if (!hasReadObjectMethod) {
                     throw new Error('Class "'+ classname + '" dose not implement readObject()');
@@ -251,6 +251,4 @@ java.io.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = weka.ModelFactory;
-}
+export const ModelFactory = weka.ModelFactory;

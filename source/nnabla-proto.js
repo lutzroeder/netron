@@ -1,4 +1,7 @@
-var $root = protobuf.get('nnabla');
+
+import * as protobuf from './protobuf.js';
+
+const $root = protobuf.get('nnabla');
 
 $root.nnabla = {};
 

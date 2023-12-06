@@ -1,4 +1,7 @@
-var $root = flatbuffers.get('paddlelite');
+
+import * as flatbuffers from './flatbuffers.js';
+
+const $root = flatbuffers.get('paddlelite');
 
 $root.paddle = $root.paddle || {};
 

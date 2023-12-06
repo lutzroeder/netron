@@ -1,6 +1,7 @@
 
-var xmodel = {};
-var protobuf = require('./protobuf');
+import * as protobuf from './protobuf.js';
+
+const xmodel = {};
 
 xmodel.ModelFactory = class {
 
@@ -382,6 +383,5 @@ xmodel.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = xmodel.ModelFactory;
-}
+export const ModelFactory = xmodel.ModelFactory;
+

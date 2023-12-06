@@ -1,4 +1,7 @@
-var $root = protobuf.get('onnx');
+
+import * as protobuf from './protobuf.js';
+
+const $root = protobuf.get('onnx');
 
 $root.onnx = {};
 

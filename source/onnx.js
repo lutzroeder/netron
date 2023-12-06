@@ -1,8 +1,9 @@
 
-var onnx = {};
-var protobuf = require('./protobuf');
-var flatbuffers = require('./flatbuffers');
-var text = require('./text');
+import * as protobuf from './protobuf.js';
+import * as flatbuffers from './flatbuffers.js';
+import * as text from './text.js';
+
+const onnx = {};
 
 onnx.ModelFactory = class {
 
@@ -2816,6 +2817,4 @@ onnx.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = onnx.ModelFactory;
-}
+export const ModelFactory = onnx.ModelFactory;

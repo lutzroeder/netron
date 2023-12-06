@@ -1,7 +1,7 @@
 
 // Experimental Python Execution
 
-var python = {};
+const python = {};
 
 python.Parser = class {
 
@@ -2280,7 +2280,7 @@ python.Execution = class {
                 } else {
                     content += '[';
                 }
-                for (var t of Object.values(this.type)) {
+                for (const t of Object.values(this.type)) {
                     content += t.__name__;
                 }
                 content += ']';
@@ -6719,6 +6719,4 @@ python.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.Execution = python.Execution;
-}
+export const Execution = python.Execution;

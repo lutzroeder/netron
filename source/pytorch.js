@@ -1,10 +1,11 @@
 
 // Experimental
 
-var pytorch = {};
-var python = require('./python');
-var base = require('./base');
-var flatbuffers = require('./flatbuffers');
+import * as base from './base.js';
+import * as flatbuffers from './flatbuffers.js';
+import * as python from './python.js';
+
+const pytorch = {};
 
 pytorch.ModelFactory = class {
 
@@ -4247,6 +4248,4 @@ pytorch.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = pytorch.ModelFactory;
-}
+export const ModelFactory = pytorch.ModelFactory;

@@ -1,5 +1,5 @@
 
-var cambricon = {};
+const cambricon = {};
 
 cambricon.ModelFactory = class {
 
@@ -28,6 +28,5 @@ cambricon.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = cambricon.ModelFactory;
-}
+export const ModelFactory = cambricon.ModelFactory;
+

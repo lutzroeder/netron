@@ -1,5 +1,5 @@
 
-var nnc = {};
+const nnc = {};
 
 nnc.ModelFactory = class {
 
@@ -25,8 +25,7 @@ nnc.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = nnc.ModelFactory;
-}
+export const ModelFactory = nnc.ModelFactory;
+
 
 

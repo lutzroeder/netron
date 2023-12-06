@@ -1,5 +1,5 @@
 
-var onednn = {};
+const onednn = {};
 
 onednn.ModelFactory = class {
 
@@ -403,6 +403,5 @@ onednn.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = onednn.ModelFactory;
-}
+export const ModelFactory = onednn.ModelFactory;
+

@@ -1,6 +1,7 @@
 
-var darknet = {};
-var text = require('./text');
+import * as text from './text.js';
+
+const darknet = {};
 
 darknet.ModelFactory = class {
 
@@ -1089,6 +1090,5 @@ darknet.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = darknet.ModelFactory;
-}
+export const ModelFactory = darknet.ModelFactory;
+

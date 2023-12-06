@@ -1,8 +1,9 @@
 
-var tflite = {};
-var flatbuffers = require('./flatbuffers');
-var flexbuffers = require('./flexbuffers');
-var zip = require('./zip');
+import * as flatbuffers from './flatbuffers.js';
+import * as flexbuffers from './flexbuffers.js';
+import * as zip from './zip.js';
+
+const tflite = {};
 
 tflite.ModelFactory = class {
 
@@ -681,6 +682,4 @@ tflite.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = tflite.ModelFactory;
-}
+export const ModelFactory = tflite.ModelFactory;

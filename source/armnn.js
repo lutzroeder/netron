@@ -1,6 +1,7 @@
 
-var armnn = {};
-var flatbuffers = require('./flatbuffers');
+import * as flatbuffers from './flatbuffers.js';
+
+const armnn = {};
 
 armnn.ModelFactory = class {
 
@@ -315,6 +316,4 @@ armnn.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = armnn.ModelFactory;
-}
+export const ModelFactory = armnn.ModelFactory;

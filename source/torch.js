@@ -1,5 +1,5 @@
 
-var torch = {};
+const torch = {};
 
 torch.ModelFactory = class {
 
@@ -1178,6 +1178,5 @@ torch.TextReader = class {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = torch.ModelFactory;
-}
+export const ModelFactory = torch.ModelFactory;
+

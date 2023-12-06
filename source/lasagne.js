@@ -1,7 +1,7 @@
 
 // Experimental
 
-var lasagne = {};
+const lasagne = {};
 
 lasagne.ModelFactory = class {
 
@@ -200,6 +200,4 @@ lasagne.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = lasagne.ModelFactory;
-}
+export const ModelFactory = lasagne.ModelFactory;

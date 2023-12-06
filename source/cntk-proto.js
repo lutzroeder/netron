@@ -1,4 +1,7 @@
-var $root = protobuf.get('cntk');
+
+import * as protobuf from './protobuf.js';
+
+const $root = protobuf.get('cntk');
 
 $root.CNTK = {};
 

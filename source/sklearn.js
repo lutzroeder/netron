@@ -1,7 +1,7 @@
 
 // Experimental
 
-var sklearn = {};
+const sklearn = {};
 
 sklearn.ModelFactory = class {
 
@@ -336,6 +336,4 @@ sklearn.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = sklearn.ModelFactory;
-}
+export const ModelFactory = sklearn.ModelFactory;

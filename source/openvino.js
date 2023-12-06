@@ -1,6 +1,7 @@
 
-var openvino = {};
-var xml = require('./xml');
+import * as xml from './xml.js';
+
+const openvino = {};
 
 openvino.ModelFactory = class {
 
@@ -785,6 +786,5 @@ openvino.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = openvino.ModelFactory;
-}
+export const ModelFactory = openvino.ModelFactory;
+

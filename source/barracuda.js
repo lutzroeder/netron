@@ -1,8 +1,9 @@
 
 // Experimental
 
-var barracuda = {};
-var base = require('./base');
+import * as base from './base.js';
+
+const barracuda = {};
 
 barracuda.ModelFactory = class {
 
@@ -420,6 +421,5 @@ barracuda.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = barracuda.ModelFactory;
-}
+export const ModelFactory = barracuda.ModelFactory;
+

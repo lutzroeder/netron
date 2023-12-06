@@ -1,14 +1,14 @@
 
-const electron = require('electron');
-const updater = require('electron-updater');
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
-const process = require('process');
-const url = require('url');
-const base = require('./base');
+import * as electron from 'electron';
+import * as updater from 'electron-updater';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+import * as process from 'process';
+import * as url from 'url';
+import * as base from './base.js';
 
-var app = {};
+const app = {};
 
 app.Application = class {
 
@@ -21,8 +21,9 @@ app.Application = class {
     }
 
     start() {
-        const packageFile = path.join(path.dirname(__dirname), 'package.json');
-        const packageContent = fs.readFileSync(packageFile, 'utf-8');
+        const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+        const packageFile = path.join(path.dirname(dirname), 'package.json');
+        const packageContent =  fs.readFileSync(packageFile, 'utf-8');
         this._package = JSON.parse(packageContent);
 
         electron.app.setAppUserModelId('com.lutzroeder.netron');
@@ -128,7 +129,8 @@ app.Application = class {
         let open = false;
         if (argv.length > 1) {
             for (const arg of argv.slice(1)) {
-                if (!arg.startsWith('-') && arg !== path.dirname(__dirname)) {
+                const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+                if (!arg.startsWith('-') && arg !== path.dirname(dirname)) {
                     const extension = path.extname(arg).toLowerCase();
                     if (extension !== '' && extension !== '.js' && fs.existsSync(arg)) {
                         const stat = fs.statSync(arg);
@@ -281,7 +283,7 @@ app.Application = class {
         if (!electron.app.isPackaged) {
             return;
         }
-        const autoUpdater = updater.autoUpdater;
+        const autoUpdater = updater.default.autoUpdater;
         if (autoUpdater.app && autoUpdater.app.appUpdateConfigPath && !fs.existsSync(autoUpdater.app.appUpdateConfigPath)) {
             return;
         }
@@ -634,18 +636,19 @@ app.View = class {
         this._path = null;
         this._properties = new Map();
         this._dispatch = [];
+        const dirname = path.dirname(url.fileURLToPath(import.meta.url));
         const size = electron.screen.getPrimaryDisplay().workAreaSize;
         const options = {
             show: false,
             title: electron.app.name,
             backgroundColor: electron.nativeTheme.shouldUseDarkColors ? '#1d1d1d' : '#e6e6e6',
-            icon: electron.nativeImage.createFromPath(path.join(__dirname, 'icon.png')),
+            icon: electron.nativeImage.createFromPath(path.join(dirname, 'icon.png')),
             minWidth: 600,
             minHeight: 600,
             width: size.width > 1024 ? 1024 : size.width,
             height: size.height > 768 ? 768 : size.height,
             webPreferences: {
-                preload: path.join(__dirname, 'electron.js'),
+                preload: path.join(dirname, 'electron.mjs'),
                 nodeIntegration: true
             }
         };
@@ -716,7 +719,8 @@ app.View = class {
     }
 
     _loadURL() {
-        const pathname = path.join(__dirname, 'index.html');
+        const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+        const pathname = path.join(dirname, 'index.html');
         let content = fs.readFileSync(pathname, 'utf-8');
         content = content.replace(/<\s*script[^>]*>[\s\S]*?(<\s*\/script[^>]*>|$)/ig, '');
         const data = 'data:text/html;charset=utf-8,' + encodeURIComponent(content);

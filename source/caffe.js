@@ -1,6 +1,7 @@
 
-var caffe = {};
-var protobuf = require('./protobuf');
+import * as protobuf from './protobuf.js';
+
+const caffe = {};
 
 caffe.ModelFactory = class {
 
@@ -715,6 +716,4 @@ caffe.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = caffe.ModelFactory;
-}
+export const ModelFactory = caffe.ModelFactory;

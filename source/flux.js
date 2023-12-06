@@ -1,8 +1,9 @@
 
 // Experimental
 
-var flux = {};
-var json = require('./json');
+import * as json from './json.js';
+
+const flux = {};
 
 flux.ModelFactory = class {
 
@@ -80,6 +81,4 @@ flux.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = flux.ModelFactory;
-}
+export const ModelFactory = flux.ModelFactory;

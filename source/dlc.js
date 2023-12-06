@@ -1,7 +1,8 @@
 
-var dlc = {};
-var text = require('./text');
-var flatbuffers = require('./flatbuffers');
+import * as text from './text.js';
+import * as flatbuffers from './flatbuffers.js';
+
+const dlc = {};
 
 dlc.ModelFactory = class {
 
@@ -665,6 +666,5 @@ dlc.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = dlc.ModelFactory;
-}
+export const ModelFactory = dlc.ModelFactory;
+

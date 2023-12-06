@@ -1,4 +1,7 @@
-var $root = flatbuffers.get('mslite');
+
+import * as flatbuffers from './flatbuffers.js';
+
+const $root = flatbuffers.get('mslite');
 
 $root.mindspore = $root.mindspore || {};
 

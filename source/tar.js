@@ -1,5 +1,5 @@
 
-var tar = {};
+const tar = {};
 
 tar.Archive = class {
 
@@ -162,6 +162,4 @@ tar.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.Archive = tar.Archive;
-}
+export const Archive = tar.Archive;

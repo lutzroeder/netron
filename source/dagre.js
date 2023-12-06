@@ -1,5 +1,5 @@
 
-var dagre = {};
+const dagre = {};
 
 // Dagre graph layout
 // https://github.com/dagrejs/dagre
@@ -2218,6 +2218,4 @@ dagre.Graph = class {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports = dagre;
-}
+export const { layout, Graph } = dagre;

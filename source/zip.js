@@ -1,9 +1,15 @@
 
-var zip = {};
-var gzip = {};
-var zlib = {};
+const zip = {};
+const gzip = {};
+const zlib = {};
 
 zip.Archive = class {
+
+    static async import() {
+        if (typeof process === 'object' && typeof process.versions == 'object' && typeof process.versions.node !== 'undefined') {
+            zip.zlib = await import('zlib');
+        }
+    }
 
     static open(data, format) {
         const stream = data instanceof Uint8Array ? new zip.BinaryReader(data) : data;
@@ -241,8 +247,8 @@ zip.Inflater = class {
 
     inflateRaw(data, length) {
         let buffer = null;
-        if (typeof process === 'object' && typeof process.versions == 'object' && typeof process.versions.node !== 'undefined') {
-            buffer = require('zlib').inflateRawSync(data);
+        if (zip.zlib) {
+            buffer = zip.zlib.inflateRawSync(data);
         } else {
             const reader = new zip.BitReader(data);
             const writer = length === undefined ? new zip.BlockWriter() : new zip.BufferWriter(length);
@@ -922,6 +928,4 @@ gzip.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.Archive = zip.Archive;
-}
+export const Archive = zip.Archive;

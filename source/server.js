@@ -1,7 +1,7 @@
 
 // Experimental
 
-var message = {};
+const message = {};
 
 message.ModelFactory = class {
 
@@ -247,6 +247,4 @@ message.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = message.ModelFactory;
-}
+export const ModelFactory = message.ModelFactory;

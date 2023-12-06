@@ -1,5 +1,5 @@
 
-var text = {};
+const text = {};
 
 text.Decoder = class {
 
@@ -340,7 +340,5 @@ text.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.Decoder = text.Decoder;
-    module.exports.Reader = text.Reader;
-}
+export const Decoder = text.Decoder;
+export const Reader = text.Reader;

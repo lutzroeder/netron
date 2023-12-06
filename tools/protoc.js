@@ -1,7 +1,8 @@
 
+import * as fs from 'fs/promises';
+import * as path from 'path';
+
 const protoc = {};
-const fs = require('fs').promises;
-const path = require('path');
 
 protoc.Object = class {
 
@@ -1129,7 +1130,10 @@ protoc.Generator = class {
         this._root = root;
         this._text = text;
         this._builder = new protoc.Generator.StringBuilder();
-        this._builder.add("var $root = protobuf.get('" + this._root.alias + "');");
+        this._builder.add("");
+        this._builder.add("import * as protobuf from './protobuf.js';");
+        this._builder.add("");
+        this._builder.add("const $root = protobuf.get('" + this._root.alias + "');");
         this._buildContent(this._root);
         this._content = this._builder.toString();
     }
@@ -1313,7 +1317,7 @@ protoc.Generator = class {
             for (const field of Array.from(type.fields.values()).filter((field) => field.required)) {
                 this._builder.add("if (!Object.prototype.hasOwnProperty.call(message, '" + field.name + "')) {");
                 this._builder.indent();
-                    this._builder.add('throw new protobuf.Error("Excepted \'' + field.name + '\'.");');
+                    this._builder.add('throw new Error("Excepted \'' + field.name + '\'.");');
                 this._builder.outdent();
                 this._builder.add('}');
             }
@@ -1383,7 +1387,7 @@ protoc.Generator = class {
                 for (const field of Array.from(type.fields.values()).filter((field) => field.required)) {
                     this._builder.add('if (!Object.prototype.hasOwnProperty.call(message, "' + field.name + '")) {');
                     this._builder.indent();
-                        this._builder.add('throw new protobuf.Error("Excepted \'' + field.name + '\'.");');
+                        this._builder.add('throw new Error("Excepted \'' + field.name + '\'.");');
                     this._builder.outdent();
                     this._builder.add('}');
                 }
@@ -1415,7 +1419,7 @@ protoc.Generator.StringBuilder = class {
 
     constructor() {
         this._indentation = '';
-        this._lines = [];
+        this._lines = [ '' ];
         this._newline = true;
     }
 
@@ -1501,12 +1505,9 @@ const main = async (args) => {
     process.exit(0);
 };
 
-if (typeof process === 'object' && Array.isArray(process.argv) &&
-    process.argv.length > 1 && process.argv[1] === __filename) {
+if (typeof process === 'object' && Array.isArray(process.argv) && process.argv.length > 1) {
     const args = process.argv.slice(2);
     main(args);
 }
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.Root = protoc.Root;
-}
+export const Root = protoc.Root;

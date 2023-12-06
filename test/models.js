@@ -1,12 +1,12 @@
 
-const fs = require('fs').promises;
-const path = require('path');
-const process = require('process');
-
-const base = require('../source/base');
-const view = require('../source/view');
-const zip = require('../source/zip');
-const tar = require('../source/tar');
+import * as fs from 'fs/promises';
+import * as path from 'path';
+import * as process from 'process';
+import * as url from 'url';
+import * as base from '../source/base.js';
+import * as view from '../source/view.js';
+import * as zip from '../source/zip.js';
+import * as tar from '../source/tar.js';
 
 const access = async (path) => {
     try {
@@ -52,7 +52,8 @@ host.TestHost = class {
     constructor() {
         this._window = global.window;
         this._document = this._window.document;
-        this._sourceDir = path.join(__dirname, '..', 'source');
+        const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+        this._sourceDir = path.join(dirname, '..', 'source');
     }
 
     get window() {
@@ -81,7 +82,7 @@ host.TestHost = class {
 
     async require(id) {
         const file = path.join(this._sourceDir, id + '.js');
-        return require(file);
+        return await import('file://' + file);
     }
 
     async request(file, encoding, basename) {
@@ -368,7 +369,8 @@ class Target {
         const target = item.target.split(',');
         this.target = item.type ? target : target.map((target) => path.resolve(process.cwd(), target));
         this.action = new Set((this.action || '').split(';'));
-        this.folder = item.type ? path.normalize(path.join(__dirname, '..', 'third_party' , 'test', item.type)) : '';
+        const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+        this.folder = item.type ? path.normalize(path.join(dirname, '..', 'third_party' , 'test', item.type)) : '';
         this.name = this.type ? this.type + '/' + this.target[0] : this.target[0];
         this.measures = new Map([ [ 'name', this.name ] ]);
     }
@@ -605,7 +607,7 @@ class Target {
                         } else {
                             tensor.toString();
                             /*
-                            const python = require('../source/python');
+                            const python = await import('../source/python.js');
                             const tensor = argument.initializer;
                             if (tensor.type && tensor.type.dataType !== '?') {
                                 let data_type = tensor.type.dataType;
@@ -698,9 +700,12 @@ class Target {
 }
 
 const main = async () => {
+    global.window = new Window();
+    await zip.Archive.import();
     try {
         let patterns = process.argv.length > 2 ? process.argv.slice(2) : [];
-        const configuration = await fs.readFile(__dirname + '/models.json', 'utf-8');
+        const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+        const configuration = await fs.readFile(dirname + '/models.json', 'utf-8');
         let targets = JSON.parse(configuration).reverse();
         if (patterns.length > 0) {
             const exists = await Promise.all(patterns.map((pattern) => access(pattern)));
@@ -713,7 +718,7 @@ const main = async () => {
         }
         const __host__ = new host.TestHost();
         const measures = new Table([ 'name', 'download', 'load', 'validate', 'render' ]);
-        // await measures.log(path.join(__dirname, '..', 'dist', 'test', 'measures.csv'));
+        // await measures.log(path.join(dirname, '..', 'dist', 'test', 'measures.csv'));
         while (targets.length > 0) {
             const item = targets.pop();
             const target = new Target(__host__, item);
@@ -734,10 +739,5 @@ const main = async () => {
         process.exit(1);
     }
 };
-
-global.protobuf = require('../source/protobuf');
-global.flatbuffers = require('../source/flatbuffers');
-global.TextDecoder = TextDecoder;
-global.window = new Window();
 
 main();

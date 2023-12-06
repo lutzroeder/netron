@@ -1,9 +1,10 @@
 
-const child_process = require('child_process');
-const crypto = require('crypto');
-const fs = require('fs').promises;
-const os = require('os');
-const path = require('path');
+import * as child_process from 'child_process';
+import * as crypto from 'crypto';
+import * as fs from 'fs/promises';
+import * as os from 'os';
+import * as path from 'path';
+import * as url from 'url';
 
 const args = process.argv.slice(2);
 
@@ -16,8 +17,13 @@ const read = (match) => {
 
 let configuration = null;
 
+const dirname = (...args) => {
+    const dir = path.dirname(url.fileURLToPath(import.meta.url));
+    return path.join(dir, ...args);
+};
+
 const load = async () => {
-    const file = path.join(__dirname, 'package.json');
+    const file = dirname('package.json');
     const content = await fs.readFile(file, 'utf-8');
     configuration = JSON.parse(content);
 };
@@ -48,7 +54,7 @@ const access = async (path) => {
 };
 
 const rm = async (...args) => {
-    const dir = path.join(__dirname, ...args);
+    const dir = dirname(...args);
     const exists = await access(dir);
     if (exists) {
         writeLine('rm ' + path.join(...args));
@@ -58,7 +64,7 @@ const rm = async (...args) => {
 };
 
 const mkdir = async (...args) => {
-    const dir = path.join(__dirname, ...args);
+    const dir = dirname(...args);
     const exists = await access(dir);
     if (!exists) {
         writeLine('mkdir ' + path.join(...args));
@@ -84,13 +90,13 @@ const unlink = async (dir, filter) => {
 
 const exec = async (command, encoding) => {
     if (encoding) {
-        return child_process.execSync(command, { cwd: __dirname, encoding: encoding });
+        return child_process.execSync(command, { cwd: dirname(), encoding: encoding });
     }
-    child_process.execSync(command, { cwd: __dirname, stdio: [ 0,1,2 ] });
+    child_process.execSync(command, { cwd: dirname(), stdio: [ 0,1,2 ] });
     return '';
     /*
     return new Promise((resolve, reject) => {
-        const child = child_process.exec(command, { cwd:  __dirname }, (error, stdout, stderr) => {
+        const child = child_process.exec(command, { cwd: dirname() }, (error, stdout, stderr) => {
             if (error) {
                 stderr = '\n' + stderr ;
                 if (error.message && error.message.endsWith(stderr)) {
@@ -208,7 +214,7 @@ const clean = async () => {
 };
 
 const install = async () => {
-    const node_modules = path.join(__dirname, 'node_modules');
+    const node_modules = dirname('node_modules');
     let exists = await access(node_modules);
     if (exists) {
         const dependencies = Object.assign({}, configuration.dependencies, configuration.devDependencies);
@@ -252,13 +258,13 @@ const build = async (target) => {
             await rm('dist', 'web');
             await mkdir('dist', 'web');
             writeLine('cp source/dir dist/dir');
-            const source_dir = path.join(__dirname, 'source');
-            const dist_dir = path.join(__dirname, 'dist', 'web');
+            const source_dir = dirname('source');
+            const dist_dir = dirname('dist', 'web');
             const extensions = new Set([ 'html', 'css', 'js', 'json', 'ico', 'png' ]);
             await copy(source_dir, dist_dir, (file) => extensions.has(file.split('.').pop()));
             await rm('dist', 'web', 'app.js');
             await rm('dist', 'web', 'electron.js');
-            const contentFile = path.join(__dirname, 'dist', 'web', 'index.html');
+            const contentFile = dirname('dist', 'web', 'index.html');
             let content = await fs.readFile(contentFile, 'utf-8');
             content = content.replace(/(<meta\s*name="version"\s*content=")(.*)(">)/m, (match, p1, p2, p3) => {
                 return p1 + configuration.version + p3;
@@ -312,8 +318,8 @@ const publish = async (target) => {
             const url = 'https://x-access-token:' + GITHUB_TOKEN + '@github.com/' + GITHUB_USER + '/netron.git';
             await exec('git clone --depth=1 ' + url + ' --branch gh-pages ./dist/gh-pages 2>&1 > /dev/null');
             writeLine('cp dist/web dist/gh-pages');
-            const source_dir = path.join(__dirname, 'dist', 'web');
-            const target_dir = path.join(__dirname, 'dist', 'gh-pages');
+            const source_dir = dirname('dist', 'web');
+            const target_dir = dirname('dist', 'gh-pages');
             await unlink(target_dir, (file) => file !== '.git');
             await copy(source_dir, target_dir);
             await exec('git -C dist/gh-pages add --all');
@@ -398,7 +404,7 @@ const publish = async (target) => {
             const paths = [ 'dist', 'winget-pkgs', 'manifests', publisher[0].toLowerCase(), publisher.replace(' ', ''), product, version ];
             await mkdir(...paths);
             writeLine('update manifest');
-            const manifestFile = path.join(__dirname, ...paths, identifier);
+            const manifestFile = dirname(...paths, identifier);
             await fs.writeFile(manifestFile + '.yaml', [
                 '# yaml-language-server: $schema=https://aka.ms/winget-manifest.version.1.2.0.schema.json',
                 'PackageIdentifier: ' + identifier,
@@ -496,7 +502,7 @@ const publish = async (target) => {
 const lint = async () => {
     await install();
     writeLine('eslint');
-    await exec('npx eslint *.js source/*.js test/*.js publish/*.js tools/*.js');
+    await exec('npx eslint *.*js source/*.*js test/*.*js publish/*.*js tools/*.js');
     writeLine('pylint');
     await exec('python -m pip install --upgrade --quiet pylint');
     await exec('python -m pylint -sn --recursive=y source test publish tools *.py');
@@ -580,7 +586,7 @@ const analyze = async () => {
 
 const version = async () => {
     await pull();
-    const file = path.join(__dirname, 'package.json');
+    const file = dirname('package.json');
     let content = await fs.readFile(file, 'utf-8');
     content = content.replace(/(\s*"version":\s")(\d\.\d\.\d)(",)/m, (match, p1, p2, p3) => {
         const version = Array.from((parseInt(p2.split('.').join(''), 10) + 1).toString()).join('.');

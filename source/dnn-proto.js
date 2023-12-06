@@ -1,4 +1,7 @@
-var $root = protobuf.get('dnn');
+
+import * as protobuf from './protobuf.js';
+
+const $root = protobuf.get('dnn');
 
 $root.dnn = {};
 

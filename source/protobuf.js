@@ -1,7 +1,8 @@
 
-var protobuf = {};
-var base = require('./base');
-var text = require('./text');
+import * as base from './base.js';
+import * as text from './text.js';
+
+const protobuf = {};
 
 protobuf.get = (name) => {
     protobuf._roots = protobuf._roots || new Map();
@@ -1324,11 +1325,8 @@ protobuf.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.BinaryReader = protobuf.BinaryReader;
-    module.exports.TextReader = protobuf.TextReader;
-    module.exports.Error = protobuf.Error;
-    module.exports.Int64 = protobuf.Int64;
-    module.exports.Uint64 = protobuf.Uint64;
-    module.exports.get = protobuf.get;
-}
+export const BinaryReader = protobuf.BinaryReader;
+export const TextReader = protobuf.TextReader;
+export const Int64 = protobuf.Int64;
+export const Uint64 = protobuf.Uint64;
+export const get = protobuf.get;

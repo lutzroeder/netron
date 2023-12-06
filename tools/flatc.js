@@ -1,7 +1,8 @@
 
+import * as fs from 'fs/promises';
+import * as path from 'path';
+
 const flatc = {};
-const fs = require('fs').promises;
-const path = require('path');
 
 flatc.Object = class {
 
@@ -890,7 +891,10 @@ flatc.Generator = class {
         this._root = root;
         this._text = text;
         this._builder = new flatc.Generator.StringBuilder();
-        this._builder.add("var $root = flatbuffers.get('" + this._root.name + "');");
+        this._builder.add("");
+        this._builder.add("import * as flatbuffers from './flatbuffers.js';");
+        this._builder.add("");
+        this._builder.add("const $root = flatbuffers.get('" + this._root.name + "');");
         for (const namespace of this._root.namespaces.values()) {
             this._buildNamespace(namespace);
         }
@@ -1203,7 +1207,7 @@ flatc.Generator.StringBuilder = class {
 
     constructor() {
         this._indentation = '';
-        this._lines = [];
+        this._lines = [ '' ];
         this._newline = true;
     }
 
@@ -1287,15 +1291,12 @@ const main = async (args) => {
     process.exit(0);
 };
 
-if (typeof process === 'object' && Array.isArray(process.argv) &&
-    process.argv.length > 1 && process.argv[1] === __filename) {
+if (typeof process === 'object' && Array.isArray(process.argv) && process.argv.length > 1) {
     const args = process.argv.slice(2);
     main(args);
 }
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.Root = flatc.Root;
-    module.exports.Namespace = flatc.Namespace;
-    module.exports.Type = flatc.Type;
-    module.exports.Enum = flatc.Enum;
-}
+export const Root = flatc.Root;
+export const Namespace = flatc.Namespace;
+export const Type = flatc.Type;
+export const Enum = flatc.Enum;

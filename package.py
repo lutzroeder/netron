@@ -34,7 +34,7 @@ def _build():
     shutil.rmtree(dist_pypi_dir, ignore_errors=True)
     shutil.copytree(source_dir, os.path.join(dist_pypi_dir, 'netron'))
     shutil.copyfile(os.path.join(publish_dir, 'setup.py'), os.path.join(dist_pypi_dir, 'setup.py'))
-    os.remove(os.path.join(dist_pypi_dir, 'netron', 'electron.js'))
+    os.remove(os.path.join(dist_pypi_dir, 'netron', 'electron.mjs'))
     os.remove(os.path.join(dist_pypi_dir, 'netron', 'app.js'))
 
 def _install():

@@ -1,6 +1,7 @@
 
-var safetensors = {};
-var json = require('./json');
+import * as json from './json.js';
+
+const safetensors = {};
 
 safetensors.ModelFactory = class {
 
@@ -11,7 +12,7 @@ safetensors.ModelFactory = class {
             if (buffer[6] === 0 && buffer[7] === 0 && buffer[8] === 0x7b) {
                 const size = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24 | buffer [3] << 32 | buffer [3] << 40;
                 if (size < stream.length) {
-                    return { size: size };
+                    return { name: 'safetensor', size: size };
                 }
             }
         }
@@ -58,7 +59,8 @@ safetensors.Graph = class {
             layers.get(layer).push([ name, key, value]);
         }
         for (const [name, values] of layers) {
-            this.nodes.push(new safetensors.Node(name, values, position, stream));
+            const node = new safetensors.Node(name, values, position, stream);
+            this.nodes.push(node);
         }
     }
 };
@@ -88,11 +90,15 @@ safetensors.Node = class {
     constructor(name, values, position, stream) {
         this.name = name;
         this.type = { name: 'Module' };
-        this.inputs = values.map((value) => new safetensors.Argument(value[0], [
-            new safetensors.Value(value[1], new safetensors.Tensor(value[2], position, stream))
-        ]));
+        this.inputs = [];
         this.outputs = [];
         this.attributes = [];
+        for (const [name, identifier, obj] of values) {
+            const tensor = new safetensors.Tensor(obj, position, stream);
+            const value = new safetensors.Value(identifier, tensor);
+            const argument = new safetensors.Argument(name, [ value ]);
+            this.inputs.push(argument);
+        }
     }
 };
 
@@ -159,6 +165,4 @@ safetensors.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = safetensors.ModelFactory;
-}
+export const ModelFactory = safetensors.ModelFactory;

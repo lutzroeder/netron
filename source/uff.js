@@ -1,6 +1,7 @@
 
-var uff = {};
-var protobuf = require('./protobuf');
+import * as protobuf from './protobuf.js';
+
+const uff = {};
 
 uff.ModelFactory = class {
 
@@ -278,6 +279,5 @@ uff.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = uff.ModelFactory;
-}
+export const ModelFactory = uff.ModelFactory;
+

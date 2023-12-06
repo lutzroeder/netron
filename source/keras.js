@@ -1,9 +1,10 @@
 
-var keras = {};
-var tfjs = {};
-var json = require('./json');
-var python = require('./python');
-var protobuf = require('./protobuf');
+import * as json from './json.js';
+import * as python from './python.js';
+import * as protobuf from './protobuf.js';
+
+const keras = {};
+const tfjs = {};
 
 keras.ModelFactory = class {
 
@@ -1561,6 +1562,4 @@ tfjs.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = keras.ModelFactory;
-}
+export const ModelFactory = keras.ModelFactory;

@@ -1,4 +1,7 @@
-var $root = flatbuffers.get('tflite');
+
+import * as flatbuffers from './flatbuffers.js';
+
+const $root = flatbuffers.get('tflite');
 
 $root.tflite = $root.tflite || {};
 

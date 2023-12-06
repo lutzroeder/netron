@@ -1,5 +1,5 @@
 
-var hickle = {};
+const hickle = {};
 
 hickle.ModelFactory = class {
 
@@ -257,6 +257,4 @@ hickle.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = hickle.ModelFactory;
-}
+export const ModelFactory = hickle.ModelFactory;

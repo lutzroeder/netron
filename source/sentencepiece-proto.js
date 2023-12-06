@@ -1,4 +1,7 @@
-var $root = protobuf.get('sentencepiece');
+
+import * as protobuf from './protobuf.js';
+
+const $root = protobuf.get('sentencepiece');
 
 $root.sentencepiece = {};
 

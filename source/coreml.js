@@ -1,7 +1,8 @@
 
-var coreml = {};
-var base = require('./base');
-var protobuf = require('./protobuf');
+import * as base from './base.js';
+import * as protobuf from './protobuf.js';
+
+const coreml = {};
 
 coreml.ModelFactory = class {
 
@@ -1431,6 +1432,4 @@ coreml.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = coreml.ModelFactory;
-}
+export const ModelFactory = coreml.ModelFactory;

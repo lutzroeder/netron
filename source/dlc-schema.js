@@ -1,4 +1,7 @@
-var $root = flatbuffers.get('dlc');
+
+import * as flatbuffers from './flatbuffers.js';
+
+const $root = flatbuffers.get('dlc');
 
 $root.dlc = $root.dlc || {};
 

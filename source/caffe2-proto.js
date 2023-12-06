@@ -1,4 +1,7 @@
-var $root = protobuf.get('caffe2');
+
+import * as protobuf from './protobuf.js';
+
+const $root = protobuf.get('caffe2');
 
 $root.caffe2 = {};
 
@@ -174,10 +177,10 @@ $root.caffe2.TensorProto.Segment = class Segment {
             }
         }
         if (!Object.prototype.hasOwnProperty.call(message, 'begin')) {
-            throw new protobuf.Error("Excepted 'begin'.");
+            throw new Error("Excepted 'begin'.");
         }
         if (!Object.prototype.hasOwnProperty.call(message, 'end')) {
-            throw new protobuf.Error("Excepted 'end'.");
+            throw new Error("Excepted 'end'.");
         }
         return message;
     }
@@ -200,10 +203,10 @@ $root.caffe2.TensorProto.Segment = class Segment {
             }
         }
         if (!Object.prototype.hasOwnProperty.call(message, "begin")) {
-            throw new protobuf.Error("Excepted 'begin'.");
+            throw new Error("Excepted 'begin'.");
         }
         if (!Object.prototype.hasOwnProperty.call(message, "end")) {
-            throw new protobuf.Error("Excepted 'end'.");
+            throw new Error("Excepted 'end'.");
         }
         return message;
     }
@@ -269,16 +272,16 @@ $root.caffe2.QTensorProto = class QTensorProto {
             }
         }
         if (!Object.prototype.hasOwnProperty.call(message, 'precision')) {
-            throw new protobuf.Error("Excepted 'precision'.");
+            throw new Error("Excepted 'precision'.");
         }
         if (!Object.prototype.hasOwnProperty.call(message, 'scale')) {
-            throw new protobuf.Error("Excepted 'scale'.");
+            throw new Error("Excepted 'scale'.");
         }
         if (!Object.prototype.hasOwnProperty.call(message, 'bias')) {
-            throw new protobuf.Error("Excepted 'bias'.");
+            throw new Error("Excepted 'bias'.");
         }
         if (!Object.prototype.hasOwnProperty.call(message, 'is_signed')) {
-            throw new protobuf.Error("Excepted 'is_signed'.");
+            throw new Error("Excepted 'is_signed'.");
         }
         return message;
     }
@@ -331,16 +334,16 @@ $root.caffe2.QTensorProto = class QTensorProto {
             }
         }
         if (!Object.prototype.hasOwnProperty.call(message, "precision")) {
-            throw new protobuf.Error("Excepted 'precision'.");
+            throw new Error("Excepted 'precision'.");
         }
         if (!Object.prototype.hasOwnProperty.call(message, "scale")) {
-            throw new protobuf.Error("Excepted 'scale'.");
+            throw new Error("Excepted 'scale'.");
         }
         if (!Object.prototype.hasOwnProperty.call(message, "bias")) {
-            throw new protobuf.Error("Excepted 'bias'.");
+            throw new Error("Excepted 'bias'.");
         }
         if (!Object.prototype.hasOwnProperty.call(message, "is_signed")) {
-            throw new protobuf.Error("Excepted 'is_signed'.");
+            throw new Error("Excepted 'is_signed'.");
         }
         return message;
     }
@@ -668,13 +671,13 @@ $root.caffe2.AOTConfig = class AOTConfig {
             }
         }
         if (!Object.prototype.hasOwnProperty.call(message, 'max_batch_size')) {
-            throw new protobuf.Error("Excepted 'max_batch_size'.");
+            throw new Error("Excepted 'max_batch_size'.");
         }
         if (!Object.prototype.hasOwnProperty.call(message, 'max_seq_size')) {
-            throw new protobuf.Error("Excepted 'max_seq_size'.");
+            throw new Error("Excepted 'max_seq_size'.");
         }
         if (!Object.prototype.hasOwnProperty.call(message, 'in_batch_broadcast')) {
-            throw new protobuf.Error("Excepted 'in_batch_broadcast'.");
+            throw new Error("Excepted 'in_batch_broadcast'.");
         }
         return message;
     }
@@ -706,13 +709,13 @@ $root.caffe2.AOTConfig = class AOTConfig {
             }
         }
         if (!Object.prototype.hasOwnProperty.call(message, "max_batch_size")) {
-            throw new protobuf.Error("Excepted 'max_batch_size'.");
+            throw new Error("Excepted 'max_batch_size'.");
         }
         if (!Object.prototype.hasOwnProperty.call(message, "max_seq_size")) {
-            throw new protobuf.Error("Excepted 'max_seq_size'.");
+            throw new Error("Excepted 'max_seq_size'.");
         }
         if (!Object.prototype.hasOwnProperty.call(message, "in_batch_broadcast")) {
-            throw new protobuf.Error("Excepted 'in_batch_broadcast'.");
+            throw new Error("Excepted 'in_batch_broadcast'.");
         }
         return message;
     }
@@ -1077,10 +1080,10 @@ $root.caffe2.MapFieldEntry = class MapFieldEntry {
             }
         }
         if (!Object.prototype.hasOwnProperty.call(message, 'key')) {
-            throw new protobuf.Error("Excepted 'key'.");
+            throw new Error("Excepted 'key'.");
         }
         if (!Object.prototype.hasOwnProperty.call(message, 'val')) {
-            throw new protobuf.Error("Excepted 'val'.");
+            throw new Error("Excepted 'val'.");
         }
         return message;
     }
@@ -1103,10 +1106,10 @@ $root.caffe2.MapFieldEntry = class MapFieldEntry {
             }
         }
         if (!Object.prototype.hasOwnProperty.call(message, "key")) {
-            throw new protobuf.Error("Excepted 'key'.");
+            throw new Error("Excepted 'key'.");
         }
         if (!Object.prototype.hasOwnProperty.call(message, "val")) {
-            throw new protobuf.Error("Excepted 'val'.");
+            throw new Error("Excepted 'val'.");
         }
         return message;
     }
@@ -1139,7 +1142,7 @@ $root.caffe2.BackendOptions = class BackendOptions {
             }
         }
         if (!Object.prototype.hasOwnProperty.call(message, 'backend_name')) {
-            throw new protobuf.Error("Excepted 'backend_name'.");
+            throw new Error("Excepted 'backend_name'.");
         }
         return message;
     }
@@ -1162,7 +1165,7 @@ $root.caffe2.BackendOptions = class BackendOptions {
             }
         }
         if (!Object.prototype.hasOwnProperty.call(message, "backend_name")) {
-            throw new protobuf.Error("Excepted 'backend_name'.");
+            throw new Error("Excepted 'backend_name'.");
         }
         return message;
     }
@@ -1201,7 +1204,7 @@ $root.caffe2.PartitionInfo = class PartitionInfo {
             }
         }
         if (!Object.prototype.hasOwnProperty.call(message, 'name')) {
-            throw new protobuf.Error("Excepted 'name'.");
+            throw new Error("Excepted 'name'.");
         }
         return message;
     }
@@ -1230,7 +1233,7 @@ $root.caffe2.PartitionInfo = class PartitionInfo {
             }
         }
         if (!Object.prototype.hasOwnProperty.call(message, "name")) {
-            throw new protobuf.Error("Excepted 'name'.");
+            throw new Error("Excepted 'name'.");
         }
         return message;
     }

@@ -1,6 +1,7 @@
 
-var grapher = {};
-var dagre = require('./dagre');
+import * as dagre from './dagre.js';
+
+const grapher = {};
 
 grapher.Graph = class {
 
@@ -880,8 +881,4 @@ grapher.Edge.Path = class {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.Graph = grapher.Graph;
-    module.exports.Node = grapher.Node;
-    module.exports.Edge = grapher.Edge;
-}
+export const { Graph, Node, Edge } = grapher;

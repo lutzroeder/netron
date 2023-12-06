@@ -1,8 +1,9 @@
 
 // Experimental
 
-var mlnet = {};
-var base = require('./base');
+import * as base from './base.js';
+
+const mlnet = {};
 
 mlnet.ModelFactory = class {
 
@@ -2455,6 +2456,4 @@ mlnet.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = mlnet.ModelFactory;
-}
+export const ModelFactory = mlnet.ModelFactory;

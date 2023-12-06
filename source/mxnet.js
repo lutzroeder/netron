@@ -1,7 +1,8 @@
 
-var mxnet = {};
-var json = require('./json');
-var base = require('./base');
+import * as base from './base.js';
+import * as json from './json.js';
+
+const mxnet = {};
 
 mxnet.ModelFactory = class {
 
@@ -946,6 +947,4 @@ mxnet.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = mxnet.ModelFactory;
-}
+export const ModelFactory = mxnet.ModelFactory;

@@ -1,6 +1,7 @@
 
-var nnef = {};
-var text = require('./text');
+import * as text from './text.js';
+
+const nnef = {};
 
 nnef.ModelFactory = class {
 
@@ -79,6 +80,4 @@ nnef.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = nnef.ModelFactory;
-}
+export const ModelFactory = nnef.ModelFactory;

@@ -1,9 +1,10 @@
 
-var rknn = {};
-var openvx = {};
-var base = require('./base');
-var flatbuffers = require('./flatbuffers');
-var json = require('./json');
+import * as base from './base.js';
+import * as flatbuffers from './flatbuffers.js';
+import * as json from './json.js';
+
+const rknn = {};
+const openvx = {};
 
 rknn.ModelFactory = class {
 
@@ -678,6 +679,4 @@ rknn.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = rknn.ModelFactory;
-}
+export const ModelFactory = rknn.ModelFactory;

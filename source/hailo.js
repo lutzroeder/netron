@@ -1,6 +1,6 @@
 // Experimental
 
-var hailo = {};
+const hailo = {};
 
 hailo.ModelFactory = class {
 
@@ -324,6 +324,5 @@ hailo.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = hailo.ModelFactory;
-}
+export const ModelFactory = hailo.ModelFactory;
+

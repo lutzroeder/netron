@@ -1,5 +1,5 @@
 
-var flatbuffers = {};
+const flatbuffers = {};
 
 flatbuffers.get = (name) => {
     flatbuffers._roots = flatbuffers._roots || new Map();
@@ -139,14 +139,14 @@ flatbuffers.BinaryReader = class {
     string(offset, encoding) {
         offset += this.int32(offset);
         const length = this.int32(offset);
-        var result = '';
-        var i = 0;
+        let result = '';
+        let i = 0;
         offset += 4;
         if (encoding === 1) {
             return this._buffer.subarray(offset, offset + length);
         }
         while (i < length) {
-            var codePoint;
+            let codePoint;
             // Decode UTF-8
             const a = this.uint8(offset + i++);
             if (a < 0xC0) {
@@ -285,7 +285,7 @@ flatbuffers.BinaryReader = class {
     }
 
     _offset(bb_pos, vtableOffset) {
-        var vtable = bb_pos - this.int32(bb_pos);
+        const vtable = bb_pos - this.int32(bb_pos);
         return vtableOffset < this.int16(vtable) ? this.int16(vtable + vtableOffset) : 0;
     }
 
@@ -380,8 +380,6 @@ flatbuffers.Error = class extends Error {
     }
 };
 
-if (typeof module !== "undefined" && typeof module.exports === "object") {
-    module.exports.BinaryReader = flatbuffers.BinaryReader;
-    module.exports.TextReader = flatbuffers.TextReader;
-    module.exports.get = flatbuffers.get;
-}
+export const BinaryReader = flatbuffers.BinaryReader;
+export const TextReader = flatbuffers.TextReader;
+export const get = flatbuffers.get;

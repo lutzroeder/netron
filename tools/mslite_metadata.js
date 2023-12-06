@@ -1,11 +1,13 @@
 
-const path = require('path');
-const flatc = require('./flatc');
-const fs = require('fs').promises;
+import * as path from 'path';
+import * as url from 'url';
+import * as fs from 'fs/promises';
+import * as flatc from './flatc.js';
 
 const main = async () => {
-    const schema = path.join(__dirname, '..', 'third_party', 'source', 'mindspore', 'mindspore', 'lite', 'schema', 'ops.fbs');
-    const file = path.join(__dirname, '..', 'source', 'mslite-metadata.json');
+    const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+    const schema = path.join(dirname, '..', 'third_party', 'source', 'mindspore', 'mindspore', 'lite', 'schema', 'ops.fbs');
+    const file = path.join(dirname, '..', 'source', 'mslite-metadata.json');
     const input = await fs.readFile(file, 'utf-8');
     const json = JSON.parse(input);
     const operators = new Map();

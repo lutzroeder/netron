@@ -1,7 +1,7 @@
 
 // Experimental
 
-var dl4j = {};
+const dl4j = {};
 
 dl4j.ModelFactory = class {
 
@@ -532,6 +532,4 @@ dl4j.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = dl4j.ModelFactory;
-}
+export const ModelFactory = dl4j.ModelFactory;

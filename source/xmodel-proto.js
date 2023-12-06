@@ -1,4 +1,7 @@
-var $root = protobuf.get('xmodel');
+
+import * as protobuf from './protobuf.js';
+
+const $root = protobuf.get('xmodel');
 
 $root.serial_v2 = {};
 

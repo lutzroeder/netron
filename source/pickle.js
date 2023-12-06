@@ -1,7 +1,7 @@
 
 // Experimental
 
-var pickle = {};
+const pickle = {};
 
 pickle.ModelFactory = class {
 
@@ -191,6 +191,4 @@ pickle.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = pickle.ModelFactory;
-}
+export const ModelFactory = pickle.ModelFactory;

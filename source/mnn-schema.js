@@ -1,4 +1,7 @@
-var $root = flatbuffers.get('mnn');
+
+import * as flatbuffers from './flatbuffers.js';
+
+const $root = flatbuffers.get('mnn');
 
 $root.MNN = $root.MNN || {};
 

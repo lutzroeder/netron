@@ -1,5 +1,5 @@
 
-var acuity = {};
+const acuity = {};
 
 acuity.ModelFactory = class {
 
@@ -554,6 +554,4 @@ acuity.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = acuity.ModelFactory;
-}
+export const ModelFactory = acuity.ModelFactory;

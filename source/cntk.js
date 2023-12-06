@@ -1,10 +1,10 @@
 
-var cntk = {};
-var base = require('./base');
-var protobuf = require('./protobuf');
+import * as base from './base.js';
+import * as protobuf from './protobuf.js';
 
-var cntk_v1 = {};
-var cntk_v2 = null;
+const cntk = {};
+const cntk_v1 = {};
+let cntk_v2 = null;
 
 cntk.ModelFactory = class {
 
@@ -1229,6 +1229,4 @@ cntk.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = cntk.ModelFactory;
-}
+export const ModelFactory = cntk.ModelFactory;

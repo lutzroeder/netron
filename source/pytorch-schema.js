@@ -1,4 +1,7 @@
-var $root = flatbuffers.get('torch');
+
+import * as flatbuffers from './flatbuffers.js';
+
+const $root = flatbuffers.get('torch');
 
 $root.torch = $root.torch || {};
 

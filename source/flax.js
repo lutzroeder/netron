@@ -1,8 +1,9 @@
 
 // Experimental
 
-var flax = {};
-var python = require('./python');
+import * as python from './python.js';
+
+const flax = {};
 
 flax.ModelFactory = class {
 
@@ -304,8 +305,7 @@ flax.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = flax.ModelFactory;
-}
+export const ModelFactory = flax.ModelFactory;
+
 
 

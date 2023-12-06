@@ -1,10 +1,11 @@
 
 // Experimental
 
-var tf = {};
-var base = require('./base');
-var protobuf = require('./protobuf');
-var zip = require('./zip');
+import * as base from './base.js';
+import * as protobuf from './protobuf.js';
+import * as zip from './zip.js';
+
+const tf = {};
 
 tf.ModelFactory = class {
 
@@ -471,7 +472,9 @@ tf.ModelFactory = class {
                         try {
                             for (const key of shards.keys()) {
                                 const stream = shards.get(key);
+                                /* eslint-disable no-await-in-loop */
                                 const archive = zip.Archive.open(stream, 'gzip');
+                                /* eslint-enable no-await-in-loop */
                                 if (archive && archive.entries.size === 1) {
                                     const stream = archive.entries.values().next().value;
                                     const buffer = stream.peek();
@@ -2496,6 +2499,4 @@ tf.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = tf.ModelFactory;
-}
+export const ModelFactory = tf.ModelFactory;

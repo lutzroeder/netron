@@ -1,7 +1,8 @@
 
-var nnabla = {};
-var protobuf = require('./protobuf');
-var text = require('./text');
+import * as protobuf from './protobuf.js';
+import * as text from './text.js';
+
+const nnabla = {};
 
 nnabla.ModelFactory = class {
 
@@ -281,6 +282,4 @@ nnabla.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = nnabla.ModelFactory;
-}
+export const ModelFactory = nnabla.ModelFactory;

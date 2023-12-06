@@ -1,5 +1,5 @@
 
-var imgdnn = {};
+const imgdnn = {};
 
 imgdnn.ModelFactory = class {
 
@@ -62,6 +62,5 @@ imgdnn.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = imgdnn.ModelFactory;
-}
+export const ModelFactory = imgdnn.ModelFactory;
+

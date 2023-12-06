@@ -1,7 +1,8 @@
 
-var ncnn = {};
-var text = require('./text');
-var base = require('./base');
+import * as base from './base.js';
+import * as text from './text.js';
+
+const ncnn = {};
 
 // https://github.com/Tencent/ncnn/wiki/param-and-model-file-structure
 // https://github.com/Tencent/ncnn/wiki/operation-param-weight-table
@@ -923,6 +924,5 @@ ncnn.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = ncnn.ModelFactory;
-}
+export const ModelFactory = ncnn.ModelFactory;
+

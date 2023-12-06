@@ -1,8 +1,9 @@
 
-var circle = {};
-var flatbuffers = require('./flatbuffers');
-var flexbuffers = require('./flexbuffers');
-var zip = require('./zip');
+import * as flatbuffers from '../source/flatbuffers.js';
+import * as flexbuffers from '../source/flexbuffers.js';
+import * as zip from '../source/zip.js';
+
+const circle = {};
 
 circle.ModelFactory = class {
 
@@ -665,6 +666,4 @@ circle.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = circle.ModelFactory;
-}
+export const ModelFactory = circle.ModelFactory;

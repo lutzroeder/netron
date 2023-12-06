@@ -1,4 +1,7 @@
-var $root = protobuf.get('bigdl');
+
+import * as protobuf from './protobuf.js';
+
+const $root = protobuf.get('bigdl');
 
 $root.com = {};
 

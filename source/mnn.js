@@ -1,6 +1,7 @@
 
-var mnn = {};
-var flatbuffers = require('./flatbuffers');
+import * as flatbuffers from './flatbuffers.js';
+
+const mnn = {};
 
 mnn.ModelFactory = class {
 
@@ -417,6 +418,5 @@ mnn.Error = class extends Error {
     }
 };
 
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = mnn.ModelFactory;
-}
+export const ModelFactory = mnn.ModelFactory;
+
