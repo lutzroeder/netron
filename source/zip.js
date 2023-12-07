@@ -385,12 +385,7 @@ zip.Inflater = class {
 zip.HuffmanTree = class {
 
     static create(tree) {
-        let bits = tree[0];
-        for (let i = 1; i < tree.length; ++i) {
-            if (tree[i] > bits) {
-                bits = tree[i];
-            }
-        }
+        const bits = Math.max.apply(null, tree);
         // Algorithm from https://github.com/photopea/UZIP.js
         let rev15 = zip.HuffmanTree._rev15;
         if (!rev15) {
