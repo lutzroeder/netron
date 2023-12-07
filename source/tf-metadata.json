@@ -3948,6 +3948,16 @@
         "type": "boolean",
         "description": "If `True`, adjoint the slices of `y`. Defaults to `False`.",
         "default": false
+      },
+      {
+        "name": "grad_x",
+        "type": "boolean",
+        "default": false
+      },
+      {
+        "name": "grad_y",
+        "type": "boolean",
+        "default": false
       }
     ],
     "inputs": [
@@ -3990,6 +4000,16 @@
         "name": "adj_y",
         "type": "boolean",
         "description": "If `True`, adjoint the slices of `y`. Defaults to `False`.",
+        "default": false
+      },
+      {
+        "name": "grad_x",
+        "type": "boolean",
+        "default": false
+      },
+      {
+        "name": "grad_y",
+        "type": "boolean",
         "default": false
       }
     ],
@@ -4043,6 +4063,16 @@
         "name": "adj_y",
         "type": "boolean",
         "description": "If `True`, adjoint the slices of `y`. Defaults to `False`.",
+        "default": false
+      },
+      {
+        "name": "grad_x",
+        "type": "boolean",
+        "default": false
+      },
+      {
+        "name": "grad_y",
+        "type": "boolean",
         "default": false
       }
     ],
@@ -26425,6 +26455,16 @@
         "name": "T",
         "type": "type",
         "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int32`, `int64`, `uint8`, `uint16`, `uint32`, `uint64`, `complex64`, `complex128`."
+      },
+      {
+        "name": "grad_a",
+        "type": "boolean",
+        "default": false
+      },
+      {
+        "name": "grad_b",
+        "type": "boolean",
+        "default": false
       }
     ],
     "inputs": [
