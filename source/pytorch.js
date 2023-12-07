@@ -3489,7 +3489,7 @@ pytorch.Utility = class {
                 'state', 'model_state', 'model', 'model_state_dict', 'model_dict', 'net_dict',
                 'generator', 'discriminator',  'g_state', 'module', 'params',
                 'weights', 'network_weights', 'network', 'net', 'netG', 'net_states',
-                'runner', ''
+                'EMA_generator', 'runner', ''
             ]);
             for (const key of keys) {
                 const value = key === '' ? obj : obj[key];
