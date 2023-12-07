@@ -1,6 +1,5 @@
 
 import * as electron from 'electron';
-import * as updater from 'electron-updater';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -20,7 +19,7 @@ app.Application = class {
         this._package = {};
     }
 
-    start() {
+    async start() {
         const dirname = path.dirname(url.fileURLToPath(import.meta.url));
         const packageFile = path.join(path.dirname(dirname), 'package.json');
         const packageContent =  fs.readFileSync(packageFile, 'utf-8');
@@ -108,7 +107,7 @@ app.Application = class {
         });
 
         this._parseCommandLine(process.argv);
-        this._checkForUpdates();
+        await this._checkForUpdates();
     }
 
     get environment() {
@@ -279,10 +278,11 @@ app.Application = class {
         }
     }
 
-    _checkForUpdates() {
+    async _checkForUpdates() {
         if (!electron.app.isPackaged) {
             return;
         }
+        const updater = await import('electron-updater');
         const autoUpdater = updater.default.autoUpdater;
         if (autoUpdater.app && autoUpdater.app.appUpdateConfigPath && !fs.existsSync(autoUpdater.app.appUpdateConfigPath)) {
             return;
@@ -1066,5 +1066,13 @@ app.MenuService = class {
     }
 };
 
-global.application = new app.Application();
-global.application.start();
+const main = async () => {
+    global.application = new app.Application();
+    await global.application.start();
+};
+
+main().catch((error) => {
+    /* eslint-disable no-console */
+    console.error(error.message);
+    /* eslint-enable no-console */
+});
