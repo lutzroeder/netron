@@ -7067,6 +7067,18 @@ $root.tensorflow.ConfigProto.Experimental = class Experimental {
                 case 18:
                     message.use_tfrt = reader.bool();
                     break;
+                case 27:
+                    message.use_pathways = reader.bool();
+                    break;
+                case 28:
+                    message.pathways_server_port = reader.int32();
+                    break;
+                case 29:
+                    message.target_tpu = reader.bool();
+                    break;
+                case 30:
+                    message.target_gpu = reader.bool();
+                    break;
                 case 21:
                     message.disable_functional_ops_lowering = reader.bool();
                     break;
@@ -7147,6 +7159,18 @@ $root.tensorflow.ConfigProto.Experimental = class Experimental {
                 case "use_tfrt":
                     message.use_tfrt = reader.bool();
                     break;
+                case "use_pathways":
+                    message.use_pathways = reader.bool();
+                    break;
+                case "pathways_server_port":
+                    message.pathways_server_port = reader.int32();
+                    break;
+                case "target_tpu":
+                    message.target_tpu = reader.bool();
+                    break;
+                case "target_gpu":
+                    message.target_gpu = reader.bool();
+                    break;
                 case "disable_functional_ops_lowering":
                     message.disable_functional_ops_lowering = reader.bool();
                     break;
@@ -7188,6 +7212,10 @@ $root.tensorflow.ConfigProto.Experimental.prototype.enable_mlir_graph_optimizati
 $root.tensorflow.ConfigProto.Experimental.prototype.disable_output_partition_graphs = false;
 $root.tensorflow.ConfigProto.Experimental.prototype.xla_fusion_autotuner_thresh = protobuf.Int64.create(0);
 $root.tensorflow.ConfigProto.Experimental.prototype.use_tfrt = false;
+$root.tensorflow.ConfigProto.Experimental.prototype.use_pathways = false;
+$root.tensorflow.ConfigProto.Experimental.prototype.pathways_server_port = 0;
+$root.tensorflow.ConfigProto.Experimental.prototype.target_tpu = false;
+$root.tensorflow.ConfigProto.Experimental.prototype.target_gpu = false;
 $root.tensorflow.ConfigProto.Experimental.prototype.disable_functional_ops_lowering = false;
 $root.tensorflow.ConfigProto.Experimental.prototype.xla_prefer_single_graph_cluster = false;
 $root.tensorflow.ConfigProto.Experimental.prototype.coordination_config = null;
