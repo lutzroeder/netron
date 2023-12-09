@@ -5131,27 +5131,9 @@ view.Context = class {
 
 view.EntryContext = class {
 
-    constructor(host, entries, rootFolder, identifier, stream) {
+    constructor(host, entries) {
         this._host = host;
-        this._identifier = identifier.substring(rootFolder.length);
-        this._stream = stream;
-        this._entries = new Map();
-        if (entries) {
-            for (const [path, stream] of entries) {
-                if (path.startsWith(rootFolder)) {
-                    const name = path.substring(rootFolder.length);
-                    this._entries.set(name, stream);
-                }
-            }
-        }
-    }
-
-    get identifier() {
-        return this._identifier;
-    }
-
-    get stream() {
-        return this._stream;
+        this._entries = entries;
     }
 
     async request(file, encoding, base) {
@@ -5582,123 +5564,120 @@ view.ModelFactoryService = class {
                 return true;
             });
             const folder = rootFolder(files.map((entry) => entry.name));
-            const filter = async (queue) => {
+            const filter = async (queue, entries) => {
+                entries = new Map(Array.from(entries)
+                    .filter(([path]) => path.startsWith(folder))
+                    .map(([path, stream]) => [ path.substring(folder.length), stream ]));
+                const entryContext = new view.EntryContext(this._host, entries);
                 let matches = [];
-                const nextEntry = async () => {
-                    if (queue.length > 0) {
-                        const entry = queue.shift();
-                        const context = new view.Context(new view.EntryContext(this._host, entries, folder, entry.name, entry.stream));
-                        const modules = this._filter(context);
-                        const nextModule = async () => {
-                            if (modules.length > 0) {
-                                const id = modules.shift();
-                                const module = await this._host.require(id);
-                                if (!module.ModelFactory) {
-                                    throw new view.ArchiveError("Failed to load module '" + id + "'.", null);
-                                }
-                                const modelFactory = new module.ModelFactory();
-                                if (modelFactory.match(context)) {
-                                    matches.push(context);
-                                    modules.splice(0, modules.length);
-                                }
-                                return await nextModule();
-                            }
-                            return await nextEntry();
-                        };
-                        return await nextModule();
+                for (const entry of queue) {
+                    const identifier = entry.name.substring(folder.length);
+                    const context = new view.Context(entryContext, identifier, entry.stream);
+                    const modules = this._filter(context);
+                    for (const id of modules) {
+                        /* eslint-disable no-await-in-loop */
+                        const module = await this._host.require(id);
+                        /* eslint-enable no-await-in-loop */
+                        if (!module.ModelFactory) {
+                            throw new view.ArchiveError("Failed to load module '" + id + "'.", null);
+                        }
+                        const modelFactory = new module.ModelFactory();
+                        if (modelFactory.match(context)) {
+                            matches.push(context);
+                            break;
+                        }
                     }
-                    if (matches.length === 0) {
-                        return null;
-                    }
-                    // MXNet
-                    if (matches.length === 2 &&
-                        matches.some((context) => context.identifier.toLowerCase().endsWith('.params')) &&
-                        matches.some((context) => context.identifier.toLowerCase().endsWith('-symbol.json'))) {
-                        matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.params'));
-                    }
-                    // TensorFlow.js
-                    if (matches.length > 0 &&
-                        matches.some((context) => context.identifier.toLowerCase().endsWith('.bin')) &&
-                        matches.some((context) => context.identifier.toLowerCase().endsWith('.json'))) {
-                        matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.json'));
-                    }
-                    // ncnn
-                    if (matches.length > 0 &&
-                        matches.some((context) => context.identifier.toLowerCase().endsWith('.bin')) &&
-                        matches.some((context) => context.identifier.toLowerCase().endsWith('.param'))) {
-                        matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.param'));
-                    }
-                    // ncnn
-                    if (matches.length > 0 &&
-                        matches.some((context) => context.identifier.toLowerCase().endsWith('.bin')) &&
-                        matches.some((context) => context.identifier.toLowerCase().endsWith('.param.bin'))) {
-                        matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.param.bin'));
-                    }
-                    // NNEF
-                    if (matches.length > 0 &&
-                        matches.some((context) => context.identifier.toLowerCase().endsWith('.nnef')) &&
-                        matches.some((context) => context.identifier.toLowerCase().endsWith('.dat'))) {
-                        matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.nnef'));
-                    }
-                    // Paddle
-                    if (matches.length > 0 &&
-                        matches.some((context) => context.identifier.toLowerCase().endsWith('.pdmodel')) &&
-                        (matches.some((context) => context.identifier.toLowerCase().endsWith('.pdparams')) ||
-                            matches.some((context) => context.identifier.toLowerCase().endsWith('.pdopt')) ||
-                            matches.some((context) => context.identifier.toLowerCase().endsWith('.pdiparams')))) {
-                        matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.pdmodel'));
-                    }
-                    // Paddle Lite
-                    if (matches.length > 0 &&
-                        matches.some((context) => context.identifier.toLowerCase().split('/').pop() === '__model__.nb') &&
-                        matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'param.nb')) {
-                        matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == '__model__.nb');
-                    }
-                    // TensorFlow Bundle
-                    if (matches.length > 1 &&
-                        matches.some((context) => context.identifier.toLowerCase().endsWith('.data-00000-of-00001'))) {
-                        matches = matches.filter((context) => !context.identifier.toLowerCase().endsWith('.data-00000-of-00001'));
-                    }
-                    // TensorFlow SavedModel
-                    if (matches.length === 2 &&
-                        matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'keras_metadata.pb')) {
-                        matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() !== 'keras_metadata.pb');
-                    }
-                    // Keras
-                    if (matches.length === 3 &&
-                        matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'model.weights.h5' || context.identifier.toLowerCase().split('/').pop() === 'model.weights.npz') &&
-                        matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'config.json') &&
-                        matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'metadata.json')) {
-                        matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == 'model.weights.h5' || context.identifier.toLowerCase().split('/').pop() === 'model.weights.npz');
-                    }
-                    if (matches.length === 2 &&
-                        matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'model.weights.h5' || context.identifier.toLowerCase().split('/').pop() === 'model.weights.npz') &&
-                        matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'config.json')) {
-                        matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == 'model.weights.h5' || context.identifier.toLowerCase().split('/').pop() === 'model.weights.npz');
-                    }
-                    if (matches.length === 2 &&
-                        matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'config.json') &&
-                        matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'metadata.json')) {
-                        matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == 'config.json');
-                    }
-                    // Hailo
-                    if (matches.length >= 2 &&
-                        matches.some((context) => context.identifier.toLowerCase().endsWith('.metadata.json'))) {
-                        matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.metadata.json'));
-                    }
-                    if (matches.length > 1) {
-                        throw new view.ArchiveError('Archive contains multiple model files.');
-                    }
-                    const match = matches.shift();
-                    return match;
-                };
-                return await nextEntry();
+                }
+                if (matches.length === 0) {
+                    return null;
+                }
+                // MXNet
+                if (matches.length === 2 &&
+                    matches.some((context) => context.identifier.toLowerCase().endsWith('.params')) &&
+                    matches.some((context) => context.identifier.toLowerCase().endsWith('-symbol.json'))) {
+                    matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.params'));
+                }
+                // TensorFlow.js
+                if (matches.length > 0 &&
+                    matches.some((context) => context.identifier.toLowerCase().endsWith('.bin')) &&
+                    matches.some((context) => context.identifier.toLowerCase().endsWith('.json'))) {
+                    matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.json'));
+                }
+                // ncnn
+                if (matches.length > 0 &&
+                    matches.some((context) => context.identifier.toLowerCase().endsWith('.bin')) &&
+                    matches.some((context) => context.identifier.toLowerCase().endsWith('.param'))) {
+                    matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.param'));
+                }
+                // ncnn
+                if (matches.length > 0 &&
+                    matches.some((context) => context.identifier.toLowerCase().endsWith('.bin')) &&
+                    matches.some((context) => context.identifier.toLowerCase().endsWith('.param.bin'))) {
+                    matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.param.bin'));
+                }
+                // NNEF
+                if (matches.length > 0 &&
+                    matches.some((context) => context.identifier.toLowerCase().endsWith('.nnef')) &&
+                    matches.some((context) => context.identifier.toLowerCase().endsWith('.dat'))) {
+                    matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.nnef'));
+                }
+                // Paddle
+                if (matches.length > 0 &&
+                    matches.some((context) => context.identifier.toLowerCase().endsWith('.pdmodel')) &&
+                    (matches.some((context) => context.identifier.toLowerCase().endsWith('.pdparams')) ||
+                        matches.some((context) => context.identifier.toLowerCase().endsWith('.pdopt')) ||
+                        matches.some((context) => context.identifier.toLowerCase().endsWith('.pdiparams')))) {
+                    matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.pdmodel'));
+                }
+                // Paddle Lite
+                if (matches.length > 0 &&
+                    matches.some((context) => context.identifier.toLowerCase().split('/').pop() === '__model__.nb') &&
+                    matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'param.nb')) {
+                    matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == '__model__.nb');
+                }
+                // TensorFlow Bundle
+                if (matches.length > 1 &&
+                    matches.some((context) => context.identifier.toLowerCase().endsWith('.data-00000-of-00001'))) {
+                    matches = matches.filter((context) => !context.identifier.toLowerCase().endsWith('.data-00000-of-00001'));
+                }
+                // TensorFlow SavedModel
+                if (matches.length === 2 &&
+                    matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'keras_metadata.pb')) {
+                    matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() !== 'keras_metadata.pb');
+                }
+                // Keras
+                if (matches.length === 3 &&
+                    matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'model.weights.h5' || context.identifier.toLowerCase().split('/').pop() === 'model.weights.npz') &&
+                    matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'config.json') &&
+                    matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'metadata.json')) {
+                    matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == 'model.weights.h5' || context.identifier.toLowerCase().split('/').pop() === 'model.weights.npz');
+                }
+                if (matches.length === 2 &&
+                    matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'model.weights.h5' || context.identifier.toLowerCase().split('/').pop() === 'model.weights.npz') &&
+                    matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'config.json')) {
+                    matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == 'model.weights.h5' || context.identifier.toLowerCase().split('/').pop() === 'model.weights.npz');
+                }
+                if (matches.length === 2 &&
+                    matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'config.json') &&
+                    matches.some((context) => context.identifier.toLowerCase().split('/').pop() === 'metadata.json')) {
+                    matches = matches.filter((context) => context.identifier.toLowerCase().split('/').pop() == 'config.json');
+                }
+                // Hailo
+                if (matches.length >= 2 &&
+                    matches.some((context) => context.identifier.toLowerCase().endsWith('.metadata.json'))) {
+                    matches = matches.filter((context) => context.identifier.toLowerCase().endsWith('.metadata.json'));
+                }
+                if (matches.length > 1) {
+                    throw new view.ArchiveError('Archive contains multiple model files.');
+                }
+                const match = matches.shift();
+                return match;
             };
             const queue = files.slice(0).filter((entry) => entry.name.substring(folder.length).indexOf('/') < 0);
-            const context = await filter(queue);
+            const context = await filter(queue, entries);
             if (!context) {
                 const queue = files.slice(0).filter((entry) => entry.name.substring(folder.length).indexOf('/') >= 0);
-                return await filter(queue);
+                return await filter(queue, entries);
             }
             return context;
         } catch (error) {
