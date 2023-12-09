@@ -4066,6 +4066,7 @@ python.Execution = class {
         this.registerType('torch.nn.modules.activation.Softmax', class extends torch.nn.Module {});
         this.registerType('torch.nn.modules.activation.Softmax2d', class extends torch.nn.Module {});
         this.registerType('torch.nn.modules.activation.Softplus', class extends torch.nn.Module {});
+        this.registerType('torch.nn.modules.activation.Softshrink', class extends torch.nn.Module {});
         this.registerType('torch.nn.modules.activation.Softsign', class extends torch.nn.Module {});
         this.registerType('torch.nn.modules.activation.Tanh', class extends torch.nn.Module {});
         this.registerType('torch.nn.modules.activation.Tanhshrink', class extends torch.nn.Module {});
@@ -4120,11 +4121,13 @@ python.Execution = class {
         this.registerType('torch.nn.modules.loss.BCELoss', class extends torch.nn.modules.loss._Loss {});
         this.registerType('torch.nn.modules.loss.BCEWithLogitsLoss', class extends torch.nn.modules.loss._Loss {});
         this.registerType('torch.nn.modules.loss.CrossEntropyLoss', class extends torch.nn.modules.loss._Loss {});
+        this.registerType('torch.nn.modules.loss.CosineEmbeddingLoss', class extends torch.nn.modules.loss._Loss {});
         this.registerType('torch.nn.modules.loss.CTCLoss', class extends torch.nn.modules.loss._Loss {});
         this.registerType('torch.nn.modules.loss.GaussianNLLLoss', class extends torch.nn.modules.loss._Loss {});
         this.registerType('torch.nn.modules.loss.KLDivLoss', class extends torch.nn.modules.loss._Loss {});
         this.registerType('torch.nn.modules.loss.L1Loss', class extends torch.nn.modules.loss._Loss {});
         this.registerType('torch.nn.modules.loss.MarginRankingLoss', class extends torch.nn.modules.loss._Loss {});
+        this.registerType('torch.nn.modules.loss.MultiLabelMarginLoss', class extends torch.nn.modules.loss._Loss {});
         this.registerType('torch.nn.modules.loss.MSELoss', class extends torch.nn.modules.loss._Loss {});
         this.registerType('torch.nn.modules.loss.NLLLoss', class extends torch.nn.modules.loss._WeightedLoss {});
         this.registerType('torch.nn.modules.loss.NLLLoss2d', class extends torch.nn.modules.loss.NLLLoss {});
@@ -4217,6 +4220,9 @@ python.Execution = class {
         this.registerType('torch.ao.nn.quantizable.modules.activation.MultiheadAttention', class extends torch.nn.modules.activation.MultiheadAttention {});
         this.registerType('torch.ao.nn.quantized.modules.activation.MultiheadAttention', class extends torch.ao.nn.quantizable.modules.activation.MultiheadAttention {});
         this.registerType('torch.ao.nn.quantized.modules.utils.WeightedQuantizedModule', class extends torch.nn.Module {});
+        this.registerType('torch.ao.nn.quantized.modules.batchnorm._BatchNorm',  class extends torch.nn.modules.batchnorm._BatchNorm {});
+        this.registerType('torch.ao.nn.quantized.modules.batchnorm.BatchNorm2d', class extends torch.ao.nn.quantized.modules.batchnorm._BatchNorm {});
+        this.registerType('torch.ao.nn.quantized.modules.conv.Conv1d', class extends torch.nn.Module {});
         this.registerType('torch.ao.nn.quantized.modules.conv.Conv2d', class extends torch.nn.Module {});
         this.registerType('torch.ao.nn.quantized.modules.conv._ConvNd', class extends torch.ao.nn.quantized.modules.utils.WeightedQuantizedModule {});
         this.registerType('torch.ao.nn.quantized.modules.conv._ConvTransposeNd', class extends torch.ao.nn.quantized.modules.conv._ConvNd {});
@@ -4394,6 +4400,7 @@ python.Execution = class {
         this.registerType('torchvision.transforms.transforms.Compose', class {});
         this.registerType('torchvision.transforms.transforms.CenterCrop', class {});
         this.registerType('torchvision.transforms.transforms.Grayscale', class {});
+        this.registerType('torchvision.transforms.transforms.Lambda', class {});
         this.registerType('torchvision.transforms.transforms.Normalize', class {});
         this.registerType('torchvision.transforms.transforms.RandomAffine', class {});
         this.registerType('torchvision.transforms.transforms.RandomCrop', class {});
