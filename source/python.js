@@ -4219,6 +4219,7 @@ python.Execution = class {
         this.registerType('torch.nn.quantized.modules.Quantize', class {});
         this.registerType('torch.ao.nn.quantizable.modules.activation.MultiheadAttention', class extends torch.nn.modules.activation.MultiheadAttention {});
         this.registerType('torch.ao.nn.quantized.modules.activation.MultiheadAttention', class extends torch.ao.nn.quantizable.modules.activation.MultiheadAttention {});
+        this.registerType('torch.ao.nn.quantized.modules.activation.ReLU6', class extends torch.nn.modules.activation.ReLU {});
         this.registerType('torch.ao.nn.quantized.modules.utils.WeightedQuantizedModule', class extends torch.nn.Module {});
         this.registerType('torch.ao.nn.quantized.modules.batchnorm._BatchNorm',  class extends torch.nn.modules.batchnorm._BatchNorm {});
         this.registerType('torch.ao.nn.quantized.modules.batchnorm.BatchNorm2d', class extends torch.ao.nn.quantized.modules.batchnorm._BatchNorm {});
@@ -4416,6 +4417,7 @@ python.Execution = class {
         this.registerFunction('torchvision.models.resnet.resnet50', function() {});
         this.registerFunction('torchvision.models.resnet.resnet101', function() {});
         this.registerFunction('torchvision.models.resnet.resnet152', function() {});
+        this.registerFunction('torchvision.models.vision_transformer.vit_h_14', function() {});
         this.registerFunction('torchvision.ops.boxes.box_iou', function (/* boxes1, boxes2 */) {
             throw new python.Error("'torchvision.ops.boxes.box_iou' not implemented.");
         });
