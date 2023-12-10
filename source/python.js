@@ -3939,6 +3939,9 @@ python.Execution = class {
         this.registerFunction('numpy.random._pickle.__randomstate_ctor', function() {
             return {};
         });
+        this.registerFunction('numpy.random._pickle.__bit_generator_ctor', function() {
+            throw new python.Error("'numpy.random._pickle.__bit_generator_ctor' not implemented.");
+        });
         this.registerFunction('numpy.core.numeric._frombuffer', function(/* buf, dtype, shape, order */) {
             return {};
         });

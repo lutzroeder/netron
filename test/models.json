@@ -4505,6 +4505,14 @@
     "link":     "https://github.com/omdv/robinhood-portfolio/tree/4622dc61e0556a85ce52c4de178d01a9838acbc5"
   },
   {
+    "type":     "pickle",
+    "target":   "word2vec.model",
+    "source":   "https://github.com/lutzroeder/netron/files/13628139/word2vec.model.zip[word2vec.model]",
+    "format":   "Pickle",
+    "error":    "Unsupported Pickle type 'gensim.models.word2vec.Word2Vec'.",
+    "link":     "https://github.com/lutzroeder/netron/issues/901"
+  },
+  {
     "type":     "pytorch",
     "target":   "add.pte",
     "source":   "https://github.com/lutzroeder/netron/files/13156981/add.pte.zip[add.pte]",
